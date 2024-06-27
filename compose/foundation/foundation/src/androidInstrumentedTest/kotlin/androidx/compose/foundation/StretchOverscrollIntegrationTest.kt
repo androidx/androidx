@@ -51,7 +51,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Integration test for stretch overscroll with [scrollable] and [nestedScroll]. */
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 @RunWith(AndroidJUnit4::class)
@@ -115,15 +114,15 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax all the way, and continue into a scroll in the other direction
+            // Relax all the way, and continue into a scroll in the other direction with 200 excess
             moveBy(Offset(400f, 0f))
         }
 
         rule.runOnIdle {
-            // Since overscroll fully relaxed, some delta should be available again
-            assertThat(state.onPreScrollAvailable.x).isGreaterThan(-400f)
+            // Since overscroll fully relaxed, there should be 200 excess
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(-200f)
             // The scroll will consume the new delta
-            assertThat(state.scrollPosition).isLessThan(1000f)
+            assertThat(state.scrollPosition).isEqualTo(800f)
             // So post scroll will be unchanged at this point
             assertThat(state.onPostScrollAvailable.x).isEqualTo(-400f)
         }
@@ -165,11 +164,11 @@ class StretchOverscrollIntegrationTest {
 
     /**
      * Test case to make sure that stretch overscroll correctly consumes delta before the scroll
-     * cycle when relaxing with a fling. Fling left = showing overscroll from the right edge because
-     * of reverse scrolling
+     * cycle when relaxing with a low velocity fling. Fling left = showing overscroll from the right
+     * edge because of reverse scrolling
      */
     @Test
-    fun stretchOverscroll_consumesDelta_flingLeft_relax() {
+    fun stretchOverscroll_consumesDelta_flingLeft_relax_lowVelocity() {
         val state = setStretchOverscrollContent(Orientation.Horizontal)
         // Move to the end, since flinging left requires us to be at the right edge
         state.dispatchRawDelta(1000f)
@@ -191,16 +190,74 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax by 100 (so there will still be velocity left over to relax the overscroll)
-            moveBy(Offset(100f, 0f))
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a low velocity
+            // (since we have a lot of small moves, over a long period of time) left over to relax
+            // the stretch with. Note that events with a duration longer than 40ms between them are
+            // ignored by velocity tracker, so we can't add a large delay between events.
+            repeat(100) { moveBy(Offset(1f, 0f)) }
             up()
         }
 
         rule.runOnIdle {
-            // When relaxing, overscroll will consume before the scroll cycle
+            // The velocity here will be lower than required to fully relax the stretch, so all
+            // velocity should be consumed, and the overscroll should relax to 0.
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(-200f)
             assertThat(state.onPreFlingAvailable.x).isEqualTo(0f)
             assertThat(state.scrollPosition).isEqualTo(1000f)
             assertThat(state.onPostFlingAvailable.x).isEqualTo(0f)
+        }
+    }
+
+    /**
+     * Test case to make sure that stretch overscroll does not consume delta before the scroll cycle
+     * when relaxing with a high velocity fling (instead the stretch will be relaxed as part of the
+     * scroll cycle). Fling left = showing overscroll from the right edge because of reverse
+     * scrolling
+     */
+    @Test
+    fun stretchOverscroll_consumesDelta_flingLeft_relax_highVelocity() {
+        val state = setStretchOverscrollContent(Orientation.Horizontal)
+        // Move to the end, since flinging left requires us to be at the right edge
+        state.dispatchRawDelta(1000f)
+        rule.runOnIdle { assertThat(state.scrollPosition).isEqualTo(1000f) }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(-200f, 0f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(-200f)
+            // No fling yet
+            assertThat(state.onPreFlingAvailable.x).isEqualTo(0f)
+            assertThat(state.scrollPosition).isEqualTo(1000f)
+            assertThat(state.onPostFlingAvailable.x).isEqualTo(0f)
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a high velocity
+            // (since we have two large moves, over a short period of time) left over to relax
+            // the stretch with.
+            moveBy(Offset(50f, 0f))
+            moveBy(Offset(50f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            // The velocity here will be higher than required to fully relax the stretch, so instead
+            // of consuming velocity, we will instead relax the stretch as part of the fling. As a
+            // result there should be some pre fling available, before we perform the fling
+            assertThat(state.onPreFlingAvailable.x).isGreaterThan(0f)
+            // There will be some leftover delta after relaxing the overscroll for pre scroll
+            assertThat(state.onPreScrollAvailable.x).isGreaterThan(-200f)
+            // The scroll will consume the leftover velocity after relaxing
+            assertThat(state.scrollPosition).isLessThan(1000f)
         }
     }
 
@@ -257,15 +314,15 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax all the way, and continue into a scroll in the other direction
+            // Relax all the way, and continue into a scroll in the other direction with 200 excess
             moveBy(Offset(0f, 400f))
         }
 
         rule.runOnIdle {
-            // Since overscroll fully relaxed, some delta should be available again
-            assertThat(state.onPreScrollAvailable.y).isGreaterThan(-400f)
+            // Since overscroll fully relaxed, there should be 200 excess
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(-200f)
             // The scroll will consume the new delta
-            assertThat(state.scrollPosition).isLessThan(1000f)
+            assertThat(state.scrollPosition).isEqualTo(800f)
             // So post scroll will be unchanged at this point
             assertThat(state.onPostScrollAvailable.y).isEqualTo(-400f)
         }
@@ -307,11 +364,11 @@ class StretchOverscrollIntegrationTest {
 
     /**
      * Test case to make sure that stretch overscroll correctly consumes delta before the scroll
-     * cycle when relaxing with a fling. Fling top (up) = showing overscroll from the bottom edge
-     * because of reverse scrolling
+     * cycle when relaxing with a low velocity fling. Fling top (up) = showing overscroll from the
+     * bottom edge because of reverse scrolling
      */
     @Test
-    fun stretchOverscroll_consumesDelta_flingTop_relax() {
+    fun stretchOverscroll_consumesDelta_flingTop_relax_lowVelocity() {
         val state = setStretchOverscrollContent(Orientation.Vertical)
         // Move to the end, since flinging up requires us to be at the bottom edge
         state.dispatchRawDelta(1000f)
@@ -333,16 +390,74 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax by 100 (so there will still be velocity left over to relax the overscroll)
-            moveBy(Offset(0f, 100f))
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a low velocity
+            // (since we have a lot of small moves, over a long period of time) left over to relax
+            // the stretch with. Note that events with a duration longer than 40ms between them are
+            // ignored by velocity tracker, so we can't add a large delay between events.
+            repeat(100) { moveBy(Offset(0f, 1f)) }
             up()
         }
 
         rule.runOnIdle {
-            // When relaxing, overscroll will consume before the scroll cycle
+            // The velocity here will be lower than required to fully relax the stretch, so all
+            // velocity should be consumed, and the overscroll should relax to 0.
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(-200f)
             assertThat(state.onPreFlingAvailable.y).isEqualTo(0f)
             assertThat(state.scrollPosition).isEqualTo(1000f)
             assertThat(state.onPostFlingAvailable.y).isEqualTo(0f)
+        }
+    }
+
+    /**
+     * Test case to make sure that stretch overscroll does not consume delta before the scroll cycle
+     * when relaxing with a high velocity fling (instead the stretch will be relaxed as part of the
+     * scroll cycle). Fling top (up) = showing overscroll from the bottom edge because of reverse
+     * scrolling
+     */
+    @Test
+    fun stretchOverscroll_consumesDelta_flingTop_relax_highVelocity() {
+        val state = setStretchOverscrollContent(Orientation.Vertical)
+        // Move to the end, since flinging up requires us to be at the bottom edge
+        state.dispatchRawDelta(1000f)
+        rule.runOnIdle { assertThat(state.scrollPosition).isEqualTo(1000f) }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(0f, -200f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(-200f)
+            // No fling yet
+            assertThat(state.onPreFlingAvailable.y).isEqualTo(0f)
+            assertThat(state.scrollPosition).isEqualTo(1000f)
+            assertThat(state.onPostFlingAvailable.y).isEqualTo(0f)
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a high velocity
+            // (since we have two large moves, over a short period of time) left over to relax
+            // the stretch with.
+            moveBy(Offset(0f, 50f))
+            moveBy(Offset(0f, 50f))
+            up()
+        }
+
+        rule.runOnIdle {
+            // The velocity here will be higher than required to fully relax the stretch, so instead
+            // of consuming velocity, we will instead relax the stretch as part of the fling. As a
+            // result there should be some pre fling available, before we perform the fling
+            assertThat(state.onPreFlingAvailable.y).isGreaterThan(0f)
+            // There will be some leftover delta after relaxing the overscroll for pre scroll
+            assertThat(state.onPreScrollAvailable.y).isGreaterThan(-200f)
+            // The scroll will consume the leftover velocity after relaxing
+            assertThat(state.scrollPosition).isLessThan(1000f)
         }
     }
 
@@ -396,15 +511,15 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax all the way, and continue into a scroll in the other direction
+            // Relax all the way, and continue into a scroll in the other direction with 200 excess
             moveBy(Offset(-400f, 0f))
         }
 
         rule.runOnIdle {
-            // Since overscroll fully relaxed, some delta should be available again
-            assertThat(state.onPreScrollAvailable.x).isLessThan(400f)
+            // Since overscroll fully relaxed, there should be 200 excess
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(200f)
             // The scroll will consume the new delta
-            assertThat(state.scrollPosition).isGreaterThan(0f)
+            assertThat(state.scrollPosition).isEqualTo(200f)
             // So post scroll will be unchanged at this point
             assertThat(state.onPostScrollAvailable.x).isEqualTo(400f)
         }
@@ -443,11 +558,11 @@ class StretchOverscrollIntegrationTest {
 
     /**
      * Test case to make sure that stretch overscroll correctly consumes delta before the scroll
-     * cycle when relaxing with a fling. Fling right = showing overscroll from the left edge because
-     * of reverse scrolling
+     * cycle when relaxing with a low velocity fling. Fling right = showing overscroll from the left
+     * edge because of reverse scrolling
      */
     @Test
-    fun stretchOverscroll_consumesDelta_flingRight_relax() {
+    fun stretchOverscroll_consumesDelta_flingRight_relax_lowVelocity() {
         val state = setStretchOverscrollContent(Orientation.Horizontal)
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
@@ -466,16 +581,71 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax by 100 (so there will still be velocity left over to relax the overscroll)
-            moveBy(Offset(-100f, 0f))
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a low velocity
+            // (since we have a lot of small moves, over a long period of time) left over to relax
+            // the stretch with. Note that events with a duration longer than 40ms between them are
+            // ignored by velocity tracker, so we can't add a large delay between events.
+            repeat(100) { moveBy(Offset(-1f, 0f)) }
             up()
         }
 
         rule.runOnIdle {
-            // When relaxing, overscroll will consume before the scroll cycle
+            // The velocity here will be lower than required to fully relax the stretch, so all
+            // velocity should be consumed, and the overscroll should relax to 0.
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(200f)
             assertThat(state.onPreFlingAvailable.x).isEqualTo(0f)
             assertThat(state.scrollPosition).isEqualTo(0f)
             assertThat(state.onPostFlingAvailable.x).isEqualTo(0f)
+        }
+    }
+
+    /**
+     * Test case to make sure that stretch overscroll does not consume delta before the scroll cycle
+     * when relaxing with a high velocity fling (instead the stretch will be relaxed as part of the
+     * scroll cycle). Fling right = showing overscroll from the left edge because of reverse
+     * scrolling
+     */
+    @Test
+    fun stretchOverscroll_consumesDelta_flingRight_relax_highVelocity() {
+        val state = setStretchOverscrollContent(Orientation.Horizontal)
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(200f, 0f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(200f)
+            // No fling yet
+            assertThat(state.onPreFlingAvailable.x).isEqualTo(0f)
+            assertThat(state.scrollPosition).isEqualTo(0f)
+            assertThat(state.onPostFlingAvailable.x).isEqualTo(0f)
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a high velocity
+            // (since we have two large moves, over a short period of time) left over to relax
+            // the stretch with.
+            moveBy(Offset(-50f, 0f))
+            moveBy(Offset(-50f, 0f))
+            up()
+        }
+
+        rule.runOnIdle {
+            // The velocity here will be higher than required to fully relax the stretch, so instead
+            // of consuming velocity, we will instead relax the stretch as part of the fling. As a
+            // result there should be some pre fling available, before we perform the fling
+            assertThat(state.onPreFlingAvailable.x).isLessThan(0f)
+            // There will be some leftover delta after relaxing the overscroll for pre scroll
+            assertThat(state.onPreScrollAvailable.x).isLessThan(200f)
+            // The scroll will consume the leftover velocity after relaxing
+            assertThat(state.scrollPosition).isGreaterThan(0f)
         }
     }
 
@@ -529,15 +699,15 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax all the way, and continue into a scroll in the other direction
+            // Relax all the way, and continue into a scroll in the other direction with 200 excess
             moveBy(Offset(0f, -400f))
         }
 
         rule.runOnIdle {
-            // Since overscroll fully relaxed, some delta should be available again
-            assertThat(state.onPreScrollAvailable.y).isLessThan(400f)
+            // Since overscroll fully relaxed, there should be 200 excess
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(200f)
             // The scroll will consume the new delta
-            assertThat(state.scrollPosition).isGreaterThan(0f)
+            assertThat(state.scrollPosition).isEqualTo(200f)
             // So post scroll will be unchanged at this point
             assertThat(state.onPostScrollAvailable.y).isEqualTo(400f)
         }
@@ -576,11 +746,11 @@ class StretchOverscrollIntegrationTest {
 
     /**
      * Test case to make sure that stretch overscroll correctly consumes delta before the scroll
-     * cycle when relaxing with a fling. Fling bottom (down) = showing overscroll from the top edge
-     * because of reverse scrolling
+     * cycle when relaxing with a low velocity fling. Fling bottom (down) = showing overscroll from
+     * the top edge because of reverse scrolling
      */
     @Test
-    fun stretchOverscroll_consumesDelta_flingBottom_relax() {
+    fun stretchOverscroll_consumesDelta_flingBottom_relax_lowVelocity() {
         val state = setStretchOverscrollContent(Orientation.Vertical)
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
@@ -599,16 +769,71 @@ class StretchOverscrollIntegrationTest {
         }
 
         rule.onNodeWithTag(OverscrollBox).performTouchInput {
-            // Relax by 100 (so there will still be velocity left over to relax the overscroll)
-            moveBy(Offset(0f, -100f))
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a low velocity
+            // (since we have a lot of small moves, over a long period of time) left over to relax
+            // the stretch with. Note that events with a duration longer than 40ms between them are
+            // ignored by velocity tracker, so we can't add a large delay between events.
+            repeat(100) { moveBy(Offset(0f, -1f)) }
             up()
         }
 
         rule.runOnIdle {
-            // When relaxing, overscroll will consume before the scroll cycle
+            // The velocity here will be lower than required to fully relax the stretch, so all
+            // velocity should be consumed, and the overscroll should relax to 0.
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(200f)
             assertThat(state.onPreFlingAvailable.y).isEqualTo(0f)
             assertThat(state.scrollPosition).isEqualTo(0f)
             assertThat(state.onPostFlingAvailable.y).isEqualTo(0f)
+        }
+    }
+
+    /**
+     * Test case to make sure that stretch overscroll does not consume delta before the scroll cycle
+     * when relaxing with a high velocity fling (instead the stretch will be relaxed as part of the
+     * scroll cycle). Fling bottom (down) = showing overscroll from the top edge because of reverse
+     * scrolling
+     */
+    @Test
+    fun stretchOverscroll_doesNotConsumeDelta_flingBottom_relax_highVelocity() {
+        val state = setStretchOverscrollContent(Orientation.Vertical)
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(0f, 200f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(200f)
+            // No fling yet
+            assertThat(state.onPreFlingAvailable.y).isEqualTo(0f)
+            assertThat(state.scrollPosition).isEqualTo(0f)
+            assertThat(state.onPostFlingAvailable.y).isEqualTo(0f)
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // TODO: use test API when VelocityPathFinder is made public / there is another API to
+            //  start a fling after some previous move events
+            // Relax by a total of 100: there will be 100 stretch left, and a high velocity
+            // (since we have two large moves, over a short period of time) left over to relax
+            // the stretch with.
+            moveBy(Offset(0f, -50f))
+            moveBy(Offset(0f, -50f))
+            up()
+        }
+
+        rule.runOnIdle {
+            // The velocity here will be higher than required to fully relax the stretch, so instead
+            // of consuming velocity, we will instead relax the stretch as part of the fling. As a
+            // result there should be some pre fling available, before we perform the fling
+            assertThat(state.onPreFlingAvailable.y).isLessThan(0f)
+            // There will be some leftover delta after relaxing the overscroll for pre scroll
+            assertThat(state.onPreScrollAvailable.y).isLessThan(200f)
+            // The scroll will consume the leftover velocity after relaxing
+            assertThat(state.scrollPosition).isGreaterThan(0f)
         }
     }
 
@@ -729,7 +954,7 @@ class StretchOverscrollIntegrationTest {
                     ScrollableDefaults.overscrollEffect() as AndroidEdgeEffectOverscrollEffect
                 Box(
                     Modifier.testTag(OverscrollBox)
-                        .size(100.dp)
+                        .size(250.dp)
                         .nestedScroll(state.nestedScrollConnection)
                         .scrollable(
                             state = state,
