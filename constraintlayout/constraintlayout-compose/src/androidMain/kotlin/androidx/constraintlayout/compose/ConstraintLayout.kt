@@ -1874,6 +1874,13 @@ internal open class Measurer(
         measurables: List<Measurable>,
         optimizationLevel: Int
     ): IntSize {
+        if (measurables.isEmpty()) {
+            // TODO(b/335524398): Behavior with zero children is unexpected. It's also inconsistent
+            //      with ViewGroup, so this is a workaround to handle those cases the way it seems
+            //      right for this implementation.
+            return IntSize(constraints.minWidth, constraints.minHeight)
+        }
+
         // Define the size of the ConstraintLayout.
         state.width(
             if (constraints.hasFixedWidth) {
