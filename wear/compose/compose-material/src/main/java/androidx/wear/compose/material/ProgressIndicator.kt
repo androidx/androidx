@@ -63,7 +63,8 @@ import kotlin.math.min
  *
  * [CircularProgressIndicator] supports a gap in the circular track between [endAngle] and
  * [startAngle], which leaves room for other content, such as [TimeText] at the top of the screen.
- * Example:
+ * This sample also shows how to disable accessibility semantics for the fullscreen
+ * [CircularProgressIndicator]:
  *
  * @sample androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
  * @param modifier Modifier to be applied to the CircularProgressIndicator

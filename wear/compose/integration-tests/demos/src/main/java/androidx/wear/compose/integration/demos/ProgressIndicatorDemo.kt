@@ -31,6 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material.Button
@@ -95,7 +96,7 @@ public fun ProgressWithCustomAngles() {
             startAngle = startAngle,
             endAngle = endAngle,
             progress = animatedProgress,
-            modifier = Modifier.fillMaxSize().padding(all = 1.dp)
+            modifier = Modifier.clearAndSetSemantics {}.fillMaxSize().padding(all = 1.dp)
         )
     }
 }
@@ -165,7 +166,7 @@ public fun ProgressWithMedia() {
                     }
                     if (status == Status.Loading)
                         CircularProgressIndicator(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize().clearAndSetSemantics {},
                             startAngle = playerState.startOffsetAngle,
                             indicatorColor = MaterialTheme.colors.secondary,
                             trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
@@ -174,7 +175,7 @@ public fun ProgressWithMedia() {
                     else
                         CircularProgressIndicator(
                             progress = playerState.progress.value,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier.fillMaxSize().clearAndSetSemantics {},
                             startAngle = playerState.startOffsetAngle,
                             indicatorColor = MaterialTheme.colors.secondary,
                             trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
@@ -235,7 +236,7 @@ public fun TransformingCustomProgressIndicator() {
                     }
                     CircularProgressIndicator(
                         progress = transformState.progress.value,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize().clearAndSetSemantics {},
                         startAngle = transformState.startOffsetAngle,
                         indicatorColor = MaterialTheme.colors.secondary,
                         trackColor = MaterialTheme.colors.onBackground.copy(alpha = 0.1f),
