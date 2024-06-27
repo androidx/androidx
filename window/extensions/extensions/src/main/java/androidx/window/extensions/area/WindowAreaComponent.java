@@ -16,15 +16,12 @@
 
 package androidx.window.extensions.area;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.Build;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
@@ -163,20 +160,6 @@ public interface WindowAreaComponent {
 
     // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
     // the latest library.
-    /**
-     * @deprecated Use {@link #startRearDisplaySession(Activity, Consumer)}.
-     */
-    @RequiresVendorApiLevel(level = 2)
-    @Deprecated
-    @SuppressLint("ClassVerificationFailure")
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    default void startRearDisplaySession(@NonNull Activity activity,
-            @NonNull java.util.function.Consumer<@WindowAreaSessionState Integer> consumer) {
-        final Consumer<Integer> extensionsConsumer = consumer::accept;
-        startRearDisplaySession(activity, extensionsConsumer);
-    }
-
     /**
      * Ends a RearDisplaySession and sends [STATE_INACTIVE] to the consumer
      * provided in the {@code startRearDisplaySession} method. This method is only
