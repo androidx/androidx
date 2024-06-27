@@ -1128,7 +1128,7 @@ sealed interface Composer {
          * recompositions.
          */
         @InternalComposeTracingApi
-        fun setTracer(tracer: CompositionTracer) {
+        fun setTracer(tracer: CompositionTracer?) {
             compositionTracer = tracer
         }
     }
