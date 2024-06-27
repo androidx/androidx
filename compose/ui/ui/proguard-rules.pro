@@ -40,3 +40,10 @@
     # For methods returning Nothing
     static java.lang.Void throw*Exception(...);
 }
+
+# When pointer input modifier nodes are added dynamically and have the same keys (common when
+# developers `Unit` for their keys), we need a way to differentiate them and using a
+# functional interface and comparing classes allows us to do that.
+-keepnames class androidx.compose.ui.input.pointer.PointerInputEventHandler {
+    *;
+}
