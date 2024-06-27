@@ -38,6 +38,7 @@ androidx {
     inceptionYear = "2020"
     description = "Stubs for classes in older Android APIs"
     metalavaK2UastEnabled = true
+    doNotDocumentReason = "Not published to maven"
 }
 
 android {
