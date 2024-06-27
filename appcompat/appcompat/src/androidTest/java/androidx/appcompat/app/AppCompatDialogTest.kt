@@ -17,6 +17,7 @@
 package androidx.appcompat.app
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.test.core.app.ActivityScenario
@@ -69,7 +70,13 @@ class AppCompatDialogTest {
                 view = View(this)
                 AppCompatDialog(this)
             }
-            dialog.addContentView(view)
+            dialog.addContentView(
+                view,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
 
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
