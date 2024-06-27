@@ -40,7 +40,7 @@ internal open class KspTypeArgumentType(
 ) :
     KspType(
         env = env,
-        ksType = typeArg.requireType(),
+        ksType = ksType,
         originalKSAnnotations = originalKSAnnotations,
         scope = scope,
         typeAlias = typeAlias,
