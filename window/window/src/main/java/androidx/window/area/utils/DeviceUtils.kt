@@ -34,7 +34,7 @@ internal object DeviceUtils {
                     widthPixels = 1080
                     heightPixels = 2092
                     density = 2.625f
-                    densityDpi = 420
+                    densityDpi = DisplayMetrics.DENSITY_420
                 }
             )
         )
