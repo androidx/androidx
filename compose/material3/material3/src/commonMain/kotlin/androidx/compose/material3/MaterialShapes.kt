@@ -18,6 +18,8 @@ package androidx.compose.material3
 
 import androidx.compose.material3.internal.toPath
 import androidx.compose.material3.internal.transformed
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
@@ -43,39 +45,46 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Returns a normalized [Path] for this [RoundedPolygon].
+ * Returns a normalized [Path] that is remembered across compositions for this [RoundedPolygon].
  *
- * @param path a [Path] object which, if supplied, will avoid the function having to create a new
- *   [Path] object
  * @param startAngle an angle to rotate the Material shape's path to start drawing from. The
  *   rotation pivot is set to be the shape's centerX and centerY coordinates.
  * @see RoundedPolygon.normalized
  */
 @ExperimentalMaterial3ExpressiveApi
-fun RoundedPolygon.toPath(path: Path = Path(), startAngle: Int = 0): Path {
-    return this.toPath(path = path, startAngle = startAngle, repeatPath = false, closePath = true)
+@Composable
+fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
+    val path = remember { Path() }
+    return remember(this, startAngle) {
+        this.toPath(path = path, startAngle = startAngle, repeatPath = false, closePath = true)
+    }
 }
 
 /**
- * Returns a [Shape] for this [RoundedPolygon].
+ * Returns a [Shape] that is remembered across compositions for this [RoundedPolygon].
  *
  * @param startAngle an angle to rotate the Material shape's path to start drawing from. The
  *   rotation pivot is always set to be the shape's centerX and centerY coordinates.
  */
 @ExperimentalMaterial3ExpressiveApi
+@Composable
 fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
-    return object : Shape {
-        override fun createOutline(
-            size: Size,
-            layoutDirection: LayoutDirection,
-            density: Density
-        ): Outline {
-            val path = toPath(startAngle = startAngle)
-            val scaleMatrix = Matrix().apply { scale(x = size.width, y = size.height) }
-            // Scale and translate the path to align its center with the available size center.
-            path.transform(scaleMatrix)
-            path.translate(size.center - path.getBounds().center)
-            return Outline.Generic(path)
+    return remember(this, startAngle) {
+        object : Shape {
+            private val path: Path = toPath(startAngle = startAngle)
+
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
+                val scaleMatrix = Matrix().apply { scale(x = size.width, y = size.height) }
+                // Scale and translate the path to align its center with the available size
+                // center.
+                path.transform(scaleMatrix)
+                path.translate(size.center - path.getBounds().center)
+                return Outline.Generic(path)
+            }
         }
     }
 }
@@ -110,75 +119,146 @@ sealed class MaterialShapes {
         private val rotateNeg135 = Matrix().apply { rotateZ(-135f) }
         private val unrounded = CornerRounding.Unrounded
 
-        val Circle: RoundedPolygon by lazy { circle().normalized() }
+        private var _circle: RoundedPolygon? = null
+        private var _square: RoundedPolygon? = null
+        private var _slanted: RoundedPolygon? = null
+        private var _arch: RoundedPolygon? = null
+        private var _fan: RoundedPolygon? = null
+        private var _arrow: RoundedPolygon? = null
+        private var _semiCircle: RoundedPolygon? = null
+        private var _oval: RoundedPolygon? = null
+        private var _pill: RoundedPolygon? = null
+        private var _triangle: RoundedPolygon? = null
+        private var _diamond: RoundedPolygon? = null
+        private var _clamShell: RoundedPolygon? = null
+        private var _pentagon: RoundedPolygon? = null
+        private var _gem: RoundedPolygon? = null
+        private var _verySunny: RoundedPolygon? = null
+        private var _sunny: RoundedPolygon? = null
+        private var _cookie4Sided: RoundedPolygon? = null
+        private var _cookie6Sided: RoundedPolygon? = null
+        private var _cookie7Sided: RoundedPolygon? = null
+        private var _cookie9Sided: RoundedPolygon? = null
+        private var _cookie12Sided: RoundedPolygon? = null
+        private var _ghostish: RoundedPolygon? = null
+        private var _clover4Leaf: RoundedPolygon? = null
+        private var _clover8Leaf: RoundedPolygon? = null
+        private var _burst: RoundedPolygon? = null
+        private var _softBurst: RoundedPolygon? = null
+        private var _boom: RoundedPolygon? = null
+        private var _softBoom: RoundedPolygon? = null
+        private var _flower: RoundedPolygon? = null
+        private var _puffy: RoundedPolygon? = null
+        private var _puffyDiamond: RoundedPolygon? = null
+        private var _pixelCircle: RoundedPolygon? = null
+        private var _pixelTriangle: RoundedPolygon? = null
+        private var _bun: RoundedPolygon? = null
+        private var _heart: RoundedPolygon? = null
 
-        val Square: RoundedPolygon by lazy { square().normalized() }
+        val Circle
+            get() = _circle ?: circle().normalized().also { _circle = it }
 
-        val Slanted: RoundedPolygon by lazy { slanted().normalized() }
+        val Square
+            get() = _square ?: square().normalized().also { _square = it }
 
-        val Arch: RoundedPolygon by lazy { arch().normalized() }
+        val Slanted
+            get() = _slanted ?: slanted().normalized().also { _slanted = it }
 
-        val Fan: RoundedPolygon by lazy { fan().normalized() }
+        val Arch
+            get() = _arch ?: arch().normalized().also { _arch = it }
 
-        val Arrow: RoundedPolygon by lazy { arrow().normalized() }
+        val Fan
+            get() = _fan ?: fan().normalized().also { _fan = it }
 
-        val SemiCircle: RoundedPolygon by lazy { semiCircle().normalized() }
+        val Arrow
+            get() = _arrow ?: arrow().normalized().also { _arrow = it }
 
-        val Oval: RoundedPolygon by lazy { oval().normalized() }
+        val SemiCircle
+            get() = _semiCircle ?: semiCircle().normalized().also { _semiCircle = it }
 
-        val Pill: RoundedPolygon by lazy { pill().normalized() }
+        val Oval
+            get() = _oval ?: oval().normalized().also { _oval = it }
 
-        val Triangle: RoundedPolygon by lazy { triangle().normalized() }
+        val Pill
+            get() = _pill ?: pill().normalized().also { _pill = it }
 
-        val Diamond: RoundedPolygon by lazy { diamond().normalized() }
+        val Triangle
+            get() = _triangle ?: triangle().normalized().also { _triangle = it }
 
-        val ClamShell: RoundedPolygon by lazy { clamShell().normalized() }
+        val Diamond
+            get() = _diamond ?: diamond().normalized().also { _diamond = it }
 
-        val Pentagon: RoundedPolygon by lazy { pentagon().normalized() }
+        val ClamShell
+            get() = _clamShell ?: clamShell().normalized().also { _clamShell = it }
 
-        val Gem: RoundedPolygon by lazy { gem().normalized() }
+        val Pentagon
+            get() = _pentagon ?: pentagon().normalized().also { _pentagon = it }
 
-        val VerySunny: RoundedPolygon by lazy { verySunny().normalized() }
+        val Gem
+            get() = _gem ?: gem().normalized().also { _gem = it }
 
-        val Sunny: RoundedPolygon by lazy { sunny().normalized() }
+        val VerySunny
+            get() = _verySunny ?: verySunny().normalized().also { _verySunny = it }
 
-        val Cookie4Sided: RoundedPolygon by lazy { cookie4().normalized() }
+        val Sunny
+            get() = _sunny ?: sunny().normalized().also { _sunny = it }
 
-        val Cookie6Sided: RoundedPolygon by lazy { cookie6().normalized() }
+        val Cookie4Sided
+            get() = _cookie4Sided ?: cookie4().normalized().also { _cookie4Sided = it }
 
-        val Cookie7Sided: RoundedPolygon by lazy { cookie7().normalized() }
+        val Cookie6Sided
+            get() = _cookie6Sided ?: cookie6().normalized().also { _cookie6Sided = it }
 
-        val Cookie9Sided: RoundedPolygon by lazy { cookie9().normalized() }
+        val Cookie7Sided
+            get() = _cookie7Sided ?: cookie7().normalized().also { _cookie7Sided = it }
 
-        val Cookie12Sided: RoundedPolygon by lazy { cookie12().normalized() }
+        val Cookie9Sided
+            get() = _cookie9Sided ?: cookie9().normalized().also { _cookie9Sided = it }
 
-        val Ghostish: RoundedPolygon by lazy { ghostish().normalized() }
+        val Cookie12Sided
+            get() = _cookie12Sided ?: cookie12().normalized().also { _cookie12Sided = it }
 
-        val Clover4Leaf: RoundedPolygon by lazy { clover4().normalized() }
+        val Ghostish
+            get() = _ghostish ?: ghostish().normalized().also { _ghostish = it }
 
-        val Clover8Leaf: RoundedPolygon by lazy { clover8().normalized() }
+        val Clover4Leaf
+            get() = _clover4Leaf ?: clover4().normalized().also { _clover4Leaf = it }
 
-        val Burst: RoundedPolygon by lazy { burst().normalized() }
+        val Clover8Leaf
+            get() = _clover8Leaf ?: clover8().normalized().also { _clover8Leaf = it }
 
-        val SoftBurst: RoundedPolygon by lazy { softBurst().normalized() }
+        val Burst
+            get() = _burst ?: burst().normalized().also { _burst = it }
 
-        val Boom: RoundedPolygon by lazy { boom().normalized() }
+        val SoftBurst
+            get() = _softBurst ?: softBurst().normalized().also { _softBurst = it }
 
-        val SoftBoom: RoundedPolygon by lazy { softBoom().normalized() }
+        val Boom
+            get() = _boom ?: boom().normalized().also { _boom = it }
 
-        val Flower: RoundedPolygon by lazy { flower().normalized() }
+        val SoftBoom
+            get() = _softBoom ?: softBoom().normalized().also { _softBoom = it }
 
-        val Puffy: RoundedPolygon by lazy { puffy().normalized() }
+        val Flower
+            get() = _flower ?: flower().normalized().also { _flower = it }
 
-        val PuffyDiamond: RoundedPolygon by lazy { puffyDiamond().normalized() }
+        val Puffy
+            get() = _puffy ?: puffy().normalized().also { _puffy = it }
 
-        val PixelCircle: RoundedPolygon by lazy { pixelCircle().normalized() }
+        val PuffyDiamond
+            get() = _puffyDiamond ?: puffyDiamond().normalized().also { _puffyDiamond = it }
 
-        val PixelTriangle: RoundedPolygon by lazy { pixelTriangle().normalized() }
+        val PixelCircle
+            get() = _pixelCircle ?: pixelCircle().normalized().also { _pixelCircle = it }
 
-        val Bun: RoundedPolygon by lazy { bun().normalized() }
+        val PixelTriangle
+            get() = _pixelTriangle ?: pixelTriangle().normalized().also { _pixelTriangle = it }
 
-        val Heart: RoundedPolygon by lazy { heart().normalized() }
+        val Bun
+            get() = _bun ?: bun().normalized().also { _bun = it }
+
+        val Heart
+            get() = _heart ?: heart().normalized().also { _heart = it }
 
         internal fun circle(numVertices: Int = 10): RoundedPolygon {
             return RoundedPolygon.circle(numVertices = numVertices)
