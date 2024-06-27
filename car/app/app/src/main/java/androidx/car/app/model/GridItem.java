@@ -46,7 +46,6 @@ import java.util.Objects;
 public final class GridItem implements Item {
     /**
      * The type of images supported within grid items.
-     *
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
@@ -88,6 +87,7 @@ public final class GridItem implements Item {
     private final OnClickDelegate mOnClickDelegate;
     @Nullable
     private final Badge mBadge;
+    private final boolean mIndexable;
 
     /**
      * Returns whether the grid item is in a loading state.
@@ -156,6 +156,24 @@ public final class GridItem implements Item {
         return mBadge;
     }
 
+    /**
+     * Returns whether this item should be included in an indexed list.
+     *
+     * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to sort,
+     * partition, or filter a list. Indexing is generally used for features called "Accelerators",
+     * which allow a user to quickly find a particular {@link Item} in a long list.
+     *
+     * <p>To exclude a single item from indexed lists and accelerator features, use
+     * {@link Row.Builder#setIndexable(boolean)}.
+     *
+     * <p>To enable/disable accelerators for the entire list, see the API for the particular
+     * list-like {@link Template} that you are using.
+     */
+    @ExperimentalCarApi
+    public boolean isIndexable() {
+        return mIndexable;
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -174,8 +192,15 @@ public final class GridItem implements Item {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mIsLoading, mTitle, mImage, mImageType, mOnClickDelegate == null,
-                mBadge);
+        return Objects.hash(
+                mIsLoading,
+                mTitle,
+                mImage,
+                mImageType,
+                mOnClickDelegate == null,
+                mBadge,
+                mIndexable
+        );
     }
 
     @Override
@@ -194,7 +219,8 @@ public final class GridItem implements Item {
                 && Objects.equals(mImage, otherGridItem.mImage)
                 && Objects.equals(mOnClickDelegate == null, otherGridItem.mOnClickDelegate == null)
                 && Objects.equals(mBadge, otherGridItem.mBadge)
-                && mImageType == otherGridItem.mImageType;
+                && mImageType == otherGridItem.mImageType
+                && mIndexable == otherGridItem.mIndexable;
     }
 
     GridItem(Builder builder) {
@@ -205,6 +231,7 @@ public final class GridItem implements Item {
         mImageType = builder.mImageType;
         mOnClickDelegate = builder.mOnClickDelegate;
         mBadge = builder.mBadge;
+        mIndexable = builder.mIndexable;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -216,6 +243,7 @@ public final class GridItem implements Item {
         mImageType = IMAGE_TYPE_LARGE;
         mOnClickDelegate = null;
         mBadge = null;
+        mIndexable = true;
     }
 
     /** A builder of {@link GridItem}. */
@@ -233,6 +261,7 @@ public final class GridItem implements Item {
         boolean mIsLoading;
         @Nullable
         Badge mBadge;
+        boolean mIndexable;
 
         /**
          * Sets whether the item is in a loading state.
@@ -422,6 +451,14 @@ public final class GridItem implements Item {
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
         public Builder setOnClickListener(@NonNull OnClickListener onClickListener) {
             mOnClickDelegate = OnClickDelegateImpl.create(onClickListener);
+            return this;
+        }
+
+        /** @see #isIndexable */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setIndexable(boolean indexable) {
+            mIndexable = indexable;
             return this;
         }
 
