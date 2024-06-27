@@ -922,10 +922,13 @@ fun ColorScheme.surfaceColorAtElevation(
  * Returns a light Material color scheme.
  *
  * The default color scheme for [MaterialExpressiveTheme]. For dark mode, use [darkColorScheme].
+ *
+ * Example of MaterialExpressiveTheme toggling expressiveLightColorScheme and darkTheme.
+ *
+ * @sample androidx.compose.material3.samples.MaterialExpressiveThemeColorSchemeSample
  */
-// TODO: Mark as experimental if scope is changed to public
-// TODO: Add samples for MaterialExpressiveTheme toggling expressiveLightColorScheme and darkTheme.
-internal fun expressiveLightColorScheme() =
+@ExperimentalMaterial3ExpressiveApi
+fun expressiveLightColorScheme() =
     lightColorScheme(
         // TODO: Replace palette references with color token references when available.
         onPrimaryContainer = PaletteTokens.Primary30,
