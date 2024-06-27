@@ -448,12 +448,12 @@ public final class CameraUseCaseAdapter implements Camera {
                         if (config != null && hasImplementationOptionChanged(newStreamSpec,
                                 useCase.getSessionConfig())) {
                             useCase.updateSuggestedStreamSpecImplementationOptions(config);
-                        }
-                        if (mAttached) {
-                            mCameraInternal.onUseCaseUpdated(useCase);
-                            if (mSecondaryCameraInternal != null) {
-                                requireNonNull(mSecondaryCameraInternal)
-                                        .onUseCaseUpdated(useCase);
+                            if (mAttached) {
+                                mCameraInternal.onUseCaseUpdated(useCase);
+                                if (mSecondaryCameraInternal != null) {
+                                    requireNonNull(mSecondaryCameraInternal)
+                                            .onUseCaseUpdated(useCase);
+                                }
                             }
                         }
                     }
