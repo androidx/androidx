@@ -2459,10 +2459,6 @@ internal class MockOwner(
         TODO("Not yet implemented")
     }
 
-    override fun localToScreen(localTransform: Matrix) {
-        TODO("Not yet implemented")
-    }
-
     val invalidatedLayers = mutableListOf<OwnedLayer>()
 
     override fun createLayer(

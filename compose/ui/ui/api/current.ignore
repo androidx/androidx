@@ -5,3 +5,7 @@ AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#requestFo
     Added method androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus()
 AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#setFocusability(int):
     Added method androidx.compose.ui.focus.FocusTargetModifierNode.setFocusability(int)
+
+
+RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#transformToScreen(float[]):
+    Removed method androidx.compose.ui.layout.LayoutCoordinates.transformToScreen(float[])

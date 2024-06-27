@@ -33,7 +33,6 @@ import android.view.MotionEvent.AXIS_VSCROLL
 import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Matrix
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -51,8 +50,6 @@ class MotionEventAdapterTest {
             override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
 
             override fun localToScreen(localPosition: Offset): Offset = localPosition
-
-            override fun localToScreen(localTransform: Matrix) {}
         }
 
     @Before
