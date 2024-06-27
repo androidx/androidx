@@ -1,0 +1,19 @@
+// Signature format: 4.0
+package androidx.datastore.guava {
+
+  public final class GuavaDataStore<T> {
+    method public com.google.common.util.concurrent.ListenableFuture<T> getDataAsync();
+    method public com.google.common.util.concurrent.ListenableFuture<T> updateDataAsync(kotlin.jvm.functions.Function1<? super T,? extends T> transform);
+  }
+
+  public static final class GuavaDataStore.Builder<T> {
+    ctor public GuavaDataStore.Builder(android.content.Context context, String fileName, androidx.datastore.core.Serializer<T> serializer);
+    ctor public GuavaDataStore.Builder(androidx.datastore.core.Serializer<T> serializer, java.util.concurrent.Callable<java.io.File> produceFile);
+    method public androidx.datastore.guava.GuavaDataStore.Builder<T> addDataMigration(androidx.datastore.core.DataMigration<T> dataMigration);
+    method public androidx.datastore.guava.GuavaDataStore<T> build();
+    method public androidx.datastore.guava.GuavaDataStore.Builder<T> setCorruptionHandler(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<T> corruptionHandler);
+    method public androidx.datastore.guava.GuavaDataStore.Builder<T> setExecutor(java.util.concurrent.Executor executor);
+  }
+
+}
+

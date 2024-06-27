@@ -147,6 +147,7 @@ dependencies {
     kmpDocs(project(":datastore:datastore"))
     kmpDocs(project(":datastore:datastore-core"))
     kmpDocs(project(":datastore:datastore-core-okio"))
+    docs(project(":datastore:datastore-guava"))
     kmpDocs(project(":datastore:datastore-preferences"))
     kmpDocs(project(":datastore:datastore-preferences-core"))
     docs(project(":datastore:datastore-preferences-rxjava2"))
