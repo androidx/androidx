@@ -809,6 +809,7 @@ internal constructor(
                 val result =
                     innerApplyLocked(
                         nextSnapshotId,
+                        modified,
                         optimisticMerges,
                         openSnapshots.clear(previousGlobalSnapshot.id)
                     )
@@ -957,6 +958,7 @@ internal constructor(
 
     internal fun innerApplyLocked(
         snapshotId: Int,
+        modified: MutableScatterSet<StateObject>,
         optimisticMerges: Map<StateRecord, StateRecord>?,
         invalidSnapshots: SnapshotIdSet
     ): SnapshotApplyResult {
@@ -973,7 +975,6 @@ internal constructor(
         // is for the apply.
         var mergedRecords: MutableList<Pair<StateObject, StateRecord>>? = null
         val start = this.invalid.set(id).or(this.previousIds)
-        val modified = modified!!
         var statesToRemove: MutableList<StateObject>? = null
         modified.forEach { state ->
             val first = state.firstStateRecord
@@ -1481,7 +1482,7 @@ internal class NestedMutableSnapshot(
             if (modified == null || modified.size == 0) {
                 closeAndReleasePinning()
             } else {
-                val result = innerApplyLocked(parent.id, optimisticMerges, parent.invalid)
+                val result = innerApplyLocked(parent.id, modified, optimisticMerges, parent.invalid)
                 if (result != SnapshotApplyResult.Success) return result
 
                 parent.modified?.apply { addAll(modified) }
