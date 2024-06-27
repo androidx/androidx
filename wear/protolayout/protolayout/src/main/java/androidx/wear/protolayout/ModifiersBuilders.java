@@ -757,12 +757,23 @@ public final class ModifiersBuilders {
          * map to left/right, accordingly.
          */
         @Nullable
-        public BoolProp getRtlAware() {
+        BoolProp isRtlAware() {
             if (mImpl.hasRtlAware()) {
                 return BoolProp.fromProto(mImpl.getRtlAware());
             } else {
                 return null;
             }
+        }
+
+        /**
+         * Gets whether the start/end padding is aware of RTL support. If true, the values for
+         * start/end will follow the layout direction (i.e. start will refer to the right hand side
+         * of the container if the device is using an RTL locale). If false, start/end will always
+         * map to left/right, accordingly.
+         */
+        @Nullable
+        public BoolProp getRtlAware() {
+            return isRtlAware();
         }
 
         /** Get the fingerprint for this object, or null if unknown. */

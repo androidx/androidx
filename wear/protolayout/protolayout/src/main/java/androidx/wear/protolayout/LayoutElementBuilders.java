@@ -592,7 +592,7 @@ public final class LayoutElementBuilders {
          * to "false".
          */
         @Nullable
-        public BoolProp getItalic() {
+        private BoolProp isItalic() {
             if (mImpl.hasItalic()) {
                 return BoolProp.fromProto(mImpl.getItalic());
             } else {
@@ -605,7 +605,7 @@ public final class LayoutElementBuilders {
          * "false".
          */
         @Nullable
-        public BoolProp getUnderline() {
+        private BoolProp isUnderline() {
             if (mImpl.hasUnderline()) {
                 return BoolProp.fromProto(mImpl.getUnderline());
             } else {
@@ -713,6 +713,25 @@ public final class LayoutElementBuilders {
                 list.add(SpProp.fromProto(item));
             }
             return Collections.unmodifiableList(list);
+        }
+
+
+        /**
+         * Gets whether the text should be rendered in a italic typeface. If not specified, defaults to
+         * "false".
+         */
+        @Nullable
+        public BoolProp getItalic() {
+            return isItalic();
+        }
+
+        /**
+         * Gets whether the text should be rendered with an underline. If not specified, defaults to
+         * "false".
+         */
+        @Nullable
+        public BoolProp getUnderline() {
+            return isUnderline();
         }
 
         /** The recommended font family names to be used within {@link FontStyle}. */
@@ -1014,7 +1033,7 @@ public final class LayoutElementBuilders {
                     @NonNull @IntRange(from = 1) @Dimension(unit = Dimension.SP) int... sizes) {
                 if (sizes.length > TEXT_SIZES_LIMIT) {
                     throw new IllegalArgumentException(
-                            "Number of available sizes can't be larger than 10.");
+                            "Number of available sizes of the font style can't be larger than 10.");
                 }
 
                 mImpl.clearSize();
@@ -1622,6 +1641,7 @@ public final class LayoutElementBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(1405971293);
 
             /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**
@@ -1661,6 +1681,11 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+         * affected layout element through
+         * {@code setLayoutConstraintsForDynamicText(StringLayoutConstraint)} otherwise
+         * {@code build()} fails.
          */
         @Nullable
         public StringProp getText() {
@@ -2488,6 +2513,11 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+         * affected layout element through {@code
+         * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
+         * build()} fails.
          */
         @Nullable
         public SpacerDimension getWidth() {
@@ -2503,6 +2533,11 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+         * affected layout element through {@code
+         * setLayoutConstraintsForDynamicWidth(HorizontalLayoutConstraint)} otherwise {@code
+         * build()} fails.
          */
         @Nullable
         public SpacerDimension getHeight() {
@@ -3102,7 +3137,7 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setText(@NonNull StringProp text) {
                 if (text.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setText doesn't support dynamic values.");
+                    throw new IllegalArgumentException("SpanText.Builder.setText doesn't support dynamic values.");
                 }
                 mImpl.setText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -4203,6 +4238,10 @@ public final class LayoutElementBuilders {
      * An arc container. This container will fill itself to a circle, which fits inside its parent
      * container, and all of its children will be placed on that circle. The fields anchor_angle and
      * anchor_type can be used to specify where to draw children within this circle.
+     *
+     * <p>Note that when setting padding for the arc, if padding values (top, button, left, and
+     * right) are not equal, the largest between them will be used to apply padding uniformly to all
+     * sides.
      */
     @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Arc implements LayoutElement {
@@ -4693,6 +4732,11 @@ public final class LayoutElementBuilders {
          *
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
+         *
+         * <p>When using a dynamic value, make sure to specify the bounding constraints for the
+         * affected layout element through
+         * {@code setLayoutConstraintsForDynamicLength(AngularLayoutConstraint)} otherwise {@code
+         * build()} fails.
          */
         @Nullable
         public DegreesProp getLength() {
@@ -5094,6 +5138,7 @@ public final class LayoutElementBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-956183418);
 
             /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /** Sets the value. */
@@ -5314,12 +5359,26 @@ public final class LayoutElementBuilders {
          * will not be rotated. If not defined, defaults to false.
          */
         @Nullable
-        public BoolProp getRotateContents() {
+        private BoolProp isRotateContents() {
             if (mImpl.hasRotateContents()) {
                 return BoolProp.fromProto(mImpl.getRotateContents());
             } else {
                 return null;
             }
+        }
+
+
+        /**
+         * Gets whether this adapter's contents should be rotated, according to its position in the arc
+         * or not. As an example, assume that an {@link Image} has been added to the arc, and ends up at
+         * the 3 o clock position. If rotate_contents = true, the image will be placed at the 3 o clock
+         * position, and will be rotated clockwise through 90 degrees. If rotate_contents = false, the
+         * image will be placed at the 3 o clock position, but itself will not be rotated. If not
+         * defined, defaults to false.
+         */
+        @Nullable
+        public BoolProp getRotateContents() {
+            return isRotateContents();
         }
 
         @Override
@@ -5514,7 +5573,7 @@ public final class LayoutElementBuilders {
             @RequiresSchemaVersion(major = 1, minor = 300)
             Builder() {}
 
-            /** Sets the value. */
+            /** Sets the arc direction value. */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             Builder setValue(@ArcDirection int value) {
@@ -5650,6 +5709,7 @@ public final class LayoutElementBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(661980356);
 
             /** Creates an instance of {@link Builder}. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**
