@@ -80,8 +80,14 @@ internal class UwbControllerSessionScopeImpl(
 
     override suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters) {
         val uwbAddress = com.google.android.gms.nearby.uwb.UwbAddress(address.address)
+        val uwbControleeParams =
+            com.google.android.gms.nearby.uwb.RangingControleeParameters(
+                uwbAddress,
+                parameters.subSessionId,
+                parameters.subSessionKey
+            )
         try {
-            uwbClient.addControlee(uwbAddress).await()
+            uwbClient.addControleeWithSessionParams(uwbControleeParams).await()
         } catch (e: ApiException) {
             if (e.statusCode == UwbStatusCodes.INVALID_API_CALL) {
                 throw IllegalStateException(
