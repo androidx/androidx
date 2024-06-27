@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.internal
 
-internal actual fun logError(message: String, e: Throwable) {
-    System.err.println(message)
-    e.printStackTrace(System.err)
-}
+import androidx.compose.runtime.implementedInJetBrainsFork
+
+internal actual fun logError(message: String, e: Throwable): Unit = implementedInJetBrainsFork()
