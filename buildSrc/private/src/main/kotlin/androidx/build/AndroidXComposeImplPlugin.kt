@@ -184,11 +184,18 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             }
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
-        val pluginVersionToml = project.getVersionByName("composeCompilerPlugin")
-        val versionToUse =
-            if (ProjectLayoutType.isPlayground(project)) {
-                pluginVersionToml
-            } else {
+        val compilerPluginVersion = project.getVersionByName("composeCompilerPlugin")
+        project.dependencies.add(
+            COMPILER_PLUGIN_CONFIGURATION,
+            "androidx.compose.compiler:compiler:$compilerPluginVersion"
+        )
+
+        if (
+            !ProjectLayoutType.isPlayground(project) &&
+                // ksp is also a compiler plugin, updating Kotlin for it will likely break the build
+                !project.plugins.hasPlugin("com.google.devtools.ksp")
+        ) {
+            if (compilerPluginVersion.endsWith("-SNAPSHOT")) {
                 // use exact project path instead of subprojects.find, it is faster
                 val compilerProject = project.rootProject.resolveProject(":compose")
                 val compilerMavenDirectory =
@@ -196,22 +203,30 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
                         compilerProject.projectDir,
                         "compiler/compose-compiler-snapshot-repository"
                     )
-                if (!compilerMavenDirectory.exists()) {
-                    pluginVersionToml
-                } else {
-                    project.repositories.maven { it.url = compilerMavenDirectory.toURI() }
-                    // Version chosen to be not a "-SNAPSHOT" since apparently gradle doesn't
-                    // validate signatures for -SNAPSHOT builds.  Version is chosen to be higher
-                    // than anything real to ensure it is seen as newer than any explicit dependency
-                    // to prevent gradle from "upgrading" to a stable build instead of local build.
-                    // This version is built by: snapshot-compose-compiler.sh (in compiler project)
-                    "99.0.0"
+                project.repositories.maven { it.url = compilerMavenDirectory.toURI() }
+                project.configurations.configureEach {
+                    it.resolutionStrategy.eachDependency { dep ->
+                        val requested = dep.requested
+                        if (
+                            requested.group == "org.jetbrains.kotlin" &&
+                                (requested.name == "kotlin-compiler-embeddable" ||
+                                    requested.name == "kotlin-compose-compiler-plugin-embeddable")
+                        ) {
+                            dep.useVersion(compilerPluginVersion)
+                        }
+
+                        if (
+                            requested.group == "androidx.compose.compiler" &&
+                                requested.name == "compiler"
+                        ) {
+                            dep.useTarget(
+                                "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:$compilerPluginVersion"
+                            )
+                        }
+                    }
                 }
             }
-        project.dependencies.add(
-            COMPILER_PLUGIN_CONFIGURATION,
-            "androidx.compose.compiler:compiler:$versionToUse"
-        )
+        }
 
         val kotlinPluginProvider =
             project.provider {
@@ -238,7 +253,7 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
 
             compile.pluginClasspath.from(kotlinPluginProvider.get())
 
-            // todo(b/291587160): enable when Compose compiler 2.0 is merged
+            // todo(b/291587160): enable when Compose compiler 2.0.20 is merged
             // compile.enableFeatureFlag(ComposeFeatureFlag.StrongSkipping)
             // compile.enableFeatureFlag(ComposeFeatureFlag.OptimizeNonSkippingGroups)
             compile.addPluginOption(ComposeCompileOptions.StrongSkipping, "true")
