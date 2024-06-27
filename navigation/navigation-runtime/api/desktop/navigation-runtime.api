@@ -7,7 +7,7 @@ public class androidx/navigation/NavController {
 	public final fun clearBackStack (Ljava/lang/String;)Z
 	public final fun findDestination (I)Landroidx/navigation/NavDestination;
 	public final fun findDestination (Ljava/lang/String;)Landroidx/navigation/NavDestination;
-	public final fun findDestinationFromRoot (I)Landroidx/navigation/NavDestination;
+	public final fun findDestinationComprehensive (Landroidx/navigation/NavDestination;IZ)Landroidx/navigation/NavDestination;
 	public final fun getBackStackEntry (Ljava/lang/Object;)Landroidx/navigation/NavBackStackEntry;
 	public final fun getBackStackEntry (Ljava/lang/String;)Landroidx/navigation/NavBackStackEntry;
 	public final fun getCurrentBackStack ()Lkotlinx/coroutines/flow/StateFlow;
