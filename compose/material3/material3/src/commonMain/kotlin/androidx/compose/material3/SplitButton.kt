@@ -47,10 +47,12 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -700,9 +702,11 @@ object SplitButtonDefaults {
         interactionSource: MutableInteractionSource? = null,
         content: @Composable RowScope.() -> Unit
     ) {
-        val leftCornerMorphProgress: Float by animateFloatAsState(if (expanded) 1f else 0f)
+        val cornerMorphProgress: Float by animateFloatAsState(if (expanded) 1f else 0f)
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+
         TrailingButton(
             onClick = onClick,
             modifier = modifier,
@@ -711,7 +715,7 @@ object SplitButtonDefaults {
             elevation = elevation,
             border = border,
             interactionSource = interactionSource,
-            shape = rememberTrailingButtonShape { leftCornerMorphProgress },
+            shape = rememberTrailingButtonShape(isRtl) { cornerMorphProgress },
             content = content,
         )
     }
@@ -719,25 +723,37 @@ object SplitButtonDefaults {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun rememberTrailingButtonShape(progress: () -> Float) = remember {
-    GenericShape { size, _ ->
-        val rect = Rect(Offset.Zero, size)
-        val originalLeftCornerRadius =
-            CornerRadius((size.height * InnerCornerRadiusPercentage / 100))
-        val originalRoundRect =
-            RoundRect(
-                rect,
-                originalLeftCornerRadius,
-                CornerRadius(size.height / 2),
-                CornerRadius(size.height / 2),
-                originalLeftCornerRadius
-            )
-        val endRoundRect = RoundRect(rect, CornerRadius(size.height / 2))
+private fun rememberTrailingButtonShape(isRtl: Boolean, progress: () -> Float) =
+    remember(isRtl, progress) {
+        GenericShape { size, _ ->
+            val rect = Rect(Offset.Zero, size)
+            val originalStartCornerRadius =
+                CornerRadius((size.height * InnerCornerRadiusPercentage / 100))
+            val originalRoundRect =
+                if (isRtl) {
+                    RoundRect(
+                        rect,
+                        CornerRadius(size.height / 2),
+                        originalStartCornerRadius,
+                        originalStartCornerRadius,
+                        CornerRadius(size.height / 2)
+                    )
+                } else {
+                    RoundRect(
+                        rect,
+                        originalStartCornerRadius,
+                        CornerRadius(size.height / 2),
+                        CornerRadius(size.height / 2),
+                        originalStartCornerRadius
+                    )
+                }
 
-        val roundRect = lerp(originalRoundRect, endRoundRect, progress.invoke())
-        addRoundRect(roundRect)
+            val endRoundRect = RoundRect(rect, CornerRadius(size.height / 2))
+
+            val roundRect = lerp(originalRoundRect, endRoundRect, progress.invoke())
+            addRoundRect(roundRect)
+        }
     }
-}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
