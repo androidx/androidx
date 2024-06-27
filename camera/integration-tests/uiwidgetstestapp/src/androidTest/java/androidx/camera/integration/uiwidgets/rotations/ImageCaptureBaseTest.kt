@@ -223,9 +223,17 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }
+        Logger.w(
+            LOG_TAG,
+            "Starting to wait for image analysis frames on thread [${Thread.currentThread().name}]"
+        )
         assertWithMessage("Timed out waiting on image analysis frames on $analysisRunning")
             .that(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS))
             .isTrue()
+        Logger.w(
+            LOG_TAG,
+            "No longer waiting for image analysis frames on thread [${Thread.currentThread().name}]"
+        )
     }
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.resetFramesCount() {
@@ -251,13 +259,14 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
                     try {
                         close()
                     } catch (e: Throwable) {
-                        Logger.w("ImageCaptureBaseTest", "Exception in close()", e)
+                        Logger.w(LOG_TAG, "Exception in close()", e)
                     }
             }
         }
     }
 
     companion object {
+        const val LOG_TAG = "ImageCaptureBaseTest"
         protected const val IMAGES_COUNT = 30
         protected const val TIMEOUT = 20L
         @JvmStatic
