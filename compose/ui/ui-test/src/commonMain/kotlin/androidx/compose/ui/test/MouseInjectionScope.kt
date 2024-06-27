@@ -30,7 +30,7 @@ import kotlin.math.roundToInt
  */
 private const val SingleClickDelayMillis = 60L
 
-/** The default duration of mouse gestures with configurable time (e.g. [animateTo]). */
+/** The default duration of mouse gestures with configurable time (e.g. [animateMoveTo]). */
 private const val DefaultMouseGestureDurationMillis: Long = 300L
 
 /**
@@ -40,8 +40,8 @@ private const val DefaultMouseGestureDurationMillis: Long = 300L
  * individual mouse events. The individual mouse events are: [press], [moveTo] and friends,
  * [release], [cancel], [scroll] and [advanceEventTime]. Full gestures are all the other functions,
  * like [MouseInjectionScope.click], [MouseInjectionScope.doubleClick],
- * [MouseInjectionScope.animateTo], etc. These are built on top of the individual events and serve
- * as a good example on how you can build your own full gesture functions.
+ * [MouseInjectionScope.animateMoveTo], etc. These are built on top of the individual events and
+ * serve as a good example on how you can build your own full gesture functions.
  *
  * A mouse move event can be sent with [moveTo] and [moveBy]. The mouse position can be updated with
  * [updatePointerTo] and [updatePointerBy], which will not send an event and only update the
@@ -405,17 +405,17 @@ fun MouseInjectionScope.longClick(
  *
  * Example of moving the mouse along a line:
  *
- * @sample androidx.compose.ui.test.samples.mouseInputAnimateTo
+ * @sample androidx.compose.ui.test.samples.mouseInputAnimateMoveTo
  * @param position The position where to move the mouse to, in the node's local coordinate system
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-fun MouseInjectionScope.animateTo(
+fun MouseInjectionScope.animateMoveTo(
     position: Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
 ) {
     val durationFloat = durationMillis.toFloat()
     val start = currentPosition
-    animateAlong(
+    animateMoveAlong(
         curve = { lerp(start, position, it / durationFloat) },
         durationMillis = durationMillis
     )
@@ -431,11 +431,11 @@ fun MouseInjectionScope.animateTo(
  *   right and 100 pixels upwards.
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-fun MouseInjectionScope.animateBy(
+fun MouseInjectionScope.animateMoveBy(
     delta: Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
 ) {
-    animateTo(currentPosition + delta, durationMillis)
+    animateMoveTo(currentPosition + delta, durationMillis)
 }
 
 /**
@@ -446,13 +446,15 @@ fun MouseInjectionScope.animateBy(
  *
  * Example of moving the mouse along a curve:
  *
- * @sample androidx.compose.ui.test.samples.mouseInputAnimateAlong
+ * @sample androidx.compose.ui.test.samples.mouseInputAnimateMoveAlong
  * @param curve The function that defines the position of the mouse over time for this gesture, in
- *   the node's local coordinate system.
+ *   the node's local coordinate system. The argument passed to the function is the time in
+ *   milliseconds since the start of the animated move, and the return value is the location of the
+ *   mouse at that point in time
  * @param durationMillis The duration of the gesture. By default 300 milliseconds.
  */
-fun MouseInjectionScope.animateAlong(
-    curve: (Long) -> Offset,
+fun MouseInjectionScope.animateMoveAlong(
+    curve: (timeMillis: Long) -> Offset,
     durationMillis: Long = DefaultMouseGestureDurationMillis
 ) {
     require(durationMillis > 0) { "Duration is 0" }
@@ -497,7 +499,7 @@ fun MouseInjectionScope.dragAndDrop(
 ) {
     updatePointerTo(start)
     press(button)
-    animateTo(end, durationMillis)
+    animateMoveTo(end, durationMillis)
     release(button)
 }
 
