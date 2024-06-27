@@ -16,20 +16,5 @@
 
 package androidx.compose.runtime
 
-import kotlinx.coroutines.delay
-
-private object DefaultDelayMonotonicFrameClock : MonotonicFrameClock {
-    private const val DefaultFrameDelay = 16L // milliseconds
-
-    override suspend fun <R> withFrameNanos(onFrame: (Long) -> R): R {
-        delay(DefaultFrameDelay)
-        return onFrame(System.nanoTime())
-    }
-}
-
-@Deprecated(
-    "MonotonicFrameClocks are not globally applicable across platforms. " +
-        "Use an appropriate local clock."
-)
 actual val DefaultMonotonicFrameClock: MonotonicFrameClock
-    get() = DefaultDelayMonotonicFrameClock
+    get() = implementedInJetBrainsFork()

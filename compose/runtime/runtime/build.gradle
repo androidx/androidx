@@ -33,7 +33,7 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -110,14 +110,13 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
 
-        desktopTest {
+        jvmStubsTest {
             dependsOn(jvmTest)
-            dependsOn(nonEmulatorJvmTest)
         }
     }
 }
