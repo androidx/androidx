@@ -31,7 +31,6 @@ internal interface InteropContainer<T> {
     val interopViews: Set<T>
 
     fun placeInteropView(nativeView: T)
-    fun removeInteropView(nativeView: T)
 }
 
 /**

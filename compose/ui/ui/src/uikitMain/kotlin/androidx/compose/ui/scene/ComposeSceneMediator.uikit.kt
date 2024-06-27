@@ -33,9 +33,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.interop.LocalUIKitInteropContainer
-import androidx.compose.ui.interop.LocalUIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropContainer
-import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.AccessibilitySyncOptions
@@ -206,7 +204,7 @@ internal class ComposeSceneMediator(
      */
     private val measureDrawLayerBounds: Boolean = false,
     val coroutineContext: CoroutineContext,
-    private val renderingUIViewFactory: (UIKitInteropContext, SkikoRenderDelegate) -> RenderingUIView,
+    private val renderingUIViewFactory: (UIKitInteropContainer, SkikoRenderDelegate) -> RenderingUIView,
     composeSceneFactory: (
         invalidate: () -> Unit,
         platformContext: PlatformContext,
@@ -249,7 +247,7 @@ internal class ComposeSceneMediator(
     val focusManager get() = scene.focusManager
 
     private val renderingView by lazy {
-        renderingUIViewFactory(interopContext, renderDelegate)
+        renderingUIViewFactory(interopContainer, renderDelegate)
     }
 
     private val applicationForegroundStateListener = ApplicationForegroundStateListener { isForeground ->
@@ -262,19 +260,16 @@ internal class ComposeSceneMediator(
     }
 
     /**
-     * view, that contains [interopViewContainer] and [interactionView] and is added to [container]
+     * view, that contains [interopContainer] and [interactionView] and is added to [container]
      */
     private val rootView = ComposeSceneMediatorRootUIView()
 
-
-    private val interopContext = UIKitInteropContext(
+    /**
+     * Container for managing UIKitView and UIKitViewController
+     */
+    private val interopContainer = UIKitInteropContainer(
         requestRedraw = ::onComposeSceneInvalidate
     )
-    
-    /**
-     * Container for UIKitView and UIKitViewController
-     */
-    private val interopViewContainer = UIKitInteropContainer(interopContext)
 
     private val interactionBounds: IntRect get() {
         val boundsLayout = _layout as? SceneLayout.Bounds
@@ -431,10 +426,10 @@ internal class ComposeSceneMediator(
             getConstraintsToFillParent(rootView, container)
         )
 
-        interopViewContainer.containerView.translatesAutoresizingMaskIntoConstraints = false
-        rootView.addSubview(interopViewContainer.containerView)
+        interopContainer.containerView.translatesAutoresizingMaskIntoConstraints = false
+        rootView.addSubview(interopContainer.containerView)
         NSLayoutConstraint.activateConstraints(
-            getConstraintsToFillParent(interopViewContainer.containerView, rootView)
+            getConstraintsToFillParent(interopContainer.containerView, rootView)
         )
 
         interactionView.translatesAutoresizingMaskIntoConstraints = false
@@ -460,7 +455,7 @@ internal class ComposeSceneMediator(
                  */
                 if (renderingView.isReadyToShowContent.value) {
                     ProvideComposeSceneMediatorCompositionLocals {
-                        interopViewContainer.TrackInteropContainer(
+                        interopContainer.TrackInteropContainer(
                             content = content
                         )
                     }
@@ -486,8 +481,7 @@ internal class ComposeSceneMediator(
     @Composable
     private fun ProvideComposeSceneMediatorCompositionLocals(content: @Composable () -> Unit) =
         CompositionLocalProvider(
-            LocalUIKitInteropContext provides interopContext,
-            LocalUIKitInteropContainer provides interopViewContainer,
+            LocalUIKitInteropContainer provides interopContainer,
             LocalKeyboardOverlapHeight provides keyboardOverlapHeightState.value,
             LocalSafeArea provides safeAreaState.value,
             LocalLayoutMargins provides layoutMarginsState.value,
@@ -505,9 +499,7 @@ internal class ComposeSceneMediator(
         interactionView.removeFromSuperview()
         renderingView.removeFromSuperview()
         scene.close()
-        // After scene is disposed all UIKit interop actions can't be deferred to be synchronized with rendering
-        // Thus they need to be executed now.
-        interopContext.retrieve().actions.forEach { it.invoke() }
+        interopContainer.dispose()
     }
 
     private fun onComposeSceneInvalidate() = renderingView.needRedraw()

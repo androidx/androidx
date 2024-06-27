@@ -26,7 +26,7 @@ import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
 import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
 import androidx.compose.ui.interop.LocalUIViewController
-import androidx.compose.ui.interop.UIKitInteropContext
+import androidx.compose.ui.interop.UIKitInteropContainer
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
@@ -315,10 +315,15 @@ internal class ComposeContainer(
 
     @OptIn(ExperimentalComposeApi::class)
     private fun createSkikoUIView(
-        interopContext: UIKitInteropContext,
+        interopContainer: UIKitInteropContainer,
         renderRelegate: SkikoRenderDelegate
     ): RenderingUIView =
-        RenderingUIView(interopContext, renderRelegate).apply {
+        RenderingUIView(
+            renderDelegate = renderRelegate,
+            retrieveInteropTransaction = {
+                interopContainer.retrieveTransaction()
+            }
+        ).apply {
             opaque = configuration.opaque
         }
 
