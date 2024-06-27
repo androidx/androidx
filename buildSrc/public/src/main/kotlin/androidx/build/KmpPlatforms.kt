@@ -59,6 +59,7 @@ enum class PlatformIdentifier(
     @Suppress("unused") private val group: PlatformGroup
 ) {
     JVM("jvm", PlatformGroup.JVM),
+    JVM_STUBS("jvmStubs", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
     ANDROID("android", PlatformGroup.JVM),
     ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),

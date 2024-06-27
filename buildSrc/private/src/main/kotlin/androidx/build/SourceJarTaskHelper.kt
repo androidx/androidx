@@ -158,6 +158,8 @@ fun Project.configureSourceJarForMultiplatform() {
             // Different sourceSets in KMP should use different platform infixes, see b/203764756
             task.duplicatesStrategy = DuplicatesStrategy.FAIL
             kmpExtension.targets
+                // Filter out sources from stub targets as they are not intended to be documented
+                .filterNot { it.name in setOfStubTargets }
                 .flatMap { it.mainCompilation().allKotlinSourceSets }
                 .toSet()
                 .forEach { sourceSet ->
@@ -259,6 +261,8 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
                 )
         )
     kmpExtension.targets.forEach { target ->
+        // Skip adding entries for stub targets are they are not intended to be documented
+        if (target.name in setOfStubTargets) return@forEach
         target.mainCompilation().allKotlinSourceSets.forEach {
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(

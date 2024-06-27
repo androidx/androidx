@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,22 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.window.PopupProperties
 
 @Composable
-internal actual fun getString(string: Strings): String {
-    return when (string) {
-        Strings.NavigationMenu -> "Navigation menu"
-        Strings.CloseDrawer -> "Close navigation menu"
-        Strings.CloseSheet -> "Close sheet"
-        Strings.DefaultErrorMessage -> "Invalid input"
-        else -> ""
-    }
-}
+actual fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    offset: DpOffset,
+    scrollState: ScrollState,
+    properties: PopupProperties,
+    content: @Composable ColumnScope.() -> Unit
+): Unit = implementedInJetBrainsFork()
+
+internal actual val DefaultMenuProperties: PopupProperties = implementedInJetBrainsFork()
