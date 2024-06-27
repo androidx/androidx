@@ -1757,6 +1757,7 @@ package androidx.car.app.model {
     method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.Header? getHeader();
     method public java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!> getSections();
+    method public boolean isAlphabeticalIndexingAllowed();
     method public boolean isLoading();
   }
 
@@ -1769,6 +1770,7 @@ package androidx.car.app.model {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder clearActions();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder clearSections();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setActions(java.util.List<androidx.car.app.model.Action!>);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setAlphabeticalIndexingAllowed(boolean);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setHeader(androidx.car.app.model.Header?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setLoading(boolean);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.SectionedItemTemplate.Builder setSections(java.util.List<androidx.car.app.model.Section<? extends java.lang.Object!>!>);
