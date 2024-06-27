@@ -50,10 +50,39 @@ import org.xml.sax.Attributes
 import org.xml.sax.ContentHandler
 import org.xml.sax.XMLReader
 
-actual fun AnnotatedString.Companion.fromHtml(
+/**
+ * Converts a string with HTML tags into [AnnotatedString].
+ *
+ * If you define your string in the resources, make sure to use HTML-escaped opening brackets "&lt;"
+ * instead of "<".
+ *
+ * For a list of supported tags go check
+ * [Styling with HTML markup](https://developer.android.com/guide/topics/resources/string-resource#StylingWithHTML)
+ * guide. Note that bullet lists are not **yet** available.
+ *
+ * @param htmlString HTML-tagged string to be parsed to construct AnnotatedString
+ * @param linkStyles style configuration to be applied to links present in the string in different
+ *   styles
+ * @param linkInteractionListener a listener that will be attached to links that are present in the
+ *   string and triggered when user clicks on those links. When set to null, which is a default, the
+ *   system will try to open the corresponding links with the
+ *   [androidx.compose.ui.platform.UriHandler] composition local
+ *
+ * Note that any link style passed directly to this method will be merged with the styles set
+ * directly on a HTML-tagged string. For example, if you set a color of the link via the span
+ * annotation to "red" but also pass a green color via the [linkStyles], the link will be displayed
+ * as green. If, however, you pass a green background via the [linkStyles] instead, the link will be
+ * displayed as red on a green background.
+ *
+ * Example of displaying styled string from resources
+ *
+ * @sample androidx.compose.ui.text.samples.AnnotatedStringFromHtml
+ * @see LinkAnnotation
+ */
+fun AnnotatedString.Companion.fromHtml(
     htmlString: String,
-    linkStyles: TextLinkStyles?,
-    linkInteractionListener: LinkInteractionListener?
+    linkStyles: TextLinkStyles? = null,
+    linkInteractionListener: LinkInteractionListener? = null
 ): AnnotatedString {
     // Check ContentHandlerReplacementTag kdoc for more details
     val stringToParse = "<$ContentHandlerReplacementTag />$htmlString"
