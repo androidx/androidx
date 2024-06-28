@@ -73,7 +73,7 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
                     // to increment the refcount of any outstanding layers again the next time the
                     // content is drawn
                     if (!predrawListenerRegistered) {
-                        layerManager.destroy()
+                        layerManager.closeImageReaders()
                         ownerView.viewTreeObserver.addOnPreDrawListener(
                             object : ViewTreeObserver.OnPreDrawListener {
                                 override fun onPreDraw(): Boolean {
@@ -106,13 +106,13 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
                     // When the View is detached from the window, remove the component callbacks
                     // used to listen to trim memory signals
                     unregisterComponentCallback(v.context)
-                    layerManager.destroy()
+                    layerManager.closeImageReaders()
                 }
             }
         )
     }
 
-    fun isLayerManagerInitialized(): Boolean = layerManager.hasImageReader()
+    fun isLayerManagerInitialized(): Boolean = layerManager.hasImageReaders()
 
     private fun registerComponentCallback(context: Context) {
         if (!componentCallbackRegistered) {

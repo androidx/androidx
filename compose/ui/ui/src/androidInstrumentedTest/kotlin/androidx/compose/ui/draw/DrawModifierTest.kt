@@ -176,9 +176,13 @@ class DrawModifierTest {
 
         rule.onNodeWithTag(tag).captureToImage().assertPixels { Color.Blue }
 
-        rule.runOnIdle {
-            // we also make sure we didn't have to re-record to display the content
-            assertThat(recordCalls).isEqualTo(1)
+        // See b/350074295 on View backed layers on API level 28, the record method is invoked
+        // an additional time.
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.P) {
+            rule.runOnIdle {
+                // we also make sure we didn't have to re-record to display the content
+                assertThat(recordCalls).isEqualTo(1)
+            }
         }
     }
 
