@@ -22,6 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -31,11 +32,23 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    implementation project(':health:connect:connect-client')
+    implementation(project(":health:connect:connect-client-proto"))
+
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
+    testImplementation(libs.kotlinCoroutinesTest)
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 26
+    }
     namespace "androidx.health.connect.testing"
+    testOptions.unitTests.includeAndroidResources = true
+    compileSdk = 34
+    compileSdkExtension = 10
 }
 
 androidx {
@@ -43,5 +56,11 @@ androidx {
     mavenVersion = LibraryVersions.HEALTH_CONNECT_TESTING_QUARANTINE
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
-    description = "Test HealthConnect by providing a fake HealthConnectClient. This library should be added as a test dependency when writting unit tests that call HealthConnect APIs."
+    description = "Test utils for Health Connect. This library should be added as a test dependency when writing unit tests that call HealthConnect APIs."
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn", "-opt-in=androidx.health.connect.client.ExperimentalHealthConnectApi"]
+    }
 }

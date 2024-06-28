@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.request
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
@@ -65,12 +66,13 @@ inline fun <reified T : Record> ReadRecordsRequest(
  * @see androidx.health.connect.client.HealthConnectClient.readRecords
  */
 public class ReadRecordsRequest<T : Record>(
-    internal val recordType: KClass<T>,
-    internal val timeRangeFilter: TimeRangeFilter,
-    internal val dataOriginFilter: Set<DataOrigin> = emptySet(),
-    internal val ascendingOrder: Boolean = true,
-    internal val pageSize: Int = 1000,
-    internal val pageToken: String? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val recordType: KClass<T>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val timeRangeFilter: TimeRangeFilter,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val dataOriginFilter: Set<DataOrigin> = emptySet(),
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val ascendingOrder: Boolean = true,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val pageSize: Int = 1000,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val pageToken: String? = null,
 ) {
     init {
         require(pageSize > 0) { "pageSize must be positive." }
