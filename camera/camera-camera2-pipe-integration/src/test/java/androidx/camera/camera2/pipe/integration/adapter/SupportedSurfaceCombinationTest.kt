@@ -24,6 +24,7 @@ import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_
 import android.hardware.camera2.CameraCharacteristics.REQUEST_RECOMMENDED_TEN_BIT_DYNAMIC_RANGE_PROFILE
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CameraMetadata
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.media.CamcorderProfile.QUALITY_1080P
@@ -79,6 +80,7 @@ import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1440P
 import androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_720P
@@ -1466,6 +1468,34 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
+    @Test
+    fun hasVideoCapture_suggestedStreamSpecZslDisabled() {
+        val useCase1 = createUseCase(CaptureType.VIDEO_CAPTURE) // VIDEO
+        val useCase2 = createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply {
+                put(useCase1, recordSize)
+                put(useCase2, previewSize)
+            }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            hasVideoCapture = true
+        )
+    }
+
+    @Test
+    fun hasNoVideoCapture_suggestedStreamSpecZslNotDisabled() {
+        val privUseCase = createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE) // JPEG
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply {
+                put(privUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else previewSize)
+                put(jpegUseCase, maximumSize)
+            }
+        getSuggestedSpecsAndVerify(useCaseExpectedResultMap, hasVideoCapture = false)
+    }
+
     private fun getSuggestedSpecsAndVerify(
         useCasesExpectedResultMap: Map<UseCase, Size>,
         attachedSurfaceInfoList: List<AttachedSurfaceInfo> = emptyList(),
@@ -1477,6 +1507,8 @@ class SupportedSurfaceCombinationTest {
         useCasesExpectedDynamicRangeMap: Map<UseCase, DynamicRange> = emptyMap(),
         dynamicRangeProfiles: DynamicRangeProfiles? = null,
         default10BitProfile: Long? = null,
+        isPreviewStabilizationOn: Boolean = false,
+        hasVideoCapture: Boolean = false
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         setupCamera(
             hardwareLevel = hardwareLevel,
@@ -1494,7 +1526,9 @@ class SupportedSurfaceCombinationTest {
             supportedSurfaceCombination.getSuggestedStreamSpecifications(
                 cameraMode,
                 attachedSurfaceInfoList,
-                useCaseConfigToOutputSizesMap
+                useCaseConfigToOutputSizesMap,
+                isPreviewStabilizationOn,
+                hasVideoCapture
             )
         val suggestedStreamSpecsForNewUseCases = resultPair.first
         val suggestedStreamSpecsForOldSurfaces = resultPair.second
@@ -1515,6 +1549,8 @@ class SupportedSurfaceCombinationTest {
                     )
                     .isEqualTo(compareExpectedFps)
             }
+            val zslDisabled = suggestedStreamSpecsForNewUseCases[useCaseConfigMap[it]]!!.zslDisabled
+            assertThat(zslDisabled == hasVideoCapture)
         }
 
         useCasesExpectedDynamicRangeMap.keys.forEach {
