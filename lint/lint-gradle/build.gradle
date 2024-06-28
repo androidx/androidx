@@ -34,7 +34,6 @@ dependencies {
     compileOnly(libs.androidLintChecks)
     compileOnly(libs.kotlinStdlib)
 
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
