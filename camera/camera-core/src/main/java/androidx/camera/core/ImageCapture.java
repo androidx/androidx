@@ -1317,7 +1317,9 @@ public final class ImageCapture extends UseCase {
 
         SessionConfig.Builder sessionConfigBuilder =
                 mImagePipeline.createSessionConfigBuilder(streamSpec.getResolution());
-        if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
+        if (Build.VERSION.SDK_INT >= 23
+                && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG
+                && !streamSpec.getZslDisabled()) {
             getCameraControl().addZslConfig(sessionConfigBuilder);
         }
         if (streamSpec.getImplementationOptions() != null) {

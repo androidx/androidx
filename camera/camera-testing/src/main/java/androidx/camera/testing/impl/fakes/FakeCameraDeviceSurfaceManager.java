@@ -89,13 +89,16 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn) {
+            boolean isPreviewStabilizationOn,
+            boolean hasVideoCapture) {
         List<UseCaseConfig<?>> newUseCaseConfigs =
                 new ArrayList<>(newUseCaseConfigsSupportedSizeMap.keySet());
         checkSurfaceCombo(existingSurfaces, newUseCaseConfigs);
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecs = new HashMap<>();
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-            StreamSpec streamSpec = StreamSpec.builder(MAX_OUTPUT_SIZE).build();
+            StreamSpec streamSpec = StreamSpec.builder(MAX_OUTPUT_SIZE)
+                    .setZslDisabled(hasVideoCapture)
+                    .build();
             Map<Class<? extends UseCaseConfig<?>>, StreamSpec> definedStreamSpecs =
                     mDefinedStreamSpecs.get(cameraId);
             if (definedStreamSpecs != null) {
