@@ -197,7 +197,7 @@ dependencies {
     docs(project(":hilt:hilt-navigation-compose"))
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
-    docs(project(":ink:ink-brush"))
+    kmpDocs(project(":ink:ink-brush"))
     docs(project(":input:input-motionprediction"))
     docs(project(":interpolator:interpolator"))
     docs(project(":javascriptengine:javascriptengine"))

@@ -23,15 +23,55 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("com.android.library")
 }
 
-dependencies {
-    api(project(":compose:ui:ui-graphics"))
-    testImplementation(libs.kotlinTest)
+androidXMultiplatform {
+  android()
+  jvm()
+
+  defaultPlatform(PlatformIdentifier.JVM)
+
+  sourceSets {
+    commonMain {
+      dependencies {
+        api(project(":compose:ui:ui-graphics"))
+      }
+    }
+
+    commonTest {
+      dependencies {
+        implementation(libs.kotlinTest)
+      }
+    }
+
+    androidMain {
+      dependsOn(commonMain)
+    }
+
+    androidInstrumentedTest {
+      dependsOn(commonTest)
+      dependencies {
+        implementation(libs.testRunner)
+      }
+    }
+
+    jvmMain {
+      dependsOn(commonMain)
+    }
+
+    jvmTest {
+      dependsOn(commonTest)
+    }
+  }
+}
+
+android {
+  namespace = "androidx.ink.brush"
 }
 
 androidx {
