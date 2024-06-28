@@ -550,4 +550,15 @@ class IntSetTest {
         assertTrue(4 in set)
         assertFalse(5 in set)
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val set = mutableIntSetOf()
+
+        for (i in 0..1000000) {
+            set.add(i.toInt())
+            set.remove(i.toInt())
+            assertTrue(set.capacity < 16, "Set grew larger than 16 after step $i")
+        }
+    }
 }

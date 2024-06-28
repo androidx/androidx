@@ -750,4 +750,15 @@ class LongFloatMapTest {
         assertEquals(1024, map.trim())
         assertEquals(0, map.trim())
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableLongFloatMap()
+
+        for (i in 0..1000000) {
+            map[i.toLong()] = i.toFloat()
+            map.remove(i.toLong())
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }

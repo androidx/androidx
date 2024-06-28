@@ -775,4 +775,15 @@ class ObjectLongTest {
         assertEquals(1024, map.trim())
         assertEquals(0, map.trim())
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableObjectLongMap<Int>()
+
+        for (i in 0..1000000) {
+            map[i] = i.toLong()
+            map.remove(i)
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }

@@ -550,4 +550,15 @@ class FloatSetTest {
         assertTrue(4f in set)
         assertFalse(5f in set)
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val set = mutableFloatSetOf()
+
+        for (i in 0..1000000) {
+            set.add(i.toFloat())
+            set.remove(i.toFloat())
+            assertTrue(set.capacity < 16, "Set grew larger than 16 after step $i")
+        }
+    }
 }
