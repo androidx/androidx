@@ -541,8 +541,8 @@ class CoreTextFieldInputServiceIntegrationTest {
             inputMethodInterceptor.withInputConnection { secondInputConnection = this }
         }
 
-        // check that input connection was restarted after window focus toggle
-        assertThat(firstInputConnection).isNotSameInstanceAs(secondInputConnection)
+        // check that we have not created a separate input connection
+        assertThat(firstInputConnection).isSameInstanceAs(secondInputConnection)
     }
 
     private fun setContent(

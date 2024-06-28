@@ -355,7 +355,12 @@ internal class TextFieldDecoratorModifierNode(
     private var windowInfo: WindowInfo? = null
 
     private val isFocused: Boolean
-        get() = isElementFocused && windowInfo?.isWindowFocused == true
+        get() {
+            // make sure that we read both window focus and element focus for snapshot aware
+            // callers to successfully update when either one changes
+            val isWindowFocused = windowInfo?.isWindowFocused == true
+            return isElementFocused && isWindowFocused
+        }
 
     /**
      * We observe text changes to show/hide text toolbar and cursor handles. This job is only run
@@ -678,7 +683,6 @@ internal class TextFieldDecoratorModifierNode(
         observeReads {
             windowInfo = currentValueOf(LocalWindowInfo)
             onFocusChange()
-            startInputSessionOnWindowFocusChange()
         }
     }
 
@@ -710,15 +714,6 @@ internal class TextFieldDecoratorModifierNode(
         inputSessionJob?.cancel()
         inputSessionJob = null
         stylusHandwritingTrigger?.resetReplayCache()
-    }
-
-    private fun startInputSessionOnWindowFocusChange() {
-        if (windowInfo == null) return
-        // b/326323000: We do not dispose input session on just window focus change until another
-        // item requests focus and we lose element focus status which is handled by onFocusEvent.
-        if (windowInfo?.isWindowFocused == true && isElementFocused) {
-            startInputSession(fromTap = false)
-        }
     }
 
     private fun requireKeyboardController(): SoftwareKeyboardController =
