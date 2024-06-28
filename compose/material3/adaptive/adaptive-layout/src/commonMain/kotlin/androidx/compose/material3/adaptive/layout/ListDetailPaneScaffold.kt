@@ -47,6 +47,13 @@ import androidx.compose.ui.Modifier
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any supplementary info
  *   besides the list and the detail panes, for example, a task list or a mini-calendar view of a
  *   mail app. See [ListDetailPaneScaffoldRole.Extra].
+ * @param paneExpansionDragHandle the pane expansion drag handle to let users be able to drag to
+ *   change pane expansion state. Note that by default this argument will be `null`, and there won't
+ *   be a drag handle rendered and users won't be able to drag to change the pane split. You can
+ *   provide a [PaneExpansionDragHandle] here as our sample suggests. On the other hand, even if
+ *   there's no drag handle, you can still modify [paneExpansionState] directly to apply pane
+ *   expansion.
+ * @param paneExpansionState the state object of pane expansion.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -57,6 +64,8 @@ fun ListDetailPaneScaffold(
     detailPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionState: PaneExpansionState = rememberPaneExpansionState(value),
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
@@ -65,6 +74,8 @@ fun ListDetailPaneScaffold(
         paneOrder = ListDetailPaneScaffoldDefaults.PaneOrder,
         secondaryPane = listPane,
         tertiaryPane = extraPane,
+        paneExpansionDragHandle = paneExpansionDragHandle,
+        paneExpansionState = paneExpansionState,
         primaryPane = detailPane
     )
 }

@@ -270,9 +270,9 @@ private val MockPaneExpansionMiddleAnchor = 400.dp
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockPaneExpansionAnchors =
     listOf(
-        PaneExpansionAnchor(percentage = 0),
-        PaneExpansionAnchor(startOffset = MockPaneExpansionMiddleAnchor),
-        PaneExpansionAnchor(percentage = 100),
+        PaneExpansionAnchor.Proportion(0f),
+        PaneExpansionAnchor.Offset(MockPaneExpansionMiddleAnchor),
+        PaneExpansionAnchor.Proportion(1f),
     )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)

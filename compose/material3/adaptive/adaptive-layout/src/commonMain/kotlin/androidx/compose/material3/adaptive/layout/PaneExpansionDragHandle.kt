@@ -30,14 +30,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 
+/**
+ * A default, basic non-customizable implementation of pane expansion drag handle. Note that this
+ * implementation will be deprecated in favor of the corresponding Material3 implementation when
+ * it's available.
+ */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-// TODO(b/327637983): Implement this as a customizable component.
-internal fun PaneExpansionDragHandle(
+// TODO(b/327637983): Implement this as a customizable component as a Material3 component.
+fun PaneExpansionDragHandle(
     state: PaneExpansionState,
     color: Color,
     modifier: Modifier = Modifier,
 ) {
+    // TODO (conradchen): support drag handle motion during scaffold and expansion state change
     Box(
         modifier = modifier.paneExpansionDragHandle(state).size(24.dp, 48.dp),
         contentAlignment = Alignment.Center
