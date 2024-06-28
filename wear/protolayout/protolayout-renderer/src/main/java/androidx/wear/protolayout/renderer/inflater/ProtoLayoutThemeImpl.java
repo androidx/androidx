@@ -194,9 +194,8 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
      * supported, defaults to the system font.
      *
      * <p>It's theme's responsibility to define which font families are supported by returning the
-     * corresponding {@link FontSet}. The default one from {@link
-     * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#DEFAULT_SYSTEM_FONT} should
-     * be system font and always supported. The Roboto Flex variable font from {@link
+     * corresponding {@link FontSet}. The default one should be system font and always supported.
+     * The Roboto Flex variable font from {@link
      * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#ROBOTO_FLEX_FONT} and
      * standard Roboto font from {@link
      * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#ROBOTO_FONT} should be

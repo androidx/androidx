@@ -720,15 +720,9 @@ public final class LayoutElementBuilders {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @StringDef(
-                value = {DEFAULT_SYSTEM_FONT, ROBOTO_FONT, ROBOTO_FLEX_FONT},
+                value = {ROBOTO_FONT, ROBOTO_FLEX_FONT},
                 open = true)
         public @interface FontFamilyName {}
-
-        /**
-         * Font family name that uses default system font. Supported in any renderer version.
-         */
-        @RequiresSchemaVersion(major = 1, minor = 400)
-        public static final String DEFAULT_SYSTEM_FONT = "default";
 
         /** Font family name that uses Roboto font. Supported in renderers supporting 1.4. */
         @RequiresSchemaVersion(major = 1, minor = 400)
@@ -1059,9 +1053,8 @@ public final class LayoutElementBuilders {
              * <p>If the given font family is not available on a device, the fallback values will be
              * attempted to use, in order in which they are given.
              *
-             * <p>Renderer support for values outside of the given constants ( {@link
-             * #DEFAULT_SYSTEM_FONT}, {@link #ROBOTO_FONT} or {@link #ROBOTO_FLEX_FONT}) is not
-             * guaranteed for all devices.
+             * <p>Renderer support for values outside of the given constants ({@link #ROBOTO_FONT}
+             * or {@link #ROBOTO_FLEX_FONT}) is not guaranteed for all devices.
              *
              * <p>If not set, default system font will be used.
              *
