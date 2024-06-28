@@ -16,6 +16,7 @@
 
 package androidx.collection
 
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -619,6 +620,7 @@ internal class LongIntMapTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val map = MutableLongIntMap()
         map[1L] = 1

@@ -16,6 +16,7 @@
 
 package androidx.collection
 
+import androidx.collection.internal.IgnoreWeb
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

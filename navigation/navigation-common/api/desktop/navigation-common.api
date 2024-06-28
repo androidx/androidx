@@ -198,12 +198,11 @@ public class androidx/navigation/NavGraph : androidx/navigation/NavDestination, 
 	public final fun addDestinations ([Landroidx/navigation/NavDestination;)V
 	public final fun clear ()V
 	public fun equals (Ljava/lang/Object;)Z
-	public final fun findChildNode (I)Landroidx/navigation/NavDestination;
 	public final fun findNode (I)Landroidx/navigation/NavDestination;
-	public final fun findNode (IZ)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/Object;)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/String;)Landroidx/navigation/NavDestination;
 	public final fun findNode (Ljava/lang/String;Z)Landroidx/navigation/NavDestination;
+	public final fun findNodeComprehensive (ILandroidx/navigation/NavDestination;Z)Landroidx/navigation/NavDestination;
 	public static final fun findStartDestination (Landroidx/navigation/NavGraph;)Landroidx/navigation/NavDestination;
 	public fun getDisplayName ()Ljava/lang/String;
 	public final fun getNodes ()Landroidx/collection/SparseArrayCompat;
@@ -281,12 +280,15 @@ public final class androidx/navigation/NavOptions$Builder {
 	public fun <init> ()V
 	public final fun build ()Landroidx/navigation/NavOptions;
 	public final fun setLaunchSingleTop (Z)Landroidx/navigation/NavOptions$Builder;
+	public final fun setPopUpTo (IZ)Landroidx/navigation/NavOptions$Builder;
+	public final fun setPopUpTo (IZZ)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Ljava/lang/Object;Z)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Ljava/lang/Object;ZZ)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Ljava/lang/String;Z)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Ljava/lang/String;ZZ)Landroidx/navigation/NavOptions$Builder;
 	public final fun setPopUpTo (Lkotlin/reflect/KClass;ZZ)Landroidx/navigation/NavOptions$Builder;
 	public final synthetic fun setPopUpTo (Z)Landroidx/navigation/NavOptions$Builder;
+	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;IZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
 	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;Ljava/lang/Object;ZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
 	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;Ljava/lang/String;ZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
 	public static synthetic fun setPopUpTo$default (Landroidx/navigation/NavOptions$Builder;Lkotlin/reflect/KClass;ZZILjava/lang/Object;)Landroidx/navigation/NavOptions$Builder;
@@ -301,9 +303,11 @@ public final class androidx/navigation/NavOptionsBuilder {
 	public final fun getPopUpToRouteClass ()Lkotlin/reflect/KClass;
 	public final fun getPopUpToRouteObject ()Ljava/lang/Object;
 	public final fun getRestoreState ()Z
+	public final fun popUpTo (ILkotlin/jvm/functions/Function1;)V
 	public final fun popUpTo (Ljava/lang/Object;Lkotlin/jvm/functions/Function1;)V
 	public final fun popUpTo (Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public final fun popUpTo (Lkotlin/reflect/KClass;Lkotlin/jvm/functions/Function1;)V
+	public static synthetic fun popUpTo$default (Landroidx/navigation/NavOptionsBuilder;ILkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun popUpTo$default (Landroidx/navigation/NavOptionsBuilder;Ljava/lang/Object;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public static synthetic fun popUpTo$default (Landroidx/navigation/NavOptionsBuilder;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
 	public final fun setLaunchSingleTop (Z)V

@@ -16,6 +16,7 @@
 
 package androidx.collection
 
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -635,6 +636,7 @@ internal class ObjectIntTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val map = MutableObjectIntMap<String?>()
         map["Hello"] = 1
