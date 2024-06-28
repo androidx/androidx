@@ -32,14 +32,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
                 // Keep pinned unless there is a need for tip of tree behavior
                 implementation("androidx.collection:collection:1.4.0")
                 implementation("androidx.compose.animation:animation-core:1.6.0")
@@ -66,12 +66,6 @@ androidXMultiplatform {
             }
         }
 
-        skikoMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
@@ -83,11 +77,9 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(skikoMain)
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
             }
         }
 
