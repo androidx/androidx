@@ -20,19 +20,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.dynamicfeatures.DynamicInstallMonitor
 
-/**
- * View model for installation of dynamic feature modules.
- */
+/** View model for installation of dynamic feature modules. */
 internal class InstallViewModel : ViewModel() {
 
     companion object {
-        val FACTORY = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                val viewModel = InstallViewModel()
-                return viewModel as T
+        val FACTORY =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    val viewModel = InstallViewModel()
+                    return viewModel as T
+                }
             }
-        }
     }
 
     var installMonitor: DynamicInstallMonitor? = null

@@ -19,10 +19,10 @@ package androidx.navigation.compose
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.saveable.SaveableStateHolder
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -34,13 +34,13 @@ import java.util.UUID
  * [LocalSavedStateRegistryOwner] to the [content] and saves the [content]'s saveable states with
  * the given [saveableStateHolder].
  *
- * @param saveableStateHolder The [SaveableStateHolder] that holds the saved states. The same
- * holder should be used for all [NavBackStackEntry]s in the encapsulating [Composable] and the
- * holder should be hoisted.
+ * @param saveableStateHolder The [SaveableStateHolder] that holds the saved states. The same holder
+ *   should be used for all [NavBackStackEntry]s in the encapsulating [Composable] and the holder
+ *   should be hoisted.
  * @param content The content [Composable]
  */
 @Composable
-actual fun NavBackStackEntry.LocalOwnersProvider(
+public actual fun NavBackStackEntry.LocalOwnersProvider(
     saveableStateHolder: SaveableStateHolder,
     content: @Composable () -> Unit
 ) {

@@ -24,17 +24,14 @@ import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Truth.assertAbout
 
-/**
- * A Truth Subject for making assertions about [NavController].
- */
-class NavControllerSubject private constructor(
-    metadata: FailureMetadata,
-    private val actual: NavController
-) : Subject(metadata, actual) {
+/** A Truth Subject for making assertions about [NavController]. */
+class NavControllerSubject
+private constructor(metadata: FailureMetadata, private val actual: NavController) :
+    Subject(metadata, actual) {
 
     /**
-     * Assert that the [NavController] has the given current destination
-     * in its [androidx.navigation.NavGraph].
+     * Assert that the [NavController] has the given current destination in its
+     * [androidx.navigation.NavGraph].
      *
      * @param navDest The ID resource of a [androidx.navigation.NavDestination]
      */
@@ -50,8 +47,8 @@ class NavControllerSubject private constructor(
     }
 
     /**
-     * Assert that the [NavController] has the given [androidx.navigation.NavGraph] as
-     * its current graph.
+     * Assert that the [NavController] has the given [androidx.navigation.NavGraph] as its current
+     * graph.
      *
      * @param navGraph The ID resource of a [androidx.navigation.NavGraph]
      */
@@ -68,10 +65,10 @@ class NavControllerSubject private constructor(
 
     companion object {
         @SuppressLint("MemberVisibilityCanBePrivate")
-        val factory = Factory<NavControllerSubject, NavController> {
-            metadata, actual ->
-            NavControllerSubject(metadata, actual)
-        }
+        val factory =
+            Factory<NavControllerSubject, NavController> { metadata, actual ->
+                NavControllerSubject(metadata, actual)
+            }
 
         @JvmStatic
         fun assertThat(actual: NavController): NavControllerSubject {

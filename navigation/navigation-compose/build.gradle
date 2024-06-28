@@ -23,6 +23,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    alias(libs.plugins.kotlinSerialization)
     id("JetbrainsAndroidXPlugin")
 }
 
@@ -41,7 +42,6 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
                 api project(":core:core-bundle")
                 implementation project(":compose:foundation:foundation-layout")
                 implementation project(":compose:animation:animation-core")
@@ -51,12 +51,16 @@ kotlin {
                 api project(":compose:ui:ui")
                 api project(":lifecycle:lifecycle-common")
                 api project(":lifecycle:lifecycle-runtime")
+                api project(":lifecycle:lifecycle-runtime-compose")
                 api project(":lifecycle:lifecycle-viewmodel")
                 api project(":lifecycle:lifecycle-viewmodel-compose")
                 api project(":lifecycle:lifecycle-viewmodel-savedstate")
                 api project(":navigation:navigation-common")
                 api project(":navigation:navigation-runtime")
                 api project(":savedstate:savedstate")
+
+                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinSerializationCore)
             }
         }
 

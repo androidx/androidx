@@ -31,22 +31,18 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.res.use
 import java.util.regex.Pattern
 
-/**
- * ActivityNavigator implements cross-activity navigation.
- */
+/** ActivityNavigator implements cross-activity navigation. */
 @Navigator.Name("activity")
 public open class ActivityNavigator(
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public val context: Context
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public val context: Context
 ) : Navigator<ActivityNavigator.Destination>() {
-    private val hostActivity: Activity? = generateSequence(context) {
-        if (it is ContextWrapper) {
-            it.baseContext
-        } else
-            null
-    }.firstOrNull {
-        it is Activity
-    } as Activity?
+    private val hostActivity: Activity? =
+        generateSequence(context) {
+                if (it is ContextWrapper) {
+                    it.baseContext
+                } else null
+            }
+            .firstOrNull { it is Activity } as Activity?
 
     override fun createDestination(): Destination {
         return Destination(this)
@@ -63,18 +59,17 @@ public open class ActivityNavigator(
     /**
      * Navigate to a destination.
      *
-     * <p>Requests navigation to a given destination associated with this navigator in
-     * the navigation graph. This method generally should not be called directly;
-     * NavController will delegate to it when appropriate.</p>
+     * <p>Requests navigation to a given destination associated with this navigator in the
+     * navigation graph. This method generally should not be called directly; NavController will
+     * delegate to it when appropriate.</p>
      *
      * @param destination destination node to navigate to
      * @param args arguments to use for navigation
      * @param navOptions additional options for navigation
      * @param navigatorExtras extras unique to your Navigator.
-     * @return The NavDestination that should be added to the back stack or null if
-     * no change was made to the back stack (i.e., in cases of single top operations
-     * where the destination is already on top of the back stack).
-     *
+     * @return The NavDestination that should be added to the back stack or null if no change was
+     *   made to the back stack (i.e., in cases of single top operations where the destination is
+     *   already on top of the back stack).
      * @throws IllegalArgumentException if the given destination has no Intent
      */
     @Suppress("DEPRECATION")
@@ -138,7 +133,7 @@ public open class ActivityNavigator(
             val popExitAnim = navOptions.popExitAnim
             if (
                 popEnterAnim > 0 && resources.getResourceTypeName(popEnterAnim) == "animator" ||
-                popExitAnim > 0 && resources.getResourceTypeName(popExitAnim) == "animator"
+                    popExitAnim > 0 && resources.getResourceTypeName(popExitAnim) == "animator"
             ) {
                 Log.w(
                     LOG_TAG,
@@ -168,14 +163,19 @@ public open class ActivityNavigator(
             var exitAnim = navOptions.exitAnim
             if (
                 enterAnim > 0 && (resources.getResourceTypeName(enterAnim) == "animator") ||
-                exitAnim > 0 && (resources.getResourceTypeName(exitAnim) == "animator")
+                    exitAnim > 0 && (resources.getResourceTypeName(exitAnim) == "animator")
             ) {
                 Log.w(
                     LOG_TAG,
                     "Activity destinations do not support Animator resource. " +
-                        "Ignoring " + "enter resource " + resources.getResourceName(enterAnim) +
-                        " and exit resource " + resources.getResourceName(exitAnim) + "when " +
-                        "launching " + destination
+                        "Ignoring " +
+                        "enter resource " +
+                        resources.getResourceName(enterAnim) +
+                        " and exit resource " +
+                        resources.getResourceName(exitAnim) +
+                        "when " +
+                        "launching " +
+                        destination
                 )
             } else if (enterAnim >= 0 || exitAnim >= 0) {
                 enterAnim = enterAnim.coerceAtLeast(0)
@@ -192,32 +192,26 @@ public open class ActivityNavigator(
     /**
      * NavDestination for activity navigation
      *
-     * Construct a new activity destination. This destination is not valid until you set the
-     * Intent via [setIntent] or one or more of the other set method.
+     * Construct a new activity destination. This destination is not valid until you set the Intent
+     * via [setIntent] or one or more of the other set method.
      *
-     * @param activityNavigator The [ActivityNavigator] which this destination
-     * will be associated with. Generally retrieved via a
-     * [NavController]'s
-     * [NavigatorProvider.getNavigator] method.
+     * @param activityNavigator The [ActivityNavigator] which this destination will be associated
+     *   with. Generally retrieved via a [NavController]'s [NavigatorProvider.getNavigator] method.
      */
     @NavDestination.ClassType(Activity::class)
-    public open class Destination(
-        activityNavigator: Navigator<out Destination>
-    ) : NavDestination(activityNavigator) {
-        /**
-         * The Intent associated with this destination.
-         */
+    public open class Destination(activityNavigator: Navigator<out Destination>) :
+        NavDestination(activityNavigator) {
+        /** The Intent associated with this destination. */
         public var intent: Intent? = null
             private set
 
-        /**
-         * The dynamic data URI pattern, if any
-         */
+        /** The dynamic data URI pattern, if any */
         public var dataPattern: String? = null
             private set
 
         /**
          * Set the Intent to start when navigating to this destination.
+         *
          * @param intent Intent to associated with this destination.
          * @return this [Destination]
          */
@@ -229,19 +223,16 @@ public open class ActivityNavigator(
         /**
          * Sets a dynamic data URI pattern that is sent when navigating to this destination.
          *
-         *
          * If a non-null arguments Bundle is present when navigating, any segments in the form
          * `{argName}` will be replaced with a URI encoded string from the arguments.
          *
-         * When inflated from XML, you can use `${applicationId}` as an argument pattern
-         * to automatically use [Context.getPackageName].
+         * When inflated from XML, you can use `${applicationId}` as an argument pattern to
+         * automatically use [Context.getPackageName].
          *
-         * @param dataPattern A URI pattern with segments in the form of `{argName}` that
-         * will be replaced with URI encoded versions of the Strings in the
-         * arguments Bundle.
-         * @see Destination.setData
-         *
+         * @param dataPattern A URI pattern with segments in the form of `{argName}` that will be
+         *   replaced with URI encoded versions of the Strings in the arguments Bundle.
          * @return this [Destination]
+         * @see Destination.setData
          */
         public fun setDataPattern(dataPattern: String?): Destination {
             this.dataPattern = dataPattern
@@ -252,9 +243,8 @@ public open class ActivityNavigator(
          * Construct a new activity destination. This destination is not valid until you set the
          * Intent via [setIntent] or one or more of the other set method.
          *
-         *
-         * @param navigatorProvider The [NavController] which this destination
-         * will be associated with.
+         * @param navigatorProvider The [NavController] which this destination will be associated
+         *   with.
          */
         public constructor(
             navigatorProvider: NavigatorProvider
@@ -263,14 +253,12 @@ public open class ActivityNavigator(
         @CallSuper
         override fun onInflate(context: Context, attrs: AttributeSet) {
             super.onInflate(context, attrs)
-            context.resources.obtainAttributes(
-                attrs,
-                R.styleable.ActivityNavigator
-            ).use { array ->
-                var targetPackage = parseApplicationId(
-                    context,
-                    array.getString(R.styleable.ActivityNavigator_targetPackage)
-                )
+            context.resources.obtainAttributes(attrs, R.styleable.ActivityNavigator).use { array ->
+                var targetPackage =
+                    parseApplicationId(
+                        context,
+                        array.getString(R.styleable.ActivityNavigator_targetPackage)
+                    )
                 setTargetPackage(targetPackage)
                 var className = array.getString(R.styleable.ActivityNavigator_android_name)
                 if (className != null) {
@@ -280,42 +268,35 @@ public open class ActivityNavigator(
                     setComponentName(ComponentName(context, className))
                 }
                 setAction(array.getString(R.styleable.ActivityNavigator_action))
-                val data = parseApplicationId(
-                    context,
-                    array.getString(R.styleable.ActivityNavigator_data)
-                )
+                val data =
+                    parseApplicationId(context, array.getString(R.styleable.ActivityNavigator_data))
                 if (data != null) {
                     setData(Uri.parse(data))
                 }
-                val dataPattern = parseApplicationId(
-                    context,
-                    array.getString(R.styleable.ActivityNavigator_dataPattern)
-                )
+                val dataPattern =
+                    parseApplicationId(
+                        context,
+                        array.getString(R.styleable.ActivityNavigator_dataPattern)
+                    )
                 setDataPattern(dataPattern)
             }
         }
 
         private fun parseApplicationId(context: Context, pattern: String?): String? {
-            return pattern?.replace(
-                NavInflater.APPLICATION_ID_PLACEHOLDER,
-                context.packageName
-            )
+            return pattern?.replace(NavInflater.APPLICATION_ID_PLACEHOLDER, context.packageName)
         }
 
-        /**
-         * The explicit application package name associated with this destination, if any
-         */
+        /** The explicit application package name associated with this destination, if any */
         public var targetPackage: String? = null
             private set
             get() = intent?.`package`
 
         /**
-         * Set an explicit application package name that limits
-         * the components this destination will navigate to.
+         * Set an explicit application package name that limits the components this destination will
+         * navigate to.
          *
-         *
-         * When inflated from XML, you can use `${applicationId}` as the
-         * package name to automatically use [Context.getPackageName].
+         * When inflated from XML, you can use `${applicationId}` as the package name to
+         * automatically use [Context.getPackageName].
          *
          * @param packageName packageName to set
          * @return this [Destination]
@@ -328,9 +309,7 @@ public open class ActivityNavigator(
             return this
         }
 
-        /**
-         * The explicit [ComponentName] associated with this destination, if any
-         */
+        /** The explicit [ComponentName] associated with this destination, if any */
         public var component: ComponentName? = null
             private set
             get() = intent?.component
@@ -349,15 +328,14 @@ public open class ActivityNavigator(
             return this
         }
 
-        /**
-         * The action used to start the Activity, if any
-         */
+        /** The action used to start the Activity, if any */
         public var action: String? = null
             private set
             get() = intent?.action
 
         /**
          * Sets the action sent when navigating to this destination.
+         *
          * @param action The action string to use.
          * @return this [Destination]
          */
@@ -369,9 +347,7 @@ public open class ActivityNavigator(
             return this
         }
 
-        /**
-         * The data URI used to start the Activity, if any
-         */
+        /** The data URI used to start the Activity, if any */
         public var data: Uri? = null
             private set
             get() = intent?.data
@@ -379,17 +355,15 @@ public open class ActivityNavigator(
         /**
          * Sets a static data URI that is sent when navigating to this destination.
          *
+         * To use a dynamic URI that changes based on the arguments passed in when navigating, use
+         * [setDataPattern], which will take precedence when arguments are present.
          *
-         * To use a dynamic URI that changes based on the arguments passed in when navigating,
-         * use [setDataPattern], which will take precedence when arguments are
-         * present.
-         *
-         *  When inflated from XML, you can use `${applicationId}` for string interpolation
-         *  to automatically use [Context.getPackageName].
+         * When inflated from XML, you can use `${applicationId}` for string interpolation to
+         * automatically use [Context.getPackageName].
          *
          * @param data A static URI that should always be used.
-         * @see Destination.setDataPattern
          * @return this [Destination]
+         * @see Destination.setDataPattern
          */
         public fun setData(data: Uri?): Destination {
             if (intent == null) {
@@ -438,24 +412,19 @@ public open class ActivityNavigator(
     }
 
     /**
-     * Extras that can be passed to ActivityNavigator to customize what
-     * [ActivityOptionsCompat] and flags are passed through to the call to
-     * [ActivityCompat.startActivity].
+     * Extras that can be passed to ActivityNavigator to customize what [ActivityOptionsCompat] and
+     * flags are passed through to the call to [ActivityCompat.startActivity].
      */
-    public class Extras internal constructor(
-        /**
-         * The `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent.
-         */
+    public class Extras
+    internal constructor(
+        /** The `Intent.FLAG_ACTIVITY_` flags that should be added to the Intent. */
         public val flags: Int,
-        /**
-         * The [ActivityOptionsCompat] that should be used with [ActivityCompat.startActivity].
-         */
+        /** The [ActivityOptionsCompat] that should be used with [ActivityCompat.startActivity]. */
         public val activityOptions: ActivityOptionsCompat?
     ) : Navigator.Extras {
 
         /**
-         * Builder for constructing new [Extras] instances. The resulting instances are
-         * immutable.
+         * Builder for constructing new [Extras] instances. The resulting instances are immutable.
          */
         public class Builder {
             private var flags = 0
@@ -506,8 +475,9 @@ public open class ActivityNavigator(
 
         /**
          * Apply any pop animations in the Intent of the given Activity to a pending transition.
-         * This should be used in place of [Activity.overridePendingTransition]
-         * to get the appropriate pop animations.
+         * This should be used in place of [Activity.overridePendingTransition] to get the
+         * appropriate pop animations.
+         *
          * @param activity An activity started from the [ActivityNavigator].
          * @see NavOptions.popEnterAnim
          * @see NavOptions.popExitAnim

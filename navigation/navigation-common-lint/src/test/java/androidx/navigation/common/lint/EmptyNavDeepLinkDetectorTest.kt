@@ -30,9 +30,10 @@ class EmptyNavDeepLinkDetectorTest : LintDetectorTest() {
 
     @Test
     fun testNoErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                        """
                 package com.example
 
                 import androidx.navigation.navDeepLink
@@ -43,6 +44,7 @@ class EmptyNavDeepLinkDetectorTest : LintDetectorTest() {
                         action = ""
                         mimeType = ""
                     }
+                    navDeepLink<TestClass>("basePath")
                     navDeepLink {
                         uriPattern = ""
                         action = ""
@@ -50,16 +52,20 @@ class EmptyNavDeepLinkDetectorTest : LintDetectorTest() {
                     }
                 }
                 """
-            ).indented(),
-            navDeepLinkStub
-        ).run().expectClean()
+                    )
+                    .indented(),
+                navDeepLinkStub
+            )
+            .run()
+            .expectClean()
     }
 
     @Test
     fun testErrors() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                        """
                 package com.example
 
                 import androidx.navigation.navDeepLink
@@ -68,23 +74,27 @@ class EmptyNavDeepLinkDetectorTest : LintDetectorTest() {
                     navDeepLink { }
                 }
                 """
-            ).indented(),
-            navDeepLinkStub
-        ).run().expect(
-            """
+                    )
+                    .indented(),
+                navDeepLinkStub
+            )
+            .run()
+            .expect(
+                """
 src/com/example/test.kt:6: Error: Creation of empty NavDeepLink [EmptyNavDeepLink]
     navDeepLink { }
     ~~~~~~~~~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
     @Test
     fun testErrorsWithComment() {
-        lint().files(
-            kotlin(
-                """
+        lint()
+            .files(
+                kotlin(
+                        """
                 package com.example
 
                 import androidx.navigation.navDeepLink
@@ -93,23 +103,28 @@ src/com/example/test.kt:6: Error: Creation of empty NavDeepLink [EmptyNavDeepLin
                     navDeepLink { /* comment */ }
                 }
                 """
-            ).indented(),
-            navDeepLinkStub
-        ).run().expect(
-            """
+                    )
+                    .indented(),
+                navDeepLinkStub
+            )
+            .run()
+            .expect(
+                """
 src/com/example/test.kt:6: Error: Creation of empty NavDeepLink [EmptyNavDeepLink]
     navDeepLink { /* comment */ }
     ~~~~~~~~~~~
 1 errors, 0 warnings
             """
-        )
+            )
     }
 
-    private val navDeepLinkStub: TestFile = kotlin(
-        """
+    private val navDeepLinkStub: TestFile =
+        kotlin(
+                """
 package androidx.navigation
 
 public fun navDeepLink(deepLinkBuilder: NavDeepLinkDslBuilder.() -> Unit): NavDeepLink {}
         """
-    ).indented()
+            )
+            .indented()
 }

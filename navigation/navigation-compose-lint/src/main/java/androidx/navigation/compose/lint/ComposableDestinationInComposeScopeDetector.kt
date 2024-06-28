@@ -39,10 +39,8 @@ import org.jetbrains.uast.UCallExpression
  * Composable body.
  */
 class ComposableDestinationInComposeScopeDetector : Detector(), SourceCodeScanner {
-    override fun getApplicableMethodNames(): List<String> = listOf(
-        Composable.shortName,
-        Navigation.shortName
-    )
+    override fun getApplicableMethodNames(): List<String> =
+        listOf(Composable.shortName, Navigation.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(PackageName)) return
@@ -67,29 +65,35 @@ class ComposableDestinationInComposeScopeDetector : Detector(), SourceCodeScanne
     }
 
     companion object {
-        val ComposableDestinationInComposeScope = Issue.create(
-            "ComposableDestinationInComposeScope",
-            "Building composable destination in compose scope",
-            "Composable destinations should only be constructed directly within a " +
-                "NavGraphBuilder scope. Composable destinations cannot not be nested, and you " +
-                "should use the `navigation` function to create a nested graph instead.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ComposableDestinationInComposeScopeDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ComposableDestinationInComposeScope =
+            Issue.create(
+                "ComposableDestinationInComposeScope",
+                "Building composable destination in compose scope",
+                "Composable destinations should only be constructed directly within a " +
+                    "NavGraphBuilder scope. Composable destinations cannot be nested, and you " +
+                    "should use the `navigation` function to create a nested graph instead.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ComposableDestinationInComposeScopeDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
-        val ComposableNavGraphInComposeScope = Issue.create(
-            "ComposableNavGraphInComposeScope",
-            "Building navigation graph in compose scope",
-            "Composable destinations should only be constructed directly within a " +
-                "NavGraphBuilder scope.",
-            Category.CORRECTNESS, 3, Severity.ERROR,
-            Implementation(
-                ComposableDestinationInComposeScopeDetector::class.java,
-                EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+        val ComposableNavGraphInComposeScope =
+            Issue.create(
+                "ComposableNavGraphInComposeScope",
+                "Building navigation graph in compose scope",
+                "Composable destinations should only be constructed directly within a " +
+                    "NavGraphBuilder scope.",
+                Category.CORRECTNESS,
+                3,
+                Severity.ERROR,
+                Implementation(
+                    ComposableDestinationInComposeScopeDetector::class.java,
+                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                )
             )
-        )
     }
 }
 

@@ -36,24 +36,18 @@ class FloatingWindowTest {
     fun testNavigateFloatingToNotFloating() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_floating)
-        val floatingNavigator = navController.navigatorProvider.getNavigator(
-            FloatingTestNavigator::class.java
-        )
+        val floatingNavigator =
+            navController.navigatorProvider.getNavigator(FloatingTestNavigator::class.java)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.second_test)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.second_test)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
         // FloatingWindow destination should be popped after navigate()
         // to a not FloatingWindow
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(0)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(0)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     @UiThreadTest
@@ -61,21 +55,16 @@ class FloatingWindowTest {
     fun testNavigateFloatingToFloating() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_floating)
-        val floatingNavigator = navController.navigatorProvider.getNavigator(
-            FloatingTestNavigator::class.java
-        )
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(1)
+        val floatingNavigator =
+            navController.navigatorProvider.getNavigator(FloatingTestNavigator::class.java)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.floating_test)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.floating_test)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.floating_test)
         // FloatingWindow destination should be kept when
         // navigating to a second FloatingWindow destination
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(2)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(2)
     }
 
     @UiThreadTest
@@ -83,30 +72,22 @@ class FloatingWindowTest {
     fun testNavigateFloating2xToNotFloating() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_floating)
-        val floatingNavigator = navController.navigatorProvider.getNavigator(
-            FloatingTestNavigator::class.java
-        )
+        val floatingNavigator =
+            navController.navigatorProvider.getNavigator(FloatingTestNavigator::class.java)
         val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_test)
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.start_test)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(1)
 
         navController.navigate(R.id.floating_test)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.floating_test)
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(2)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.floating_test)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(2)
 
         navController.navigate(R.id.second_test)
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(R.id.second_test)
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
         // FloatingWindow destinations should be popped after navigate()
         // to a not FloatingWindow
-        assertThat(floatingNavigator.backStack.size)
-            .isEqualTo(0)
-        assertThat(navigator.backStack.size)
-            .isEqualTo(1)
+        assertThat(floatingNavigator.backStack.size).isEqualTo(0)
+        assertThat(navigator.backStack.size).isEqualTo(1)
     }
 
     private fun createNavController(): NavController {

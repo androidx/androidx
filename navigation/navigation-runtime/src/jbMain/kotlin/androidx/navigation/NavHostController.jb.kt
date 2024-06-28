@@ -20,11 +20,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 
 public actual open class NavHostController : NavController() {
-    public final override fun setLifecycleOwner(owner: LifecycleOwner) {
+    public actual final override fun setLifecycleOwner(owner: LifecycleOwner) {
         super.setLifecycleOwner(owner)
     }
 
-    public final override fun setViewModelStore(viewModelStore: ViewModelStore) {
+    public actual final override fun setViewModelStore(viewModelStore: ViewModelStore) {
         super.setViewModelStore(viewModelStore)
     }
 }

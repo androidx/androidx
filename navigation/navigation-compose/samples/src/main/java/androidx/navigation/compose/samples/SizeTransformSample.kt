@@ -33,28 +33,32 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlinx.serialization.Serializable
 
 @Sampled
 @Composable
 fun SizeTransformNav() {
     val navController = rememberNavController()
     Box {
-        NavHost(navController, startDestination = "collapsed") {
-            composable("collapsed",
+        NavHost(navController, startDestination = Collapsed) {
+            composable<Collapsed>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 sizeTransform = {
                     SizeTransform { initialSize, targetSize ->
                         keyframes {
                             durationMillis = 500
-                            IntSize(initialSize.width,
-                                (initialSize.height + targetSize.height) / 2) at 150
+                            IntSize(
+                                initialSize.width,
+                                (initialSize.height + targetSize.height) / 2
+                            ) at 150
                         }
                     }
-                }) {
-                CollapsedScreen { navController.navigate("expanded") }
+                }
+            ) {
+                CollapsedScreen { navController.navigate(Expanded) }
             }
-            composable("expanded",
+            composable<Expanded>(
                 enterTransition = { EnterTransition.None },
                 exitTransition = { ExitTransition.None },
                 sizeTransform = {
@@ -64,12 +68,17 @@ fun SizeTransformNav() {
                             IntSize(targetSize.width, initialSize.height + 400) at 150
                         }
                     }
-                }) {
+                }
+            ) {
                 ExpandedScreen { navController.popBackStack() }
             }
         }
     }
 }
+
+@Serializable object Collapsed
+
+@Serializable object Expanded
 
 @Composable
 fun CollapsedScreen(onNavigate: () -> Unit) {

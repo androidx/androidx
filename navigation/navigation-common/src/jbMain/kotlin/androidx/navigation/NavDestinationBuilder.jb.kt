@@ -16,56 +16,129 @@
 
 package androidx.navigation
 
-/**
- * DSL for constructing a new [NavDestination]
- */
+import androidx.annotation.RestrictTo
+import androidx.navigation.serialization.generateNavArguments
+import androidx.navigation.serialization.generateRoutePattern
+import kotlin.jvm.JvmName
+import kotlin.jvm.JvmSuppressWildcards
+import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
+
 @NavDestinationDsl
 public actual open class NavDestinationBuilder<out D : NavDestination>
-
-/**
- * DSL for constructing a new [NavDestination] with a unique route.
- *
- * @param navigator navigator used to create the destination
- * @param route the destination's unique route
- *
- * @return the newly constructed [NavDestination]
- */
-public actual constructor(
-    /**
-     * The navigator the destination was created from
-     */
+internal constructor(
     protected actual val navigator: Navigator<out D>,
-
-    /**
-     * The destination's unique route.
-     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val id: Int,
     public actual val route: String?
 ) {
-    /**
-     * The descriptive label of the destination
-     */
+    public actual constructor(navigator: Navigator<out D>, route: String?) :
+        this(navigator, -1, route)
+
+    @OptIn(InternalSerializationApi::class)
+    public actual constructor(
+        navigator: Navigator<out D>,
+        @Suppress("OptionalBuilderConstructorArgument") route: KClass<*>?,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+    ) : this(
+        navigator,
+        route?.serializer()?.hashCode() ?: -1,
+        route?.serializer()?.generateRoutePattern(typeMap)
+    ) {
+        route?.apply {
+            serializer().generateNavArguments(typeMap).forEach { arguments[it.name] = it.argument }
+        }
+        this.typeMap = typeMap
+    }
+
+    private lateinit var typeMap: Map<KType, NavType<*>>
+
     public actual var label: CharSequence? = null
 
     private var arguments = mutableMapOf<String, NavArgument>()
 
-    /**
-     * Add a [NavArgument] to this destination.
-     */
     public actual fun argument(name: String, argumentBuilder: NavArgumentBuilder.() -> Unit) {
         arguments[name] = NavArgumentBuilder().apply(argumentBuilder).build()
     }
 
-    /**
-     * Build the NavDestination by calling [Navigator.createDestination].
-     */
-    public actual open fun build(): D {
-        return navigator.createDestination().also { destination ->
-            destination.label = label
-            arguments.forEach { (name, argument) ->
-                destination.addArgument(name, argument)
+    @Suppress("BuilderSetStyle")
+    public actual fun argument(name: String, argument: NavArgument) {
+        arguments[name] = argument
+    }
+
+    private var deepLinks = mutableListOf<NavDeepLink>()
+
+    public actual fun deepLink(uriPattern: String) {
+        deepLinks.add(NavDeepLink(uriPattern))
+    }
+
+    @Suppress("BuilderSetStyle")
+    @JvmName("deepLinkSafeArgs")
+    public actual inline fun <reified T : Any> deepLink(
+        basePath: String,
+    ) {
+        deepLink(basePath, T::class) {}
+    }
+
+    public actual fun deepLink(navDeepLink: NavDeepLinkDslBuilder.() -> Unit) {
+        deepLinks.add(NavDeepLinkDslBuilder().apply(navDeepLink).build())
+    }
+
+    @Suppress("BuilderSetStyle")
+    public actual inline fun <reified T : Any> deepLink(
+        basePath: String,
+        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+    ) {
+        deepLink(basePath, T::class, navDeepLink)
+    }
+
+    @OptIn(InternalSerializationApi::class)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public actual fun <T : Any> deepLink(
+        basePath: String,
+        route: KClass<T>,
+        navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+    ) {
+        // make sure they used the safe args constructors which automatically adds
+        // argument to the destination
+        check(this::typeMap.isInitialized) {
+            "Cannot add deeplink from KClass [$route]. Use the NavDestinationBuilder " +
+                "constructor that takes a KClass with the same arguments."
+        }
+        val deepLinkArgs = route.serializer().generateNavArguments(typeMap)
+        deepLinkArgs.forEach {
+            val arg = arguments[it.name]
+            // make sure deep link doesn't contain extra arguments not present in the route KClass
+            // and that it doesn't contain different arg type
+            require(arg != null && arg.type == it.argument.type) {
+                "Cannot add deeplink from KClass [$route]. DeepLink contains unknown argument " +
+                    "[${it.name}]. Ensure deeplink arguments matches the destination's " +
+                    "route from KClass"
             }
+        }
+        deepLink(navDeepLink(basePath, route, typeMap, navDeepLink))
+    }
+
+    @Suppress("BuilderSetStyle")
+    public actual fun deepLink(navDeepLink: NavDeepLink) {
+        deepLinks.add(navDeepLink)
+    }
+
+    @Suppress("BuilderSetStyle")
+    protected actual open fun instantiateDestination(): D = navigator.createDestination()
+
+    public actual open fun build(): D {
+        return instantiateDestination().also { destination ->
+            destination.label = label
+            arguments.forEach { (name, argument) -> destination.addArgument(name, argument) }
+            deepLinks.forEach { deepLink -> destination.addDeepLink(deepLink) }
             if (route != null) {
                 destination.route = route
+            }
+            if (id != -1) {
+                destination.id = id
             }
         }
     }

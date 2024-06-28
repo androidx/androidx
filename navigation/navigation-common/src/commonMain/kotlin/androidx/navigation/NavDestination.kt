@@ -18,6 +18,8 @@ package androidx.navigation
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
 
 /**
  * NavDestination represents one node within an overall navigation graph.
@@ -65,8 +67,7 @@ public expect open class NavDestination(
      * destination is added to a NavGraph via [NavGraph.addDestination].
      */
     public var parent: NavGraph?
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public set
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public set
 
     /**
      * The descriptive label of this destination.
@@ -99,8 +100,7 @@ public expect open class NavDestination(
     public var route: String?
 
     public open val displayName: String
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 
     /**
      * Add a deep link to this destination. Matching Uris sent to
@@ -238,5 +238,25 @@ public expect open class NavDestination(
          */
         @JvmStatic
         public val NavDestination.hierarchy: Sequence<NavDestination>
+
+        /**
+         * Checks if the NavDestination's [route] was generated from [T]
+         *
+         * Returns true if equal, false otherwise.
+         *
+         * @param T the route from KClass
+         */
+        @JvmStatic
+        public inline fun <reified T : Any> NavDestination.hasRoute(): Boolean
+
+        /**
+         * Checks if the NavDestination's route was generated from [T]
+         *
+         * Returns true if equal, false otherwise.
+         *
+         * @param route the route from KClass
+         */
+        @JvmStatic
+        public fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean
     }
 }

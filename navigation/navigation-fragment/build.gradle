@@ -27,6 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -34,6 +35,7 @@ dependencies {
     api(project(":navigation:navigation-runtime"))
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinSerializationCore)
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation("androidx.fragment:fragment-testing:1.6.2")
     androidTestImplementation(libs.testExtJunit)
@@ -55,6 +57,7 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Fragment"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

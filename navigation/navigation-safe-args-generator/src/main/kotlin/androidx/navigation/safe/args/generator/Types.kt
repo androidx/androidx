@@ -20,121 +20,161 @@ import androidx.navigation.safe.args.generator.models.ResReference
 
 interface NavType {
     fun bundlePutMethod(): String
+
     fun bundleGetMethod(): String
+
     fun allowsNullable(): Boolean
 
     companion object {
-        fun from(name: String?, rFilePackage: String? = null) = when (name) {
-            "integer" -> IntType
-            "integer[]" -> IntArrayType
-            "long" -> LongType
-            "long[]" -> LongArrayType
-            "float" -> FloatType
-            "float[]" -> FloatArrayType
-            "boolean" -> BoolType
-            "boolean[]" -> BoolArrayType
-            "reference" -> ReferenceType
-            "reference[]" -> ReferenceArrayType
-            "string" -> StringType
-            "string[]" -> StringArrayType
-            null -> StringType
-            else -> {
-                val prependPackageName = if (name.startsWith(".") && rFilePackage != null) {
-                    rFilePackage
-                } else {
-                    ""
-                }
-                if (name.endsWith("[]")) {
-                    ObjectArrayType(prependPackageName + name.substringBeforeLast("[]"))
-                } else {
-                    ObjectType(prependPackageName + name)
+        fun from(name: String?, rFilePackage: String? = null) =
+            when (name) {
+                "integer" -> IntType
+                "integer[]" -> IntArrayType
+                "long" -> LongType
+                "long[]" -> LongArrayType
+                "float" -> FloatType
+                "float[]" -> FloatArrayType
+                "boolean" -> BoolType
+                "boolean[]" -> BoolArrayType
+                "reference" -> ReferenceType
+                "reference[]" -> ReferenceArrayType
+                "string" -> StringType
+                "string[]" -> StringArrayType
+                null -> StringType
+                else -> {
+                    val prependPackageName =
+                        if (name.startsWith(".") && rFilePackage != null) {
+                            rFilePackage
+                        } else {
+                            ""
+                        }
+                    if (name.endsWith("[]")) {
+                        ObjectArrayType(prependPackageName + name.substringBeforeLast("[]"))
+                    } else {
+                        ObjectType(prependPackageName + name)
+                    }
                 }
             }
-        }
     }
 }
 
 object IntType : NavType {
     override fun bundlePutMethod() = "putInt"
+
     override fun bundleGetMethod() = "getInt"
+
     override fun toString() = "integer"
+
     override fun allowsNullable() = false
 }
 
 object IntArrayType : NavType {
     override fun bundlePutMethod() = "putIntArray"
+
     override fun bundleGetMethod() = "getIntArray"
+
     override fun toString() = "integer[]"
+
     override fun allowsNullable() = true
 }
 
 object LongType : NavType {
     override fun bundlePutMethod() = "putLong"
+
     override fun bundleGetMethod() = "getLong"
+
     override fun toString() = "long"
+
     override fun allowsNullable() = false
 }
 
 object LongArrayType : NavType {
     override fun bundlePutMethod() = "putLongArray"
+
     override fun bundleGetMethod() = "getLongArray"
+
     override fun toString() = "long[]"
+
     override fun allowsNullable() = true
 }
 
 object FloatType : NavType {
     override fun bundlePutMethod() = "putFloat"
+
     override fun bundleGetMethod() = "getFloat"
+
     override fun toString() = "float"
+
     override fun allowsNullable() = false
 }
 
 object FloatArrayType : NavType {
     override fun bundlePutMethod() = "putFloatArray"
+
     override fun bundleGetMethod() = "getFloatArray"
+
     override fun toString() = "float[]"
+
     override fun allowsNullable() = true
 }
 
 object StringType : NavType {
     override fun bundlePutMethod() = "putString"
+
     override fun bundleGetMethod() = "getString"
+
     override fun toString() = "string"
+
     override fun allowsNullable() = true
 }
 
 object StringArrayType : NavType {
     override fun bundlePutMethod() = "putStringArray"
+
     override fun bundleGetMethod() = "getStringArray"
+
     override fun toString() = "string[]"
+
     override fun allowsNullable() = true
 }
 
 object BoolType : NavType {
     override fun bundlePutMethod() = "putBoolean"
+
     override fun bundleGetMethod() = "getBoolean"
+
     override fun toString() = "boolean"
+
     override fun allowsNullable() = false
 }
 
 object BoolArrayType : NavType {
     override fun bundlePutMethod() = "putBooleanArray"
+
     override fun bundleGetMethod() = "getBooleanArray"
+
     override fun toString() = "boolean"
+
     override fun allowsNullable() = true
 }
 
 object ReferenceType : NavType {
     override fun bundlePutMethod() = "putInt"
+
     override fun bundleGetMethod() = "getInt"
+
     override fun toString() = "reference"
+
     override fun allowsNullable() = false
 }
 
 object ReferenceArrayType : NavType {
     override fun bundlePutMethod() = "putIntArray"
+
     override fun bundleGetMethod() = "getIntArray"
+
     override fun toString() = "reference[]"
+
     override fun allowsNullable() = true
 }
 
@@ -146,13 +186,17 @@ data class ObjectType(val canonicalName: String) : NavType {
         throw UnsupportedOperationException("Use addBundleGetStatement instead.")
 
     override fun toString() = "parcelable or serializable"
+
     override fun allowsNullable() = true
 }
 
 data class ObjectArrayType(val canonicalName: String) : NavType {
     override fun bundlePutMethod() = "putParcelableArray"
+
     override fun bundleGetMethod() = "getParcelableArray"
+
     override fun toString() = "parcelable array"
+
     override fun allowsNullable() = true
 }
 

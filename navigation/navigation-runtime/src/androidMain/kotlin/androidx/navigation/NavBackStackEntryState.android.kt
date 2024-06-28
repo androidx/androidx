@@ -23,13 +23,13 @@ import android.os.Parcelable
 import androidx.lifecycle.Lifecycle
 
 @SuppressLint("BanParcelableUsage")
-internal actual class NavBackStackEntryState : Parcelable {
-    actual val id: String
+internal class NavBackStackEntryState : Parcelable {
+    val id: String
     val destinationId: Int
-    actual val args: Bundle?
-    actual val savedState: Bundle
+    val args: Bundle?
+    val savedState: Bundle
 
-    actual constructor(entry: NavBackStackEntry) {
+    constructor(entry: NavBackStackEntry) {
         id = entry.id
         destinationId = entry.destination.id
         args = entry.arguments
@@ -50,13 +50,15 @@ internal actual class NavBackStackEntryState : Parcelable {
         hostLifecycleState: Lifecycle.State,
         viewModel: NavControllerViewModel?
     ): NavBackStackEntry {
-        val args = args?.apply {
-            classLoader = context.classLoader
-        }
+        val args = args?.apply { classLoader = context.classLoader }
         return NavBackStackEntry.create(
-            context, destination, args,
-            hostLifecycleState, viewModel,
-            id, savedState
+            context,
+            destination,
+            args,
+            hostLifecycleState,
+            viewModel,
+            id,
+            savedState
         )
     }
 

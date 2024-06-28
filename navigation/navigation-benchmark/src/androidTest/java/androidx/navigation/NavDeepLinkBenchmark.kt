@@ -26,30 +26,28 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavDeepLinkBenchmark {
 
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    @get:Rule val benchmarkRule = BenchmarkRule()
 
-    @Test
-    fun navGraphDestinations_withRoutes() = inflateNavGraph_withRoutes(1)
+    @Test fun navGraphDestinations_withRoutes() = inflateNavGraph_withRoutes(1)
 
-    @Test
-    fun navGraphDestinations_withRoutes10() = inflateNavGraph_withRoutes(10)
+    @Test fun navGraphDestinations_withRoutes10() = inflateNavGraph_withRoutes(10)
 
-    @Test
-    fun navGraphDestinations_withRoutes50() = inflateNavGraph_withRoutes(50)
+    @Test fun navGraphDestinations_withRoutes50() = inflateNavGraph_withRoutes(50)
 
-    @Test
-    fun navGraphDestinations_withRoutes100() = inflateNavGraph_withRoutes(100)
+    @Test fun navGraphDestinations_withRoutes100() = inflateNavGraph_withRoutes(100)
 
     private fun inflateNavGraph_withRoutes(count: Int) {
-        val navigatorProvider = NavigatorProvider().apply {
-            addNavigator(NavGraphNavigator(this))
-            addNavigator(NoOpNavigator())
-        }
+        val navigatorProvider =
+            NavigatorProvider().apply {
+                addNavigator(NavGraphNavigator(this))
+                addNavigator(NoOpNavigator())
+            }
         val navigator = navigatorProvider.getNavigator(NoOpNavigator::class.java)
         benchmarkRule.measureRepeated {
-            navigatorProvider.getNavigator(NavGraphNavigator::class.java)
-                .createDestination().apply {
+            navigatorProvider
+                .getNavigator(NavGraphNavigator::class.java)
+                .createDestination()
+                .apply {
                     id = GRAPH_ID
                     setStartDestination(START_DESTINATION_ID)
                     for (i in 0 until count) {

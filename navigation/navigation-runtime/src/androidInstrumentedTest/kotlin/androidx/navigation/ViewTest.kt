@@ -29,7 +29,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ViewTest {
 
-    @Test fun findNavController() {
+    @Test
+    fun findNavController() {
         val view = View(ApplicationProvider.getApplicationContext() as android.content.Context)
         val navController =
             NavController(ApplicationProvider.getApplicationContext() as android.content.Context)
@@ -37,10 +38,12 @@ class ViewTest {
 
         val foundNavController = view.findNavController()
         assertWithMessage("View should have NavController set")
-            .that(foundNavController).isSameInstanceAs(navController)
+            .that(foundNavController)
+            .isSameInstanceAs(navController)
     }
 
-    @Test fun findNavControllerNull() {
+    @Test
+    fun findNavControllerNull() {
         val view = View(ApplicationProvider.getApplicationContext() as android.content.Context)
         try {
             view.findNavController()

@@ -20,6 +20,8 @@ import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import androidx.navigation.common.test.R
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -36,14 +38,24 @@ class NavTypeTest {
     companion object {
         private const val i = 1
         private val ints = intArrayOf(0, 1)
+        private val intList = listOf(0, 1)
+        private val intArrayList = arrayListOf(0, 1)
         private const val l = 1L
         private val longs = longArrayOf(0L, 1L)
+        private val longList = listOf(0L, 1L)
+        private val longArrayList = arrayListOf(0L, 1L)
         private const val fl = 1.5f
         private val floats = floatArrayOf(1f, 2.5f)
+        private val floatList = listOf(1f, 2.5f)
+        private val floatArrayList = arrayListOf(1f, 2.5f)
         private const val b = true
         private val booleans = booleanArrayOf(b, false)
+        private val boolList = listOf(b, false)
+        private val booArrayList = arrayListOf(b, false)
         private const val s = "a_string"
         private val strings = arrayOf("aa", "bb")
+        private val stringList = listOf("aa", "bb")
+        private val stringArrayList = arrayListOf("aa", "bb")
         private val reference = R.id.nav_id_reference
         private val referenceHex = "0x" + R.id.nav_id_reference.toString(16)
         private val parcelable = ActivityInfo()
@@ -51,11 +63,11 @@ class NavTypeTest {
         private val en = Bitmap.Config.ALPHA_8
         private val enString = "ALPHA_8"
         private val enStringCasing = "alpha_8"
+        private val referenceString = "2131034161"
         private val serializable = Person()
         private val serializables = arrayOf(Bitmap.Config.ALPHA_8)
         private val parcelableNavType = NavType.ParcelableType(ActivityInfo::class.java)
-        private val parcelableArrayNavType =
-            NavType.ParcelableArrayType(ActivityInfo::class.java)
+        private val parcelableArrayNavType = NavType.ParcelableArrayType(ActivityInfo::class.java)
         private val serializableNavType = NavType.SerializableType(Person::class.java)
         private val enumNavType = NavType.EnumType(Bitmap.Config::class.java)
         private val serializableArrayNavType =
@@ -64,28 +76,22 @@ class NavTypeTest {
 
     @Test
     fun fromArgType() {
-        assertThat(NavType.fromArgType("integer", null))
-            .isEqualTo(NavType.IntType)
-        assertThat(NavType.fromArgType("integer[]", null))
-            .isEqualTo(NavType.IntArrayType)
-        assertThat(NavType.fromArgType("long", null))
-            .isEqualTo(NavType.LongType)
-        assertThat(NavType.fromArgType("long[]", null))
-            .isEqualTo(NavType.LongArrayType)
-        assertThat(NavType.fromArgType("float", null))
-            .isEqualTo(NavType.FloatType)
-        assertThat(NavType.fromArgType("float[]", null))
-            .isEqualTo(NavType.FloatArrayType)
-        assertThat(NavType.fromArgType("boolean", null))
-            .isEqualTo(NavType.BoolType)
-        assertThat(NavType.fromArgType("boolean[]", null))
-            .isEqualTo(NavType.BoolArrayType)
-        assertThat(NavType.fromArgType("string", null))
-            .isEqualTo(NavType.StringType)
-        assertThat(NavType.fromArgType("string[]", null))
-            .isEqualTo(NavType.StringArrayType)
-        assertThat(NavType.fromArgType("reference", null))
-            .isEqualTo(NavType.ReferenceType)
+        assertThat(NavType.fromArgType("integer", null)).isEqualTo(NavType.IntType)
+        assertThat(NavType.fromArgType("integer[]", null)).isEqualTo(NavType.IntArrayType)
+        assertThat(NavType.fromArgType("List<Int>", null)).isEqualTo(NavType.IntListType)
+        assertThat(NavType.fromArgType("long", null)).isEqualTo(NavType.LongType)
+        assertThat(NavType.fromArgType("long[]", null)).isEqualTo(NavType.LongArrayType)
+        assertThat(NavType.fromArgType("List<Long>", null)).isEqualTo(NavType.LongListType)
+        assertThat(NavType.fromArgType("float", null)).isEqualTo(NavType.FloatType)
+        assertThat(NavType.fromArgType("float[]", null)).isEqualTo(NavType.FloatArrayType)
+        assertThat(NavType.fromArgType("List<Float>", null)).isEqualTo(NavType.FloatListType)
+        assertThat(NavType.fromArgType("boolean", null)).isEqualTo(NavType.BoolType)
+        assertThat(NavType.fromArgType("boolean[]", null)).isEqualTo(NavType.BoolArrayType)
+        assertThat(NavType.fromArgType("List<Boolean>", null)).isEqualTo(NavType.BoolListType)
+        assertThat(NavType.fromArgType("string", null)).isEqualTo(NavType.StringType)
+        assertThat(NavType.fromArgType("string[]", null)).isEqualTo(NavType.StringArrayType)
+        assertThat(NavType.fromArgType("List<String>", null)).isEqualTo(NavType.StringListType)
+        assertThat(NavType.fromArgType("reference", null)).isEqualTo(NavType.ReferenceType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo", null))
             .isEqualTo(parcelableNavType)
         assertThat(NavType.fromArgType("android.content.pm.ActivityInfo[]", null))
@@ -96,60 +102,37 @@ class NavTypeTest {
             .isEqualTo(enumNavType)
         assertThat(NavType.fromArgType("android.graphics.Bitmap\$Config[]", null))
             .isEqualTo(serializableArrayNavType)
-        assertThat(NavType.fromArgType(null, null))
-            .isEqualTo(NavType.StringType)
+        assertThat(NavType.fromArgType(null, null)).isEqualTo(NavType.StringType)
     }
 
     @Test
     fun inferFromValue() {
-        assertThat(NavType.inferFromValue("stringvalue"))
-            .isEqualTo(NavType.StringType)
-        assertThat(NavType.inferFromValue("123"))
-            .isEqualTo(NavType.IntType)
-        assertThat(NavType.inferFromValue("0xFF"))
-            .isEqualTo(NavType.IntType)
-        assertThat(NavType.inferFromValue("123L"))
-            .isEqualTo(NavType.LongType)
-        assertThat(NavType.inferFromValue("1.5"))
-            .isEqualTo(NavType.FloatType)
-        assertThat(NavType.inferFromValue("true"))
-            .isEqualTo(NavType.BoolType)
+        assertThat(NavType.inferFromValue("stringvalue")).isEqualTo(NavType.StringType)
+        assertThat(NavType.inferFromValue("123")).isEqualTo(NavType.IntType)
+        assertThat(NavType.inferFromValue("0xFF")).isEqualTo(NavType.IntType)
+        assertThat(NavType.inferFromValue("123L")).isEqualTo(NavType.LongType)
+        assertThat(NavType.inferFromValue("1.5")).isEqualTo(NavType.FloatType)
+        assertThat(NavType.inferFromValue("true")).isEqualTo(NavType.BoolType)
     }
 
     @Test
     fun inferFromValueType() {
-        assertThat(NavType.inferFromValueType(i))
-            .isEqualTo(NavType.IntType)
-        assertThat(NavType.inferFromValueType(ints))
-            .isEqualTo(NavType.IntArrayType)
-        assertThat(NavType.inferFromValueType(l))
-            .isEqualTo(NavType.LongType)
-        assertThat(NavType.inferFromValueType(longs))
-            .isEqualTo(NavType.LongArrayType)
-        assertThat(NavType.inferFromValueType(fl))
-            .isEqualTo(NavType.FloatType)
-        assertThat(NavType.inferFromValueType(floats))
-            .isEqualTo(NavType.FloatArrayType)
-        assertThat(NavType.inferFromValueType(b))
-            .isEqualTo(NavType.BoolType)
-        assertThat(NavType.inferFromValueType(booleans))
-            .isEqualTo(NavType.BoolArrayType)
-        assertThat(NavType.inferFromValueType(s))
-            .isEqualTo(NavType.StringType)
-        assertThat(NavType.inferFromValueType(strings))
-            .isEqualTo(NavType.StringArrayType)
-        assertThat(NavType.inferFromValueType(parcelable))
-            .isEqualTo(parcelableNavType)
-        assertThat(NavType.inferFromValueType(parcelables))
-            .isEqualTo(parcelableArrayNavType)
-        assertThat(NavType.inferFromValueType(en))
-            .isEqualTo(enumNavType)
-        assertThat(NavType.inferFromValueType(serializable))
-            .isEqualTo(serializableNavType)
-        assertThat(NavType.inferFromValueType(serializables))
-            .isEqualTo(serializableArrayNavType)
-        assertThat(NavType.inferFromValueType(null))
-            .isEqualTo(NavType.StringType)
+        assertThat(NavType.inferFromValueType(i)).isEqualTo(NavType.IntType)
+        assertThat(NavType.inferFromValueType(ints)).isEqualTo(NavType.IntArrayType)
+        assertThat(NavType.inferFromValueType(l)).isEqualTo(NavType.LongType)
+        assertThat(NavType.inferFromValueType(longs)).isEqualTo(NavType.LongArrayType)
+        assertThat(NavType.inferFromValueType(fl)).isEqualTo(NavType.FloatType)
+        assertThat(NavType.inferFromValueType(floats)).isEqualTo(NavType.FloatArrayType)
+        assertThat(NavType.inferFromValueType(b)).isEqualTo(NavType.BoolType)
+        assertThat(NavType.inferFromValueType(booleans)).isEqualTo(NavType.BoolArrayType)
+        assertThat(NavType.inferFromValueType(s)).isEqualTo(NavType.StringType)
+        assertThat(NavType.inferFromValueType(strings)).isEqualTo(NavType.StringArrayType)
+        assertThat(NavType.inferFromValueType(parcelable)).isEqualTo(parcelableNavType)
+        assertThat(NavType.inferFromValueType(parcelables)).isEqualTo(parcelableArrayNavType)
+        assertThat(NavType.inferFromValueType(en)).isEqualTo(enumNavType)
+        assertThat(NavType.inferFromValueType(serializable)).isEqualTo(serializableNavType)
+        assertThat(NavType.inferFromValueType(serializables)).isEqualTo(serializableArrayNavType)
+        assertThat(NavType.inferFromValueType(null)).isEqualTo(NavType.StringType)
     }
 
     @Test
@@ -157,119 +140,260 @@ class NavTypeTest {
         val key = "key"
         val bundle = Bundle()
         NavType.IntType.put(bundle, key, i)
-        assertThat(NavType.IntType[bundle, key])
-            .isEqualTo(i)
+        assertThat(NavType.IntType[bundle, key]).isEqualTo(i)
         bundle.clear()
 
         NavType.IntArrayType.put(bundle, key, ints)
-        assertThat(NavType.IntArrayType[bundle, key])
-            .isEqualTo(ints)
+        assertThat(NavType.IntArrayType[bundle, key]).isEqualTo(ints)
+        bundle.clear()
+
+        NavType.IntListType.put(bundle, key, intList)
+        assertThat(NavType.IntListType[bundle, key]).isEqualTo(intList)
+        bundle.clear()
+
+        NavType.IntListType.put(bundle, key, intArrayList)
+        assertThat(NavType.IntListType[bundle, key]).isEqualTo(intArrayList)
         bundle.clear()
 
         NavType.LongType.put(bundle, key, l)
-        assertThat(NavType.LongType[bundle, key])
-            .isEqualTo(l)
+        assertThat(NavType.LongType[bundle, key]).isEqualTo(l)
         bundle.clear()
 
         NavType.LongArrayType.put(bundle, key, longs)
-        assertThat(NavType.LongArrayType[bundle, key])
-            .isEqualTo(longs)
+        assertThat(NavType.LongArrayType[bundle, key]).isEqualTo(longs)
+        bundle.clear()
+
+        NavType.LongListType.put(bundle, key, longList)
+        assertThat(NavType.LongListType[bundle, key]).isEqualTo(longList)
+        bundle.clear()
+
+        NavType.LongListType.put(bundle, key, longArrayList)
+        assertThat(NavType.LongListType[bundle, key]).isEqualTo(longArrayList)
         bundle.clear()
 
         NavType.FloatType.put(bundle, key, fl)
-        assertThat(NavType.FloatType[bundle, key])
-            .isEqualTo(fl)
+        assertThat(NavType.FloatType[bundle, key]).isEqualTo(fl)
         bundle.clear()
 
         NavType.FloatArrayType.put(bundle, key, floats)
-        assertThat(NavType.FloatArrayType[bundle, key])
-            .isEqualTo(floats)
+        assertThat(NavType.FloatArrayType[bundle, key]).isEqualTo(floats)
+        bundle.clear()
+
+        NavType.FloatListType.put(bundle, key, floatList)
+        assertThat(NavType.FloatListType[bundle, key]).isEqualTo(floatList)
+        bundle.clear()
+
+        NavType.FloatListType.put(bundle, key, floatArrayList)
+        assertThat(NavType.FloatListType[bundle, key]).isEqualTo(floatArrayList)
         bundle.clear()
 
         NavType.BoolType.put(bundle, key, b)
-        assertThat(NavType.BoolType[bundle, key])
-            .isEqualTo(b)
+        assertThat(NavType.BoolType[bundle, key]).isEqualTo(b)
         bundle.clear()
 
         NavType.BoolArrayType.put(bundle, key, booleans)
-        assertThat(NavType.BoolArrayType[bundle, key])
-            .isEqualTo(booleans)
+        assertThat(NavType.BoolArrayType[bundle, key]).isEqualTo(booleans)
+        bundle.clear()
+
+        NavType.BoolListType.put(bundle, key, boolList)
+        assertThat(NavType.BoolListType[bundle, key]).isEqualTo(boolList)
+        bundle.clear()
+
+        NavType.BoolListType.put(bundle, key, booArrayList)
+        assertThat(NavType.BoolListType[bundle, key]).isEqualTo(booArrayList)
         bundle.clear()
 
         NavType.StringType.put(bundle, key, s)
-        assertThat(NavType.StringType[bundle, key])
-            .isEqualTo(s)
+        assertThat(NavType.StringType[bundle, key]).isEqualTo(s)
         bundle.clear()
 
         NavType.StringArrayType.put(bundle, key, strings)
-        assertThat(NavType.StringArrayType[bundle, key])
-            .isEqualTo(strings)
+        assertThat(NavType.StringArrayType[bundle, key]).isEqualTo(strings)
+        bundle.clear()
+
+        NavType.StringListType.put(bundle, key, stringList)
+        assertThat(NavType.StringListType[bundle, key]).isEqualTo(stringList)
+        bundle.clear()
+
+        NavType.StringListType.put(bundle, key, stringArrayList)
+        assertThat(NavType.StringListType[bundle, key]).isEqualTo(stringArrayList)
         bundle.clear()
 
         NavType.ReferenceType.put(bundle, key, reference)
-        assertThat(NavType.ReferenceType[bundle, key])
-            .isEqualTo(reference)
+        assertThat(NavType.ReferenceType[bundle, key]).isEqualTo(reference)
         bundle.clear()
 
         parcelableNavType.put(bundle, key, parcelable)
-        assertThat(parcelableNavType[bundle, key])
-            .isEqualTo(parcelable)
+        assertThat(parcelableNavType[bundle, key]).isEqualTo(parcelable)
         bundle.clear()
 
         parcelableArrayNavType.put(bundle, key, parcelables)
-        assertThat(parcelableArrayNavType[bundle, key])
-            .isEqualTo(parcelables)
+        assertThat(parcelableArrayNavType[bundle, key]).isEqualTo(parcelables)
         bundle.clear()
 
         enumNavType.put(bundle, key, en)
-        assertThat(enumNavType[bundle, key])
-            .isEqualTo(en)
+        assertThat(enumNavType[bundle, key]).isEqualTo(en)
         bundle.clear()
 
         serializableNavType.put(bundle, key, serializable)
-        assertThat(serializableNavType[bundle, key])
-            .isEqualTo(serializable)
+        assertThat(serializableNavType[bundle, key]).isEqualTo(serializable)
         bundle.clear()
 
         serializableArrayNavType.put(bundle, key, serializables)
-        assertThat(serializableArrayNavType[bundle, key])
-            .isEqualTo(serializables)
+        assertThat(serializableArrayNavType[bundle, key]).isEqualTo(serializables)
         bundle.clear()
     }
 
     @Test
     fun parseValueWithHex() {
-        assertThat(NavType.IntType.parseValue(referenceHex))
-            .isEqualTo(reference)
+        assertThat(NavType.IntType.parseValue(referenceHex)).isEqualTo(reference)
 
-        assertThat(NavType.ReferenceType.parseValue(referenceHex))
-            .isEqualTo(reference)
+        assertThat(NavType.ReferenceType.parseValue(referenceHex)).isEqualTo(reference)
     }
 
     @Test
     fun parseEnumValue() {
-        assertThat(enumNavType.parseValue(enString))
-            .isEqualTo(en)
+        assertThat(enumNavType.parseValue(enString)).isEqualTo(en)
 
-        assertThat(enumNavType.parseValue(enStringCasing))
-            .isEqualTo(en)
+        assertThat(enumNavType.parseValue(enStringCasing)).isEqualTo(en)
+    }
+
+    @Test
+    fun parcelableArrayValueEquals() {
+        val type = NavType.ParcelableArrayType(TestParcelable::class.java)
+        val array1 = arrayOf(TestParcelable(1), TestParcelable(2))
+        val array2 = arrayOf(TestParcelable(1), TestParcelable(2))
+        assertThat(type.valueEquals(array1, array2)).isTrue()
+
+        // deep comparison, order matters
+        val array3 = arrayOf(TestParcelable(2), TestParcelable(1))
+        val array4 = arrayOf(TestParcelable(1), TestParcelable(2))
+        assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
+    fun serializableArrayValueEquals() {
+        val type = NavType.SerializableArrayType(TestSerializable::class.java)
+        val array1 = arrayOf(TestSerializable(1), TestSerializable(2))
+        val array2 = arrayOf(TestSerializable(1), TestSerializable(2))
+        assertThat(type.valueEquals(array1, array2)).isTrue()
+
+        // deep comparison, order matters
+        val array3 = arrayOf(TestSerializable(2), TestSerializable(1))
+        val array4 = arrayOf(TestSerializable(1), TestSerializable(2))
+        assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
+    fun primitiveArrayValueEquals() {
+        val type = NavType.IntArrayType
+        val array1 = intArrayOf(1, 2)
+        val array2 = intArrayOf(1, 2)
+        assertThat(type.valueEquals(array1, array2)).isTrue()
+
+        // deep comparison, order matters
+        val array3 = intArrayOf(2, 1)
+        val array4 = intArrayOf(1, 2)
+        assertThat(type.valueEquals(array3, array4)).isFalse()
+    }
+
+    @Test
+    fun serializeAsValues() {
+        assertThat((NavType.IntArrayType as CollectionNavType).serializeAsValues(intArrayOf(0, 1)))
+            .containsExactly("0", "1")
+            .inOrder()
+        assertThat((NavType.IntListType as CollectionNavType).serializeAsValues(listOf(0, 1)))
+            .containsExactly("0", "1")
+            .inOrder()
+        assertThat((NavType.IntListType as CollectionNavType).serializeAsValues(arrayListOf(0, 1)))
+            .containsExactly("0", "1")
+            .inOrder()
+        assertThat(
+                (NavType.BoolArrayType as CollectionNavType).serializeAsValues(
+                    booleanArrayOf(true, false)
+                )
+            )
+            .containsExactly("true", "false")
+            .inOrder()
+        assertThat(
+                (NavType.BoolListType as CollectionNavType).serializeAsValues(listOf(true, false))
+            )
+            .containsExactly("true", "false")
+            .inOrder()
+        assertThat(
+                (NavType.BoolListType as CollectionNavType).serializeAsValues(
+                    arrayListOf(true, false)
+                )
+            )
+            .containsExactly("true", "false")
+            .inOrder()
+        assertThat(
+                (NavType.StringArrayType as CollectionNavType).serializeAsValues(
+                    arrayOf("test", "test2")
+                )
+            )
+            .containsExactly("test", "test2")
+            .inOrder()
+        assertThat(
+                (NavType.StringListType as CollectionNavType).serializeAsValues(
+                    listOf("test", "test2")
+                )
+            )
+            .containsExactly("test", "test2")
+            .inOrder()
+        assertThat(
+                (NavType.StringListType as CollectionNavType).serializeAsValues(
+                    arrayListOf("test", "test2")
+                )
+            )
+            .containsExactly("test", "test2")
+            .inOrder()
+        assertThat(
+                (NavType.FloatArrayType as CollectionNavType).serializeAsValues(
+                    floatArrayOf(1F, 2F)
+                )
+            )
+            .containsExactly("1.0", "2.0")
+            .inOrder()
+        assertThat((NavType.FloatListType as CollectionNavType).serializeAsValues(listOf(1F, 2F)))
+            .containsExactly("1.0", "2.0")
+            .inOrder()
+        assertThat(
+                (NavType.FloatListType as CollectionNavType).serializeAsValues(arrayListOf(1F, 2F))
+            )
+            .containsExactly("1.0", "2.0")
+            .inOrder()
+        assertThat(
+                (NavType.LongArrayType as CollectionNavType).serializeAsValues(longArrayOf(1L, 2L))
+            )
+            .containsExactly("1", "2")
+            .inOrder()
+        assertThat((NavType.LongListType as CollectionNavType).serializeAsValues(listOf(1L, 2L)))
+            .containsExactly("1", "2")
+            .inOrder()
+        assertThat(
+                (NavType.LongListType as CollectionNavType).serializeAsValues(arrayListOf(1L, 2L))
+            )
+            .containsExactly("1", "2")
+            .inOrder()
     }
 
     @Test
     fun customType_defaultSerializeAsValue() {
-        val testItemType = object : NavType<TestItem> (false) {
-            override fun put(bundle: Bundle, key: String, value: TestItem) {
-                //
-            }
+        val testItemType =
+            object : NavType<TestItem>(false) {
+                override fun put(bundle: Bundle, key: String, value: TestItem) {
+                    //
+                }
 
-            override fun get(bundle: Bundle, key: String): TestItem? {
-                return TestItem()
-            }
+                override fun get(bundle: Bundle, key: String): TestItem? {
+                    return TestItem()
+                }
 
-            override fun parseValue(value: String): TestItem {
-                return TestItem()
+                override fun parseValue(value: String): TestItem {
+                    return TestItem()
+                }
             }
-        }
 
         val testItem = TestItem()
         val serializedValue = testItemType.serializeAsValue(testItem)
@@ -278,23 +402,24 @@ class NavTypeTest {
 
     @Test
     fun customType_overrideSerializeAsValue() {
-        val testItemType = object : NavType<TestItem> (false) {
-            override fun put(bundle: Bundle, key: String, value: TestItem) {
-                //
-            }
+        val testItemType =
+            object : NavType<TestItem>(false) {
+                override fun put(bundle: Bundle, key: String, value: TestItem) {
+                    //
+                }
 
-            override fun get(bundle: Bundle, key: String): TestItem? {
-                return TestItem()
-            }
+                override fun get(bundle: Bundle, key: String): TestItem? {
+                    return TestItem()
+                }
 
-            override fun parseValue(value: String): TestItem {
-                return TestItem()
-            }
+                override fun parseValue(value: String): TestItem {
+                    return TestItem()
+                }
 
-            override fun serializeAsValue(value: TestItem): String {
-                return "MyTestItem"
+                override fun serializeAsValue(value: TestItem): String {
+                    return "MyTestItem"
+                }
             }
-        }
 
         val serializedValue = testItemType.serializeAsValue(TestItem())
         assertThat(serializedValue).isEqualTo("MyTestItem")
@@ -303,33 +428,25 @@ class NavTypeTest {
     @Test
     fun stringType_defaultSerializeAsValue() {
         val stringType = NavType.StringType
-        assertThat(stringType.serializeAsValue("test_string")).isEqualTo(
-            Uri.encode("test_string")
-        )
+        assertThat(stringType.serializeAsValue("test_string")).isEqualTo(Uri.encode("test_string"))
     }
 
     @Test
     fun nullStringType_defaultSerializeAsValue() {
         val stringType = NavType.StringType
-        assertThat(stringType.serializeAsValue(null)).isEqualTo(
-            "null"
-        )
+        assertThat(stringType.serializeAsValue(null)).isEqualTo("null")
     }
 
     @Test
     fun nullStringType_parseValue() {
         val stringType = NavType.StringType
-        assertThat(stringType.parseValue("null")).isEqualTo(
-            null
-        )
+        assertThat(stringType.parseValue("null")).isEqualTo(null)
     }
 
     @Test
     fun nullableType_defaultSerializeAsValue() {
         val intArrayType = NavType.IntArrayType
-        assertThat(intArrayType.serializeAsValue(null)).isEqualTo(
-            "null"
-        )
+        assertThat(intArrayType.serializeAsValue(null)).isEqualTo("null")
     }
 }
 
@@ -338,3 +455,11 @@ private class TestItem {
         return "TestItem"
     }
 }
+
+private data class TestParcelable(val arg: Int) : Parcelable {
+    override fun describeContents(): Int = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) {}
+}
+
+private data class TestSerializable(val arg: Int) : Serializable

@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("NullAnnotationGroup") // b/331484152
+
 package androidx.navigation.fragment
 
+import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.NavDestinationBuilder
 import androidx.navigation.NavDestinationDsl
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.get
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
@@ -34,9 +39,8 @@ import kotlin.reflect.KClass
     "Use routes to create your DialogFragmentDestination instead",
     ReplaceWith("dialog<F>(route = id.toString())")
 )
-public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
-    @IdRes id: Int
-): Unit = dialog<F>(id) {}
+public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(@IdRes id: Int): Unit =
+    dialog<F>(id) {}
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
@@ -52,21 +56,23 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    DialogFragmentNavigatorDestinationBuilder(
-        provider[DialogFragmentNavigator::class],
-        id,
-        F::class
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        DialogFragmentNavigatorDestinationBuilder(
+                provider[DialogFragmentNavigator::class],
+                id,
+                F::class
+            )
+            .apply(builder)
+    )
+
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
  *
  * @param route the destination's unique route
  */
-public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
-    route: String
-): Unit = dialog<F>(route) {}
+public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(route: String): Unit =
+    dialog<F>(route) {}
 
 /**
  * Construct a new [DialogFragmentNavigator.Destination]
@@ -77,17 +83,50 @@ public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
 public inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     route: String,
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    DialogFragmentNavigatorDestinationBuilder(
-        provider[DialogFragmentNavigator::class],
-        route,
-        F::class
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        DialogFragmentNavigatorDestinationBuilder(
+                provider[DialogFragmentNavigator::class],
+                route,
+                F::class
+            )
+            .apply(builder)
+    )
 
 /**
- * DSL for constructing a new [DialogFragmentNavigator.Destination]
+ * Construct a new [DialogFragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ *   [NavType]. May be empty if [T] does not use custom NavTypes.
  */
+public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+): Unit = dialog<F, T>(typeMap) {}
+
+/**
+ * Construct a new [DialogFragmentNavigator.Destination]
+ *
+ * @param T the destination's unique route from a [KClass]
+ * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+ *   [NavType]. May be empty if [T] does not use custom NavTypes.
+ * @param builder the builder used to construct the fragment destination
+ */
+public inline fun <reified F : DialogFragment, reified T : Any> NavGraphBuilder.dialog(
+    typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
+    builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
+): Unit =
+    destination(
+        DialogFragmentNavigatorDestinationBuilder(
+                provider[DialogFragmentNavigator::class],
+                T::class,
+                typeMap,
+                F::class
+            )
+            .apply(builder)
+    )
+
+/** DSL for constructing a new [DialogFragmentNavigator.Destination] */
 @NavDestinationDsl
 public class DialogFragmentNavigatorDestinationBuilder :
     NavDestinationBuilder<DialogFragmentNavigator.Destination> {
@@ -100,7 +139,7 @@ public class DialogFragmentNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param id the destination's unique id
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
-     * destination
+     *   destination
      */
     @Suppress("Deprecation")
     @Deprecated(
@@ -122,10 +161,10 @@ public class DialogFragmentNavigatorDestinationBuilder :
      * DSL for constructing a new [DialogFragmentNavigator.Destination]
      *
      * @param navigator navigator used to create the destination
-     * @param route the destination's unique route. This sets the [route] on the newly
-     * constructed [NavDestination]. This can be any valid non-empty String.
+     * @param route the destination's unique route. This sets the [route] on the newly constructed
+     *   [NavDestination]. This can be any valid non-empty String.
      * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
-     * destination
+     *   destination
      */
     public constructor(
         navigator: DialogFragmentNavigator,
@@ -135,8 +174,26 @@ public class DialogFragmentNavigatorDestinationBuilder :
         this.fragmentClass = fragmentClass
     }
 
+    /**
+     * DSL for constructing a new [DialogFragmentNavigator.Destination]
+     *
+     * @param navigator navigator used to create the destination
+     * @param route the destination's unique route from a [KClass]. This sets the [route] on the
+     *   newly constructed [NavDestination].
+     * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
+     *   [NavType]. May be empty if [route] does not use custom NavTypes.
+     * @param fragmentClass the class name of the DialogFragment to show when you navigate to this
+     *   destination
+     */
+    public constructor(
+        navigator: DialogFragmentNavigator,
+        route: KClass<out Any>,
+        typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
+        fragmentClass: KClass<out DialogFragment>
+    ) : super(navigator, route, typeMap) {
+        this.fragmentClass = fragmentClass
+    }
+
     override fun build(): DialogFragmentNavigator.Destination =
-        super.build().also { destination ->
-            destination.setClassName(fragmentClass.java.name)
-        }
+        super.build().also { destination -> destination.setClassName(fragmentClass.java.name) }
 }

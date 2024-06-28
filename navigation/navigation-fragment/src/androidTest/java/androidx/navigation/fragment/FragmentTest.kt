@@ -34,15 +34,17 @@ class ActivityTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule<TestActivity>(TestActivity::class.java)
-    private val fragmentManager get() = activityRule.activity.supportFragmentManager
-    private val contentFragment get() = fragmentManager.findFragmentById(android.R.id.content)!!
+    private val fragmentManager
+        get() = activityRule.activity.supportFragmentManager
+
+    private val contentFragment
+        get() = fragmentManager.findFragmentById(android.R.id.content)!!
 
     @UiThreadTest
-    @Test fun findNavController() {
+    @Test
+    fun findNavController() {
         val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
 
         val foundNavController = contentFragment.findNavController()
         assertWithMessage("Fragment should have NavController set")
@@ -51,10 +53,9 @@ class ActivityTest {
     }
 
     @UiThreadTest
-    @Test fun findNavControllerNull() {
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, TestFragment())
-            .commitNow()
+    @Test
+    fun findNavControllerNull() {
+        fragmentManager.beginTransaction().add(android.R.id.content, TestFragment()).commitNow()
         try {
             contentFragment.findNavController()
             fail(
@@ -68,34 +69,31 @@ class ActivityTest {
 
     @UiThreadTest
     @Suppress("DEPRECATION")
-    @Test fun navArgsLazy() {
+    @Test
+    fun navArgsLazy() {
         val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
-        fragmentManager.beginTransaction()
-            .add(android.R.id.content, navHostFragment)
-            .commitNow()
+        fragmentManager.beginTransaction().add(android.R.id.content, navHostFragment).commitNow()
 
         // TODO Create a real API to get the current Fragment b/119800853
-        val testFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
-            as TestFragment
-        assertThat(testFragment.args)
-            .isNotNull()
-        assertThat(testFragment.args.bundle["test"])
-            .isEqualTo("test")
+        val testFragment =
+            navHostFragment.childFragmentManager.primaryNavigationFragment as TestFragment
+        assertThat(testFragment.args).isNotNull()
+        assertThat(testFragment.args.bundle["test"]).isEqualTo("test")
     }
 }
 
 class TestActivity : FragmentActivity()
+
 /**
- * It is a lot harder to test generated NavArgs classes, so
- * we'll just fake one that has the same fromBundle method
- * that NavArgsLazy expects
+ * It is a lot harder to test generated NavArgs classes, so we'll just fake one that has the same
+ * fromBundle method that NavArgsLazy expects
  */
 data class FakeTestArgs(val bundle: Bundle) : NavArgs {
     companion object {
-        @JvmStatic
-        fun fromBundle(bundle: Bundle) = FakeTestArgs(bundle)
+        @JvmStatic fun fromBundle(bundle: Bundle) = FakeTestArgs(bundle)
     }
 }
+
 class TestFragment : Fragment() {
     val args: FakeTestArgs by navArgs()
 }

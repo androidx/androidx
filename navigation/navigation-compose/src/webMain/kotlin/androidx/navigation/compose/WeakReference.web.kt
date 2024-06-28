@@ -16,6 +16,7 @@
 
 package androidx.navigation.compose
 
+// TODO: https://youtrack.jetbrains.com/issue/COMPOSE-1286/Properly-implement-WeakReference-on-Web
 internal actual class WeakReference<T : Any> actual constructor(reference: T) {
     private var reference: T? = reference
     actual fun get(): T? = reference

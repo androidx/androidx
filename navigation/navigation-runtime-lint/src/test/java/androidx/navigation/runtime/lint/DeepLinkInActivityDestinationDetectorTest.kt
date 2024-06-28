@@ -34,9 +34,11 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
 
     @Test
     fun expectPass() {
-        lint().files(
-            xml("res/navigation/nav_main.xml",
-                """
+        lint()
+            .files(
+                xml(
+                    "res/navigation/nav_main.xml",
+                    """
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_main"
@@ -57,17 +59,19 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
 
 </navigation>
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }
 
     @Test
     fun expectFail() {
-        lint().files(
-            xml("res/navigation/nav_main.xml",
-                """
+        lint()
+            .files(
+                xml(
+                    "res/navigation/nav_main.xml",
+                    """
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_main"
@@ -88,11 +92,12 @@ class DeepLinkInActivityDestinationDetectorTest : LintDetectorTest() {
 
 </navigation>
             """
+                )
             )
-        )
             .skipTestModes(TestMode.SUPPRESSIBLE) // b/257336973
             .run()
-            .expect("""
+            .expect(
+                """
 res/navigation/nav_main.xml:17: Warning: Do not attach a <deeplink> to an <activity> destination. Attach the deeplink directly to the second activity or the start destination of a nav host in the second activity instead. [DeepLinkInActivityDestination]
         <deepLink app:uri="www.example.com" />
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,9 +108,11 @@ res/navigation/nav_main.xml:17: Warning: Do not attach a <deeplink> to an <activ
 
     @Test
     fun expectCleanSuppress() {
-        lint().files(
-            xml("res/navigation/nav_main.xml",
-            """
+        lint()
+            .files(
+                xml(
+                    "res/navigation/nav_main.xml",
+                    """
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -127,8 +134,8 @@ res/navigation/nav_main.xml:17: Warning: Do not attach a <deeplink> to an <activ
 
 </navigation>
             """
+                )
             )
-        )
             .run()
             .expectClean()
     }

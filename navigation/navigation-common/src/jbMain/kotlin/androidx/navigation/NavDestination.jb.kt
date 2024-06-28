@@ -18,7 +18,11 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
+import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.serializer
 
 public actual open class NavDestination actual constructor(
     public actual val navigatorName: String
@@ -62,8 +66,9 @@ public actual open class NavDestination actual constructor(
                 val type = destination._arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key!!)
                 val entryArgValue = type?.get(arguments, key!!)
-                // fine if both argValues are null, i.e. arguments/params with nullable values
-                if (matchingArgValue != entryArgValue) return false
+                if (type?.valueEquals(matchingArgValue, entryArgValue) == false) {
+                    return false
+                }
             }
             return true
         }
@@ -83,12 +88,20 @@ public actual open class NavDestination actual constructor(
 
     public actual constructor(navigator: Navigator<out NavDestination>) : this(navigator.name)
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var id: Int = 0
+
     public actual var route: String? = null
         set(route) {
-            if (field == route) return
-            require(route == null || route.isNotBlank()) { "Cannot have an empty route" }
+            if (route == null) {
+                id = 0
+            } else {
+                require(route.isNotBlank()) { "Cannot have an empty route" }
+                val internalRoute = createRoute(route)
+                id = internalRoute.hashCode()
+                addDeepLink(internalRoute)
+            }
             deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == createRoute(field) })
-            addDeepLink(createRoute(route))
             field = route
         }
 
@@ -101,6 +114,13 @@ public actual open class NavDestination actual constructor(
     }
 
     public actual fun addDeepLink(navDeepLink: NavDeepLink) {
+        val missingRequiredArguments =
+            _arguments.missingRequiredArguments { key -> key !in navDeepLink.argumentsNames }
+        require(missingRequiredArguments.isEmpty()) {
+            "Deep link ${navDeepLink.uriPattern} can't be used to open destination $this.\n" +
+                "Following required arguments are missing: $missingRequiredArguments"
+        }
+
         deepLinks.add(navDeepLink)
     }
 
@@ -165,10 +185,14 @@ public actual open class NavDestination actual constructor(
         }
         if (args != null) {
             defaultArgs.putAll(args)
+            // Don't verify unknown default values - these default values are only available
+            // during deserialization for safe args.
             for ((key, value) in _arguments) {
-                require(value.verify(key, defaultArgs)) {
-                    "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
-                        "expected."
+                if (!value.isDefaultValueUnknown) {
+                    require(value.verify(key, defaultArgs)) {
+                        "Wrong argument type for '$key' in argument bundle. ${value.type.name} " +
+                            "expected."
+                    }
                 }
             }
         }
@@ -195,19 +219,21 @@ public actual open class NavDestination actual constructor(
 
         val equalDeepLinks = deepLinks == other.deepLinks
 
-        val equalArguments = _arguments.size == other._arguments.size &&
-            _arguments.asSequence().all {
-                other._arguments.containsKey(it.key) &&
-                    other._arguments[it.key] == it.value
-            }
+        val equalArguments =
+            _arguments.size == other._arguments.size &&
+                _arguments.asSequence().all {
+                    other._arguments.containsKey(it.key) && other._arguments[it.key] == it.value
+                }
 
-        return route == other.route &&
+        return id == other.id &&
+            route == other.route &&
             equalDeepLinks &&
             equalArguments
     }
 
     override fun hashCode(): Int {
-        var result = route.hashCode()
+        var result = id
+        result = 31 * result + route.hashCode()
         deepLinks.forEach {
             result = 31 * result + it.uriPattern.hashCode()
             result = 31 * result + it.action.hashCode()
@@ -221,11 +247,25 @@ public actual open class NavDestination actual constructor(
     }
 
     public actual companion object {
-        private fun createRoute(route: String?): String =
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun getDisplayName(id: Int): String = "0x${id.toString(16)}"
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun createRoute(route: String?): String =
             if (route != null) "multiplatform-app://androidx.navigation/$route" else ""
 
         @JvmStatic
         public actual val NavDestination.hierarchy: Sequence<NavDestination>
             get() = generateSequence(this) { it.parent }
+
+        @JvmStatic
+        public actual inline fun <reified T : Any> NavDestination.hasRoute(): Boolean =
+            hasRoute(T::class)
+
+        @OptIn(InternalSerializationApi::class)
+        @JvmStatic
+        public actual fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean =
+            route.serializer().hashCode() == id
     }
 }

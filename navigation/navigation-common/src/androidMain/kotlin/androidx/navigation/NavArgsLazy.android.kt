@@ -29,8 +29,8 @@ internal val methodMap = ArrayMap<KClass<out NavArgs>, Method>()
  * An implementation of [Lazy] used by [android.app.Activity.navArgs] and
  * [androidx.fragment.app.Fragment.navArgs].
  *
- * [argumentProducer] is a lambda that will be called during initialization to provide
- * arguments to construct an [Args] instance via reflection.
+ * [argumentProducer] is a lambda that will be called during initialization to provide arguments to
+ * construct an [Args] instance via reflection.
  */
 public class NavArgsLazy<Args : NavArgs>(
     private val navArgsClass: KClass<Args>,
@@ -43,11 +43,13 @@ public class NavArgsLazy<Args : NavArgs>(
             var args = cached
             if (args == null) {
                 val arguments = argumentProducer()
-                val method: Method = methodMap[navArgsClass]
-                    ?: navArgsClass.java.getMethod("fromBundle", *methodSignature).also { method ->
-                        // Save a reference to the method
-                        methodMap[navArgsClass] = method
-                    }
+                val method: Method =
+                    methodMap[navArgsClass]
+                        ?: navArgsClass.java.getMethod("fromBundle", *methodSignature).also { method
+                            ->
+                            // Save a reference to the method
+                            methodMap[navArgsClass] = method
+                        }
 
                 @SuppressLint("BanUncheckedReflection") // needed for method.invoke
                 @Suppress("UNCHECKED_CAST")

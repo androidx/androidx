@@ -31,16 +31,18 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
+
+@Serializable class NumberedDestination(val number: Int)
 
 @Composable
 fun NavPopUpToDemo() {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "1") {
-        composable("1") { NumberedScreen(navController, 1) }
-        composable("2") { NumberedScreen(navController, 2) }
-        composable("3") { NumberedScreen(navController, 3) }
-        composable("4") { NumberedScreen(navController, 4) }
-        composable("5") { NumberedScreen(navController, 5) }
+    NavHost(navController, startDestination = NumberedDestination(1)) {
+        composable<NumberedDestination> {
+            NumberedScreen(navController, it.toRoute<NumberedDestination>().number)
+        }
     }
 }
 
@@ -50,7 +52,7 @@ fun NumberedScreen(navController: NavController, number: Int) {
         val next = number + 1
         if (number < 5) {
             Button(
-                onClick = { navController.navigate("$next") },
+                onClick = { navController.navigate(NumberedDestination(next)) },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -59,8 +61,13 @@ fun NumberedScreen(navController: NavController, number: Int) {
         }
         Text("This is screen $number", Modifier.weight(1f))
         if (navController.previousBackStackEntry != null) {
+            val firstScreen = NumberedDestination(1)
             Button(
-                onClick = { navController.navigate("1") { popUpTo("1") { inclusive = true } } },
+                onClick = {
+                    navController.navigate(firstScreen) {
+                        popUpTo(firstScreen) { inclusive = true }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
                 modifier = Modifier.fillMaxWidth()
             ) {

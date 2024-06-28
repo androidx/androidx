@@ -38,9 +38,8 @@ private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
 internal const val INCREMENTAL_PATH = "intermediates/incremental"
 
-abstract class SafeArgsPlugin protected constructor(
-    val providerFactory: ProviderFactory
-) : Plugin<Project> {
+abstract class SafeArgsPlugin protected constructor(val providerFactory: ProviderFactory) :
+    Plugin<Project> {
 
     abstract val generateKotlin: Boolean
 
@@ -54,16 +53,17 @@ abstract class SafeArgsPlugin protected constructor(
             extension is LibraryExtension -> {
                 extension.libraryVariants.configureEach(action)
             }
-            else -> throw GradleException(
-                "safeargs plugin must be used with android app," +
-                    "library or feature plugin"
-            )
+            else ->
+                throw GradleException(
+                    "safeargs plugin must be used with android app," + "library or feature plugin"
+                )
         }
     }
 
     override fun apply(project: Project) {
-        val extension = project.extensions.findByType(BaseExtension::class.java)
-            ?: throw GradleException("safeargs plugin must be used with android plugin")
+        val extension =
+            project.extensions.findByType(BaseExtension::class.java)
+                ?: throw GradleException("safeargs plugin must be used with android plugin")
         val isKotlinProject =
             project.extensions.findByType(KotlinProjectExtension::class.java) != null
         if (!isKotlinProject && generateKotlin) {
@@ -81,65 +81,57 @@ abstract class SafeArgsPlugin protected constructor(
         variantExtension.onVariants { variant ->
             when (variant) {
                 is ApplicationVariant -> {
-                    applicationIds.getOrPut(variant.name) {
-                        variant.applicationId
-                    }
-                    namespaces.getOrPut(variant.name) {
-                        variant.namespace
-                    }
+                    applicationIds.getOrPut(variant.name) { variant.applicationId }
+                    namespaces.getOrPut(variant.name) { variant.namespace }
                 }
                 is DynamicFeatureVariant -> {
-                    applicationIds.getOrPut(variant.name) {
-                        variant.applicationId
-                    }
-                    namespaces.getOrPut(variant.name) {
-                        variant.namespace
-                    }
+                    applicationIds.getOrPut(variant.name) { variant.applicationId }
+                    namespaces.getOrPut(variant.name) { variant.namespace }
                 }
                 is LibraryVariant ->
                     // we are putting the library names space in applicationId because
                     // we want the generated class to use the namespace to determine its package
-                    applicationIds.getOrPut(variant.name) {
-                        variant.namespace
-                    }
+                    applicationIds.getOrPut(variant.name) { variant.namespace }
             }
         }
 
         forEachVariant(extension) { variant ->
-            val task = project.tasks.register(
-                "generateSafeArgs${variant.name.replaceFirstChar {
+            val task =
+                project.tasks.register(
+                    "generateSafeArgs${variant.name.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
                 }}",
-                ArgumentsGenerationTask::class.java
-            ) { task ->
-                task.applicationId.set(
-                    applicationIds.getOrPut(variant.name) {
-                        providerFactory.provider { variant.applicationId }
-                    }
-                )
-                // If there is a namespace available, we should always use that to reference the
-                // package of the R file, otherwise we assume the R file is in the same location as
-                // the class
-                task.rFilePackage.set(namespaces[variant.name] ?: task.applicationId)
-                task.navigationFiles.setFrom(navigationFiles(variant, project))
-                task.outputDir.set(
-                    project.layout.buildDirectory.dir("$GENERATED_PATH/${variant.dirName}")
-                )
-                task.incrementalFolder.set(
-                    project.layout.buildDirectory.dir("$INCREMENTAL_PATH/${task.name}")
-                )
-                task.useAndroidX.set(
-                    (project.findProperty("android.useAndroidX") == "true").also {
-                        if (!it) {
-                            throw GradleException(
-                                "androidx.navigation.safeargs can only be used with an androidx " +
-                                    "project"
-                            )
+                    ArgumentsGenerationTask::class.java
+                ) { task ->
+                    task.applicationId.set(
+                        applicationIds.getOrPut(variant.name) {
+                            providerFactory.provider { variant.applicationId }
                         }
-                    }
-                )
-                task.generateKotlin.set(generateKotlin)
-            }
+                    )
+                    // If there is a namespace available, we should always use that to reference the
+                    // package of the R file, otherwise we assume the R file is in the same location
+                    // as
+                    // the class
+                    task.rFilePackage.set(namespaces[variant.name] ?: task.applicationId)
+                    task.navigationFiles.setFrom(navigationFiles(variant, project))
+                    task.outputDir.set(
+                        project.layout.buildDirectory.dir("$GENERATED_PATH/${variant.dirName}")
+                    )
+                    task.incrementalFolder.set(
+                        project.layout.buildDirectory.dir("$INCREMENTAL_PATH/${task.name}")
+                    )
+                    task.useAndroidX.set(
+                        (project.findProperty("android.useAndroidX") == "true").also {
+                            if (!it) {
+                                throw GradleException(
+                                    "androidx.navigation.safeargs can only be used with an androidx " +
+                                        "project"
+                                )
+                            }
+                        }
+                    )
+                    task.generateKotlin.set(generateKotlin)
+                }
             @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
             variant.registerJavaGeneratingTask(task, task.get().outputDir.asFile.get())
         }
@@ -150,35 +142,34 @@ abstract class SafeArgsPlugin protected constructor(
         variant: com.android.build.gradle.api.BaseVariant,
         project: Project
     ): ConfigurableFileCollection {
-        val fileProvider = providerFactory.provider {
-            variant.sourceSets
-                .flatMap { it.resDirectories }
-                .mapNotNull {
-                    File(it, "navigation").let { navFolder ->
-                        if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+        val fileProvider =
+            providerFactory.provider {
+                variant.sourceSets
+                    .flatMap { it.resDirectories }
+                    .mapNotNull {
+                        File(it, "navigation").let { navFolder ->
+                            if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+                        }
                     }
-                }
-                .flatMap { navFolder -> navFolder.listFiles().asIterable() }
-                .filter { file -> file.isFile }
-                .groupBy { file -> file.name }
-                .map { entry -> entry.value.last() }
-        }
+                    .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+                    .filter { file -> file.isFile }
+                    .groupBy { file -> file.name }
+                    .map { entry -> entry.value.last() }
+            }
         return project.files(fileProvider)
     }
 }
 
 @Suppress("unused")
-class SafeArgsJavaPlugin @Inject constructor(
-    providerFactory: ProviderFactory
-) : SafeArgsPlugin(providerFactory) {
+class SafeArgsJavaPlugin @Inject constructor(providerFactory: ProviderFactory) :
+    SafeArgsPlugin(providerFactory) {
 
     override val generateKotlin = false
 }
 
 @Suppress("unused")
-class SafeArgsKotlinPlugin @Inject constructor(
-    providerFactory: ProviderFactory
-) : SafeArgsPlugin(providerFactory) {
+class SafeArgsKotlinPlugin @Inject constructor(providerFactory: ProviderFactory) :
+    SafeArgsPlugin(providerFactory) {
 
     override val generateKotlin = true
 }

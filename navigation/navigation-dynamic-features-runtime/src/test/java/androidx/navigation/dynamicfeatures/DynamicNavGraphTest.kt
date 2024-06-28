@@ -54,10 +54,7 @@ public class DynamicNavGraphTest {
         Dispatchers.setMain(UnconfinedTestDispatcher())
         provider = NavigatorProvider()
         noOpNavigator = NoOpNavigator()
-        navigator = DynamicGraphNavigator(
-            provider,
-            TestDynamicInstallManager()
-        )
+        navigator = DynamicGraphNavigator(provider, TestDynamicInstallManager())
         provider.addNavigator(noOpNavigator)
         noOpState = TestNavigatorState()
         noOpNavigator.onAttach(noOpState)
@@ -71,11 +68,7 @@ public class DynamicNavGraphTest {
 
     @Test
     public fun testGetOrThrow_CorrectParent() {
-        setupProgressDestination(
-            noOpNavigator.createDestination().apply {
-                id = progressId
-            }
-        )
+        setupProgressDestination(noOpNavigator.createDestination().apply { id = progressId })
         navigator.navigateToProgressDestination(dynamicNavGraph, null)
         val progressDestination = noOpState.backStack.value.lastOrNull()?.destination
         assertThat(progressDestination).isNotNull()
@@ -93,20 +86,14 @@ public class DynamicNavGraphTest {
 
     @Test
     public fun testNavigateToProgressDestination_withProviderAndDestination() {
-        setupProgressDestination(
-            noOpNavigator.createDestination().apply {
-                id = progressId
-            }
-        )
+        setupProgressDestination(noOpNavigator.createDestination().apply { id = progressId })
         navigator.navigateToProgressDestination(dynamicNavGraph, null)
         val destination = noOpState.backStack.value.lastOrNull()?.destination
         assertThat(destination?.parent).isInstanceOf(DynamicNavGraph::class.java)
     }
 
     private fun setupProgressDestination(progressDestination: NavDestination?) {
-        progressDestination?.let {
-            navigator.installDefaultProgressDestination { it }
-        }
+        progressDestination?.let { navigator.installDefaultProgressDestination { it } }
         provider.addNavigator(navigator)
         navigatorState = TestNavigatorState()
         navigator.onAttach(navigatorState)

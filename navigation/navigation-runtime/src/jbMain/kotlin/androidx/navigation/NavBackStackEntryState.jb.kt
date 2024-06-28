@@ -19,13 +19,19 @@ package androidx.navigation
 import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
 
-internal actual class NavBackStackEntryState actual constructor(entry: NavBackStackEntry) {
-    actual val id: String = entry.id
-    val destinationRoute: String = entry.destination.route!!
-    actual val args: Bundle? = entry.arguments
-    actual val savedState: Bundle = Bundle()
-
-    init {
+// TODO: Make @Serializable
+internal data class NavBackStackEntryState(
+    val id: String,
+    val destinationId: Int,
+    val args: Bundle?,
+    val savedState: Bundle
+) {
+    constructor(entry: NavBackStackEntry) : this(
+        id = entry.id,
+        destinationId = entry.destination.id,
+        args = entry.arguments,
+        savedState = Bundle()
+    ) {
         entry.saveState(savedState)
     }
 
@@ -35,9 +41,12 @@ internal actual class NavBackStackEntryState actual constructor(entry: NavBackSt
         viewModel: NavControllerViewModel?
     ): NavBackStackEntry {
         return NavBackStackEntry.create(
-            destination, args,
-            hostLifecycleState, viewModel,
-            id, savedState
+            destination,
+            args,
+            hostLifecycleState,
+            viewModel,
+            id,
+            savedState
         )
     }
 }
