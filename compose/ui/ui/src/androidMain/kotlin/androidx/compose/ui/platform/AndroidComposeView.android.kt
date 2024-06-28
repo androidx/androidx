@@ -410,19 +410,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private val canvasHolder = CanvasHolder()
 
-    // Backed by mutableStateOf so that the ambient provider recomposes when it changes
-    override var layoutDirection by
-        mutableStateOf(
-            // We don't use the attached View's layout direction here since that layout direction
-            // may not
-            // be resolved since composables may be composed without attaching to the RootViewImpl.
-            // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
-            // configuration) as a default layout direction.
-            toLayoutDirection(context.resources.configuration.layoutDirection)
-                ?: LayoutDirection.Ltr
-        )
-        private set
-
     override val viewConfiguration: ViewConfiguration =
         AndroidViewConfiguration(android.view.ViewConfiguration.get(context))
 
@@ -430,7 +417,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         LayoutNode().also {
             it.measurePolicy = RootMeasurePolicy
             it.density = density
-            it.layoutDirection = layoutDirection
             it.viewConfiguration = viewConfiguration
             // Composed modifiers cannot be added here directly
             it.modifier =
@@ -651,6 +637,19 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private val Configuration.fontWeightAdjustmentCompat: Int
         get() = if (SDK_INT >= S) fontWeightAdjustment else 0
+
+    // Backed by mutableStateOf so that the ambient provider recomposes when it changes
+    override var layoutDirection by
+        mutableStateOf(
+            // We don't use the attached View's layout direction here since that layout direction
+            // may not
+            // be resolved since composables may be composed without attaching to the RootViewImpl.
+            // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
+            // configuration) as a default layout direction.
+            toLayoutDirection(context.resources.configuration.layoutDirection)
+                ?: LayoutDirection.Ltr
+        )
+        private set
 
     /** Provide haptic feedback to the user. Use the Android version of haptic feedback. */
     override val hapticFeedBack: HapticFeedback = PlatformHapticFeedback(this)
