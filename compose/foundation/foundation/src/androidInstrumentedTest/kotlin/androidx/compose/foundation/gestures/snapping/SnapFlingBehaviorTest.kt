@@ -181,6 +181,43 @@ class SnapFlingBehaviorTest {
     }
 
     @Test
+    fun performFling_invalidOffsets_shouldNotPropagateNans_calculateSnapOffset() {
+        val testLayoutInfoProvider =
+            object : SnapLayoutInfoProvider {
+                override fun calculateSnapOffset(velocity: Float): Float = Float.NaN
+            }
+        lateinit var testFlingBehavior: TargetedFlingBehavior
+        val exception =
+            kotlin.runCatching {
+                rule.setContent {
+                    testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
+                    VelocityEffect(testFlingBehavior, TestVelocity)
+                }
+            }
+        assert(exception.isFailure)
+    }
+
+    @Test
+    fun performFling_invalidOffsets_shouldNotPropagateNans_calculateApproachOffset() {
+        val testLayoutInfoProvider =
+            object : SnapLayoutInfoProvider {
+                override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float =
+                    Float.NaN
+
+                override fun calculateSnapOffset(velocity: Float): Float = 0.0f
+            }
+        lateinit var testFlingBehavior: TargetedFlingBehavior
+        val exception =
+            kotlin.runCatching {
+                rule.setContent {
+                    testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
+                    VelocityEffect(testFlingBehavior, TestVelocity)
+                }
+            }
+        assert(exception.isFailure)
+    }
+
+    @Test
     fun findClosestOffset_noFlingDirection_shouldReturnAbsoluteDistance() {
         val testLayoutInfoProvider = TestLayoutInfoProvider()
         val offset = testLayoutInfoProvider.calculateSnapOffset(0f)
