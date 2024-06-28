@@ -20,13 +20,11 @@ import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Build
 import android.os.Looper
-import android.os.Message
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.collection.MutableObjectList
-import androidx.collection.ScatterSet
 import androidx.collection.mutableObjectListOf
-import androidx.collection.mutableScatterSetOf
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.core.os.HandlerCompat
 
@@ -37,54 +35,20 @@ import androidx.core.os.HandlerCompat
  */
 internal class LayerManager(val canvasHolder: CanvasHolder) {
 
-    private val layerSet = mutableScatterSetOf<GraphicsLayer>()
-
     /**
      * Create a placeholder ImageReader instance that we will use to issue a single draw call for
      * each GraphicsLayer. This placeholder draw will increase the ref count of each RenderNode
      * instance within HWUI therefore persisting it across frames as there is another internal
      * CanvasContext instance owned by the internal HwuiContext instance of a Surface
      */
-    private var imageReader: ImageReader? = null
+    private val layerMap = mutableScatterMapOf<GraphicsLayer, ImageReader?>()
 
-    private val handler =
-        HandlerCompat.createAsync(Looper.getMainLooper()) {
-            persistLayers(layerSet)
-            true
-        }
+    private val handler = HandlerCompat.createAsync(Looper.getMainLooper())
 
     private var postponedReleaseRequests: MutableObjectList<GraphicsLayer>? = null
     private var persistenceIterationInProgress = false
 
     fun persist(layer: GraphicsLayer) {
-        layerSet.add(layer)
-        if (!handler.hasMessages(0)) {
-            // we don't run persistLayers() synchronously in order to do less work as there
-            // might be a lot of new layers created during one frame. however we also want
-            // to execute it as soon as possible to be able to persist the layers before
-            // they discard their content. it is possible that there is some other work
-            // scheduled on the main thread which is going to change what layers are drawn.
-            // we use sendMessageAtFrontOfQueue() in order to be executed before that.
-            handler.sendMessageAtFrontOfQueue(Message.obtain())
-        }
-    }
-
-    fun release(layer: GraphicsLayer) {
-        if (!persistenceIterationInProgress) {
-            if (layerSet.remove(layer)) {
-                layer.discardDisplayList()
-            }
-        } else {
-            // we can't remove an item from a list, which is currently being iterated.
-            // so we use a second list to remember such requests
-            val requests =
-                postponedReleaseRequests
-                    ?: mutableObjectListOf<GraphicsLayer>().also { postponedReleaseRequests = it }
-            requests.add(layer)
-        }
-    }
-
-    private fun persistLayers(layers: ScatterSet<GraphicsLayer>) {
         /**
          * Create a placeholder ImageReader instance that we will use to issue a single draw call
          * for each GraphicsLayer. This placeholder draw will increase the ref count of each
@@ -98,10 +62,10 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         // surfaces as not being released even though the owning ImageReader does release the
         // surface in ImageReader#close
         // See b/340578758
-        val shouldPersistLayers = requiredOsVersion && layers.isNotEmpty() && !isRobolectric
+        val shouldPersistLayers = requiredOsVersion && !isRobolectric
         if (shouldPersistLayers) {
             val reader =
-                imageReader
+                layerMap[layer]
                     // 3 buffers is the default max buffers amount for a swapchain. The buffers are
                     // lazily allocated only if one is not available when it is requested.
                     ?: ImageReader.newInstance(1, 1, PixelFormat.RGBA_8888, 3)
@@ -115,33 +79,48 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
                                 handler
                             )
                         }
-                        .also { imageReader = it }
+                        .also { layerMap[layer] = it }
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
 
-            persistenceIterationInProgress = true
             canvasHolder.drawInto(canvas) {
                 canvas.save()
                 canvas.clipRect(0, 0, 1, 1)
-                layers.forEach { layer -> layer.drawForPersistence(this) }
+                layer.drawForPersistence(this)
                 canvas.restore()
             }
-            persistenceIterationInProgress = false
-            val requests = postponedReleaseRequests
-            if (requests != null && requests.isNotEmpty()) {
-                requests.forEach { release(it) }
-                requests.clear()
-            }
             surface.unlockCanvasAndPost(canvas)
+        } else {
+            layerMap[layer] = null
         }
     }
 
-    fun destroy() {
-        imageReader?.close()
-        imageReader = null
+    fun release(layer: GraphicsLayer) {
+        if (!persistenceIterationInProgress) {
+            if (layer.layerManager === this) {
+                layer.discardDisplayList()
+                layerMap.remove(layer)?.close()
+            }
+        } else {
+            // we can't remove an item from a list, which is currently being iterated.
+            // so we use a second list to remember such requests
+            val requests =
+                postponedReleaseRequests
+                    ?: mutableObjectListOf<GraphicsLayer>().also { postponedReleaseRequests = it }
+            requests.add(layer)
+        }
     }
 
-    fun hasImageReader(): Boolean = imageReader != null
+    fun closeImageReaders() {
+        layerMap.forEach { layer, reader ->
+            reader?.apply {
+                close()
+                layerMap[layer] = null
+            }
+        }
+    }
+
+    fun hasImageReaders(): Boolean = layerMap.any { _, reader -> reader != null }
 
     /**
      * Discards the corresponding ImageReader used to increment the ref count of each layer and
@@ -150,8 +129,18 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
      * backgrounded
      */
     fun updateLayerPersistence() {
-        destroy()
-        persistLayers(layerSet)
+        closeImageReaders()
+        persistenceIterationInProgress = true
+        try {
+            layerMap.forEachKey { layer -> persist(layer) }
+        } finally {
+            persistenceIterationInProgress = false
+        }
+        val requests = postponedReleaseRequests
+        if (requests != null && requests.isNotEmpty()) {
+            requests.forEach { release(it) }
+            requests.clear()
+        }
     }
 
     companion object {
