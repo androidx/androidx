@@ -66,16 +66,26 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
  *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
+@OptIn(InternalTestApi::class)
 fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
-    @OptIn(InternalTestApi::class)
-    fetchSemanticsNode("Action performScrollTo() failed.").scrollToNode(testContext.testOwner)
+    do {
+        val shouldContinueScroll =
+            fetchSemanticsNode("Action performScrollTo() failed.")
+                .scrollToNode(testContext.testOwner)
+    } while (shouldContinueScroll)
+
     return this
 }
 
-/** Implementation of [performScrollTo] */
+/**
+ * Implementation of [performScrollTo]
+ *
+ * @return True if we were able to scroll and a subsequent scroll might be needed and false if no
+ *   scroll was needed.
+ */
 @OptIn(InternalTestApi::class)
-private fun SemanticsNode.scrollToNode(testOwner: TestOwner) {
+private fun SemanticsNode.scrollToNode(testOwner: TestOwner): Boolean {
     val scrollableNode =
         findClosestParentNode { hasScrollAction().matches(it) }
             ?: throw AssertionError(
@@ -110,7 +120,17 @@ private fun SemanticsNode.scrollToNode(testOwner: TestOwner) {
     // And adjust for reversing properties
     if (scrollableNode.isReversedVertically) dy = -dy
 
-    testOwner.runOnUiThread { scrollableNode.config[ScrollBy].action?.invoke(dx, dy) }
+    if (
+        dx != 0f && scrollableNode.horizontalScrollAxis != null ||
+            dy != 0f && scrollableNode.verticalScrollAxis != null
+    ) {
+        // we have something to scroll
+        testOwner.runOnUiThread { scrollableNode.config[ScrollBy].action?.invoke(dx, dy) }
+        return true
+    } else {
+        // we don't have anything to scroll
+        return false // no need to scroll again
+    }
 }
 
 /**
@@ -209,12 +229,7 @@ fun SemanticsNodeInteraction.performScrollToNode(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
     @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
-    var node = fetchSemanticsNode("Failed: performScrollToNode(${matcher.description})")
-    matcher.findMatchInDescendants(node)?.also {
-        @OptIn(InternalTestApi::class) it.scrollToNode(testContext.testOwner)
-        return this
-    }
-
+    val node = scrollToMatchingDescendantOrReturnScrollable(matcher) ?: return this
     // If this is NOT a lazy list, but we haven't found the node above ..
     if (!node.isLazyList) {
         // .. throw an error that the node doesn't exist
@@ -229,27 +244,44 @@ fun SemanticsNodeInteraction.performScrollToNode(
 
     while (true) {
         // Fetch the node again
-        node = fetchSemanticsNode("Failed: performScrollToNode(${matcher.description})")
-        matcher.findMatchInDescendants(node)?.also {
-            @OptIn(InternalTestApi::class) it.scrollToNode(testContext.testOwner)
-            return this
-        }
+        val newNode = scrollToMatchingDescendantOrReturnScrollable(matcher) ?: return this
 
         // Are we there yet? Are we there yet? Are we there yet?
-        if (node.horizontalScrollAxis.isAtEnd && node.verticalScrollAxis.isAtEnd) {
+        if (newNode.horizontalScrollAxis.isAtEnd && newNode.verticalScrollAxis.isAtEnd) {
             // If we're finished and we haven't found the node
             val msg = "No node found that matches ${matcher.description} in scrollable container"
-            throw AssertionError(buildGeneralErrorMessage(msg, selector, node))
+            throw AssertionError(buildGeneralErrorMessage(msg, selector, newNode))
         }
 
-        val viewPortSize = node.layoutInfo.coordinates.boundsInParent().size
-        val dx = node.horizontalScrollAxis?.let { viewPortSize.width } ?: 0f
-        val dy = node.verticalScrollAxis?.let { viewPortSize.height } ?: 0f
+        val viewPortSize = newNode.layoutInfo.coordinates.boundsInParent().size
+        val dx = newNode.horizontalScrollAxis?.let { viewPortSize.width } ?: 0f
+        val dy = newNode.verticalScrollAxis?.let { viewPortSize.height } ?: 0f
 
         // Scroll one screen
         @OptIn(InternalTestApi::class)
-        testContext.testOwner.runOnUiThread { node.config[ScrollBy].action?.invoke(dx, dy) }
+        testContext.testOwner.runOnUiThread { newNode.config[ScrollBy].action?.invoke(dx, dy) }
     }
+}
+
+/**
+ * Searches a descendant of the caller node that matches [matcher] and scroll to that node using
+ * [scrollToNode]. Once scroll finishes this will return null. If no descendant node matches this
+ * will return the caller node.
+ */
+private fun SemanticsNodeInteraction.scrollToMatchingDescendantOrReturnScrollable(
+    matcher: SemanticsMatcher
+): SemanticsNode? {
+    var node = fetchSemanticsNode("Failed: performScrollToNode(${matcher.description})")
+    var matchedNode = matcher.scrollToMatchingDescendantOrReturnScrollable(node)
+    @OptIn(InternalTestApi::class)
+    while (matchedNode != null) {
+        val shouldContinueScroll = matchedNode.scrollToNode(testContext.testOwner)
+        if (!shouldContinueScroll) return null
+        node = fetchSemanticsNode("Failed: performScrollToNode(${matcher.description})")
+        matchedNode = matcher.scrollToMatchingDescendantOrReturnScrollable(node)
+    }
+
+    return node
 }
 
 /**
@@ -689,17 +721,19 @@ private fun SemanticsNodeInteraction.requireSemantics(
     if (missingProperties.isNotEmpty()) {
         val msg =
             "${errorMessage()}, the node is missing [${
-            missingProperties.joinToString { it.name }
-        }]"
+                missingProperties.joinToString { it.name }
+            }]"
         throw AssertionError(buildGeneralErrorMessage(msg, selector, node))
     }
 }
 
 @Suppress("NOTHING_TO_INLINE") // Avoids doubling the stack depth for recursive search
-private inline fun SemanticsMatcher.findMatchInDescendants(root: SemanticsNode): SemanticsNode? {
+private inline fun SemanticsMatcher.scrollToMatchingDescendantOrReturnScrollable(
+    root: SemanticsNode
+): SemanticsNode? {
     return root.children.firstOrNull { it.layoutInfo.isPlaced && findMatchInHierarchy(it) != null }
 }
 
 private fun SemanticsMatcher.findMatchInHierarchy(node: SemanticsNode): SemanticsNode? {
-    return if (matches(node)) node else findMatchInDescendants(node)
+    return if (matches(node)) node else scrollToMatchingDescendantOrReturnScrollable(node)
 }
