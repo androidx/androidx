@@ -303,6 +303,7 @@ package androidx.browser.customtabs {
     method public boolean mayLaunchUrl(android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String, android.os.Bundle?);
     method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPrefetch public void prefetch(android.net.Uri, androidx.browser.customtabs.PrefetchOptions);
+    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPrefetch public void prefetch(java.util.List<android.net.Uri!>, androidx.browser.customtabs.PrefetchOptions);
     method public boolean receiveFile(android.net.Uri, int, android.os.Bundle?);
     method public boolean requestPostMessageChannel(android.net.Uri);
     method public boolean requestPostMessageChannel(android.net.Uri, android.net.Uri?, android.os.Bundle);
