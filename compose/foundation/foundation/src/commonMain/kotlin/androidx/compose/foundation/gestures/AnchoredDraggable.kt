@@ -1310,7 +1310,7 @@ suspend fun <T> AnchoredDraggableState<T>.animateTo(
  * updated ro the [targetValue] without updating the offset.
  *
  * @param targetValue The target value of the animation
- * @param velocity The velocity the animation should start with
+ * @param velocity The velocity the animation should start with, in px/s
  * @param snapAnimationSpec The animation spec used if the velocity is not high enough to perform a
  *   decay to the [targetValue] using the [decayAnimationSpec]
  * @param decayAnimationSpec The animation spec used if the velocity is high enough to perform a
