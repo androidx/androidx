@@ -731,11 +731,14 @@ public abstract interface annotation class androidx/compose/material3/Experiment
 
 public abstract class androidx/compose/material3/ExposedDropdownMenuBoxScope {
 	public static final field $stable I
-	public fun <init> ()V
+	public final synthetic fun ExposedDropdownMenu (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public final fun ExposedDropdownMenu-kbRbctU (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;ZZLandroidx/compose/ui/graphics/Shape;JFFLandroidx/compose/foundation/BorderStroke;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
+	public final fun ExposedDropdownMenu-vNxi1II (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;ZLandroidx/compose/ui/graphics/Shape;JFFLandroidx/compose/foundation/BorderStroke;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
 	public abstract fun exposedDropdownSize (Landroidx/compose/ui/Modifier;Z)Landroidx/compose/ui/Modifier;
 	public static synthetic fun exposedDropdownSize$default (Landroidx/compose/material3/ExposedDropdownMenuBoxScope;Landroidx/compose/ui/Modifier;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
-	public abstract fun menuAnchor (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public final fun menuAnchor (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+	public abstract fun menuAnchor-fsE2BvY (Landroidx/compose/ui/Modifier;Ljava/lang/String;Z)Landroidx/compose/ui/Modifier;
+	public static synthetic fun menuAnchor-fsE2BvY$default (Landroidx/compose/material3/ExposedDropdownMenuBoxScope;Landroidx/compose/ui/Modifier;Ljava/lang/String;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
 public final class androidx/compose/material3/ExposedDropdownMenuDefaults {
@@ -952,6 +955,25 @@ public final class androidx/compose/material3/MaterialTheme {
 
 public final class androidx/compose/material3/MaterialThemeKt {
 	public static final fun MaterialTheme (Landroidx/compose/material3/ColorScheme;Landroidx/compose/material3/Shapes;Landroidx/compose/material3/Typography;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/material3/MenuAnchorType {
+	public static final field Companion Landroidx/compose/material3/MenuAnchorType$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Landroidx/compose/material3/MenuAnchorType;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material3/MenuAnchorType$Companion {
+	public final fun getPrimaryEditable-Mg6Rgbw ()Ljava/lang/String;
+	public final fun getPrimaryNotEditable-Mg6Rgbw ()Ljava/lang/String;
+	public final fun getSecondaryEditable-Mg6Rgbw ()Ljava/lang/String;
 }
 
 public final class androidx/compose/material3/MenuDefaults {
