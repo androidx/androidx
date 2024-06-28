@@ -37,6 +37,7 @@ import androidx.compose.material3.tokens.TopAppBarLargeTokens
 import androidx.compose.material3.tokens.TopAppBarMediumTokens
 import androidx.compose.material3.tokens.TopAppBarSmallCenteredTokens
 import androidx.compose.material3.tokens.TopAppBarSmallTokens
+import androidx.compose.material3.tokens.TypographyKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
@@ -85,7 +86,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class AppBarTest {
@@ -107,6 +108,17 @@ class AppBarTest {
             Box(Modifier.testTag(TopAppBarTestTag)) { TopAppBar(title = { Text(title) }) }
         }
         rule.onNodeWithText(title).assertIsDisplayed()
+    }
+
+    @Test
+    fun smallTopAppBar_withSubtitle() {
+        val subtitle = "Subtitle"
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                TopAppBar(title = { Text("Title") }, subtitle = { Text(subtitle) })
+            }
+        }
+        rule.onNodeWithText(subtitle).assertIsDisplayed()
     }
 
     @Test
@@ -146,6 +158,24 @@ class AppBarTest {
                     Text("Title")
                     textStyle = LocalTextStyle.current
                     expectedTextStyle = TopAppBarSmallTokens.HeadlineFont.value
+                }
+            )
+        }
+        assertThat(textStyle).isNotNull()
+        assertThat(textStyle).isEqualTo(expectedTextStyle)
+    }
+
+    @Test
+    fun smallTopAppBar_subtitleDefaultStyle() {
+        var textStyle: TextStyle? = null
+        var expectedTextStyle: TextStyle? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            TopAppBar(
+                title = { Text("Title") },
+                subtitle = {
+                    Text("Subtitle")
+                    textStyle = LocalTextStyle.current
+                    expectedTextStyle = TypographyKeyTokens.LabelMedium.value // TODO tokens
                 }
             )
         }
@@ -331,6 +361,17 @@ class AppBarTest {
     }
 
     @Test
+    fun centerAlignedTopAppBar_withSubtitle() {
+        val subtitle = "Subtitle"
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                TopAppBar(title = { Text("Title") }, subtitle = { Text(subtitle) })
+            }
+        }
+        rule.onNodeWithText(subtitle).assertIsDisplayed()
+    }
+
+    @Test
     fun centerAlignedTopAppBar_default_positioning() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(TopAppBarTestTag)) {
@@ -442,6 +483,24 @@ class AppBarTest {
                     Text("Title")
                     textStyle = LocalTextStyle.current
                     expectedTextStyle = TopAppBarSmallCenteredTokens.HeadlineFont.value
+                }
+            )
+        }
+        assertThat(textStyle).isNotNull()
+        assertThat(textStyle).isEqualTo(expectedTextStyle)
+    }
+
+    @Test
+    fun centerAlignedTopAppBar_subtitleDefaultStyle() {
+        var textStyle: TextStyle? = null
+        var expectedTextStyle: TextStyle? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            TopAppBar(
+                title = { Text("Title") },
+                subtitle = {
+                    Text("Subtitle")
+                    textStyle = LocalTextStyle.current
+                    expectedTextStyle = TypographyKeyTokens.LabelMedium.value // TODO tokens
                 }
             )
         }
@@ -670,6 +729,7 @@ class AppBarTest {
             appBarMaxHeight = TopAppBarMediumTokens.ContainerHeight,
             appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
             titleContentColor = Color.Unspecified,
+            subtitleContentColor = Color.Unspecified,
             content = content
         )
     }
@@ -691,6 +751,59 @@ class AppBarTest {
             appBarMaxHeight = TopAppBarMediumTokens.ContainerHeight,
             appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
             titleContentColor = Color.Green,
+            subtitleContentColor = Color.Unspecified,
+            content = content
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun mediumTopAppBar_scrolledColorsWithCustomTitleAndSubtitleTextColor() {
+        val content =
+            @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
+                MediumTopAppBar(
+                    modifier = Modifier.testTag(TopAppBarTestTag),
+                    title = {
+                        Text(text = "Title", Modifier.testTag(TitleTestTag), color = Color.Green)
+                    },
+                    subtitle = {
+                        Text(
+                            text = "Subtitle",
+                            Modifier.testTag(SubtitleTestTag),
+                            color = Color.Green
+                        )
+                    },
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        assertMediumOrLargeScrolledColors(
+            appBarMaxHeight = TopAppBarDefaults.MediumAppBarWithSubtitleExpandedHeight,
+            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
+            titleContentColor = Color.Green,
+            subtitleContentColor = Color.Green,
+            content = content
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun mediumTopAppBar_scrolledColorsWithCustomTitleAndWithoutSubtitleTextColor() {
+        val content =
+            @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
+                MediumTopAppBar(
+                    modifier = Modifier.testTag(TopAppBarTestTag),
+                    title = {
+                        Text(text = "Title", Modifier.testTag(TitleTestTag), color = Color.Green)
+                    },
+                    subtitle = null,
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        assertMediumOrLargeScrolledColors(
+            appBarMaxHeight = TopAppBarDefaults.MediumAppBarWithoutSubtitleExpandedHeight,
+            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
+            titleContentColor = Color.Green,
+            subtitleContentColor = Color.Unspecified,
             content = content
         )
     }
@@ -723,7 +836,29 @@ class AppBarTest {
         assertMediumOrLargeScrolledSemantics(
             TopAppBarMediumTokens.ContainerHeight,
             TopAppBarSmallTokens.ContainerHeight,
-            content
+            content,
+            withSubtitle = false
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun mediumTopAppBar_withSubtitle_semantics() {
+        val content =
+            @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
+                MediumTopAppBar(
+                    modifier = Modifier.testTag(TopAppBarTestTag),
+                    title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                    subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                    scrollBehavior = scrollBehavior
+                )
+            }
+
+        assertMediumOrLargeScrolledSemantics(
+            TopAppBarMediumTokens.ContainerHeight,
+            TopAppBarSmallTokens.ContainerHeight,
+            content,
+            withSubtitle = true
         )
     }
 
@@ -741,7 +876,28 @@ class AppBarTest {
         assertMediumOrLargeScrolledSemantics(
             TopAppBarLargeTokens.ContainerHeight,
             TopAppBarSmallTokens.ContainerHeight,
-            content
+            content,
+            withSubtitle = false
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun largeTopAppBar_withSubtitle_semantics() {
+        val content =
+            @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
+                LargeTopAppBar(
+                    modifier = Modifier.testTag(TopAppBarTestTag),
+                    title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                    subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        assertMediumOrLargeScrolledSemantics(
+            TopAppBarLargeTokens.ContainerHeight,
+            TopAppBarSmallTokens.ContainerHeight,
+            content,
+            withSubtitle = true
         )
     }
 
@@ -862,6 +1018,7 @@ class AppBarTest {
             appBarMaxHeight = TopAppBarLargeTokens.ContainerHeight,
             appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
             titleContentColor = Color.Unspecified,
+            subtitleContentColor = Color.Unspecified,
             content = content
         )
     }
@@ -883,6 +1040,59 @@ class AppBarTest {
             appBarMaxHeight = TopAppBarLargeTokens.ContainerHeight,
             appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
             titleContentColor = Color.Red,
+            subtitleContentColor = Color.Unspecified,
+            content = content
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun largeTopAppBar_scrolledColorsWithCustomTitleAndSubtitleTextColor() {
+        val content =
+            @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
+                LargeTopAppBar(
+                    modifier = Modifier.testTag(TopAppBarTestTag),
+                    title = {
+                        Text(text = "Title", Modifier.testTag(TitleTestTag), color = Color.Red)
+                    },
+                    subtitle = {
+                        Text(
+                            text = "Subtitle",
+                            Modifier.testTag(SubtitleTestTag),
+                            color = Color.Red
+                        )
+                    },
+                    scrollBehavior = scrollBehavior,
+                )
+            }
+        assertMediumOrLargeScrolledColors(
+            appBarMaxHeight = TopAppBarDefaults.LargeAppBarWithSubtitleExpandedHeight,
+            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
+            titleContentColor = Color.Red,
+            subtitleContentColor = Color.Red,
+            content = content
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun largeTopAppBar_scrolledColorsWithCustomTitleAndWithoutSubtitleTextColor() {
+        val content =
+            @Composable { scrollBehavior: TopAppBarScrollBehavior? ->
+                LargeTopAppBar(
+                    modifier = Modifier.testTag(TopAppBarTestTag),
+                    title = {
+                        Text(text = "Title", Modifier.testTag(TitleTestTag), color = Color.Red)
+                    },
+                    subtitle = null,
+                    scrollBehavior = scrollBehavior,
+                )
+            }
+        assertMediumOrLargeScrolledColors(
+            appBarMaxHeight = TopAppBarDefaults.LargeAppBarWithoutSubtitleExpandedHeight,
+            appBarMinHeight = TopAppBarSmallTokens.ContainerHeight,
+            titleContentColor = Color.Red,
+            subtitleContentColor = Color.Unspecified,
             content = content
         )
     }
@@ -1591,6 +1801,7 @@ class AppBarTest {
      * @param appBarMaxHeight the max height of the app bar [content]
      * @param appBarMinHeight the min height of the app bar [content]
      * @param titleContentColor text content color expected for the app bar's title.
+     * @param subtitleContentColor text content color expected for the app bar's subtitle.
      * @param content a Composable that adds a MediumTopAppBar or a LargeTopAppBar
      */
     @OptIn(ExperimentalMaterial3Api::class)
@@ -1599,6 +1810,7 @@ class AppBarTest {
         appBarMaxHeight: Dp,
         appBarMinHeight: Dp,
         titleContentColor: Color,
+        subtitleContentColor: Color,
         content: @Composable (TopAppBarScrollBehavior?) -> Unit
     ) {
         // Note: This value is specifically picked to avoid precision issues when asserting the
@@ -1608,6 +1820,7 @@ class AppBarTest {
         var fullyCollapsedContainerColor: Color = Color.Unspecified
         var expandedAppBarBackgroundColor: Color = Color.Unspecified
         var titleColor = titleContentColor
+        var subtitleColor = subtitleContentColor
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         rule.setMaterialContent(lightColorScheme()) {
             scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -1622,6 +1835,9 @@ class AppBarTest {
             // regardless of the fraction, and the color is applied later with alpha.
             if (titleColor == Color.Unspecified) {
                 titleColor = TopAppBarDefaults.mediumTopAppBarColors().titleContentColor
+            }
+            if (subtitleColor == Color.Unspecified) {
+                subtitleColor = TopAppBarDefaults.mediumTopAppBarColors().titleContentColor
             }
 
             with(LocalDensity.current) {
@@ -1685,13 +1901,15 @@ class AppBarTest {
      * @param appBarMaxHeight the max height of the app bar [content]
      * @param appBarMinHeight the min height of the app bar [content]
      * @param content a Composable that adds a MediumTopAppBar or a LargeTopAppBar
+     * @param withSubtitle whether a subtitle is present
      */
     @OptIn(ExperimentalMaterial3Api::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun assertMediumOrLargeScrolledSemantics(
         appBarMaxHeight: Dp,
         appBarMinHeight: Dp,
-        content: @Composable (TopAppBarScrollBehavior?) -> Unit
+        content: @Composable (TopAppBarScrollBehavior?) -> Unit,
+        withSubtitle: Boolean
     ) {
         val fullyCollapsedOffsetDp = appBarMaxHeight - appBarMinHeight
         val oneThirdCollapsedOffsetDp = fullyCollapsedOffsetDp / 3
@@ -1711,6 +1929,9 @@ class AppBarTest {
         // Asserting that only one semantic title node is returned after the clearAndSetSemantics is
         // applied to the merged tree according to the alpha values of the titles.
         assertSingleTitleSemanticNode()
+        if (withSubtitle) {
+            assertSingleSubtitleSemanticNode()
+        }
 
         // Simulate 1/3 collapsed content.
         rule.runOnIdle {
@@ -1721,6 +1942,9 @@ class AppBarTest {
 
         // Assert that only one semantic title node is available while scrolling the app bar.
         assertSingleTitleSemanticNode()
+        if (withSubtitle) {
+            assertSingleSubtitleSemanticNode()
+        }
 
         // Simulate fully collapsed content.
         rule.runOnIdle {
@@ -1731,6 +1955,9 @@ class AppBarTest {
 
         // Assert that only one semantic title node is available.
         assertSingleTitleSemanticNode()
+        if (withSubtitle) {
+            assertSingleSubtitleSemanticNode()
+        }
     }
 
     /** Asserts that only one semantic node exists at app bar title when the tree is merged. */
@@ -1740,6 +1967,15 @@ class AppBarTest {
 
         val mergedTitleNodes = rule.onAllNodesWithTag(TitleTestTag, useUnmergedTree = false)
         mergedTitleNodes.assertCountEquals(1)
+    }
+
+    /** Asserts that only one semantic node exists at app bar subtitle when the tree is merged. */
+    private fun assertSingleSubtitleSemanticNode() {
+        val unmergedSubtitleNodes = rule.onAllNodesWithTag(SubtitleTestTag, useUnmergedTree = true)
+        unmergedSubtitleNodes.assertCountEquals(2)
+
+        val mergedSubtitleNodes = rule.onAllNodesWithTag(SubtitleTestTag, useUnmergedTree = false)
+        mergedSubtitleNodes.assertCountEquals(1)
     }
 
     /**
@@ -1775,5 +2011,6 @@ class AppBarTest {
     private val BottomAppBarTestTag = "bottomAppBar"
     private val NavigationIconTestTag = "navigationIcon"
     private val TitleTestTag = "title"
+    private val SubtitleTestTag = "subtitle"
     private val ActionsTestTag = "actions"
 }
