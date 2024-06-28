@@ -15,6 +15,7 @@
  */
 package androidx.collection
 
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -540,6 +541,7 @@ internal class ScatterSetTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val set = MutableScatterSet<String?>()
         set += "Hello"

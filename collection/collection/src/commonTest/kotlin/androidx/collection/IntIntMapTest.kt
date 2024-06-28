@@ -16,6 +16,7 @@
 
 package androidx.collection
 
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -585,6 +586,7 @@ internal class IntIntMapTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val map = MutableIntIntMap()
         map[1] = 1

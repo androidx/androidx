@@ -152,6 +152,7 @@ tasks.register("publishComposeJbExtendedIconsToMavenLocal", ComposePublishingTas
 
 tasks.register("checkDesktop") {
     dependsOn(allTasksWith(name = "desktopTest"))
+    dependsOn(":collection:collection:jvmTest")
     dependsOn(allTasksWith(name = "desktopApiCheck"))
 }
 
@@ -164,6 +165,7 @@ tasks.register("testWeb") {
     dependsOn(":compose:material3:material3:wasmJsBrowserTest")
     dependsOn(":compose:ui:ui-text:wasmJsBrowserTest")
     dependsOn(":compose:ui:ui:wasmJsBrowserTest")
+    dependsOn(":collection:collection:wasmJsBrowserTest")
 }
 
 tasks.register("testUIKit") {
@@ -173,8 +175,9 @@ tasks.register("testUIKit") {
     dependsOn(":compose:ui:ui:$subtaskName")
 // TODO fix it properly and uncomment https://youtrack.jetbrains.com/issue/COMPOSE-950/Reenable-material3-tests-on-iOS
 //  Commented because it crashes on CI.
-//    dependsOn(":compose:material3:material3:$subtaskName") 
+//    dependsOn(":compose:material3:material3:$subtaskName")
     dependsOn(":compose:foundation:foundation:$subtaskName")
+    dependsOn(":collection:collection:$subtaskName")
 }
 
 tasks.register("testRuntimeNative") {

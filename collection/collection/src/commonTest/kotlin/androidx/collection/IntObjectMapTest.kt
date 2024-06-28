@@ -16,6 +16,7 @@
 
 package androidx.collection
 
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -622,6 +623,7 @@ internal class IntObjectMapTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val map = MutableIntObjectMap<String?>()
         map[1] = "World"

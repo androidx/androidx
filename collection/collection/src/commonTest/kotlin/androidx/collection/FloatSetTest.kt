@@ -15,6 +15,7 @@
  */
 package androidx.collection
 
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -376,6 +377,7 @@ internal class FloatSetTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val set = MutableFloatSet()
         set += 1f
