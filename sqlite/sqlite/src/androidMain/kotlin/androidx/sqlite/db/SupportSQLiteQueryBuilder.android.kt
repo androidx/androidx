@@ -18,6 +18,7 @@ package androidx.sqlite.db
 import java.util.regex.Pattern
 
 /** A simple query builder to create SQL SELECT queries. */
+@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 class SupportSQLiteQueryBuilder private constructor(private val table: String) {
     private var distinct = false
     private var columns: Array<out String>? = null

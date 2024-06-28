@@ -18,6 +18,7 @@ package androidx.sqlite.db
 import java.io.Closeable
 
 /** An interface to map the behavior of [android.database.sqlite.SQLiteProgram]. */
+@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 interface SupportSQLiteProgram : Closeable {
     /**
      * Bind a NULL value to this statement. The value remains bound until [.clearBindings] is
