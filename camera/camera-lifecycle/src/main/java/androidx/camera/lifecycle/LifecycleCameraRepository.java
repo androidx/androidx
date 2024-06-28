@@ -175,7 +175,7 @@ final class LifecycleCameraRepository {
             LifecycleOwner lifecycleOwner = lifecycleCamera.getLifecycleOwner();
             Key key = Key.create(lifecycleOwner,
                     CameraUseCaseAdapter.generateCameraId(
-                            (RestrictedCameraInfo) lifecycleCamera.getCameraInfo()));
+                            (RestrictedCameraInfo) lifecycleCamera.getCameraInfo(), null));
 
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);

@@ -212,6 +212,18 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     }
 
     /**
+     * Sets the flag in camera instance as primary or secondary camera.
+     *
+     * <p> In dual camera case, the flag will be used to pick up the corresponding
+     * {@link SessionConfig} in {@link UseCase}.
+     *
+     * <p> In single camera case, the flag will always be set to true.
+     *
+     * @param isPrimary whether the camera is primary or secondary.
+     */
+    default void setPrimary(boolean isPrimary) {}
+
+    /**
      * Returns the current {@link CameraConfig}.
      */
     @NonNull
