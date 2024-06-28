@@ -33,14 +33,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
                 api(project(":compose:material3:adaptive:adaptive"))
                 api("androidx.compose.animation:animation-core:1.7.0-beta04")
                 api("androidx.compose.ui:ui:1.7.0-beta04")
@@ -61,7 +61,6 @@ androidXMultiplatform {
         jvmMain {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -73,7 +72,7 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependencies {
             }

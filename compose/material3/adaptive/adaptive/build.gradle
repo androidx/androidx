@@ -33,14 +33,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
                 api("androidx.compose.foundation:foundation:1.6.5")
                 api("androidx.compose.ui:ui-geometry:1.6.5")
                 api("androidx.window:window-core:1.3.0-rc01")
@@ -55,7 +55,6 @@ androidXMultiplatform {
         jvmMain {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -68,7 +67,7 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependencies {
             }
