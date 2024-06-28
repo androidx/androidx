@@ -40,15 +40,17 @@ configurations {
 }
 
 dependencies {
-    implementation(findGradleKotlinDsl())
+    runtimeOnly(findGradleKotlinDsl())
+
+    api(libs.androidGradlePluginApi)
+    api(libs.androidToolsCommon)
+    api(libs.androidToolsSdkCommon)
+    api(libs.guava)
+
     implementation(gradleApi())
-    implementation(libs.androidGradlePluginApi)
-    implementation(libs.androidToolsCommon)
     implementation(libs.androidToolsRepository)
-    implementation(libs.androidToolsSdkCommon)
     implementation(libs.apacheCommonIo)
     implementation(libs.apacheAnt)
-    implementation(libs.guava)
     implementation(libs.kotlinStdlib)
 
     testPlugin(libs.androidGradlePluginz)
@@ -57,9 +59,11 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidToolsAnalyticsProtos)
-    testImplementation(libs.gson)
+    testImplementation(libs.asm)
+    testImplementation(libs.builder)
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.gson)
     testImplementation(libs.truth)
 }
 
