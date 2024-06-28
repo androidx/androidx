@@ -68,13 +68,19 @@ public abstract class StreamSpec {
     @Nullable
     public abstract Config getImplementationOptions();
 
+    /**
+     * Returns the flag if zero-shutter lag needs to be disabled by user case combinations.
+     */
+    public abstract boolean getZslDisabled();
+
     /** Returns a build for a stream configuration that takes a required resolution. */
     @NonNull
     public static Builder builder(@NonNull Size resolution) {
         return new AutoValue_StreamSpec.Builder()
                 .setResolution(resolution)
                 .setExpectedFrameRateRange(FRAME_RATE_RANGE_UNSPECIFIED)
-                .setDynamicRange(DynamicRange.SDR);
+                .setDynamicRange(DynamicRange.SDR)
+                .setZslDisabled(false);
     }
 
     /** Returns a builder pre-populated with the current specification. */
@@ -117,6 +123,12 @@ public abstract class StreamSpec {
          */
         @NonNull
         public abstract Builder setImplementationOptions(@NonNull Config config);
+
+        /**
+         * Sets the flag if zero-shutter lag needs to be disabled by user case combinations.
+         */
+        @NonNull
+        public abstract Builder setZslDisabled(boolean disabled);
 
         /** Builds the stream specification */
         @NonNull

@@ -754,7 +754,8 @@ public final class CameraUseCaseAdapter implements Camera {
                             cameraMode,
                             cameraId, existingSurfaces,
                             configToSupportedSizesMap,
-                            isPreviewStabilizationOn);
+                            isPreviewStabilizationOn,
+                            hasVideoCapture(newUseCases));
 
             for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
                 suggestedStreamSpecs.put(entry.getValue(),

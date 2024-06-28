@@ -82,6 +82,7 @@ public interface CameraDeviceSurfaceManager {
      *                                          supported output sizes list that will be given a
      *                                          suggested stream specification
      * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
+     * @param hasVideoCapture                   whether the use cases has video capture.
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
@@ -96,5 +97,6 @@ public interface CameraDeviceSurfaceManager {
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn);
+            boolean isPreviewStabilizationOn,
+            boolean hasVideoCapture);
 }

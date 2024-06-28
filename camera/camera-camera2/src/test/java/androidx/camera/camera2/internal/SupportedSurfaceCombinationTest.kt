@@ -1572,6 +1572,34 @@ class SupportedSurfaceCombinationTest {
         )
     }
 
+    @Test
+    fun hasVideoCapture_suggestedStreamSpecZslDisabled() {
+        val useCase1 = createUseCase(CaptureType.VIDEO_CAPTURE) // VIDEO
+        val useCase2 = createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply {
+                put(useCase1, RECORD_SIZE)
+                put(useCase2, PREVIEW_SIZE)
+            }
+        getSuggestedSpecsAndVerify(
+            useCaseExpectedResultMap,
+            hardwareLevel = INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+            hasVideoCapture = true
+        )
+    }
+
+    @Test
+    fun hasNoVideoCapture_suggestedStreamSpecZslNotDisabled() {
+        val privUseCase = createUseCase(CaptureType.PREVIEW) // PREVIEW
+        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE) // JPEG
+        val useCaseExpectedResultMap =
+            mutableMapOf<UseCase, Size>().apply {
+                put(privUseCase, if (Build.VERSION.SDK_INT == 21) RESOLUTION_VGA else PREVIEW_SIZE)
+                put(jpegUseCase, MAXIMUM_SIZE)
+            }
+        getSuggestedSpecsAndVerify(useCaseExpectedResultMap, hasVideoCapture = false)
+    }
+
     private fun getSuggestedSpecsAndVerify(
         useCasesExpectedSizeMap: Map<UseCase, Size>,
         attachedSurfaceInfoList: List<AttachedSurfaceInfo> = emptyList(),
@@ -1584,6 +1612,8 @@ class SupportedSurfaceCombinationTest {
         default10BitProfile: Long? = null,
         useCasesExpectedDynamicRangeMap: Map<UseCase, DynamicRange> = emptyMap(),
         supportedOutputFormats: IntArray? = null,
+        isPreviewStabilizationOn: Boolean = false,
+        hasVideoCapture: Boolean = false
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         setupCameraAndInitCameraX(
             hardwareLevel = hardwareLevel,
@@ -1608,7 +1638,8 @@ class SupportedSurfaceCombinationTest {
                 cameraMode,
                 attachedSurfaceInfoList,
                 useCaseConfigToOutputSizesMap,
-                false
+                isPreviewStabilizationOn,
+                hasVideoCapture
             )
         val suggestedStreamSpecsForNewUseCases = resultPair.first
         val suggestedStreamSpecsForOldSurfaces = resultPair.second
@@ -1629,6 +1660,8 @@ class SupportedSurfaceCombinationTest {
                         .expectedFrameRateRange == compareExpectedFps
                 )
             }
+            val zslDisabled = suggestedStreamSpecsForNewUseCases[useCaseConfigMap[it]]!!.zslDisabled
+            assertThat(zslDisabled == hasVideoCapture)
         }
 
         useCasesExpectedDynamicRangeMap.keys.forEach {
