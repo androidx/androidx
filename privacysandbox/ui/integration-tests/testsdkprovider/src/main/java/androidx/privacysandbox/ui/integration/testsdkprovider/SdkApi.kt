@@ -17,24 +17,17 @@
 package androidx.privacysandbox.ui.integration.testsdkprovider
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.Rect
-import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.os.Process
-import android.util.Log
 import android.view.View
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
-import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.core.SessionObserver
-import androidx.privacysandbox.ui.core.SessionObserverContext
-import androidx.privacysandbox.ui.core.SessionObserverFactory
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
+import androidx.privacysandbox.ui.integration.sdkproviderutils.ViewabilityHandler
 import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
@@ -42,7 +35,6 @@ import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
 class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     private val testAdapters = TestAdapters(sdkContext)
-    private val measurementManager = MeasurementManager()
 
     override fun loadBannerAd(
         @AdType adType: Int,
@@ -56,7 +48,7 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
         val isAppOwnedMediation = (mediationOption == MediationOption.IN_APP_MEDIATEE)
         val adapter: SandboxedUiAdapter =
             if (isMediation) {
-                loadMediatedTestAd(isAppOwnedMediation, adType, waitInsideOnDraw)
+                loadMediatedTestAd(isAppOwnedMediation, adType, waitInsideOnDraw, drawViewability)
             } else {
                 when (adType) {
                     AdType.NON_WEBVIEW -> {
@@ -71,9 +63,8 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                     else -> {
                         loadNonWebViewBannerAd("Ad type not present", waitInsideOnDraw)
                     }
-                }
+                }.also { ViewabilityHandler.addObserverFactoryToAdapter(it, drawViewability) }
             }
-        measurementManager.startObserving(adapter, drawViewability)
         return adapter.toCoreLibInfo(sdkContext)
     }
 
@@ -100,10 +91,11 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     private fun loadMediatedTestAd(
         isAppMediatee: Boolean,
         @AdType adType: Int,
-        waitInsideOnDraw: Boolean = false
+        waitInsideOnDraw: Boolean,
+        drawViewability: Boolean
     ): SandboxedUiAdapter {
         val mediateeBannerAdBundle =
-            getMediateeBannerAdBundle(isAppMediatee, adType, waitInsideOnDraw)
+            getMediateeBannerAdBundle(isAppMediatee, adType, waitInsideOnDraw, drawViewability)
         return MediatedBannerAd(mediateeBannerAdBundle)
     }
 
@@ -128,7 +120,8 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
     private fun getMediateeBannerAdBundle(
         isAppMediatee: Boolean,
         adType: Int,
-        withSlowDraw: Boolean
+        withSlowDraw: Boolean,
+        drawViewability: Boolean
     ): Bundle? {
         val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(sdkContext)
         if (isAppMediatee) {
@@ -140,7 +133,11 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                         IAppOwnedMediateeSdkApi.Stub.asInterface(
                             appOwnedSdkSandboxInterfaceCompat.getInterface()
                         )
-                    return appOwnedMediateeSdkApi.loadBannerAd(adType, withSlowDraw)
+                    return appOwnedMediateeSdkApi.loadBannerAd(
+                        adType,
+                        withSlowDraw,
+                        drawViewability
+                    )
                 }
             }
         } else {
@@ -149,58 +146,11 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                 if (sandboxedSdkCompat.getSdkInfo()?.name == MEDIATEE_SDK) {
                     val mediateeSdkApi =
                         IMediateeSdkApi.Stub.asInterface(sandboxedSdkCompat.getInterface())
-                    return mediateeSdkApi.loadBannerAd(adType, withSlowDraw)
+                    return mediateeSdkApi.loadBannerAd(adType, withSlowDraw, drawViewability)
                 }
             }
         }
         return null
-    }
-
-    class MeasurementManager {
-        fun startObserving(adapter: SandboxedUiAdapter, drawViewability: Boolean) {
-            adapter.addObserverFactory(SessionObserverFactoryImpl(drawViewability))
-        }
-
-        private inner class SessionObserverFactoryImpl(val drawViewability: Boolean) :
-            SessionObserverFactory {
-
-            override fun create(): SessionObserver {
-                return SessionObserverImpl()
-            }
-
-            private inner class SessionObserverImpl : SessionObserver {
-                lateinit var view: View
-
-                override fun onSessionOpened(sessionObserverContext: SessionObserverContext) {
-                    Log.i(TAG, "onSessionOpened $sessionObserverContext")
-                    view = checkNotNull(sessionObserverContext.view)
-                }
-
-                override fun onUiContainerChanged(uiContainerInfo: Bundle) {
-                    val sandboxedSdkViewUiInfo = SandboxedSdkViewUiInfo.fromBundle(uiContainerInfo)
-                    if (drawViewability) {
-                        // draw a red rectangle over the received onScreenGeometry of the view
-                        drawRedRectangle(sandboxedSdkViewUiInfo.onScreenGeometry)
-                    }
-                    Log.i(TAG, "onUiContainerChanged $sandboxedSdkViewUiInfo")
-                }
-
-                override fun onSessionClosed() {
-                    Log.i(TAG, "session closed")
-                }
-
-                private fun drawRedRectangle(bounds: Rect) {
-                    view.overlay.clear()
-                    val viewabilityRect =
-                        GradientDrawable().apply {
-                            shape = GradientDrawable.RECTANGLE
-                            setStroke(10, Color.RED)
-                        }
-                    viewabilityRect.bounds = bounds
-                    view.overlay.add(viewabilityRect)
-                }
-            }
-        }
     }
 
     companion object {
