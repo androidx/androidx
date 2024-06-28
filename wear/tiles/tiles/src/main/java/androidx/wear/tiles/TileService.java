@@ -20,14 +20,12 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.OutcomeReceiver;
 import android.os.RemoteException;
-import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.DoNotInline;
@@ -284,17 +282,17 @@ public abstract class TileService extends Service {
      * changed by the time the result is received. {@link TileService#onTileAddEvent} and {@link
      * TileService#onTileRemoveEvent} should be used instead for live updates.
      *
-     * Compatibility behavior:
-     * <p>On SDKs older than U, this method is a best-effort to match platform behavior, but may
-     * not always return all tiles present in the carousel. The possibly omitted tiles being the
+     * <p>Compatibility behavior:
+     *
+     * <p>On SDKs older than U, this method is a best-effort to match platform behavior, but may not
+     * always return all tiles present in the carousel. The possibly omitted tiles being the
      * pre-installed tiles, all tiles if the user has cleared the app data, or the tiles a user
      * hasn't visited in the last 60 days, while tiles removed by an app update may be shown as
      * active for 60 days afterwards.
      *
      * @param context The application context.
      * @param executor The executor on which methods should be invoked. To dispatch events through
-     *     the main thread of your application, you can use {@link
-     *     Context#getMainExecutor()}.
+     *     the main thread of your application, you can use {@link Context#getMainExecutor()}.
      * @return A list of {@link ActiveTileIdentifier} for the tiles belonging to the passed {@code
      *     context} present in the carousel, or a value based on platform-specific fallback
      *     behavior.
@@ -304,8 +302,8 @@ public abstract class TileService extends Service {
             @NonNull Context context, @NonNull Executor executor) {
         if (useWearSdkImpl(context)
                 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return Api34Impl.getActiveTilesAsync(Sdk.getWearManager(context, TilesManager.class),
-                    executor);
+            return Api34Impl.getActiveTilesAsync(
+                    Sdk.getWearManager(context, TilesManager.class), executor);
         }
         return getActiveTilesAsyncLegacy(context, executor, sTimeSourceClock);
     }
@@ -692,17 +690,18 @@ public abstract class TileService extends Service {
                 @NonNull TilesManager tilesManager, @NonNull Executor executor) {
             return CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        tilesManager.getActiveTiles(executor,
+                        tilesManager.getActiveTiles(
+                                executor,
                                 new OutcomeReceiver<List<TileInstance>, Exception>() {
                                     @Override
                                     public void onResult(List<TileInstance> tileInstanceList) {
-                                        completer.set(tileInstanceToActiveTileIdentifier(
-                                                tileInstanceList));
+                                        completer.set(
+                                                tileInstanceToActiveTileIdentifier(
+                                                        tileInstanceList));
                                     }
 
                                     @Override
-                                    public void onError(
-                                            @NonNull Exception error) {
+                                    public void onError(@NonNull Exception error) {
                                         completer.setException(error.getCause());
                                     }
                                 });
@@ -713,10 +712,12 @@ public abstract class TileService extends Service {
 
     private static List<ActiveTileIdentifier> tileInstanceToActiveTileIdentifier(
             @NonNull List<TileInstance> tileInstanceList) {
-        return tileInstanceList.stream().map(
-                i -> new ActiveTileIdentifier(i.getTileProvider().getComponentName(),
-                        i.getId())).collect(
-                Collectors.toList());
+        return tileInstanceList.stream()
+                .map(
+                        i ->
+                                new ActiveTileIdentifier(
+                                        i.getTileProvider().getComponentName(), i.getId()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -732,16 +733,15 @@ public abstract class TileService extends Service {
     private void markTileAsActiveLegacy(int tileId) {
         if (!useWearSdkImpl(this)) {
             ComponentName componentName = new ComponentName(this, this.getClass().getName());
-            SharedPreferences sharedPref = getActiveTilesSharedPrefLegacy(this);
+            DiskAccessAllowedPrefs sharedPref = getActiveTilesSharedPrefLegacy(this);
             cleanupActiveTilesSharedPrefLegacy(sharedPref, getTimeSourceClock());
             String key = new ActiveTileIdentifier(componentName, tileId).flattenToString();
             if (sharedPref.contains(key)
-                    && !timestampNeedsUpdateLegacy(sharedPref.getLong(key, -1L),
-                    getTimeSourceClock())) {
+                    && !timestampNeedsUpdateLegacy(
+                            sharedPref.getLong(key, -1L), getTimeSourceClock())) {
                 return;
             }
-            sharedPref.edit().putLong(key,
-                    getTimeSourceClock().getCurrentTimestampMillis()).apply();
+            sharedPref.putLong(key, getTimeSourceClock().getCurrentTimestampMillis());
         }
     }
 
@@ -754,15 +754,15 @@ public abstract class TileService extends Service {
      */
     private void markTileAsInactiveLegacy(int tileId) {
         if (!useWearSdkImpl(this)) {
-            SharedPreferences sharedPref = getActiveTilesSharedPrefLegacy(this);
+            DiskAccessAllowedPrefs sharedPref = getActiveTilesSharedPrefLegacy(this);
             String key =
-                    new ActiveTileIdentifier(new ComponentName(this, this.getClass().getName()),
-                            tileId)
+                    new ActiveTileIdentifier(
+                                    new ComponentName(this, this.getClass().getName()), tileId)
                             .flattenToString();
             if (!sharedPref.contains(key)) {
                 return;
             }
-            sharedPref.edit().remove(key).apply();
+            sharedPref.remove(key);
         }
     }
 
@@ -777,23 +777,17 @@ public abstract class TileService extends Service {
      * SharedPreferences are read.
      */
     private static void cleanupActiveTilesSharedPrefLegacy(
-            @NonNull SharedPreferences activeTilesSharedPref,
+            @NonNull DiskAccessAllowedPrefs activeTilesSharedPref,
             @NonNull TimeSourceClock timeSourceClock) {
-        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
-        try {
-            for (String key : activeTilesSharedPref.getAll().keySet()) {
-                if (isTileInactiveLegacy(activeTilesSharedPref.getLong(key, -1L),
-                        timeSourceClock)) {
-                    activeTilesSharedPref.edit().remove(key).apply();
-                }
+        for (String key : activeTilesSharedPref.getAll().keySet()) {
+            if (isTileInactiveLegacy(activeTilesSharedPref.getLong(key, -1L), timeSourceClock)) {
+                activeTilesSharedPref.remove(key);
             }
-        } finally {
-            StrictMode.setThreadPolicy(oldPolicy);
         }
     }
 
     private static ListenableFuture<List<ActiveTileIdentifier>> readActiveTilesSharedPrefLegacy(
-            @NonNull SharedPreferences activeTilesSharedPref,
+            @NonNull DiskAccessAllowedPrefs activeTilesSharedPref,
             @NonNull String packageName,
             @NonNull Executor executor,
             @NonNull TimeSourceClock timeSourceClock) {
@@ -832,13 +826,8 @@ public abstract class TileService extends Service {
                 });
     }
 
-    private static SharedPreferences getActiveTilesSharedPrefLegacy(@NonNull Context context) {
-        StrictMode.ThreadPolicy oldPolicy = StrictMode.allowThreadDiskReads();
-        try {
-            return context.getSharedPreferences(ACTIVE_TILES_SHARED_PREF_NAME, MODE_PRIVATE);
-        } finally {
-            StrictMode.setThreadPolicy(oldPolicy);
-        }
+    private static DiskAccessAllowedPrefs getActiveTilesSharedPrefLegacy(@NonNull Context context) {
+        return DiskAccessAllowedPrefs.wrap(context, ACTIVE_TILES_SHARED_PREF_NAME);
     }
 
     /**
