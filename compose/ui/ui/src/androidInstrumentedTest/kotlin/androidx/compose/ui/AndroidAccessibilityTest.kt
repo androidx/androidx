@@ -159,6 +159,7 @@ import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -2692,6 +2693,64 @@ class AndroidAccessibilityTest {
                             getAccessibilityEventSourceSemanticsNodeId(it) == virtualViewId &&
                                 it.eventType == TYPE_WINDOW_CONTENT_CHANGED &&
                                 it.contentChangeTypes == CONTENT_CHANGE_TYPE_UNDEFINED
+                        }
+                    )
+                )
+        }
+    }
+
+    @Test
+    fun sendClickedAndChangeSubtree_whenDescendantClicked() {
+        val textTag = "text_tag"
+        // Arrange.
+        setContent {
+            var selected by remember { mutableStateOf(true) }
+            Box {
+                Box(Modifier.testTag(textTag)) {
+                    if (selected) {
+                        BasicText(text = "DisappearingText")
+                    }
+                }
+                Box(Modifier.clickable(onClick = { selected = !selected }).testTag(tag)) {
+                    BasicText("ToggleableComponent")
+                }
+            }
+        }
+        val toggleableVirtualViewId = rule.onNodeWithTag(tag).assertIsDisplayed().semanticsId
+
+        // Act.
+        val actionPerformed =
+            rule.runOnUiThread {
+                provider.performAction(toggleableVirtualViewId, ACTION_CLICK, null)
+            }
+
+        // Assert that `TYPE_VIEW_CLICKED` event was sent.
+        rule.runOnIdle {
+            assertThat(actionPerformed).isTrue()
+            verify(container, times(1))
+                .requestSendAccessibilityEvent(
+                    eq(androidComposeView),
+                    argThat(
+                        ArgumentMatcher {
+                            getAccessibilityEventSourceSemanticsNodeId(it) ==
+                                toggleableVirtualViewId && it.eventType == TYPE_VIEW_CLICKED
+                        }
+                    )
+                )
+        }
+
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert that `TYPE_WINDOW_CONTENT_CHANGED` event was also sent.
+        rule.onNodeWithTag(textTag).assertIsNotDisplayed()
+        rule.runOnIdle {
+            verify(container, atLeastOnce())
+                .requestSendAccessibilityEvent(
+                    eq(androidComposeView),
+                    argThat(
+                        ArgumentMatcher {
+                            it.eventType == TYPE_WINDOW_CONTENT_CHANGED &&
+                                it.contentChangeTypes == CONTENT_CHANGE_TYPE_SUBTREE
                         }
                     )
                 )
