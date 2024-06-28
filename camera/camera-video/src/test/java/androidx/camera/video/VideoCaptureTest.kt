@@ -205,9 +205,10 @@ class VideoCaptureTest {
         videoCapture.bindToCamera(
             camera,
             null,
+            null,
             videoCapture.getDefaultConfig(true, FakeUseCaseConfigFactory())
         )
-        videoCapture.updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build())
+        videoCapture.updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build(), null)
         videoCapture.onStateAttached()
         // Assert: camera edge does not have transform.
         assertThat(videoCapture.cameraEdge!!.hasCameraTransform()).isFalse()

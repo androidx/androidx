@@ -150,7 +150,7 @@ class FakeTestUseCase(
     var cameraControlReady = false
 
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
-        updateSessionConfig(sessionConfigBuilder.build())
+        updateSessionConfig(listOf(sessionConfigBuilder.build()))
         notifyActive()
     }
 

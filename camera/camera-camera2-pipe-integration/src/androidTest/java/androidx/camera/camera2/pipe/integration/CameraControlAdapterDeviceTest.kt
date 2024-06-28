@@ -566,7 +566,7 @@ class CameraControlAdapterDeviceTest {
                     addSurface(deferrableSurface)
                 }
 
-            updateSessionConfig(sessionConfigBuilder.build())
+            updateSessionConfig(listOf(sessionConfigBuilder.build()))
             notifyActive()
         }
 

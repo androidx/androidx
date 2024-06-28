@@ -38,6 +38,7 @@ import androidx.camera.core.ExperimentalCameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.InitializationException
+import androidx.camera.core.LayoutSettings
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
@@ -514,7 +515,10 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                     lifecycleOwner,
                     CameraUseCaseAdapter(
                         cameraInternal,
+                        null,
                         restrictedCameraInfo,
+                        LayoutSettings.DEFAULT,
+                        LayoutSettings.DEFAULT,
                         mCameraX!!.cameraFactory.cameraCoordinator,
                         mCameraX!!.cameraDeviceSurfaceManager,
                         mCameraX!!.defaultConfigFactory

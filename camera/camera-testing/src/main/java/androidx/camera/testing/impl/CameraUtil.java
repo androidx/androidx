@@ -55,6 +55,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ExperimentalRetryPolicy;
+import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.Logger;
 import androidx.camera.core.RetryPolicy;
 import androidx.camera.core.UseCase;
@@ -631,7 +632,10 @@ public final class CameraUtil {
             CameraInternal camera =
                     cameraSelector.select(cameraX.getCameraRepository().getCameras());
             return new CameraUseCaseAdapter(camera,
+                    null,
                     new RestrictedCameraInfo(camera.getCameraInfoInternal(), cameraConfig),
+                    LayoutSettings.DEFAULT,
+                    LayoutSettings.DEFAULT,
                     cameraCoordinator,
                     cameraX.getCameraDeviceSurfaceManager(),
                     cameraX.getDefaultConfigFactory());
