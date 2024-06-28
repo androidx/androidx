@@ -136,6 +136,26 @@ public final class CustomTabsSession {
     }
 
     /**
+     * Request the browser to start navigational prefetch to the pages that will be used for future
+     * navigations.
+     *
+     * @param urls     The urls to be prefetched for upcoming navigations.
+     * @param options The option used for prefetch request. Please see
+     *                {@link PrefetchOptions}.
+     */
+    @ExperimentalPrefetch
+    @SuppressWarnings("NullAway")  // TODO: b/142938599
+    public void prefetch(@NonNull List<Uri> urls, @NonNull PrefetchOptions options) {
+        try {
+            for (Uri uri : urls) {
+                mService.prefetch(mCallback, uri, options.toBundle());
+            }
+        } catch (RemoteException e) {
+            return;
+        }
+    }
+
+    /**
      * This sets the action button on the toolbar with ID
      * {@link CustomTabsIntent#TOOLBAR_ACTION_BUTTON_ID}.
      *
