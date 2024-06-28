@@ -24,12 +24,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.internal.InCallServiceCompat
+import androidx.core.telecom.extensions.CallExtensionsScope
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.MockInCallServiceDelegate
 import androidx.core.telecom.test.utils.TestUtils
-import androidx.core.telecom.test.utils.TestUtils.waitOnInCallServiceToReachXCallCompats
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -101,7 +99,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeIncoming_V2() {
-        setUpV2TestWithExtensionsOld()
+        setUpV2Test()
         addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
     }
 
@@ -114,7 +112,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeOutgoing_V2() {
-        setUpV2TestWithExtensionsOld()
+        setUpV2Test()
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
@@ -132,10 +130,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @Test(timeout = 10000)
     fun testCapabilityExchangeIncoming_BackwardsCompat() {
         setUpBackwardsCompatTest()
-        addAndVerifyCallExtensionTypeE2E(
-            TestUtils.INCOMING_CALL_ATTRIBUTES,
-            waitForCallDetailExtras = true
-        )
+        addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
     }
 
     /**
@@ -146,10 +141,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @Test(timeout = 10000)
     fun testCapabilityExchangeOutgoing_BackwardsCompat() {
         setUpBackwardsCompatTest()
-        addAndVerifyCallExtensionTypeE2E(
-            TestUtils.OUTGOING_CALL_ATTRIBUTES,
-            waitForCallDetailExtras = true
-        )
+        addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
     /**
@@ -163,33 +155,25 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
      * extras are propagated into the call details.
      *
      * @param callAttributesCompat for the call.
-     * @param waitForCallDetailExtras used for waiting on the call details extras to be non-empty.
      */
-    private fun addAndVerifyCallExtensionTypeE2E(
-        callAttributesCompat: CallAttributesCompat,
-        waitForCallDetailExtras: Boolean = false
-    ) {
+    private fun addAndVerifyCallExtensionTypeE2E(callAttributesCompat: CallAttributesCompat) {
         runBlocking {
-            assertWithinTimeout_addCall(callAttributesCompat) {
-                launch {
-                    try {
-                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                        Assert.assertNotNull("The returned Call object is <NULL>", call!!)
-
-                        // Enforce waiting logic to ensure that the call details extras are
-                        // populated.
-                        if (waitForCallDetailExtras) {
-                            TestUtils.waitOnCallExtras(call)
+            usingIcs { ics ->
+                assertWithinTimeout_addCall(callAttributesCompat) {
+                    launch {
+                        try {
+                            val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                            Assert.assertNotNull("The returned Call object is <NULL>", call!!)
+                            val extensions = CallExtensionsScope(mContext, this, call)
+                            // Assert the call extra or call property from the details
+                            assertCallExtraOrProperty(extensions, call)
+                        } finally {
+                            // Always send disconnect signal if possible.
+                            assertEquals(
+                                CallControlResult.Success(),
+                                disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            )
                         }
-
-                        // Assert the call extra or call property from the details
-                        assertCallExtraOrProperty(call)
-                    } finally {
-                        // Always send disconnect signal if possible.
-                        assertEquals(
-                            CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                        )
                     }
                 }
             }
@@ -197,19 +181,15 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     }
 
     /** Helper to assert the call extra or property set on the call coming from Telecom. */
-    private fun assertCallExtraOrProperty(call: Call) {
-        // Call details should be present at this point
+    private suspend fun assertCallExtraOrProperty(extensions: CallExtensionsScope, call: Call) {
+        val type = extensions.resolveCallExtensionsType()
+        assertEquals(CallExtensionsScope.CAPABILITY_EXCHANGE, type)
+        // Assert the specifics of the extensions are correct. Note, resolveCallExtensionsType also
+        // internally assures the details are set properly
         val callDetails = call.details!!
         if (Utils.hasPlatformV2Apis()) {
             if (TestUtils.buildIsAtLeastV()) {
                 assertTrue(callDetails.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL))
-            } else {
-                // Wait for capability exchange to complete before verifying the extension level:
-                runBlocking { waitOnInCallServiceToReachXCallCompats(1) }
-                assertEquals(
-                    InCallServiceCompat.CAPABILITY_EXCHANGE,
-                    MockInCallServiceDelegate.getServiceWithExtensions()?.mExtensionLevelSupport
-                )
             }
         } else {
             val containsBackwardsCompatKey =

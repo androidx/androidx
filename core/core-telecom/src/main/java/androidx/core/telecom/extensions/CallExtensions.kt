@@ -34,6 +34,7 @@ import android.telecom.TelecomManager
 import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
@@ -192,14 +193,15 @@ internal class CallExtensionsScope(
      *
      * @return the extension type [CapabilityExchangeType] resolved for the call.
      */
-    private suspend fun resolveCallExtensionsType(): Int {
+    @VisibleForTesting
+    internal suspend fun resolveCallExtensionsType(): Int {
         var details = call.details
         var type = NONE
-        // Android CallsManager V+ check
-        if (details.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL)) {
-            return CAPABILITY_EXCHANGE
-        }
         if (Utils.hasPlatformV2Apis()) {
+            // Android CallsManager V+ check
+            if (details.hasProperty(CallsManager.PROPERTY_IS_TRANSACTIONAL)) {
+                return CAPABILITY_EXCHANGE
+            }
             // Android CallsManager U check
             // Verify read phone numbers permission to see if phone account supports transactional
             // ops.
@@ -218,13 +220,10 @@ internal class CallExtensionsScope(
                     ) == true
                 ) {
                     return CAPABILITY_EXCHANGE
-                } else {
-                    Log.i(
-                        TAG,
-                        "Unable to resolve call extension type due to lack of" + "permission."
-                    )
-                    type = UNKNOWN
                 }
+            } else {
+                Log.i(TAG, "Unable to resolve call extension type due to lack of permission.")
+                type = UNKNOWN
             }
         }
         // The extras may come in after the call is first signalled to InCallService - wait for the

@@ -38,7 +38,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="androidx.core.telecom.test.utils.MockInCallServiceDelegate"
+        <service android:name="androidx.core.telecom.test.utils.TestInCallService"
             android:permission="android.permission.BIND_INCALL_SERVICE"
             android:exported="true">
             <intent-filter>
