@@ -129,16 +129,16 @@ class FragmentTransitionSeekingTest {
     fun replaceOperationWithTransitionsThenBackCancelled() {
         withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
             val fm1 = withActivity { supportFragmentManager }
-            var startedEnter = false
-            val fragment1 = TransitionFragment(R.layout.scene1)
+            val startedEnterCountDownLatch = CountDownLatch(1)
+            val fragment1 = StrictViewFragment(R.layout.scene1)
             val transitionEndCountDownLatch = CountDownLatch(1)
-            fragment1.setReenterTransition(
-                Fade().apply {
+            fragment1.reenterTransition =
+                (Fade().apply {
                     duration = 300
                     addListener(
                         object : TransitionListenerAdapter() {
                             override fun onTransitionStart(transition: Transition) {
-                                startedEnter = true
+                                startedEnterCountDownLatch.countDown()
                             }
 
                             override fun onTransitionEnd(transition: Transition) {
@@ -146,8 +146,7 @@ class FragmentTransitionSeekingTest {
                             }
                         }
                     )
-                }
-            )
+                })
 
             fm1.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment1, "1")
@@ -157,9 +156,9 @@ class FragmentTransitionSeekingTest {
             waitForExecution()
 
             val startedExitCountDownLatch = CountDownLatch(1)
-            val fragment2 = TransitionFragment()
-            fragment2.setReturnTransition(
-                Fade().apply {
+            val fragment2 = StrictViewFragment()
+            fragment2.returnTransition =
+                (Fade().apply {
                     duration = 300
                     addListener(
                         object : TransitionListenerAdapter() {
@@ -168,8 +167,7 @@ class FragmentTransitionSeekingTest {
                             }
                         }
                     )
-                }
-            )
+                })
 
             fm1.beginTransaction()
                 .replace(R.id.fragmentContainer, fragment2, "2")
@@ -178,31 +176,21 @@ class FragmentTransitionSeekingTest {
                 .commit()
             waitForExecution()
 
-            fragment1.waitForTransition()
-            fragment2.waitForTransition()
-
             val dispatcher = withActivity { onBackPressedDispatcher }
             withActivity {
                 dispatcher.dispatchOnBackStarted(
                     BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
                 )
-            }
-            executePendingTransactions()
-
-            withActivity {
                 dispatcher.dispatchOnBackProgressed(
                     BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
                 )
             }
-            waitForExecution()
 
-            assertThat(startedEnter).isTrue()
+            assertThat(startedEnterCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
             assertThat(startedExitCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
             withActivity { dispatcher.dispatchOnBackCancelled() }
-            waitForExecution()
-
-            fragment1.waitForNoTransition()
+            executePendingTransactions()
 
             assertThat(fragment2.isAdded).isTrue()
             assertThat(fm1.findFragmentByTag("2")).isEqualTo(fragment2)
@@ -647,7 +635,6 @@ class FragmentTransitionSeekingTest {
                     BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
                 )
             }
-            executePendingTransactions()
 
             withActivity { dispatcher.dispatchOnBackCancelled() }
             executePendingTransactions()
@@ -659,6 +646,146 @@ class FragmentTransitionSeekingTest {
             assertThat(fragment1.view).isNull()
             // Make sure fragment2 is still in the container
             assertThat(fragment2.requireView().parent).isNotNull()
+        }
+    }
+
+    @Test
+    fun gestureBackWithNonSeekableSharedElementCancelInterruptedBack() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment(R.layout.scene1)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val fragment2 = TransitionFragment(R.layout.scene6)
+            fragment2.setEnterTransition(Fade())
+            fragment2.setReturnTransition(Fade())
+
+            val greenSquare = fragment1.requireView().findViewById<View>(R.id.greenSquare)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .addSharedElement(greenSquare, "green")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment2.waitForTransition()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+
+            withActivity { supportFragmentManager.popBackStackImmediate() }
+
+            withActivity { dispatcher.dispatchOnBackCancelled() }
+            executePendingTransactions()
+
+            assertThat(fragment2.isAdded).isFalse()
+            assertThat(fm1.findFragmentByTag("1")).isNotNull()
+
+            // Make sure that fragment 2 does not have a view
+            assertThat(fragment2.view).isNull()
+            // Make sure fragment1 is still in the container
+            assertThat(fragment1.requireView().parent).isNotNull()
+        }
+    }
+
+    @Test
+    fun gestureBackWithNonSeekableSharedElementCancelInterruptedForward() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment(R.layout.scene1)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val fragment2 = StrictViewFragment(R.layout.scene6)
+            val fragment2EnterCountDownLatch = CountDownLatch(1)
+            fragment2.enterTransition =
+                Fade().apply {
+                    addListener(
+                        object : TransitionListenerAdapter() {
+                            override fun onTransitionEnd(transition: Transition) {
+                                fragment2EnterCountDownLatch.countDown()
+                            }
+                        }
+                    )
+                }
+            fragment2.returnTransition = Fade()
+
+            val greenSquare = fragment1.requireView().findViewById<View>(R.id.greenSquare)
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .addSharedElement(greenSquare, "green")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            assertThat(fragment2EnterCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+            waitForExecution()
+
+            val fragment3 = StrictViewFragment(R.layout.scene6)
+            val fragment3EnterCountDownLatch = CountDownLatch(1)
+            fragment3.enterTransition =
+                Fade().apply {
+                    addListener(
+                        object : TransitionListenerAdapter() {
+                            override fun onTransitionEnd(transition: Transition) {
+                                fragment3EnterCountDownLatch.countDown()
+                            }
+                        }
+                    )
+                }
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment3, "3")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            withActivity { dispatcher.dispatchOnBackCancelled() }
+            executePendingTransactions()
+
+            assertThat(fragment3.isAdded).isTrue()
+            assertThat(fm1.findFragmentByTag("3")).isNotNull()
+
+            // we verify the state of fragment2 here as this is a transitioning, non-seekable case
+            // so we wouldn't actually have run the animation until the back press was completed.
+            assertThat(fragment2.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+            assertThat(fragment3EnterCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
+            // Make sure that fragment 2 does not have a view
+            assertThat(fragment2.view).isNull()
+            // Make sure that fragment 2 does not have a view
+            assertThat(fragment3.view).isNotNull()
+            // Make sure fragment3 is still in the container
+            assertThat(fragment3.requireView().parent).isNotNull()
         }
     }
 }
