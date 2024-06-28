@@ -19,5 +19,5 @@ package androidx.privacysandbox.ui.integration.testaidl;
 import android.os.Bundle;
 
 interface IAppOwnedMediateeSdkApi {
-    Bundle loadBannerAd(int adType, boolean withSlowDraw);
+    Bundle loadBannerAd(int adType, boolean withSlowDraw, boolean drawViewability);
 }
