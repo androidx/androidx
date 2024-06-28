@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.health.connect.client.impl.converters.records
 
@@ -36,28 +36,28 @@ import java.time.ZoneOffset
 
 /** Internal helper functions to convert proto to records. */
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-internal val DataProto.DataPoint.startTime: Instant
+val DataProto.DataPoint.startTime: Instant
     get() = Instant.ofEpochMilli(startTimeMillis)
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-internal val DataProto.DataPoint.endTime: Instant
+val DataProto.DataPoint.endTime: Instant
     get() = Instant.ofEpochMilli(endTimeMillis)
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-internal val DataProto.DataPoint.time: Instant
+val DataProto.DataPoint.time: Instant
     get() = Instant.ofEpochMilli(instantTimeMillis)
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-internal val DataProto.DataPoint.startZoneOffset: ZoneOffset?
+val DataProto.DataPoint.startZoneOffset: ZoneOffset?
     get() =
         if (hasStartZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(startZoneOffsetSeconds) else null
 
 @get:SuppressWarnings("GoodTime") // Safe to use for deserialization
-internal val DataProto.DataPoint.endZoneOffset: ZoneOffset?
+val DataProto.DataPoint.endZoneOffset: ZoneOffset?
     get() = if (hasEndZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(endZoneOffsetSeconds) else null
 
 @get:SuppressWarnings("GoodTime") // HealthDataClientImplSafe to use for deserialization
-internal val DataProto.DataPoint.zoneOffset: ZoneOffset?
+val DataProto.DataPoint.zoneOffset: ZoneOffset?
     get() = if (hasZoneOffsetSeconds()) ZoneOffset.ofTotalSeconds(zoneOffsetSeconds) else null
 
 internal fun DataPointOrBuilder.getLong(key: String, defaultVal: Long = 0): Long =

@@ -348,6 +348,23 @@ internal constructor(
                 WheelchairPushesRecord::class to
                     READ_WHEELCHAIR_PUSHES.substringAfter(READ_PERMISSION_PREFIX),
             )
+
+        /**
+         * Exposes all write and read permissions.
+         *
+         * @return A list of permissions as Strings
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @JvmField
+        public val ALL_PERMISSIONS: List<String> = buildList {
+            addAll(
+                RECORD_TYPE_TO_PERMISSION.flatMap {
+                    listOf(WRITE_PERMISSION_PREFIX + it.value, READ_PERMISSION_PREFIX + it.value)
+                }
+            )
+            add(PERMISSION_WRITE_EXERCISE_ROUTE)
+            add(PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND)
+        }
     }
 
     override fun equals(other: Any?): Boolean {

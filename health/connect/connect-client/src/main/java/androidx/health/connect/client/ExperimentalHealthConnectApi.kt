@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.health.connect.client.response
 
-import androidx.annotation.RestrictTo
-import androidx.health.connect.client.records.Record
+package androidx.health.connect.client
 
-/**
- * Response to record read.
- *
- * @see [androidx.health.connect.client.HealthConnectClient.readRecord]
- */
-class ReadRecordResponse<T : Record>
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-constructor(val record: T)
+@RequiresOptIn(
+    message = "This is an experimental Health Connect API and is likely to change in the future."
+)
+@Retention(AnnotationRetention.BINARY)
+public annotation class ExperimentalHealthConnectApi
