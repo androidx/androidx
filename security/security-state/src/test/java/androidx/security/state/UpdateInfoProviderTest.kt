@@ -21,7 +21,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import android.net.Uri
-import androidx.security.state.SecurityPatchState.Component
+import androidx.security.state.SecurityPatchState.Companion.COMPONENT_SYSTEM
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.gson.Gson
 import java.time.LocalDate
@@ -48,8 +48,9 @@ class UpdateInfoProviderTest {
     private val mockSpl = SecurityPatchState.DateBasedSecurityPatchLevel(2022, 1, 1)
     private val mockSecurityState: SecurityPatchState =
         mock<SecurityPatchState> {
-            on { getSecurityPatchLevelString(eq(Component.SYSTEM), Mockito.anyString()) } doReturn
-                mockSpl
+            on {
+                getComponentSecurityPatchLevel(eq(COMPONENT_SYSTEM), Mockito.anyString())
+            } doReturn mockSpl
         }
     private val authority = "com.example.provider"
     private val contentUri = Uri.parse("content://$authority/updateinfo")
@@ -58,7 +59,7 @@ class UpdateInfoProviderTest {
     private val updateInfo =
         UpdateInfo.Builder()
             .setUri("content://example.com/updateinfo")
-            .setComponent(Component.SYSTEM.toString())
+            .setComponent(COMPONENT_SYSTEM)
             .setSecurityPatchLevel("2022-01-01")
             .setPublishedDate(publishedDate)
             .build()
@@ -125,7 +126,7 @@ class UpdateInfoProviderTest {
 
     @Test
     fun testRegisterUnregisterUpdate() {
-        `when`(mockSecurityState.getDeviceSecurityPatchLevel(Component.SYSTEM))
+        `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
             .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2020, 1, 1))
 
         provider.registerUpdate(updateInfo)
@@ -140,7 +141,7 @@ class UpdateInfoProviderTest {
 
     @Test
     fun testCleanupUpdateInfo_removesUpdateInfoFromSharedPreferences() {
-        `when`(mockSecurityState.getDeviceSecurityPatchLevel(Component.SYSTEM))
+        `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
             .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2020, 1, 1))
 
         provider.registerUpdate(updateInfo)
@@ -148,7 +149,7 @@ class UpdateInfoProviderTest {
         Mockito.verify(mockEditor).putString(Mockito.anyString(), Mockito.anyString())
         Mockito.verify(mockEditor, times(2)).apply()
 
-        `when`(mockSecurityState.getDeviceSecurityPatchLevel(Component.SYSTEM))
+        `when`(mockSecurityState.getDeviceSecurityPatchLevel(COMPONENT_SYSTEM))
             .thenReturn(SecurityPatchState.DateBasedSecurityPatchLevel(2023, 1, 1))
 
         provider.registerUpdate(updateInfo)
