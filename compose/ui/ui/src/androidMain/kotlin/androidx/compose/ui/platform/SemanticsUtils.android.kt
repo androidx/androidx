@@ -122,6 +122,7 @@ internal fun Role.toLegacyClassName(): String? =
         Role.RadioButton -> "android.widget.RadioButton"
         Role.Image -> "android.widget.ImageView"
         Role.DropdownList -> "android.widget.Spinner"
+        Role.NumberPicker -> "android.widget.NumberPicker"
         else -> null
     }
 
