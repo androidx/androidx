@@ -565,6 +565,21 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testCreateAccessibilityNodeInfo_numberPicker_expectedClassName() {
+        // Arrange.
+        setContent { Box(Modifier.semantics { role = Role.NumberPicker }.testTag(tag)) }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(info) { assertThat(className).isEqualTo("android.widget.NumberPicker") }
+        }
+    }
+
+    @Test
     fun testCreateAccessibilityNodeInfo_progressIndicator_determinate() {
         // Arrange.
         setContent { Box(Modifier.progressSemantics(0.5f).testTag(tag)) { BasicText("Text") } }
