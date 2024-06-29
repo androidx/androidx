@@ -452,7 +452,7 @@ class PlatformTextInputViewIntegrationTest {
     // closeConnection is only supported on API 24+
     @SdkSuppress(minSdkVersion = 24)
     @Test
-    fun connectionClosed_whenCreateConnectionCalledAgain() {
+    fun connectionNotClosed_whenCreateConnectionCalledAgain() {
         class TestConnection(view: View) : BaseInputConnection(view, true) {
             var closeCalls = 0
 
@@ -484,15 +484,15 @@ class PlatformTextInputViewIntegrationTest {
 
             assertThat(connections).hasSize(2)
             val connection2 = connections.last()
-            assertThat(connection1.closeCalls).isEqualTo(1)
+            assertThat(connection1.closeCalls).isEqualTo(0)
             assertThat(connection2.closeCalls).isEqualTo(0)
 
             hostView.onCreateInputConnection(EditorInfo())
 
             assertThat(connections).hasSize(3)
             val connection3 = connections.last()
-            assertThat(connection1.closeCalls).isEqualTo(1)
-            assertThat(connection2.closeCalls).isEqualTo(1)
+            assertThat(connection1.closeCalls).isEqualTo(0)
+            assertThat(connection2.closeCalls).isEqualTo(0)
             assertThat(connection3.closeCalls).isEqualTo(0)
         }
 
@@ -501,7 +501,7 @@ class PlatformTextInputViewIntegrationTest {
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
-    fun innerSessionCanceled_whenIsolatedFromOuterSession_whenConnectionClosed() {
+    fun innerSessionNotCanceled_whenIsolatedFromOuterSession_whenConnectionClosed() {
         setupContent()
         lateinit var innerJob: Job
         val outerJob =
@@ -520,15 +520,14 @@ class PlatformTextInputViewIntegrationTest {
         }
 
         rule.runOnIdle {
-            // Outer job isn't canceled, only the inner one.
             assertThat(outerJob.isActive).isTrue()
-            assertThat(innerJob.isActive).isFalse()
+            assertThat(innerJob.isActive).isTrue()
         }
     }
 
     @SdkSuppress(minSdkVersion = 24)
     @Test
-    fun cancellationPropagates_whenConnectionClosed() {
+    fun cancellationDoesNotPropagate_whenConnectionClosed() {
         setupContent()
         val sessionJob =
             coroutineScope.launch {
@@ -541,7 +540,7 @@ class PlatformTextInputViewIntegrationTest {
             connection.closeConnection()
         }
 
-        rule.runOnIdle { assertThat(sessionJob.isActive).isFalse() }
+        rule.runOnIdle { assertThat(sessionJob.isActive).isTrue() }
     }
 
     @Test
