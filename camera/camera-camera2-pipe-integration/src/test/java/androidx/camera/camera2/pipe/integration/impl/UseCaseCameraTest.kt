@@ -151,7 +151,7 @@ private class FakeTestUseCase :
     FakeUseCase(FakeUseCaseConfig.Builder().setTargetName("UseCase").useCaseConfig) {
 
     fun setupSessionConfig(sessionConfigBuilder: SessionConfig.Builder) {
-        updateSessionConfig(sessionConfigBuilder.build())
+        updateSessionConfig(listOf(sessionConfigBuilder.build()))
         notifyActive()
     }
 }

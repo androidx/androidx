@@ -174,7 +174,7 @@ class ImageCaptureTest {
                 bufferFormat = ImageFormat.JPEG,
             )
         // Act: pipeline can be recreated without crashing.
-        imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build())
+        imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build(), null)
     }
 
     @Test

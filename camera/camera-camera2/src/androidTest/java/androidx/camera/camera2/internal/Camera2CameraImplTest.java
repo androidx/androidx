@@ -72,6 +72,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -944,7 +945,8 @@ public final class Camera2CameraImplTest {
 
         testUseCase.updateSuggestedStreamSpec(StreamSpec.builder(
                 new Size(640, 480)).setImplementationOptions(
-                StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build());
+                StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build(),
+                null);
         mFakeUseCases.add(testUseCase);
         return testUseCase;
     }
@@ -962,13 +964,15 @@ public final class Camera2CameraImplTest {
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         UseCaseConfig<?> config = configBuilder.getUseCaseConfig();
 
-        imageCapture.bindToCamera(mCamera2CameraImpl, null, imageCapture.getDefaultConfig(true,
+        imageCapture.bindToCamera(mCamera2CameraImpl, null, null,
+                imageCapture.getDefaultConfig(true,
                 useCaseConfigFactory));
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 () -> imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(
                         new Size(640, 480)).setImplementationOptions(
-                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
+                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build(),
+                        null));
 
         mFakeUseCases.add(imageCapture);
         return imageCapture;
@@ -980,7 +984,10 @@ public final class Camera2CameraImplTest {
                 new Camera2UseCaseConfigFactory(ApplicationProvider.getApplicationContext());
 
         StreamSharing streamSharing =
-                new StreamSharing(mCamera2CameraImpl, children, useCaseConfigFactory);
+                new StreamSharing(mCamera2CameraImpl, null,
+                        LayoutSettings.DEFAULT,
+                        LayoutSettings.DEFAULT,
+                        children, useCaseConfigFactory);
 
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
@@ -988,13 +995,15 @@ public final class Camera2CameraImplTest {
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         UseCaseConfig<?> config = configBuilder.getUseCaseConfig();
 
-        streamSharing.bindToCamera(mCamera2CameraImpl, null, streamSharing.getDefaultConfig(true,
+        streamSharing.bindToCamera(mCamera2CameraImpl, null, null,
+                streamSharing.getDefaultConfig(true,
                 useCaseConfigFactory));
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(
                 () -> streamSharing.updateSuggestedStreamSpec(StreamSpec.builder(
                         new Size(640, 480)).setImplementationOptions(
-                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build()));
+                        StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build(),
+                        null));
 
         mFakeUseCases.add(streamSharing);
         return streamSharing;
@@ -1369,7 +1378,7 @@ public final class Camera2CameraImplTest {
         useCase.updateSuggestedStreamSpec(StreamSpec.builder(
                 new Size(640, 480)).setImplementationOptions(
                 StreamUseCaseUtil.getStreamSpecImplementationOptions(
-                        useCase.getCurrentConfig())).build());
+                        useCase.getCurrentConfig())).build(), null);
     }
 
     private static boolean getDefaultZslDisabled(int templateType) {
@@ -1416,10 +1425,11 @@ public final class Camera2CameraImplTest {
             mRepeatingCaptureCallback = repeatingCaptureCallback;
             mHandlerThread.start();
             mHandler = new Handler(mHandlerThread.getLooper());
-            bindToCamera(camera, null, null);
+            bindToCamera(camera, null, null, null);
             updateSuggestedStreamSpec(StreamSpec.builder(
                     new Size(640, 480)).setImplementationOptions(
-                    StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build());
+                    StreamUseCaseUtil.getStreamSpecImplementationOptions(config)).build(),
+                    null);
         }
 
         public void close() {
@@ -1440,25 +1450,26 @@ public final class Camera2CameraImplTest {
         @Override
         @NonNull
         protected StreamSpec onSuggestedStreamSpecUpdated(
-                @NonNull StreamSpec suggestedStreamSpec) {
+                @NonNull StreamSpec primaryStreamSpec,
+                @Nullable StreamSpec secondaryStreamSpec) {
             if (mDeferrableSurface != null) {
                 mDeferrableSurface.close();
             }
-            mDeferrableSurface = createDeferrableSurface(suggestedStreamSpec, mImageFormat);
+            mDeferrableSurface = createDeferrableSurface(primaryStreamSpec, mImageFormat);
             mSessionConfigBuilder = SessionConfig.Builder.createFrom(mConfig,
-                    suggestedStreamSpec.getResolution());
+                    primaryStreamSpec.getResolution());
             mSessionConfigBuilder.setTemplateType(mTemplate);
             mSessionConfigBuilder.addRepeatingCameraCaptureCallback(mRepeatingCaptureCallback);
             updateSessionBuilderBySurfaceOption();
-            updateSessionConfig(mSessionConfigBuilder.build());
-            return suggestedStreamSpec;
+            updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+            return primaryStreamSpec;
         }
 
         public void setSurfaceOption(@NonNull SurfaceOption surfaceOption) {
             if (mSurfaceOption != surfaceOption) {
                 mSurfaceOption = surfaceOption;
                 updateSessionBuilderBySurfaceOption();
-                updateSessionConfig(mSessionConfigBuilder.build());
+                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
             }
         }
 

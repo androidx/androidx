@@ -492,7 +492,7 @@ public final class Preview extends UseCase {
     private void updateConfigAndOutput(@NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         mSessionConfigBuilder = createPipeline(config, streamSpec);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
     }
 
     /**
@@ -609,9 +609,11 @@ public final class Preview extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        updateConfigAndOutput((PreviewConfig) getCurrentConfig(), suggestedStreamSpec);
-        return suggestedStreamSpec;
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        updateConfigAndOutput((PreviewConfig) getCurrentConfig(), primaryStreamSpec);
+        return primaryStreamSpec;
     }
 
     /**
@@ -622,7 +624,7 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 

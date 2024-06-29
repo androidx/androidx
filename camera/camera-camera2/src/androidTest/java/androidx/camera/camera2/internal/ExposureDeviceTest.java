@@ -41,6 +41,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
@@ -446,10 +447,11 @@ public class ExposureDeviceTest {
         @Override
         @NonNull
         protected StreamSpec onSuggestedStreamSpecUpdated(
-                @NonNull StreamSpec suggestedStreamSpec) {
-            createPipeline(suggestedStreamSpec);
+                @NonNull StreamSpec primaryStreamSpec,
+                @Nullable StreamSpec secondaryStreamSpec) {
+            createPipeline(primaryStreamSpec);
             notifyActive();
-            return suggestedStreamSpec;
+            return primaryStreamSpec;
         }
 
         private void createPipeline(StreamSpec streamSpec) {
@@ -490,7 +492,7 @@ public class ExposureDeviceTest {
                 // Create new pipeline and it will close the old one.
                 createPipeline(streamSpec);
             });
-            updateSessionConfig(builder.build());
+            updateSessionConfig(List.of(builder.build()));
         }
     }
 }

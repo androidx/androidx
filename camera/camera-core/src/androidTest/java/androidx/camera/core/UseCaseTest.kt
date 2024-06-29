@@ -89,7 +89,7 @@ class UseCaseTest {
     fun getAttachedSessionConfig() {
         val testUseCase = createFakeUseCase()
         val sessionToAttach = SessionConfig.Builder().build()
-        testUseCase.updateSessionConfig(sessionToAttach)
+        testUseCase.updateSessionConfig(listOf(sessionToAttach))
         val attachedSession = testUseCase.sessionConfig
         assertThat(attachedSession).isEqualTo(sessionToAttach)
     }
@@ -97,7 +97,7 @@ class UseCaseTest {
     @Test
     fun removeListener() {
         val testUseCase = createFakeUseCase()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.unbindFromCamera(fakeCamera)
         testUseCase.notifyActive()
         assertThat(fakeCamera.useCaseActiveHistory).isEmpty()
@@ -106,7 +106,7 @@ class UseCaseTest {
     @Test
     fun notifyActiveState() {
         val testUseCase = createFakeUseCase()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.notifyActive()
         assertThat(fakeCamera.useCaseActiveHistory[0]).isEqualTo(testUseCase)
     }
@@ -114,7 +114,7 @@ class UseCaseTest {
     @Test
     fun notifyInactiveState() {
         val testUseCase = createFakeUseCase()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.notifyInactive()
         assertThat(fakeCamera.useCaseInactiveHistory[0]).isEqualTo(testUseCase)
     }
@@ -122,7 +122,7 @@ class UseCaseTest {
     @Test
     fun notifyUpdatedSettings() {
         val testUseCase = FakeUseCase()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.notifyUpdated()
         assertThat(fakeCamera.useCaseUpdateHistory[0]).isEqualTo(testUseCase)
     }
@@ -130,7 +130,7 @@ class UseCaseTest {
     @Test
     fun notifyResetUseCase() {
         val testUseCase = FakeUseCase()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.notifyReset()
         assertThat(fakeCamera.useCaseResetHistory[0]).isEqualTo(testUseCase)
     }
@@ -149,9 +149,9 @@ class UseCaseTest {
     @Test
     fun attachedSurfaceResolutionCanBeReset_whenOnDetach() {
         val testUseCase = FakeUseCase()
-        testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC)
+        testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC, null)
         assertThat(testUseCase.attachedSurfaceResolution).isNotNull()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.unbindFromCamera(fakeCamera)
         assertThat(testUseCase.attachedSurfaceResolution).isNull()
     }
@@ -159,9 +159,9 @@ class UseCaseTest {
     @Test
     fun attachedStreamSpecCanBeReset_whenOnDetach() {
         val testUseCase = FakeUseCase()
-        testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC)
+        testUseCase.updateSuggestedStreamSpec(TEST_STREAM_SPEC, null)
         assertThat(testUseCase.attachedStreamSpec).isNotNull()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.unbindFromCamera(fakeCamera)
         assertThat(testUseCase.attachedStreamSpec).isNull()
     }
@@ -171,7 +171,7 @@ class UseCaseTest {
         val testUseCase = FakeUseCase()
         testUseCase.setViewPortCropRect(Rect(0, 0, 640, 480))
         assertThat(testUseCase.viewPortCropRect).isNotNull()
-        testUseCase.bindToCamera(fakeCamera, null, null)
+        testUseCase.bindToCamera(fakeCamera, null, null, null)
         testUseCase.unbindFromCamera(fakeCamera)
         assertThat(testUseCase.viewPortCropRect).isNull()
     }

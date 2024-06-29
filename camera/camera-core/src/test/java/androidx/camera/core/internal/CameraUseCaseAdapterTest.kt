@@ -36,6 +36,7 @@ import androidx.camera.core.FocusMeteringAction.FLAG_AF
 import androidx.camera.core.FocusMeteringAction.FLAG_AWB
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.LayoutSettings
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.TorchState
@@ -282,7 +283,10 @@ class CameraUseCaseAdapterTest {
         val adapter =
             CameraUseCaseAdapter(
                 fakeCamera,
+                null,
                 RestrictedCameraInfo(fakeCamera.cameraInfoInternal, extensionsConfig),
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
                 FakeCameraCoordinator(),
                 fakeManager,
                 FakeUseCaseConfigFactory(),
@@ -324,7 +328,15 @@ class CameraUseCaseAdapterTest {
 
     @Test(expected = CameraException::class)
     fun addStreamSharing_throwsException() {
-        val streamSharing = StreamSharing(fakeCamera, setOf(preview, video), useCaseConfigFactory)
+        val streamSharing =
+            StreamSharing(
+                fakeCamera,
+                null,
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
+                setOf(preview, video),
+                useCaseConfigFactory
+            )
         // Act: add use cases that can only be supported with StreamSharing
         adapter.addUseCases(setOf(streamSharing, video, image))
     }
@@ -584,7 +596,7 @@ class CameraUseCaseAdapterTest {
         val fakeUseCase = spy(FakeUseCase())
         adapter.addUseCases(listOf(fakeUseCase))
         verify(fakeUseCase)
-            .bindToCamera(eq(fakeCamera), isNull(), any(FakeUseCaseConfig::class.java))
+            .bindToCamera(eq(fakeCamera), isNull(), isNull(), any(FakeUseCaseConfig::class.java))
     }
 
     @Test
@@ -1324,7 +1336,10 @@ class CameraUseCaseAdapterTest {
         val adapter =
             CameraUseCaseAdapter(
                 cameraInternal,
+                null,
                 RestrictedCameraInfo(cameraInternal.cameraInfoInternal, cameraConfig),
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
                 cameraCoordinator,
                 fakeCameraDeviceSurfaceManager,
                 useCaseConfigFactory
