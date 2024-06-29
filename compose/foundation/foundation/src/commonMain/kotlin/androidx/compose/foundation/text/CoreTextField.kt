@@ -346,19 +346,13 @@ internal fun CoreTextField(
 
     // Hide the keyboard if made disabled or read-only while focused (b/237308379).
     val writeable by rememberUpdatedState(enabled && !readOnly)
-    val isWindowFocused by rememberUpdatedState(windowInfo.isWindowFocused)
     LaunchedEffect(Unit) {
         try {
-            snapshotFlow {
-                    // do not use Pair to pass two booleans
-                    packBools(writeable, isWindowFocused)
-                }
-                .collect {
-                    @Suppress("NAME_SHADOWING") val writeable = unpackBool1(it)
-                    @Suppress("NAME_SHADOWING") val isWindowFocused = unpackBool2(it)
+            snapshotFlow { writeable }
+                .collect { writeable ->
                     // When hasFocus changes, the session will be stopped/started in the focus
                     // handler so we don't need to handle its changes here.
-                    if (writeable && isWindowFocused && state.hasFocus) {
+                    if (writeable && state.hasFocus) {
                         startInputSession(
                             textInputService,
                             state,
@@ -366,7 +360,7 @@ internal fun CoreTextField(
                             imeOptions,
                             manager.offsetMapping
                         )
-                    } else if (!writeable || !state.hasFocus) {
+                    } else {
                         endInputSession(state)
                     }
                 }
@@ -1259,16 +1253,4 @@ private fun notifyFocusedRect(
             offsetMapping
         )
     }
-}
-
-private fun packBools(bool1: Boolean, bool2: Boolean): Int {
-    return (if (bool1) (0x1) else 0x0) or (if (bool2) (0x2) else 0x0)
-}
-
-private fun unpackBool1(packed: Int): Boolean {
-    return (packed and 0x1) > 0
-}
-
-private fun unpackBool2(packed: Int): Boolean {
-    return (packed and 0x2) > 0
 }
