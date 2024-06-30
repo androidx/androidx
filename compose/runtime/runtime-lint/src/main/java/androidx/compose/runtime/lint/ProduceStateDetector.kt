@@ -32,8 +32,13 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
+import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.UMultiResolvable
+import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.UastBinaryOperator
 import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -72,7 +77,7 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
                      * false positives.
                      */
                     override fun visitCallExpression(node: UCallExpression): Boolean {
-                        val resolvedMethod = node.resolve() ?: return false
+                        val resolvedMethod = node.resolve() ?: return referencesReceiver
                         return resolvedMethod.parameterList.parameters.any { parameter ->
                             val type = parameter.type
 
@@ -94,24 +99,57 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
                     }
 
                     /**
-                     * Visit any simple name reference expressions to see if there is a reference to
-                     * `value` that resolves to a call to MutableState#setValue.
+                     * Visit binary operator to see if
+                     * 1) it is an assign operator;
+                     * 2) its left operand refers to 'value'; and
+                     * 3) it is resolved to a call to MutableState#setValue.
                      */
-                    override fun visitSimpleNameReferenceExpression(
-                        node: USimpleNameReferenceExpression
-                    ): Boolean {
-                        if (node.identifier != "value") return false
-                        val resolvedMethod = node.tryResolve() as? PsiMethod ?: return false
+                    override fun visitBinaryExpression(node: UBinaryExpression): Boolean {
+                        // =, +=, etc.
+                        if (node.operator !is UastBinaryOperator.AssignOperator) {
+                            return callsSetValue
+                        }
+                        // this.value =, value +=, etc.
+                        if (node.leftOperand.rightMostNameReference()?.identifier != "value") {
+                            return callsSetValue
+                        }
+                        // NB: we can't use node.resolveOperator() during the migration,
+                        // since K1 / K2 UAST behaviors mismatch.
+                        // `multiResolve()` literally encompasses all possible resolution
+                        // results for (compound, overridden) operators.
+                        val resolvedMethods =
+                            (node as? UMultiResolvable)?.multiResolve() ?: return callsSetValue
                         if (
-                            resolvedMethod.name == "setValue" &&
-                                resolvedMethod.containingClass?.inheritsFrom(
-                                    Names.Runtime.MutableState
-                                ) == true
+                            resolvedMethods.any {
+                                (it.element as? PsiMethod).isValueAccessorFromMutableState()
+                            }
                         ) {
+                            callsSetValue = true
+                            return true
+                        }
+                        // TODO(b/34684249): revisit this fallback option after restoring
+                        //  K2 UAST binary resolution to allow only setter, not getter
+                        val resolvedOperand = node.leftOperand.tryResolve()
+                        if ((resolvedOperand as? PsiMethod).isValueAccessorFromMutableState()) {
                             callsSetValue = true
                         }
                         return callsSetValue
                     }
+
+                    private tailrec fun UExpression.rightMostNameReference():
+                        USimpleNameReferenceExpression? {
+                        return when (this) {
+                            is USimpleNameReferenceExpression -> this
+                            is UQualifiedReferenceExpression ->
+                                this.selector.rightMostNameReference()
+                            else -> null
+                        }
+                    }
+
+                    private fun PsiMethod?.isValueAccessorFromMutableState(): Boolean =
+                        this != null &&
+                            (name == "setValue" || name == "getValue") &&
+                            containingClass?.inheritsFrom(Names.Runtime.MutableState) == true
                 }
             )
 
