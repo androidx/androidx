@@ -42,6 +42,12 @@ import kotlinx.coroutines.launch
  *
  * If a valid [id] is provided, this function will use the sizing values from the bound widget if
  * using [SizeMode.Exact] or [SizeMode.Single].
+ *
+ * Only one instance of compose for a particular [id] may run at the same time. Calling compose
+ * concurrently with the same ID will succeed, but the first call will resume with an exception.
+ *
+ * If you need to call compose concurrently, you can omit [id] so that a random fake ID will be
+ * used. Otherwise, call compose sequentially when using the same [id].
  */
 suspend fun GlanceAppWidget.compose(
     @Suppress("ContextFirst") context: Context,
@@ -70,6 +76,13 @@ suspend fun GlanceAppWidget.compose(
  * Lambda actions and list views in the emitted [RemoteViews] will continue to work while this is
  * flow is running. This currently does not support resizing (you have to run the flow again with
  * new [sizes]) or reloading the [androidx.glance.state.GlanceStateDefinition] state value.
+ *
+ * Note: In order to handle lambda actions correctly, only one instance of runComposition for a
+ * particular [id] may run at the same time. Calling runComposition concurrently with the same ID
+ * will succeed, but the first call will resume with an exception.
+ *
+ * If you need to call runComposition concurrently, you can omit [id] so that a random fake ID will
+ * be used. Otherwise, call runComposition sequentially when using the same [id].
  */
 @SuppressLint("PrimitiveInCollection")
 @ExperimentalGlanceApi
@@ -102,10 +115,8 @@ fun GlanceAppWidget.runComposition(
                     sizeMode
                 } else {
                     // When no sizes are provided, the widget is not SizeMode.Responsive, and we are
-                    // not
-                    // composing for a bound widget, use SizeMode.Exact (which means
-                    // AppWidgetSession will
-                    // use DpSize.Zero).
+                    // not composing for a bound widget, use SizeMode.Exact (which means
+                    // AppWidgetSession will use DpSize.Zero).
                     SizeMode.Exact
                 },
             shouldPublish = false,
