@@ -31,6 +31,7 @@ import java.io.IOException
  * that class requires overriding certain methods, support implementation uses [Factory.create] to
  * create this and [Callback] to implement the methods that should be overridden.
  */
+@Suppress("AcronymName") // SQL is a known term and should remain capitalized
 interface SupportSQLiteOpenHelper : Closeable {
     /**
      * Return the name of the SQLite database being opened, as given to the constructor. `null`
