@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.TextUnit
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -137,7 +138,12 @@ internal class CurvedTextChild(
     }
 
     override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
-        delegate.updateIfNeeded(text, clockwise, actualStyle.fontSize.toPx())
+        delegate.updateIfNeeded(
+            text,
+            clockwise,
+            actualStyle.fontSize.toPx(),
+            actualStyle.letterSpacing
+        )
 
         // Size the compose-ui node reasonably.
 
@@ -221,6 +227,7 @@ internal class CurvedTextDelegate {
     private var text: String = ""
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
+    private var letterSpacing: TextUnit? = null
 
     var textWidth by mutableFloatStateOf(0f)
     var textHeight by mutableFloatStateOf(0f)
@@ -235,12 +242,24 @@ internal class CurvedTextDelegate {
     var lastLayoutInfo: CurvedLayoutInfo? = null
     var lastParentSweepRadians: Float = 0f
 
-    fun updateIfNeeded(text: String, clockwise: Boolean, fontSizePx: Float) {
-        if (text != this.text || clockwise != this.clockwise || fontSizePx != this.fontSizePx) {
+    fun updateIfNeeded(
+        text: String,
+        clockwise: Boolean,
+        fontSizePx: Float,
+        letterSpacing: TextUnit?
+    ) {
+        if (
+            text != this.text ||
+                clockwise != this.clockwise ||
+                fontSizePx != this.fontSizePx ||
+                letterSpacing != this.letterSpacing
+        ) {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
+            this.letterSpacing = letterSpacing
             paint.textSize = fontSizePx
+            paint.letterSpacing = letterSpacing?.value ?: 0f
             updateMeasures()
             lastLayoutInfo = null // Ensure paths are recomputed
         }

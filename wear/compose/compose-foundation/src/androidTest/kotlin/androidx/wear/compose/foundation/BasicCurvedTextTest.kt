@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +27,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -75,5 +77,36 @@ class BasicCurvedTextTest {
         // This is a pre-calculated value. It was calculated for specific container size,
         // density and font.
         rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo(93.dp)
+    }
+
+    @Test
+    fun letter_spacing_increases_size() {
+        val TAG1 = TEST_TAG + "1"
+        val TAG2 = TEST_TAG + "2"
+        rule.setContent {
+            Box {
+                repeat(2) {
+                    val tag = if (it == 0) TAG1 else TAG2
+                    val style =
+                        if (it == 0) CurvedTextStyle(fontSize = 24.sp)
+                        else CurvedTextStyle(fontSize = 24.sp, letterSpacing = 0.5f.em)
+                    CurvedLayout(modifier = Modifier.size(200.dp)) {
+                        curvedRow(modifier = CurvedModifier.testTag(tag)) {
+                            basicCurvedText(
+                                // Use a small text so we can see its width increase, instead of it
+                                // just wrapping around the circle.
+                                text = "Text",
+                                style = style,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        val width1 = rule.onNodeWithTag(TAG1).fetchSemanticsNode().size.width
+        val width2 = rule.onNodeWithTag(TAG2).fetchSemanticsNode().size.width
+        // We added 0.5 em spacing, it should be much bigger
+        assert(width2 > 1.4f * width1)
     }
 }

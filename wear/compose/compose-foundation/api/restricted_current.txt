@@ -168,9 +168,11 @@ package androidx.wear.compose.foundation {
   public final class CurvedTextStyle {
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
     ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize);
-    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
+    ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
+    ctor public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing);
     method @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize);
-    method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
+    method @Deprecated public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
+    method public androidx.wear.compose.foundation.CurvedTextStyle copy(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional long letterSpacing);
     method public long getBackground();
     method public long getColor();
     method public androidx.compose.ui.text.font.FontFamily? getFontFamily();
@@ -178,6 +180,7 @@ package androidx.wear.compose.foundation {
     method public androidx.compose.ui.text.font.FontStyle? getFontStyle();
     method public androidx.compose.ui.text.font.FontSynthesis? getFontSynthesis();
     method public androidx.compose.ui.text.font.FontWeight? getFontWeight();
+    method public long getLetterSpacing();
     method public androidx.wear.compose.foundation.CurvedTextStyle merge(optional androidx.wear.compose.foundation.CurvedTextStyle? other);
     method public operator androidx.wear.compose.foundation.CurvedTextStyle plus(androidx.wear.compose.foundation.CurvedTextStyle other);
     property public final long background;
@@ -187,6 +190,7 @@ package androidx.wear.compose.foundation {
     property public final androidx.compose.ui.text.font.FontStyle? fontStyle;
     property public final androidx.compose.ui.text.font.FontSynthesis? fontSynthesis;
     property public final androidx.compose.ui.text.font.FontWeight? fontWeight;
+    property public final long letterSpacing;
   }
 
   public final class ExpandableItemsDefaults {
