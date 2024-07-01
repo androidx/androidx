@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -48,13 +49,14 @@ import androidx.compose.ui.unit.dp
  * Example:
  *
  * @sample androidx.compose.foundation.layout.samples.ContextualFlowRowMaxLineDynamicSeeMore
+ * @param itemCount The total number of item composable
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual rows.
+ * @param itemVerticalAlignment The cross axis/vertical alignment of an item in the column.
  * @param maxItemsInEachRow The maximum number of items per row
  * @param maxLines The maximum number of rows
  * @param overflow The strategy to handle overflowing items
- * @param itemCount The total number of item composable
  * @param content The indexed-based content of [ContextualFlowRowScope]
  * @see FlowRow
  * @see ContextualFlowColumn
@@ -66,6 +68,7 @@ fun ContextualFlowRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    itemVerticalAlignment: Alignment.Vertical = Alignment.Top,
     maxItemsInEachRow: Int = Int.MAX_VALUE,
     maxLines: Int = Int.MAX_VALUE,
     overflow: ContextualFlowRowOverflow = ContextualFlowRowOverflow.Clip,
@@ -82,6 +85,7 @@ fun ContextualFlowRow(
         contextualRowMeasurementHelper(
             horizontalArrangement,
             verticalArrangement,
+            itemVerticalAlignment,
             maxItemsInEachRow,
             maxLines,
             overflowState,
@@ -119,13 +123,14 @@ fun ContextualFlowRow(
  * Example:
  *
  * @sample androidx.compose.foundation.layout.samples.ContextualFlowColMaxLineDynamicSeeMore
+ * @param itemCount The total number of item composable
  * @param modifier The modifier to be applied to the Row.
- * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual column.
+ * @param horizontalArrangement The horizontal arrangement of the layout's children.
+ * @param itemHorizontalAlignment The cross axis/horizontal alignment of an item in the column.
  * @param maxItemsInEachColumn The maximum number of items per column
  * @param maxLines The maximum number of columns
- * @param overflow The strategy to handle overflowing items
- * @param itemCount The total number of item composable
+ * @param overflow The straoadtegy to handle overflowing items
  * @param content The indexed-based content of [ContextualFlowColumnScope]
  * @see FlowColumn
  * @see ContextualFlowRow
@@ -137,6 +142,7 @@ fun ContextualFlowColumn(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    itemHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
     maxItemsInEachColumn: Int = Int.MAX_VALUE,
     maxLines: Int = Int.MAX_VALUE,
     overflow: ContextualFlowColumnOverflow = ContextualFlowColumnOverflow.Clip,
@@ -153,6 +159,7 @@ fun ContextualFlowColumn(
         contextualColumnMeasureHelper(
             verticalArrangement,
             horizontalArrangement,
+            itemHorizontalAlignment,
             maxItemsInEachColumn,
             maxLines,
             overflowState,
@@ -371,6 +378,7 @@ internal class ContextualFlowColumnOverflowScopeImpl(private val state: FlowLayo
 internal fun contextualRowMeasurementHelper(
     horizontalArrangement: Arrangement.Horizontal,
     verticalArrangement: Arrangement.Vertical,
+    itemVerticalAlignment: Alignment.Vertical,
     maxItemsInMainAxis: Int,
     maxLines: Int,
     overflowState: FlowLayoutOverflowState,
@@ -381,6 +389,7 @@ internal fun contextualRowMeasurementHelper(
     return remember(
         horizontalArrangement,
         verticalArrangement,
+        itemVerticalAlignment,
         maxItemsInMainAxis,
         maxLines,
         overflowState,
@@ -391,7 +400,7 @@ internal fun contextualRowMeasurementHelper(
                 isHorizontal = true,
                 horizontalArrangement = horizontalArrangement,
                 mainAxisSpacing = horizontalArrangement.spacing,
-                crossAxisAlignment = CROSS_AXIS_ALIGNMENT_TOP,
+                crossAxisAlignment = CrossAxisAlignment.vertical(itemVerticalAlignment),
                 verticalArrangement = verticalArrangement,
                 crossAxisArrangementSpacing = verticalArrangement.spacing,
                 maxItemsInMainAxis = maxItemsInMainAxis,
@@ -409,6 +418,7 @@ internal fun contextualRowMeasurementHelper(
 internal fun contextualColumnMeasureHelper(
     verticalArrangement: Arrangement.Vertical,
     horizontalArrangement: Arrangement.Horizontal,
+    itemHorizontalAlignment: Alignment.Horizontal,
     maxItemsInMainAxis: Int,
     maxLines: Int,
     overflowState: FlowLayoutOverflowState,
@@ -419,6 +429,7 @@ internal fun contextualColumnMeasureHelper(
     return remember(
         verticalArrangement,
         horizontalArrangement,
+        itemHorizontalAlignment,
         maxItemsInMainAxis,
         maxLines,
         overflowState,
@@ -429,7 +440,7 @@ internal fun contextualColumnMeasureHelper(
                 isHorizontal = false,
                 verticalArrangement = verticalArrangement,
                 mainAxisSpacing = verticalArrangement.spacing,
-                crossAxisAlignment = CROSS_AXIS_ALIGNMENT_START,
+                crossAxisAlignment = CrossAxisAlignment.horizontal(itemHorizontalAlignment),
                 horizontalArrangement = horizontalArrangement,
                 crossAxisArrangementSpacing = horizontalArrangement.spacing,
                 maxItemsInMainAxis = maxItemsInMainAxis,

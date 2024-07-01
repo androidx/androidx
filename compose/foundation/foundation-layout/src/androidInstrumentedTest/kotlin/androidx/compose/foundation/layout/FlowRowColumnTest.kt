@@ -773,6 +773,44 @@ class FlowRowColumnTest {
     }
 
     @Test
+    fun testFlowRow_alignItemsCenterVertically_UsingTopLevelAPI() {
+
+        val totalRowHeight = 20
+        val shorterHeight = 10
+        val expectedResult = (totalRowHeight - shorterHeight) / 2
+        var positionInParentY = 0f
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.size(200.toDp())) {
+                    FlowRow(itemVerticalAlignment = Alignment.CenterVertically) {
+                        repeat(5) { index ->
+                            Box(
+                                Modifier.size(
+                                        20.toDp(),
+                                        if (index == 4) {
+                                            shorterHeight.toDp()
+                                        } else {
+                                            totalRowHeight.toDp()
+                                        }
+                                    )
+                                    .onPlaced {
+                                        if (index == 4) {
+                                            val positionInParent = it.positionInParent()
+                                            positionInParentY = positionInParent.y
+                                        }
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        Truth.assertThat(positionInParentY).isEqualTo(expectedResult)
+    }
+
+    @Test
     fun testFlowColumn_alignItemsDefaultsToTop() {
         val totalColumnWidth = 20
         val shorterWidth = 10
@@ -824,6 +862,44 @@ class FlowRowColumnTest {
                             Box(
                                 Modifier.align(Alignment.CenterHorizontally)
                                     .size(
+                                        if (index == 4) {
+                                            shorterWidth.toDp()
+                                        } else {
+                                            totalColumnWidth.toDp()
+                                        },
+                                        20.toDp()
+                                    )
+                                    .onPlaced {
+                                        if (index == 4) {
+                                            val positionInParent = it.positionInParent()
+                                            positionInParentX = positionInParent.x
+                                        }
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        Truth.assertThat(positionInParentX).isEqualTo(expectedResult)
+    }
+
+    @Test
+    fun testFlowColumn_alignItemsCenterHorizontally_UsingTopLevelAPI() {
+
+        val totalColumnWidth = 20
+        val shorterWidth = 10
+        val expectedResult = (totalColumnWidth - shorterWidth) / 2
+        var positionInParentX = 0f
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.size(200.toDp())) {
+                    FlowColumn(itemHorizontalAlignment = Alignment.CenterHorizontally) {
+                        repeat(5) { index ->
+                            Box(
+                                Modifier.size(
                                         if (index == 4) {
                                             shorterWidth.toDp()
                                         } else {
@@ -5402,6 +5478,7 @@ class FlowRowColumnTest {
                 rowMeasurementMultiContentHelper(
                     verticalArrangement = Arrangement.Top,
                     horizontalArrangement = Arrangement.Start,
+                    itemVerticalAlignment = Alignment.Top,
                     maxItemsInMainAxis = maxItemsInMainAxis,
                     maxLines = maxLines,
                     overflowState = overflowState
@@ -5434,6 +5511,7 @@ class FlowRowColumnTest {
                 rowMeasurementMultiContentHelper(
                     verticalArrangement = Arrangement.Top,
                     horizontalArrangement = Arrangement.Start,
+                    itemVerticalAlignment = Alignment.Top,
                     maxItemsInMainAxis = maxItemsInMainAxis,
                     maxLines = maxLines,
                     overflowState = FlowRowOverflow.expandIndicator {}.createOverflowState()
@@ -5443,6 +5521,7 @@ class FlowRowColumnTest {
                 rowMeasurementMultiContentHelper(
                     verticalArrangement = Arrangement.Top,
                     horizontalArrangement = Arrangement.Start,
+                    itemVerticalAlignment = Alignment.Top,
                     maxItemsInMainAxis = maxItemsInMainAxis,
                     maxLines = maxLines,
                     overflowState = FlowRowOverflow.expandIndicator {}.createOverflowState()
@@ -5488,6 +5567,7 @@ class FlowRowColumnTest {
                 columnMeasurementMultiContentHelper(
                     verticalArrangement = Arrangement.Top,
                     horizontalArrangement = Arrangement.Start,
+                    itemHorizontalAlignment = Alignment.Start,
                     maxItemsInMainAxis = maxItemsInMainAxis,
                     maxLines = maxLines,
                     overflowState = overflowState
