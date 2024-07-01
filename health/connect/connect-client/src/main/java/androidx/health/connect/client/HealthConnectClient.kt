@@ -21,7 +21,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
-import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
@@ -373,13 +372,17 @@ interface HealthConnectClient {
             context: Context,
             providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
         ): Int {
-            if (!isSdkVersionSufficient() || isProfileInAndroidU(context)) {
-                return SDK_UNAVAILABLE
+            return when (Build.VERSION.SDK_INT) {
+                in Build.VERSION_CODES.UPSIDE_DOWN_CAKE..Int.MAX_VALUE ->
+                    Api34Impl.getSdkStatus(context)
+                in Build.VERSION_CODES.P..Build.VERSION_CODES.TIRAMISU ->
+                    if (isPackageInstalled(context.packageManager, providerPackageName)) {
+                        SDK_AVAILABLE
+                    } else {
+                        SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
+                    }
+                else -> return SDK_UNAVAILABLE
             }
-            if (!isProviderAvailable(context, providerPackageName)) {
-                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-            }
-            return SDK_AVAILABLE
         }
 
         /**
@@ -436,35 +439,13 @@ interface HealthConnectClient {
             val manageDataIntent = Intent(ACTION_HEALTH_CONNECT_MANAGE_DATA)
 
             return if (
-                isProviderAvailable(context, providerPackageName) &&
+                getSdkStatus(context, providerPackageName) == SDK_AVAILABLE &&
                     pm.resolveActivity(manageDataIntent, /* flags */ 0) != null
             ) {
                 manageDataIntent
             } else {
                 Intent(ACTION_HEALTH_CONNECT_SETTINGS)
             }
-        }
-
-        @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
-        internal fun isSdkVersionSufficient() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
-
-        /**
-         * Determines whether an implementation of [HealthConnectClient] is available on this device
-         * at the moment.
-         */
-        internal fun isProviderAvailable(
-            context: Context,
-            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-            providerVersionCode: Int = DEFAULT_PROVIDER_MIN_VERSION_CODE
-        ): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                return true
-            }
-            return isPackageInstalled(
-                context.packageManager,
-                providerPackageName,
-                providerVersionCode
-            )
         }
 
         private fun isPackageInstalled(
@@ -496,21 +477,28 @@ interface HealthConnectClient {
             return packageManager.queryIntentServices(bindIntent, 0).isNotEmpty()
         }
 
-        private fun isProfileInAndroidU(context: Context): Boolean {
-            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                Api33Impl.isProfile(context)
-        }
-
         /** Tag used in SDK debug logs. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val HEALTH_CONNECT_CLIENT_TAG = "HealthConnectClient"
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private object Api33Impl {
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    private object Api34Impl {
         @JvmStatic
         @DoNotInline
-        fun isProfile(context: Context): Boolean {
+        @AvailabilityStatus
+        fun getSdkStatus(context: Context): Int {
+            return if (
+                isProfile(context) ||
+                    context.getSystemService(Context.HEALTHCONNECT_SERVICE) == null
+            ) {
+                SDK_UNAVAILABLE
+            } else {
+                SDK_AVAILABLE
+            }
+        }
+
+        private fun isProfile(context: Context): Boolean {
             return (context.getSystemService(Context.USER_SERVICE) as UserManager).isProfile
         }
     }
