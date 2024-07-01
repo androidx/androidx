@@ -57,6 +57,7 @@ constructor(
         CameraConfigs.defaultConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
     private var sessionProcessor: SessionProcessor? = null
+    private var isPrimary = true
 
     init {
         debug { "Created $this for $cameraId" }
@@ -81,6 +82,10 @@ constructor(
 
     override fun close() {
         debug { "$this#close" }
+    }
+
+    override fun setPrimary(isPrimary: Boolean) {
+        this.isPrimary = isPrimary
     }
 
     override fun setActiveResumingMode(enabled: Boolean) {

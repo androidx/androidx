@@ -632,6 +632,7 @@ public final class LifecycleCameraRepositoryTest {
                 null,
                 new RestrictedCameraInfo((CameraInfoInternal) mCamera.getCameraInfo(),
                         cameraConfig),
+                null,
                 LayoutSettings.DEFAULT,
                 LayoutSettings.DEFAULT,
                 mCameraCoordinator,

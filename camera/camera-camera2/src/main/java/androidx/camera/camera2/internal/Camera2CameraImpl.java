@@ -186,6 +186,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private final boolean mConfigAndCloseQuirk;
     private boolean mIsConfigAndCloseRequired = false;
     private boolean mIsConfiguringForClose = false;
+    private boolean mIsPrimary = true;
 
     // The metering repeating use case for ImageCapture only case.
     private MeteringRepeatingSession mMeteringRepeatingSession;
@@ -773,7 +774,8 @@ final class Camera2CameraImpl implements CameraInternal {
     public void onUseCaseActive(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
         String useCaseId = getUseCaseId(useCase);
-        SessionConfig sessionConfig = useCase.getSessionConfig();
+        SessionConfig sessionConfig = mIsPrimary ? useCase.getSessionConfig()
+                : useCase.getSecondarySessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
         StreamSpec streamSpec = useCase.getAttachedStreamSpec();
         List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
@@ -806,7 +808,8 @@ final class Camera2CameraImpl implements CameraInternal {
     public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
         String useCaseId = getUseCaseId(useCase);
-        SessionConfig sessionConfig = useCase.getSessionConfig();
+        SessionConfig sessionConfig = mIsPrimary ? useCase.getSessionConfig()
+                : useCase.getSecondarySessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
         StreamSpec streamSpec = useCase.getAttachedStreamSpec();
         List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
@@ -821,7 +824,8 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public void onUseCaseReset(@NonNull UseCase useCase) {
         Preconditions.checkNotNull(useCase);
-        SessionConfig sessionConfig = useCase.getSessionConfig();
+        SessionConfig sessionConfig = mIsPrimary ? useCase.getSessionConfig()
+                : useCase.getSecondarySessionConfig();
         UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
         StreamSpec streamSpec = useCase.getAttachedStreamSpec();
         List<UseCaseConfigFactory.CaptureType> captureTypes = getCaptureTypes(useCase);
@@ -1005,7 +1009,7 @@ final class Camera2CameraImpl implements CameraInternal {
         List<UseCaseInfo> useCaseInfos = new ArrayList<>();
 
         for (UseCase useCase : useCases) {
-            useCaseInfos.add(UseCaseInfo.from(useCase));
+            useCaseInfos.add(UseCaseInfo.from(useCase, mIsPrimary));
         }
 
         return useCaseInfos;
@@ -1358,6 +1362,11 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
         openCameraDevice(fromScheduledCameraReopen);
+    }
+
+    @Override
+    public void setPrimary(boolean isPrimary) {
+        mIsPrimary = isPrimary;
     }
 
     @Override
@@ -2009,9 +2018,12 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         @NonNull
-        static UseCaseInfo from(@NonNull UseCase useCase) {
-            return create(Camera2CameraImpl.getUseCaseId(useCase), useCase.getClass(),
-                    useCase.getSessionConfig(), useCase.getCurrentConfig(),
+        static UseCaseInfo from(@NonNull UseCase useCase, boolean isPrimary) {
+            return create(Camera2CameraImpl.getUseCaseId(useCase),
+                    useCase.getClass(),
+                    isPrimary ? useCase.getSessionConfig()
+                            : useCase.getSecondarySessionConfig(),
+                    useCase.getCurrentConfig(),
                     useCase.getAttachedSurfaceResolution(),
                     useCase.getAttachedStreamSpec(), Camera2CameraImpl.getCaptureTypes(useCase));
         }

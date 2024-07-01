@@ -192,6 +192,7 @@ public final class CameraUseCaseAdapter implements Camera {
                 null,
                 new RestrictedCameraInfo(camera.getCameraInfoInternal(),
                         CameraConfigs.defaultConfig()),
+                null,
                 LayoutSettings.DEFAULT,
                 LayoutSettings.DEFAULT,
                 cameraCoordinator,
@@ -203,22 +204,26 @@ public final class CameraUseCaseAdapter implements Camera {
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
      * @param camera                     The camera that is wrapped.
-     * @param secondaryCamera            The secondary camera that is wrapped in dual camera case.
+     * @param secondaryCamera            The secondary camera that is wrapped.
      * @param restrictedCameraInfo       The {@link RestrictedCameraInfo} that contains the extra
      *                                   information to configure the {@link CameraInternal} when
      *                                   attaching the uses cases of this adapter to the camera.
-     * @param layoutSettings             The {@link LayoutSettings} of the camera in dual camera.
-     * @param secondaryLayoutSettings    The {@link LayoutSettings} of the secondary camera
-     *                                   in dual camera.
+     * @param secondaryRestrictedCameraInfo The {@link RestrictedCameraInfo} of secondary camera.
+     * @param layoutSettings             The layout settings that will be used to configure the
+     *                                   camera.
+     * @param secondaryLayoutSettings    The layout settings that will be used to configure the
+     *                                   secondary camera.
      * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
      * @param useCaseConfigFactory       UseCase config factory that exposes configuration for
      *                                   each UseCase.
      */
-    public CameraUseCaseAdapter(@NonNull CameraInternal camera,
+    public CameraUseCaseAdapter(
+            @NonNull CameraInternal camera,
             @Nullable CameraInternal secondaryCamera,
             @NonNull RestrictedCameraInfo restrictedCameraInfo,
+            @Nullable RestrictedCameraInfo secondaryRestrictedCameraInfo,
             @NonNull LayoutSettings layoutSettings,
             @NonNull LayoutSettings secondaryLayoutSettings,
             @NonNull CameraCoordinator cameraCoordinator,
@@ -237,16 +242,20 @@ public final class CameraUseCaseAdapter implements Camera {
         mAdapterCameraControl = new RestrictedCameraControl(
                 mCameraInternal.getCameraControlInternal(), sessionProcessor);
         mAdapterCameraInfo = restrictedCameraInfo;
-        mId = generateCameraId(mAdapterCameraInfo);
+        mId = generateCameraId(restrictedCameraInfo, secondaryRestrictedCameraInfo);
     }
 
     /**
      * Generate a identifier for the {@link RestrictedCameraInfo}.
      */
     @NonNull
-    public static CameraId generateCameraId(@NonNull RestrictedCameraInfo cameraInfo) {
-        return CameraId.create(cameraInfo.getCameraId(),
-                cameraInfo.getCameraConfig().getCompatibilityId());
+    public static CameraId generateCameraId(
+            @NonNull RestrictedCameraInfo primaryCameraInfo,
+            @Nullable RestrictedCameraInfo secondaryCameraInfo) {
+        return CameraId.create(
+                primaryCameraInfo.getCameraId()
+                        + (secondaryCameraInfo == null ? "" : secondaryCameraInfo.getCameraId()),
+                primaryCameraInfo.getCameraConfig().getCompatibilityId());
     }
 
     /**

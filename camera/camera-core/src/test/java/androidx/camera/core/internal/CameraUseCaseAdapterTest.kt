@@ -94,6 +94,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.internal.DoNotInstrument
 
 private const val CAMERA_ID = "0"
+private const val SECONDARY_CAMERA_ID = "1"
 
 /** Unit tests for [CameraUseCaseAdapter]. */
 @RunWith(RobolectricTestRunner::class)
@@ -107,6 +108,7 @@ class CameraUseCaseAdapterTest {
     private lateinit var executor: ExecutorService
     private lateinit var fakeCameraDeviceSurfaceManager: FakeCameraDeviceSurfaceManager
     private lateinit var fakeCamera: FakeCamera
+    private lateinit var fakeSecondaryCamera: FakeCamera
     private lateinit var useCaseConfigFactory: UseCaseConfigFactory
     private lateinit var previewEffect: FakeSurfaceEffect
     private lateinit var videoEffect: FakeSurfaceEffect
@@ -129,6 +131,7 @@ class CameraUseCaseAdapterTest {
         fakeCameraControl = FakeCameraControl()
         fakeCameraInfo = FakeCameraInfoInternal()
         fakeCamera = FakeCamera(CAMERA_ID, fakeCameraControl, fakeCameraInfo)
+        fakeSecondaryCamera = FakeCamera(SECONDARY_CAMERA_ID, fakeCameraControl, fakeCameraInfo)
         cameraCoordinator = FakeCameraCoordinator()
         useCaseConfigFactory = FakeUseCaseConfigFactory()
         executor = Executors.newSingleThreadExecutor()
@@ -285,6 +288,7 @@ class CameraUseCaseAdapterTest {
                 fakeCamera,
                 null,
                 RestrictedCameraInfo(fakeCamera.cameraInfoInternal, extensionsConfig),
+                null,
                 LayoutSettings.DEFAULT,
                 LayoutSettings.DEFAULT,
                 FakeCameraCoordinator(),
@@ -1266,6 +1270,21 @@ class CameraUseCaseAdapterTest {
             .isSameInstanceAs(fakeSessionProcessor)
     }
 
+    @Test
+    fun generateCameraId_isDualCameraRecording() {
+        val cameraUseCaseAdapter1 = createCameraUseCaseAdapter(fakeCamera)
+        val cameraUseCaseAdapter2 =
+            createCameraUseCaseAdapter(fakeCamera, secondaryCamera = fakeSecondaryCamera)
+        assertThat(cameraUseCaseAdapter1.cameraId).isNotEqualTo(cameraUseCaseAdapter2.cameraId)
+    }
+
+    @Test
+    fun generateCameraId_isNotDualCameraRecording() {
+        val cameraUseCaseAdapter1 = createCameraUseCaseAdapter(fakeCamera)
+        val cameraUseCaseAdapter2 = createCameraUseCaseAdapter(fakeCamera, secondaryCamera = null)
+        assertThat(cameraUseCaseAdapter1.cameraId).isEqualTo(cameraUseCaseAdapter2.cameraId)
+    }
+
     private fun createFakeVideoCaptureUseCase(): FakeUseCase {
         return FakeUseCaseConfig.Builder()
             .setCaptureType(CaptureType.VIDEO_CAPTURE)
@@ -1330,14 +1349,17 @@ class CameraUseCaseAdapterTest {
      * adapters to detach.
      */
     private fun createCameraUseCaseAdapter(
-        cameraInternal: CameraInternal,
-        cameraConfig: CameraConfig = CameraConfigs.defaultConfig()
+        camera: CameraInternal,
+        cameraConfig: CameraConfig = CameraConfigs.defaultConfig(),
+        secondaryCamera: CameraInternal? = null
     ): CameraUseCaseAdapter {
         val adapter =
             CameraUseCaseAdapter(
-                cameraInternal,
-                null,
-                RestrictedCameraInfo(cameraInternal.cameraInfoInternal, cameraConfig),
+                camera,
+                secondaryCamera,
+                RestrictedCameraInfo(camera.cameraInfoInternal, cameraConfig),
+                if (secondaryCamera == null) null
+                else RestrictedCameraInfo(secondaryCamera.cameraInfoInternal, cameraConfig),
                 LayoutSettings.DEFAULT,
                 LayoutSettings.DEFAULT,
                 cameraCoordinator,
