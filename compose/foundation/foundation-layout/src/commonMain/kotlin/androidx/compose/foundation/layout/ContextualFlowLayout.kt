@@ -18,7 +18,7 @@ package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
@@ -174,7 +174,7 @@ fun ContextualFlowColumn(
 
 /** Defines the scope for items within a [ContextualFlowRow]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface ContextualFlowRowScope : RowScope {
     /**
@@ -241,19 +241,19 @@ interface ContextualFlowRowScope : RowScope {
 
 /** Scope for the overflow [ContextualFlowRow]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface ContextualFlowRowOverflowScope : FlowRowOverflowScope
 
 /** Scope for the overflow [ContextualFlowColumn]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface ContextualFlowColumnOverflowScope : FlowColumnOverflowScope
 
 /** Provides a scope for items within a [ContextualFlowColumn]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface ContextualFlowColumnScope : ColumnScope {
     /**
