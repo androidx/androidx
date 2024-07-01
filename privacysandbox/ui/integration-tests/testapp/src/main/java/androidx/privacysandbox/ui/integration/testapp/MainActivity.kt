@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var zOrderToggleButton: SwitchMaterial
     private lateinit var contentFromAssetsToggleButton: SwitchMaterial
     private lateinit var viewabilityToggleButton: SwitchMaterial
+    private lateinit var videoToggleButton: SwitchMaterial
     private lateinit var mediationDropDownMenu: Spinner
     @AdType private var adType = AdType.NON_WEBVIEW
     @MediationOption private var mediationOption = MediationOption.NON_MEDIATED
@@ -69,6 +70,7 @@ class MainActivity : AppCompatActivity() {
         zOrderToggleButton = findViewById(R.id.zorder_below_switch)
         webViewToggleButton = findViewById(R.id.load_webview)
         viewabilityToggleButton = findViewById(R.id.display_viewability_switch)
+        videoToggleButton = findViewById(R.id.video_switch)
         triggerSandboxDeathButton = findViewById(R.id.trigger_sandbox_death)
         mediationDropDownMenu = findViewById(R.id.mediation_dropdown_menu)
 
@@ -144,6 +146,7 @@ class MainActivity : AppCompatActivity() {
         initializeViewabilityToggleButton()
         initializeMediationDropDown()
         initializeZOrderToggleButton()
+        initializeVideoButton()
     }
 
     private fun disableAllControls() {
@@ -152,6 +155,7 @@ class MainActivity : AppCompatActivity() {
         mediationDropDownMenu.isEnabled = false
         viewabilityToggleButton.isEnabled = false
         zOrderToggleButton.isEnabled = false
+        videoToggleButton.isEnabled = false
     }
 
     private fun enableAllControls() {
@@ -160,6 +164,7 @@ class MainActivity : AppCompatActivity() {
         mediationDropDownMenu.isEnabled = true
         viewabilityToggleButton.isEnabled = true
         zOrderToggleButton.isEnabled = true
+        videoToggleButton.isEnabled = true
     }
 
     private fun initializeWebViewToggleSwitch() {
@@ -255,6 +260,18 @@ class MainActivity : AppCompatActivity() {
     private fun initializeZOrderToggleButton() {
         zOrderToggleButton.setOnCheckedChangeListener { _, isChecked ->
             BaseFragment.isZOrderOnTop = !isChecked
+        }
+    }
+
+    private fun initializeVideoButton() {
+        videoToggleButton.setOnCheckedChangeListener { _, isChecked ->
+            adType =
+                if (isChecked) {
+                    AdType.NON_WEBVIEW_VIDEO
+                } else {
+                    AdType.NON_WEBVIEW
+                }
+            loadAllAds()
         }
     }
 

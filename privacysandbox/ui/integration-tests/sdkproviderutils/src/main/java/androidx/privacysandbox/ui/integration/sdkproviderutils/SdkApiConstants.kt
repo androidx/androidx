@@ -24,6 +24,7 @@ class SdkApiConstants {
                 const val NON_WEBVIEW = 0
                 const val WEBVIEW = 1
                 const val WEBVIEW_FROM_LOCAL_ASSETS = 2
+                const val NON_WEBVIEW_VIDEO = 3
             }
         }
 

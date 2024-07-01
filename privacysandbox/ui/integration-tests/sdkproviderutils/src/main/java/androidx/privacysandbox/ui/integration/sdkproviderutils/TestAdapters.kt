@@ -126,6 +126,17 @@ class TestAdapters(private val sdkContext: Context) {
         }
     }
 
+    inner class VideoBannerAd : BannerAd() {
+        private val playerViewProvider = PlayerViewProvider()
+
+        override fun buildAdView(sessionContext: Context): View {
+            return playerViewProvider.createPlayerView(
+                sessionContext,
+                "https://html5demos.com/assets/dizzy.mp4"
+            )
+        }
+    }
+
     inner class WebViewAdFromLocalAssets : BannerAd() {
         override fun buildAdView(sessionContext: Context): View {
             val webView = WebView(sessionContext)

@@ -42,6 +42,7 @@ class MediateeSdkApiImpl(private val sdkContext: Context) : IMediateeSdkApi.Stub
             when (adType) {
                 AdType.WEBVIEW -> loadWebViewBannerAd()
                 AdType.WEBVIEW_FROM_LOCAL_ASSETS -> loadWebViewBannerAdFromLocalAssets()
+                AdType.NON_WEBVIEW_VIDEO -> loadVideoAd()
                 else -> loadNonWebViewBannerAd(mediationDescription, waitInsideOnDraw)
             }
         ViewabilityHandler.addObserverFactoryToAdapter(adapter, drawViewability)
@@ -54,6 +55,10 @@ class MediateeSdkApiImpl(private val sdkContext: Context) : IMediateeSdkApi.Stub
 
     private fun loadWebViewBannerAdFromLocalAssets(): SandboxedUiAdapter {
         return testAdapters.WebViewAdFromLocalAssets()
+    }
+
+    private fun loadVideoAd(): SandboxedUiAdapter {
+        return testAdapters.VideoBannerAd()
     }
 
     private fun loadNonWebViewBannerAd(

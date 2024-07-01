@@ -82,10 +82,18 @@
             android:layout_gravity="center"
             android:text="@string/zorder_below_switch"
             android:checked="false" />
-        <Button
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/video_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="250dp"
+            android:layout_gravity="center"
+            android:text="@string/video_switch"
+            android:checked="false" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="300dp"
             android:layout_gravity="center"
             android:id="@+id/trigger_sandbox_death"
             android:text="@string/trigger_sandbox_death_button"/>
