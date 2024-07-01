@@ -23,6 +23,7 @@ import android.widget.EdgeEffect
 import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.EdgeEffectCompat.absorbToRelaxIfNeeded
 import androidx.compose.foundation.EdgeEffectCompat.distanceCompat
 import androidx.compose.foundation.EdgeEffectCompat.onAbsorbCompat
 import androidx.compose.foundation.EdgeEffectCompat.onPullDistanceCompat
@@ -52,7 +53,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.InspectorValueInfo
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastFilter
@@ -62,9 +65,12 @@ import kotlin.math.roundToInt
 @Composable
 internal actual fun rememberOverscrollEffect(): OverscrollEffect {
     val context = LocalContext.current
+    val density = LocalDensity.current
     val config = LocalOverscrollConfiguration.current
     return if (config != null) {
-        remember(context, config) { AndroidEdgeEffectOverscrollEffect(context, config) }
+        remember(context, density, config) {
+            AndroidEdgeEffectOverscrollEffect(context, density, config)
+        }
     } else {
         NoOpOverscrollEffect
     }
@@ -421,6 +427,7 @@ private class DrawGlowOverscrollModifier(
 
 internal class AndroidEdgeEffectOverscrollEffect(
     context: Context,
+    private val density: Density,
     overscrollConfig: OverscrollConfiguration
 ) : OverscrollEffect {
     private var pointerPosition: Offset? = null
@@ -445,49 +452,72 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
 
         if (!scrollCycleInProgress) {
-            stopOverscrollAnimation()
+            // We are starting a new scroll cycle: if there is an active stretch, we want to
+            // 'catch' it at its current point so that the user continues to manipulate the stretch
+            // with this new scroll, instead of letting the old stretch fade away underneath the
+            // user's input. To do this we pull with 0 offset, to put the stretch back into a
+            // 'pull' state, without changing its distance.
+            if (edgeEffectWrapper.isLeftStretched()) pullLeft(Offset.Zero)
+            if (edgeEffectWrapper.isRightStretched()) pullRight(Offset.Zero)
+            if (edgeEffectWrapper.isTopStretched()) pullTop(Offset.Zero)
+            if (edgeEffectWrapper.isBottomStretched()) pullBottom(Offset.Zero)
             scrollCycleInProgress = true
         }
-        // Relax existing stretches if needed before performing scroll
+        // Relax existing stretches if needed before performing scroll. If this is happening inside
+        // a fling, we relax faster than normal.
+        val destretchMultiplier = destretchMultiplier(source)
+        val destretchDelta = delta * destretchMultiplier
         val consumedPixelsY =
             when {
                 delta.y == 0f -> 0f
-                edgeEffectWrapper.isTopStretched() -> {
-                    pullTop(delta).also {
-                        // Release / reset state if we have fully relaxed the stretch
-                        if (!edgeEffectWrapper.isTopStretched()) {
-                            edgeEffectWrapper.getOrCreateTopEffect().onRelease()
+                edgeEffectWrapper.isTopStretched() && delta.y < 0f -> {
+                    val consumed =
+                        pullTop(destretchDelta).also {
+                            // Reset state if we have fully relaxed the stretch
+                            if (!edgeEffectWrapper.isTopStretched()) {
+                                edgeEffectWrapper.getOrCreateTopEffect().finish()
+                            }
                         }
-                    }
+                    // Avoid rounding / float errors from dividing if all the delta was consumed
+                    if (consumed == destretchDelta.y) delta.y else consumed / destretchMultiplier
                 }
-                edgeEffectWrapper.isBottomStretched() -> {
-                    pullBottom(delta).also {
-                        // Release / reset state if we have fully relaxed the stretch
-                        if (!edgeEffectWrapper.isBottomStretched()) {
-                            edgeEffectWrapper.getOrCreateBottomEffect().onRelease()
+                edgeEffectWrapper.isBottomStretched() && delta.y > 0f -> {
+                    val consumed =
+                        pullBottom(destretchDelta).also {
+                            // Reset state if we have fully relaxed the stretch
+                            if (!edgeEffectWrapper.isBottomStretched()) {
+                                edgeEffectWrapper.getOrCreateBottomEffect().finish()
+                            }
                         }
-                    }
+                    // Avoid rounding / float errors from dividing if all the delta was consumed
+                    if (consumed == destretchDelta.y) delta.y else consumed / destretchMultiplier
                 }
                 else -> 0f
             }
         val consumedPixelsX =
             when {
                 delta.x == 0f -> 0f
-                edgeEffectWrapper.isLeftStretched() -> {
-                    pullLeft(delta).also {
-                        // Release / reset state if we have fully relaxed the stretch
-                        if (!edgeEffectWrapper.isLeftStretched()) {
-                            edgeEffectWrapper.getOrCreateLeftEffect().onRelease()
+                edgeEffectWrapper.isLeftStretched() && delta.x < 0f -> {
+                    val consumed =
+                        pullLeft(destretchDelta).also {
+                            // Reset state if we have fully relaxed the stretch
+                            if (!edgeEffectWrapper.isLeftStretched()) {
+                                edgeEffectWrapper.getOrCreateLeftEffect().finish()
+                            }
                         }
-                    }
+                    // Avoid rounding / float errors from dividing if all the delta was consumed
+                    if (consumed == destretchDelta.x) delta.x else consumed / destretchMultiplier
                 }
-                edgeEffectWrapper.isRightStretched() -> {
-                    pullRight(delta).also {
-                        // Release / reset state if we have fully relaxed the stretch
-                        if (!edgeEffectWrapper.isRightStretched()) {
-                            edgeEffectWrapper.getOrCreateRightEffect().onRelease()
+                edgeEffectWrapper.isRightStretched() && delta.x > 0f -> {
+                    val consumed =
+                        pullRight(destretchDelta).also {
+                            // Reset state if we have fully relaxed the stretch
+                            if (!edgeEffectWrapper.isRightStretched()) {
+                                edgeEffectWrapper.getOrCreateRightEffect().finish()
+                            }
                         }
-                    }
+                    // Avoid rounding / float errors from dividing if all the delta was consumed
+                    if (consumed == destretchDelta.x) delta.x else consumed / destretchMultiplier
                 }
                 else -> 0f
             }
@@ -524,7 +554,14 @@ internal class AndroidEdgeEffectOverscrollEffect(
                 }
             needsInvalidation = appliedHorizontalOverscroll || appliedVerticalOverscroll
         }
-        needsInvalidation = releaseOppositeOverscroll(delta) || needsInvalidation
+
+        // If we have leftover delta (overscroll didn't consume), release any glow effects in the
+        // opposite direction. This is only relevant for glow, as stretch effects will relax in
+        // pre-scroll, hence we check leftForDelta - this will be zero if the stretch effect is
+        // consuming in pre-scroll.
+        if (leftForDelta != Offset.Zero) {
+            needsInvalidation = releaseOppositeOverscroll(delta) || needsInvalidation
+        }
         if (needsInvalidation) invalidateOverscroll()
 
         return consumedOffset + consumedByDelta
@@ -541,22 +578,26 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
         // Relax existing stretches before performing fling
         val consumedX =
-            if (velocity.x > 0f && edgeEffectWrapper.isLeftStretched()) {
-                edgeEffectWrapper.getOrCreateLeftEffect().onAbsorbCompat(velocity.x.roundToInt())
-                velocity.x
-            } else if (velocity.x < 0 && edgeEffectWrapper.isRightStretched()) {
-                edgeEffectWrapper.getOrCreateRightEffect().onAbsorbCompat(-velocity.x.roundToInt())
-                velocity.x
+            if (edgeEffectWrapper.isLeftStretched() && velocity.x < 0f) {
+                edgeEffectWrapper
+                    .getOrCreateLeftEffect()
+                    .absorbToRelaxIfNeeded(velocity.x, containerSize.width, density)
+            } else if (edgeEffectWrapper.isRightStretched() && velocity.x > 0f) {
+                -edgeEffectWrapper
+                    .getOrCreateRightEffect()
+                    .absorbToRelaxIfNeeded(-velocity.x, containerSize.width, density)
             } else {
                 0f
             }
         val consumedY =
-            if (velocity.y > 0f && edgeEffectWrapper.isTopStretched()) {
-                edgeEffectWrapper.getOrCreateTopEffect().onAbsorbCompat(velocity.y.roundToInt())
-                velocity.y
-            } else if (velocity.y < 0f && edgeEffectWrapper.isBottomStretched()) {
-                edgeEffectWrapper.getOrCreateBottomEffect().onAbsorbCompat(-velocity.y.roundToInt())
-                velocity.y
+            if (edgeEffectWrapper.isTopStretched() && velocity.y < 0f) {
+                edgeEffectWrapper
+                    .getOrCreateTopEffect()
+                    .absorbToRelaxIfNeeded(velocity.y, containerSize.height, density)
+            } else if (edgeEffectWrapper.isBottomStretched() && velocity.y > 0f) {
+                -edgeEffectWrapper
+                    .getOrCreateBottomEffect()
+                    .absorbToRelaxIfNeeded(-velocity.y, containerSize.height, density)
             } else {
                 0f
             }
@@ -568,6 +609,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
         val leftForOverscroll = remainingVelocity - consumedByVelocity
 
         scrollCycleInProgress = false
+        // Stretch with any leftover velocity
         if (leftForOverscroll.x > 0) {
             edgeEffectWrapper
                 .getOrCreateLeftEffect()
@@ -586,8 +628,12 @@ internal class AndroidEdgeEffectOverscrollEffect(
                 .getOrCreateBottomEffect()
                 .onAbsorbCompat(-leftForOverscroll.y.roundToInt())
         }
-        if (leftForOverscroll != Velocity.Zero) invalidateOverscroll()
-        animateToRelease()
+        // Release any remaining effects, and invalidate if needed.
+        // For stretch this should only have an effect when velocity is exactly 0, since then the
+        // effects above will not be absorbed.
+        // For glow we don't absorb if we are already showing a glow from a drag
+        // (see onAbsorbCompat), so we need to manually release in this case as well.
+        animateToReleaseIfNeeded()
     }
 
     private var containerSize = Size.Zero
@@ -598,28 +644,6 @@ internal class AndroidEdgeEffectOverscrollEffect(
             return false
         }
 
-    private fun stopOverscrollAnimation(): Boolean {
-        var stopped = false
-        // Displacement doesn't matter here
-        if (edgeEffectWrapper.isLeftStretched()) {
-            pullLeft(Offset.Zero)
-            stopped = true
-        }
-        if (edgeEffectWrapper.isRightStretched()) {
-            pullRight(Offset.Zero)
-            stopped = true
-        }
-        if (edgeEffectWrapper.isTopStretched()) {
-            pullTop(Offset.Zero)
-            stopped = true
-        }
-        if (edgeEffectWrapper.isBottomStretched()) {
-            pullBottom(Offset.Zero)
-            stopped = true
-        }
-        return stopped
-    }
-
     internal fun updateSize(size: Size) {
         val initialSetSize = containerSize == Size.Zero
         val differentSize = size != containerSize
@@ -628,8 +652,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
             edgeEffectWrapper.setSize(IntSize(size.width.roundToInt(), size.height.roundToInt()))
         }
         if (!initialSetSize && differentSize) {
-            invalidateOverscroll()
-            animateToRelease()
+            animateToReleaseIfNeeded()
         }
     }
 
@@ -696,33 +719,43 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
     }
 
-    // animate the edge effects to 0 (no overscroll). Usually needed when the finger is up.
-    private fun animateToRelease() {
+    /**
+     * Animate any pulled edge effects to 0 / resets overscroll. If an edge effect is already
+     * receding, onRelease will no-op. Invalidates any still active edge effects.
+     */
+    private fun animateToReleaseIfNeeded() {
         var needsInvalidation = false
         edgeEffectWrapper.forEachEffect {
             it.onRelease()
-            needsInvalidation = it.isFinished || needsInvalidation
+            needsInvalidation = !it.isFinished || needsInvalidation
         }
         if (needsInvalidation) invalidateOverscroll()
     }
 
+    /**
+     * Releases overscroll effects in the opposite direction to the current scroll [delta]. E.g.,
+     * when scrolling down, the top glow will show - if the user starts to scroll up, we need to
+     * release the existing top glow as we are no longer overscrolling in that direction.
+     *
+     * @return whether invalidation is needed (we released an animating edge effect)
+     */
     private fun releaseOppositeOverscroll(delta: Offset): Boolean {
         var needsInvalidation = false
         if (edgeEffectWrapper.isLeftAnimating() && delta.x < 0) {
             edgeEffectWrapper.getOrCreateLeftEffect().onReleaseWithOppositeDelta(delta = delta.x)
-            needsInvalidation = !edgeEffectWrapper.isLeftAnimating()
+            needsInvalidation = edgeEffectWrapper.isLeftAnimating()
         }
         if (edgeEffectWrapper.isRightAnimating() && delta.x > 0) {
             edgeEffectWrapper.getOrCreateRightEffect().onReleaseWithOppositeDelta(delta = delta.x)
-            needsInvalidation = needsInvalidation || !edgeEffectWrapper.isRightAnimating()
+            needsInvalidation = needsInvalidation || edgeEffectWrapper.isRightAnimating()
         }
         if (edgeEffectWrapper.isTopAnimating() && delta.y < 0) {
             edgeEffectWrapper.getOrCreateTopEffect().onReleaseWithOppositeDelta(delta = delta.y)
-            needsInvalidation = needsInvalidation || !edgeEffectWrapper.isTopAnimating()
+            needsInvalidation = needsInvalidation || edgeEffectWrapper.isTopAnimating()
         }
         if (edgeEffectWrapper.isBottomAnimating() && delta.y > 0) {
             edgeEffectWrapper.getOrCreateBottomEffect().onReleaseWithOppositeDelta(delta = delta.y)
-            needsInvalidation = needsInvalidation || !edgeEffectWrapper.isBottomAnimating()
+            needsInvalidation = needsInvalidation || edgeEffectWrapper.isBottomAnimating()
         }
         return needsInvalidation
     }
@@ -892,3 +925,18 @@ private class EdgeEffectWrapper(
         rightEffectNegation?.setSize(size.height, size.width)
     }
 }
+
+/**
+ * When we are destretching inside a scroll that is caused by a fling
+ * ([NestedScrollSource.SideEffect]), we want to destretch quicker than normal. See
+ * [FlingDestretchFactor].
+ */
+private fun destretchMultiplier(source: NestedScrollSource): Float =
+    if (source == NestedScrollSource.SideEffect) FlingDestretchFactor else 1f
+
+/**
+ * When flinging the stretch towards scrolling content, it should destretch quicker than the fling
+ * would normally do. The visual effect of flinging the stretch looks strange as little appears to
+ * happen at first and then when the stretch disappears, the content starts scrolling quickly.
+ */
+private const val FlingDestretchFactor = 4f

@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
@@ -311,6 +312,7 @@ class OverscrollTest {
             overscrollEffect =
                 AndroidEdgeEffectOverscrollEffect(
                     LocalView.current.context,
+                    LocalDensity.current,
                     OverscrollConfiguration(Color.Gray)
                 )
         }
