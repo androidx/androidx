@@ -140,6 +140,7 @@ public class AppCompatDialog extends ComponentDialog implements AppCompatCallbac
 
     @Override
     public void addContentView(@NonNull View view, ViewGroup.LayoutParams params) {
+        initViewTreeOwners();
         getDelegate().addContentView(view, params);
     }
 
