@@ -25,8 +25,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -62,19 +66,23 @@ class ScrollToNodeTest(private val config: TestConfig) {
         val orientation: Orientation,
         val reverseLayout: Boolean,
         val viewportSize: ViewportSize,
-        val targetPosition: StartPosition
+        val targetPosition: StartPosition,
+        val hasNestedScrollConsumer: Boolean
     ) {
-        val viewportSizePx: Int get() = viewportSize.sizePx
+        val viewportSizePx: Int
+            get() = viewportSize.sizePx
 
-        private val initialScrollIndexWithoutReverseLayout: Int = when (viewportSize) {
-            ViewportSize.SmallerThanItem -> targetPosition.indexForSmallViewport
-            ViewportSize.BiggerThenItem -> targetPosition.indexForBigViewport
-        }
+        private val initialScrollIndexWithoutReverseLayout: Int =
+            when (viewportSize) {
+                ViewportSize.SmallerThanItem -> targetPosition.indexForSmallViewport
+                ViewportSize.BiggerThenItem -> targetPosition.indexForBigViewport
+            }
 
-        private val initialScrollOffsetWithoutReverseLayout: Int = when (viewportSize) {
-            ViewportSize.SmallerThanItem -> targetPosition.offsetForSmallViewport
-            ViewportSize.BiggerThenItem -> targetPosition.offsetForBigViewport
-        }
+        private val initialScrollOffsetWithoutReverseLayout: Int =
+            when (viewportSize) {
+                ViewportSize.SmallerThanItem -> targetPosition.offsetForSmallViewport
+                ViewportSize.BiggerThenItem -> targetPosition.offsetForBigViewport
+            }
 
         val initialScrollIndex: Int
             get() {
@@ -102,14 +110,17 @@ class ScrollToNodeTest(private val config: TestConfig) {
                 return (range - totalOffset) % itemSizePx
             }
 
-        override fun toString(): String = "orientation=$orientation, " +
-            "reverseScrolling=$reverseLayout, " +
-            "viewport=$viewportSize, " +
-            "targetIs=" +
-            when (targetPosition) {
-                NotInList -> "$targetPosition"
-                else -> "${targetPosition}Viewport"
-            }
+        override fun toString(): String =
+            "orientation=$orientation, " +
+                "reverseScrolling=$reverseLayout, " +
+                "viewport=$viewportSize, " +
+                "targetIs=" +
+                when (targetPosition) {
+                    NotInList -> "$targetPosition"
+                    else -> "${targetPosition}Viewport "
+                } +
+                "nestedScrollConsumer=" +
+                hasNestedScrollConsumer
     }
 
     companion object {
@@ -122,26 +133,30 @@ class ScrollToNodeTest(private val config: TestConfig) {
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun params() = mutableListOf<TestConfig>().apply {
-            for (orientation in Orientation.values()) {
-                for (reverseScrolling in listOf(false, true)) {
-                    for (viewportSize in ViewportSize.values()) {
-                        for (targetPosition in StartPosition.values()) {
-                            TestConfig(
-                                orientation = orientation,
-                                reverseLayout = reverseScrolling,
-                                viewportSize = viewportSize,
-                                targetPosition = targetPosition
-                            ).also { add(it) }
+        fun params() =
+            mutableListOf<TestConfig>().apply {
+                for (orientation in Orientation.values()) {
+                    for (reverseScrolling in listOf(false, true)) {
+                        for (viewportSize in ViewportSize.values()) {
+                            for (targetPosition in StartPosition.values()) {
+                                for (nestedScrollConsumer in listOf(true, false)) {
+                                    TestConfig(
+                                            orientation = orientation,
+                                            reverseLayout = reverseScrolling,
+                                            viewportSize = viewportSize,
+                                            targetPosition = targetPosition,
+                                            hasNestedScrollConsumer = nestedScrollConsumer
+                                        )
+                                        .also { add(it) }
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
     }
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun scrollToTarget() {
@@ -160,9 +175,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
                         Boxes()
                     }
                 } else {
-                    LazyRow(rowModifier(), state, reverseLayout = config.reverseLayout) {
-                        Boxes()
-                    }
+                    LazyRow(rowModifier(), state, reverseLayout = config.reverseLayout) { Boxes() }
                 }
             }
         }
@@ -177,8 +190,8 @@ class ScrollToNodeTest(private val config: TestConfig) {
         // that an exception is thrown, and stop the test after that
         expectError<AssertionError>(
             expectError = config.targetPosition == NotInList,
-            expectedMessage = "No node found that matches TestTag = 'target' in scrollable " +
-                "container.*"
+            expectedMessage =
+                "No node found that matches TestTag = 'target' in scrollable " + "container.*"
         ) {
             rule.onNodeWithTag(containerTag).performScrollToNode(hasTestTag(itemTag))
         }
@@ -193,14 +206,18 @@ class ScrollToNodeTest(private val config: TestConfig) {
 
         if (config.viewportSize == ViewportSize.SmallerThanItem) {
             assertWithMessage("item needs to cover the whole viewport")
-                .that(targetBounds.leftOrTop).isAtMost(viewportBounds.leftOrTop)
+                .that(targetBounds.leftOrTop)
+                .isAtMost(viewportBounds.leftOrTop)
             assertWithMessage("item needs to cover the whole viewport")
-                .that(targetBounds.rightOrBottom).isAtLeast(viewportBounds.rightOrBottom)
+                .that(targetBounds.rightOrBottom)
+                .isAtLeast(viewportBounds.rightOrBottom)
         } else {
             assertWithMessage("item needs to be fully inside the viewport")
-                .that(targetBounds.leftOrTop).isAtLeast(viewportBounds.leftOrTop)
+                .that(targetBounds.leftOrTop)
+                .isAtLeast(viewportBounds.leftOrTop)
             assertWithMessage("item needs to be fully inside the viewport")
-                .that(targetBounds.rightOrBottom).isAtMost(viewportBounds.rightOrBottom)
+                .that(targetBounds.rightOrBottom)
+                .isAtMost(viewportBounds.rightOrBottom)
         }
     }
 
@@ -225,9 +242,7 @@ class ScrollToNodeTest(private val config: TestConfig) {
                         Boxes()
                     }
                 } else {
-                    LazyRow(rowModifier(), state, reverseLayout = config.reverseLayout) {
-                        Boxes()
-                    }
+                    LazyRow(rowModifier(), state, reverseLayout = config.reverseLayout) { Boxes() }
                 }
             }
         }
@@ -242,31 +257,40 @@ class ScrollToNodeTest(private val config: TestConfig) {
 
     private val Rect.leftOrTop: Float
         get() = if (config.orientation == Vertical) top else left
+
     private val Rect.rightOrBottom: Float
         get() = if (config.orientation == Vertical) right else bottom
 
     private fun DpRect.toPx(): Rect = with(rule.density) { toRect() }
 
-    private fun rowModifier(): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
-            Modifier
-                .testTag(containerTag)
-                .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
+    private fun rowModifier(): Modifier =
+        Modifier.composed {
+            with(LocalDensity.current) {
+                Modifier.testTag(containerTag)
+                    .then(
+                        if (config.hasNestedScrollConsumer)
+                            Modifier.nestedScroll(horizontalNestedScrollConsumer)
+                        else Modifier
+                    )
+                    .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
+            }
         }
-    }
 
-    private fun columnModifier(): Modifier = Modifier.composed {
-        with(LocalDensity.current) {
-            Modifier
-                .testTag(containerTag)
-                .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
+    private fun columnModifier(): Modifier =
+        Modifier.composed {
+            with(LocalDensity.current) {
+                Modifier.testTag(containerTag)
+                    .then(
+                        if (config.hasNestedScrollConsumer)
+                            Modifier.nestedScroll(verticalNestedScrollConsumer)
+                        else Modifier
+                    )
+                    .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
+            }
         }
-    }
 
     private fun LazyListScope.Boxes() {
-        items(itemsAround) {
-            ClickableTestBox(color = if (it % 2 == 0) Color.Blue else Color.Red)
-        }
+        items(itemsAround) { ClickableTestBox(color = if (it % 2 == 0) Color.Blue else Color.Red) }
         item {
             ClickableTestBox(
                 color = Color.Yellow,
@@ -303,4 +327,18 @@ class ScrollToNodeTest(private val config: TestConfig) {
         FullyBefore(2 * itemsAround, 20, 2 * itemsAround - 1, 50),
         NotInList(0, 0, 0, 0)
     }
+
+    private val verticalNestedScrollConsumer =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                return Offset(0f, available.y / 2f)
+            }
+        }
+
+    private val horizontalNestedScrollConsumer =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                return Offset(available.x / 2f, 0f)
+            }
+        }
 }
