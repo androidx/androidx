@@ -284,7 +284,7 @@ dependencies {
     docs(project(":room:room-guava"))
     docs(project(":room:room-ktx"))
     kmpDocs(project(":room:room-migration"))
-    docs(project(":room:room-paging"))
+    kmpDocs(project(":room:room-paging"))
     docs(project(":room:room-paging-guava"))
     docs(project(":room:room-paging-rxjava2"))
     docs(project(":room:room-paging-rxjava3"))
