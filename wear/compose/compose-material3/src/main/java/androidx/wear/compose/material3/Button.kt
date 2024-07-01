@@ -1261,6 +1261,18 @@ object ButtonDefaults {
      */
     val CompactButtonHeight = CompactButtonTokens.ContainerHeight
 
+    /** The height to be applied for an extra small [EdgeButton]. */
+    val EdgeButtonHeightExtraSmall = 46.dp
+
+    /** The height to be applied for a small [EdgeButton]. */
+    val EdgeButtonHeightSmall = 56.dp
+
+    /** The height to be applied for a medium [EdgeButton]. */
+    val EdgeButtonHeightMedium = 70.dp
+
+    /** The height to be applied for a large [EdgeButton]. */
+    val EdgeButtonHeightLarge = 96.dp
+
     /** The size of the icon when used inside a "[CompactButton]. */
     val SmallIconSize: Dp = CompactButtonTokens.IconSize
 
