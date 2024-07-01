@@ -31,6 +31,7 @@ import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.asOutcomeReceiver
+import androidx.health.connect.client.ExperimentalDeduplicationApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
@@ -60,6 +61,7 @@ import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
+import androidx.health.connect.client.request.ReadRecordsRequest.Companion.DEDUPLICATION_STRATEGY_DISABLED
 import androidx.health.connect.client.response.ChangesResponse
 import androidx.health.connect.client.response.InsertRecordsResponse
 import androidx.health.connect.client.response.ReadRecordResponse
@@ -190,10 +192,14 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         return ReadRecordResponse(response.records[0].toSdkRecord() as T)
     }
 
+    @OptIn(ExperimentalDeduplicationApi::class)
     @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
     override suspend fun <T : Record> readRecords(
         request: ReadRecordsRequest<T>
     ): ReadRecordsResponse<T> {
+        if (request.deduplicateStrategy != DEDUPLICATION_STRATEGY_DISABLED) {
+            TODO("Not yet implemented")
+        }
         val response = wrapPlatformException {
             suspendCancellableCoroutine { continuation ->
                 healthConnectManager.readRecords(

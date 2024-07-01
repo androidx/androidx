@@ -255,6 +255,9 @@ public class FakeHealthConnectClient(
     public override suspend fun <T : Record> readRecords(
         request: ReadRecordsRequest<T>
     ): ReadRecordsResponse<T> {
+        if (request.deduplicateStrategy != DEDUPLICATION_STRATEGY_DISABLED) {
+            TODO("Not yet implemented")
+        }
         // Stubs
         overrides.readRecords?.throwOrContinue(null)
 
@@ -439,6 +442,14 @@ public class FakeHealthConnectClient(
     public companion object {
         /** Default package name used in [FakeHealthConnectClient]. */
         public const val DEFAULT_PACKAGE_NAME: String = "androidx.health.connect.test"
+
+        /**
+         * Default dedupe strategy constant. This is a workaround to bypass b/358308051
+         *
+         * It should be removed (and reference the one in [ReadRecordsRequest.Companion]) when the
+         * dedupe API is ready to publish.
+         */
+        private const val DEDUPLICATION_STRATEGY_DISABLED = 0
     }
 }
 
