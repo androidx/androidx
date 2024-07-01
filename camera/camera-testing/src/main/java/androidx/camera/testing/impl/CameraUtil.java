@@ -634,6 +634,7 @@ public final class CameraUtil {
             return new CameraUseCaseAdapter(camera,
                     null,
                     new RestrictedCameraInfo(camera.getCameraInfoInternal(), cameraConfig),
+                    null,
                     LayoutSettings.DEFAULT,
                     LayoutSettings.DEFAULT,
                     cameraCoordinator,

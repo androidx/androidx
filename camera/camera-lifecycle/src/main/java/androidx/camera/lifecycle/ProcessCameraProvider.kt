@@ -52,6 +52,8 @@ import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.RestrictedCameraInfo
+import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.ContextUtil
 import androidx.camera.core.impl.utils.Threads
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -65,6 +67,7 @@ import androidx.core.util.Preconditions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Objects
 import java.util.Objects.requireNonNull
 
 /**
@@ -209,6 +212,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                 lifecycleOwner,
                 cameraSelector,
                 null,
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
+                null,
                 emptyList<CameraEffect>(),
                 *useCases
             )
@@ -244,6 +250,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             bindToLifecycle(
                 lifecycleOwner,
                 cameraSelector,
+                null,
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
                 useCaseGroup.viewPort,
                 useCaseGroup.effects,
                 *useCaseGroup.useCases.toTypedArray<UseCase>()
@@ -269,6 +278,11 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * combination of cameras that can be operated concurrently. Each logical camera can have its
      * own [UseCase]s and [LifecycleOwner]. See
      * [CameraX lifecycles]({@docRoot}training/camerax/architecture#lifecycles)
+     *
+     * If the concurrent logical cameras are binding the same preview and video capture use cases,
+     * the concurrent cameras video recording will be supported. The concurrent camera preview
+     * stream will be shared with video capture and record the concurrent cameras as a whole. The
+     * [LayoutSettings] can be used to configure the position of each camera stream.
      *
      * If we want to open concurrent physical cameras, which are two front cameras or two back
      * cameras, the device needs to support physical cameras and the capability could be checked via
@@ -360,6 +374,9 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                 bindToLifecycle(
                     lifecycleOwner,
                     cameraSelector,
+                    null,
+                    LayoutSettings.DEFAULT,
+                    LayoutSettings.DEFAULT,
                     viewPort,
                     effects,
                     *useCases.toTypedArray<UseCase>()
@@ -399,20 +416,65 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             }
 
             cameraOperatingMode = CAMERA_OPERATING_MODE_CONCURRENT
-            for (config: SingleCameraConfig? in singleCameraConfigs) {
-                val camera =
+
+            // For dual camera video capture, we are only supporting two use cases:
+            // Preview + VideoCapture. If ImageCapture support is added, the validation logic
+            // will be updated accordingly.
+            var isDualCameraVideoCapture = false
+            if (
+                Objects.equals(
+                    firstCameraConfig.useCaseGroup.useCases,
+                    secondCameraConfig.useCaseGroup.useCases
+                ) && firstCameraConfig.useCaseGroup.useCases.size == 2
+            ) {
+                val useCase0 = firstCameraConfig.useCaseGroup.useCases[0]
+                val useCase1 = firstCameraConfig.useCaseGroup.useCases[1]
+                isDualCameraVideoCapture =
+                    (isVideoCapture(useCase0) && isPreview(useCase1)) ||
+                        (isPreview(useCase0) && isVideoCapture(useCase1))
+            }
+
+            if (isDualCameraVideoCapture) {
+                cameras.add(
                     bindToLifecycle(
-                        config!!.lifecycleOwner,
-                        config.cameraSelector,
-                        config.useCaseGroup.viewPort,
-                        config.useCaseGroup.effects,
-                        *config.useCaseGroup.useCases.toTypedArray<UseCase>()
+                        firstCameraConfig.lifecycleOwner,
+                        firstCameraConfig.cameraSelector,
+                        secondCameraConfig.cameraSelector,
+                        firstCameraConfig.layoutSettings,
+                        secondCameraConfig.layoutSettings,
+                        firstCameraConfig.useCaseGroup.viewPort,
+                        firstCameraConfig.useCaseGroup.effects,
+                        *firstCameraConfig.useCaseGroup.useCases.toTypedArray<UseCase>(),
                     )
-                cameras.add(camera)
+                )
+            } else {
+                for (config: SingleCameraConfig? in singleCameraConfigs) {
+                    val camera =
+                        bindToLifecycle(
+                            config!!.lifecycleOwner,
+                            config.cameraSelector,
+                            null,
+                            LayoutSettings.DEFAULT,
+                            LayoutSettings.DEFAULT,
+                            config.useCaseGroup.viewPort,
+                            config.useCaseGroup.effects,
+                            *config.useCaseGroup.useCases.toTypedArray<UseCase>()
+                        )
+                    cameras.add(camera)
+                }
             }
             activeConcurrentCameraInfos = cameraInfosToBind
         }
         return ConcurrentCamera(cameras)
+    }
+
+    private fun isVideoCapture(useCase: UseCase): Boolean {
+        return useCase.currentConfig.containsOption(UseCaseConfig.OPTION_CAPTURE_TYPE) &&
+            useCase.currentConfig.captureType == CaptureType.VIDEO_CAPTURE
+    }
+
+    private fun isPreview(useCase: UseCase): Boolean {
+        return useCase is Preview
     }
 
     /**
@@ -459,8 +521,11 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      *
      * @param lifecycleOwner The [LifecycleOwner] which controls the lifecycle transitions of the
      *   use cases.
-     * @param cameraSelector The camera selector which determines the camera to use for set of use
-     *   cases.
+     * @param primaryCameraSelector The primary camera selector which determines the camera to use
+     *   for set of use cases.
+     * @param secondaryCameraSelector The secondary camera selector in dual camera case.
+     * @param primaryLayoutSettings The layout settings for the primary camera.
+     * @param secondaryLayoutSettings The layout settings for the secondary camera.
      * @param viewPort The viewPort which represents the visible camera sensor rect.
      * @param effects The effects applied to the camera outputs.
      * @param useCases The use cases to bind to a lifecycle.
@@ -475,7 +540,10 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
     @OptIn(ExperimentalCameraInfo::class)
     internal fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
-        cameraSelector: CameraSelector,
+        primaryCameraSelector: CameraSelector,
+        secondaryCameraSelector: CameraSelector?,
+        primaryLayoutSettings: LayoutSettings,
+        secondaryLayoutSettings: LayoutSettings,
         viewPort: ViewPort?,
         effects: List<CameraEffect?>,
         vararg useCases: UseCase?
@@ -484,13 +552,29 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         // TODO(b/153096869): override UseCase's target rotation.
 
         // Get the LifecycleCamera if existed.
-        val cameraInternal = cameraSelector.select(mCameraX!!.cameraRepository.cameras)
-        val restrictedCameraInfo = getCameraInfo(cameraSelector) as RestrictedCameraInfo
+        val primaryCameraInternal =
+            primaryCameraSelector.select(mCameraX!!.cameraRepository.cameras)
+        primaryCameraInternal.setPrimary(true)
+        val primaryRestrictedCameraInfo =
+            getCameraInfo(primaryCameraSelector) as RestrictedCameraInfo
+
+        var secondaryCameraInternal: CameraInternal? = null
+        var secondaryRestrictedCameraInfo: RestrictedCameraInfo? = null
+        if (secondaryCameraSelector != null) {
+            secondaryCameraInternal =
+                secondaryCameraSelector.select(mCameraX!!.cameraRepository.cameras)
+            secondaryCameraInternal.setPrimary(false)
+            secondaryRestrictedCameraInfo =
+                getCameraInfo(secondaryCameraSelector) as RestrictedCameraInfo
+        }
 
         var lifecycleCameraToBind =
             mLifecycleCameraRepository.getLifecycleCamera(
                 lifecycleOwner,
-                CameraUseCaseAdapter.generateCameraId(restrictedCameraInfo)
+                CameraUseCaseAdapter.generateCameraId(
+                    primaryRestrictedCameraInfo,
+                    secondaryRestrictedCameraInfo
+                )
             )
 
         // Check if there's another camera that has already been bound.
@@ -514,11 +598,12 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                 mLifecycleCameraRepository.createLifecycleCamera(
                     lifecycleOwner,
                     CameraUseCaseAdapter(
-                        cameraInternal,
-                        null,
-                        restrictedCameraInfo,
-                        LayoutSettings.DEFAULT,
-                        LayoutSettings.DEFAULT,
+                        primaryCameraInternal,
+                        secondaryCameraInternal,
+                        primaryRestrictedCameraInfo,
+                        secondaryRestrictedCameraInfo,
+                        primaryLayoutSettings,
+                        secondaryLayoutSettings,
                         mCameraX!!.cameraFactory.cameraCoordinator,
                         mCameraX!!.cameraDeviceSurfaceManager,
                         mCameraX!!.defaultConfigFactory
