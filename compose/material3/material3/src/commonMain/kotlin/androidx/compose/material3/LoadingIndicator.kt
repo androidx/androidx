@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.internal.toPath
+import androidx.compose.material3.internal.transformed
 import androidx.compose.material3.tokens.LoadingIndicatorTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -367,7 +368,13 @@ object LoadingIndicatorDefaults {
      * By default, a determinate loading indicator will will morph between two shapes, but you may
      * provide your own shapes sequence when calling the API.
      */
-    val DeterminateIndicatorPolygons = listOf(MaterialShapes.Circle, MaterialShapes.SoftBurst)
+    val DeterminateIndicatorPolygons =
+        listOf(
+            // Rotating the circle gets us a smoother morphing to the soft-burst shapes, which is
+            // also being rotated at the same angle.
+            MaterialShapes.Circle.transformed(Matrix().apply { rotateZ(360f / 20) }),
+            MaterialShapes.SoftBurst
+        )
 
     /**
      * A percentage value of the LoadingIndicator's active indicator scale when rendered within the
