@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,42 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.demos
+package androidx.wear.compose.material3.samples
 
+import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.Text
 
+@Sampled
 @Composable
-internal fun StandardIcon(size: Dp) {
-    Icon(
-        Icons.Filled.Favorite,
-        contentDescription = "Favorite icon",
-        modifier = Modifier.size(size)
-    )
-}
-
-@Composable
-internal fun AvatarIcon() {
-    Icon(
-        Icons.Filled.AccountCircle,
-        contentDescription = "Account",
-        modifier = Modifier.size(ButtonDefaults.LargeIconSize)
-    )
-}
-
-@Composable
-internal fun CheckIcon() {
-    Icon(
-        Icons.Filled.Check,
-        contentDescription = "Check",
-        modifier = Modifier.size(ButtonDefaults.IconSize)
-    )
+fun EdgeButtonSample() {
+    Box(Modifier.fillMaxSize()) {
+        Text("Confirm", Modifier.align(Alignment.Center))
+        EdgeButton(
+            onClick = { /* Do something */ },
+            buttonHeight = ButtonDefaults.EdgeButtonHeightMedium,
+            modifier = Modifier.align(Alignment.BottomEnd)
+        ) {
+            Icon(
+                Icons.Filled.Check,
+                contentDescription = "Check icon",
+                modifier = Modifier.size(ButtonDefaults.IconSize)
+            )
+        }
+    }
 }
