@@ -805,11 +805,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
             configureAndroidBaseOptions(project, androidXExtension)
 
-            // Move to api that allows settings of targetSdk on each variant's androidTest when
-            // b/335257447 is fixed
-            @Suppress("DEPRECATION")
-            defaultConfig.targetSdk = project.defaultAndroidConfig.targetSdk
-
             val debugSigningConfig = signingConfigs.getByName("debug")
             // Use a local debug keystore to avoid build server issues.
             debugSigningConfig.storeFile = project.getKeystore()
@@ -834,9 +829,14 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 // this is okay because AGP automatically embeds forceCompileSdkPreview in the AAR
                 // metadata and uses it instead of minCompileSdk.
                 it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
+                it.lint.targetSdk = project.defaultAndroidConfig.targetSdk
+                it.testOptions.targetSdk = project.defaultAndroidConfig.targetSdk
             }
             beforeVariants(selector().withBuildType("release")) { variant ->
                 (variant as HasUnitTestBuilder).enableUnitTest = false
+            }
+            beforeVariants(selector().all()) { variant ->
+                variant.androidTest.targetSdk = project.defaultAndroidConfig.targetSdk
             }
             onVariants { variant ->
                 variant.configureTests()

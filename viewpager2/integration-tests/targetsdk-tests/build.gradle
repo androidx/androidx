@@ -25,11 +25,9 @@ android {
     productFlavors {
         targetSdk29 {
             dimension "targetSdk"
-            targetSdkVersion 29
         }
         targetSdk30 {
             dimension "targetSdk"
-            targetSdkVersion 30
         }
         targetSdkLatest {
             dimension "targetSdk"
@@ -37,6 +35,15 @@ android {
         }
     }
     namespace "androidx.viewpager2.integration.targestsdktests"
+}
+
+androidComponents {
+    beforeVariants(selector().withFlavor("targetSdk", "targetSdk29")) { variant ->
+        variant.androidTest.targetSdk = 29
+    }
+    beforeVariants(selector().withFlavor("targetSdk", "targetSdk30")) { variant ->
+        variant.androidTest.targetSdk = 30
+    }
 }
 
 dependencies {
