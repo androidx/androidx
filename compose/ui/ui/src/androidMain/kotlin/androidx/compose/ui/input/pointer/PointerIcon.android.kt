@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.input.pointer
 
+import android.view.PointerIcon.TYPE_ARROW
 import android.view.PointerIcon.TYPE_CROSSHAIR
-import android.view.PointerIcon.TYPE_DEFAULT
 import android.view.PointerIcon.TYPE_HAND
 import android.view.PointerIcon.TYPE_TEXT
 
@@ -68,8 +68,7 @@ fun PointerIcon(pointerIcon: android.view.PointerIcon): PointerIcon =
 /** Creates [PointerIcon] from pointer icon type (see [android.view.PointerIcon.getSystemIcon] */
 fun PointerIcon(pointerIconType: Int): PointerIcon = AndroidPointerIconType(pointerIconType)
 
-@Suppress("DEPRECATION")
-internal actual val pointerIconDefault: PointerIcon = AndroidPointerIconType(TYPE_DEFAULT)
+internal actual val pointerIconDefault: PointerIcon = AndroidPointerIconType(TYPE_ARROW)
 internal actual val pointerIconCrosshair: PointerIcon = AndroidPointerIconType(TYPE_CROSSHAIR)
 internal actual val pointerIconText: PointerIcon = AndroidPointerIconType(TYPE_TEXT)
 internal actual val pointerIconHand: PointerIcon = AndroidPointerIconType(TYPE_HAND)
