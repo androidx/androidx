@@ -243,7 +243,7 @@ class TimeTextTest {
                 fontFamily = FontFamily.SansSerif
             )
         rule.setContent {
-            MaterialTheme(typography = MaterialTheme.typography.copy(labelSmall = testTextStyle)) {
+            MaterialTheme(typography = MaterialTheme.typography.copy(arcMedium = testTextStyle)) {
                 DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
                     TimeText(
                         timeSource =
