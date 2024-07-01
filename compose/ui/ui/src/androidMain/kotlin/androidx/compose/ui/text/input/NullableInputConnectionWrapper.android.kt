@@ -39,33 +39,23 @@ import java.util.function.IntConsumer
  * @param delegate The [InputConnection] that will receive all calls on this object until
  * `disposeDelegate` or `closeConnection` are called.
  * @param onConnectionClosed A callback that will be invoked the first time `closeConnection` is
- * called. Will not be invoked by `disposeDelegate`, and will not be invoked if `disposeDelegate` is
- * called before `closeConnection`.
+ *   called. Will not be invoked by `disposeDelegate`, and will not be invoked if `disposeDelegate`
+ *   is called before `closeConnection`. Passed in [NullableInputConnectionWrapper] is the same
+ *   instance that is created here.
  */
 internal fun NullableInputConnectionWrapper(
     delegate: InputConnection,
-    onConnectionClosed: () -> Unit
-): NullableInputConnectionWrapper = when {
-    Build.VERSION.SDK_INT >= 34 -> NullableInputConnectionWrapperApi34(
-        delegate,
-        onConnectionClosed
-    )
-
-    Build.VERSION.SDK_INT >= 25 -> NullableInputConnectionWrapperApi25(
-        delegate,
-        onConnectionClosed
-    )
-
-    Build.VERSION.SDK_INT >= 24 -> NullableInputConnectionWrapperApi24(
-        delegate,
-        onConnectionClosed
-    )
-
-    else -> NullableInputConnectionWrapperApi21(
-        delegate,
-        onConnectionClosed
-    )
-}
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
+): NullableInputConnectionWrapper =
+    when {
+        Build.VERSION.SDK_INT >= 34 ->
+            NullableInputConnectionWrapperApi34(delegate, onConnectionClosed)
+        Build.VERSION.SDK_INT >= 25 ->
+            NullableInputConnectionWrapperApi25(delegate, onConnectionClosed)
+        Build.VERSION.SDK_INT >= 24 ->
+            NullableInputConnectionWrapperApi24(delegate, onConnectionClosed)
+        else -> NullableInputConnectionWrapperApi21(delegate, onConnectionClosed)
+    }
 
 /**
  * An [InputConnection] that will delegate all calls to a delegate [InputConnection]. This is
@@ -93,7 +83,7 @@ internal sealed interface NullableInputConnectionWrapper : InputConnection {
 
 private open class NullableInputConnectionWrapperApi21(
     delegate: InputConnection,
-    private val onConnectionClosed: () -> Unit
+    private val onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
 ) : NullableInputConnectionWrapper {
 
     protected var delegate: InputConnection? = delegate
@@ -109,7 +99,7 @@ private open class NullableInputConnectionWrapperApi21(
     final override fun closeConnection() {
         delegate?.let {
             disposeDelegate()
-            onConnectionClosed()
+            onConnectionClosed(this)
         }
     }
 
@@ -189,7 +179,7 @@ private open class NullableInputConnectionWrapperApi21(
 @RequiresApi(24)
 private open class NullableInputConnectionWrapperApi24(
     delegate: InputConnection,
-    onConnectionClosed: () -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
 ) : NullableInputConnectionWrapperApi21(delegate, onConnectionClosed) {
 
     final override fun deleteSurroundingTextInCodePoints(p0: Int, p1: Int): Boolean =
@@ -205,7 +195,7 @@ private open class NullableInputConnectionWrapperApi24(
 @RequiresApi(25)
 private open class NullableInputConnectionWrapperApi25(
     delegate: InputConnection,
-    onConnectionClosed: () -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
 ) : NullableInputConnectionWrapperApi24(delegate, onConnectionClosed) {
 
     final override fun commitContent(p0: InputContentInfo, p1: Int, p2: Bundle?): Boolean =
@@ -215,7 +205,7 @@ private open class NullableInputConnectionWrapperApi25(
 @RequiresApi(34)
 private open class NullableInputConnectionWrapperApi34(
     delegate: InputConnection,
-    onConnectionClosed: () -> Unit
+    onConnectionClosed: (NullableInputConnectionWrapper) -> Unit
 ) : NullableInputConnectionWrapperApi25(delegate, onConnectionClosed) {
     final override fun performHandwritingGesture(
         gesture: HandwritingGesture,
