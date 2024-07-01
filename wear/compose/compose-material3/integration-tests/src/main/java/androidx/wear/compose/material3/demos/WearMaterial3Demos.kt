@@ -29,6 +29,7 @@ import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
+import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StepperSample
@@ -39,6 +40,8 @@ val WearMaterial3Demos =
     Material3DemoCategory(
         "Material 3",
         listOf(
+            ComposableDemo("Scaffold") { ScaffoldSample() },
+            Material3DemoCategory("ScrollAway", ScrollAwayDemos),
             Material3DemoCategory(
                 "Button",
                 listOf(

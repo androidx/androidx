@@ -293,6 +293,23 @@ package androidx.wear.compose.foundation {
     property public final int Revealing;
   }
 
+  public interface ScrollInfoProvider {
+    method public float getAnchorItemOffset();
+    method public boolean isScrollAwayValid();
+    method public boolean isScrollInProgress();
+    method public boolean isScrollable();
+    property public abstract float anchorItemOffset;
+    property public abstract boolean isScrollAwayValid;
+    property public abstract boolean isScrollInProgress;
+    property public abstract boolean isScrollable;
+  }
+
+  public final class ScrollInfoProviderKt {
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider toScrollAwayInfoProvider(androidx.compose.foundation.lazy.LazyListState);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider toScrollAwayInfoProvider(androidx.compose.foundation.ScrollState);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider toScrollAwayInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState);
+  }
+
   public final class SwipeToDismissBoxDefaults {
     method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getAnimationSpec();
     method public float getEdgeWidth();

@@ -18,7 +18,6 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -30,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButtonDefaults
@@ -41,10 +39,7 @@ import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
 fun TextToggleButtonDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    ScalingLazyDemo {
         item { ListHeader { Text("Text Toggle Button", textAlign = TextAlign.Center) } }
         item {
             Row {
