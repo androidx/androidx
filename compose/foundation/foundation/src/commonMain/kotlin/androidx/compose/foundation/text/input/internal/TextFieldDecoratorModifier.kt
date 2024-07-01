@@ -606,6 +606,9 @@ internal class TextFieldDecoratorModifierNode(
             }
         } else {
             disposeInputSession()
+            // only clear the composing region when element loses focus. Window focus lost should
+            // not clear the composing region.
+            textFieldState.editUntransformedTextAsUser { finishComposingText() }
             textFieldState.collapseSelectionToMax()
         }
         stylusHandwritingNode.onFocusEvent(focusState)
