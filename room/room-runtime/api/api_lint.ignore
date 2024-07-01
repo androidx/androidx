@@ -1,10 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.room.Transactor.SQLiteTransactionType:
-    Acronyms should not be capitalized in class names: was `SQLiteTransactionType`, should this be `SqLiteTransactionType`?
-AcronymName: androidx.room.TransactorKt#execSQL(androidx.room.PooledConnection, String, kotlin.coroutines.Continuation<? super kotlin.Unit>):
-    Acronyms should not be capitalized in method names: was `execSQL`, should this be `execSql`?
-
-
 ArrayReturn: androidx.room.RoomDatabase#query(String, Object[]) parameter #1:
     Method parameter should be Collection<Object> (or subclass) instead of raw array; was `java.lang.Object[]`
 
