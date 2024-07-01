@@ -20,7 +20,7 @@ android {
     productFlavors {
         targetSdk32 {
             dimension "targetSdk"
-            targetSdkVersion 32
+
         }
         targetSdkLatest {
             dimension "targetSdk"
@@ -28,6 +28,13 @@ android {
         }
     }
 }
+
+androidComponents {
+    beforeVariants(selector().withFlavor("targetSdk", "targetSdk32")) { variant ->
+        variant.androidTest.targetSdk = 32
+    }
+}
+
 dependencies {
     androidTestImplementation(project(":webkit:webkit"))
 
