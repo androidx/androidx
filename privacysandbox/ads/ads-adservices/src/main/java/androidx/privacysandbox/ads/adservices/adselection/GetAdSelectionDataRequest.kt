@@ -42,6 +42,7 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 @OptIn(ExperimentalFeatures.Ext12OptIn::class)
 @ExperimentalFeatures.Ext10OptIn
 class GetAdSelectionDataRequest
+@JvmOverloads
 public constructor(
     val seller: AdTechIdentifier,
     @property:ExperimentalFeatures.Ext12OptIn val coordinatorOriginUri: Uri? = null
