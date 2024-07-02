@@ -19,10 +19,10 @@ package androidx.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -57,7 +57,7 @@ fun ExposedDropdownMenuSample() {
             // The `menuAnchor` modifier must be passed to the text field to handle
             // expanding/collapsing the menu on click. A read-only text field has
             // the anchor type `PrimaryNotEditable`.
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             value = text,
             onValueChange = {},
             readOnly = true,
@@ -107,7 +107,7 @@ fun EditableExposedDropdownMenuSample() {
             // The `menuAnchor` modifier must be passed to the text field to handle
             // expanding/collapsing the menu on click. An editable text field has
             // the anchor type `PrimaryEditable`.
-            modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
+            modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
             value = text,
             onValueChange = { text = it },
             singleLine = true,
@@ -119,7 +119,7 @@ fun EditableExposedDropdownMenuSample() {
                     // trailing icon a `menuAnchor` of type `SecondaryEditable`. This
                     // provides a better experience for certain accessibility services
                     // to choose a menu option without typing.
-                    modifier = Modifier.menuAnchor(MenuAnchorType.SecondaryEditable),
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
                 )
             },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
