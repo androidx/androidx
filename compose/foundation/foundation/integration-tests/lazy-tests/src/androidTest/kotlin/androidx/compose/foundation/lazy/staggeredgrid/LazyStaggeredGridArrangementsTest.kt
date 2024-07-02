@@ -46,6 +46,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.gestures.Orientation
@@ -97,6 +99,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun arrangement_addsSpacingInBothDirections() {
         state = LazyStaggeredGridState()
+        state.prefetchingEnabled = false
         rule.setContent {
             LazyStaggeredGrid(
                 lanes = 2,
@@ -145,6 +148,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun arrangement_lastItem_noSpacingMainAxis() {
         state = LazyStaggeredGridState()
+        state.prefetchingEnabled = false
         rule.setContent {
             LazyStaggeredGrid(
                 lanes = 2,
@@ -178,6 +182,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun negativeSpacing_itemsVisible() {
         state = LazyStaggeredGridState()
+        state.prefetchingEnabled = false
         rule.setContent {
             LazyStaggeredGrid(
                 lanes = 2,
@@ -224,6 +229,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun negativeSpacing_withContentPadding_itemsVisible() {
         state = LazyStaggeredGridState()
+        state.prefetchingEnabled = false
         rule.setContent {
             LazyStaggeredGrid(
                 lanes = 2,
@@ -271,6 +277,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun negativeSpacingLargerThanItem_itemsVisible() {
         val state = LazyStaggeredGridState(initialFirstVisibleItemIndex = 2)
+        state.prefetchingEnabled = false
         val largerThanItemSize = itemSizeDp * 1.5f
         rule.setContent {
             LazyStaggeredGrid(
@@ -294,6 +301,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun nonStartCrossAxisArrangement() {
         val state = LazyStaggeredGridState()
+        state.prefetchingEnabled = false
         rule.setContent {
             LazyStaggeredGrid(
                 cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
@@ -318,6 +326,7 @@ class LazyStaggeredGridArrangementsTest(orientation: Orientation) :
     @Test
     fun spacedByWithAlignment() {
         val state = LazyStaggeredGridState()
+        state.prefetchingEnabled = false
         rule.setContent {
             LazyStaggeredGrid(
                 cells = StaggeredGridCells.FixedSize(itemSizeDp * 2),
