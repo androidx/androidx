@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.isLayerManagerInitialized
+import androidx.compose.ui.graphics.isLayerPersistenceEnabled
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -162,6 +163,28 @@ class AndroidGraphicsLayerTest {
                         assertEquals(IntSize.Zero, this.size)
                         record { drawRect(Color.Red) }
                     }
+                drawLayer(layer!!)
+            },
+            verify = {
+                assertEquals(TEST_SIZE, layer!!.size)
+                assertEquals(IntOffset.Zero, layer!!.topLeft)
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            }
+        )
+    }
+
+    @Test
+    fun testDrawLayerAfterDiscard() {
+        var layer: GraphicsLayer? = null
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
+                    }
+                layer!!.discardDisplayList()
+                layer!!.record { drawRect(Color.Red) }
                 drawLayer(layer!!)
             },
             verify = {
@@ -1440,6 +1463,28 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testReleaseWithNoReferencesDiscardsDisplaylist() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer()
+                layer.record {
+                    // Intentionally cause an exception to be thrown during recording
+                    drawRect(Color.Red)
+                }
+
+                graphicsContext.releaseGraphicsLayer(layer)
+                // View layers don't have a hasDisplayList method to verify and by default
+                // returns true all the time. So if we have a RenderNode backed layer verify that
+                // the displaylist is discarded after it has been released
+                if (layer.impl !is GraphicsViewLayer) {
+                    assertFalse(layer.impl.hasDisplayList)
+                }
+            },
+            verify = { /* NO-OP */ }
+        )
+    }
+
+    @Test
     fun testEndRecordingAlwaysCalled() {
         graphicsLayerTest(
             block = { graphicsContext ->
@@ -1565,7 +1610,9 @@ class AndroidGraphicsLayerTest {
                 testActivity = activity
                 activity.runOnUiThread {
                     // Layer persistence is only required on M+
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                    if (
+                        Build.VERSION.SDK_INT > Build.VERSION_CODES.M && isLayerPersistenceEnabled
+                    ) {
                         assertTrue(androidGraphicsContext!!.isLayerManagerInitialized())
                     }
                     resumed.countDown()
@@ -1613,7 +1660,7 @@ class AndroidGraphicsLayerTest {
             }
             assertTrue(detachLatch.await(3000, TimeUnit.MILLISECONDS))
             // Layer persistence is only required on M+
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && isLayerPersistenceEnabled) {
                 assertFalse(androidGraphicsContext!!.isLayerManagerInitialized())
             }
             scenario?.moveToState(Lifecycle.State.DESTROYED)
