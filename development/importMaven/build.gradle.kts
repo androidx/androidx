@@ -42,12 +42,15 @@ val createPropertiesResourceDirectoryTask = tasks.register("createPropertiesReso
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     sourceSets {
         main {
             resources.srcDir(createPropertiesResourceDirectoryTask.map { it.destinationDir })
         }
     }
 }
+tasks.withType(KotlinCompile::class.java).configureEach { kotlinOptions { jvmTarget = "17" } }
 
 dependencies {
     implementation(libs.kotlinGradlePluginz)
@@ -63,6 +66,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(importMavenLibs.okioFakeFilesystem)
 }
+
 
 // b/250726951 Gradle ProjectBuilder needs reflection access to java.lang.
 val jvmAddOpensArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
