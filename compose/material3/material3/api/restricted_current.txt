@@ -2471,11 +2471,12 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public long getIndicatorColor();
     method public float getLinearContainerHeight();
     method public float getLinearContainerWidth();
+    method public float getLinearDeterminateWavelength();
+    method public float getLinearIndeterminateWavelength();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.drawscope.Stroke getLinearIndicatorStroke();
     method public float getLinearIndicatorTrackGapSize();
     method public float getLinearTrackStopIndicatorSize();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.drawscope.Stroke getLinearTrackStroke();
-    method public float getLinearWavelength();
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getProgressAnimationSpec();
     method @androidx.compose.runtime.Composable public long getTrackColor();
     property public final float CircularContainerSize;
@@ -2483,9 +2484,10 @@ package androidx.compose.material3 {
     property public final float CircularWavelength;
     property public final float LinearContainerHeight;
     property public final float LinearContainerWidth;
+    property public final float LinearDeterminateWavelength;
+    property public final float LinearIndeterminateWavelength;
     property public final float LinearIndicatorTrackGapSize;
     property public final float LinearTrackStopIndicatorSize;
-    property public final float LinearWavelength;
     property public final androidx.compose.animation.core.AnimationSpec<java.lang.Float> ProgressAnimationSpec;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.drawscope.Stroke circularIndicatorStroke;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.drawscope.Stroke circularTrackStroke;

@@ -207,7 +207,7 @@ class WavyProgressIndicatorTest {
             }
         }
 
-        rule.mainClock.advanceTimeBy(300)
+        rule.mainClock.advanceTimeBy(200)
 
         rule.onNodeWithTag(tag).captureToImage().toPixelMap().let {
             assertEquals(expectedSize.width, it.width)
