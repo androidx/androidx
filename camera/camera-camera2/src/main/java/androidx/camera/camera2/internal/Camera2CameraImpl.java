@@ -83,6 +83,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
+import androidx.tracing.Trace;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -176,6 +177,8 @@ final class Camera2CameraImpl implements CameraInternal {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Map<CaptureSessionInterface, ListenableFuture<Void>> mReleasedCaptureSessions =
             new LinkedHashMap<>();
+    // Used to keep track of number of state errors while tracing is enabled
+    private int mTraceStateErrorCount = 0;
 
     @NonNull final CameraAvailability mCameraAvailability;
     @NonNull final CameraConfigureAvailable mCameraConfigureAvailable;
@@ -1831,6 +1834,19 @@ final class Camera2CameraImpl implements CameraInternal {
 
     enum InternalState {
         /**
+         * A stable state where the camera has been permanently closed.
+         *
+         * <p>During this state all resources should be released and all operations on the camera
+         * will do nothing.
+         */
+        RELEASED,
+        /**
+         * A transitional state where the camera will be closing permanently.
+         *
+         * <p>At the end of this state, the camera should move into the RELEASED state.
+         */
+        RELEASING,
+        /**
          * Stable state once the camera has been constructed.
          *
          * <p>At this state the {@link CameraDevice} should be invalid, but threads should be still
@@ -1850,6 +1866,33 @@ final class Camera2CameraImpl implements CameraInternal {
          * <p>At the end of this state, the camera should move into the OPENING state.
          */
         PENDING_OPEN,
+        /**
+         * A transitional state where the camera device is currently closing.
+         *
+         * <p>At the end of this state, the camera should move into the INITIALIZED state.
+         */
+        CLOSING,
+        /**
+         * A transitional state where the camera is actively transitioning from the OPENED state
+         * towards being fully closed, with the intention of being immediately reopened.
+         *
+         * <p>This state can serve the {@link LegacyCameraOutputConfigNullPointerQuirk}
+         * workaround: Forcing the camera to close and reopen to address device-specific quirks.
+         *
+         * <p>At the end of this state, the camera should move into the OPENING state, assuming
+         * successful initialization.
+         */
+        REOPENING_QUIRK,
+        /**
+         * A transitional state where the camera was previously closing, but not fully closed before
+         * a call to open was made.
+         *
+         * <p>At the end of this state, the camera should move into one of two states. The OPENING
+         * state if the device becomes fully closed, since it must restart the process of opening a
+         * camera. The OPENED state if the device becomes opened, which can occur if a call to close
+         * had been done during the OPENING state.
+         */
+        REOPENING,
         /**
          * A transitional state where the camera device is currently opening.
          *
@@ -1871,46 +1914,6 @@ final class Camera2CameraImpl implements CameraInternal {
          * capture session configuration status.
          */
         CONFIGURED,
-        /**
-         * A transitional state where the camera device is currently closing.
-         *
-         * <p>At the end of this state, the camera should move into the INITIALIZED state.
-         */
-        CLOSING,
-        /**
-         * A transitional state where the camera was previously closing, but not fully closed before
-         * a call to open was made.
-         *
-         * <p>At the end of this state, the camera should move into one of two states. The OPENING
-         * state if the device becomes fully closed, since it must restart the process of opening a
-         * camera. The OPENED state if the device becomes opened, which can occur if a call to close
-         * had been done during the OPENING state.
-         */
-        REOPENING,
-        /**
-         * A transitional state where the camera is actively transitioning from the OPENED state
-         * towards being fully closed, with the intention of being immediately reopened.
-         *
-         * <p>This state can serve the {@link LegacyCameraOutputConfigNullPointerQuirk}
-         * workaround: Forcing the camera to close and reopen to address device-specific quirks.
-         *
-         * <p>At the end of this state, the camera should move into the OPENING state, assuming
-         * successful initialization.
-         */
-        REOPENING_QUIRK,
-        /**
-         * A transitional state where the camera will be closing permanently.
-         *
-         * <p>At the end of this state, the camera should move into the RELEASED state.
-         */
-        RELEASING,
-        /**
-         * A stable state where the camera has been permanently closed.
-         *
-         * <p>During this state all resources should be released and all operations on the camera
-         * will do nothing.
-         */
-        RELEASED
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1938,6 +1941,7 @@ final class Camera2CameraImpl implements CameraInternal {
     void setState(@NonNull InternalState state, @Nullable CameraState.StateError stateError,
             boolean notifyImmediately) {
         debugLog("Transitioning camera internal state: " + mState + " --> " + state);
+        traceInternalState(state, stateError);
         mState = state;
         // Convert the internal state to the publicly visible state
         State publicState;
@@ -1974,6 +1978,25 @@ final class Camera2CameraImpl implements CameraInternal {
         mCameraStateRegistry.markCameraState(this, publicState, notifyImmediately);
         mObservableState.postValue(publicState);
         mCameraStateMachine.updateState(publicState, stateError);
+    }
+
+    @ExecutedBy("mExecutor")
+    void traceInternalState(@NonNull InternalState state,
+            @Nullable CameraState.StateError stateError) {
+        if (Trace.isEnabled()) {
+            String counterName = "CX:C2State[" + this + "]";
+            Trace.setCounter(counterName, state.ordinal());
+
+            if (stateError != null) {
+                mTraceStateErrorCount++;
+            }
+
+            if (mTraceStateErrorCount > 0) {
+                String errorCounterName = "CX:C2StateErrorCode[" + this + "]";
+                int errorCode = stateError != null ? stateError.getCode() : 0;
+                Trace.setCounter(errorCounterName, errorCode);
+            }
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */

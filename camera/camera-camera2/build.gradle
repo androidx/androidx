@@ -34,6 +34,7 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.tracing:tracing:1.2.0")
     implementation(libs.guavaListenableFuture)
     implementation(libs.autoValueAnnotations)
 
