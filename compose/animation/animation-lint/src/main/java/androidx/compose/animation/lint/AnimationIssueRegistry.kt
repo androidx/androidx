@@ -34,6 +34,7 @@ class AnimationIssueRegistry : IssueRegistry() {
                 AnimatedContentDetector.UnusedContentLambdaTargetStateParameter,
                 AnimatedContentDetector.UnusedTargetStateInContentKeyLambda,
                 SharedTransitionScopeDetector.UnusedSharedTransitionModifierParameter,
+                SharedTransitionScopeDetector.ConstantContentStateKeyInItemsCall,
             )
 
     override val vendor =
