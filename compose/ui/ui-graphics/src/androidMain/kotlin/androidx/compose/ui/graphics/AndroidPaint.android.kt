@@ -262,7 +262,6 @@ internal fun NativePaint.setNativePathEffect(value: PathEffect?) {
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object WrapperVerificationHelperMethods {
-    @androidx.annotation.DoNotInline
     fun setBlendMode(paint: NativePaint, mode: BlendMode) {
         paint.blendMode = mode.toAndroidBlendMode()
     }

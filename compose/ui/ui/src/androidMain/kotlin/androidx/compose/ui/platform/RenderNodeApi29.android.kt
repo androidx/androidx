@@ -272,7 +272,6 @@ internal class RenderNodeApi29(val ownerView: AndroidComposeView) : DeviceRender
 @RequiresApi(Build.VERSION_CODES.S)
 private object RenderNodeApi29VerificationHelper {
 
-    @androidx.annotation.DoNotInline
     fun setRenderEffect(renderNode: RenderNode, target: RenderEffect?) {
         renderNode.setRenderEffect(target?.asAndroidRenderEffect())
     }

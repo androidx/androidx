@@ -102,9 +102,7 @@ internal class RenderNodeLayer(
 
     @RequiresApi(29)
     private object UniqueDrawingIdApi29 {
-        @JvmStatic
-        @androidx.annotation.DoNotInline
-        fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
+        @JvmStatic fun getUniqueDrawingId(view: View) = view.uniqueDrawingId
     }
 
     private var mutatedFields: Int = 0
@@ -398,7 +396,6 @@ internal class RenderNodeLayer(
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal object WrapperRenderNodeLayerHelperMethods {
-    @androidx.annotation.DoNotInline
     fun onDescendantInvalidated(ownerView: AndroidComposeView) {
         ownerView.parent?.onDescendantInvalidated(ownerView, ownerView)
     }

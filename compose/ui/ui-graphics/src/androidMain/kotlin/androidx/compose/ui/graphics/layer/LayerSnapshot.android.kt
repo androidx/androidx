@@ -121,7 +121,6 @@ internal object LayerSnapshotV21 : LayerSnapshotImpl {
 @RequiresApi(Build.VERSION_CODES.M)
 private object SurfaceVerificationHelper {
 
-    @androidx.annotation.DoNotInline
     fun lockHardwareCanvas(surface: Surface): Canvas = surface.lockHardwareCanvas()
 }
 

@@ -393,11 +393,9 @@ internal class ImageVerificationHelper private constructor() {
     companion object {
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun getFence(image: Image): SyncFenceCompat = SyncFenceCompat(image.fence)
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun setFence(image: Image, fence: SyncFenceCompat?) {
             if (fence != null && fence.mImpl is SyncFenceV33) {
                 image.fence = fence.mImpl.mSyncFence

@@ -290,7 +290,6 @@ internal class GraphicsLayerV29(
 @RequiresApi(Build.VERSION_CODES.S)
 internal object RenderNodeVerificationHelper {
 
-    @androidx.annotation.DoNotInline
     fun setRenderEffect(renderNode: RenderNode, target: RenderEffect?) {
         renderNode.setRenderEffect(target?.asAndroidRenderEffect())
     }

@@ -1582,12 +1582,10 @@ public class GuidedActionsStylist implements FragmentAnimationProvider {
             // This class is not instantiable.
         }
 
-        @androidx.annotation.DoNotInline
         static void setAutofillHints(View view, String... autofillHints) {
             view.setAutofillHints(autofillHints);
         }
 
-        @androidx.annotation.DoNotInline
         static void setImportantForAutofill(
                 View view,
                 @SuppressWarnings("SameParameterValue") int mode

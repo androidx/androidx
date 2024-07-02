@@ -331,7 +331,6 @@ internal class SurfaceControlV33 internal constructor(internal val surfaceContro
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private object SurfaceControlTransactionVerificationHelperV34 {
 
-    @androidx.annotation.DoNotInline
     fun setExtendedRangeBrightness(
         transaction: Transaction,
         surfaceControl: SurfaceControl,
@@ -345,7 +344,6 @@ private object SurfaceControlTransactionVerificationHelperV34 {
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 private object SurfaceControlTransactionVerificationHelperV33 {
 
-    @androidx.annotation.DoNotInline
     fun setDataSpace(transaction: Transaction, surfaceControl: SurfaceControl, dataspace: Int) {
         transaction.setDataSpace(surfaceControl, dataspace)
     }
@@ -353,7 +351,6 @@ private object SurfaceControlTransactionVerificationHelperV33 {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object SurfaceControlVerificationHelperV31 {
-    @androidx.annotation.DoNotInline
     fun setFrameRate(
         transaction: Transaction,
         surfaceControl: SurfaceControl,
@@ -367,7 +364,6 @@ private object SurfaceControlVerificationHelperV31 {
 
 @RequiresApi(Build.VERSION_CODES.R)
 private object SurfaceControlVerificationHelperV30 {
-    @androidx.annotation.DoNotInline
     fun setFrameRate(
         transaction: Transaction,
         surfaceControl: SurfaceControl,
@@ -381,7 +377,6 @@ private object SurfaceControlVerificationHelperV30 {
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private object SurfaceControlVerificationHelperV34 {
 
-    @androidx.annotation.DoNotInline
     fun clearFrameRate(transaction: Transaction, surfaceControl: SurfaceControl) {
         transaction.clearFrameRate(surfaceControl)
     }
