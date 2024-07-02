@@ -32,7 +32,7 @@ plugins {
 dependencies {
     implementation("androidx.annotation:annotation:1.6.0")
     implementation("androidx.annotation:annotation-experimental:1.4.0")
-    compileOnly(implementation("androidx.window.extensions.core:core:1.0.0"))
+    compileOnly("androidx.window.extensions.core:core:1.0.0")
 
     testImplementation(libs.robolectric)
     testImplementation(libs.testExtJunit)
