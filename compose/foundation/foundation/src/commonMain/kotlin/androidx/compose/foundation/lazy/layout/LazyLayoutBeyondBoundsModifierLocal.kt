@@ -149,7 +149,8 @@ internal class LazyLayoutBeyondBoundsModifierNode(
     ): T? {
         // If the lazy list is empty, or if it does not have any visible items (Which implies
         // that there isn't space to add a single item), we don't attempt to layout any more items.
-        if (state.itemCount <= 0 || !state.hasVisibleItems) {
+        // if the node is not yet attached or we haven't completed at least one layout pass..
+        if (state.itemCount <= 0 || !state.hasVisibleItems || !isAttached) {
             return block.invoke(emptyBeyondBoundsScope)
         }
 

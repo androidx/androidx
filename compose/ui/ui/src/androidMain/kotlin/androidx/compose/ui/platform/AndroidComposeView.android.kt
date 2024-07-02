@@ -862,7 +862,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun focusSearch(focused: View?, direction: Int): View? {
-        if (focused != null) {
+        // do not propagate search if a measurement is happening
+        if (focused != null && !measureAndLayoutDelegate.duringMeasureLayout) {
             // Find the next composable using FocusOwner.
             val focusedBounds = focused.calculateBoundingRect()
             val focusDirection = toFocusDirection(direction) ?: Down
