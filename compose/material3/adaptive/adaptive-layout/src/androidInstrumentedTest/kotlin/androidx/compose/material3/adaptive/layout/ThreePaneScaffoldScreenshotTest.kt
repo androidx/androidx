@@ -425,7 +425,8 @@ private fun SampleThreePaneScaffoldDenseMode() {
 @Composable
 internal fun SampleThreePaneScaffoldWithPaneExpansion(
     paneExpansionState: PaneExpansionState,
-    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
 ) {
     val scaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo())
     val scaffoldValue =
@@ -445,6 +446,6 @@ internal fun SampleThreePaneScaffoldWithPaneExpansion(
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-internal fun MockDragHandle(state: PaneExpansionState) {
+internal fun ThreePaneScaffoldScope.MockDragHandle(state: PaneExpansionState) {
     PaneExpansionDragHandle(state, MaterialTheme.colorScheme.outline)
 }

@@ -38,14 +38,22 @@ import androidx.compose.ui.unit.dp
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 // TODO(b/327637983): Implement this as a customizable component as a Material3 component.
-fun PaneExpansionDragHandle(
+fun ThreePaneScaffoldScope.PaneExpansionDragHandle(
     state: PaneExpansionState,
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    // TODO (conradchen): support drag handle motion during scaffold and expansion state change
+    val animationProgress = { scaffoldStateTransitionFraction }
     Box(
-        modifier = modifier.paneExpansionDragHandle(state).size(24.dp, 48.dp),
+        modifier =
+            modifier
+                .paneExpansionDragHandle(state)
+                .size(24.dp, 48.dp)
+                .animateWithFading(
+                    enabled = true,
+                    animateFraction = animationProgress,
+                    lookaheadScope = this
+                ),
         contentAlignment = Alignment.Center
     ) {
         Box(

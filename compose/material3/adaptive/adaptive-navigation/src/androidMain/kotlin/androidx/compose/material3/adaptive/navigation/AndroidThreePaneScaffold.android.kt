@@ -61,7 +61,8 @@ fun NavigableListDetailPaneScaffold(
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
-    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
 ) {
     // TODO(b/330584029): support predictive back
@@ -113,7 +114,8 @@ fun NavigableSupportingPaneScaffold(
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
-    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
 ) {
     // TODO(b/330584029): support predictive back

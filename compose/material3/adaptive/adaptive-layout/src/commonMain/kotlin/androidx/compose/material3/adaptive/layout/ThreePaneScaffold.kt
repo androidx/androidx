@@ -86,7 +86,8 @@ internal fun ThreePaneScaffold(
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(),
-    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
     val scaffoldState = remember { ThreePaneScaffoldState(scaffoldValue) }
@@ -114,7 +115,8 @@ internal fun ThreePaneScaffold(
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(),
-    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
     val layoutDirection = LocalLayoutDirection.current
@@ -221,7 +223,29 @@ internal fun ThreePaneScaffold(
                 },
                 {
                     if (paneExpansionDragHandle != null) {
-                        paneExpansionDragHandle(paneExpansionState)
+                        remember(currentTransition, this@LookaheadScope) {
+                                ThreePaneScaffoldScopeImpl(
+                                    ThreePaneScaffoldRole.Tertiary,
+                                    currentTransition,
+                                    scaffoldState,
+                                    this@LookaheadScope
+                                )
+                            }
+                            .apply {
+                                positionAnimationSpec = paneMotion.positionAnimationSpec
+                                sizeAnimationSpec = paneMotion.sizeAnimationSpec
+                                enterTransition =
+                                    paneMotion.enterTransition(
+                                        ThreePaneScaffoldRole.Tertiary,
+                                        ltrPaneOrder
+                                    )
+                                exitTransition =
+                                    paneMotion.exitTransition(
+                                        ThreePaneScaffoldRole.Tertiary,
+                                        ltrPaneOrder
+                                    )
+                            }
+                            .paneExpansionDragHandle(paneExpansionState)
                     }
                 }
             )

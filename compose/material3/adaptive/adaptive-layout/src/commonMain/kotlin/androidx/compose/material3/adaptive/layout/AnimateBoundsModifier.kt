@@ -21,7 +21,6 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ApproachLayoutModifierNode
 import androidx.compose.ui.layout.ApproachMeasureScope
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -35,7 +34,6 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import kotlin.math.roundToInt
 
 internal fun Modifier.animateBounds(
     animateFraction: () -> Float,
@@ -136,16 +134,12 @@ private class AnimateBoundsNode(
         val placeable = measurable.measure(animatedConstraints)
         return layout(placeable.width, placeable.height) {
             coordinates?.let {
-                positionTracker.updateTargetOffset(
-                    with(lookaheadScope) {
-                        lookaheadScopeCoordinates.localLookaheadPositionOf(it).toIntOffset()
-                    }
-                )
+                positionTracker.updateTargetOffset(lookaheadOffset(lookaheadScope))
                 placeable.place(
-                    with(lookaheadScope) {
-                        positionTracker.updateAndGetCurrentOffset(animateFraction()) -
-                            lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero).toIntOffset()
-                    }
+                    convertOffsetToLookaheadCoordinates(
+                        positionTracker.updateAndGetCurrentOffset(animateFraction()),
+                        lookaheadScope
+                    )
                 )
             }
         }
@@ -214,7 +208,3 @@ private class PositionTracker(var animationSpec: FiniteAnimationSpec<IntOffset>)
         return currentOffset!!
     }
 }
-
-private fun Offset.toIntOffset() = IntOffset(x.roundToInt(), y.roundToInt())
-
-private val InvalidIntSize = IntSize(-1, -1)
