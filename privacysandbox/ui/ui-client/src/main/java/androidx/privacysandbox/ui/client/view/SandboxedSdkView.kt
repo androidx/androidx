@@ -106,7 +106,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             override fun surfaceCreated(p0: SurfaceHolder) {
                 updateAndSetClippingBounds(true)
                 viewTreeObserver.addOnGlobalLayoutListener(globalLayoutChangeListener)
-                viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
             }
 
             override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {}
@@ -236,11 +235,22 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
+    /**
+     * Adds callbacks and listeners that are only valid while this view is attached to a window. All
+     * callbacks and listeners added here will be removed in [removeCallbacksOnWindowDetachment].
+     */
+    private fun addCallbacksOnWindowAttachment() {
+        viewTreeObserver.addOnScrollChangedListener(scrollChangedListener)
+    }
+
+    private fun removeCallbacksOnWindowDetachment() {
+        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
+    }
+
     private fun removeCallbacks() {
-        // TODO(b/3131677): Handle leak of listeners when this is called.
+        // TODO(b/339377737): Handle leak of listeners when this is called.
         (contentView as? SurfaceView)?.holder?.removeCallback(surfaceChangedCallback)
         viewTreeObserver.removeOnGlobalLayoutListener(globalLayoutChangeListener)
-        viewTreeObserver.removeOnScrollChangedListener(scrollChangedListener)
     }
 
     internal fun setContentView(contentView: View) {
@@ -395,6 +405,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        addCallbacksOnWindowAttachment()
         if (client == null || viewContainingPoolingContainerListener == null) {
             if (this.isWithinPoolingContainer) {
                 attachPoolingContainerListener()
@@ -407,6 +418,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         if (!this.isWithinPoolingContainer) {
             closeClient()
         }
+        removeCallbacksOnWindowDetachment()
         super.onDetachedFromWindow()
     }
 
