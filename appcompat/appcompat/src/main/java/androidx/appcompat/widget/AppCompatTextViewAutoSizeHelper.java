@@ -36,7 +36,6 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.widget.TextView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -839,7 +838,6 @@ class AppCompatTextViewAutoSizeHelper {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @NonNull
         static StaticLayout createStaticLayoutForMeasuring(
                 @NonNull CharSequence text,

@@ -20,7 +20,6 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioRecordingConfiguration;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -43,7 +42,6 @@ public final class Api29Impl {
      * @return a valid AudioRecordingConfiguration if this recorder is active or null otherwise.
      */
     @Nullable
-    @DoNotInline
     public static AudioRecordingConfiguration getActiveRecordingConfiguration(
             @NonNull AudioRecord audioRecord) {
         return audioRecord.getActiveRecordingConfiguration();
@@ -53,7 +51,6 @@ public final class Api29Impl {
      * Registers a {@link android.media.AudioManager.AudioRecordingCallback} to a
      * {@link AudioRecord}.
      */
-    @DoNotInline
     public static void registerAudioRecordingCallback(@NonNull AudioRecord audioRecord,
             @NonNull Executor executor,
             @NonNull AudioManager.AudioRecordingCallback callback) {
@@ -64,7 +61,6 @@ public final class Api29Impl {
      * Unregisters a {@link android.media.AudioManager.AudioRecordingCallback} previously
      * registered from a {@link AudioRecord}.
      */
-    @DoNotInline
     public static void unregisterAudioRecordingCallback(@NonNull AudioRecord audioRecord,
             @NonNull AudioManager.AudioRecordingCallback callback) {
         audioRecord.unregisterAudioRecordingCallback(callback);
@@ -73,7 +69,6 @@ public final class Api29Impl {
     /**
      * Checks whether a {@link AudioRecordingConfiguration} shows that the client is silenced.
      */
-    @DoNotInline
     public static boolean isClientSilenced(@NonNull AudioRecordingConfiguration configuration) {
         return configuration.isClientSilenced();
     }

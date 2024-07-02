@@ -19,7 +19,6 @@ package androidx.camera.video.internal.compat;
 import android.media.MediaCodecInfo;
 import android.util.Range;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -37,7 +36,6 @@ public final class Api28Impl {
      * {@link MediaCodecInfo.EncoderCapabilities}.
      */
     @NonNull
-    @DoNotInline
     public static Range<Integer> getQualityRange(@NonNull MediaCodecInfo.EncoderCapabilities caps) {
         return caps.getQualityRange();
     }

@@ -32,7 +32,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import androidx.annotation.ArrayRes;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -325,7 +324,6 @@ public final class HostValidator {
         private Api28Impl() {
         }
 
-        @DoNotInline
         @Nullable
         static Signature[] getSignatures(@NonNull PackageInfo packageInfo) {
             if (packageInfo.signingInfo == null) {
@@ -334,7 +332,6 @@ public final class HostValidator {
             return packageInfo.signingInfo.getSigningCertificateHistory();
         }
 
-        @DoNotInline
         @NonNull
         @SuppressWarnings("deprecation")
         static PackageInfo getPackageInfo(@NonNull PackageManager packageManager,

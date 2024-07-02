@@ -18,7 +18,6 @@ package androidx.camera.video.internal.compat;
 
 import android.media.MediaMuxer;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -37,7 +36,6 @@ public final class Api26Impl {
     /**
      * Uses a {@link FileDescriptor} as output destination to create a {@link MediaMuxer}.
      */
-    @DoNotInline
     @NonNull
     public static MediaMuxer createMediaMuxer(@NonNull FileDescriptor fileDescriptor, int format)
             throws IOException {

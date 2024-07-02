@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -98,14 +97,12 @@ public final class ContextUtil {
         private Api30Impl() {
         }
 
-        @DoNotInline
         @NonNull
         static Context createAttributionContext(@NonNull Context context,
                 @Nullable String attributeTag) {
             return context.createAttributionContext(attributeTag);
         }
 
-        @DoNotInline
         @Nullable
         static String getAttributionTag(@NonNull Context context) {
             return context.getAttributionTag();
@@ -117,13 +114,11 @@ public final class ContextUtil {
         private Api34Impl() {
         }
 
-        @DoNotInline
         @NonNull
         static Context createDeviceContext(@NonNull Context context, int deviceId) {
             return context.createDeviceContext(deviceId);
         }
 
-        @DoNotInline
         static int getDeviceId(@NonNull Context context) {
             return context.getDeviceId();
         }

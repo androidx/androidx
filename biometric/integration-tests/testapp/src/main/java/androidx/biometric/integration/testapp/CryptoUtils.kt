@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricPrompt
 import java.security.KeyStore
@@ -104,7 +103,6 @@ private fun getSecretKey(): SecretKey {
 /** Nested class to avoid verification errors for methods introduced in Android 11 (API 30). */
 @RequiresApi(Build.VERSION_CODES.R)
 private object Api30Impl {
-    @DoNotInline
     fun setUserAuthenticationParameters(
         builder: KeyGenParameterSpec.Builder,
         timeout: Int,
@@ -127,23 +125,19 @@ private object Api30Impl {
 /** Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23). */
 @RequiresApi(Build.VERSION_CODES.M)
 private object Api23Impl {
-    @DoNotInline
     fun createKeyGenParameterSpecBuilder(
         keyName: String,
         keyPurpose: Int
     ): KeyGenParameterSpec.Builder = KeyGenParameterSpec.Builder(keyName, keyPurpose)
 
-    @DoNotInline
     fun setBlockModeCBC(builder: KeyGenParameterSpec.Builder) {
         builder.setBlockModes(KeyProperties.BLOCK_MODE_CBC)
     }
 
-    @DoNotInline
     fun setEncryptionPaddingPKCS7(builder: KeyGenParameterSpec.Builder) {
         builder.setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
     }
 
-    @DoNotInline
     fun setUserAuthenticationRequired(
         builder: KeyGenParameterSpec.Builder,
         userAuthenticationRequired: Boolean
@@ -152,7 +146,6 @@ private object Api23Impl {
     }
 
     @Suppress("DEPRECATION")
-    @DoNotInline
     fun setUserAuthenticationValidityDurationSeconds(
         builder: KeyGenParameterSpec.Builder,
         userAuthenticationValidityDurationSeconds: Int
@@ -162,7 +155,6 @@ private object Api23Impl {
         )
     }
 
-    @DoNotInline
     fun buildKeyGenParameterSpec(builder: KeyGenParameterSpec.Builder): KeyGenParameterSpec {
         return builder.build()
     }

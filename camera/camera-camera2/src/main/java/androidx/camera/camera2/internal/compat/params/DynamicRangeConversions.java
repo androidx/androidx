@@ -31,7 +31,6 @@ import static android.hardware.camera2.params.DynamicRangeProfiles.STANDARD;
 
 import android.hardware.camera2.params.DynamicRangeProfiles;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -95,7 +94,6 @@ public final class DynamicRangeConversions {
     /**
      * Converts Camera2 dynamic range profile constants to {@link DynamicRange}.
      */
-    @DoNotInline
     @Nullable
     public static DynamicRange profileToDynamicRange(long profile) {
         return PROFILE_TO_DR_MAP.get(profile);
@@ -112,7 +110,6 @@ public final class DynamicRangeConversions {
      * format returned by {@link DynamicRange#getEncoding()} is
      * {@link DynamicRange#ENCODING_HDR_UNSPECIFIED}, this will return {@code null}.
      */
-    @DoNotInline
     @Nullable
     public static Long dynamicRangeToFirstSupportedProfile(@NonNull DynamicRange dynamicRange,
             @NonNull DynamicRangeProfiles dynamicRangeProfiles) {

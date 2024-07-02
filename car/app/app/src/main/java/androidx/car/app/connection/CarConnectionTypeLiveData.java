@@ -31,7 +31,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.car.app.connection.CarConnection.ConnectionType;
@@ -134,7 +133,6 @@ final class CarConnectionTypeLiveData extends LiveData<@ConnectionType Integer> 
             // Not instantiable
         }
 
-        @DoNotInline
         static void registerExportedReceiver(Context context, BroadcastReceiver broadcastReceiver,
                 IntentFilter intentFilter) {
             context.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED);

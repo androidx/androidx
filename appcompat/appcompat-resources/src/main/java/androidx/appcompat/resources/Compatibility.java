@@ -21,7 +21,6 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -48,20 +47,17 @@ public final class Compatibility {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         public static void inflate(@NonNull Drawable drawable, @NonNull Resources r,
                 @NonNull XmlPullParser parser, @NonNull AttributeSet attrs,
                 @Nullable Resources.Theme theme) throws IOException, XmlPullParserException {
             drawable.inflate(r, parser, attrs, theme);
         }
 
-        @DoNotInline
         public static int getChangingConfigurations(@NonNull TypedArray typedArray) {
             return typedArray.getChangingConfigurations();
         }
 
         @NonNull
-        @DoNotInline
         public static Drawable createFromXmlInner(@NonNull Resources r,
                 @NonNull XmlPullParser parser, @NonNull AttributeSet attrs,
                 @Nullable Resources.Theme theme) throws IOException, XmlPullParserException {

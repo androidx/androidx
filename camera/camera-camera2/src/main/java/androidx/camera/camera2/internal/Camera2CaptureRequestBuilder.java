@@ -23,7 +23,6 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -252,7 +251,6 @@ class Camera2CaptureRequestBuilder {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static CaptureRequest.Builder createReprocessCaptureRequest(
                 @NonNull CameraDevice cameraDevice,
                 @NonNull TotalCaptureResult totalCaptureResult)

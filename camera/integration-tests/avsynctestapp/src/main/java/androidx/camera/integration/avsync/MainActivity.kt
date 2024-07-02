@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -88,11 +87,9 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(27)
     private object Api27Impl {
-        @DoNotInline
         fun setShowWhenLocked(activity: ComponentActivity, showWhenLocked: Boolean) =
             activity.setShowWhenLocked(showWhenLocked)
 
-        @DoNotInline
         fun setTurnScreenOn(activity: ComponentActivity, turnScreenOn: Boolean) =
             activity.setTurnScreenOn(turnScreenOn)
     }

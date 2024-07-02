@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.integration.internal
 
 import android.hardware.camera2.params.DynamicRangeProfiles
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.core.DynamicRange
 
@@ -77,7 +76,6 @@ internal object DynamicRangeConversions {
     }
 
     /** Converts Camera2 dynamic range profile constants to [DynamicRange]. */
-    @DoNotInline
     fun profileToDynamicRange(profile: Long): DynamicRange? {
         return PROFILE_TO_DR_MAP[profile]
     }
@@ -93,7 +91,6 @@ internal object DynamicRangeConversions {
      * returned by [DynamicRange.getEncoding] is [DynamicRange.ENCODING_HDR_UNSPECIFIED], this will
      * return `null`.
      */
-    @DoNotInline
     fun dynamicRangeToFirstSupportedProfile(
         dynamicRange: DynamicRange,
         dynamicRangeProfiles: DynamicRangeProfiles

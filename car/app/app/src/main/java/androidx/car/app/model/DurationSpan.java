@@ -20,7 +20,6 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -120,7 +119,6 @@ public final class DurationSpan extends CarSpan {
         private Api26Impl() {
         }
 
-        @DoNotInline
         @NonNull
         public static DurationSpan create(@NonNull Duration duration) {
             return new DurationSpan(requireNonNull(duration).getSeconds());

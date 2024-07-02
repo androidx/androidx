@@ -21,7 +21,6 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowInsets
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -46,7 +45,6 @@ class SingleColorActivity : AppCompatActivity() {
     @RequiresApi(30)
     private object Api30Fullscreen {
         @JvmStatic
-        @DoNotInline
         fun hideStatusBar(window: Window) {
             window.insetsController?.hide(WindowInsets.Type.statusBars())
         }

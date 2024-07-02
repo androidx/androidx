@@ -91,7 +91,6 @@ import android.widget.ToggleButton;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -2757,7 +2756,6 @@ public class CameraXActivity extends AppCompatActivity {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setColorMode(@NonNull Window window, int colorMode) {
             window.setColorMode(colorMode);
         }

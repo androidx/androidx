@@ -24,7 +24,6 @@ import android.hardware.camera2.params.OutputConfiguration;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -49,7 +48,6 @@ public final class ApiCompat {
         /**
          * @see CameraDevice#close()
          */
-        @DoNotInline
         public static void close(@NonNull CameraDevice cameraDevice) {
             cameraDevice.close();
         }
@@ -67,7 +65,6 @@ public final class ApiCompat {
         /**
          * @see CameraCaptureSession.StateCallback#onSurfacePrepared(CameraCaptureSession, Surface)
          */
-        @DoNotInline
         public static void onSurfacePrepared(
                 @NonNull CameraCaptureSession.StateCallback callback,
                 @NonNull CameraCaptureSession session,
@@ -89,7 +86,6 @@ public final class ApiCompat {
          * @see CameraCaptureSession.CaptureCallback#onCaptureBufferLost(CameraCaptureSession,
          * CaptureRequest, Surface, long)
          */
-        @DoNotInline
         public static void onCaptureBufferLost(
                 @NonNull CameraCaptureSession.CaptureCallback callback,
                 @NonNull CameraCaptureSession session,
@@ -112,7 +108,6 @@ public final class ApiCompat {
         /**
          * @see CameraCaptureSession.StateCallback#onCaptureQueueEmpty(CameraCaptureSession)
          */
-        @DoNotInline
         public static void onCaptureQueueEmpty(
                 @NonNull CameraCaptureSession.StateCallback callback,
                 @NonNull CameraCaptureSession session) {
@@ -122,7 +117,6 @@ public final class ApiCompat {
         /**
          * @see OutputConfiguration
          */
-        @DoNotInline
         @NonNull
         public static <T> OutputConfiguration newOutputConfiguration(@NonNull Size surfaceSize,
                 @NonNull Class<T> klass) {
@@ -142,7 +136,6 @@ public final class ApiCompat {
         /**
          * @see CameraManager.AvailabilityCallback#onCameraAccessPrioritiesChanged()
          */
-        @DoNotInline
         public static void onCameraAccessPrioritiesChanged(
                 @NonNull CameraManager.AvailabilityCallback callback) {
             callback.onCameraAccessPrioritiesChanged();

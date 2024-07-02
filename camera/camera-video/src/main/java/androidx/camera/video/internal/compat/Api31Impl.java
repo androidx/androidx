@@ -21,7 +21,6 @@ import android.media.AudioRecord;
 import android.media.MediaCodecInfo;
 import android.util.Range;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -38,7 +37,6 @@ public final class Api31Impl {
      * Returns the minimum number of input channels supported for
      * {@link MediaCodecInfo.AudioCapabilities}.
      */
-    @DoNotInline
     public static int getMinInputChannelCount(@NonNull MediaCodecInfo.AudioCapabilities caps) {
         return caps.getMinInputChannelCount();
     }
@@ -47,7 +45,6 @@ public final class Api31Impl {
      * Returns an array of ranges representing the number of input channels supported for
      * {@link MediaCodecInfo.AudioCapabilities}.
      */
-    @DoNotInline
     @NonNull
     public static Range<Integer>[] getInputChannelCountRanges(
             @NonNull MediaCodecInfo.AudioCapabilities caps) {
@@ -57,7 +54,6 @@ public final class Api31Impl {
     /**
      * Sets the context used for attribution on an {@link AudioRecord}.
      */
-    @DoNotInline
     public static void setContext(@NonNull AudioRecord.Builder builder, @NonNull Context context) {
         builder.setContext(context);
     }

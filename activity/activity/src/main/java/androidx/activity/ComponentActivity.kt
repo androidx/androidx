@@ -55,7 +55,6 @@ import androidx.activity.result.contract.ActivityResultContracts.StartIntentSend
 import androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult.Companion.EXTRA_SEND_INTENT_EXCEPTION
 import androidx.annotation.CallSuper
 import androidx.annotation.ContentView
-import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
@@ -1037,7 +1036,6 @@ open class ComponentActivity() :
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private object Api33Impl {
-        @DoNotInline
         fun getOnBackInvokedDispatcher(activity: Activity): OnBackInvokedDispatcher {
             return activity.getOnBackInvokedDispatcher()
         }

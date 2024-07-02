@@ -23,7 +23,6 @@ import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
@@ -152,7 +151,6 @@ public class CaptureOutputSurfaceForCaptureProcessor {
          * Creates a {@link ImageWriter} instance.
          */
         @NonNull
-        @DoNotInline
         static ImageWriter newInstance(@NonNull Surface surface, int maxImages, int imageFormat) {
             return ImageWriter.newInstance(surface, maxImages, imageFormat);
         }
@@ -161,7 +159,6 @@ public class CaptureOutputSurfaceForCaptureProcessor {
             imageWriter.queueInputImage(image);
         }
 
-        @DoNotInline
         static void close(ImageWriter imageWriter) {
             imageWriter.close();
         }

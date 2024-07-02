@@ -22,7 +22,6 @@ import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCaptureException;
@@ -67,7 +66,6 @@ class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>>
 
     @RequiresApi(34)
     private static class Api34Impl {
-        @DoNotInline
         static boolean hasGainmap(@NonNull Bitmap bitmap) {
             return bitmap.hasGainmap();
         }

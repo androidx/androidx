@@ -22,7 +22,6 @@ import android.media.CamcorderProfile.QUALITY_LOW
 import android.media.EncoderProfiles
 import android.os.Build
 import android.util.Size
-import androidx.annotation.DoNotInline
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
@@ -184,7 +183,6 @@ constructor(
 
     @RequiresApi(31)
     internal object Api31Impl {
-        @DoNotInline
         fun getAll(cameraId: String, quality: Int): EncoderProfiles? {
             return CamcorderProfile.getAll(cameraId, quality)
         }

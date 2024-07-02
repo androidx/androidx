@@ -27,7 +27,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 import android.text.TextUtils;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -409,7 +408,6 @@ final class DynamicRangeResolver {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @Nullable
         static DynamicRange getRecommended10BitDynamicRange(
                 @NonNull CameraCharacteristicsCompat characteristics) {

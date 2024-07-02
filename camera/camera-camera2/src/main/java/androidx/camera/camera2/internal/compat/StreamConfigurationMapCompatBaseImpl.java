@@ -21,7 +21,6 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Size;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -86,7 +85,6 @@ class StreamConfigurationMapCompatBaseImpl
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Size[] getHighResolutionOutputSizes(StreamConfigurationMap streamConfigurationMap,
                 int format) {
             return streamConfigurationMap.getHighResolutionOutputSizes(format);
