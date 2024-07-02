@@ -16,33 +16,38 @@
   -->
 
 <androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
         <Button
+            android:id="@+id/toggle_drawer_button"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:id="@+id/toggle_drawer_button"
-            android:text="Open Options"/>
+            android:text="Open Options" />
+
         <FrameLayout
             android:id="@+id/content_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1" />
     </LinearLayout>
+
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@layout/action_menu">
+
         <Spinner
             android:id="@+id/mediation_dropdown_menu"
             android:layout_width="match_parent"
@@ -50,52 +55,40 @@
             android:layout_gravity="center"
             android:background="@android:drawable/btn_dropdown"
             android:spinnerMode="dropdown" />
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/load_webview"
-            android:layout_width="wrap_content"
+
+        <Spinner
+            android:id="@+id/ad_type_dropdown_menu"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:layout_marginTop="50dp"
-            android:layout_gravity="center"
-            android:text="@string/webview_switch"
-            android:checked="false" />
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/content_from_assets_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:layout_gravity="center"
-            android:text="@string/content_from_assets_switch"
-            android:checked="false" />
+            android:background="@android:drawable/btn_dropdown"
+            android:spinnerMode="dropdown" />
+
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/display_viewability_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="150dp"
             android:layout_gravity="center"
-            android:text="@string/display_viewability_switch"
-            android:checked="false"/>
+            android:layout_marginTop="100dp"
+            android:checked="false"
+            android:text="@string/display_viewability_switch" />
+
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/zorder_below_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="200dp"
             android:layout_gravity="center"
-            android:text="@string/zorder_below_switch"
-            android:checked="false" />
-        <com.google.android.material.switchmaterial.SwitchMaterial
-            android:id="@+id/video_switch"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="250dp"
-            android:layout_gravity="center"
-            android:text="@string/video_switch"
-            android:checked="false" />
+            android:layout_marginTop="150dp"
+            android:checked="false"
+            android:text="@string/zorder_below_switch" />
+
         <Button
+            android:id="@+id/trigger_sandbox_death"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="300dp"
             android:layout_gravity="center"
-            android:id="@+id/trigger_sandbox_death"
-            android:text="@string/trigger_sandbox_death_button"/>
+            android:layout_marginTop="200dp"
+            android:text="@string/trigger_sandbox_death_button" />
     </com.google.android.material.navigation.NavigationView>
 </androidx.drawerlayout.widget.DrawerLayout>

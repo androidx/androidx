@@ -29,4 +29,5 @@
     <string name="trigger_sandbox_death_button">Trigger Sandbox Death</string>
     <string name="display_viewability_switch">Display Viewability Geometry</string>
     <string name="video_switch">Video</string>
+    <string name="non_webview_switch">Non-Webview</string>
 </resources>
