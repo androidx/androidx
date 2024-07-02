@@ -42,7 +42,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
-                implementation("androidx.collection:collection:1.4.0")
+                implementation(project(":collection:collection"))
             }
         }
 
