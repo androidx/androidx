@@ -31,11 +31,11 @@ import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInter
 import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensionsProvider
-import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.reflection.Consumer2
 import java.lang.reflect.Proxy
 import java.util.concurrent.Executor
 
@@ -103,7 +103,7 @@ internal class EmbeddingCompat(
 
                 // Register ActivityStack callback
                 val activityStackCallback =
-                    Consumer<List<OEMActivityStack>> { activityStacks ->
+                    Consumer2<List<OEMActivityStack>> { activityStacks ->
                         embeddingCallback.onActivityStackChanged(adapter.translate(activityStacks))
                     }
                 embeddingExtension.registerActivityStackCallback(
@@ -116,7 +116,7 @@ internal class EmbeddingCompat(
 
     private fun registerSplitInfoCallback(embeddingCallback: EmbeddingCallbackInterface) {
         val splitInfoCallback =
-            Consumer<List<OEMSplitInfo>> { splitInfoList ->
+            Consumer2<List<OEMSplitInfo>> { splitInfoList ->
                 embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
             }
         embeddingExtension.setSplitInfoCallback(splitInfoCallback)
