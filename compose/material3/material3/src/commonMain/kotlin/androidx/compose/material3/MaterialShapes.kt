@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastFlatMap
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import androidx.graphics.shapes.CornerRounding
@@ -89,10 +90,12 @@ fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
     }
 }
 
-// TODO: Document all shapes and possible add screenshots.
 /**
  * Holds predefined Material Design shapes as [RoundedPolygon]s that can be used at various
  * components as they are, or as part of a [Morph].
+ *
+ * ![Shapes
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/shapes.png)
  *
  * Note that each [RoundedPolygon] in this class is normalized.
  *
@@ -155,108 +158,143 @@ sealed class MaterialShapes {
         private var _bun: RoundedPolygon? = null
         private var _heart: RoundedPolygon? = null
 
+        /** A circle shape. */
         val Circle
             get() = _circle ?: circle().normalized().also { _circle = it }
 
+        /** A rounded square shape. */
         val Square
             get() = _square ?: square().normalized().also { _square = it }
 
+        /** A slanted square shape. */
         val Slanted
             get() = _slanted ?: slanted().normalized().also { _slanted = it }
 
+        /** An arch shape. */
         val Arch
             get() = _arch ?: arch().normalized().also { _arch = it }
 
+        /** A fan shape. */
         val Fan
             get() = _fan ?: fan().normalized().also { _fan = it }
 
+        /** An arrow shape. */
         val Arrow
             get() = _arrow ?: arrow().normalized().also { _arrow = it }
 
+        /** A semi-circle shape. */
         val SemiCircle
             get() = _semiCircle ?: semiCircle().normalized().also { _semiCircle = it }
 
+        /** An oval shape. */
         val Oval
             get() = _oval ?: oval().normalized().also { _oval = it }
 
+        /** A pill shape. */
         val Pill
             get() = _pill ?: pill().normalized().also { _pill = it }
 
+        /** A rounded triangle shape. */
         val Triangle
             get() = _triangle ?: triangle().normalized().also { _triangle = it }
 
+        /** A diamond shape. */
         val Diamond
             get() = _diamond ?: diamond().normalized().also { _diamond = it }
 
+        /** A clam-shell shape. */
         val ClamShell
             get() = _clamShell ?: clamShell().normalized().also { _clamShell = it }
 
+        /** A pentagon shape. */
         val Pentagon
             get() = _pentagon ?: pentagon().normalized().also { _pentagon = it }
 
+        /** A gem shape. */
         val Gem
             get() = _gem ?: gem().normalized().also { _gem = it }
 
-        val VerySunny
-            get() = _verySunny ?: verySunny().normalized().also { _verySunny = it }
-
+        /** A sunny shape. */
         val Sunny
             get() = _sunny ?: sunny().normalized().also { _sunny = it }
 
+        /** A very-sunny shape. */
+        val VerySunny
+            get() = _verySunny ?: verySunny().normalized().also { _verySunny = it }
+
+        /** A 4-sided cookie shape. */
         val Cookie4Sided
             get() = _cookie4Sided ?: cookie4().normalized().also { _cookie4Sided = it }
 
+        /** A 6-sided cookie shape. */
         val Cookie6Sided
             get() = _cookie6Sided ?: cookie6().normalized().also { _cookie6Sided = it }
 
+        /** A 7-sided cookie shape. */
         val Cookie7Sided
             get() = _cookie7Sided ?: cookie7().normalized().also { _cookie7Sided = it }
 
+        /** A 9-sided cookie shape. */
         val Cookie9Sided
             get() = _cookie9Sided ?: cookie9().normalized().also { _cookie9Sided = it }
 
+        /** A 12-sided cookie shape. */
         val Cookie12Sided
             get() = _cookie12Sided ?: cookie12().normalized().also { _cookie12Sided = it }
 
+        /** A ghost-ish shape. */
         val Ghostish
             get() = _ghostish ?: ghostish().normalized().also { _ghostish = it }
 
+        /** A 4-leaf clover shape. */
         val Clover4Leaf
             get() = _clover4Leaf ?: clover4().normalized().also { _clover4Leaf = it }
 
+        /** An 8-leaf clover shape. */
         val Clover8Leaf
             get() = _clover8Leaf ?: clover8().normalized().also { _clover8Leaf = it }
 
+        /** A burst shape. */
         val Burst
             get() = _burst ?: burst().normalized().also { _burst = it }
 
+        /** A soft-burst shape. */
         val SoftBurst
             get() = _softBurst ?: softBurst().normalized().also { _softBurst = it }
 
+        /** A boom shape. */
         val Boom
             get() = _boom ?: boom().normalized().also { _boom = it }
 
+        /** A soft-boom shape. */
         val SoftBoom
             get() = _softBoom ?: softBoom().normalized().also { _softBoom = it }
 
+        /** A flower shape. */
         val Flower
             get() = _flower ?: flower().normalized().also { _flower = it }
 
+        /** A puffy shape. */
         val Puffy
             get() = _puffy ?: puffy().normalized().also { _puffy = it }
 
+        /** A puffy-diamond shape. */
         val PuffyDiamond
             get() = _puffyDiamond ?: puffyDiamond().normalized().also { _puffyDiamond = it }
 
+        /** A pixel-circle shape. */
         val PixelCircle
             get() = _pixelCircle ?: pixelCircle().normalized().also { _pixelCircle = it }
 
+        /** A pixel-triangle shape. */
         val PixelTriangle
             get() = _pixelTriangle ?: pixelTriangle().normalized().also { _pixelTriangle = it }
 
+        /** A bun shape. */
         val Bun
             get() = _bun ?: bun().normalized().also { _bun = it }
 
+        /** A heart shape. */
         val Heart
             get() = _heart ?: heart().normalized().also { _heart = it }
 
@@ -298,14 +336,18 @@ sealed class MaterialShapes {
         }
 
         internal fun arrow(): RoundedPolygon {
-            return triangleChip(innerRadius = .2f, CornerRounding(radius = .22f))
+            return triangleChip(
+                innerRadius = .3375f,
+                rounding = CornerRounding(radius = .25f, smoothing = .48f)
+            )
         }
 
         internal fun triangleChip(innerRadius: Float, rounding: CornerRounding): RoundedPolygon {
+            val topR = 0.888f
             val points =
                 floatArrayOf(
-                    radialToCartesian(radius = 1f, 270f.toRadians()).x,
-                    radialToCartesian(radius = 1f, 270f.toRadians()).y,
+                    radialToCartesian(radius = topR, 270f.toRadians()).x,
+                    radialToCartesian(radius = topR, 270f.toRadians()).y,
                     radialToCartesian(radius = 1f, 30f.toRadians()).x,
                     radialToCartesian(radius = 1f, 30f.toRadians()).y,
                     radialToCartesian(radius = innerRadius, 90f.toRadians()).x,
@@ -331,7 +373,7 @@ sealed class MaterialShapes {
         }
 
         internal fun pill(width: Float = 1.25f, height: Float = 1f): RoundedPolygon {
-            return RoundedPolygon.pill(width = width, height = height)
+            return RoundedPolygon.pill(width = width, height = height).transformed(rotateNeg45)
         }
 
         internal fun triangle(): RoundedPolygon {
@@ -412,18 +454,18 @@ sealed class MaterialShapes {
             return RoundedPolygon(points, cornerRound40).transformed(rotateNeg90)
         }
 
-        internal fun verySunny(): RoundedPolygon {
+        internal fun sunny(): RoundedPolygon {
             return RoundedPolygon.star(
                 numVerticesPerRadius = 8,
-                innerRadius = .65f,
+                innerRadius = .8f,
                 rounding = cornerRound15
             )
         }
 
-        internal fun sunny(): RoundedPolygon {
+        internal fun verySunny(): RoundedPolygon {
             return RoundedPolygon.star(
                 numVerticesPerRadius = 8,
-                innerRadius = .83f,
+                innerRadius = .65f,
                 rounding = cornerRound15
             )
         }
@@ -476,12 +518,12 @@ sealed class MaterialShapes {
         }
 
         internal fun ghostish(): RoundedPolygon {
-            val inset = .5f
-            val w = .88f
-            val points = floatArrayOf(1f, w, -1f, w, -inset, 0f, -1f, -w, 1f, -w)
+            val inset = .46f
+            val h = 1.2f
+            val points = floatArrayOf(-1f, -h, 1f, -h, 1f, h, 0f, inset, -1f, h)
             val pvRounding =
-                listOf(cornerRound100, cornerRound50, cornerRound100, cornerRound50, cornerRound100)
-            return RoundedPolygon(points, perVertexRounding = pvRounding).transformed(rotateNeg90)
+                listOf(cornerRound100, cornerRound100, cornerRound50, cornerRound100, cornerRound50)
+            return RoundedPolygon(points, perVertexRounding = pvRounding)
         }
 
         internal fun clover4(): RoundedPolygon {
@@ -512,16 +554,18 @@ sealed class MaterialShapes {
 
         internal fun softBurst(): RoundedPolygon {
             return RoundedPolygon.star(
-                radius = 1f,
-                numVerticesPerRadius = 10,
-                innerRadius = .65f,
-                rounding = cornerRound10,
-                innerRounding = cornerRound10
-            )
+                    radius = 1f,
+                    numVerticesPerRadius = 10,
+                    innerRadius = .65f,
+                    rounding = cornerRound10,
+                    innerRounding = cornerRound10
+                )
+                .transformed(Matrix().apply { rotateZ(360f / 20) })
         }
 
         internal fun boom(): RoundedPolygon {
             return RoundedPolygon.star(numVerticesPerRadius = 15, innerRadius = .42f)
+                .transformed(Matrix().apply { rotateZ(360f / 60) })
         }
 
         internal fun softBoom(): RoundedPolygon {
@@ -555,11 +599,11 @@ sealed class MaterialShapes {
         }
 
         internal fun flower(): RoundedPolygon {
-            val smoothRound = CornerRounding(radius = .13f, smoothing = .95f)
+            val smoothRound = CornerRounding(radius = .12f, smoothing = .48f)
             return RoundedPolygon.star(
                 numVerticesPerRadius = 8,
                 radius = 1f,
-                innerRadius = .575f,
+                innerRadius = .588f,
                 rounding = smoothRound,
                 innerRounding = unrounded
             )
@@ -616,79 +660,26 @@ sealed class MaterialShapes {
             )
         }
 
+        @Suppress("ListIterator", "PrimitiveInCollection")
         internal fun pixelCircle(): RoundedPolygon {
-            val pixelSize = .1f
-            val points =
-                floatArrayOf(
-                    // BR quadrant
-                    6 * pixelSize,
-                    0 * pixelSize,
-                    6 * pixelSize,
-                    2 * pixelSize,
-                    5 * pixelSize,
-                    2 * pixelSize,
-                    5 * pixelSize,
-                    4 * pixelSize,
-                    4 * pixelSize,
-                    4 * pixelSize,
-                    4 * pixelSize,
-                    5 * pixelSize,
-                    2 * pixelSize,
-                    5 * pixelSize,
-                    2 * pixelSize,
-                    6 * pixelSize,
-
-                    // BL quadrant
-                    -2 * pixelSize,
-                    6 * pixelSize,
-                    -2 * pixelSize,
-                    5 * pixelSize,
-                    -4 * pixelSize,
-                    5 * pixelSize,
-                    -4 * pixelSize,
-                    4 * pixelSize,
-                    -5 * pixelSize,
-                    4 * pixelSize,
-                    -5 * pixelSize,
-                    2 * pixelSize,
-                    -6 * pixelSize,
-                    2 * pixelSize,
-                    -6 * pixelSize,
-                    0 * pixelSize,
-
-                    // TL quadrant
-                    -6 * pixelSize,
-                    -2 * pixelSize,
-                    -5 * pixelSize,
-                    -2 * pixelSize,
-                    -5 * pixelSize,
-                    -4 * pixelSize,
-                    -4 * pixelSize,
-                    -4 * pixelSize,
-                    -4 * pixelSize,
-                    -5 * pixelSize,
-                    -2 * pixelSize,
-                    -5 * pixelSize,
-                    -2 * pixelSize,
-                    -6 * pixelSize,
-
-                    // TR quadrant
-                    2 * pixelSize,
-                    -6 * pixelSize,
-                    2 * pixelSize,
-                    -5 * pixelSize,
-                    4 * pixelSize,
-                    -5 * pixelSize,
-                    4 * pixelSize,
-                    -4 * pixelSize,
-                    5 * pixelSize,
-                    -4 * pixelSize,
-                    5 * pixelSize,
-                    -2 * pixelSize,
-                    6 * pixelSize,
-                    -2 * pixelSize
-                )
-            return RoundedPolygon(points, unrounded)
+            val main = 0.4f
+            val holes = listOf(Offset(0.28f, 0.14f), Offset(0.16f, 0.16f), Offset(0.16f, 0.3f))
+            var p = Offset(main, -1f)
+            val corner = buildList {
+                add(p)
+                holes.fastForEach { delta ->
+                    p += Offset(0f, delta.y)
+                    add(p)
+                    p += Offset(delta.x, 0f)
+                    add(p)
+                }
+            }
+            val half = corner + corner.fastMap { Offset(it.x, -it.y) }.reversed()
+            val points = half + half.fastMap { Offset(-it.x, it.y) }.reversed()
+            return RoundedPolygon(
+                points.fastFlatMap { listOf(it.x, it.y) }.toFloatArray(),
+                unrounded
+            )
         }
 
         @Suppress("ListIterator", "PrimitiveInCollection")
