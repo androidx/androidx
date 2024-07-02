@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.content.res.Configuration
+import androidx.annotation.RestrictTo
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetrics
 
@@ -25,6 +26,7 @@ import androidx.window.layout.WindowMetrics
  * [OverlayController.setOverlayAttributesCalculator] and references the corresponding overlay
  * [ActivityStack] by [overlayTag].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayAttributesCalculatorParams
 internal constructor(
     /** The parent container's [WindowMetrics] */

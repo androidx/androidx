@@ -24,6 +24,7 @@ import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.embedding.ActivityEmbeddingOptionsImpl.getOverlayAttributes
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.ActivityStack
@@ -43,7 +44,7 @@ import kotlin.concurrent.withLock
  * operations in WM Extensions.
  */
 @Suppress("NewApi") // Suppress #translateWindowMetrics, which requires R.
-@RequiresWindowSdkExtension(6)
+@RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
 internal open class OverlayControllerImpl(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
@@ -83,7 +84,7 @@ internal open class OverlayControllerImpl(
         ArrayMap<JetpackConsumer<OverlayInfo>, Consumer<List<ActivityStack>>>()
 
     init {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        WindowSdkExtensions.getInstance().requireExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         embeddingExtension.setActivityStackAttributesCalculator { params ->
             globalLock.withLock {

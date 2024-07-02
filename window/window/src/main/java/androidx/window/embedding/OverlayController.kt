@@ -18,6 +18,7 @@ package androidx.window.embedding
 
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
@@ -39,11 +40,12 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class OverlayController
 @VisibleForTesting
 internal constructor(private val backend: EmbeddingBackend) {
 
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     internal fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
@@ -72,7 +74,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      *   than 6.
      * @sample androidx.window.samples.embedding.overlayAttributesCalculatorSample
      */
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     ) {
@@ -85,7 +87,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
      *   than 6.
      */
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun clearOverlayAttributesCalculator() {
         backend.clearOverlayAttributesCalculator()
     }
@@ -107,7 +109,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
      *   than 6.
      */
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
         backend.updateOverlayAttributes(overlayTag, overlayAttributes)
     }
@@ -127,7 +129,7 @@ internal constructor(private val backend: EmbeddingBackend) {
      *   [OverlayCreateParams]
      * @return a [Flow] of [OverlayInfo] this [overlayTag] is associated with
      */
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun overlayInfo(overlayTag: String): Flow<OverlayInfo> = callbackFlow {
         val listener = Consumer { info: OverlayInfo -> trySend(info) }
         backend.addOverlayInfoCallback(overlayTag, Runnable::run, listener)
@@ -135,6 +137,9 @@ internal constructor(private val backend: EmbeddingBackend) {
     }
 
     companion object {
+
+        internal const val OVERLAY_FEATURE_VERSION = 6
+
         /**
          * Obtains an instance of [OverlayController].
          *

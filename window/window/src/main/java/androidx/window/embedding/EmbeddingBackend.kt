@@ -22,6 +22,7 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import java.util.concurrent.Executor
 
 /**  */
@@ -77,24 +78,24 @@ interface EmbeddingBackend {
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun setOverlayAttributesCalculator(
         calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
     )
 
-    @RequiresWindowSdkExtension(5) fun clearOverlayAttributesCalculator()
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION) fun clearOverlayAttributesCalculator()
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun addOverlayInfoCallback(
         overlayTag: String,
         executor: Executor,
         overlayInfoCallback: Consumer<OverlayInfo>,
     )
 
-    @RequiresWindowSdkExtension(5)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
 
     @RequiresWindowSdkExtension(6)

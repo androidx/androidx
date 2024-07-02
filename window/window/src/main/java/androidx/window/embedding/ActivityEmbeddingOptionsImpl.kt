@@ -22,6 +22,7 @@ import androidx.window.WindowSdkExtensions
 import androidx.window.embedding.EmbeddingBounds.Dimension
 import androidx.window.embedding.EmbeddingBounds.Dimension.Companion.DIMENSION_EXPANDED
 import androidx.window.embedding.EmbeddingBounds.Dimension.Companion.DIMENSION_HINGE
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties.KEY_ACTIVITY_STACK_TOKEN
 import androidx.window.extensions.embedding.ActivityEmbeddingOptionsProperties.KEY_OVERLAY_TAG
 import androidx.window.extensions.embedding.ActivityStack.Token
@@ -148,12 +149,12 @@ internal object ActivityEmbeddingOptionsImpl {
      *
      * @param overlayCreateParams The [OverlayCreateParams] to launch the overlay container
      */
-    @RequiresWindowSdkExtension(6)
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
     internal fun setOverlayCreateParams(
         options: Bundle,
         overlayCreateParams: OverlayCreateParams,
     ) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        WindowSdkExtensions.getInstance().requireExtensionVersion(OVERLAY_FEATURE_VERSION)
 
         options.putString(KEY_OVERLAY_TAG, overlayCreateParams.tag)
         options.putEmbeddingBounds(overlayCreateParams.overlayAttributes.bounds)
