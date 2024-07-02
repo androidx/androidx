@@ -93,6 +93,7 @@ public class DualSurfaceProcessorNode implements
         mSecondaryCameraInternal = secondaryCameraInternal;
         mSurfaceProcessor = surfaceProcessor;
     }
+
     /**
      * {@inheritDoc}
      */

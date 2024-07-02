@@ -279,7 +279,8 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         Rect cropRectBeforeScaling = preferredSizePair.first;
         Size childSizeToScale = preferredSizePair.second;
 
-        int childRotationDegrees = getChildRotationDegrees(useCase, cameraInternal);
+        // Only use primary camera info for output surface
+        int childRotationDegrees = getChildRotationDegrees(useCase, mParentCamera);
         requireNonNull(mChildrenVirtualCameras.get(useCase))
                 .setRotationDegrees(childRotationDegrees);
         int childParentDelta = within360(cameraInputEdge.getRotationDegrees()

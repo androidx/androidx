@@ -903,8 +903,6 @@ public abstract class UseCase {
         onUnbind();
 
         synchronized (mCameraLock) {
-            checkArgument(camera == mCamera || camera == mSecondaryCamera);
-
             if (camera == mCamera) {
                 removeStateChangeCallback(mCamera);
                 mCamera = null;

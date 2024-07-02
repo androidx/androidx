@@ -386,10 +386,11 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         Logger.d(TAG, "VideoCapture#onStateAttached: cameraID = " + getCameraId());
 
-        Preconditions.checkNotNull(getAttachedStreamSpec(), "The suggested stream "
-                + "specification should be already updated and shouldn't be null.");
-        Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
-                + "when VideoCapture is attached.");
+        // For concurrent camera, the surface request might not be null when switching
+        // from single to dual camera.
+        if (getAttachedStreamSpec() == null || mSurfaceRequest != null) {
+            return;
+        }
         StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);

@@ -20,23 +20,47 @@ import static android.hardware.camera2.CameraCharacteristics.LENS_POSE_REFERENCE
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import static androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore;
+import static androidx.camera.testing.impl.FileUtil.createParentFolder;
+import static androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions;
+import static androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions;
+import static androidx.camera.testing.impl.FileUtil.getAbsolutePathFromUri;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
+import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
+
+import static java.util.Objects.requireNonNull;
+
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraCharacteristics;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
@@ -46,35 +70,69 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ConcurrentCamera;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
+import androidx.camera.core.DynamicRange;
+import androidx.camera.core.ExperimentalCameraInfo;
 import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.video.ExperimentalPersistentRecording;
+import androidx.camera.video.FileOutputOptions;
+import androidx.camera.video.MediaStoreOutputOptions;
+import androidx.camera.video.OutputOptions;
+import androidx.camera.video.PendingRecording;
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
+import androidx.camera.video.Recorder;
+import androidx.camera.video.Recording;
+import androidx.camera.video.RecordingStats;
+import androidx.camera.video.VideoCapabilities;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.PreviewView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
+import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.test.espresso.idling.CountingIdlingResource;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Concurrent camera activity.
  */
 public class ConcurrentCameraActivity extends AppCompatActivity {
-    private static final String TAG = "ConcurrentCameraActivity";
+    private static final String TAG = "ConcurrentCamera";
     private static final int REQUEST_CODE_PERMISSIONS = 1001;
     private static final String[] REQUIRED_PERMISSIONS = new String[] {
             "android.permission.CAMERA"
     };
+
+    // For Video Capture
+    private RecordUi mRecordUi;
+    private VideoCapture<Recorder> mVideoCapture;
+    private final CountingIdlingResource mVideoSavedIdlingResource =
+            new CountingIdlingResource("videosaved");
+    private Recording mActiveRecording;
+    private long mVideoCaptureAutoStopLength = 0;
+    private SessionMediaUriSet
+            mSessionVideosUriSet = new SessionMediaUriSet();
+    private static final Quality QUALITY_AUTO = null;
+    private Quality mVideoQuality;
 
     @NonNull private PreviewView mSinglePreviewView;
     @NonNull private PreviewView mFrontPreviewView;
@@ -87,6 +145,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     @NonNull private ToggleButton mLayoutButton;
     @NonNull private ToggleButton mToggleButton;
     @NonNull private ToggleButton mDualSelfieButton;
+    @NonNull private ToggleButton mDualRecordButton;
     @NonNull private LinearLayout mSideBySideLayout;
     @NonNull private FrameLayout mPiPLayout;
     @Nullable private ProcessCameraProvider mCameraProvider;
@@ -94,6 +153,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     private boolean mIsLayoutPiP = true;
     private boolean mIsFrontPrimary = true;
     private boolean mIsDualSelfieEnabled = false;
+    private boolean mIsDualRecordEnabled = false;
     private boolean mIsCameraPipeEnabled = false;
 
     @Override
@@ -111,6 +171,22 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         mLayoutButton = findViewById(R.id.layout_button);
         mToggleButton = findViewById(R.id.toggle_button);
         mDualSelfieButton = findViewById(R.id.dual_selfie);
+        mDualRecordButton = findViewById(R.id.dual_record);
+
+        Recorder recorder = new Recorder.Builder()
+                .setQualitySelector(QualitySelector.from(Quality.HD))
+                .build();
+        mVideoCapture = new VideoCapture.Builder<>(recorder)
+                .setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
+                .build();
+        mRecordUi = new RecordUi(
+                findViewById(R.id.Video),
+                findViewById(R.id.video_pause),
+                findViewById(R.id.video_stats),
+                findViewById(R.id.video_quality),
+                findViewById(R.id.video_persistent),
+                (newState) -> {});
+        setUpRecordButton();
 
         boolean isConcurrentCameraSupported =
                 getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT);
@@ -134,6 +210,8 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mIsConcurrentModeOn = false;
                 mIsDualSelfieEnabled = false;
                 mDualSelfieButton.setChecked(false);
+                mIsDualRecordEnabled = false;
+                mDualRecordButton.setChecked(false);
             } else {
                 mIsLayoutPiP = true;
                 bindPreviewForPiP(mCameraProvider);
@@ -165,14 +243,12 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             mIsDualSelfieEnabled = mDualSelfieButton.isChecked();
             mDualSelfieButton.setChecked(mIsDualSelfieEnabled);
         });
-        if (allPermissionsGranted()) {
-            if (mCameraProvider != null) {
-                mCameraProvider.unbindAll();
-            }
-            startCamera();
-        } else {
-            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
-        }
+        mDualRecordButton.setOnClickListener(view -> {
+            mIsDualRecordEnabled = mDualRecordButton.isChecked();
+            mDualRecordButton.setChecked(mIsDualRecordEnabled);
+        });
+
+        setupPermissions();
     }
 
     @SuppressLint("NullAnnotationGroup")
@@ -201,6 +277,9 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         mFrontPreviewViewForPip.setVisibility(VISIBLE);
         mBackPreviewViewForPip.setVisibility(GONE);
         mPiPLayout.setVisibility(VISIBLE);
+        mToggleButton.setVisibility(VISIBLE);
+        mLayoutButton.setVisibility(VISIBLE);
+        mRecordUi.hideUi();
         // Front
         mSinglePreviewView = new PreviewView(this);
         mSinglePreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
@@ -216,7 +295,9 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 this, cameraSelectorFront, previewFront);
         mDualSelfieButton.setVisibility(camera.getCameraInfo().isLogicalMultiCameraSupported()
                 ? VISIBLE : GONE);
+        mDualRecordButton.setVisibility(VISIBLE);
         mIsDualSelfieEnabled = false;
+        mIsDualRecordEnabled = false;
         setupZoomAndTapToFocus(camera, mSinglePreviewView);
     }
 
@@ -226,6 +307,14 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         mBackPreviewViewForPip.setVisibility(VISIBLE);
         mPiPLayout.setVisibility(VISIBLE);
         mDualSelfieButton.setVisibility(GONE);
+        mDualRecordButton.setVisibility(GONE);
+        if (mIsDualRecordEnabled) {
+            mRecordUi.showUi();
+        } else {
+            mRecordUi.hideUi();
+        }
+        mToggleButton.setVisibility(mIsDualRecordEnabled ? GONE : VISIBLE);
+        mLayoutButton.setVisibility(mIsDualRecordEnabled ? GONE : VISIBLE);
         if (mFrontPreviewView == null && mBackPreviewView == null) {
             // Front
             mFrontPreviewView = new PreviewView(this);
@@ -275,7 +364,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mBackPreviewView);
     }
 
-    @SuppressLint("NullAnnotationGroup")
+    @SuppressLint({"NullAnnotationGroup", "RestrictedApiAndroidX"})
     @OptIn(markerClass = {ExperimentalCamera2Interop.class, ExperimentalMirrorMode.class,
             androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop.class})
     private void bindToLifecycleForConcurrentCamera(
@@ -371,29 +460,66 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
             if (cameraSelectorPrimary == null || cameraSelectorSecondary == null) {
                 return;
             }
-            Preview previewFront = new Preview.Builder()
-                    .build();
-            previewFront.setSurfaceProvider(frontPreviewView.getSurfaceProvider());
-            SingleCameraConfig primary = new SingleCameraConfig(
-                    cameraSelectorPrimary,
-                    new UseCaseGroup.Builder()
-                            .addUseCase(previewFront)
-                            .build(),
-                    lifecycleOwner);
-            Preview previewBack = new Preview.Builder()
-                    .build();
-            previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider());
-            SingleCameraConfig secondary = new SingleCameraConfig(
-                    cameraSelectorSecondary,
-                    new UseCaseGroup.Builder()
-                            .addUseCase(previewBack)
-                            .build(),
-                    lifecycleOwner);
-            ConcurrentCamera concurrentCamera =
-                    cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
+            if (mIsDualRecordEnabled) {
+                mFrontPreviewViewForPip.removeAllViews();
+                mFrontPreviewViewForPip.addView(mSinglePreviewView);
+                mBackPreviewViewForPip.setVisibility(GONE);
+                Preview preview = new Preview.Builder()
+                        .build();
+                preview.setSurfaceProvider(mSinglePreviewView.getSurfaceProvider());
+                UseCaseGroup useCaseGroup = new UseCaseGroup.Builder()
+                        .addUseCase(preview)
+                        .addUseCase(mVideoCapture)
+                        .build();
+                // PiP
+                SingleCameraConfig primary = new SingleCameraConfig(
+                        cameraSelectorPrimary,
+                        useCaseGroup,
+                        new LayoutSettings.Builder()
+                                .setAlpha(1.0f)
+                                .setOffsetX(0.0f)
+                                .setOffsetY(0.0f)
+                                .setWidth(1.0f)
+                                .setHeight(1.0f)
+                                .build(),
+                        lifecycleOwner);
+                SingleCameraConfig secondary = new SingleCameraConfig(
+                        cameraSelectorSecondary,
+                        useCaseGroup,
+                        new LayoutSettings.Builder()
+                                .setAlpha(1.0f)
+                                .setOffsetX(-0.3f)
+                                .setOffsetY(-0.4f)
+                                .setWidth(0.3f)
+                                .setHeight(0.3f)
+                                .build(),
+                        lifecycleOwner);
+                cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
+            } else {
+                Preview previewFront = new Preview.Builder()
+                        .build();
+                previewFront.setSurfaceProvider(frontPreviewView.getSurfaceProvider());
+                SingleCameraConfig primary = new SingleCameraConfig(
+                        cameraSelectorPrimary,
+                        new UseCaseGroup.Builder()
+                                .addUseCase(previewFront)
+                                .build(),
+                        lifecycleOwner);
+                Preview previewBack = new Preview.Builder()
+                        .build();
+                previewBack.setSurfaceProvider(backPreviewView.getSurfaceProvider());
+                SingleCameraConfig secondary = new SingleCameraConfig(
+                        cameraSelectorSecondary,
+                        new UseCaseGroup.Builder()
+                                .addUseCase(previewBack)
+                                .build(),
+                        lifecycleOwner);
+                ConcurrentCamera concurrentCamera =
+                        cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
 
-            setupZoomAndTapToFocus(concurrentCamera.getCameras().get(0), frontPreviewView);
-            setupZoomAndTapToFocus(concurrentCamera.getCameras().get(1), backPreviewView);
+                setupZoomAndTapToFocus(concurrentCamera.getCameras().get(0), frontPreviewView);
+                setupZoomAndTapToFocus(concurrentCamera.getCameras().get(1), backPreviewView);
+            }
         }
     }
 
@@ -505,6 +631,452 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 this.finish();
             }
+        }
+    }
+
+    private boolean isPermissionMissing() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void setupPermissions() {
+        if (isPermissionMissing()) {
+            ActivityResultLauncher<String[]> permissionLauncher =
+                    registerForActivityResult(
+                            new ActivityResultContracts.RequestMultiplePermissions(),
+                            result -> {
+                                for (String permission : REQUIRED_PERMISSIONS) {
+                                    if (!requireNonNull(result.get(permission))) {
+                                        Toast.makeText(getApplicationContext(),
+                                                        "Camera permission denied.",
+                                                        Toast.LENGTH_SHORT)
+                                                .show();
+                                        finish();
+                                        return;
+                                    }
+                                }
+                                startCamera();
+                            });
+
+            permissionLauncher.launch(REQUIRED_PERMISSIONS);
+        } else {
+            // Permissions already granted. Start camera.
+            startCamera();
+        }
+    }
+
+    private void createDefaultVideoFolderIfNotExist() {
+        String videoFilePath =
+                getAbsolutePathFromUri(getApplicationContext().getContentResolver(),
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        if (videoFilePath == null || !createParentFolder(videoFilePath)) {
+            Log.e(TAG, "Failed to create parent directory for: " + videoFilePath);
+        }
+    }
+
+    private void resetVideoSavedIdlingResource() {
+        // Make the video saved idling resource non-idle, until required video length recorded.
+        if (mVideoSavedIdlingResource.isIdleNow()) {
+            mVideoSavedIdlingResource.increment();
+        }
+    }
+
+    private boolean isPersistentRecordingEnabled() {
+        return mRecordUi.getButtonPersistent().isChecked();
+    }
+
+    private void updateRecordingStats(@NonNull RecordingStats stats) {
+        double durationMs = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNanos());
+        // Show megabytes in International System of Units (SI)
+        double sizeMb = stats.getNumBytesRecorded() / (1000d * 1000d);
+        String msg = String.format("%.2f sec\n%.2f MB", durationMs / 1000d, sizeMb);
+        mRecordUi.getTextStats().setText(msg);
+
+        if (mVideoCaptureAutoStopLength > 0 && durationMs >= mVideoCaptureAutoStopLength
+                && mRecordUi.getState() == RecordUi.State.RECORDING) {
+            mRecordUi.getButtonRecord().callOnClick();
+        }
+    }
+
+    private void updateVideoSavedSessionData(@NonNull Uri uri) {
+        if (mSessionVideosUriSet != null) {
+            mSessionVideosUriSet.add(uri);
+        }
+
+        if (!mVideoSavedIdlingResource.isIdleNow()) {
+            mVideoSavedIdlingResource.decrement();
+        }
+    }
+
+    private final Consumer<VideoRecordEvent> mVideoRecordEventListener = event -> {
+        updateRecordingStats(event.getRecordingStats());
+
+        if (event instanceof VideoRecordEvent.Finalize) {
+            VideoRecordEvent.Finalize finalize = (VideoRecordEvent.Finalize) event;
+
+            switch (finalize.getError()) {
+                case ERROR_NONE:
+                case ERROR_FILE_SIZE_LIMIT_REACHED:
+                case ERROR_DURATION_LIMIT_REACHED:
+                case ERROR_INSUFFICIENT_STORAGE:
+                case ERROR_SOURCE_INACTIVE:
+                    Uri uri = finalize.getOutputResults().getOutputUri();
+                    OutputOptions outputOptions = finalize.getOutputOptions();
+                    String msg;
+                    String videoFilePath;
+                    if (outputOptions instanceof MediaStoreOutputOptions) {
+                        msg = "Saved uri " + uri;
+                        videoFilePath = getAbsolutePathFromUri(
+                                getApplicationContext().getContentResolver(),
+                                uri
+                        );
+                        updateVideoSavedSessionData(uri);
+                    } else if (outputOptions instanceof FileOutputOptions) {
+                        videoFilePath = ((FileOutputOptions) outputOptions).getFile().getPath();
+                        MediaScannerConnection.scanFile(this,
+                                new String[]{videoFilePath}, null,
+                                (path, uri1) -> {
+                                    Log.i(TAG, "Scanned " + path + " -> uri= " + uri1);
+                                    updateVideoSavedSessionData(uri1);
+                                });
+                        msg = "Saved file " + videoFilePath;
+                    } else {
+                        throw new AssertionError("Unknown or unsupported OutputOptions type: "
+                                + outputOptions.getClass().getSimpleName());
+                    }
+                    // The video file path is used in tracing e2e test log. Don't remove it.
+                    Log.d(TAG, "Saved video file: " + videoFilePath);
+
+                    if (finalize.getError() != ERROR_NONE) {
+                        msg += " with code (" + finalize.getError() + ")";
+                    }
+                    Log.d(TAG, msg, finalize.getCause());
+                    Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    String errMsg = "Video capture failed by (" + finalize.getError() + "): "
+                            + finalize.getCause();
+                    Log.e(TAG, errMsg, finalize.getCause());
+                    Toast.makeText(this, errMsg, Toast.LENGTH_LONG).show();
+            }
+            mRecordUi.setState(RecordUi.State.IDLE);
+        }
+    };
+
+    @NonNull
+    private static String getQualityIconName(@Nullable Quality quality) {
+        if (quality == QUALITY_AUTO) {
+            return "Auto";
+        } else if (quality == Quality.UHD) {
+            return "UHD";
+        } else if (quality == Quality.FHD) {
+            return "FHD";
+        } else if (quality == Quality.HD) {
+            return "HD";
+        } else if (quality == Quality.SD) {
+            return "SD";
+        }
+        return "?";
+    }
+
+    private static int qualityToItemId(@Nullable Quality quality) {
+        if (quality == QUALITY_AUTO) {
+            return 0;
+        } else if (quality == Quality.UHD) {
+            return 1;
+        } else if (quality == Quality.FHD) {
+            return 2;
+        } else if (quality == Quality.HD) {
+            return 3;
+        } else if (quality == Quality.SD) {
+            return 4;
+        } else {
+            throw new IllegalArgumentException("Undefined quality: " + quality);
+        }
+    }
+
+    @Nullable
+    private static Quality itemIdToQuality(int itemId) {
+        switch (itemId) {
+            case 0:
+                return QUALITY_AUTO;
+            case 1:
+                return Quality.UHD;
+            case 2:
+                return Quality.FHD;
+            case 3:
+                return Quality.HD;
+            case 4:
+                return Quality.SD;
+            default:
+                throw new IllegalArgumentException("Undefined item id: " + itemId);
+        }
+    }
+
+    @NonNull
+    private static String getQualityMenuItemName(@Nullable Quality quality) {
+        if (quality == QUALITY_AUTO) {
+            return "Auto";
+        } else if (quality == Quality.UHD) {
+            return "UHD (2160P)";
+        } else if (quality == Quality.FHD) {
+            return "FHD (1080P)";
+        } else if (quality == Quality.HD) {
+            return "HD (720P)";
+        } else if (quality == Quality.SD) {
+            return "SD (480P)";
+        }
+        return "Unknown quality";
+    }
+
+    @SuppressLint({"MissingPermission", "NullAnnotationGroup"})
+    @OptIn(markerClass = { ExperimentalCameraInfo.class, ExperimentalPersistentRecording.class})
+    private void setUpRecordButton() {
+        mRecordUi.getButtonRecord().setOnClickListener((view) -> {
+            RecordUi.State state = mRecordUi.getState();
+            switch (state) {
+                case IDLE:
+                    createDefaultVideoFolderIfNotExist();
+                    final PendingRecording pendingRecording;
+                    String fileName = "video_" + System.currentTimeMillis();
+                    String extension = "mp4";
+                    if (canDeviceWriteToMediaStore()) {
+                        // Use MediaStoreOutputOptions for public share media storage.
+                        pendingRecording = mVideoCapture.getOutput().prepareRecording(
+                                this,
+                                generateVideoMediaStoreOptions(getContentResolver(), fileName));
+                    } else {
+                        // Use FileOutputOption for devices in MediaStoreVideoCannotWrite Quirk.
+                        pendingRecording = mVideoCapture.getOutput().prepareRecording(
+                                this, generateVideoFileOutputOptions(fileName, extension));
+                    }
+
+                    resetVideoSavedIdlingResource();
+
+                    if (isPersistentRecordingEnabled()) {
+                        pendingRecording.asPersistentRecording();
+                    }
+                    mActiveRecording = pendingRecording
+                            .withAudioEnabled()
+                            .start(ContextCompat.getMainExecutor(this),
+                                    mVideoRecordEventListener);
+                    mRecordUi.setState(RecordUi.State.RECORDING);
+                    break;
+                case RECORDING:
+                case PAUSED:
+                    mActiveRecording.stop();
+                    mActiveRecording = null;
+                    mRecordUi.setState(RecordUi.State.STOPPING);
+                    break;
+                case STOPPING:
+                    // Record button should be disabled.
+                default:
+                    throw new IllegalStateException(
+                            "Unexpected state when click record button: " + state);
+            }
+        });
+
+        mRecordUi.getButtonPause().setOnClickListener(view -> {
+            RecordUi.State state = mRecordUi.getState();
+            switch (state) {
+                case RECORDING:
+                    mActiveRecording.pause();
+                    mRecordUi.setState(RecordUi.State.PAUSED);
+                    break;
+                case PAUSED:
+                    mActiveRecording.resume();
+                    mRecordUi.setState(RecordUi.State.RECORDING);
+                    break;
+                case IDLE:
+                case STOPPING:
+                    // Pause button should be invisible.
+                default:
+                    throw new IllegalStateException(
+                            "Unexpected state when click pause button: " + state);
+            }
+        });
+
+        // Final reference to this record UI
+        mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
+        mRecordUi.getButtonQuality().setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(this, view);
+            Menu menu = popup.getMenu();
+
+            // Add Auto item
+            final int groupId = Menu.NONE;
+            final int autoOrder = 0;
+            final int autoMenuId = qualityToItemId(QUALITY_AUTO);
+            menu.add(groupId, autoMenuId, autoOrder, getQualityMenuItemName(QUALITY_AUTO));
+            if (mVideoQuality == QUALITY_AUTO) {
+                menu.findItem(autoMenuId).setChecked(true);
+            }
+
+            // Add device supported qualities
+            VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(
+                    mCameraProvider.getCameraInfo(CameraSelector.DEFAULT_BACK_CAMERA));
+            List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(
+                    DynamicRange.SDR);
+            // supportedQualities has been sorted by descending order.
+            for (int i = 0; i < supportedQualities.size(); i++) {
+                Quality quality = supportedQualities.get(i);
+                int itemId = qualityToItemId(quality);
+                menu.add(groupId, itemId, autoOrder + 1 + i, getQualityMenuItemName(quality));
+                if (mVideoQuality == quality) {
+                    menu.findItem(itemId).setChecked(true);
+                }
+
+            }
+            // Make menu single checkable
+            menu.setGroupCheckable(groupId, true, true);
+
+            popup.setOnMenuItemClickListener(item -> {
+                Quality quality = itemIdToQuality(item.getItemId());
+                if (quality != mVideoQuality) {
+                    mVideoQuality = quality;
+                    mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
+                    // Quality changed, rebind UseCases
+                    startCamera();
+                }
+                return true;
+            });
+
+            popup.show();
+        });
+    }
+
+    private static class SessionMediaUriSet {
+        private final Set<Uri> mSessionMediaUris;
+
+        SessionMediaUriSet() {
+            mSessionMediaUris = Collections.synchronizedSet(new HashSet<>());
+        }
+
+        public void add(@NonNull Uri uri) {
+            mSessionMediaUris.add(uri);
+        }
+    }
+
+    @UiThread
+    private static class RecordUi {
+
+        enum State {
+            IDLE, RECORDING, PAUSED, STOPPING
+        }
+
+        private final Button mButtonRecord;
+        private final Button mButtonPause;
+        private final TextView mTextStats;
+        private final Button mButtonQuality;
+        private final ToggleButton mButtonPersistent;
+        private boolean mEnabled = false;
+        private RecordUi.State mState = RecordUi.State.IDLE;
+        private final Consumer<RecordUi.State> mNewStateConsumer;
+
+        RecordUi(@NonNull Button buttonRecord, @NonNull Button buttonPause,
+                @NonNull TextView textStats, @NonNull Button buttonQuality,
+                @NonNull ToggleButton buttonPersistent,
+                @NonNull Consumer<RecordUi.State> onNewState) {
+            mButtonRecord = buttonRecord;
+            mButtonPause = buttonPause;
+            mTextStats = textStats;
+            mButtonQuality = buttonQuality;
+            mButtonPersistent = buttonPersistent;
+            mNewStateConsumer = onNewState;
+        }
+
+        void setState(@NonNull RecordUi.State state) {
+            if (state != mState) {
+                mState = state;
+                updateUi();
+                mNewStateConsumer.accept(state);
+            }
+        }
+
+        @NonNull
+        RecordUi.State getState() {
+            return mState;
+        }
+
+        void showUi() {
+            mButtonRecord.setVisibility(VISIBLE);
+            mButtonPause.setVisibility(VISIBLE);
+            mTextStats.setVisibility(VISIBLE);
+            mButtonPersistent.setVisibility(VISIBLE);
+            mButtonQuality.setVisibility(VISIBLE);
+        }
+
+        void hideUi() {
+            mButtonRecord.setVisibility(GONE);
+            mButtonPause.setVisibility(GONE);
+            mTextStats.setVisibility(GONE);
+            mButtonPersistent.setVisibility(GONE);
+            mButtonQuality.setVisibility(GONE);
+        }
+
+        private void updateUi() {
+            if (!mEnabled) {
+                return;
+            }
+            switch (mState) {
+                case IDLE:
+                    mButtonRecord.setText("Record");
+                    mButtonRecord.setEnabled(true);
+                    mButtonPause.setText("Pause");
+                    mButtonPause.setVisibility(View.INVISIBLE);
+                    mButtonPersistent.setEnabled(true);
+                    mButtonQuality.setEnabled(true);
+                    break;
+                case RECORDING:
+                    mButtonRecord.setText("Stop");
+                    mButtonRecord.setEnabled(true);
+                    mButtonPause.setText("Pause");
+                    mButtonPause.setVisibility(View.VISIBLE);
+                    mButtonPersistent.setEnabled(false);
+                    mButtonQuality.setEnabled(false);
+                    break;
+                case STOPPING:
+                    mButtonRecord.setText("Saving");
+                    mButtonRecord.setEnabled(false);
+                    mButtonPause.setText("Pause");
+                    mButtonPause.setVisibility(View.INVISIBLE);
+                    mButtonPersistent.setEnabled(false);
+                    mButtonQuality.setEnabled(true);
+                    break;
+                case PAUSED:
+                    mButtonRecord.setText("Stop");
+                    mButtonRecord.setEnabled(true);
+                    mButtonPause.setText("Resume");
+                    mButtonPause.setVisibility(View.VISIBLE);
+                    mButtonPersistent.setEnabled(false);
+                    mButtonQuality.setEnabled(true);
+                    break;
+            }
+        }
+
+        Button getButtonRecord() {
+            return mButtonRecord;
+        }
+
+        Button getButtonPause() {
+            return mButtonPause;
+        }
+
+        TextView getTextStats() {
+            return mTextStats;
+        }
+
+        @NonNull
+        Button getButtonQuality() {
+            return mButtonQuality;
+        }
+
+        ToggleButton getButtonPersistent() {
+            return mButtonPersistent;
         }
     }
 }
