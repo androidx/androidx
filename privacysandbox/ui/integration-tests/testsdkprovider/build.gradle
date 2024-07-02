@@ -43,6 +43,5 @@ dependencies {
     implementation project(':privacysandbox:ui:ui-core')
     implementation project(':privacysandbox:ui:ui-provider')
     implementation project(':privacysandbox:sdkruntime:sdkruntime-client')
-    implementation project(':privacysandbox:ui:ui-client')
     implementation project(':webkit:webkit')
 }
