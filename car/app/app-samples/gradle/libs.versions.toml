@@ -1,0 +1,26 @@
+[versions]
+java = "17"
+kotlin = "2.0.0"
+gradle = "8.4.2"
+androidGradlePlugin = "8.4.2"
+androidx-annotation-experimental = "1.4.1"
+androidx-core = "1.13.1"
+androidx-car = "1.7.0-beta01"
+androidx-constraintlayout = "2.1.4"
+core-ktx = "1.13.1"
+
+[libraries]
+androidx-car-app = { module = "androidx.car.app:app", version.ref = "androidx-car" }
+androidx-app-automotive = { module = "androidx.car.app:app-automotive", version.ref = "androidx-car" }
+androidx-app-projected = { module = "androidx.car.app:app-projected", version.ref = "androidx-car" }
+androidx-annotation-experimental = { module = "androidx.annotation:annotation-experimental", version.ref = "androidx-annotation-experimental" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
+androidx-core = { module = "androidx.core:core", version.ref = "androidx-core" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
+
+
+[plugins]
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
