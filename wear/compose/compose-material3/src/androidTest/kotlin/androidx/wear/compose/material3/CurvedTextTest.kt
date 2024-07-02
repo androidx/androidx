@@ -30,6 +30,7 @@ import androidx.test.filters.SmallTest
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.material3.tokens.TypographyTokens
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,6 +89,27 @@ class CurvedTextTest {
                             text = testText,
                         )
                     }
+                }
+            }
+        }
+
+        rule
+            .onNodeWithContentDescription(testText)
+            .captureToImage()
+            .assertContainsColor(Color.Yellow)
+    }
+
+    @Test
+    fun uses_ArcMedium_style() {
+        rule.setContent {
+            MaterialTheme(
+                typography =
+                    Typography(arcMedium = TypographyTokens.ArcMedium.copy(color = Color.Yellow))
+            ) {
+                CurvedLayout {
+                    curvedText(
+                        text = testText,
+                    )
                 }
             }
         }
