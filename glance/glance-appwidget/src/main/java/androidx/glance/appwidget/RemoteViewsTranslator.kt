@@ -24,7 +24,6 @@ import android.util.SizeF
 import android.view.Gravity
 import android.view.View
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -93,7 +92,6 @@ private val Context.isRtl: Boolean
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object Api31Impl {
-    @DoNotInline
     fun createRemoteViews(sizeMap: Map<SizeF, RemoteViews>): RemoteViews = RemoteViews(sizeMap)
 }
 
@@ -469,12 +467,11 @@ private fun RemoteViews.copy(): RemoteViews =
 
 @RequiresApi(Build.VERSION_CODES.P)
 private object RemoteViewsTranslatorApi28Impl {
-    @DoNotInline fun copyRemoteViews(rv: RemoteViews) = RemoteViews(rv)
+    fun copyRemoteViews(rv: RemoteViews) = RemoteViews(rv)
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object RemoteViewsTranslatorApi31Impl {
-    @DoNotInline
     fun addChildView(rv: RemoteViews, viewId: Int, childView: RemoteViews, stableId: Int) {
         rv.addStableView(viewId, childView, stableId)
     }

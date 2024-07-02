@@ -73,7 +73,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.ArraySet;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -470,18 +469,15 @@ class MediaRouter2Utils {
     @RequiresApi(api = 34)
     private static final class Api34Impl {
 
-        @DoNotInline
         public static void setDeduplicationIds(
                 MediaRoute2Info.Builder builder, Set<String> deduplicationIds) {
             builder.setDeduplicationIds(deduplicationIds);
         }
 
-        @DoNotInline
         public static Set<String> getDeduplicationIds(MediaRoute2Info fwkMediaRoute2Info) {
             return fwkMediaRoute2Info.getDeduplicationIds();
         }
 
-        @DoNotInline
         public static void copyDescriptorVisibilityToBuilder(MediaRoute2Info.Builder builder,
                 MediaRouteDescriptor descriptor) {
             if (descriptor.isVisibilityPublic()) {
@@ -491,12 +487,10 @@ class MediaRouter2Utils {
             }
         }
 
-        @DoNotInline
         public static void setDeviceType(MediaRoute2Info.Builder builder, int deviceType) {
             builder.setType(deviceType);
         }
 
-        @DoNotInline
         public static int getType(MediaRoute2Info fwkMediaRoute2Info) {
             return fwkMediaRoute2Info.getType();
         }

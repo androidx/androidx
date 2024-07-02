@@ -20,14 +20,12 @@ import android.os.Build
 import android.os.Parcel
 import android.os.SharedMemory
 import android.system.OsConstants
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /** Internal class to ensure calls to shared memory are guarded, so that */
 @RequiresApi(api = Build.VERSION_CODES.O_MR1)
 internal object SharedMemory27Impl {
     /** Flattens `bytes` into `dest` using [SharedMemory]. */
-    @DoNotInline
     fun writeToParcelUsingSharedMemory(name: String, bytes: ByteArray, dest: Parcel, flags: Int) {
         SharedMemory.create(name, bytes.size).use { memory ->
             memory.setProtect(OsConstants.PROT_READ or OsConstants.PROT_WRITE)
@@ -37,7 +35,6 @@ internal object SharedMemory27Impl {
         }
     }
 
-    @DoNotInline
     fun <U : Any> parseParcelUsingSharedMemory(source: Parcel, parser: (ByteArray) -> U): U =
         SharedMemory.CREATOR.createFromParcel(source).use { memory ->
             val buffer = memory.mapReadOnly()

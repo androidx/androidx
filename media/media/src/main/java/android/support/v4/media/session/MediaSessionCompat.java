@@ -65,7 +65,6 @@ import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -2281,17 +2280,14 @@ public class MediaSessionCompat {
         private static class Api21Impl {
             private Api21Impl() {}
 
-            @DoNotInline
             static MediaSession.QueueItem createQueueItem(MediaDescription description, long id) {
                 return new MediaSession.QueueItem(description, id);
             }
 
-            @DoNotInline
             static MediaDescription getDescription(MediaSession.QueueItem queueItem) {
                 return queueItem.getDescription();
             }
 
-            @DoNotInline
             static long getQueueId(MediaSession.QueueItem queueItem) {
                 return queueItem.getQueueId();
             }

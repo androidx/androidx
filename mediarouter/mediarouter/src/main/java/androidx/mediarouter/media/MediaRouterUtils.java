@@ -16,7 +16,6 @@
 
 package androidx.mediarouter.media;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 
 /** Utils for usage with platform {@link android.media.MediaRouter} */
@@ -28,7 +27,6 @@ class MediaRouterUtils {
         return new CallbackProxy<>(callback);
     }
 
-    @DoNotInline
     public static android.media.MediaRouter.VolumeCallback createVolumeCallback(
             VolumeCallback callback) {
         return new VolumeCallbackProxy<>(callback);

@@ -33,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetFileDescriptor;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -618,7 +617,6 @@ public final class ProfileVerifier {
         private Api33Impl() {
         }
 
-        @DoNotInline
         static PackageInfo getPackageInfo(
                 PackageManager packageManager,
                 Context context) throws PackageManager.NameNotFoundException {

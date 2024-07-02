@@ -24,7 +24,6 @@ import android.os.Build
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.glance.session.GlanceSessionManager
@@ -227,7 +226,6 @@ private class RemoteCollectionItemsInMemoryStore {
  * GlanceRemoteViewsService using an intent.
  */
 @Suppress("DEPRECATION")
-@DoNotInline
 internal fun RemoteViews.setRemoteAdapter(
     context: Context,
     appWidgetId: Int,
@@ -258,12 +256,10 @@ internal fun RemoteViews.setRemoteAdapter(
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object CollectionItemsApi31Impl {
-    @DoNotInline
     fun setRemoteAdapter(remoteViews: RemoteViews, viewId: Int, items: RemoteCollectionItems) {
         remoteViews.setRemoteAdapter(viewId, toPlatformCollectionItems(items))
     }
 
-    @DoNotInline
     fun toPlatformCollectionItems(items: RemoteCollectionItems): RemoteViews.RemoteCollectionItems {
         return RemoteViews.RemoteCollectionItems.Builder()
             .setHasStableIds(items.hasStableIds())

@@ -24,7 +24,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -108,7 +107,6 @@ public class PreferenceCategory extends PreferenceGroup {
 
     @RequiresApi(28)
     private static class Api28Impl {
-        @DoNotInline
         static void setAccessibilityHeading(@NonNull View view, boolean isHeading) {
             view.setAccessibilityHeading(isHeading);
         }

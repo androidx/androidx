@@ -27,7 +27,6 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.SizeF
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
@@ -194,13 +193,11 @@ object Tracing {
 
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object TracingApi29Impl {
-    @DoNotInline
     fun beginAsyncSection(
         methodName: String,
         cookie: Int,
     ) = Trace.beginAsyncSection(methodName, cookie)
 
-    @DoNotInline
     fun endAsyncSection(
         methodName: String,
         cookie: Int,

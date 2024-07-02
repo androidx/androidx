@@ -17,7 +17,6 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.app.sdksandbox.SandboxedSdk
 import android.os.IBinder
-import androidx.annotation.DoNotInline
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -100,18 +99,16 @@ class SandboxedSdkCompat private constructor(private val sdkImpl: SandboxedSdkIm
 
         fun getSdkInfo(): SandboxedSdkInfo?
 
-        @RequiresApi(34) @DoNotInline fun toSandboxedSdk(): SandboxedSdk
+        @RequiresApi(34) fun toSandboxedSdk(): SandboxedSdk
     }
 
     @RequiresApi(34)
     private open class Api34Impl(protected val sandboxedSdk: SandboxedSdk) : SandboxedSdkImpl {
 
-        @DoNotInline
         override fun getInterface(): IBinder? {
             return sandboxedSdk.getInterface()
         }
 
-        @DoNotInline
         override fun getSdkInfo(): SandboxedSdkInfo {
             val sharedLibraryInfo = sandboxedSdk.sharedLibraryInfo
             return SandboxedSdkInfo(
@@ -120,13 +117,11 @@ class SandboxedSdkCompat private constructor(private val sdkImpl: SandboxedSdkIm
             )
         }
 
-        @DoNotInline
         override fun toSandboxedSdk(): SandboxedSdk {
             return sandboxedSdk
         }
 
         companion object {
-            @DoNotInline
             fun createSandboxedSdk(sdkInterface: IBinder): SandboxedSdk {
                 return SandboxedSdk(sdkInterface)
             }

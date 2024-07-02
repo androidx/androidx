@@ -20,7 +20,6 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.util.Log
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -160,7 +159,6 @@ private fun setImageViewIcon(rv: RemoteViews, viewId: Int, provider: IconImagePr
 
 @RequiresApi(Build.VERSION_CODES.M)
 private object ImageTranslatorApi23Impl {
-    @DoNotInline
     fun setImageViewIcon(rv: RemoteViews, viewId: Int, icon: Icon) {
         rv.setImageViewIcon(viewId, icon)
     }
@@ -168,7 +166,6 @@ private object ImageTranslatorApi23Impl {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object ImageTranslatorApi31Impl {
-    @DoNotInline
     fun applyTintColorFilter(
         translationContext: TranslationContext,
         rv: RemoteViews,

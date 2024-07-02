@@ -19,7 +19,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 class FragmentUtil {
@@ -39,7 +38,6 @@ class FragmentUtil {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Context getContext(Fragment fragment) {
             return fragment.getContext();
         }

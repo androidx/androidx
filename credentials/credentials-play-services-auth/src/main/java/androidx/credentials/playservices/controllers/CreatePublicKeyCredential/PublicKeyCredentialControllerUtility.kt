@@ -24,7 +24,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Base64
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
@@ -599,8 +598,6 @@ internal class PublicKeyCredentialControllerUtility {
 
     @RequiresApi(28)
     private object GetGMSVersion {
-        @JvmStatic
-        @DoNotInline
-        fun getVersionLong(info: PackageInfo): Long = info.getLongVersionCode()
+        @JvmStatic fun getVersionLong(info: PackageInfo): Long = info.getLongVersionCode()
     }
 }

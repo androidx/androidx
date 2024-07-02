@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.ReportFragment.Companion.reportFragment
@@ -189,7 +188,6 @@ class ProcessLifecycleOwner private constructor() : LifecycleOwner {
 
     @RequiresApi(29)
     internal object Api29Impl {
-        @DoNotInline
         @JvmStatic
         fun registerActivityLifecycleCallbacks(
             activity: Activity,

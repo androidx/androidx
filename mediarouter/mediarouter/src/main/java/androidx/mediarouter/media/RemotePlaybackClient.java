@@ -25,7 +25,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -1070,7 +1069,6 @@ public class RemotePlaybackClient {
 
     @RequiresApi(33)
     private static class Api33 {
-        @DoNotInline
         static void registerReceiver(@NonNull Context context, @NonNull BroadcastReceiver receiver,
                 @NonNull IntentFilter filter, int flags) {
             context.registerReceiver(receiver, filter, flags);

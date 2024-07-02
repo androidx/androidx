@@ -31,7 +31,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.mediarouter.R;
@@ -533,7 +532,6 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
             }
         }
 
-        @DoNotInline
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
                 MediaRouteDescriptor.Builder builder) {
             int supportedTypes = record.mRoute.getSupportedTypes();
@@ -590,18 +588,15 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
             }
         }
 
-        @DoNotInline
         protected void selectRoute(android.media.MediaRouter.RouteInfo route) {
             mRouter.selectRoute(ALL_ROUTE_TYPES, route);
         }
 
-        @DoNotInline
         protected android.media.MediaRouter.RouteInfo getDefaultRoute() {
             return mRouter.getDefaultRoute();
         }
 
         @SuppressLint("WrongConstant") // False positive. See b/310913043.
-        @DoNotInline
         protected void updateUserRouteProperties(UserRouteRecord record) {
             android.media.MediaRouter.UserRouteInfo userRoute = record.mUserRoute;
             MediaRouter.RouteInfo routeInfo = record.mRoute;
@@ -614,7 +609,6 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
             userRoute.setDescription(routeInfo.getDescription());
         }
 
-        @DoNotInline
         protected void updateCallback() {
             if (mCallbackRegistered) {
                 mRouter.removeCallback(mCallback);
@@ -626,7 +620,6 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
             mRouter.addCallback(mRouteTypes, mCallback, flags);
         }
 
-        @DoNotInline
         protected boolean isConnecting(SystemRouteRecord record) {
             return record.mRoute.isConnecting();
         }
@@ -691,7 +684,6 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
 
         @SuppressLint("WrongConstant") // False positive. See b/283059575.
         @Override
-        @DoNotInline
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
                 MediaRouteDescriptor.Builder builder) {
             super.onBuildSystemRouteDescriptor(record, builder);

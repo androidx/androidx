@@ -22,7 +22,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Choreographer;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.startup.Initializer;
@@ -150,7 +149,6 @@ public class ProfileInstallerInitializer
         }
 
         // avoid aligning with vsync when available (API 28+)
-        @DoNotInline
         public static Handler createAsync(Looper looper) {
             return Handler.createAsync(looper);
         }
