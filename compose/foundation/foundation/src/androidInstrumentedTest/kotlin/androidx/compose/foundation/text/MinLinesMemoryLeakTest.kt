@@ -16,9 +16,7 @@
 
 package androidx.compose.foundation.text
 
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.LargeTest
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
@@ -36,21 +34,19 @@ class MinLinesMemoryLeakTest(private val numLines: Int) {
         fun data() = arrayOf(1, 2, 100) // potential when numLines greater than 1
     }
 
-    private val activityScenarioRule = ActivityScenarioRule(ComponentActivity::class.java)
+    private val composeTestRule = createComposeRule()
 
     @get:Rule
     val ruleChain: RuleChain =
-        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(activityScenarioRule)
+        RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(composeTestRule)
 
     @Test
     fun MinLinesMemoryLeakTest() {
-        activityScenarioRule.scenario.onActivity { activity ->
-            activity.setContent {
-                BasicText(
-                    text = "Lorem ipsum dolor sit amet.",
-                    minLines = numLines, // Set this to a non-default value (potential leak)
-                )
-            }
+        composeTestRule.setContent {
+            BasicText(
+                text = "Lorem ipsum dolor sit amet.",
+                minLines = numLines, // Set this to a non-default value (potential leak)
+            )
         }
     }
 }
