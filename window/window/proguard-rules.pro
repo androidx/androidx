@@ -29,3 +29,12 @@
 -keep,allowshrinking class androidx.window.layout.adapter.extensions.MulticastConsumer {
   void accept(androidx.window.extensions.layout.WindowLayoutInfo);
 }
+-keep interface androidx.window.reflection.Consumer2 {
+  public void accept(***);
+}
+-keep interface androidx.window.reflection.Predicate2 {
+  public boolean test(***);
+}
+-keep interface androidx.window.reflection.JFunction2 {
+  public *** apply(***);
+}

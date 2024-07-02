@@ -55,6 +55,10 @@ android {
         }
         release {
             minifyEnabled true
+            applicationIdSuffix ".release"
+        }
+        debug {
+            applicationIdSuffix ".debug"
         }
     }
     compileOptions {
