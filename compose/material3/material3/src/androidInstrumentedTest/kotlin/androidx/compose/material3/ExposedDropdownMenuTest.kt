@@ -346,7 +346,7 @@ class ExposedDropdownMenuTest {
                     ) {
                         TextField(
                             modifier =
-                                Modifier.menuAnchor(MenuAnchorType.PrimaryEditable)
+                                Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
                                     .then(
                                         if (index == testIndex)
                                             Modifier.testTag(TFTag).onSizeChanged {
@@ -433,7 +433,8 @@ class ExposedDropdownMenuTest {
                     onExpandedChange = {},
                 ) {
                     TextField(
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                        modifier =
+                            Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                         readOnly = true,
                         value = "",
                         onValueChange = {},
@@ -517,7 +518,8 @@ class ExposedDropdownMenuTest {
 
                 ExposedDropdownMenuBox(expanded = true, onExpandedChange = {}) {
                     TextField(
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
+                        modifier =
+                            Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                         value = "",
                         onValueChange = {},
                         label = { Text("Label") },
@@ -560,7 +562,8 @@ class ExposedDropdownMenuTest {
                                                 onValueChange = {},
                                                 modifier =
                                                     Modifier.menuAnchor(
-                                                        MenuAnchorType.PrimaryEditable
+                                                        ExposedDropdownMenuAnchorType
+                                                            .PrimaryEditable
                                                     ),
                                             )
                                             ExposedDropdownMenu(
@@ -602,7 +605,8 @@ class ExposedDropdownMenuTest {
                 ) {
                     scrollState = rememberScrollState()
                     TextField(
-                        modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryEditable),
+                        modifier =
+                            Modifier.menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                         value = "",
                         onValueChange = {},
                         label = { Text("Label") },
@@ -751,9 +755,9 @@ class ExposedDropdownMenuTest {
                             .menuAnchor(
                                 type =
                                     if (editable) {
-                                        MenuAnchorType.PrimaryEditable
+                                        ExposedDropdownMenuAnchorType.PrimaryEditable
                                     } else {
-                                        MenuAnchorType.PrimaryNotEditable
+                                        ExposedDropdownMenuAnchorType.PrimaryNotEditable
                                     },
                                 enabled = enabled,
                             )
