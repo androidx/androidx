@@ -26,6 +26,7 @@ import android.util.Rational
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
@@ -52,6 +53,7 @@ import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
+import androidx.camera.core.impl.PreviewConfig
 import androidx.camera.core.impl.RestrictedCameraControl
 import androidx.camera.core.impl.RestrictedCameraInfo
 import androidx.camera.core.impl.SessionProcessor
@@ -60,6 +62,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter.CameraException
+import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.streamsharing.StreamSharing
 import androidx.camera.testing.fakes.FakeCamera
@@ -205,10 +208,35 @@ class CameraUseCaseAdapterTest {
     }
 
     @Test
-    fun addUseCases_updateExistingUseCases() {
+    fun addUseCases_notUpdateExistingUseCasesIfOptionNotChanged() {
         // Arrange.
         adapter.addUseCases(setOf(preview))
         adapter.attachUseCases()
+
+        // Act.
+        adapter.addUseCases(setOf(video))
+
+        // Assert.
+        assertThat(fakeCamera.useCaseUpdateHistory).doesNotContain(preview)
+    }
+
+    @Test
+    fun addUseCases_updateExistingUseCasesWhenOptionChanged() {
+        // Arrange.
+        adapter.addUseCases(setOf(preview))
+        adapter.attachUseCases()
+
+        // Intentionally modify the implementation options for preview so that an update of use case
+        // will be triggered.
+        val optionsBundle = MutableOptionsBundle.create()
+        optionsBundle.insertOption(OPTION_TARGET_NAME, "fakeName")
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec(
+            CAMERA_ID,
+            PreviewConfig::class.java,
+            StreamSpec.builder(Size(1920, 1080))
+                .setImplementationOptions(Camera2ImplConfig(optionsBundle))
+                .build()
+        )
 
         // Act.
         adapter.addUseCases(setOf(video))
