@@ -444,9 +444,14 @@ public class SplitActivityBase extends EdgeToEdgeActivity
 
         final DividerAttributes dividerAttributes;
         if (mViewBinding.dividerCheckBox.isChecked()) {
-            dividerAttributes = mViewBinding.draggableDividerCheckBox.isChecked()
-                    ? new DraggableDividerAttributes.Builder().setWidthDp(1).build()
-                    : new FixedDividerAttributes.Builder().setWidthDp(1).build();
+            if (mViewBinding.draggableDividerCheckBox.isChecked()) {
+                dividerAttributes = new DraggableDividerAttributes.Builder()
+                        .setWidthDp(1)
+                        .setDraggingToFullscreenAllowed(true)
+                        .build();
+            } else {
+                dividerAttributes = new FixedDividerAttributes.Builder().setWidthDp(1).build();
+            }
         } else {
             dividerAttributes = DividerAttributes.NO_DIVIDER;
         }
