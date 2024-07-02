@@ -1030,18 +1030,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     { // Listen to searchModel.
         mSearchQueryObserver =
-                new ValueObserver<String>() {
-                    @Override
-                    public void onChange(String oldQuery, String newQuery) {
-                        mPaginatedView.clearAllOverlays();
-                    }
-
-                    @NonNull
-                    @Override
-                    public String toString() {
-                        return TAG + "#searchQueryObserver";
-                    }
-                };
+                new SearchQueryObserver(mPaginatedView);
 
         mSelectedMatchObserver =
                 new ValueObserver<SelectedMatch>() {
@@ -1195,7 +1184,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             return true;
         }
 
-        /** */
+        /**  */
         public void gotoPageDest(@NonNull GotoLinkDestination destination) {
 
             if (destination.getPageNumber() >= mPaginationModel.getSize()) {
