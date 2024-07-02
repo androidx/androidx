@@ -1033,6 +1033,329 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
+    fun prependYieldsToRecyclerView() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val listUpdateCapture = ListUpdateCapture { event -> events.add(event.toString()) }
+            val asyncDiffer =
+                AsyncPagingDataDiffer(
+                    diffCallback =
+                        object : DiffUtil.ItemCallback<Int>() {
+                            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+
+                            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+                        },
+                    // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                    // main tasks run without queueing, we need this to simulate real life order of
+                    // events
+                    mainDispatcher = mainDispatcher,
+                    updateCallback = listUpdateCapture,
+                    workerDispatcher = backgroundScope.coroutineContext
+                )
+
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 5,
+                            enablePlaceholders = false,
+                            prefetchDistance = 3,
+                            initialLoadSize = 10,
+                        ),
+                    initialKey = 30
+                ) {
+                    TestPagingSource(loadDelay = 0)
+                }
+
+            val collectPager =
+                launch(mainDispatcher) { pager.flow.collectLatest { asyncDiffer.submitData(it) } }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly("Inserted(position=0, count=10)")
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(3)
+                asyncDiffer.getItem(2) // this triggers prepend
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // make sure the prepend was not processed until RV is done with layouts
+            assertThat(events)
+                .containsExactly(
+                    "start dispatchLayout",
+                    "end dispatchLayout",
+                    "Inserted(position=0, count=5)"
+                )
+                .inOrder()
+            collectPager.cancel()
+        }
+    }
+
+    @Test
+    fun appendYieldsToRecyclerView() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val listUpdateCapture = ListUpdateCapture { event -> events.add(event.toString()) }
+            val asyncDiffer =
+                AsyncPagingDataDiffer(
+                    diffCallback =
+                        object : DiffUtil.ItemCallback<Int>() {
+                            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+
+                            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+                        },
+                    // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                    // main tasks run without queueing, we need this to simulate real life order of
+                    // events
+                    mainDispatcher = mainDispatcher,
+                    updateCallback = listUpdateCapture,
+                    workerDispatcher = backgroundScope.coroutineContext
+                )
+
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 5,
+                            enablePlaceholders = false,
+                            prefetchDistance = 3,
+                            initialLoadSize = 10,
+                        ),
+                ) {
+                    TestPagingSource(loadDelay = 0)
+                }
+
+            val collectPager =
+                launch(mainDispatcher) { pager.flow.collectLatest { asyncDiffer.submitData(it) } }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly("Inserted(position=0, count=10)")
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(6)
+                asyncDiffer.getItem(7) // this triggers append
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // make sure the append was not processed until RV is done with layouts
+            assertThat(events)
+                .containsExactly(
+                    "start dispatchLayout",
+                    "end dispatchLayout",
+                    "Inserted(position=10, count=5)"
+                )
+                .inOrder()
+            collectPager.cancel()
+        }
+    }
+
+    @Test
+    fun dropPrependYieldsToRecyclerView() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val listUpdateCapture = ListUpdateCapture { event -> events.add(event.toString()) }
+            val asyncDiffer =
+                AsyncPagingDataDiffer(
+                    diffCallback =
+                        object : DiffUtil.ItemCallback<Int>() {
+                            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+
+                            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+                        },
+                    // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                    // main tasks run without queueing, we need this to simulate real life order of
+                    // events
+                    mainDispatcher = mainDispatcher,
+                    updateCallback = listUpdateCapture,
+                    workerDispatcher = backgroundScope.coroutineContext
+                )
+
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 5,
+                            enablePlaceholders = false,
+                            prefetchDistance = 3,
+                            initialLoadSize = 10,
+                            maxSize = 16
+                        ),
+                    initialKey = 30,
+                ) {
+                    TestPagingSource(loadDelay = 0)
+                }
+
+            val collectPager =
+                launch(mainDispatcher) { pager.flow.collectLatest { asyncDiffer.submitData(it) } }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly("Inserted(position=0, count=10)")
+            events.clear()
+
+            // trigger a prepend that will be dropped later
+            asyncDiffer.getItem(0)
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly("Inserted(position=0, count=5)")
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(11)
+                // this triggers append which will cause prepend to drop
+                asyncDiffer.getItem(12)
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // make sure the append was not processed until RV is done with layouts
+            assertThat(events)
+                .containsExactly(
+                    "start dispatchLayout",
+                    "end dispatchLayout",
+                    "Removed(position=0, count=5)", // drop prepend
+                    "Inserted(position=10, count=5)" // append
+                )
+                .inOrder()
+            collectPager.cancel()
+        }
+    }
+
+    @Test
+    fun dropAppendYieldsToRecyclerView() {
+        Dispatchers.resetMain() // reset MainDispatcherRule
+        // collection on immediate dispatcher to simulate real lifecycle dispatcher
+        val mainDispatcher = Dispatchers.Main.immediate
+        runTest {
+            val events = mutableListOf<String>()
+            val listUpdateCapture = ListUpdateCapture { event -> events.add(event.toString()) }
+            val asyncDiffer =
+                AsyncPagingDataDiffer(
+                    diffCallback =
+                        object : DiffUtil.ItemCallback<Int>() {
+                            override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+
+                            override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                                return oldItem == newItem
+                            }
+                        },
+                    // override default Dispatcher.Main with Dispatchers.main.immediate so that
+                    // main tasks run without queueing, we need this to simulate real life order of
+                    // events
+                    mainDispatcher = mainDispatcher,
+                    updateCallback = listUpdateCapture,
+                    workerDispatcher = backgroundScope.coroutineContext
+                )
+
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(
+                            pageSize = 5,
+                            enablePlaceholders = false,
+                            prefetchDistance = 3,
+                            initialLoadSize = 10,
+                            maxSize = 16
+                        ),
+                    initialKey = 30,
+                ) {
+                    TestPagingSource(loadDelay = 0)
+                }
+
+            val collectPager =
+                launch(mainDispatcher) { pager.flow.collectLatest { asyncDiffer.submitData(it) } }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly("Inserted(position=0, count=10)")
+            events.clear()
+
+            // trigger a prepend that will be dropped later
+            asyncDiffer.getItem(9)
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            assertThat(events).containsExactly("Inserted(position=10, count=5)")
+            events.clear()
+
+            // Simulate RV dispatching layout which calls multi onBind --> getItem. LoadStateUpdates
+            // from upstream should yield until dispatch layout completes or else
+            // LoadState-based RV updates will crash. See original bug b/150162465.
+            withContext(mainDispatcher) {
+                events.add("start dispatchLayout")
+                asyncDiffer.getItem(3)
+                // this triggers prepend which will cause append to drop
+                asyncDiffer.getItem(2)
+                events.add("end dispatchLayout")
+            }
+
+            // wait till we get all expected events
+            asyncDiffer.loadStateFlow.awaitNotLoading()
+
+            // make sure the append was not processed until RV is done with layouts
+            assertThat(events)
+                .containsExactly(
+                    "start dispatchLayout",
+                    "end dispatchLayout",
+                    "Removed(position=10, count=5)", // drop append
+                    "Inserted(position=0, count=5)" // prepend
+                )
+                .inOrder()
+            collectPager.cancel()
+        }
+    }
+
+    @Test
     fun loadStateListenerYieldsToGetItem() {
         Dispatchers.resetMain() // reset MainDispatcherRule
         // collection on immediate dispatcher to simulate real lifecycle dispatcher
