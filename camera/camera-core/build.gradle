@@ -41,6 +41,7 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
+    implementation("androidx.tracing:tracing:1.2.0")
     implementation(libs.autoValueAnnotations)
     androidTestImplementation project(path: ':camera:camera-camera2')
     compileOnly(project(":external:libyuv"))
