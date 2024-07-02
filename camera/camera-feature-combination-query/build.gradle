@@ -41,7 +41,7 @@ android {
         enable 'CameraXQuirksClassDetector'
     }
 
-    compileSdkPreview "VanillaIceCream"
+    compileSdk 35
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.camera.featurecombinationquery"
 }
