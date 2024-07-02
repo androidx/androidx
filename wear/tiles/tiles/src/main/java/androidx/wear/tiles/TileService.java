@@ -28,7 +28,6 @@ import android.os.OutcomeReceiver;
 import android.os.RemoteException;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -684,7 +683,6 @@ public abstract class TileService extends Service {
 
     @RequiresApi(34)
     private static class Api34Impl {
-        @DoNotInline
         @NonNull
         static ListenableFuture<List<ActiveTileIdentifier>> getActiveTilesAsync(
                 @NonNull TilesManager tilesManager, @NonNull Executor executor) {

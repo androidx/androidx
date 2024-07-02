@@ -28,7 +28,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.GridView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -2128,7 +2127,6 @@ public class GridLayoutManager extends LinearLayoutManager {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isAccessibilityFocused(@NonNull View view) {
             return view.isAccessibilityFocused();
         }

@@ -23,7 +23,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -41,7 +40,6 @@ public class ApiHelperForO {
     /**
      * @see WebSettings#setSafeBrowsingEnabled(boolean)
      */
-    @DoNotInline
     public static void setSafeBrowsingEnabled(@NonNull WebSettings webSettings, boolean b) {
         webSettings.setSafeBrowsingEnabled(b);
     }
@@ -49,7 +47,6 @@ public class ApiHelperForO {
     /**
      * @see WebSettings#getSafeBrowsingEnabled()
      */
-    @DoNotInline
     public static boolean getSafeBrowsingEnabled(@NonNull WebSettings webSettings) {
         return webSettings.getSafeBrowsingEnabled();
     }
@@ -57,7 +54,6 @@ public class ApiHelperForO {
     /**
      * @see WebView#getWebViewClient()
      */
-    @DoNotInline
     @Nullable
     public static WebViewClient getWebViewClient(@NonNull WebView webView) {
         return webView.getWebViewClient();
@@ -66,7 +62,6 @@ public class ApiHelperForO {
     /**
      * @see WebView#getWebChromeClient()
      */
-    @DoNotInline
     @Nullable
     public static WebChromeClient getWebChromeClient(@NonNull WebView webView) {
         return webView.getWebChromeClient();
@@ -75,7 +70,6 @@ public class ApiHelperForO {
     /**
      * @see WebView#getCurrentWebViewPackage()
      */
-    @DoNotInline
     @NonNull
     public static PackageInfo getCurrentWebViewPackage() {
         return WebView.getCurrentWebViewPackage();

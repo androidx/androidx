@@ -16,7 +16,6 @@
 
 package androidx.tracing;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -38,7 +37,6 @@ final class TraceApi29Impl {
     /**
      * Checks whether or not tracing is currently enabled.
      */
-    @DoNotInline
     public static boolean isEnabled() {
         return android.os.Trace.isEnabled();
     }

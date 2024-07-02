@@ -42,7 +42,6 @@ import android.os.RemoteException;
 import android.os.StrictMode;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -728,7 +727,6 @@ public class SliceProviderCompat {
                 // This class is not instantiable.
             }
 
-            @DoNotInline
             static void close(ContentProviderClient contentProviderClient) {
                 contentProviderClient.close();
             }

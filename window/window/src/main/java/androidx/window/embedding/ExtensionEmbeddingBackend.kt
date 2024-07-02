@@ -23,7 +23,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -385,7 +384,6 @@ constructor(
 
     @RequiresApi(31)
     private object Api31Impl {
-        @DoNotInline
         fun isSplitPropertyEnabled(context: Context): SplitController.SplitSupportStatus {
             val property =
                 try {

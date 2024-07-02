@@ -47,7 +47,6 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -772,17 +771,14 @@ public class MainActivity extends AppCompatActivity {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean canDrawOverlays(Context context) {
             return Settings.canDrawOverlays(context);
         }
 
-        @DoNotInline
         static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
             return activity.shouldShowRequestPermissionRationale(permission);
         }
 
-        @DoNotInline
         static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
             activity.requestPermissions(permissions, requestCode);
         }

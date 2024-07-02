@@ -29,7 +29,6 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -123,19 +122,16 @@ class NumberFormatter {
     @RequiresApi(VERSION_CODES.R)
     private static class Api30Impl {
         @NonNull
-        @DoNotInline
         static String callFormatToString(LocalizedNumberFormatter mFmt, int value) {
             return mFmt.format(value).toString();
         }
 
         @NonNull
-        @DoNotInline
         static String callFormatToString(LocalizedNumberFormatter mFmt, float value) {
             return mFmt.format(value).toString();
         }
 
         @NonNull
-        @DoNotInline
         static LocalizedNumberFormatter buildLocalizedNumberFormatter(
                 int minIntegerDigits,
                 int minFractionDigits,

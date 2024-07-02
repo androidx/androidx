@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.FrameLayout;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -205,7 +204,6 @@ class GhostViewHolder extends FrameLayout {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static float getZ(View view) {
             return view.getZ();
         }
