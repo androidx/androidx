@@ -20,25 +20,28 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.viewer.loader.PdfLoader;
 
 /** Gesture listener for PageView's handling of tap and long press. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class PageTouchListener extends GestureTracker.GestureHandler {
 
     private final PageViewFactory.PageView mPageView;
 
     private final PdfLoader mPdfLoader;
 
-    private final PdfViewer.PageTouchHandler mPageTouchHandler;
+
+    private final SingleTapHandler mSingleTapHandler;
 
     PageTouchListener(@NonNull PageViewFactory.PageView pageView,
             @NonNull PdfLoader pdfLoader,
-            @NonNull PdfViewer.PageTouchHandler pageTouchHandler) {
+            @NonNull SingleTapHandler singleTapHandler) {
         this.mPageView = pageView;
         this.mPdfLoader = pdfLoader;
-        this.mPageTouchHandler = pageTouchHandler;
+        this.mSingleTapHandler = singleTapHandler;
     }
 
     @Override
@@ -48,7 +51,8 @@ class PageTouchListener extends GestureTracker.GestureHandler {
 
     @Override
     public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-        return mPageTouchHandler.handleSingleTapNoFormFilling(e, mPageView.getPageView());
+        mSingleTapHandler.handleSingleTapConfirmedEventOnPage(e, mPageView.getPageView());
+        return true;
     }
 
     @Override

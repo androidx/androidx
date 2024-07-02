@@ -55,6 +55,7 @@ import androidx.pdf.util.Screen;
 import androidx.pdf.util.ThreadUtils;
 import androidx.pdf.util.ZoomScrollRestorer;
 import androidx.pdf.util.ZoomUtils;
+import androidx.pdf.viewer.PdfSelectionModel;
 
 import com.google.android.material.motion.MotionUtils;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -215,6 +216,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     /** Base padding for ZoomView in px as set in saveZoomViewBasePadding(). */
     private Rect mZoomViewBasePadding = new Rect();
     private boolean mZoomViewBasePaddingSaved;
+    private PdfSelectionModel mPdfSelectionModel;
 
     {
         mScroller = new RelativeScroller(getContext());
@@ -370,6 +372,15 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     public ZoomView setEnableDoubleTap(boolean doubleTapEnabled) {
         this.mDoubleTapEnabled = doubleTapEnabled;
         return this;
+    }
+
+    @Nullable
+    public PdfSelectionModel getPdfSelectionModel() {
+        return mPdfSelectionModel;
+    }
+
+    public void setPdfSelectionModel(@NonNull PdfSelectionModel pdfSelectionModel) {
+        mPdfSelectionModel = pdfSelectionModel;
     }
 
     /** Exposes this view's position as an observable value. */

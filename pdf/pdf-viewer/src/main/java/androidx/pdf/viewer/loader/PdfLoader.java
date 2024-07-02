@@ -67,6 +67,7 @@ public class PdfLoader {
 
     private final SparseArray<PdfPageLoader> mPageLoaders;
     private String mLoadedPassword;
+    private int mNumPages;
 
     /** Creates a new {@link PdfLoader} and loads the document from the given data. */
     @NonNull
@@ -124,6 +125,14 @@ public class PdfLoader {
         this.mBitmapRecycler = mBitmapRecycler;
         this.mCallbacks = callbacks;
         this.mPageLoaders = new SparseArray<>();
+    }
+
+    public int getNumPages() {
+        return mNumPages;
+    }
+
+    public void setNumPages(int numPages) {
+        mNumPages = numPages;
     }
 
     /** Schedule task to load a PdfDocument. */
@@ -347,7 +356,6 @@ public class PdfLoader {
     /** AsyncTask for loading a PdfDocument. */
     class LoadDocumentTask extends AbstractPdfTask<PdfStatus> {
         private final String mPassword;
-        private int mNumPages;
 //        private boolean mIsLinearized;
 
         LoadDocumentTask() {

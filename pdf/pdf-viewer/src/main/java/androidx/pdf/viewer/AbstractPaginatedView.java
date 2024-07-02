@@ -52,7 +52,7 @@ public abstract class AbstractPaginatedView extends ViewGroup implements Paginat
         super(context, attrs);
     }
 
-    public AbstractPaginatedView(@NonNull Context context, @NonNull AttributeSet attrs,
+    public AbstractPaginatedView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }

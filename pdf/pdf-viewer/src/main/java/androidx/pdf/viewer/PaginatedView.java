@@ -25,8 +25,13 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.pdf.data.Range;
+import androidx.pdf.util.PaginationUtils;
 import androidx.pdf.util.Preconditions;
+import androidx.pdf.util.ThreadUtils;
 import androidx.pdf.viewer.PageViewFactory.PageView;
+import androidx.pdf.viewer.loader.PdfLoader;
+import androidx.pdf.widget.ZoomView;
 
 import java.util.AbstractList;
 import java.util.List;
@@ -46,20 +51,40 @@ public class PaginatedView extends AbstractPaginatedView {
     /** Maps the current child views to pages. */
     private final SparseArray<PageView> mPageViews = new SparseArray<>();
 
+    private PaginationModel mPaginationModel;
+
+    private PageRangeHandler mPageRangeHandler;
+
     private PdfSelectionModel mSelectionModel;
 
     private SearchModel mSearchModel;
 
+    private PdfLoader mPdfLoader;
+
+    private PageViewFactory mPageViewFactory;
+
     public PaginatedView(@NonNull Context context) {
-        super(context);
+        this(context, null);
     }
 
-    public PaginatedView(@NonNull Context context, @NonNull AttributeSet attrs) {
-        super(context, attrs);
+    public PaginatedView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        this(context, attrs, 0);
     }
 
-    public PaginatedView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
+    public PaginatedView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        mPaginationModel = new PaginationModel();
+        mPageRangeHandler = new PageRangeHandler(mPaginationModel);
+    }
+
+    @NonNull
+    public PaginationModel getPaginationModel() {
+        return mPaginationModel;
+    }
+
+    @NonNull
+    public PageRangeHandler getPageRangeHandler() {
+        return mPageRangeHandler;
     }
 
     @NonNull
@@ -79,6 +104,19 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public void setSearchModel(@NonNull SearchModel searchModel) {
         mSearchModel = searchModel;
+    }
+
+    public void setPdfLoader(@NonNull PdfLoader pdfLoader) {
+        mPdfLoader = pdfLoader;
+    }
+
+    @NonNull
+    public PageViewFactory getPageViewFactory() {
+        return mPageViewFactory;
+    }
+
+    public void setPageViewFactory(@NonNull PageViewFactory pageViewFactory) {
+        mPageViewFactory = pageViewFactory;
     }
 
     /** Instantiate a page of this pageView into a child pageView. */
@@ -222,5 +260,166 @@ public class PaginatedView extends AbstractPaginatedView {
         // We could still optimize to skip the next layoutChild() calls for the pages that have been
         // laid out already for this viewArea.
         onLayout(false, getLeft(), getTop(), getRight(), getBottom());
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasWindowFocus) {
+        super.onWindowFocusChanged(hasWindowFocus);
+        if (getVisibility() == View.VISIBLE) {
+            mPageRangeHandler.adjustMaxPageToUpperVisibleRange();
+            if (getChildCount() > 0) {
+                for (PageMosaicView page : getChildViews()) {
+                    page.clearTiles();
+                    if (mPdfLoader != null) {
+                        mPdfLoader.cancelAllTileBitmaps(page.getPageNum());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mPageRangeHandler.setVisiblePages(null);
+    }
+
+    /**
+     * Refreshes the page range for the visible area.
+     */
+    public void refreshPageRangeInVisibleArea(@NonNull ZoomView.ZoomScroll zoomScroll,
+            int parentViewHeight) {
+        mPageRangeHandler.refreshVisiblePageRange(zoomScroll.scrollY, zoomScroll.zoom,
+                parentViewHeight);
+
+        mPageRangeHandler.adjustMaxPageToUpperVisibleRange();
+    }
+
+    /** Cancels the background jobs for the disappeared pages and optionally clears the views */
+    public void handleGonePages(boolean clearViews) {
+        Range nearPages = mPageRangeHandler.getNearPagesToVisibleRange();
+        Range[] gonePages = mPageRangeHandler.getGonePageRanges(nearPages);
+        for (Range pages : gonePages) {
+            // Keep Views around for now, we'll clear them in step (4) if applicable.
+            clearPages(pages, clearViews);
+        }
+    }
+
+    /** Computes the invisible page range and loads them */
+    public void loadInvisibleNearPageRange(
+            float stableZoom) {
+        Range nearPages = mPageRangeHandler.getNearPagesToVisibleRange();
+        Range[] invisibleNearPages = mPageRangeHandler.getInvisibleNearPageRanges(nearPages);
+
+        for (Range pages : invisibleNearPages) {
+            loadPageRange(pages, stableZoom);
+        }
+    }
+
+    /**
+     * Creates the page views for the visible page range.
+     *
+     * @return true if any new page was created else false
+     */
+    public boolean createPageViewsForVisiblePageRange() {
+        boolean requiresLayoutPass = false;
+        for (int pageNum : mPageRangeHandler.getVisiblePages()) {
+            if (getViewAt(pageNum) == null) {
+                mPageViewFactory.getOrCreatePageView(pageNum,
+                        PaginationUtils.getPageElevationInPixels(getContext()),
+                        mPaginationModel.getPageSize(pageNum));
+                requiresLayoutPass = true;
+            }
+        }
+        return requiresLayoutPass;
+    }
+
+    /**  */
+    public void refreshVisiblePages(boolean requiresLayoutPass,
+            @NonNull Viewer.ViewState viewState,
+            float stableZoom) {
+        if (requiresLayoutPass) {
+            refreshPagesAfterLayout(viewState, mPageRangeHandler.getVisiblePages(),
+                    stableZoom);
+        } else {
+            refreshPages(mPageRangeHandler.getVisiblePages(), stableZoom);
+        }
+        handleGonePages(/* clearViews= */ true);
+    }
+
+    /**  */
+    public void refreshVisibleTiles(boolean requiresLayoutPass,
+            @NonNull Viewer.ViewState viewState) {
+        if (requiresLayoutPass) {
+            refreshTilesAfterLayout(viewState, mPageRangeHandler.getVisiblePages());
+        } else {
+            refreshTiles(mPageRangeHandler.getVisiblePages());
+        }
+    }
+
+    private void clearPages(Range pages, boolean clearViews) {
+        for (int page : pages) {
+            // Don't cancel search - search results for the current search are always useful,
+            // even for pages we can't see right now. Form filling operations should always
+            // be executed against the document, even if the user has scrolled away from the page.
+            mPdfLoader.cancelExceptSearchAndFormFilling(page);
+            if (clearViews) {
+                removeViewAt(page);
+            }
+        }
+    }
+
+    private void loadPageRange(Range pages,
+            float stableZoom) {
+        for (int page : pages) {
+            mPdfLoader.cancelAllTileBitmaps(page);
+            PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+                    page,
+                    PaginationUtils.getPageElevationInPixels(getContext()),
+                    mPaginationModel.getPageSize(page));
+            pageView.clearTiles();
+            pageView.requestFastDrawAtZoom(stableZoom);
+            pageView.refreshPageContentAndOverlays();
+        }
+    }
+
+    private void refreshPages(Range pages, float stableZoom) {
+        for (int page : pages) {
+            PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+                    page,
+                    PaginationUtils.getPageElevationInPixels(getContext()),
+                    mPaginationModel.getPageSize(page));
+            pageView.requestDrawAtZoom(stableZoom);
+            pageView.refreshPageContentAndOverlays();
+        }
+    }
+
+    private void refreshPagesAfterLayout(Viewer.ViewState viewState, Range pages,
+            float stableZoom) {
+        ThreadUtils.postOnUiThread(
+                () -> {
+                    if (viewState != Viewer.ViewState.NO_VIEW) {
+                        refreshPages(pages, stableZoom);
+                    }
+                });
+    }
+
+    private void refreshTiles(Range pages) {
+        for (int page : pages) {
+            PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+                    page,
+                    PaginationUtils.getPageElevationInPixels(getContext()),
+                    mPaginationModel.getPageSize(page));
+            pageView.requestTiles();
+        }
+    }
+
+    private void refreshTilesAfterLayout(Viewer.ViewState viewState, Range pages) {
+        ThreadUtils.postOnUiThread(
+                () -> {
+                    if (viewState != Viewer.ViewState.NO_VIEW) {
+                        refreshTiles(pages);
+                    }
+                });
     }
 }
