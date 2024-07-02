@@ -20,20 +20,16 @@ import android.content.Context
 import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
-import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
 import androidx.window.layout.WindowLayoutInfo
+import androidx.window.reflection.Consumer2
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-/**
- * A [Consumer] that handles multicasting to multiple [Consumer]s downstream. Implements the
- * [androidx.window.extensions.core.util.function.Consumer] interface for compatibility with
- * extensions.
- */
+/** A [Consumer] that handles multicasting to multiple [Consumer]s downstream. */
 @RequiresWindowSdkExtension(2)
 internal class MulticastConsumerApi2(private val context: Context) :
-    Consumer<OEMWindowLayoutInfo>, OEMConsumer<OEMWindowLayoutInfo> {
+    Consumer<OEMWindowLayoutInfo>, Consumer2<OEMWindowLayoutInfo> {
     private val globalLock = ReentrantLock()
 
     @GuardedBy("globalLock") private var lastKnownValue: WindowLayoutInfo? = null
