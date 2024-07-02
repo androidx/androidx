@@ -1152,6 +1152,7 @@ class VectorTest {
                     latch?.countDown()
                 }
 
+                @Deprecated("This callback is superseded by onTrimMemory")
                 override fun onLowMemory() {
                     // NO-OP
                 }
