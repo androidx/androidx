@@ -110,7 +110,7 @@ actual class ModalBottomSheetProperties(
         message = "'isFocusable' param is no longer used. Use constructor without this parameter.",
         level = DeprecationLevel.WARNING,
         replaceWith =
-            ReplaceWith("ModalBottomSheetProperties(securePolicy, shouldDismissOnBackPress)")
+        ReplaceWith("ModalBottomSheetProperties(securePolicy, shouldDismissOnBackPress)")
     )
     @Suppress("UNUSED_PARAMETER")
     constructor(
@@ -212,23 +212,23 @@ actual object ModalBottomSheetDefaults {
     level = DeprecationLevel.HIDDEN,
     message = "Use constructor with contentWindowInsets parameter.",
     replaceWith =
-        ReplaceWith(
-            "ModalBottomSheet(" +
-                "onDismissRequest," +
-                "modifier," +
-                "sheetState," +
-                "sheetMaxWidth," +
-                "shape," +
-                "containerColor," +
-                "contentColor," +
-                "tonalElevation," +
-                "scrimColor," +
-                "dragHandle," +
-                "{ windowInsets }," +
-                "properties," +
-                "content," +
-                ")"
-        )
+    ReplaceWith(
+        "ModalBottomSheet(" +
+            "onDismissRequest," +
+            "modifier," +
+            "sheetState," +
+            "sheetMaxWidth," +
+            "shape," +
+            "containerColor," +
+            "contentColor," +
+            "tonalElevation," +
+            "scrimColor," +
+            "dragHandle," +
+            "{ windowInsets }," +
+            "properties," +
+            "content," +
+            ")"
+    )
 )
 fun ModalBottomSheet(
     onDismissRequest: () -> Unit,
@@ -282,16 +282,16 @@ internal actual fun ModalBottomSheetDialog(
     val dialog =
         remember(view, density) {
             ModalBottomSheetDialogWrapper(
-                    onDismissRequest,
-                    properties,
-                    view,
-                    layoutDirection,
-                    density,
-                    dialogId,
-                    predictiveBackProgress,
-                    scope,
-                    darkThemeEnabled,
-                )
+                onDismissRequest,
+                properties,
+                view,
+                layoutDirection,
+                density,
+                dialogId,
+                predictiveBackProgress,
+                scope,
+                darkThemeEnabled,
+            )
                 .apply {
                     setContent(composition) {
                         Box(
@@ -490,13 +490,13 @@ private class ModalBottomSheetDialogWrapper(
         WindowCompat.setDecorFitsSystemWindows(window, false)
         dialogLayout =
             ModalBottomSheetDialogLayout(
-                    context,
-                    window,
-                    properties.shouldDismissOnBackPress,
-                    onDismissRequest,
-                    predictiveBackProgress,
-                    scope,
-                )
+                context,
+                window,
+                properties.shouldDismissOnBackPress,
+                onDismissRequest,
+                predictiveBackProgress,
+                scope,
+            )
                 .apply {
                     // Set unique id for AbstractComposeView. This allows state restoration for the
                     // state

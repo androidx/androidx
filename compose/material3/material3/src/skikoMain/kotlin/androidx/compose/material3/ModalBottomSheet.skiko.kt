@@ -20,12 +20,15 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 
 @Immutable
 @ExperimentalMaterial3Api
-actual class ModalBottomSheetProperties actual constructor(
+actual class ModalBottomSheetProperties
+actual constructor(
     actual val shouldDismissOnBackPress: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
@@ -47,7 +50,7 @@ actual object ModalBottomSheetDefaults {
     actual val properties = ModalBottomSheetProperties()
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
@@ -58,7 +61,9 @@ internal actual fun ModalBottomSheetDialog(
     Dialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
-            dismissOnBackPress = properties.shouldDismissOnBackPress
+            dismissOnBackPress = properties.shouldDismissOnBackPress,
+            usePlatformDefaultWidth = false,
+            scrimColor = Color.Transparent,
         ),
         content = content
     )
