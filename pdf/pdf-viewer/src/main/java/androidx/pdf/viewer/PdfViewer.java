@@ -224,9 +224,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Nullable
     private SettableFutureValue<Boolean> mSaveAsCallback;
 
-    // Base padding for ZoomView in px as set in saveZoomViewBasePadding().
-    private Rect mZoomViewBasePadding = new Rect();
-    private boolean mZoomViewBasePaddingSaved;
     private Snackbar mSnackbar;
     private boolean mWaitingOnSelectionToCreateInlineComment;
     private boolean mEditingAuthorized;
@@ -319,7 +316,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mPageIndicator = new PageIndicator(getActivity(), mFastScrollView);
         applyReservedSpace();
-        adjustZoomViewMargins();
+        mZoomView.adjustZoomViewMargins();
         mFastscrollerPositionObserver.onChange(null, mFastScrollView.getScrollerPositionY().get());
         mFastscrollerPositionObserverKey =
                 mFastScrollView.getScrollerPositionY().addObserver(mFastscrollerPositionObserver);
@@ -350,7 +347,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private void applyReservedSpace() {
         if (getArguments().containsKey(KEY_SPACE_TOP)) {
-            saveZoomViewBasePadding();
+            mZoomView.saveZoomViewBasePadding();
             int left = getArguments().getInt(KEY_SPACE_LEFT, 0);
             int top = getArguments().getInt(KEY_SPACE_TOP, 0);
             int right = getArguments().getInt(KEY_SPACE_RIGHT, 0);
@@ -358,69 +355,13 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
             mPageIndicator.getView().setTranslationX(-right);
 
-            mZoomView.setPadding(
-                    mZoomViewBasePadding.left + left,
-                    mZoomViewBasePadding.top + top,
-                    mZoomViewBasePadding.right + right,
-                    mZoomViewBasePadding.bottom + bottom);
+            mZoomView.setPaddingWithBase(left, top, right, bottom);
 
             // Adjust the scroll bar to also include the same padding.
             mFastScrollView.setScrollbarMarginTop(mZoomView.getPaddingTop());
             mFastScrollView.setScrollbarMarginRight(right);
             mFastScrollView.setScrollbarMarginBottom(mZoomView.getPaddingBottom());
         }
-    }
-
-    /**
-     * Saves the padding set on {@link ZoomView} following initial inflation from XML.
-     *
-     * <p>This does not have to be called immediately following inflation but <i>must</i> be called
-     * before any methods change the padding on {@link ZoomView}.
-     *
-     * <p>This can be used by methods that need to set padding to (base padding + some other
-     * dimension). If these values were obtained directly from {@link ZoomView} or this method was
-     * allowed to execute multiple times it could result in padding expanding continually.
-     */
-    private void saveZoomViewBasePadding() {
-        if (mZoomView == null || mZoomViewBasePaddingSaved) {
-            return;
-        }
-
-        mZoomViewBasePadding =
-                new Rect(
-                        mZoomView.getPaddingLeft(),
-                        mZoomView.getPaddingTop(),
-                        mZoomView.getPaddingRight(),
-                        mZoomView.getPaddingBottom());
-
-        mZoomViewBasePadding.top +=
-                getResources().getDimensionPixelSize(R.dimen.viewer_doc_additional_top_offset);
-
-        mZoomViewBasePaddingSaved = true;
-    }
-
-    /**
-     * Adjusts the horizontal margins (left and right padding) of the ZoomView based on the
-     * screen width to optimize the display of PDF content.
-     *
-     * This method applies different margin values depending on the screen size:
-     * - For screens with a screen width of 840dp or greater, a larger margin is applied
-     * to enhance readability on larger displays.
-     * - For screens with a screen width < 840dp, no margin is used to
-     * maximize the use of available space.
-     *
-     * This dynamic adjustment is achieved through the use of resource qualifiers (values-w840dp)
-     * that define different margin values for different screen sizes.
-     *
-     * Note: This method does not affect the top or bottom padding of the ZoomView.
-     */
-    private void adjustZoomViewMargins() {
-        int margin = getResources().getDimensionPixelSize(R.dimen.viewer_doc_padding_x);
-
-        mZoomView.setPadding(margin,
-                mZoomView.getPaddingTop(),
-                margin,
-                mZoomView.getPaddingBottom());
     }
 
     @Override
@@ -561,8 +502,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             mPdfLoader.disconnect();
             mDocumentLoaded = false;
         }
-        mZoomViewBasePadding = new Rect();
-        mZoomViewBasePaddingSaved = false;
+        mZoomView.setZoomViewBasePadding(new Rect());
+        mZoomView.setZoomViewBasePaddingSaved(false);
         super.destroyView();
     }
 
@@ -596,7 +537,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        adjustZoomViewMargins();
+        mZoomView.adjustZoomViewMargins();
     }
 
     @Override
