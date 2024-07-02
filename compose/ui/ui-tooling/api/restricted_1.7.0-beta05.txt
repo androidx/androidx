@@ -1,0 +1,29 @@
+// Signature format: 4.0
+package androidx.compose.ui.tooling {
+
+  @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposableInvoker {
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void invokeComposable(String className, String methodName, androidx.compose.runtime.Composer composer, java.lang.Object?... args);
+    field @Deprecated public static final androidx.compose.ui.tooling.ComposableInvoker INSTANCE;
+  }
+
+  public final class InspectableKt {
+    method @Deprecated @androidx.compose.runtime.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class PreviewActivity extends androidx.activity.ComponentActivity {
+    ctor public PreviewActivity();
+  }
+
+}
+
+package androidx.compose.ui.tooling.animation {
+
+  public final class ToolingState<T> implements androidx.compose.runtime.State<T> {
+    ctor public ToolingState(T default);
+    method public T getValue();
+    method public void setValue(T);
+    property public T value;
+  }
+
+}
+
