@@ -14,6 +14,14 @@
  * limitations under the License.
  */
 
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name='car_app_samples'
 include ':navigation:automotive'
 include ':navigation:common'

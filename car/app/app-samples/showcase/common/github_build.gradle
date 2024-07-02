@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.library'
+plugins {
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.android.library)
+}
 
 android {
     compileSdk 34
@@ -26,15 +29,20 @@ android {
         versionName "1.0"
     }
 
-    compileOptions {
-        targetCompatibility = JavaVersion.VERSION_19
-        sourceCompatibility = JavaVersion.VERSION_19
+    java.toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
     }
+
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+
     namespace "androidx.car.app.sample.showcase.common"
 }
 
 dependencies {
-    implementation "androidx.core:core:1.13.1"
-    implementation "androidx.car.app:app:1.4.0"
-    implementation "androidx.annotation:annotation-experimental:1.4.1"
+    implementation libs.androidx.core
+    implementation(libs.androidx.car.app)
+    implementation libs.androidx.annotation.experimental
+    implementation libs.androidx.core.ktx
 }
