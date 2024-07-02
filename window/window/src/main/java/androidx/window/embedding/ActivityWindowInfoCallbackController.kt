@@ -27,6 +27,7 @@ import androidx.window.WindowSdkExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.EmbeddedActivityWindowInfo as ExtensionsActivityWindowInfo
+import androidx.window.reflection.Consumer2
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -48,7 +49,7 @@ internal open class ActivityWindowInfoCallbackController(
     init {
         WindowSdkExtensions.getInstance().requireExtensionVersion(6)
         extensionsCallback =
-            Consumer<ExtensionsActivityWindowInfo> { info ->
+            Consumer2<ExtensionsActivityWindowInfo> { info ->
                 globalLock.withLock {
                     for (callbackWrapper in callbacks.values) {
                         callbackWrapper.accept(info)
