@@ -140,7 +140,7 @@ fun LinearWavyProgressIndicator(
     gapSize: Dp = WavyProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
     stopSize: Dp = WavyProgressIndicatorDefaults.LinearTrackStopIndicatorSize,
     amplitude: (progress: Float) -> Float = WavyProgressIndicatorDefaults.indicatorAmplitude,
-    wavelength: Dp = WavyProgressIndicatorDefaults.LinearWavelength,
+    wavelength: Dp = WavyProgressIndicatorDefaults.LinearDeterminateWavelength,
     waveSpeed: Dp = wavelength // Match to 1 wavelength per second
 ) {
     val coercedProgress = { progress().coerceIn(0f, 1f) }
@@ -296,7 +296,7 @@ fun LinearWavyProgressIndicator(
     stroke: Stroke = WavyProgressIndicatorDefaults.linearIndicatorStroke,
     trackStroke: Stroke = WavyProgressIndicatorDefaults.linearTrackStroke,
     gapSize: Dp = WavyProgressIndicatorDefaults.LinearIndicatorTrackGapSize,
-    wavelength: Dp = WavyProgressIndicatorDefaults.LinearWavelength
+    wavelength: Dp = WavyProgressIndicatorDefaults.LinearIndeterminateWavelength
 ) {
     val infiniteTransition = rememberInfiniteTransition()
     val firstLineHead =
@@ -996,8 +996,11 @@ object WavyProgressIndicatorDefaults {
                 cap = StrokeCap.Round
             )
 
+    /** A default wavelength of a determinate linear progress indicator when it's in a wavy form. */
+    val LinearDeterminateWavelength: Dp = LinearProgressIndicatorTokens.ActiveWaveWavelength
+
     /** A default wavelength of a linear progress indicator when it's in a wavy form. */
-    val LinearWavelength: Dp = LinearProgressIndicatorTokens.ActiveWaveWavelength
+    val LinearIndeterminateWavelength: Dp = 20.dp // TODO Read from tokens when available
 
     /** A default linear progress indicator container height. */
     val LinearContainerHeight: Dp = LinearProgressIndicatorTokens.WaveHeight
@@ -1424,7 +1427,10 @@ private class LinearProgressDrawingCache {
         val halfHeight = currentSize.height / 2f
 
         var adjustedTrackGapSize = currentIndicatorTrackGapSize
-        var horizontalInsets = currentStrokeCapWidth
+
+        // The path will only be visible if the Cap can be drawn, so this flag will indicate when
+        // that happens to help us adjust the gap between the active indicator and the track.
+        var activeIndicatorVisible = false
 
         // For each of the progress paths, apply a segment from the PathMeasure that was previously
         // created for the entire width of the progress bar. Also, draw the track parts in the gaps
@@ -1443,21 +1449,27 @@ private class LinearProgressDrawingCache {
 
             if (i == 0) {
                 // Potentially shorten the gap and insets when the progress bar just enters the
-                // track
-                adjustedTrackGapSize = min(barHead, currentIndicatorTrackGapSize)
-                horizontalInsets = min(barHead, currentStrokeCapWidth)
+                // track.
+                // When rounded caps are applied, we need enough space to draw the initial path
+                // (i.e. circle), so by only adjusting the gap size when the
+                // barHead >= currentStrokeCapWidth we ensure that the track is not being shortened
+                // in this initial progress phase.
+                adjustedTrackGapSize =
+                    if (barHead < currentStrokeCapWidth) {
+                        0f // barHead
+                    } else {
+                        min(
+                            barHead - currentStrokeCapWidth,
+                            currentIndicatorTrackGapSize /*+ currentStrokeCapWidth * 2*/
+                        )
+                    }
+                activeIndicatorVisible = barHead >= currentStrokeCapWidth
             }
-            // Coerce the bar's head and tail with the horizontalInsets (i.e leave room for the
-            // drawing of the stroke caps). The adjustments here also ensure that the progress is
-            // visible even when the progress is very small by leaving the tail's value unadjusted.
-            val coerceRange = horizontalInsets..(width - currentStrokeCapWidth)
+            // Coerce the bar's head and tail to ensure we leave room for the drawing of the
+            // stroke's caps.
+            val coerceRange = currentStrokeCapWidth..(width - currentStrokeCapWidth)
             val adjustedBarHead = barHead.coerceIn(coerceRange)
-            val adjustedBarTail =
-                if (barTail + horizontalInsets < adjustedBarHead) {
-                    barTail.coerceIn(coerceRange)
-                } else {
-                    barTail
-                }
+            val adjustedBarTail = barTail.coerceIn(coerceRange)
 
             // Update the progressPathToDraw
             if (abs(endProgressFraction - startProgressFraction) > 0) {
@@ -1483,8 +1495,7 @@ private class LinearProgressDrawingCache {
                         )
                         // The progressPathToDraw is a segment of the full progress path, which is
                         // always in the maximum possible amplitude. This scaling will flatten the
-                        // wave
-                        // to the given amplitude percentage.
+                        // wave to the given amplitude percentage.
                         if (amplitude != 1f) {
                             scale(y = amplitude)
                         }
@@ -1494,7 +1505,14 @@ private class LinearProgressDrawingCache {
 
             // While we draw the progress parts from left to right, we also draw the track parts
             // from right to left and update the nextEndTrackOffset on every pass.
-            val adaptiveTrackSpacing = horizontalInsets * 2 + adjustedTrackGapSize
+            // Before that, we calculate the spacing between the active indicator and the track to
+            // adjust it if needed when the progress is small.
+            val adaptiveTrackSpacing =
+                if (activeIndicatorVisible) {
+                    adjustedTrackGapSize + currentStrokeCapWidth * 2
+                } else {
+                    adjustedTrackGapSize
+                }
             if (nextEndTrackOffset > adjustedBarHead + adaptiveTrackSpacing) {
                 trackPathToDraw.lineTo(
                     x = max(currentStrokeCapWidth, adjustedBarHead + adaptiveTrackSpacing),
