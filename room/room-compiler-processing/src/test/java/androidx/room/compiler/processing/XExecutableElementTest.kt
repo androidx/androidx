@@ -20,7 +20,6 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
-import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
@@ -1562,15 +1561,7 @@ class XExecutableElementTest {
                             assertThat(parameterName).isEqualTo("param1")
                         } else {
                             if (it.isKsp) {
-                                if (hasDebugFlag && (it.processingEnv as KspProcessingEnv).isKsp2) {
-                                    if (isAbstract || isJavaNative) {
-                                        assertThat(parameterName).isEqualTo("p0")
-                                    } else {
-                                        assertThat(parameterName).isEqualTo("param1")
-                                    }
-                                } else {
-                                    assertThat(parameterName).isEqualTo("p0")
-                                }
+                                assertThat(parameterName).isEqualTo("p0")
                             } else { // Javac
                                 if (hasDebugFlag) {
                                     if (isAbstract || isJavaNative) {
