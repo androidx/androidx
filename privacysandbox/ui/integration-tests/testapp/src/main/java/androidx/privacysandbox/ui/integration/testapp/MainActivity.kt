@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.ui.integration.testapp
 
+import android.os.Build
 import android.os.Bundle
 import android.os.ext.SdkExtensions
 import android.util.Log
@@ -70,9 +71,14 @@ class MainActivity : AppCompatActivity() {
         triggerSandboxDeathButton = findViewById(R.id.trigger_sandbox_death)
         mediationDropDownMenu = findViewById(R.id.mediation_dropdown_menu)
 
-        triggerSandboxDeathButton.setOnClickListener {
-            triggerSandboxDeath()
-            disableAllControls()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // there is no sandbox to kill on T-
+            triggerSandboxDeathButton.visibility = View.GONE
+        } else {
+            triggerSandboxDeathButton.setOnClickListener {
+                triggerSandboxDeath()
+                disableAllControls()
+            }
         }
 
         sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
