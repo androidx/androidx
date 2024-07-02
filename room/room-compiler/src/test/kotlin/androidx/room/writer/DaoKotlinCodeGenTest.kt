@@ -784,6 +784,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Query("SELECT pk FROM MyEntity")
               abstract fun getAllIds(): androidx.paging.PagingSource<Int, MyEntity>
 
+              @Query("SELECT * FROM MyEntity WHERE pk > :gt ORDER BY pk ASC")
+              abstract fun getAllIdsWithArgs(gt: Long): androidx.paging.PagingSource<Int, MyEntity>
+
               @Query("SELECT pk FROM MyEntity")
               abstract fun getAllIdsRx2(): androidx.paging.rxjava2.RxPagingSource<Int, MyEntity>
 

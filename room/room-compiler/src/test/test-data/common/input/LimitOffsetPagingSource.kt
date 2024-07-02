@@ -15,14 +15,14 @@
  */
 package androidx.room.paging
 
-import android.database.Cursor
 import androidx.paging.PagingState
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
+import androidx.room.RoomRawQuery
+import androidx.sqlite.SQLiteStatement
 
 @Suppress("UNUSED_PARAMETER")
 abstract class LimitOffsetPagingSource<T : Any>(
-    private val sourceQuery: RoomSQLiteQuery,
+    private val sourceQuery: RoomRawQuery,
     private val db: RoomDatabase,
     vararg tables: String
 ) : androidx.paging.PagingSource<Int, T>() {
@@ -33,5 +33,5 @@ abstract class LimitOffsetPagingSource<T : Any>(
     override public suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
         return LoadResult.Invalid()
     }
-    protected abstract fun convertRows(cursor: Cursor): List<T>
+    protected abstract fun convertRows(statement: SQLiteStatement, itemCount: Int): List<T>
 }

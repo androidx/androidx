@@ -158,7 +158,7 @@ class CoroutineResultBinder(
     override fun convertAndReturn(
         sqlQueryVar: String,
         dbProperty: XPropertySpec,
-        bindStatement: CodeGenScope.(String) -> Unit,
+        bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
         scope: CodeGenScope
@@ -194,7 +194,7 @@ class CoroutineResultBinder(
                                 sqlQueryVar
                             )
                             beginControlFlow("try")
-                            bindStatement(scope, statementVar)
+                            bindStatement?.invoke(scope, statementVar)
                             val outVar = scope.getTmpVar("_result")
                             adapter?.convert(outVar, statementVar, scope)
                             addStatement("$returnPrefix%L", outVar)

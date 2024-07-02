@@ -51,7 +51,7 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
     open fun convertAndReturn(
         sqlQueryVar: String,
         dbProperty: XPropertySpec,
-        bindStatement: CodeGenScope.(String) -> Unit,
+        bindStatement: (CodeGenScope.(String) -> Unit)?,
         returnTypeName: XTypeName,
         inTransaction: Boolean,
         scope: CodeGenScope

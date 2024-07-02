@@ -21,6 +21,7 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -33,7 +34,7 @@ import androidx.room.solver.query.result.QueryResultBinder
 class MultiTypedPagingSourceQueryResultBinderProvider(
     private val context: Context,
     private val roomPagingClassName: XClassName,
-    pagingSourceTypeName: XClassName,
+    private val pagingSourceTypeName: XClassName,
 ) : QueryResultBinderProvider {
 
     private val pagingSourceType: XRawType? by lazy {
@@ -60,7 +61,8 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
         return MultiTypedPagingSourceQueryResultBinder(
             listAdapter = listAdapter,
             tableNames = tableNames,
-            className = roomPagingClassName
+            className = roomPagingClassName,
+            isBasePagingSource = pagingSourceTypeName == PagingTypeNames.PAGING_SOURCE
         )
     }
 
