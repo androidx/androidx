@@ -37,10 +37,7 @@ androidXMultiplatform {
     }
     mac()
     linux()
-    linuxArm64()
     ios()
-    watchos()
-    tvos()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -75,9 +72,6 @@ androidXMultiplatform {
 
         nativeMain {
             dependsOn(commonMain)
-            dependencies {
-                api(project(":annotation:annotation"))
-            }
         }
 
         nativeTest {
@@ -96,10 +90,7 @@ androidXMultiplatform {
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     def konanTargetFamily = target.konanTarget.family
-                    if (konanTargetFamily == Family.OSX ||
-                            konanTargetFamily == Family.IOS ||
-                            konanTargetFamily == Family.WATCHOS ||
-                            konanTargetFamily == Family.TVOS) {
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
                         dependsOn(darwinMain)
                     } else if (konanTargetFamily == Family.LINUX) {
                         dependsOn(linuxMain)
@@ -118,16 +109,6 @@ androidXMultiplatform {
         // Make sure commonization runs before any compilation task.
         tasks.withType(KotlinNativeCompile).configureEach {
             it.dependsOn(tasks.named("commonize"))
-        }
-    }
-}
-
-tasks.withType(KotlinNativeCompile).configureEach {
-    if (name == "compileNativeMainKotlinMetadata") {
-        it.libraries = it.libraries.filter {
-            // Workaround for  https://youtrack.jetbrains.com/issue/KT-62653
-            // Drop 1.7.0 from the list because we have project(":annotation:annotation")
-            !it.absolutePath.endsWith("commonMain/androidx.annotation-annotation-1.7.0-commonMain-kNhS6A.klib")
         }
     }
 }

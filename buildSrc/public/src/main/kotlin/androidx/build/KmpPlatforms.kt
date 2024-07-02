@@ -73,13 +73,6 @@ enum class PlatformIdentifier(
     IOS_SIMULATOR_ARM_64("iossimulatorarm64", PlatformGroup.MAC),
     IOS_X_64("iosx64", PlatformGroup.MAC),
     IOS_ARM_64("iosarm64", PlatformGroup.MAC),
-    WATCHOS_SIMULATOR_ARM_64("watchossimulatorarm64", PlatformGroup.MAC),
-    WATCHOS_X_64("watchosx64", PlatformGroup.MAC),
-    WATCHOS_ARM_32("watchosarm64", PlatformGroup.MAC),
-    WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
-    TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
-    TVOS_X_64("tvosx64", PlatformGroup.MAC),
-    TVOS_ARM_64("tvosarm64", PlatformGroup.MAC),
     DESKTOP("desktop", PlatformGroup.JVM);
 
     companion object {
