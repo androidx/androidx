@@ -48,5 +48,6 @@ class MinLinesMemoryLeakTest(private val numLines: Int) {
                 minLines = numLines, // Set this to a non-default value (potential leak)
             )
         }
+        composeTestRule.waitForIdle()
     }
 }
