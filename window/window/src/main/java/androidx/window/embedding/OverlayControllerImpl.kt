@@ -36,6 +36,7 @@ import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
 import androidx.window.layout.util.DensityCompatHelper
+import androidx.window.reflection.Consumer2
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -278,7 +279,7 @@ internal open class OverlayControllerImpl(
     ) {
         globalLock.withLock {
             val callback =
-                Consumer<List<ActivityStack>> { activityStacks ->
+                Consumer2<List<ActivityStack>> { activityStacks ->
                     val overlayInfoList =
                         activityStacks.filter { activityStack -> activityStack.tag == overlayTag }
                     if (overlayInfoList.size > 1) {
