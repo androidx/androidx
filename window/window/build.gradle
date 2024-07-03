@@ -58,10 +58,9 @@ dependencies {
     // A compile only dependency on extnensions.core so that other libraries do not expose it
     // transitively.
     compileOnly(extensions_core_version)
-    // A compile only dependency on extnensions.core so that other libraries do not expose it
-    // transitively. The testCompile is added because tests are not getting the dependency
-    // transitively.
-    testCompileOnly(extensions_core_version)
+    // Test implementation is required since extensions:core is on device. So it is required to
+    // import it in some form. For the library it will be available on device.
+    testImplementation(extensions_core_version)
     // A compile only dependency on extnensions.core so that other libraries do not expose it
     // transitively. The androidTestCompile is added because tests are not getting the dependency
     // transitively.
