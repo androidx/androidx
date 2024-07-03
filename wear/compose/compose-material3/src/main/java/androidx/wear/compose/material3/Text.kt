@@ -98,11 +98,11 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign? = LocalTextAlign.current,
     lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
+    overflow: TextOverflow = LocalTextOverflow.current,
     softWrap: Boolean = true,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = LocalTextMaxLines.current,
     minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
@@ -192,11 +192,11 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign? = LocalTextAlign.current,
     lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
+    overflow: TextOverflow = LocalTextOverflow.current,
     softWrap: Boolean = true,
-    maxLines: Int = Int.MAX_VALUE,
+    maxLines: Int = LocalTextMaxLines.current,
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -248,3 +248,29 @@ fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
 }
+
+/**
+ * CompositionLocal containing the preferred max lines that will be used by [Text] components by
+ * default. Material3 components related to text such as [Button], [CheckboxButton], [SwitchButton],
+ * [RadioButton] will use [LocalTextMaxLines] to set values with which to style child text
+ * components.
+ */
+val LocalTextMaxLines: ProvidableCompositionLocal<Int> =
+    compositionLocalOf(structuralEqualityPolicy()) { Int.MAX_VALUE }
+
+/**
+ * CompositionLocal containing the preferred [TextOverflow] that will be used by [Text] components
+ * by default. Material3 components related to text such as [Button], [CheckboxButton],
+ * [SwitchButton], [RadioButton] will use [LocalTextOverflow] to set values with which to style
+ * child text components.
+ */
+val LocalTextOverflow: ProvidableCompositionLocal<TextOverflow> =
+    compositionLocalOf(structuralEqualityPolicy()) { TextOverflow.Clip }
+
+/**
+ * CompositionLocal containing the preferred [TextAlign] that will be used by [Text] components by
+ * default. Material3 components related to text such as [Button], [CheckboxButton], [SwitchButton],
+ * [RadioButton] will use [LocalTextAlign] to set values with which to style child text components.
+ */
+val LocalTextAlign: ProvidableCompositionLocal<TextAlign?> =
+    compositionLocalOf(structuralEqualityPolicy()) { null }

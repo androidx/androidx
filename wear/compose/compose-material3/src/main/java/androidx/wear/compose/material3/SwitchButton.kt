@@ -50,6 +50,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material3.tokens.MotionTokens
@@ -68,7 +70,7 @@ import androidx.wear.compose.materialcore.isLayoutDirectionRtl
  * The [SwitchButton] is Stadium shaped. The label should take no more than 3 lines of text. The
  * secondary label should take no more than 2 lines of text. With localisation and/or large font
  * sizes, the [SwitchButton] height adjusts to accommodate the contents. The label and secondary
- * label should be start aligned.
+ * label are start aligned by default.
  *
  * Example of a SwitchButton:
  *
@@ -122,6 +124,9 @@ fun SwitchButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked),
                 textStyle = SwitchButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign = TextAlign.Start,
                 content = label
             ),
         toggleControl = {
@@ -153,6 +158,9 @@ fun SwitchButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, checked),
                 textStyle = SwitchButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
                 content = secondaryLabel
             ),
         background = { isEnabled, isChecked ->
@@ -181,7 +189,7 @@ fun SwitchButton(
  * The [SplitSwitchButton] is Stadium shaped. The label should take no more than 3 lines of text.
  * The secondary label should take no more than 2 lines of text. With localisation and/or large font
  * sizes, the [SplitSwitchButton] height adjusts to accommodate the contents. The label and
- * secondary label should be start aligned.
+ * secondary label are start aligned by default.
  *
  * A [SplitSwitchButton] has two tappable areas, one tap area for the labels and another for the
  * switch. The [onContainerClick] listener will be associated with the main body of the
@@ -253,6 +261,9 @@ fun SplitSwitchButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked = checked),
                 textStyle = SplitSwitchButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign = TextAlign.Start,
                 content = label
             ),
         onClick = onContainerClick,
@@ -286,6 +297,9 @@ fun SplitSwitchButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, checked = checked),
                 textStyle = SplitSwitchButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
                 content = secondaryLabel
             ),
         backgroundColor = { isEnabled, isChecked ->

@@ -25,9 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.LocalTextMaxLines
 import androidx.wear.compose.material3.SplitCheckboxButton
 import androidx.wear.compose.material3.Text
 
@@ -53,15 +52,23 @@ fun SplitCheckboxButtonDemo() {
             DemoSplitCheckboxButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary Label with 3 lines of content max"
+                primary = "Primary Label with at most three lines of content "
             )
         }
         item {
             DemoSplitCheckboxButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary Label with 3 lines of content max",
-                secondary = "Secondary label with 2 lines"
+                primary = "Primary Label with at most three lines of content",
+                secondary = "Secondary label with at most two lines of text"
+            )
+        }
+        item {
+            DemoSplitCheckboxButton(
+                enabled = true,
+                initiallyChecked = true,
+                primary = "Override the maximum number of primary label content to be four",
+                primaryMaxLines = 4,
             )
         }
     }
@@ -72,6 +79,7 @@ private fun DemoSplitCheckboxButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
+    primaryMaxLines: Int? = null,
     secondary: String? = null
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
@@ -91,9 +99,7 @@ private fun DemoSplitCheckboxButton(
             Text(
                 primary,
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
+                maxLines = primaryMaxLines ?: LocalTextMaxLines.current
             )
         },
         secondaryLabel =
@@ -102,9 +108,6 @@ private fun DemoSplitCheckboxButton(
                     Text(
                         secondary,
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis
                     )
                 }
             },
