@@ -125,8 +125,8 @@ package androidx.compose.animation.core {
     method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.InfiniteRepeatableSpec<T> infiniteRepeatable(androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
-    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(@FloatRange(from=0.0, to=1.0) float periodicBias, kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
-    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
+    method public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(@FloatRange(from=0.0, to=1.0) float periodicBias, kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
+    method public static <T> androidx.compose.animation.core.KeyframesWithSplineSpec<T> keyframesWithSpline(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>,kotlin.Unit> init);
     method @Deprecated @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.RepeatableSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, optional androidx.compose.animation.core.RepeatMode repeatMode, optional long initialStartOffset);
     method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SnapSpec<T> snap(optional int delayMillis);
@@ -220,7 +220,7 @@ package androidx.compose.animation.core {
     property public final int mode;
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @kotlin.jvm.JvmInline public final value class ArcMode {
+  @kotlin.jvm.JvmInline public final value class ArcMode {
     field public static final androidx.compose.animation.core.ArcMode.Companion Companion;
   }
 
@@ -496,7 +496,7 @@ package androidx.compose.animation.core {
     ctor public KeyframesSpec.KeyframesSpecConfig();
     method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> at(T, @IntRange(from=0L) int timeStamp);
     method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> atFraction(T, @FloatRange(from=0.0, to=1.0) float fraction);
-    method @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> using(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, int arcMode);
+    method public infix androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T> using(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, int arcMode);
     method @Deprecated public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
   }
 
@@ -512,7 +512,7 @@ package androidx.compose.animation.core {
     property @IntRange(from=0L) public final int durationMillis;
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class KeyframesWithSplineSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+  @androidx.compose.runtime.Immutable public final class KeyframesWithSplineSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public KeyframesWithSplineSpec(androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config);
     ctor public KeyframesWithSplineSpec(androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config, @FloatRange(from=0.0, to=1.0) float periodicBias);
     method public androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> getConfig();
@@ -520,7 +520,7 @@ package androidx.compose.animation.core {
     property public final androidx.compose.animation.core.KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> config;
   }
 
-  @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi public static final class KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
+  public static final class KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T> extends androidx.compose.animation.core.KeyframesSpecBaseConfig<T,androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>> {
     ctor public KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig();
   }
 

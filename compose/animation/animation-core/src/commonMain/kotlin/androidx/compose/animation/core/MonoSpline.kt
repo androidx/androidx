@@ -22,7 +22,6 @@ import kotlin.math.hypot
  * This performs a spline interpolation in multiple dimensions time is an array of all positions and
  * y is a list of arrays each with the values at each point
  */
-@ExperimentalAnimationSpecApi
 internal class MonoSpline(time: FloatArray, y: Array<FloatArray>, periodicBias: Float) {
     private val timePoints: FloatArray
     private val values: Array<FloatArray>
