@@ -19,6 +19,7 @@ package androidx.baselineprofile.gradle.producer
 import androidx.baselineprofile.gradle.configuration.ConfigurationManager
 import androidx.baselineprofile.gradle.producer.tasks.CollectBaselineProfileTask
 import androidx.baselineprofile.gradle.producer.tasks.InstrumentationTestTaskWrapper
+import androidx.baselineprofile.gradle.utils.AgpFeature.CONFIGURATION_CACHE_FIX_B348136774
 import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES
 import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS
 import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_TESTED_APKS
@@ -272,7 +273,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
         // app as an instrumentation runner argument. BaselineProfileRule and MacrobenchmarkRule
         // can pick that up during the test execution.
         if (
-            addTargetPackageNameInstrumentationArgument && supportsFeature(TEST_VARIANT_TESTED_APKS)
+            addTargetPackageNameInstrumentationArgument &&
+                supportsFeature(TEST_VARIANT_TESTED_APKS) &&
+                supportsFeature(CONFIGURATION_CACHE_FIX_B348136774)
         ) {
             InstrumentationTestRunnerArgumentsAgp82.set(
                 variant = variant,
