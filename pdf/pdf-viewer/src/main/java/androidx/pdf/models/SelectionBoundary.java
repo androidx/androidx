@@ -18,8 +18,10 @@ package androidx.pdf.models;
 
 import android.annotation.SuppressLint;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.ext.SdkExtensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -101,12 +103,6 @@ public class SelectionBoundary implements Parcelable {
     }
 
     @Override
-    public String toString() {
-        String indexStr = (mIndex == Integer.MAX_VALUE) ? "MAX" : Integer.toString(mIndex);
-        return String.format("@%s (%d,%d)", indexStr, mX, mY);
-    }
-
-    @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeIntArray(new int[]{mIndex, mX, mY, mIsRtl ? 1 : 0});
     }
@@ -134,5 +130,42 @@ public class SelectionBoundary implements Parcelable {
         result = 31 * result + mIndex;
         result = 31 * result + (mIsRtl ? 1231 : 1237);
         return result;
+    }
+
+    /**
+     * Converts android.graphics.pdf.models.selection.SelectionBoundary object to its
+     * androidx.pdf.aidl.SelectionBoundary representation.
+     */
+    @NonNull
+    public static SelectionBoundary convert(
+            @NonNull android.graphics.pdf.models.selection.SelectionBoundary selectionBoundary,
+            boolean isRtl) {
+        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+            if (selectionBoundary.getPoint() == null) {
+                return new SelectionBoundary(selectionBoundary.getIndex(), -1, -1, isRtl);
+            }
+            return new SelectionBoundary(selectionBoundary.getIndex(),
+                    selectionBoundary.getPoint().x,
+                    selectionBoundary.getPoint().y, isRtl);
+        }
+        throw new UnsupportedOperationException("Operation support above S");
+    }
+
+    /**
+     * Converts androidx.pdf.aidl.SelectionBoundary object to its
+     * android.graphics.pdf.models.selection.SelectionBoundary representation.
+     */
+    @NonNull
+    public static android.graphics.pdf.models.selection.SelectionBoundary convert(
+            @NonNull SelectionBoundary selectionBoundary) {
+        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+            if (selectionBoundary.getIndex() == -1) {
+                return new android.graphics.pdf.models.selection.SelectionBoundary(
+                        new Point(selectionBoundary.getX(), selectionBoundary.getY()));
+            }
+            return new android.graphics.pdf.models.selection.SelectionBoundary(
+                    selectionBoundary.getIndex());
+        }
+        throw new UnsupportedOperationException("Operation support above S");
     }
 }

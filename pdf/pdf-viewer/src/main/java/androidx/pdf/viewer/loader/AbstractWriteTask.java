@@ -20,7 +20,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
 import androidx.annotation.RestrictTo;
-import androidx.pdf.pdflib.PdfDocumentRemoteProto;
+import androidx.pdf.service.PdfDocumentRemoteProto;
 
 import java.io.FileDescriptor;
 import java.io.FileOutputStream;

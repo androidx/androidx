@@ -117,7 +117,7 @@ import java.util.List;
  *       connected.
  * </ol>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings({"UnusedMethod", "UnusedVariable"})
 public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
@@ -291,7 +291,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         mFastScrollView.setId(getId() * 10);
 
         mLoadingSpinner = mFastScrollView.findViewById(R.id.progress_indicator);
-
         setUpEditFab();
 
         return mPdfViewer;
@@ -452,6 +451,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             if (mScrollPositionObserverKey != null) {
                 mZoomView.zoomScroll().removeObserver(mScrollPositionObserverKey);
             }
+            mZoomView.setZoomViewBasePadding(new Rect());
+            mZoomView.setZoomViewBasePaddingSaved(false);
             mZoomView = null;
         }
 
@@ -466,8 +467,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             mPdfLoader.disconnect();
             mDocumentLoaded = false;
         }
-        mZoomView.setZoomViewBasePadding(new Rect());
-        mZoomView.setZoomViewBasePaddingSaved(false);
         super.destroyView();
     }
 

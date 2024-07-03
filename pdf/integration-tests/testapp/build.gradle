@@ -6,19 +6,17 @@ plugins {
 
 android {
     namespace 'androidx.pdf.testapp'
-    compileSdkVersion "android-35"
     buildToolsVersion "35.0.0-rc1"
 
     defaultConfig {
         applicationId "androidx.pdf.testapp"
-        minSdkVersion 31
+        minSdk 31
+        compileSdk 35
     }
 }
 
 dependencies {
-
     api("com.google.android.material:material:1.11.0")
     implementation(project(":pdf:pdf-viewer"))
-
     implementation(libs.constraintLayout)
 }

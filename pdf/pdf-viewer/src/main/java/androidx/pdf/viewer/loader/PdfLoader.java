@@ -32,7 +32,7 @@ import androidx.pdf.data.PdfStatus;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.PdfDocumentRemote;
 import androidx.pdf.models.SelectionBoundary;
-import androidx.pdf.pdflib.PdfDocumentRemoteProto;
+import androidx.pdf.service.PdfDocumentRemoteProto;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.TileBoard.TileInfo;
 
