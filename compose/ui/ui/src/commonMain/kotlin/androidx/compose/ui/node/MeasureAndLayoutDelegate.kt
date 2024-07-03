@@ -51,7 +51,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         get() = onPositionedDispatcher.isNotEmpty()
 
     /** Flag to indicate that we're currently measuring. */
-    private var duringMeasureLayout = false
+    internal var duringMeasureLayout = false
     /**
      * True when we are currently executing a full measure/layout pass, which mean we will iterate
      * through all the nodes in [relayoutNodes].

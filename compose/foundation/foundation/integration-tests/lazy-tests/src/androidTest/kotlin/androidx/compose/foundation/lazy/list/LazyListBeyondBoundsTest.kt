@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.lazy.list
 
+import android.view.View
+import android.view.ViewGroup.FOCUS_DOWN
+import android.view.ViewGroup.LayoutParams
+import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,6 +31,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.ParameterizedComposeTestRule
 import androidx.compose.testutils.createParameterizedComposeTestRule
@@ -47,12 +52,16 @@ import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -82,6 +91,7 @@ class LazyListBeyondBoundsTest {
     private val placedItems = sortedMapOf<Int, Rect>()
     private var beyondBoundsLayout: BeyondBoundsLayout? = null
     private lateinit var lazyListState: LazyListState
+    private lateinit var scope: CoroutineScope
 
     companion object {
         val ParamsToTest = buildList {
@@ -189,6 +199,43 @@ class LazyListBeyondBoundsTest {
                 runOnIdle { assertThat(hasMoreContent).isFalse() }
                 resetTestCase()
                 addItems = true
+            }
+        }
+
+    @Test
+    fun scrollingLazyList_doesNotCrash() =
+        with(rule) {
+            // Arrange.
+            var exception: Result<View>? = null
+            setLazyContent(size = 30.toDp(), firstVisibleItem = 0) {
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+                item {
+                    AndroidView(::View, modifier = Modifier.size(10.toDp())) {
+                        it.layoutParams =
+                            FrameLayout.LayoutParams(
+                                LayoutParams.MATCH_PARENT,
+                                LayoutParams.MATCH_PARENT
+                            )
+                        it.isFocusableInTouchMode = true
+                        exception = kotlin.runCatching { it.focusSearch(FOCUS_DOWN) }
+                    }
+                }
+                items(5) { index -> Box(Modifier.size(10.toDp()).trackPlaced(index)) }
+            }
+
+            forEachParameter(ParamsToTest) { _ ->
+                rule.mainClock.autoAdvance = false
+
+                // Act.
+                // scroll to trigger measurement
+                scope.launch { lazyListState.animateScrollToItem(4) }
+
+                rule.mainClock.advanceTimeUntil { lazyListState.firstVisibleItemIndex > 2 }
+
+                // Assert.
+                assertThat(exception?.isSuccess).isTrue() // should not crash
+                rule.mainClock.autoAdvance = true
+                resetTestCase()
             }
         }
 
@@ -459,13 +506,14 @@ class LazyListBeyondBoundsTest {
             key(it) {
                 CompositionLocalProvider(LocalLayoutDirection provides it.layoutDirection) {
                     lazyListState = rememberLazyListState(firstVisibleItem)
+                    scope = rememberCoroutineScope()
                     when (it.beyondBoundsLayoutDirection) {
                         Left,
                         Right,
                         Before,
                         After ->
                             LazyRow(
-                                modifier = Modifier.size(size),
+                                modifier = Modifier.size(size).testTag("list"),
                                 state = lazyListState,
                                 reverseLayout = it.reverseLayout,
                                 content = content
@@ -473,7 +521,7 @@ class LazyListBeyondBoundsTest {
                         Above,
                         Below ->
                             LazyColumn(
-                                modifier = Modifier.size(size),
+                                modifier = Modifier.size(size).testTag("list"),
                                 state = lazyListState,
                                 reverseLayout = it.reverseLayout,
                                 content = content
