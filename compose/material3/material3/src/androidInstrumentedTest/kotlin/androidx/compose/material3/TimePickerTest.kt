@@ -458,11 +458,11 @@ class TimePickerTest {
 
         rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
 
         rule.onNodeWithText("11").performKeyInput { pressKey(Key.Four) }
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -472,14 +472,14 @@ class TimePickerTest {
 
         rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
 
         rule.onNodeWithText("11").performKeyInput {
             pressKey(Key.Delete)
             pressKey(Key.Delete)
         }
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
     }
 
     @Test
@@ -495,7 +495,7 @@ class TimePickerTest {
 
     @Test
     @OptIn(ExperimentalTestApi::class)
-    fun timeInput_24Hour_writeAfternoonHour() {
+    fun timeInput_24Hour_writePmHour() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
         rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
@@ -510,7 +510,7 @@ class TimePickerTest {
 
     @Test
     @OptIn(ExperimentalTestApi::class)
-    fun timeInput_24HourStartingAfternoon_writeAfternoonHour() {
+    fun timeInput_24HourStartingPm_writePmHour() {
         val state = TimePickerState(initialHour = 20, initialMinute = 23, is24Hour = true)
 
         rule.setMaterialContent(lightColorScheme()) { TimeInput(state) }
@@ -596,22 +596,22 @@ class TimePickerTest {
     }
 
     @Test
-    fun state_setHour_updatesIsAfternoon() {
+    fun state_setHour_updatesIsPm() {
         val state = TimePickerState(initialHour = 8, initialMinute = 0, is24Hour = false)
         state.hour = 20
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
     }
 
     @Test
-    fun analogState_setHour_updatesIsAfternoon() {
+    fun analogState_setHour_updatesIsPm() {
         val state =
             AnalogTimePickerState(
                 TimePickerState(initialHour = 8, initialMinute = 0, is24Hour = false)
             )
         state.hour = 20
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
     }
 
     @Test
@@ -665,15 +665,10 @@ class TimePickerTest {
             ClockFace(state, TimePickerDefaults.colors(), autoSwitchToMinute = true)
         }
 
-        repeat(24) { number ->
-            if (number >= 12) {
-                state.isAfternoon = true
-            }
-
+        repeat(12) { number ->
             val hour =
                 when {
                     number == 0 -> 12
-                    number > 12 -> number - 12
                     else -> number
                 }
 
@@ -689,7 +684,7 @@ class TimePickerTest {
     fun clockFace_12Hour_initAtNoon() {
         val state = TimePickerState(initialHour = 12, initialMinute = 0, is24Hour = false)
 
-        assertThat(state.isAfternoon).isTrue()
+        assertThat(state.isPm).isTrue()
 
         assertThat(state.hour).isEqualTo(12)
     }
