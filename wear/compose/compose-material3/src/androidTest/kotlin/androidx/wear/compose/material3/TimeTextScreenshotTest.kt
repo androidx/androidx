@@ -148,6 +148,20 @@ class TimeTextScreenshotTest {
     }
 
     @Test
+    fun time_text_with_long_status_on_round_device() = verifyScreenshot {
+        val timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Green)
+        TimeText(
+            contentColor = Color.Green,
+            timeTextStyle = timeTextStyle,
+            modifier = Modifier.testTag(TEST_TAG),
+        ) {
+            text("Long status that should be ellipsized.")
+            composable { Spacer(modifier = Modifier.size(4.dp)) }
+            time()
+        }
+    }
+
+    @Test
     fun time_text_with_custom_colors_on_non_round_device() =
         verifyScreenshot(false) {
             val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)

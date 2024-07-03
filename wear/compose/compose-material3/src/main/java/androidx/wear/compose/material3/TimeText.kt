@@ -58,6 +58,7 @@ import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.sizeIn
+import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material3.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material3.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material3.TimeTextDefaults.timeFormat
@@ -301,7 +302,8 @@ internal class CurvedTimeTextScope(
         scope.curvedText(
             text = text,
             overflow = TextOverflow.Ellipsis,
-            style = CurvedTextStyle(style = contentTextStyle.merge(style))
+            style = CurvedTextStyle(style = contentTextStyle.merge(style)),
+            modifier = CurvedModifier.weight(1f)
         )
     }
 
