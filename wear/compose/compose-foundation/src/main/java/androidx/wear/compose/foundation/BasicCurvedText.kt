@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -142,7 +143,8 @@ internal class CurvedTextChild(
             text,
             clockwise,
             actualStyle.fontSize.toPx(),
-            actualStyle.letterSpacing
+            actualStyle.letterSpacing,
+            density
         )
 
         // Size the compose-ui node reasonably.
@@ -227,7 +229,8 @@ internal class CurvedTextDelegate {
     private var text: String = ""
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
-    private var letterSpacing: TextUnit? = null
+    private var letterSpacing: TextUnit = TextUnit.Unspecified
+    private var density: Float = 0f
 
     var textWidth by mutableFloatStateOf(0f)
     var textHeight by mutableFloatStateOf(0f)
@@ -246,20 +249,35 @@ internal class CurvedTextDelegate {
         text: String,
         clockwise: Boolean,
         fontSizePx: Float,
-        letterSpacing: TextUnit?
+        letterSpacing: TextUnit,
+        density: Float
     ) {
         if (
             text != this.text ||
                 clockwise != this.clockwise ||
                 fontSizePx != this.fontSizePx ||
-                letterSpacing != this.letterSpacing
+                letterSpacing != this.letterSpacing ||
+                density != this.density
         ) {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
             this.letterSpacing = letterSpacing
+            this.density = density
+
             paint.textSize = fontSizePx
-            paint.letterSpacing = letterSpacing?.value ?: 0f
+            paint.letterSpacing =
+                letterSpacing.let {
+                    when (it.type) {
+                        TextUnitType.Em -> it.value
+                        TextUnitType.Sp -> {
+                            val emWidth = paint.textSize * paint.textScaleX
+                            if (emWidth == 0.0f) 0f else it.value * density / emWidth
+                        }
+                        else -> 0f
+                    }
+                }
+
             updateMeasures()
             lastLayoutInfo = null // Ensure paths are recomputed
         }

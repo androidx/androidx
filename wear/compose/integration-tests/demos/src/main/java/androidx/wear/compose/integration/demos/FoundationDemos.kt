@@ -117,7 +117,8 @@ val WearFoundationDemos =
                     ComposableDemo("Font Weight") { CurvedFontWeight() },
                     ComposableDemo("Fonts") { CurvedFonts() },
                     ComposableDemo("Curved Icons") { CurvedIconsDemo() },
-                    ComposableDemo("Letter Spacing") { CurvedSpacingDemo() },
+                    ComposableDemo("Letter Spacing (em)") { CurvedSpacingEmDemo() },
+                    ComposableDemo("Letter Spacing (sp)") { CurvedSpacingSpDemo() },
                 )
             ),
             ComposableDemo("Scrollable Column") { ScrollableColumnDemo() },
