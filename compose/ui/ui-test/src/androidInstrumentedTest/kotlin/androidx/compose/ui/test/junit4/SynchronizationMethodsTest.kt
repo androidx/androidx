@@ -25,9 +25,11 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestName
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.model.Statement
@@ -46,6 +48,8 @@ class SynchronizationMethodsTest {
         }
     private val composeRootRegistry = environment.composeRootRegistry
     private val test = environment.test
+
+    @get:Rule val testName = TestName()
 
     @get:Rule
     val registryRule: TestRule = TestRule { base, _ ->
@@ -78,6 +82,30 @@ class SynchronizationMethodsTest {
     fun runOnUiThread_nullable() {
         val result: String? = test.runOnUiThread { null }
         assertThat(result).isEqualTo(null)
+    }
+
+    @Test
+    fun runOnUiThread_exception_rethrownWithCallersStackTrace() {
+        var errorThrown = false
+        val expectedError = CustomException("test")
+        try {
+            test.runOnUiThread<Unit> { throw expectedError }
+        } catch (t: Throwable) {
+            errorThrown = true
+            assertWithMessage("caught error should be the original error")
+                .that(t)
+                .isSameInstanceAs(expectedError)
+            assertWithMessage("test thread's stacktrace should be added as a suppressed exception")
+                .that(
+                    t.suppressedExceptions.first().stackTrace.any {
+                        testName.methodName in it.methodName
+                    }
+                )
+                .isTrue()
+        }
+        assertWithMessage("error on the UI thread was not propagated by runOnUiThread")
+            .that(errorThrown)
+            .isEqualTo(true)
     }
 
     @Test
@@ -124,3 +152,5 @@ class SynchronizationMethodsTest {
         return composeRoot
     }
 }
+
+private class CustomException(message: String?) : Exception(message)
