@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text
 
 import android.os.Build
-import androidx.compose.foundation.GOLDEN_UI
+import androidx.compose.foundation.GOLDEN_FOUNDATION
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -45,7 +45,7 @@ import org.junit.runner.RunWith
 class BasicTextScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_UI)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_FOUNDATION)
 
     private val textTag = "text"
 

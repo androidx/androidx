@@ -19,7 +19,7 @@ package androidx.compose.foundation.text
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.GOLDEN_UI
+import androidx.compose.foundation.GOLDEN_FOUNDATION
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -59,7 +59,7 @@ import org.junit.runner.RunWith
 class FontScalingScreenshotTest {
     @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_UI)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_FOUNDATION)
 
     private val containerTag = "container"
 
