@@ -363,7 +363,7 @@ private fun WhiteCircle() {
 }
 
 @Composable
-fun CurvedSpacingDemo() {
+fun CurvedSpacingEmDemo() {
     val style = CurvedTextStyle(MaterialTheme.typography.body1)
     repeat(2) {
         CurvedLayout(
@@ -377,9 +377,35 @@ fun CurvedSpacingDemo() {
                 if (ix > 0) {
                     curvedBox(modifier = CurvedModifier.angularSizeDp(10.dp)) {}
                 }
-                curvedText(
+                basicCurvedText(
                     "| $spacing em |",
                     style = style.copy(letterSpacing = spacing.em),
+                    modifier =
+                        CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CurvedSpacingSpDemo() {
+    val style = CurvedTextStyle(MaterialTheme.typography.body1)
+    repeat(2) {
+        CurvedLayout(
+            anchor = if (it == 0) 270f else 90f,
+            angularDirection =
+                if (it == 0) CurvedDirection.Angular.Clockwise
+                else CurvedDirection.Angular.CounterClockwise,
+            modifier = Modifier.size(300.dp),
+        ) {
+            listOf(-1f, 0f, 1f, 2f).forEachIndexed { ix, spacing ->
+                if (ix > 0) {
+                    curvedBox(modifier = CurvedModifier.angularSizeDp(10.dp)) {}
+                }
+                basicCurvedText(
+                    "| $spacing sp |",
+                    style = style.copy(letterSpacing = spacing.sp),
                     modifier =
                         CurvedModifier.background(if (ix % 2 == 0) Color.DarkGray else Color.Gray)
                 )
