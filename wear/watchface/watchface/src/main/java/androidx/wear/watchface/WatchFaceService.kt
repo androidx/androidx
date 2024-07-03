@@ -2601,6 +2601,7 @@ public abstract class WatchFaceService : WallpaperService() {
         override fun onVisibilityChanged(visible: Boolean): Unit =
             TraceEvent("onVisibilityChanged").use {
                 super.onVisibilityChanged(visible)
+                Log.i(TAG, "onVisibilityChanged($isVisible)")
 
                 // In the WSL flow Home doesn't know when WallpaperService has actually launched a
                 // watchface after requesting a change. It used [Constants.ACTION_REQUEST_STATE] as
