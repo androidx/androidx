@@ -28,6 +28,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
@@ -202,13 +203,15 @@ fun ScreenScaffold(
     val scaffoldState = LocalScaffoldState.current
     val key = remember { Any() }
 
-    DisposableEffect(key) { onDispose { scaffoldState.removeScreen(key) } }
+    key(scrollInfoProvider) {
+        DisposableEffect(key) { onDispose { scaffoldState.removeScreen(key) } }
 
-    OnFocusChange { focused ->
-        if (focused) {
-            scaffoldState.addScreen(key, timeText, scrollInfoProvider)
-        } else {
-            scaffoldState.removeScreen(key)
+        OnFocusChange { focused ->
+            if (focused) {
+                scaffoldState.addScreen(key, timeText, scrollInfoProvider)
+            } else {
+                scaffoldState.removeScreen(key)
+            }
         }
     }
 
