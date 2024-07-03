@@ -255,7 +255,7 @@ nullaway = { module = "com.uber.nullaway:nullaway", version = "0.10.18" }
 okhttpMockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version = "3.14.7" }
 okio = { module = "com.squareup.okio:okio", version = "3.4.0" }
 opentest4j = { module = "org.opentest4j:opentest4j", version = "1.2.0" }
-playFeatureDelivery = { module = "com.google.android.play:feature-delivery", version = "2.0.1" }
+playFeatureDelivery = { module = "com.google.android.play:feature-delivery", version = "2.1.0" }
 playCore = { module = "com.google.android.play:core", version = "1.10.3" }
 playServicesAuth = {module = "com.google.android.gms:play-services-auth", version = "21.1.1"}
 playServicesBase = { module = "com.google.android.gms:play-services-base", version = "17.0.0" }
