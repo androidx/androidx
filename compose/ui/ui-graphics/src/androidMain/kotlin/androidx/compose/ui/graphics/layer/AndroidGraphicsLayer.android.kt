@@ -50,7 +50,10 @@ import org.jetbrains.annotations.TestOnly
 
 @Suppress("NotCloseable")
 actual class GraphicsLayer
-internal constructor(internal val impl: GraphicsLayerImpl, private val layerManager: LayerManager) {
+internal constructor(
+    internal val impl: GraphicsLayerImpl,
+    private val layerManager: LayerManager?
+) {
     private var density = DefaultDensity
     private var layoutDirection = LayoutDirection.Ltr
     private var drawBlock: DrawScope.() -> Unit = {}
@@ -639,7 +642,11 @@ internal constructor(internal val impl: GraphicsLayerImpl, private val layerMana
 
     private fun discardContentIfReleasedAndHaveNoParentLayerUsages() {
         if (isReleased && parentLayerUsages == 0) {
-            layerManager.release(this)
+            if (layerManager != null) {
+                layerManager.release(this)
+            } else {
+                discardDisplayList()
+            }
         }
     }
 
