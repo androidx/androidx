@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_64
+// VERSION: v0_65
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -25,14 +25,14 @@ internal object TypeScaleTokens {
     val ArcMediumFont = TypefaceTokens.Brand
     val ArcMediumLineHeight = 18.0.sp
     val ArcMediumSize = 15.sp
-    val ArcMediumTracking = 0.4.sp
+    val ArcMediumTracking = 0.2.sp
     val ArcMediumWeight = 600.0f
     val ArcMediumWeightProminent = 800.0f
     val ArcMediumWidth = 100.0f
     val ArcSmallFont = TypefaceTokens.Brand
     val ArcSmallLineHeight = 16.0.sp
     val ArcSmallSize = 14.sp
-    val ArcSmallTracking = 0.4.sp
+    val ArcSmallTracking = 0.2.sp
     val ArcSmallWeight = 560.0f
     val ArcSmallWeightProminent = 760.0f
     val ArcSmallWidth = 100.0f
