@@ -37,6 +37,8 @@ import androidx.window.extensions.embedding.ActivityStack
 import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.ActivityStackAttributesCalculatorParams
 import androidx.window.extensions.embedding.AnimationBackground
+import androidx.window.extensions.embedding.AnimationParams
+import androidx.window.extensions.embedding.DividerAttributes
 import androidx.window.extensions.embedding.EmbeddedActivityWindowInfo
 import androidx.window.extensions.embedding.ParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes
@@ -91,7 +93,8 @@ internal class SafeActivityEmbeddingComponentProvider(
             2 -> hasValidVendorApiLevel2()
             in 3..4 -> hasValidVendorApiLevel3() // No additional API in 4.
             5 -> hasValidVendorApiLevel5()
-            in 6..Int.MAX_VALUE -> hasValidVendorApiLevel6()
+            6 -> hasValidVendorApiLevel6()
+            in 7..Int.MAX_VALUE -> hasValidVendorApiLevel7()
             else -> false
         }
     }
@@ -224,8 +227,12 @@ internal class SafeActivityEmbeddingComponentProvider(
      * Vendor API level 6 includes the following methods:
      * - [ActivityEmbeddingComponent.clearEmbeddedActivityWindowInfoCallback]
      * - [ActivityEmbeddingComponent.getEmbeddedActivityWindowInfo]
-     * - [ActivityEmbeddingComponent.setEmbeddedActivityWindowInfoCallback] and following classes:
+     * - [ActivityEmbeddingComponent.setEmbeddedActivityWindowInfoCallback]
+     * - [SplitAttributes.getDividerAttributes]
+     * - [SplitAttributes.Builder.setDividerAttributes] and following classes:
      * - [EmbeddedActivityWindowInfo]
+     * - [DividerAttributes]
+     * - [DividerAttributes.Builder]
      */
     @VisibleForTesting
     internal fun hasValidVendorApiLevel6(): Boolean =
@@ -233,7 +240,30 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodGetEmbeddedActivityWindowInfoValid() &&
             isMethodSetEmbeddedActivityWindowInfoCallbackValid() &&
             isMethodClearEmbeddedActivityWindowInfoCallbackValid() &&
-            isClassEmbeddedActivityWindowInfoValid()
+            isMethodGetDividerAttributesValid() &&
+            isMethodSetDividerAttributesValid() &&
+            isClassEmbeddedActivityWindowInfoValid() &&
+            isClassDividerAttributesValid() &&
+            isClassDividerAttributesBuilderValid()
+
+    /**
+     * Vendor API level 7 includes the following methods:
+     * - [SplitAttributes.getAnimationParams]
+     * - [SplitAttributes.Builder.setAnimationParams]
+     * - [DividerAttributes.isDraggingToFullscreenAllowed]
+     * - [DividerAttributes.Builder.setDraggingToFullscreenAllowed] and following classes:
+     * - [AnimationParams]
+     * - [AnimationParams.Builder]
+     */
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel7(): Boolean =
+        hasValidVendorApiLevel6() &&
+            isMethodGetAnimationParamsValid() &&
+            isMethodSetAnimationParamsValid() &&
+            isMethodIsDraggingToFullscreenAllowedValid() &&
+            isMethodSetDraggingToFullscreenAllowedValid() &&
+            isClassAnimationParamsValid() &&
+            isClassAnimationParamsBuilderValid()
 
     /**
      * Overlay features includes the following methods:
@@ -856,6 +886,26 @@ internal class SafeActivityEmbeddingComponentProvider(
             clearEmbeddedActivityWindowInfoCallbackMethod.isPublic
         }
 
+    private fun isMethodGetDividerAttributesValid(): Boolean =
+        validateReflection("SplitAttributes#getDividerAttributes is not valid") {
+            val splitAttributesClass = SplitAttributes::class.java
+            val getDividerAttributesMethod = splitAttributesClass.getMethod("getDividerAttributes")
+            getDividerAttributesMethod.isPublic &&
+                getDividerAttributesMethod.doesReturn(DividerAttributes::class.java)
+        }
+
+    private fun isMethodSetDividerAttributesValid(): Boolean =
+        validateReflection("SplitAttributes#setDividerAttributes is not valid") {
+            val splitAttributesBuilderClass = SplitAttributes.Builder::class.java
+            val setDividerAttributesMethod =
+                splitAttributesBuilderClass.getMethod(
+                    "setDividerAttributes",
+                    DividerAttributes::class.java
+                )
+            setDividerAttributesMethod.isPublic &&
+                setDividerAttributesMethod.doesReturn(SplitAttributes.Builder::class.java)
+        }
+
     private fun isClassEmbeddedActivityWindowInfoValid(): Boolean =
         validateReflection("Class EmbeddedActivityWindowInfo is not valid") {
             val embeddedActivityWindowInfoClass = EmbeddedActivityWindowInfo::class.java
@@ -872,6 +922,144 @@ internal class SafeActivityEmbeddingComponentProvider(
                 getTaskBoundsMethod.doesReturn(Rect::class.java) &&
                 getActivityStackBoundsMethod.isPublic &&
                 getActivityStackBoundsMethod.doesReturn(Rect::class.java)
+        }
+
+    private fun isClassDividerAttributesValid(): Boolean =
+        validateReflection("Class DividerAttributes is not valid") {
+            val dividerAttributesClass = DividerAttributes::class.java
+            val getDividerTypeMethod = dividerAttributesClass.getMethod("getDividerType")
+            val getWidthDpMethod = dividerAttributesClass.getMethod("getWidthDp")
+            val getPrimaryMinRatioMethod = dividerAttributesClass.getMethod("getPrimaryMinRatio")
+            val getPrimaryMaxRatioMethod = dividerAttributesClass.getMethod("getPrimaryMaxRatio")
+            val getDividerColorMethod = dividerAttributesClass.getMethod("getDividerColor")
+            getDividerTypeMethod.isPublic &&
+                getDividerTypeMethod.doesReturn(Int::class.java) &&
+                getWidthDpMethod.isPublic &&
+                getWidthDpMethod.doesReturn(Int::class.java) &&
+                getPrimaryMinRatioMethod.isPublic &&
+                getPrimaryMinRatioMethod.doesReturn(Float::class.java) &&
+                getPrimaryMaxRatioMethod.isPublic &&
+                getPrimaryMaxRatioMethod.doesReturn(Float::class.java) &&
+                getDividerColorMethod.isPublic &&
+                getDividerColorMethod.doesReturn(Int::class.java)
+        }
+
+    private fun isClassDividerAttributesBuilderValid(): Boolean =
+        validateReflection("Class DividerAttributes.Builder is not valid") {
+            val dividerAttributesBuilderClass = DividerAttributes.Builder::class.java
+            val dividerAttributesTypeBuilderConstructor =
+                dividerAttributesBuilderClass.getDeclaredConstructor(Int::class.java)
+            val dividerAttributesBuilderConstructor =
+                dividerAttributesBuilderClass.getDeclaredConstructor(DividerAttributes::class.java)
+            val setWidthDpMethod =
+                dividerAttributesBuilderClass.getMethod("setWidthDp", Int::class.java)
+            val setPrimaryMinRatioMethod =
+                dividerAttributesBuilderClass.getMethod("setPrimaryMinRatio", Float::class.java)
+            val setPrimaryMaxRatioMethod =
+                dividerAttributesBuilderClass.getMethod("setPrimaryMaxRatio", Float::class.java)
+            val setDividerColorMethod =
+                dividerAttributesBuilderClass.getMethod("setDividerColor", Int::class.java)
+            dividerAttributesTypeBuilderConstructor.isPublic &&
+                dividerAttributesBuilderConstructor.isPublic &&
+                setWidthDpMethod.isPublic &&
+                setWidthDpMethod.doesReturn(DividerAttributes.Builder::class.java) &&
+                setPrimaryMinRatioMethod.isPublic &&
+                setPrimaryMinRatioMethod.doesReturn(DividerAttributes.Builder::class.java) &&
+                setPrimaryMaxRatioMethod.isPublic &&
+                setPrimaryMaxRatioMethod.doesReturn(DividerAttributes.Builder::class.java) &&
+                setDividerColorMethod.isPublic &&
+                setDividerColorMethod.doesReturn(DividerAttributes.Builder::class.java)
+        }
+
+    /** Vendor API level 7 validation methods */
+    private fun isMethodGetAnimationParamsValid(): Boolean =
+        validateReflection("SplitAttributes#getAnimationParams is not valid") {
+            val splitAttributesClass = SplitAttributes::class.java
+            val getAnimationParamsMethod = splitAttributesClass.getMethod("getAnimationParams")
+            getAnimationParamsMethod.isPublic &&
+                getAnimationParamsMethod.doesReturn(AnimationParams::class.java)
+        }
+
+    private fun isMethodSetAnimationParamsValid(): Boolean =
+        validateReflection("SplitAttributes#setAnimationParams is not valid") {
+            val splitAttributesBuilderClass = SplitAttributes.Builder::class.java
+            val setAnimationParamsMethod =
+                splitAttributesBuilderClass.getMethod(
+                    "setAnimationParams",
+                    AnimationParams::class.java
+                )
+            setAnimationParamsMethod.isPublic &&
+                setAnimationParamsMethod.doesReturn(SplitAttributes.Builder::class.java)
+        }
+
+    private fun isMethodIsDraggingToFullscreenAllowedValid(): Boolean =
+        validateReflection("DividerAttributes#isDraggingToFullscreenAllowed is not valid") {
+            val dividerAttributesClass = DividerAttributes::class.java
+            val getDividerTypeMethod =
+                dividerAttributesClass.getMethod("isDraggingToFullscreenAllowed")
+            getDividerTypeMethod.isPublic && getDividerTypeMethod.doesReturn(Boolean::class.java)
+        }
+
+    private fun isMethodSetDraggingToFullscreenAllowedValid(): Boolean =
+        validateReflection(
+            "DividerAttributes.Builder#setDraggingToFullscreenAllowed is not valid"
+        ) {
+            val dividerAttributesBuilderClass = DividerAttributes.Builder::class.java
+            val setDividerColorMethod =
+                dividerAttributesBuilderClass.getMethod(
+                    "setDraggingToFullscreenAllowed",
+                    Boolean::class.java
+                )
+            setDividerColorMethod.isPublic &&
+                setDividerColorMethod.doesReturn(DividerAttributes.Builder::class.java)
+        }
+
+    private fun isClassAnimationParamsValid(): Boolean =
+        validateReflection("Class AnimationParams is not valid") {
+            val animationParamsClass = AnimationParams::class.java
+            val animationResourcesIdDefaultField =
+                animationParamsClass.getDeclaredField("DEFAULT_ANIMATION_RESOURCES_ID")
+            val getAnimationBackgroundMethod =
+                animationParamsClass.getMethod("getAnimationBackground")
+            val getOpenAnimationResIdMethod =
+                animationParamsClass.getMethod("getOpenAnimationResId")
+            val getCloseAnimationResIdMethod =
+                animationParamsClass.getMethod("getCloseAnimationResId")
+            val getChangeAnimationResIdMethod =
+                animationParamsClass.getMethod("getChangeAnimationResId")
+            animationResourcesIdDefaultField.isPublic &&
+                getAnimationBackgroundMethod.isPublic &&
+                getAnimationBackgroundMethod.doesReturn(AnimationBackground::class.java) &&
+                getOpenAnimationResIdMethod.isPublic &&
+                getOpenAnimationResIdMethod.doesReturn(Int::class.java) &&
+                getCloseAnimationResIdMethod.isPublic &&
+                getCloseAnimationResIdMethod.doesReturn(Int::class.java) &&
+                getChangeAnimationResIdMethod.isPublic &&
+                getChangeAnimationResIdMethod.doesReturn(Int::class.java)
+        }
+
+    private fun isClassAnimationParamsBuilderValid(): Boolean =
+        validateReflection("Class AnimationParams.Builder is not valid") {
+            val animationParamsBuilderClass = AnimationParams.Builder::class.java
+            val setAnimationBackgroundMethod =
+                animationParamsBuilderClass.getMethod(
+                    "setAnimationBackground",
+                    AnimationBackground::class.java
+                )
+            val setOpenAnimationResIdMethod =
+                animationParamsBuilderClass.getMethod("setOpenAnimationResId", Int::class.java)
+            val setCloseAnimationResIdMethod =
+                animationParamsBuilderClass.getMethod("setCloseAnimationResId", Int::class.java)
+            val setChangeAnimationResIdMethod =
+                animationParamsBuilderClass.getMethod("setChangeAnimationResId", Int::class.java)
+            setAnimationBackgroundMethod.isPublic &&
+                setAnimationBackgroundMethod.doesReturn(AnimationParams.Builder::class.java) &&
+                setOpenAnimationResIdMethod.isPublic &&
+                setOpenAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java) &&
+                setCloseAnimationResIdMethod.isPublic &&
+                setCloseAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java) &&
+                setChangeAnimationResIdMethod.isPublic &&
+                setChangeAnimationResIdMethod.doesReturn(AnimationParams.Builder::class.java)
         }
 
     /** Overlay features validation methods */
