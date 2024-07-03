@@ -25,26 +25,140 @@ import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEachIndexed
 
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+internal fun calculateThreePaneMotion(
+    targetScaffoldValue: ThreePaneScaffoldValue,
+    paneOrder: ThreePaneScaffoldHorizontalOrder
+): ThreePaneMotion {
+    class ThreePaneScaffoldValueHolder(var value: ThreePaneScaffoldValue)
+
+    val layoutDirection = LocalLayoutDirection.current
+    val ltrPaneOrder =
+        remember(paneOrder, layoutDirection) { paneOrder.toLtrOrder(layoutDirection) }
+    val previousScaffoldValue = remember { ThreePaneScaffoldValueHolder(targetScaffoldValue) }
+    val threePaneMotion =
+        remember(targetScaffoldValue, ltrPaneOrder) {
+            val previousValue = previousScaffoldValue.value
+            previousScaffoldValue.value = targetScaffoldValue
+            val paneMotions = calculatePaneMotion(previousValue, targetScaffoldValue, ltrPaneOrder)
+            ThreePaneMotion(
+                paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Primary)],
+                paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Secondary)],
+                paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Tertiary)]
+            )
+        }
+    return threePaneMotion
+}
+
+@ExperimentalMaterial3AdaptiveApi
+@Immutable
+internal class ThreePaneMotion(
+    val primaryPaneMotion: PaneMotion,
+    val secondaryPaneMotion: PaneMotion,
+    val tertiaryPaneMotion: PaneMotion,
+    val sizeAnimationSpec: FiniteAnimationSpec<IntSize> =
+        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
+    val positionAnimationSpec: FiniteAnimationSpec<IntOffset> =
+        ThreePaneMotionDefaults.PanePositionAnimationSpec,
+    val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
+        ThreePaneMotionDefaults.PanePositionAnimationSpecDelayed
+) {
+    fun copy(
+        primaryPaneMotion: PaneMotion = this.primaryPaneMotion,
+        secondaryPaneMotion: PaneMotion = this.secondaryPaneMotion,
+        tertiaryPaneMotion: PaneMotion = this.tertiaryPaneMotion,
+        sizeAnimationSpec: FiniteAnimationSpec<IntSize> = this.sizeAnimationSpec,
+        positionAnimationSpec: FiniteAnimationSpec<IntOffset> = this.positionAnimationSpec,
+        delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
+            this.delayedPositionAnimationSpec
+    ): ThreePaneMotion =
+        ThreePaneMotion(
+            primaryPaneMotion,
+            secondaryPaneMotion,
+            tertiaryPaneMotion,
+            sizeAnimationSpec,
+            positionAnimationSpec,
+            delayedPositionAnimationSpec
+        )
+
+    operator fun get(role: ThreePaneScaffoldRole): PaneMotion =
+        when (role) {
+            ThreePaneScaffoldRole.Primary -> primaryPaneMotion
+            ThreePaneScaffoldRole.Secondary -> secondaryPaneMotion
+            ThreePaneScaffoldRole.Tertiary -> tertiaryPaneMotion
+        }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ThreePaneMotion) return false
+        if (primaryPaneMotion != other.primaryPaneMotion) return false
+        if (secondaryPaneMotion != other.secondaryPaneMotion) return false
+        if (tertiaryPaneMotion != other.tertiaryPaneMotion) return false
+        if (sizeAnimationSpec != other.sizeAnimationSpec) return false
+        if (positionAnimationSpec != other.positionAnimationSpec) return false
+        if (delayedPositionAnimationSpec != other.delayedPositionAnimationSpec) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = primaryPaneMotion.hashCode()
+        result = 31 * result + secondaryPaneMotion.hashCode()
+        result = 31 * result + tertiaryPaneMotion.hashCode()
+        result = 31 * result + sizeAnimationSpec.hashCode()
+        result = 31 * result + positionAnimationSpec.hashCode()
+        result = 31 * result + delayedPositionAnimationSpec.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "ThreePaneMotion(" +
+            "primaryPaneMotion=$primaryPaneMotion, " +
+            "secondaryPaneMotion=$secondaryPaneMotion, " +
+            "tertiaryPaneMotion=$tertiaryPaneMotion, " +
+            "sizeAnimationSpec=$sizeAnimationSpec, " +
+            "positionAnimationSpec=$positionAnimationSpec, " +
+            "delayedPositionAnimationSpec=$delayedPositionAnimationSpec)"
+    }
+
+    internal fun toPaneMotionList(ltrOrder: ThreePaneScaffoldHorizontalOrder): List<PaneMotion> =
+        listOf(this[ltrOrder.firstPane], this[ltrOrder.secondPane], this[ltrOrder.thirdPane])
+}
+
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Suppress("PrimitiveInCollection") // No way to get underlying Long of IntSize or IntOffset
-internal class ThreePaneScaffoldMotionScopeImpl(
-    override val positionAnimationSpec: FiniteAnimationSpec<IntOffset> =
-        ThreePaneMotionDefaults.PanePositionAnimationSpec,
-    override val sizeAnimationSpec: FiniteAnimationSpec<IntSize> =
-        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
-    override val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
-        ThreePaneMotionDefaults.PanePositionAnimationSpecDelayed,
-) : PaneScaffoldMotionScope {
+internal class ThreePaneScaffoldMotionScopeImpl : PaneScaffoldMotionScope {
+    internal lateinit var threePaneMotion: ThreePaneMotion
+        private set
+
+    override val sizeAnimationSpec: FiniteAnimationSpec<IntSize>
+        get() = threePaneMotion.sizeAnimationSpec
+
+    override val positionAnimationSpec: FiniteAnimationSpec<IntOffset>
+        get() = threePaneMotion.positionAnimationSpec
+
+    override val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset>
+        get() = threePaneMotion.delayedPositionAnimationSpec
+
     override var scaffoldSize: IntSize = IntSize.Zero
     override val paneMotionDataList: List<PaneMotionData> =
         listOf(PaneMotionData(), PaneMotionData(), PaneMotionData())
 
-    internal fun updatePaneMotions(paneMotions: List<PaneMotion>) {
-        paneMotionDataList.fastForEachIndexed { index, it -> it.motion = paneMotions[index] }
+    internal fun updateThreePaneMotion(
+        threePaneMotion: ThreePaneMotion,
+        ltrOrder: ThreePaneScaffoldHorizontalOrder
+    ) {
+        val paneMotions = threePaneMotion.toPaneMotionList(ltrOrder)
+        this.paneMotionDataList.fastForEachIndexed { index, it -> it.motion = paneMotions[index] }
+        this.threePaneMotion = threePaneMotion
     }
 }
 

@@ -54,11 +54,8 @@ internal class ThreePaneScaffoldPaneScopeImpl(
     override var paneMotion: PaneMotion by mutableStateOf(DefaultPaneMotion.ExitToLeft)
         private set
 
-    fun updatePaneMotion(
-        paneMotions: List<PaneMotion>,
-        paneOrder: ThreePaneScaffoldHorizontalOrder
-    ) {
-        paneMotion = paneMotions[paneOrder.indexOf(paneRole)]
+    fun updatePaneMotion(paneMotions: ThreePaneMotion) {
+        paneMotion = paneMotions[paneRole]
     }
 }
 
