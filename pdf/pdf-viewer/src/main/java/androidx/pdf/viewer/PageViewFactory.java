@@ -98,9 +98,11 @@ public class PageViewFactory {
         void clearAll();
     }
 
-    /** Returns an instance of {@link PageView}. If the view is already created and added to the
-     *  {@link PaginatedView} then it will be returned from that list else a new instance will be
-     *  created. */
+    /**
+     * Returns an instance of {@link PageView}. If the view is already created and added to the
+     * {@link PaginatedView} then it will be returned from that list else a new instance will be
+     * created.
+     */
     @NonNull
     public PageView getOrCreatePageView(int pageNum,
             int pageElevationInPixels,
@@ -126,7 +128,8 @@ public class PageViewFactory {
         final MosaicView.BitmapSource bitmapSource = createBitmapSource(pageNum);
         final PageMosaicView pageMosaicView =
                 new PageMosaicView(mContext, pageNum, pageSize, bitmapSource,
-                        TileBoard.DEFAULT_RECYCLER);
+                        TileBoard.DEFAULT_RECYCLER, mPdfLoader, mPaginatedView.getSelectionModel(),
+                        mPaginatedView.getSearchModel());
         if (isTouchExplorationEnabled(mContext)) {
             final PageLinksView pageLinksView = new PageLinksView(mContext, mZoomScroll);
 

@@ -46,6 +46,10 @@ public class PaginatedView extends AbstractPaginatedView {
     /** Maps the current child views to pages. */
     private final SparseArray<PageView> mPageViews = new SparseArray<>();
 
+    private PdfSelectionModel mSelectionModel;
+
+    private SearchModel mSearchModel;
+
     public PaginatedView(@NonNull Context context) {
         super(context);
     }
@@ -56,6 +60,25 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public PaginatedView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    @NonNull
+    public PdfSelectionModel getSelectionModel() {
+        return mSelectionModel;
+    }
+
+    public void setSelectionModel(
+            @NonNull PdfSelectionModel selectionModel) {
+        mSelectionModel = selectionModel;
+    }
+
+    @NonNull
+    public SearchModel getSearchModel() {
+        return mSearchModel;
+    }
+
+    public void setSearchModel(@NonNull SearchModel searchModel) {
+        mSearchModel = searchModel;
     }
 
     /** Instantiate a page of this pageView into a child pageView. */

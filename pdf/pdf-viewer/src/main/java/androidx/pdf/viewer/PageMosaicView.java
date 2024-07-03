@@ -32,6 +32,7 @@ import androidx.pdf.models.GotoLinkDestination;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.BitmapRecycler;
+import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.pdf.widget.MosaicView;
 
 import java.util.List;
@@ -40,7 +41,6 @@ import java.util.List;
  * Renders one Page.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressWarnings("UnusedVariable")
 public class PageMosaicView extends MosaicView implements PageViewFactory.PageView {
 
     @VisibleForTesting
@@ -50,19 +50,28 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     private String mPageText;
     private LinkRects mUrlLinks;
     private List<GotoLink> mGotoLinks;
+    private final PdfLoader mPdfLoader;
+    private final PdfSelectionModel mSelectionModel;
+    private final SearchModel mSearchModel;
 
     public PageMosaicView(
             @NonNull Context context,
             int pageNum,
             @NonNull Dimensions pageSize,
             @NonNull BitmapSource bitmapSource,
-            @Nullable BitmapRecycler bitmapRecycler) {
+            @Nullable BitmapRecycler bitmapRecycler,
+            @NonNull PdfLoader pdfLoader,
+            @NonNull PdfSelectionModel selectionModel,
+            @NonNull SearchModel searchModel) {
         super(context);
         this.mPageNum = pageNum;
         init(pageSize, bitmapRecycler, bitmapSource);
         setId(pageNum);
         setPageText(null);
         setFocusableInTouchMode(true);
+        this.mPdfLoader = pdfLoader;
+        this.mSelectionModel = selectionModel;
+        this.mSearchModel = searchModel;
     }
 
     /** Set the given overlay. */
@@ -168,5 +177,39 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     @Override
     public View asView() {
         return this;
+    }
+
+    /**
+     * Loads the page content like page text, external urls and goto links and also resets the
+     * overlays from selection and search
+     */
+    public void refreshPageContentAndOverlays() {
+        loadPageComponents();
+        resetOverlays();
+    }
+
+    /** Loads the page text, external links and the goto links for the page */
+    private void loadPageComponents() {
+        if (needsPageText()) {
+            mPdfLoader.loadPageText(mPageNum);
+        }
+        if (!hasPageUrlLinks()) {
+            mPdfLoader.loadPageUrlLinks(mPageNum);
+        }
+        if (!hasPageGotoLinks()) {
+            mPdfLoader.loadPageGotoLinks(mPageNum);
+        }
+    }
+
+    private void resetOverlays() {
+        if (getPageNum() == mSelectionModel.getPage()) {
+            setOverlay(new PdfHighlightOverlay(mSelectionModel.selection().get()));
+        } else if (mSearchModel.query().get() != null) {
+            if (!hasOverlay()) {
+                mPdfLoader.searchPageText(getPageNum(), mSearchModel.query().get());
+            }
+        } else {
+            setOverlay(null);
+        }
     }
 }
