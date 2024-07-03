@@ -73,7 +73,8 @@ import java.util.List;
  * ProtoLayout layout that represents a suggested layout style for Material ProtoLayout with the
  * primary (compact) chip at the bottom with the given content in the center and the recommended
  * margin and padding applied. There is a fixed slot for an optional primary label above or optional
- * secondary label below the main content area.
+ * secondary label below the main content area. Visuals and design samples can be found
+ * <a href="https://developer.android.com/design/ui/wear/guides/surfaces/tiles-layouts#layout-templates">here</a>.
  *
  * <p>It is highly recommended that main content has max lines between 2 and 4 (dependant on labels
  * present), i.e.: * No labels are present: content with max 4 lines, * 1 label is present: content
@@ -98,7 +99,6 @@ import java.util.List;
  * PrimaryLayout myPl = PrimaryLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
-// TODO(b/274916652): Link visuals once they are available.
 public class PrimaryLayout implements LayoutElement {
     /**
      * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a PrimaryLayout.
