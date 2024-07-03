@@ -201,8 +201,20 @@ internal class TriggerBasedInvalidationTracker(
         connection.execSQL(CREATE_TRACKING_TABLE_SQL)
     }
 
-    /** Add an observer and return true if it was actually added, or false if already added. */
+    /**
+     * Add an observer, sync triggers and return true if it was actually added, or false if already
+     * added.
+     */
     internal suspend fun addObserver(observer: Observer): Boolean {
+        val shouldSync = addObserverOnly(observer)
+        if (shouldSync) {
+            syncTriggers()
+        }
+        return shouldSync
+    }
+
+    /** Add an observer and return true if it was actually added, or false if already added. */
+    internal fun addObserverOnly(observer: Observer): Boolean {
         val (resolvedTableNames, tableIds) = validateTableNames(observer.tables)
         val wrapper =
             ObserverWrapper(
@@ -219,7 +231,15 @@ internal class TriggerBasedInvalidationTracker(
                     observerMap.put(observer, wrapper)
                 }
             }
-        val shouldSync = currentObserver == null && observedTableStates.onObserverAdded(tableIds)
+        return currentObserver == null && observedTableStates.onObserverAdded(tableIds)
+    }
+
+    /**
+     * Removes an observer, sync triggers and return true if it was actually removed, or false if it
+     * was not found.
+     */
+    internal suspend fun removeObserver(observer: Observer): Boolean {
+        val shouldSync = removeObserverOnly(observer)
         if (shouldSync) {
             syncTriggers()
         }
@@ -229,13 +249,9 @@ internal class TriggerBasedInvalidationTracker(
     /**
      * Removes an observer and return true if it was actually removed, or false if it was not found.
      */
-    internal suspend fun removeObserver(observer: Observer): Boolean {
+    private fun removeObserverOnly(observer: Observer): Boolean {
         val wrapper = observerMapLock.withLock { observerMap.remove(observer) }
-        val shouldSync = wrapper != null && observedTableStates.onObserverRemoved(wrapper.tableIds)
-        if (shouldSync) {
-            syncTriggers()
-        }
-        return shouldSync
+        return wrapper != null && observedTableStates.onObserverRemoved(wrapper.tableIds)
     }
 
     /** Resolves the list of tables and views into unique table names and ids. */

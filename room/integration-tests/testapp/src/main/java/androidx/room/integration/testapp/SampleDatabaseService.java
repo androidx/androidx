@@ -19,20 +19,18 @@ package androidx.room.integration.testapp;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.Process;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.room.ExperimentalRoomApi;
+import androidx.room.InvalidationTracker;
 import androidx.room.Room;
 import androidx.room.integration.testapp.database.Customer;
 import androidx.room.integration.testapp.database.SampleDatabase;
 
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -61,25 +59,23 @@ public class SampleDatabaseService extends Service {
 
         @Override
         public boolean waitForCustomer(int id, String name, String lastName) {
-            final Customer customer = new Customer();
-            customer.setId(id);
-            customer.setName(name);
-            customer.setLastName(lastName);
             final CountDownLatch changed = new CountDownLatch(1);
-            final Observer<List<Customer>> observer = list -> {
-                if (list != null && list.size() >= 1 && list.contains(customer)) {
-                    changed.countDown();
+            final InvalidationTracker.Observer observer = new InvalidationTracker.Observer(
+                    Customer.class.getSimpleName()) {
+                @Override
+                public void onInvalidated(@NonNull Set<String> tables) {
+                    if (mDatabase.getCustomerDao().contains(id, name, lastName)) {
+                        changed.countDown();
+                    }
                 }
             };
-            final LiveData<List<Customer>> customers = mDatabase.getCustomerDao().all();
-            final Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(() -> customers.observeForever(observer));
+            mDatabase.getInvalidationTracker().addObserver(observer);
             try {
                 return changed.await(3, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 return false;
             } finally {
-                handler.post(() -> customers.removeObserver(observer));
+                mDatabase.getInvalidationTracker().removeObserver(observer);
             }
         }
     };
@@ -93,11 +89,12 @@ public class SampleDatabaseService extends Service {
 
     /**
      * Creates the test service for the given database name
-     * @param context The context to creat the intent
+     * @param context The context to create the intent
      * @param databaseName The database name to be used
      * @return A new intent that can be used to connect to this service
      */
-    public static Intent intentFor(Context context, String databaseName) {
+    @NonNull
+    public static Intent intentFor(@NonNull Context context, @NonNull String databaseName) {
         Intent intent = new Intent(context, SampleDatabaseService.class);
         intent.putExtra(DATABASE_NAME_PARAM, databaseName);
         return intent;
@@ -109,7 +106,7 @@ public class SampleDatabaseService extends Service {
     public IBinder onBind(Intent intent) {
         String databaseName = intent.getStringExtra(DATABASE_NAME_PARAM);
         if (databaseName == null) {
-            throw new IllegalArgumentException("must pass database name in the intent");
+            throw new IllegalArgumentException("Must pass database name in the intent");
         }
         if (mDatabase != null) {
             throw new IllegalStateException("Cannot re-use the same service for different tests");
