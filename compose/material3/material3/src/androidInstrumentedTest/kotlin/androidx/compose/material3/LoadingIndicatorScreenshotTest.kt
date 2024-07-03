@@ -47,27 +47,42 @@ class LoadingIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
     private val wrapperTestTag = "loadingIndicatorWrapper"
 
     @Test
-    fun loadingIndicator_determinate_start_progress() {
+    fun containedLoadingIndicator_determinate_start_progress() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) { LoadingIndicator(progress = { 0f }) }
+            Box(wrap.testTag(wrapperTestTag)) { ContainedLoadingIndicator(progress = { 0f }) }
         }
-        assertIndicatorAgainstGolden("loadingIndicator_determinate_start_progress_${scheme.name}")
+        assertIndicatorAgainstGolden(
+            "containedLoadingIndicator_determinate_start_progress_${scheme.name}"
+        )
     }
 
     @Test
-    fun loadingIndicator_determinate_mid_progress() {
+    fun containedLoadingIndicator_determinate_mid_progress() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) { LoadingIndicator(progress = { 0.5f }) }
+            Box(wrap.testTag(wrapperTestTag)) { ContainedLoadingIndicator(progress = { 0.5f }) }
         }
-        assertIndicatorAgainstGolden("loadingIndicator_determinate_mid_progress_${scheme.name}")
+        assertIndicatorAgainstGolden(
+            "containedLoadingIndicator_determinate_mid_progress_${scheme.name}"
+        )
     }
 
     @Test
-    fun loadingIndicator_determinate_end_progress() {
+    fun containedLoadingIndicator_determinate_end_progress() {
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) { LoadingIndicator(progress = { 1f }) }
+            Box(wrap.testTag(wrapperTestTag)) { ContainedLoadingIndicator(progress = { 1f }) }
         }
-        assertIndicatorAgainstGolden("loadingIndicator_determinate_end_progress_${scheme.name}")
+        assertIndicatorAgainstGolden(
+            "containedLoadingIndicator_determinate_end_progress_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun loadingIndicator_determinate() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) { LoadingIndicator() }
+        }
+        assertIndicatorAgainstGolden("loadingIndicator_determinate_${scheme.name}")
     }
 
     @Test
@@ -80,16 +95,12 @@ class LoadingIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun loadingIndicator_indeterminate_withContainerColor() {
+    fun containedLoadingIndicator_indeterminate() {
         rule.mainClock.autoAdvance = false
         rule.setMaterialContent(scheme.colorScheme) {
-            Box(wrap.testTag(wrapperTestTag)) {
-                LoadingIndicator(containerColor = LoadingIndicatorDefaults.ContainerColor)
-            }
+            Box(wrap.testTag(wrapperTestTag)) { ContainedLoadingIndicator() }
         }
-        assertIndicatorAgainstGolden(
-            "loadingIndicator_indeterminate_withContainerColor_${scheme.name}"
-        )
+        assertIndicatorAgainstGolden("containedLoadingIndicator_indeterminate_${scheme.name}")
     }
 
     private fun assertIndicatorAgainstGolden(goldenName: String) {
