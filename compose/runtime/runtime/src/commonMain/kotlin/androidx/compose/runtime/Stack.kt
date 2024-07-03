@@ -16,6 +16,8 @@
 
 package androidx.compose.runtime
 
+import kotlin.jvm.JvmInline
+
 @JvmInline
 internal value class Stack<T>(private val backing: ArrayList<T> = ArrayList()) {
     val size: Int

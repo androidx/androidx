@@ -72,7 +72,7 @@ class TestMonotonicFrameClock(
     @get:Suppress("MethodNameUnits") // Nanos for high-precision animation clocks
     val frameDelayNanos: Long = DefaultFrameDelay
 ) : MonotonicFrameClock {
-    private val lock = Any()
+    private val lock = SynchronizedObject()
     private val awaiters = mutableListOf<Awaiter<*>>()
     private var posted = false
 
