@@ -19,6 +19,7 @@ package androidx.compose.runtime.collection
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterMapOf
+import kotlin.jvm.JvmInline
 
 /** Maps values to a set of scopes. */
 @JvmInline
