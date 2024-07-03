@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,5 @@
 
 package androidx.compose.runtime
 
-@TestOnly
-fun Composition.getSlots(): Iterable<Any?> = (this as CompositionImpl).slotTable.slots.asIterable()
-
-@TestOnly
-fun Composer.getInsertTableSlots(): Iterable<Any?> =
-    (this as ComposerImpl).insertTable.slots.asIterable()
+actual val DefaultMonotonicFrameClock: MonotonicFrameClock
+    get() = implementedInJetBrainsFork()

@@ -609,6 +609,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
+    fun linuxX64Stubs(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        supportedPlatforms.add(PlatformIdentifier.LINUX_X_64_STUBS)
+        return if (project.enableLinux()) {
+            kotlinExtension.linuxX64("linuxx64Stubs").also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
     fun js(block: Action<KotlinJsTargetDsl>? = null): KotlinJsTargetDsl? {
         supportedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
@@ -739,7 +749,8 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
      * List of Kotlin target names which may be used as source file suffixes. Any target whose name
      * does not appear in this list will use its [KotlinPlatformType] name.
      */
-    private val allowedTargetNameSuffixes = setOf("android", "desktop", "jvm", "jvmStubs")
+    private val allowedTargetNameSuffixes =
+        setOf("android", "desktop", "jvm", "jvmStubs", "linuxx64Stubs")
 
     /** The preferred source file suffix for the target's platform type. */
     private val KotlinTarget.preferredSourceFileSuffix: String
@@ -755,4 +766,4 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
  * Set of targets are there to serve as stubs, but are not expected to be consumed by library
  * consumers.
  */
-internal val setOfStubTargets = setOf("jvmStubs")
+internal val setOfStubTargets = setOf("jvmStubs", "linuxx64Stubs")

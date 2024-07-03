@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.compose.runtime
+package androidx.compose.runtime.snapshots
 
-@TestOnly
-fun Composition.getSlots(): Iterable<Any?> = (this as CompositionImpl).slotTable.slots.asIterable()
+import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.implementedInJetBrainsFork
+import kotlin.coroutines.CoroutineContext
 
-@TestOnly
-fun Composer.getInsertTableSlots(): Iterable<Any?> =
-    (this as ComposerImpl).insertTable.slots.asIterable()
+@OptIn(ExperimentalComposeApi::class)
+internal actual class SnapshotContextElementImpl
+actual constructor(private val snapshot: Snapshot) : SnapshotContextElement {
+    override val key: CoroutineContext.Key<*>
+        get() = implementedInJetBrainsFork()
+}

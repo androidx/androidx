@@ -29,10 +29,10 @@ import androidx.compose.runtime.changelist.TestOperations.TwoObjectsOperation
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.declaredMembers
 import kotlin.reflect.jvm.isAccessible
+import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.fail
-import org.junit.Test
 
 class OperationsTest {
 
