@@ -221,10 +221,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * last time we set the {@link #mViewport} and it should be updated.
      */
     private Rect mPaddingOnLastViewportUpdate;
-
-    /** Base padding for ZoomView in px as set in saveZoomViewBasePadding(). */
-    private Rect mZoomViewBasePadding = new Rect();
-    private boolean mZoomViewBasePaddingSaved;
     private PdfSelectionModel mPdfSelectionModel;
     private PointF mRestoreLookAtPoint;
 
@@ -864,31 +860,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         scrollBy(deltaX, deltaY);
     }
 
-    @NonNull
-    public Rect getZoomViewBasePadding() {
-        return mZoomViewBasePadding;
-    }
-
-    public void setZoomViewBasePadding(@NonNull Rect zoomViewBasePadding) {
-        mZoomViewBasePadding = zoomViewBasePadding;
-    }
-
-    public boolean isZoomViewBasePaddingSaved() {
-        return mZoomViewBasePaddingSaved;
-    }
-
-    public void setZoomViewBasePaddingSaved(boolean zoomViewBasePaddingSaved) {
-        mZoomViewBasePaddingSaved = zoomViewBasePaddingSaved;
-    }
-
-    /** Invokes the [View#setPadding(int, int, int, int)] by adding the base padding */
-    public void setPaddingWithBase(int left, int top, int right, int bottom) {
-        super.setPadding(/* left = */ mZoomViewBasePadding.left + left,
-                /* top = */ mZoomViewBasePadding.top + top,
-                /* right = */ mZoomViewBasePadding.right + right,
-                /* bottom = */ mZoomViewBasePadding.bottom + bottom);
-    }
-
     /**
      * Given a point in the zoom-view's co-ordinates, convert it to the content's co-ordinates,
      * using the current zoom and scroll position of the zoomview.
@@ -1096,58 +1067,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     /** Returns current padding in a Rect for easy comparison. */
     private Rect getPaddingRect() {
         return new Rect(getPaddingLeft(), getPaddingTop(), getPaddingRight(), getPaddingBottom());
-    }
-
-    /**
-     * Saves the padding set on {@link ZoomView} following initial inflation from XML.
-     *
-     * <p>This does not have to be called immediately following inflation but <i>must</i> be called
-     * before any methods change the padding on {@link ZoomView}.
-     *
-     * <p>This can be used by methods that need to set padding to (base padding + some other
-     * dimension). If these values were obtained directly from {@link ZoomView} or this method was
-     * allowed to execute multiple times it could result in padding expanding continually.
-     */
-    public void saveZoomViewBasePadding() {
-        if (mZoomViewBasePaddingSaved) {
-            return;
-        }
-
-        mZoomViewBasePadding =
-                new Rect(
-                        getPaddingLeft(),
-                        getPaddingTop(),
-                        getPaddingRight(),
-                        getPaddingBottom());
-
-        mZoomViewBasePadding.top +=
-                getResources().getDimensionPixelSize(R.dimen.viewer_doc_additional_top_offset);
-
-        mZoomViewBasePaddingSaved = true;
-    }
-
-    /**
-     * Adjusts the horizontal margins (left and right padding) of the ZoomView based on the
-     * screen width to optimize the display of PDF content.
-     *
-     * This method applies different margin values depending on the screen size:
-     * - For screens with a screen width of 840dp or greater, a larger margin is applied
-     * to enhance readability on larger displays.
-     * - For screens with a screen width < 840dp, no margin is used to
-     * maximize the use of available space.
-     *
-     * This dynamic adjustment is achieved through the use of resource qualifiers (values-w840dp)
-     * that define different margin values for different screen sizes.
-     *
-     * Note: This method does not affect the top or bottom padding of the ZoomView.
-     */
-    public void adjustZoomViewMargins() {
-        int margin = getResources().getDimensionPixelSize(R.dimen.viewer_doc_padding_x);
-
-        setPadding(margin,
-                getPaddingTop(),
-                margin,
-                getPaddingBottom());
     }
 
     /** Different options for the initial zoom that this ZoomView should start with. */

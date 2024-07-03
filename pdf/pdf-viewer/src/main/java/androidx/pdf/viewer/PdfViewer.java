@@ -23,7 +23,6 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.net.Uri;
@@ -31,7 +30,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
@@ -70,13 +68,8 @@ import androidx.pdf.util.Uris;
 import androidx.pdf.viewer.PageViewFactory.PageView;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.pdf.viewer.loader.PdfLoaderCallbacks;
-import androidx.pdf.widget.FastScrollContentModel;
 import androidx.pdf.widget.FastScrollView;
 import androidx.pdf.widget.ZoomView;
-import androidx.pdf.widget.ZoomView.ContentResizedMode;
-import androidx.pdf.widget.ZoomView.FitMode;
-import androidx.pdf.widget.ZoomView.InitialZoomMode;
-import androidx.pdf.widget.ZoomView.RotateMode;
 import androidx.pdf.widget.ZoomView.ZoomScroll;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -112,7 +105,7 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings({"UnusedMethod", "UnusedVariable"})
-public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
+public class PdfViewer extends LoadingViewer {
 
     private static final String TAG = "PdfViewer";
 
@@ -121,11 +114,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /** Key for saving page layout reach in bundles. */
     private static final String KEY_LAYOUT_REACH = "plr";
-
-    private static final String KEY_SPACE_LEFT = "leftSpace";
-    private static final String KEY_SPACE_TOP = "topSpace";
-    private static final String KEY_SPACE_BOTTOM = "bottomSpace";
-    private static final String KEY_SPACE_RIGHT = "rightSpace";
     private static final String KEY_QUIT_ON_ERROR = "quitOnError";
     private static final String KEY_EXIT_ON_CANCEL = "exitOnCancel";
 
@@ -155,17 +143,14 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private PaginatedView mPaginatedView;
     private PaginationModel mPaginationModel;
 
-    private PageIndicator mPageIndicator;
-
     private SearchModel mSearchModel;
     private PdfSelectionModel mSelectionModel;
     private PdfSelectionHandles mSelectionHandles;
 
     private ValueObserver<String> mSearchQueryObserver;
-    private ValueObserver<Integer> mFastscrollerPositionObserver;
     private ValueObserver<SelectedMatch> mSelectedMatchObserver;
     private ValueObserver<PageSelection> mSelectionObserver;
-    private Object mFastscrollerPositionObserverKey;
+
     private FastScrollView mFastScrollView;
     private ProgressBar mLoadingSpinner;
 
@@ -174,10 +159,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     /**
      * After the document content is saved over the original in InkActivity, we set this bit to true
-     * so we know to callwhen the new document content is loaded.
+     * so we know to call when the new document content is loaded.
      */
     private boolean mShouldRedrawOnDocumentLoaded = false;
-
     private Snackbar mSnackbar;
 
     private LayoutHandler mLayoutHandler;
@@ -244,40 +228,10 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 false);
         mFindInFileView = mPdfViewer.findViewById(R.id.search);
         mFastScrollView = mPdfViewer.findViewById(R.id.fast_scroll_view);
-        mPaginatedView = mFastScrollView.findViewById(R.id.pdf_view);
+        mPaginatedView = mPdfViewer.findViewById(R.id.pdf_view);
         mPaginationModel = mPaginatedView.getPaginationModel();
-
-        mZoomView = mFastScrollView.findViewById(R.id.zoom_view);
-        mZoomView.setStraightenVerticalScroll(true);
-
-        mZoomView
-                .setFitMode(FitMode.FIT_TO_WIDTH)
-                .setInitialZoomMode(InitialZoomMode.ZOOM_TO_FIT)
-                .setRotateMode(RotateMode.KEEP_SAME_VIEWPORT_WIDTH)
-                .setContentResizedModeX(ContentResizedMode.KEEP_SAME_RELATIVE);
-
-        // Setting an id so that the View can restore itself. The Id has to be unique and
-        // predictable. An alternative that doesn't require id is to rely on this Fragment's
-        // onSaveInstanceState().
-        mZoomView.setId(getId() * 100);
-
-        mPageIndicator = new PageIndicator(getActivity(), mFastScrollView);
-        applyReservedSpace();
-        mZoomView.adjustZoomViewMargins();
-        mFastscrollerPositionObserver =
-                new FastScrollPositionValueObserver(mFastScrollView, mPageIndicator);
-        mFastscrollerPositionObserver.onChange(null, mFastScrollView.getScrollerPositionY().get());
-        mFastscrollerPositionObserverKey =
-                mFastScrollView.getScrollerPositionY().addObserver(mFastscrollerPositionObserver);
-
-        // The view system requires the document loaded in order to be properly initialized, so
-        // we delay anything view-related until ViewState.VIEW_READY.
-        mZoomView.setVisibility(View.GONE);
-
-        mFastScrollView.setScrollable(this);
-        mFastScrollView.setId(getId() * 10);
-
-        mLoadingSpinner = mFastScrollView.findViewById(R.id.progress_indicator);
+        mZoomView = mPdfViewer.findViewById(R.id.zoom_view);
+        mLoadingSpinner = mPdfViewer.findViewById(R.id.progress_indicator);
         setUpEditFab();
 
         return mPdfViewer;
@@ -291,25 +245,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @VisibleForTesting
     public static void setScreenForTest(@NonNull Context context) {
         sScreen = new Screen(context);
-    }
-
-    private void applyReservedSpace() {
-        if (getArguments().containsKey(KEY_SPACE_TOP)) {
-            mZoomView.saveZoomViewBasePadding();
-            int left = getArguments().getInt(KEY_SPACE_LEFT, 0);
-            int top = getArguments().getInt(KEY_SPACE_TOP, 0);
-            int right = getArguments().getInt(KEY_SPACE_RIGHT, 0);
-            int bottom = getArguments().getInt(KEY_SPACE_BOTTOM, 0);
-
-            mPageIndicator.getView().setTranslationX(-right);
-
-            mZoomView.setPaddingWithBase(left, top, right, bottom);
-
-            // Adjust the scroll bar to also include the same padding.
-            mFastScrollView.setScrollbarMarginTop(mZoomView.getPaddingTop());
-            mFastScrollView.setScrollbarMarginRight(right);
-            mFastScrollView.setScrollbarMarginBottom(mZoomView.getPaddingBottom());
-        }
     }
 
     @Override
@@ -406,9 +341,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     }
 
     private void destroyContentModel() {
-
-        mPageIndicator = null;
-
         mSelectionHandles.destroy();
         mSelectionHandles = null;
 
@@ -440,8 +372,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             if (mScrollPositionObserverKey != null) {
                 mZoomView.zoomScroll().removeObserver(mScrollPositionObserverKey);
             }
-            mZoomView.setZoomViewBasePadding(new Rect());
-            mZoomView.setZoomViewBasePaddingSaved(false);
             mZoomView = null;
         }
 
@@ -465,9 +395,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mSnackbar != null) {
             mSnackbar.dismiss();
         }
-        if (mFastscrollerPositionObserverKey != null && mFastScrollView != null) {
-            mFastScrollView.getScrollerPositionY().removeObserver(mFastscrollerPositionObserverKey);
-        }
     }
 
     @Override
@@ -481,12 +408,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(KEY_LAYOUT_REACH, mLayoutHandler.getPageLayoutReach());
-    }
-
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mZoomView.adjustZoomViewMargins();
     }
 
     /**
@@ -732,10 +653,10 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                             mPaginationModel.initialize(numPages);
                             mPaginatedView.setModel(mPaginationModel);
                             mPaginationModel.addObserver(mPaginatedView);
+                            mFastScrollView.setPaginationModel(mPaginationModel);
 
                             dismissPasswordDialog();
                             mLayoutHandler.maybeLayoutPages(1);
-                            mPageIndicator.setNumPages(numPages);
                             mSearchModel.setNumPages(numPages);
                         }
 
@@ -828,13 +749,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                             position.scrollY, position.zoom, mZoomView.getHeight(),
                                             true);
                             if (newRange.isEmpty()) {
-                                // During fast-scroll, we mostly don't need to fetch assets, but
-                                // make sure we keep pushing layout bounds far enough, and update
-                                // page numbers as we "scroll" down.
-                                if (mPageIndicator.setRangeAndZoom(newRange,
-                                        mZoomView.getStableZoom(), false)) {
-                                    showFastScrollView();
-                                }
                                 mLayoutHandler.maybeLayoutPages(newRange.getLast());
                             } else if (newRange.contains(pageNum)) {
                                 // The new page is visible, fetch its assets.
@@ -932,37 +846,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 };
     }
 
-    @Override
-    public float estimateFullContentHeight() {
-        return mPaginationModel.getEstimatedFullHeight();
-    }
-
-    @Override
-    public float visibleHeight() {
-        return mZoomView.getViewportHeight() / mZoomView.getZoom();
-    }
-
-    @Override
-    public void fastScrollTo(float position, boolean stable) {
-        mZoomView.scrollTo(mZoomView.getScrollX(), (int) (position * mZoomView.getZoom()), stable);
-    }
-
-    @Override
-    public void setFastScrollListener(final @NonNull FastScrollListener listener) {
-        mZoomView
-                .getViewTreeObserver()
-                .addOnScrollChangedListener(
-                        new OnScrollChangedListener() {
-                            @Override
-                            public void onScrollChanged() {
-                                if (mZoomView != null) {
-                                    listener.updateFastScrollbar(
-                                            mZoomView.getScrollY() / mZoomView.getZoom());
-                                }
-                            }
-                        });
-    }
-
     protected void handleError() {
         mViewState.set(ViewState.ERROR);
     }
@@ -994,12 +877,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 };
         mSnackbar.setAction(actionText, mResolveClickListener);
         mSnackbar.show();
-    }
-
-    private void showFastScrollView() {
-        if (mFastScrollView != null) {
-            mFastScrollView.setVisible();
-        }
     }
 
     private void setUpEditFab() {

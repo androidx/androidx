@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer;
+package androidx.pdf.widget;
 
 
 import static com.google.common.truth.Truth.assertThat;

@@ -24,6 +24,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
+        android:paddingStart="@dimen/viewer_doc_padding_x"
+        android:paddingEnd="@dimen/viewer_doc_padding_x"
         android:paddingBottom="@dimen/viewer_doc_padding_y"
         android:paddingTop="@dimen/viewer_doc_padding_y">
 
