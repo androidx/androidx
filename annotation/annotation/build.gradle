@@ -22,6 +22,8 @@ androidXMultiplatform {
     linux()
     linuxArm64()
     ios()
+    watchos()
+    tvos()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -43,7 +45,6 @@ androidXMultiplatform {
                 }
             }
         }
-
 
         // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
         // Make sure commonization runs before any compilation task.
