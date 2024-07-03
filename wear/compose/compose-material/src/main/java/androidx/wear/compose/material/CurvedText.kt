@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
@@ -115,7 +116,8 @@ public fun CurvedScope.curvedText(
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
                 fontSynthesis = fontSynthesis,
-                background = background
+                background = background,
+                letterSpacing = 0.em // keep backward compatibility.
             )
         )
     }
