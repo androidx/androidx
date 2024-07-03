@@ -388,6 +388,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         TileBoard.DEFAULT_RECYCLER,
                         mPdfLoaderCallbacks,
                         false));
+        mPaginatedView.setSelectionModel(mSelectionModel);
+        mPaginatedView.setSearchModel(mSearchModel);
 
         if (savedState != null) {
             int layoutReach = savedState.getInt(KEY_LAYOUT_REACH);
@@ -821,8 +823,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                     new PageTouchHandler());
             pageView.clearTiles();
             pageView.requestFastDrawAtZoom(mStableZoom);
-            loadVisiblePageText(page);
-            maybeLoadFormAccessibilityInfo(page);
+            pageView.refreshPageContentAndOverlays();
         }
     }
 
@@ -834,8 +835,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                     mPaginationModel.getPageSize(page),
                     new PageTouchHandler());
             pageView.requestDrawAtZoom(mStableZoom);
-            loadVisiblePageText(page);
-            maybeLoadFormAccessibilityInfo(page);
+            pageView.refreshPageContentAndOverlays();
         }
     }
 
@@ -874,45 +874,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mLoadingSpinner != null) {
             mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.GONE));
         }
-    }
-
-    private void loadVisiblePageText(int page) {
-        PageView pageView = mPageViewFactory.getOrCreatePageView(
-                page,
-                sScreen.pxFromDp(PAGE_ELEVATION_DP),
-                mPaginationModel.getPageSize(page),
-                new PageTouchHandler());
-        PageMosaicView pageMosaicView = pageView.getPageView();
-        if (pageMosaicView.needsPageText()) {
-            mPdfLoader.loadPageText(page);
-        }
-        if (!pageMosaicView.hasPageUrlLinks()) {
-            mPdfLoader.loadPageUrlLinks(page);
-        }
-        if (!pageMosaicView.hasPageGotoLinks()) {
-            mPdfLoader.loadPageGotoLinks(page);
-        }
-        if (page == mSelectionModel.getPage()) {
-            pageMosaicView.setOverlay(new PdfHighlightOverlay(mSelectionModel.selection().get()));
-        } else if (mSearchModel.query().get() != null) {
-            if (!pageMosaicView.hasOverlay()) {
-                mPdfLoader.searchPageText(page, mSearchModel.query().get());
-            }
-        } else {
-            pageMosaicView.setOverlay(null);
-        }
-    }
-
-    /**
-     * Load accessibility information for the form if document can be edited and accessibility is
-     * required.
-     */
-    private void maybeLoadFormAccessibilityInfo(int pageNum) {
-        mPageViewFactory.getOrCreatePageView(
-                pageNum,
-                sScreen.pxFromDp(PAGE_ELEVATION_DP),
-                mPaginationModel.getPageSize(pageNum),
-                new PageTouchHandler());
     }
 
     /** Computes the range of visible pages in the given position. */
