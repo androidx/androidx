@@ -134,8 +134,9 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
         renderInternal(outputSurface, surfaceOutput, primarySurfaceTexture,
                 mPrimaryLayoutSettings, mPrimaryExternalTextureId, true);
         // Secondary Camera
+        // Only use primary camera info for output surface
         renderInternal(outputSurface, surfaceOutput, secondarySurfaceTexture,
-                mSecondaryLayoutSettings, mSecondaryExternalTextureId, false);
+                mSecondaryLayoutSettings, mSecondaryExternalTextureId, true);
 
         EGLExt.eglPresentationTimeANDROID(mEglDisplay, outputSurface.getEglSurface(), timestampNs);
 
