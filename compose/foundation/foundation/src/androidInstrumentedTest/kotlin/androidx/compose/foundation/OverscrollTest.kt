@@ -79,8 +79,7 @@ class OverscrollTest {
     @get:Rule val rule = createComposeRule()
 
     @get:Rule
-    val animationScaleRule: AnimationDurationScaleRule =
-        AnimationDurationScaleRule.createForAllTests(1f)
+    val animationScaleRule: AnimationDurationScaleRule = AnimationDurationScaleRule.create()
 
     @Before
     fun before() {
@@ -124,7 +123,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX + 10800, centerY), endVelocity = 30000f)
+            swipeWithVelocity(center, centerRight, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
@@ -157,7 +156,7 @@ class OverscrollTest {
         rule.runOnIdle {
             val slop = viewConfig.touchSlop
             // since we consume 1/10 of the delta in the pre scroll during overscroll, expect 9/10
-            assertThat(abs(acummulatedScroll - 1000f * 9 / 10)).isWithin(0.1f)
+            assertThat(abs(acummulatedScroll)).isWithin(0.1f).of((1000f - slop) * 9 / 10)
 
             assertThat(controller.lastPreScrollDelta).isEqualTo(Offset(1000f - slop, 0f))
             assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
@@ -200,7 +199,7 @@ class OverscrollTest {
         rule.runOnIdle {
             val slop = viewConfig.touchSlop
             // since we consume 1/10 of the delta in the pre scroll during overscroll, expect 9/10
-            assertThat(abs(acummulatedScroll - 1000f * 9 / 10)).isWithin(0.1f)
+            assertThat(abs(acummulatedScroll)).isWithin(0.1f).of((1000f - slop) * 9 / 10)
 
             assertThat(controller.lastPreScrollDelta).isEqualTo(Offset(1000f - slop, 0f))
             assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
@@ -249,12 +248,12 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX + 10800, centerY), endVelocity = 30000f)
+            swipeWithVelocity(center, centerRight, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
-            assertThat(abs(controller.preFlingVelocity.x - 30000f)).isWithin(0.1f)
-            assertThat(abs(lastFlingReceived - 30000f * 9 / 10)).isWithin(0.1f)
+            assertThat(abs(controller.preFlingVelocity.x)).isWithin(0.1f).of(3000f)
+            assertThat(abs(lastFlingReceived)).isWithin(0.1f).of(3000f * 9 / 10)
         }
     }
 
@@ -875,7 +874,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX + 10800, centerY), endVelocity = 30000f)
+            swipeWithVelocity(center, centerRight, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
@@ -911,7 +910,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX, centerY + 10800), endVelocity = 30000f)
+            swipeWithVelocity(center, bottomCenter, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
