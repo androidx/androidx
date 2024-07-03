@@ -109,11 +109,8 @@ internal class SweepSizeWrapper(
         baseInitializeMeasure(measurables)
     }
 
-    override fun calculateSweepRadians(partialLayoutInfo: PartialLayoutInfo): Float =
-        partialLayoutInfo.sweepRadians.coerceIn(
-            minSweepDegrees.toRadians(),
-            maxSweepDegrees.toRadians()
-        )
+    override fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float): Float =
+        sweepRadians.coerceIn(minSweepDegrees.toRadians(), maxSweepDegrees.toRadians())
 }
 
 internal class AngularWidthSizeWrapper(
@@ -134,11 +131,8 @@ internal class AngularWidthSizeWrapper(
         baseInitializeMeasure(measurables)
     }
 
-    override fun calculateSweepRadians(partialLayoutInfo: PartialLayoutInfo): Float =
-        partialLayoutInfo.sweepRadians.coerceIn(
-            minAngularWidthPx / partialLayoutInfo.measureRadius,
-            maxAngularWidthPx / partialLayoutInfo.measureRadius
-        )
+    override fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float) =
+        sweepRadians.coerceIn(minAngularWidthPx / measureRadius, maxAngularWidthPx / measureRadius)
 }
 
 internal abstract class BaseSizeWrapper(
@@ -161,7 +155,7 @@ internal abstract class BaseSizeWrapper(
     override fun doEstimateThickness(maxRadius: Float) =
         wrapped.estimateThickness(maxRadius).coerceIn(minThicknessPx, maxThicknessPx)
 
-    protected abstract fun calculateSweepRadians(partialLayoutInfo: PartialLayoutInfo): Float
+    protected abstract fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float): Float
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
@@ -170,7 +164,7 @@ internal abstract class BaseSizeWrapper(
     ): Float {
         wrapped.angularPosition(
             parentStartAngleRadians,
-            parentSweepRadians = sweepRadians,
+            parentSweepRadians = calculateSweepRadians(parentSweepRadians, measureRadius),
             centerOffset
         )
         return parentStartAngleRadians
@@ -182,7 +176,7 @@ internal abstract class BaseSizeWrapper(
     ): PartialLayoutInfo {
         val partialLayoutInfo = wrapped.radialPosition(parentOuterRadius, estimatedThickness)
         return PartialLayoutInfo(
-            calculateSweepRadians(partialLayoutInfo),
+            calculateSweepRadians(partialLayoutInfo.sweepRadians, partialLayoutInfo.measureRadius),
             parentOuterRadius,
             thickness = estimatedThickness,
             measureRadius =
