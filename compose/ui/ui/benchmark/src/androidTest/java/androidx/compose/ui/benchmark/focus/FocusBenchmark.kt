@@ -17,6 +17,7 @@
 package androidx.compose.ui.benchmark.focus
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReusableContent
@@ -29,6 +30,7 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.benchmark.repeatModifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
@@ -43,6 +45,40 @@ import org.junit.runner.RunWith
 class FocusBenchmark {
 
     @get:Rule val composeBenchmarkRule = ComposeBenchmarkRule()
+
+    @Test
+    fun modifyActiveHierarchy() {
+        composeBenchmarkRule.toggleStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableTestCase {
+                private val focusRequester = FocusRequester()
+                private var shouldAddNode by mutableStateOf(false)
+
+                @Composable
+                override fun MeasuredContent() {
+                    Box(Modifier.thenIf(shouldAddNode) { focusTargetModifierChain() }) {
+                        Box(focusTargetModifierChain())
+                    }
+                }
+
+                @Composable
+                override fun ContentWrappers(content: @Composable () -> Unit) {
+                    Box(focusTargetModifierChain()) {
+                        Column {
+                            content()
+                            Box(Modifier.focusRequester(focusRequester).focusTarget())
+                            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                        }
+                    }
+                }
+
+                override fun toggleState() {
+                    shouldAddNode = !shouldAddNode
+                }
+
+                private fun focusTargetModifierChain() = repeatModifier(100, Modifier::focusTarget)
+            }
+        })
+    }
 
     @Test
     fun focusTarget() {
@@ -101,5 +137,9 @@ class FocusBenchmark {
                 }
             }
         })
+    }
+
+    private inline fun Modifier.thenIf(condition: Boolean, block: () -> Modifier): Modifier {
+        return if (condition) then(block()) else this
     }
 }
