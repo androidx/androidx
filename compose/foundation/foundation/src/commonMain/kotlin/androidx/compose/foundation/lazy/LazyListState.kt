@@ -153,8 +153,6 @@ constructor(
     private val scrollPosition =
         LazyListScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
-    private val animateScrollScope = LazyListAnimateScrollScope(this)
-
     /**
      * The index of the first item that is visible.
      *
@@ -284,6 +282,8 @@ constructor(
                 return prefetchState.schedulePrefetch(index, constraints)
             }
         }
+
+    private val animatedScrollScope = LazyLayoutAnimateScrollScope(this)
 
     /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()
@@ -482,12 +482,15 @@ constructor(
      *   scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
-        animateScrollScope.animateScrollToItem(
-            index,
-            scrollOffset,
-            NumberOfItemsToTeleport,
-            density
-        )
+        scroll {
+            animatedScrollScope.animateScrollToItem(
+                index,
+                scrollOffset,
+                NumberOfItemsToTeleport,
+                density,
+                this
+            )
+        }
     }
 
     /** Updates the state with the new calculated scroll position and consumed scroll. */

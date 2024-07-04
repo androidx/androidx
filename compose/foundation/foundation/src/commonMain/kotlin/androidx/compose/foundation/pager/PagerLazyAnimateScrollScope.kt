@@ -18,13 +18,14 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
+import kotlin.math.roundToInt
 
 /**
  * A [LazyLayoutAnimateScrollScope] that allows customization of animated scroll in [Pager]. The
  * scope contains information about the layout where animated scroll can be performed as well as the
  * necessary tools to do that respecting the scroll mutation priority.
  */
-internal fun PagerLazyAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
+internal fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {
 
         override val firstVisibleItemIndex: Int
@@ -44,13 +45,10 @@ internal fun PagerLazyAnimateScrollScope(state: PagerState): LazyLayoutAnimateSc
             state.snapToItem(index, offsetFraction, forceRemeasure = true)
         }
 
-        override fun calculateDistanceTo(targetIndex: Int): Float {
-            return (targetIndex - state.currentPage) * state.pageSizeWithSpacing -
-                state.currentPageOffsetFraction * state.pageSizeWithSpacing
-        }
-
-        override suspend fun scroll(block: suspend ScrollScope.() -> Unit) {
-            state.scroll(block = block)
+        override fun calculateDistanceTo(targetIndex: Int, targetOffset: Int): Int {
+            return ((targetIndex - state.currentPage) * state.pageSizeWithSpacing -
+                    state.currentPageOffsetFraction * state.pageSizeWithSpacing + targetOffset)
+                .roundToInt()
         }
     }
 }

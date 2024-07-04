@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.abs
 import kotlin.math.roundToInt
+import kotlin.ranges.IntRange
 import kotlinx.coroutines.launch
 
 /**
@@ -155,9 +156,6 @@ internal constructor(
     override val lastScrolledBackward: Boolean
         get() = scrollableState.lastScrolledBackward
 
-    /** implementation of [LazyLayoutAnimateScrollScope] scope required for [animateScrollToItem] */
-    private val animateScrollScope = LazyStaggeredGridAnimateScrollScope(this)
-
     internal var remeasurement: Remeasurement? = null
         private set
 
@@ -210,6 +208,8 @@ internal constructor(
 
     /** backing field mutable field for [interactionSource] */
     internal val mutableInteractionSource = MutableInteractionSource()
+
+    private val animateScrollScope = LazyLayoutAnimateScrollScope(this)
 
     /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()
@@ -320,12 +320,15 @@ internal constructor(
     ) {
         val layoutInfo = layoutInfoState.value
         val numOfItemsToTeleport = 100 * layoutInfo.slots.sizes.size
-        animateScrollScope.animateScrollToItem(
-            index,
-            scrollOffset,
-            numOfItemsToTeleport,
-            layoutInfo.density
-        )
+        scroll {
+            animateScrollScope.animateScrollToItem(
+                index,
+                scrollOffset,
+                numOfItemsToTeleport,
+                layoutInfo.density,
+                this
+            )
+        }
     }
 
     internal val measurementScopeInvalidator = ObservableScopeInvalidator()
