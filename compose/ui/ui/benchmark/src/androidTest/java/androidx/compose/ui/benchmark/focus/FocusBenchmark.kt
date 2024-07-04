@@ -18,10 +18,12 @@ package androidx.compose.ui.benchmark.focus
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -34,6 +36,7 @@ import androidx.compose.ui.benchmark.repeatModifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Rule
@@ -134,6 +137,63 @@ class FocusBenchmark {
 
                 override fun toggleState() {
                     reuseKey++
+                }
+            }
+        })
+    }
+
+    @Test
+    fun moveInactiveFocusTarget() {
+        composeBenchmarkRule.toggleStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableTestCase {
+
+                private var moveContent by mutableStateOf(false)
+                private val content = movableContentOf { Box(Modifier.focusTarget()) }
+
+                @Composable
+                override fun MeasuredContent() {
+                    if (moveContent) {
+                        Box(Modifier.size(5.dp)) { content() }
+                    } else {
+                        Box(Modifier.size(10.dp)) { content() }
+                    }
+                }
+
+                override fun toggleState() {
+                    moveContent = !moveContent
+                }
+            }
+        })
+    }
+
+    @Test
+    fun moveInactiveFocusTarget_insideActiveParent() {
+        composeBenchmarkRule.toggleStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableTestCase {
+
+                private val focusRequester = FocusRequester()
+                private var moveContent by mutableStateOf(false)
+                private val movableContent = movableContentOf { Box(Modifier.focusTarget()) }
+
+                @Composable
+                override fun MeasuredContent() {
+                    if (moveContent) {
+                        Box(Modifier.size(5.dp)) { movableContent() }
+                    } else {
+                        Box(Modifier.size(10.dp)) { movableContent() }
+                    }
+                }
+
+                @Composable
+                override fun ContentWrappers(content: @Composable () -> Unit) {
+                    Box(Modifier.focusRequester(focusRequester).focusTarget()) {
+                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                        content()
+                    }
+                }
+
+                override fun toggleState() {
+                    moveContent = !moveContent
                 }
             }
         })
