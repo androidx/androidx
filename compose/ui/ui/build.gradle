@@ -35,14 +35,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.6.0")
                 implementation("androidx.collection:collection:1.4.0")
@@ -71,17 +71,9 @@ androidXMultiplatform {
             }
         }
 
-        skikoMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.skikoCommon)
-            }
-        }
-
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api("androidx.annotation:annotation-experimental:1.4.0")
                 // This has stub APIs for access to legacy Android APIs, so we don't want
                 // any dependency on this module.
@@ -114,12 +106,9 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(skikoMain)
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesSwing)
             }
         }
 

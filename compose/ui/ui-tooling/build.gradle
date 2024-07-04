@@ -32,14 +32,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui-tooling-preview"))
                 api(project(":compose:ui:ui"))
@@ -55,13 +55,6 @@ androidXMultiplatform {
         jvmMain {
             dependsOn(commonMain)
             dependencies {
-            }
-        }
-
-        skikoMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(project(":compose:runtime:runtime"))
             }
         }
 
@@ -81,13 +74,9 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
-            dependsOn(skikoMain)
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui"))
             }
         }
 

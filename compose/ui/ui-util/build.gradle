@@ -33,14 +33,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
             }
         }
 
@@ -53,20 +53,17 @@ androidXMultiplatform {
         jvmMain {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
             }
         }
-
 
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
                 api("androidx.annotation:annotation-experimental:1.4.0")
             }
         }
 
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmMain)
         }
 
