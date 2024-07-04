@@ -16,9 +16,13 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.foundation.text.input.internal.matchers.assertThat
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.style.TextDecoration
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -247,6 +251,60 @@ class EditingBufferTest {
         assertThat(eb.hasComposition()).isFalse()
         assertThat(eb.compositionStart).isEqualTo(-1)
         assertThat(eb.compositionEnd).isEqualTo(-1)
+    }
+
+    @Test
+    fun setComposition_and_annotationList() {
+        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+
+        val annotations: List<PlacedAnnotation> =
+            listOf(
+                AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 0, 5)
+            )
+        eb.setComposition(0, 5, annotations)
+        assertThat(eb).hasChars("ABCDE")
+        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selectionStart).isEqualTo(0)
+        assertThat(eb.selectionEnd).isEqualTo(0)
+        assertThat(eb.hasComposition()).isTrue()
+        assertThat(eb.compositionStart).isEqualTo(0)
+        assertThat(eb.compositionEnd).isEqualTo(5)
+        assertThat(eb.composingAnnotations?.size).isEqualTo(1)
+        assertThat(eb.composingAnnotations?.first()).isEqualTo(annotations.first())
+
+        eb.replace(2, 3, "X") // replace function cancel the composition text.
+        assertThat(eb).hasChars("ABXDE")
+        assertThat(eb.cursor).isEqualTo(3)
+        assertThat(eb.selectionStart).isEqualTo(3)
+        assertThat(eb.selectionEnd).isEqualTo(3)
+        assertThat(eb.hasComposition()).isFalse()
+        assertThat(eb.compositionStart).isEqualTo(-1)
+        assertThat(eb.compositionEnd).isEqualTo(-1)
+        assertThat(eb.composingAnnotations?.isEmpty()).isTrue()
+
+        eb.setComposition(2, 4) // set composition again
+        assertThat(eb).hasChars("ABXDE")
+        assertThat(eb.cursor).isEqualTo(3)
+        assertThat(eb.selectionStart).isEqualTo(3)
+        assertThat(eb.selectionEnd).isEqualTo(3)
+        assertThat(eb.hasComposition()).isTrue()
+        assertThat(eb.compositionStart).isEqualTo(2)
+        assertThat(eb.compositionEnd).isEqualTo(4)
+        assertThat(eb.composingAnnotations?.isEmpty()).isTrue()
+
+        eb.setComposition(0, 5, annotations)
+        assertThat(eb.composingAnnotations?.size).isEqualTo(1)
+        assertThat(eb.composingAnnotations?.first()).isEqualTo(annotations.first())
+
+        eb.commitComposition() // commit the composition
+        assertThat(eb).hasChars("ABXDE")
+        assertThat(eb.cursor).isEqualTo(3)
+        assertThat(eb.selectionStart).isEqualTo(3)
+        assertThat(eb.selectionEnd).isEqualTo(3)
+        assertThat(eb.hasComposition()).isFalse()
+        assertThat(eb.compositionStart).isEqualTo(-1)
+        assertThat(eb.compositionEnd).isEqualTo(-1)
+        assertThat(eb.composingAnnotations?.isEmpty()).isTrue()
     }
 
     @Test

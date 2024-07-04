@@ -16,9 +16,13 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextHighlightType
+import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.util.fastForEach
 
 /**
  * The editing buffer
@@ -27,7 +31,7 @@ import androidx.compose.ui.text.TextRange
  */
 internal class EditingBuffer(
     /** The initial text of this editing buffer */
-    text: AnnotatedString,
+    text: String,
     /**
      * The initial selection range of this buffer. If you provide collapsed selection, it is treated
      * as the cursor position. The cursor and selection cannot exists at the same time. The
@@ -40,7 +44,10 @@ internal class EditingBuffer(
         const val NOWHERE = -1
     }
 
-    private val gapBuffer = PartialGapBuffer(text.text)
+    var composingAnnotations: MutableVector<AnnotatedString.Range<AnnotatedString.Annotation>>? =
+        null
+
+    private val gapBuffer = PartialGapBuffer(text)
 
     val changeTracker = ChangeTracker()
 
@@ -120,8 +127,6 @@ internal class EditingBuffer(
     val length: Int
         get() = gapBuffer.length
 
-    constructor(text: String, selection: TextRange) : this(AnnotatedString(text), selection)
-
     init {
         checkRange(selection.start, selection.end)
     }
@@ -174,6 +179,8 @@ internal class EditingBuffer(
         // to set composition range after replace function.
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
+        // Do not deallocate an existing list. We will probably use it again.
+        composingAnnotations?.clear()
 
         highlight = null
     }
@@ -261,11 +268,15 @@ internal class EditingBuffer(
      *
      * @param start the inclusive start offset of the composition
      * @param end the exclusive end offset of the composition
-     * @throws IndexOutOfBoundsException if start or end offset is ouside of current buffer
+     * @param annotations Annotations that are attached to the composing region of text. This
+     *   function does not check whether the given annotations are inside the composing region. It
+     *   simply adds them to the current buffer while adjusting their range according to where the
+     *   new composition region is set.
+     * @throws IndexOutOfBoundsException if start or end offset is outside of current buffer
      * @throws IllegalArgumentException if start is larger than or equal to end. (reversed or
      *   collapsed range)
      */
-    fun setComposition(start: Int, end: Int) {
+    fun setComposition(start: Int, end: Int, annotations: List<PlacedAnnotation>? = null) {
         if (start < 0 || start > gapBuffer.length) {
             throw IndexOutOfBoundsException(
                 "start ($start) offset is outside of text region ${gapBuffer.length}"
@@ -282,17 +293,29 @@ internal class EditingBuffer(
 
         compositionStart = start
         compositionEnd = end
+
+        this.composingAnnotations?.clear()
+        if (!annotations.isNullOrEmpty()) {
+            if (this.composingAnnotations == null) {
+                this.composingAnnotations = mutableVectorOf()
+            }
+            annotations.fastForEach {
+                // place the annotations at the correct indices in the buffer.
+                this.composingAnnotations?.add(
+                    it.copy(start = it.start + start, end = it.end + start)
+                )
+            }
+        }
     }
 
     /** Commits the ongoing composition text and reset the composition range. */
     fun commitComposition() {
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
+        composingAnnotations?.clear()
     }
 
     override fun toString(): String = gapBuffer.toString()
-
-    fun toAnnotatedString(): AnnotatedString = AnnotatedString(toString())
 
     private fun checkRange(start: Int, end: Int) {
         if (start < 0 || start > gapBuffer.length) {

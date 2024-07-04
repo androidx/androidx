@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findPrecedingBreak
+import androidx.compose.foundation.text.input.PlacedAnnotation
 
 /**
  * Commit final [text] to the text box and set the new cursor position.
@@ -90,14 +91,20 @@ internal fun EditingBuffer.setComposingRegion(start: Int, end: Int) {
  *
  * @param text The composing text.
  * @param newCursorPosition The cursor position after setting composing text.
+ * @param annotations Text annotations that IME attaches to the composing region. e.g. background
+ *   color or underline styling.
  */
-internal fun EditingBuffer.setComposingText(text: String, newCursorPosition: Int) {
+internal fun EditingBuffer.setComposingText(
+    text: String,
+    newCursorPosition: Int,
+    annotations: List<PlacedAnnotation>? = null
+) {
     if (hasComposition()) {
         // API doc says, if there is ongoing composing text, replace it with new text.
         val compositionStart = compositionStart
         replace(compositionStart, compositionEnd, text)
         if (text.isNotEmpty()) {
-            setComposition(compositionStart, compositionStart + text.length)
+            setComposition(compositionStart, compositionStart + text.length, annotations)
         }
     } else {
         // If there is no composing text, insert composing text into cursor position with
@@ -105,7 +112,7 @@ internal fun EditingBuffer.setComposingText(text: String, newCursorPosition: Int
         val selectionStart = selectionStart
         replace(selectionStart, selectionEnd, text)
         if (text.isNotEmpty()) {
-            setComposition(selectionStart, selectionStart + text.length)
+            setComposition(selectionStart, selectionStart + text.length, annotations)
         }
     }
 
