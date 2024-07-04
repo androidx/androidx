@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 private class ItemFoundInScroll(
     val itemOffset: Int,
@@ -74,17 +73,7 @@ internal interface LazyLayoutAnimateScrollScope {
      * should return an approximation of the scroll offset to [targetIndex]. If [targetIndex] is
      * visible, then an "exact" offset should be provided.
      */
-    fun calculateDistanceTo(targetIndex: Int): Float
-
-    /**
-     * Call this function to take control of scrolling and gain the ability to send scroll events
-     * via [ScrollScope.scrollBy] and [ScrollScope.snapToItem]. All actions that change the logical
-     * scroll position must be performed within a [scroll] block (even if they don't call any other
-     * methods on this object) in order to guarantee that mutual exclusion is enforced.
-     *
-     * If [scroll] is called from elsewhere, this will be canceled.
-     */
-    suspend fun scroll(block: suspend ScrollScope.() -> Unit)
+    fun calculateDistanceTo(targetIndex: Int, targetOffset: Int = 0): Int
 }
 
 internal fun LazyLayoutAnimateScrollScope.isItemVisible(index: Int): Boolean {
@@ -95,11 +84,12 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
     numOfItemsForTeleport: Int,
-    density: Density
+    density: Density,
+    scrollScope: ScrollScope
 ) {
-    scroll {
-        require(index >= 0f) { "Index should be non-negative ($index)" }
+    require(index >= 0f) { "Index should be non-negative ($index)" }
 
+    with(scrollScope) {
         try {
             val targetDistancePx = with(density) { TargetDistance.toPx() }
             val boundDistancePx = with(density) { BoundDistance.toPx() }
@@ -108,7 +98,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
             var anim = AnimationState(0f)
 
             if (isItemVisible(index)) {
-                val targetItemInitialOffset = calculateDistanceTo(index).roundToInt()
+                val targetItemInitialOffset = calculateDistanceTo(index)
                 // It's already visible, just animate directly
                 throw ItemFoundInScroll(targetItemInitialOffset, anim)
             }
@@ -147,7 +137,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                 val expectedDistance = calculateDistanceTo(index) + scrollOffset
                 val target =
                     if (abs(expectedDistance) < targetDistancePx) {
-                        val absTargetPx = maxOf(abs(expectedDistance), minDistancePx)
+                        val absTargetPx = maxOf(abs(expectedDistance.toFloat()), minDistancePx)
                         if (forward) absTargetPx else -absTargetPx
                     } else {
                         if (forward) targetDistancePx else -targetDistancePx
@@ -240,7 +230,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                         cancelAnimation()
                         return@animateTo
                     } else if (isItemVisible(index)) {
-                        val targetItemOffset = calculateDistanceTo(index).roundToInt()
+                        val targetItemOffset = calculateDistanceTo(index)
                         debugLog { "Found item" }
                         throw ItemFoundInScroll(targetItemOffset, anim)
                     }
