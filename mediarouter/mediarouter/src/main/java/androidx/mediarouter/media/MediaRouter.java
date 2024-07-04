@@ -43,7 +43,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.util.ObjectsCompat;
-import androidx.core.util.Pair;
 import androidx.mediarouter.app.MediaRouteDiscoveryFragment;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
@@ -2807,12 +2806,10 @@ public final class MediaRouter {
             router.mSelectedRouteController = mToRouteController;
 
             if (mRequestedRoute == null) {
-                router.mCallbackHandler.post(GlobalMediaRouter.CallbackHandler.MSG_ROUTE_SELECTED,
-                        new Pair<>(mFromRoute, mToRoute), mReason);
+                router.mCallbackHandler.postRouteSelectedMessage(mFromRoute, mToRoute, mReason);
             } else {
-                router.mCallbackHandler.post(
-                        GlobalMediaRouter.CallbackHandler.MSG_ROUTE_ANOTHER_SELECTED,
-                        new Pair<>(mRequestedRoute, mToRoute), mReason);
+                router.mCallbackHandler.postAnotherRouteSelectedMessage(
+                        mRequestedRoute, mToRoute, mReason);
             }
 
             router.mRouteControllerMap.clear();
