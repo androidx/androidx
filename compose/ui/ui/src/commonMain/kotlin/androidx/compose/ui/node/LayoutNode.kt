@@ -271,8 +271,8 @@ internal class LayoutNode(
     internal val measurePassDelegate
         get() = layoutDelegate.measurePassDelegate
 
-    /** [requestRemeasure] calls will be ignored while this flag is true. */
-    private var ignoreRemeasureRequests = false
+    /** Specifies how [requestRemeasure] and [requestRelayout] calls will behave. */
+    internal var layoutRequestMode = LayoutRequestMode.Request
 
     /**
      * Inserts a child [LayoutNode] at a particular index. If this LayoutNode [owner] is not `null`
@@ -942,8 +942,14 @@ internal class LayoutNode(
         lookaheadPassDelegate!!.replace()
     }
 
-    internal fun draw(canvas: Canvas, graphicsLayer: GraphicsLayer?) =
+    internal fun draw(canvas: Canvas, graphicsLayer: GraphicsLayer?) {
+        // Some modifier might have invalidated both layout and draw. If layout requests are not
+        // propagated, drawing might result in incorrect state.
+        // The node will be redrawn after pending layout requests are executed.
+        if (layoutRequestMode == LayoutRequestMode.MarkPending) return
+
         outerCoordinator.draw(canvas, graphicsLayer)
+    }
 
     /**
      * Carries out a hit test on the [PointerInputModifier]s associated with this [LayoutNode] and
@@ -1018,15 +1024,25 @@ internal class LayoutNode(
         scheduleMeasureAndLayout: Boolean = true,
         invalidateIntrinsics: Boolean = true
     ) {
-        if (!ignoreRemeasureRequests && !isVirtual) {
-            val owner = owner ?: return
-            owner.onRequestMeasure(
-                layoutNode = this,
-                forceRequest = forceRequest,
-                scheduleMeasureAndLayout = scheduleMeasureAndLayout
-            )
-            if (invalidateIntrinsics) {
-                measurePassDelegate.invalidateIntrinsicsParent(forceRequest)
+        if (isVirtual) return
+
+        when (layoutRequestMode) {
+            LayoutRequestMode.MarkPending -> {
+                layoutDelegate.markMeasurePending()
+            }
+            LayoutRequestMode.Request -> {
+                val owner = owner ?: return
+                owner.onRequestMeasure(
+                    layoutNode = this,
+                    forceRequest = forceRequest,
+                    scheduleMeasureAndLayout = scheduleMeasureAndLayout
+                )
+                if (invalidateIntrinsics) {
+                    measurePassDelegate.invalidateIntrinsicsParent(forceRequest)
+                }
+            }
+            LayoutRequestMode.IgnoreRemeasure -> {
+                /* do nothing */
             }
         }
     }
@@ -1044,16 +1060,26 @@ internal class LayoutNode(
             "Lookahead measure cannot be requested on a node that is not a part of the" +
                 "LookaheadScope"
         }
-        val owner = owner ?: return
-        if (!ignoreRemeasureRequests && !isVirtual) {
-            owner.onRequestMeasure(
-                layoutNode = this,
-                affectsLookahead = true,
-                forceRequest = forceRequest,
-                scheduleMeasureAndLayout = scheduleMeasureAndLayout
-            )
-            if (invalidateIntrinsics) {
-                lookaheadPassDelegate!!.invalidateIntrinsicsParent(forceRequest)
+        if (isVirtual) return
+
+        when (layoutRequestMode) {
+            LayoutRequestMode.MarkPending -> {
+                layoutDelegate.markLookaheadMeasurePending()
+            }
+            LayoutRequestMode.Request -> {
+                val owner = owner ?: return
+                owner.onRequestMeasure(
+                    layoutNode = this,
+                    affectsLookahead = true,
+                    forceRequest = forceRequest,
+                    scheduleMeasureAndLayout = scheduleMeasureAndLayout
+                )
+                if (invalidateIntrinsics) {
+                    lookaheadPassDelegate!!.invalidateIntrinsicsParent(forceRequest)
+                }
+            }
+            LayoutRequestMode.IgnoreRemeasure -> {
+                /* do nothing */
             }
         }
     }
@@ -1078,22 +1104,42 @@ internal class LayoutNode(
     }
 
     internal inline fun ignoreRemeasureRequests(block: () -> Unit) {
-        ignoreRemeasureRequests = true
-        block()
-        ignoreRemeasureRequests = false
+        val previous = layoutRequestMode
+        try {
+            layoutRequestMode = LayoutRequestMode.IgnoreRemeasure
+            block()
+        } finally {
+            layoutRequestMode = previous
+        }
     }
 
     /** Used to request a new layout pass from the owner. */
     internal fun requestRelayout(forceRequest: Boolean = false) {
         outerToInnerOffsetDirty = true
-        if (!isVirtual) {
-            owner?.onRequestRelayout(this, forceRequest = forceRequest)
+        if (isVirtual) return
+
+        when (layoutRequestMode) {
+            LayoutRequestMode.MarkPending -> {
+                layoutDelegate.markLayoutPending()
+            }
+            LayoutRequestMode.Request,
+            LayoutRequestMode.IgnoreRemeasure -> {
+                owner?.onRequestRelayout(this, forceRequest = forceRequest)
+            }
         }
     }
 
     internal fun requestLookaheadRelayout(forceRequest: Boolean = false) {
-        if (!isVirtual) {
-            owner?.onRequestRelayout(this, affectsLookahead = true, forceRequest)
+        if (isVirtual) return
+
+        when (layoutRequestMode) {
+            LayoutRequestMode.MarkPending -> {
+                layoutDelegate.markLookaheadLayoutPending()
+            }
+            LayoutRequestMode.Request,
+            LayoutRequestMode.IgnoreRemeasure -> {
+                owner?.onRequestRelayout(this, affectsLookahead = true, forceRequest)
+            }
         }
     }
 
@@ -1322,6 +1368,7 @@ internal class LayoutNode(
         semanticsId = generateSemanticsId()
         nodes.markAsAttached()
         nodes.runAttachLifecycle()
+
         rescheduleRemeasureOrRelayout(this)
     }
 
@@ -1422,6 +1469,12 @@ internal class LayoutNode(
         InMeasureBlock,
         InLayoutBlock,
         NotUsed,
+    }
+
+    internal enum class LayoutRequestMode {
+        Request,
+        MarkPending,
+        IgnoreRemeasure
     }
 }
 
