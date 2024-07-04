@@ -6,6 +6,8 @@ plugins {
 
 android {
     namespace 'androidx.pdf.testapp'
+    compileSdkVersion "android-35"
+    buildToolsVersion "35.0.0-rc1"
 
     defaultConfig {
         applicationId "androidx.pdf.testapp"
