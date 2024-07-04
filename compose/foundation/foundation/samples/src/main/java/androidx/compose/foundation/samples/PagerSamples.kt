@@ -207,6 +207,7 @@ fun ObservingStateChangesInPagerStateSample() {
         }
         Column(modifier = Modifier.weight(0.1f).fillMaxWidth()) {
             Text(text = "Current Page: ${pagerState.currentPage}")
+            Text(text = "Current Page Offset Fraction: ${pagerState.currentPageOffsetFraction}")
             Text(text = "Target Page: ${pagerState.targetPage}")
             Text(text = "Settled Page Offset: ${pagerState.settledPage}")
         }
