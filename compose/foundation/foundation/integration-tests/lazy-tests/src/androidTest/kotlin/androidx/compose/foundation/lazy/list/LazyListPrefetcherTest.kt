@@ -20,10 +20,12 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.LazyListPrefetchStrategy
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.layout.PrefetchRequestScope
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.foundation.lazy.layout.TestPrefetchScheduler
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -466,5 +468,53 @@ class LazyListPrefetcherTest(val config: Config) :
                 }
             }
         }
+    }
+
+    @Test
+    fun precomposedItemIsNotMeasuredWhenReused() {
+        var measuredItems = 0
+        rule.setContent {
+            state = rememberLazyListState(prefetchStrategy = strategy)
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemsSizeDp * 1.5f),
+                state,
+            ) {
+                items(100) {
+                    Box {
+                        Spacer(
+                            Modifier.mainAxisSize(itemsSizeDp + it.dp).layout {
+                                measurable,
+                                constraints ->
+                                measuredItems++
+                                val placeable = measurable.measure(constraints)
+                                layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                            }
+                        )
+                    }
+                }
+            }
+        }
+
+        // deactivate some items and add prefetch requests
+        rule.runOnIdle { repeat(3) { runBlocking { state.scrollBy(itemsSizePx * 1f) } } }
+
+        measuredItems = 0
+        rule.runOnIdle {
+            val scope =
+                object : PrefetchRequestScope {
+                    var firstRequest = true
+
+                    override fun availableTimeNanos(): Long {
+                        if (firstRequest) {
+                            firstRequest = false
+                            return Long.MAX_VALUE
+                        }
+                        return 0
+                    }
+                }
+            scheduler.executeActiveRequests(scope)
+        }
+
+        rule.runOnIdle { assertThat(measuredItems).isEqualTo(0) }
     }
 }
