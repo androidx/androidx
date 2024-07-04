@@ -314,7 +314,8 @@ private constructor(
      * Check if the target platform is only Android.
      *
      * Note that there is no 'Android' target in the `targetPlatforms` list, so instead we check for
-     * JVM and also validate that an Android only class [Context] is in the classpath.
+     * JVM and also validate that an Android only class `android.content.Context` is in the
+     * classpath.
      */
     fun isAndroidOnlyTarget(): Boolean {
         val targetPlatforms = this.processingEnv.targetPlatforms

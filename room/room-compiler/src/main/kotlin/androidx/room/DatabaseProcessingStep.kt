@@ -31,8 +31,8 @@ import androidx.room.vo.DaoMethod
 import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
+import androidx.room.writer.DatabaseObjectConstructorWriter
 import androidx.room.writer.DatabaseWriter
-import androidx.room.writer.InstantiateImplWriter
 import androidx.room.writer.TypeWriter
 import java.nio.file.Path
 
@@ -146,9 +146,12 @@ class DatabaseProcessingStep : XProcessingStep {
                     )
                     .write(context.processingEnv)
             }
-
-            if (context.codeLanguage == CodeLanguage.KOTLIN) {
-                InstantiateImplWriter(db).write(context.processingEnv)
+            if (db.constructorObjectElement != null) {
+                DatabaseObjectConstructorWriter(
+                        database = db,
+                        constructorObjectElement = db.constructorObjectElement
+                    )
+                    .write(context.processingEnv)
             }
         }
 

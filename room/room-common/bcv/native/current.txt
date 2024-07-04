@@ -117,6 +117,11 @@ open annotation class androidx.room/ColumnInfo : kotlin/Annotation { // androidx
         constructor <init>() // androidx.room/ColumnInfo.SQLiteTypeAffinity.<init>|<init>(){}[0]
     }
 }
+open annotation class androidx.room/ConstructedBy : kotlin/Annotation { // androidx.room/ConstructedBy|null[0]
+    constructor <init>(kotlin.reflect/KClass<*>) // androidx.room/ConstructedBy.<init>|<init>(kotlin.reflect.KClass<*>){}[0]
+    final val value // androidx.room/ConstructedBy.value|{}value[0]
+        final fun <get-value>(): kotlin.reflect/KClass<*> // androidx.room/ConstructedBy.value.<get-value>|<get-value>(){}[0]
+}
 open annotation class androidx.room/Dao : kotlin/Annotation { // androidx.room/Dao|null[0]
     constructor <init>() // androidx.room/Dao.<init>|<init>(){}[0]
 }

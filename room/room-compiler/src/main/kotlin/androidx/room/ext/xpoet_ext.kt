@@ -88,6 +88,7 @@ object RoomTypeNames {
     val CONNECTION_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteConnectionUtil")
     val FLOW_UTIL = XClassName.get("$ROOM_PACKAGE.coroutines", "FlowUtil")
     val RAW_QUERY = XClassName.get(ROOM_PACKAGE, "RoomRawQuery")
+    val ROOM_DB_CONSTRUCTOR = XClassName.get(ROOM_PACKAGE, "RoomDatabaseConstructor")
 }
 
 object RoomAnnotationTypeNames {

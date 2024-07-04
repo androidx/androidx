@@ -26,12 +26,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 
-class InstantiateImplKotlinCodeGenTest {
+class DatabaseObjectConstructorWriterKotlinCodeGenTest {
 
     @get:Rule val testName = TestName()
 
     @Test
-    fun instantiateImpl_simple() {
+    fun actualDatabaseConstructor() {
         val src =
             Source.kotlin(
                 "MyDatabase.kt",
@@ -39,9 +39,12 @@ class InstantiateImplKotlinCodeGenTest {
             import androidx.room.*
 
             @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
+            @ConstructedBy(MyDatabaseCtor::class)
             abstract class MyDatabase : RoomDatabase() {
               abstract fun getDao(): MyDao
             }
+
+            expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
 
             @Dao
             interface MyDao {
@@ -81,8 +84,13 @@ class InstantiateImplKotlinCodeGenTest {
                     it.roundEnv.isProcessingOver
                 )
             it.assertCompilationResult {
-                this.generatedSource(loadTestSource(expectedFilePath, "MyDatabase_InstantiateImpl"))
-                this.hasNoWarnings()
+                this.generatedSource(loadTestSource(expectedFilePath, "MyDatabaseCtor"))
+                // runKspTest only does JVM compilation (b) so it is expected to get an error due to
+                // usage of expect / actual in a non KMP compilation, however the test is still
+                // useful to validate generated code
+                this.hasErrorContaining(
+                    "'expect' and 'actual' declarations can be used only in multiplatform projects."
+                )
             }
             handler.invoke(it)
         }
