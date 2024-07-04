@@ -45,12 +45,14 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 @SuppressWarnings("deprecation")
 public class GoldenTestActivity extends Activity {
 
     /** Extra to be put in the intent if test should use RTL direction on parent View. */
     public static final String USE_RTL_DIRECTION = "using_rtl";
+
     private static final String ICON_ID = "icon";
     private static final String ICON_ID_SMALL = "icon_small";
     private static final String AVATAR = "avatar_image";
@@ -81,7 +83,15 @@ public class GoldenTestActivity extends Activity {
                                 .setIsViewFullyVisible(true)
                                 .build());
 
-        instance.renderAndAttach(checkNotNull(layout).toProto(), resources.toProto(), root);
+        try {
+            instance.renderAndAttach(checkNotNull(layout).toProto(), resources.toProto(), root)
+                    .get();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        }
 
         View firstChild = root.getChildAt(0);
 
@@ -136,7 +146,7 @@ public class GoldenTestActivity extends Activity {
         Locale.setDefault(locale);
         Configuration config = new Configuration();
         config.setLocale(locale);
-        context.getResources().updateConfiguration(
-                config, context.getResources().getDisplayMetrics());
+        context.getResources()
+                .updateConfiguration(config, context.getResources().getDisplayMetrics());
     }
 }
