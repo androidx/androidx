@@ -406,6 +406,9 @@ internal class GraphicsViewLayer(
         layer: GraphicsLayer,
         block: DrawScope.() -> Unit
     ) {
+        if (viewLayer.parent == null) {
+            layerContainer.addView(viewLayer)
+        }
         viewLayer.setDrawParams(density, layoutDirection, layer, block)
         // According to View#canHaveDisplaylist, a View can only have a displaylist
         // if it is attached and there is a valid ThreadedRenderer instance on the corresponding
