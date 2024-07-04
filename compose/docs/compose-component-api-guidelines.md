@@ -57,6 +57,7 @@ App development is often subject to strong organizational priorities and norms a
     - [Semantics merging](#semantics-merging)
     - [Accessibility related parameters](#accessibility-related-parameters)
     - [Accessibility tuning](#accessibility-tuning)
+- [Tooling support](#tooling-support)
 - [Evolution of the Component APIs](#evolution-of-the-component-apis)
 
 ## Note on vocabulary in this doc
@@ -1256,6 +1257,53 @@ Therefore, you don’t need to add a parameter for every possible semantics your
 While basic accessibility capabilities will be granted by using foundation layer building blocks, there’s a potential for developers to make the component more accessible.
 
 There are specific semantics expected for individual categories of components: simple components typically require 1-3 semantics, whereas more complex components like text fields, scroll containers or time/date pickers require a very rich set of semantics to function correctly with screenreaders.  When developing a new custom component, first consider which of the existing standard Compose components it’s most similar to, and imitating the semantics provided by that component’s implementation, and the exact foundation building blocks it uses. Go from there to fine-tune and add more semantical actions and/or properties when needed.
+
+## Tooling support
+
+**Jetpack Compose framework development** SHOULD follow the rules in this
+section below.
+
+**Compose library development** MAY follow the rules in the sections below.
+
+**App development** MAY follow.
+
+Consider component behaviour in app developer tooling including Android Studio
+Previews and test infrastructure. Components are expected to behave correctly in
+those environments to make the developer experience productive.
+
+### Compose Preview tooling
+
+Components are expected to display initial state when used in non-interactive
+preview mode.
+
+Components should avoid patterns that delay the initial render to a subsequent
+frame. Avoid using LaunchedEffects or asynchronous logic for initial component
+state set up.
+
+If required use `LocalInspectionMode.current` to detect when running as a
+preview, and do the minimal change to ensure Previews are functional. Avoid
+replacing a complex component with some placeholder image in Previews. Ensure
+your component works correctly with various parameters provided via the preview
+tooling.
+
+In interactive mode, Previews should allow direct use of the component with the
+same interactive experience as when running in an application.
+
+### Screenshot testing
+
+Components should support screenshot testing.
+
+Prefer stateless components where state is passed as a parameter to make sure
+the component is screenshot-testable in various states. Alternatively, support
+use of
+[Compose testing APIs](https://developer.android.com/develop/ui/compose/testing/apis)
+such as SemanticsMatcher to affect the internal state.
+
+Android specific components should ideally support both
+[Compose Preview Screenshot Testing](https://developer.android.com/studio/preview/compose-screenshot-testing)
+and Robolectric
+([RNG](https://github.com/robolectric/robolectric/releases/tag/robolectric-4.10))
+to enable effective screenshot testing.
 
 ## Evolution of the Component APIs
 
