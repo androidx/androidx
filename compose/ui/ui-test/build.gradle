@@ -32,7 +32,7 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -59,7 +59,6 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinCoroutinesTest)
-                api(libs.kotlinStdlibCommon)
             }
         }
 
@@ -76,12 +75,11 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmMain)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.truth)
-                implementation(libs.skiko)
             }
         }
 

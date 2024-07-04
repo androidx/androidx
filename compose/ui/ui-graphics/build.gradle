@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -34,14 +33,14 @@ plugins {
 
 androidXMultiplatform {
     android()
-    desktop()
+    jvmStubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlibCommon)
+                implementation(libs.kotlinStdlib)
                 api(libs.androidx.annotation)
 
                 api(project(":compose:ui:ui-unit"))
@@ -54,13 +53,6 @@ androidXMultiplatform {
         commonTest {
             dependencies {
                 implementation(kotlin("test"))
-            }
-        }
-
-        skikoMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.skikoCommon)
             }
         }
 
@@ -82,12 +74,9 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain {
+        jvmStubsMain {
             dependsOn(jvmMain)
-            dependsOn(skikoMain)
             dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinStdlibJdk8)
             }
         }
 

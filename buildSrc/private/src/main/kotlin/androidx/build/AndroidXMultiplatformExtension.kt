@@ -336,7 +336,13 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun jvmStubs(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
         supportedPlatforms.add(PlatformIdentifier.JVM_STUBS)
         return if (project.enableJvm()) {
-            kotlinExtension.jvm("jvmStubs") { block?.execute(this) }
+            kotlinExtension.jvm("jvmStubs") {
+                block?.execute(this)
+                project.tasks.named("jvmStubsTest").configure {
+                    // don't try running common tests for stubs target
+                    it.enabled = false
+                }
+            }
         } else {
             null
         }
