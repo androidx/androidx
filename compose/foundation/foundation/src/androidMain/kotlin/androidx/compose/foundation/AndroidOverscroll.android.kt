@@ -529,6 +529,28 @@ internal class AndroidEdgeEffectOverscrollEffect(
         val consumedByDelta = performScroll(leftForDelta)
         val leftForOverscroll = leftForDelta - consumedByDelta
 
+        // If there was some delta available for scrolling (we aren't consuming delta to relax),
+        // scrolling consumed some of this delta, and we are stretched, this means that the scroll
+        // started to consume again after previously not consuming. This can happen for example when
+        // a new item was added to the end of the list, so we want to release the stretch and let
+        // scrolling continue to happen without the stretch being 'stuck'. We compare x and y values
+        // individually to avoid issues due to Offset(-0,0) != Offset(0,0)
+        if (
+            (leftForDelta.x != 0f || leftForDelta.y != 0f) &&
+                (consumedByDelta.x != 0f || consumedByDelta.y != 0f)
+        ) {
+            with(edgeEffectWrapper) {
+                if (
+                    isLeftStretched() ||
+                        isTopStretched() ||
+                        isRightStretched() ||
+                        isBottomStretched()
+                ) {
+                    animateToReleaseIfNeeded()
+                }
+            }
+        }
+
         var needsInvalidation = false
         if (source == NestedScrollSource.UserInput) {
             // Ignore small deltas (< 0.5) as this usually comes from floating point rounding issues

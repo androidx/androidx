@@ -35,6 +35,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ComposeTimeoutException
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -945,6 +946,166 @@ class StretchOverscrollIntegrationTest {
         }
     }
 
+    // Tests for b/262253616
+
+    @Test
+    fun stretchOverscroll_scrollStartsToConsumeAfterBeingStretched_releaseOverscroll_pullLeft() {
+        val state = setStretchOverscrollContent(Orientation.Horizontal)
+        // Move to the end, since pulling left requires us to be at the right edge
+        state.dispatchRawDelta(1000f)
+        rule.runOnIdle { assertThat(state.scrollPosition).isEqualTo(1000f) }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(-200f, 0f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            // When stretching, overscroll will consume after the scroll cycle
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(-200f)
+            assertThat(state.scrollPosition).isEqualTo(1000f)
+            assertThat(state.onPostScrollAvailable.x).isEqualTo(-200f)
+            // Update the max position to 2000 - this means that scrolling should now happen when
+            // we move again
+            state.maxPosition = 2000f
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // Move by another 200 - this should now scroll as we updated the max position
+            moveBy(Offset(-200f, 0f))
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(-400f)
+            assertThat(state.scrollPosition).isEqualTo(1200f)
+            // Scroll consumed the extra 200
+            assertThat(state.onPostScrollAvailable.x).isEqualTo(-200f)
+        }
+
+        // Scroll started to consume delta again, so overscroll should be released and animate out:
+        // if we didn't release overscroll, this would fail as overscroll would remain active.
+        assertOverscrollIsFinishing(state.overscroll)
+    }
+
+    @Test
+    fun stretchOverscroll_scrollStartsToConsumeAfterBeingStretched_releaseOverscroll_pullTop() {
+        val state = setStretchOverscrollContent(Orientation.Vertical)
+        // Move to the end, since pulling up requires us to be at the bottom edge
+        state.dispatchRawDelta(1000f)
+        rule.runOnIdle { assertThat(state.scrollPosition).isEqualTo(1000f) }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(0f, -200f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            // When stretching, overscroll will consume after the scroll cycle
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(-200f)
+            assertThat(state.scrollPosition).isEqualTo(1000f)
+            assertThat(state.onPostScrollAvailable.y).isEqualTo(-200f)
+            // Update the max position to 2000 - this means that scrolling should now happen when
+            // we move again
+            state.maxPosition = 2000f
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // Move by another 200 - this should now scroll as we updated the max position
+            moveBy(Offset(0f, -200f))
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(-400f)
+            assertThat(state.scrollPosition).isEqualTo(1200f)
+            // Scroll consumed the extra 200
+            assertThat(state.onPostScrollAvailable.y).isEqualTo(-200f)
+        }
+
+        // Scroll started to consume delta again, so overscroll should be released and animate out:
+        // if we didn't release overscroll, this would fail as overscroll would remain active.
+        assertOverscrollIsFinishing(state.overscroll)
+    }
+
+    @Test
+    fun stretchOverscroll_scrollStartsToConsumeAfterBeingStretched_releaseOverscroll_pullRight() {
+        val state = setStretchOverscrollContent(Orientation.Horizontal)
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(200f, 0f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            // When stretching, overscroll will consume after the scroll cycle
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(200f)
+            assertThat(state.scrollPosition).isEqualTo(0f)
+            assertThat(state.onPostScrollAvailable.x).isEqualTo(200f)
+            // Update the min position to -1000 - this means that scrolling should now happen when
+            // we move again
+            state.minPosition = -1000f
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // Move by another 200 - this should now scroll as we updated the min position
+            moveBy(Offset(200f, 0f))
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.x).isEqualTo(400f)
+            assertThat(state.scrollPosition).isEqualTo(-200f)
+            // Scroll consumed the extra 200
+            assertThat(state.onPostScrollAvailable.x).isEqualTo(200f)
+        }
+
+        // Scroll started to consume delta again, so overscroll should be released and animate out:
+        // if we didn't release overscroll, this would fail as overscroll would remain active.
+        assertOverscrollIsFinishing(state.overscroll)
+    }
+
+    @Test
+    fun stretchOverscroll_scrollStartsToConsumeAfterBeingStretched_releaseOverscroll_pullBottom() {
+        val state = setStretchOverscrollContent(Orientation.Vertical)
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            down(center)
+            // Stretch by 200
+            moveBy(Offset(0f, 200f))
+            state.overscroll.invalidationEnabled = false
+        }
+
+        rule.runOnIdle {
+            // When stretching, overscroll will consume after the scroll cycle
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(200f)
+            assertThat(state.scrollPosition).isEqualTo(0f)
+            assertThat(state.onPostScrollAvailable.y).isEqualTo(200f)
+            // Update the min position to -1000 - this means that scrolling should now happen when
+            // we move again
+            state.minPosition = -1000f
+        }
+
+        rule.onNodeWithTag(OverscrollBox).performTouchInput {
+            // Move by another 200 - this should now scroll as we updated the min position
+            moveBy(Offset(0f, 200f))
+        }
+
+        rule.runOnIdle {
+            assertThat(state.onPreScrollAvailable.y).isEqualTo(400f)
+            assertThat(state.scrollPosition).isEqualTo(-200f)
+            // Scroll consumed the extra 200
+            assertThat(state.onPostScrollAvailable.y).isEqualTo(200f)
+        }
+
+        // Scroll started to consume delta again, so overscroll should be released and animate out:
+        // if we didn't release overscroll, this would fail as overscroll would remain active.
+        assertOverscrollIsFinishing(state.overscroll)
+    }
+
     private fun setStretchOverscrollContent(orientation: Orientation): TestState {
         animationScaleRule.setAnimationDurationScale(1f)
         val state = TestState()
@@ -975,6 +1136,30 @@ class StretchOverscrollIntegrationTest {
         }
         return state
     }
+
+    private fun assertOverscrollIsFinishing(overscrollEffect: AndroidEdgeEffectOverscrollEffect) {
+        // Enable invalidations again, and force an invalidation: this will cause the edge
+        // effect to update and animate out (if it has been released)
+        overscrollEffect.invalidationEnabled = true
+        overscrollEffect.invalidateOverscroll()
+        val startTime = System.nanoTime()
+        try {
+            while (overscrollEffect.isInProgress) {
+                @Suppress("BanThreadSleep")
+                // There is no other way to synchronize / get the state of edge effects
+                Thread.sleep(10)
+                // Wait until a second has elapsed for overscroll to finish animating
+                if (System.nanoTime() - startTime > 1000 * /* millis to nanos */ 1_000_000L) {
+                    throw ComposeTimeoutException("Overscroll did not finish within 1 second")
+                }
+            }
+        } finally {
+            // If overscroll is still animating, it will continuously invalidate drawing, which will
+            // keep the test running forever. We need to break the loop so that the test can stop
+            // and report the exception.
+            overscrollEffect.invalidationEnabled = false
+        }
+    }
 }
 
 /**
@@ -999,10 +1184,13 @@ private class TestState : ScrollableState {
 
     lateinit var overscroll: AndroidEdgeEffectOverscrollEffect
 
+    var minPosition: Float = 0f
+    var maxPosition: Float = 1000f
+
     // Using ScrollableState here instead of ScrollState as ScrollState will automatically round to
     // an int, and we need to assert floating point values
     private val scrollableState = ScrollableState {
-        val newPosition = (scrollPosition + it).coerceIn(0f, 1000f)
+        val newPosition = (scrollPosition + it).coerceIn(minPosition, maxPosition)
         val consumed = newPosition - scrollPosition
         scrollPosition = newPosition
         consumed
