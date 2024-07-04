@@ -98,6 +98,7 @@ class SupportedSurfaceCombination(
         MutableMap<FeatureSettings, List<SurfaceCombination>> =
         mutableMapOf()
     private val surfaceCombinations10Bit: MutableList<SurfaceCombination> = mutableListOf()
+    private val surfaceCombinationsUltraHdr: MutableList<SurfaceCombination> = mutableListOf()
     private var isRawSupported = false
     private var isBurstCaptureSupported = false
     private var isConcurrentCameraModeSupported = false
@@ -128,6 +129,10 @@ class SupportedSurfaceCombination(
 
         if (dynamicRangeResolver.is10BitDynamicRangeSupported()) {
             generate10BitSupportedCombinationList()
+
+            if (isUltraHdrSupported()) {
+                generateUltraHdrSupportedCombinationList()
+            }
         }
 
         if (isPreviewStabilizationSupported) {
@@ -157,6 +162,11 @@ class SupportedSurfaceCombination(
         return getSurfaceCombinationsByFeatureSettings(featureSettings).any {
             it.getOrderedSupportedSurfaceConfigList(surfaceConfigList) != null
         }
+    }
+
+    private fun isUltraHdrSupported(): Boolean {
+        return getStreamConfigurationMapCompat().getOutputFormats()?.contains(ImageFormat.JPEG_R)
+            ?: false
     }
 
     private fun getOrderedSupportedStreamUseCaseSurfaceConfigList(
@@ -203,7 +213,11 @@ class SupportedSurfaceCombination(
         } else if (featureSettings.requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
             // For 10-bit outputs, only the default camera mode is currently supported.
             if (featureSettings.cameraMode == CameraMode.DEFAULT) {
-                supportedSurfaceCombinations.addAll(surfaceCombinations10Bit)
+                if (featureSettings.isUltraHdrOn) {
+                    supportedSurfaceCombinations.addAll(surfaceCombinationsUltraHdr)
+                } else {
+                    supportedSurfaceCombinations.addAll(surfaceCombinations10Bit)
+                }
             }
         }
         featureSettingsToSupportedCombinationsMap[featureSettings] = supportedSurfaceCombinations
@@ -261,8 +275,14 @@ class SupportedSurfaceCombination(
                 newUseCaseConfigs,
                 useCasesPriorityOrder
             )
+        val isUltraHdrOn = isUltraHdrOn(attachedSurfaces, newUseCaseConfigsSupportedSizeMap)
         val featureSettings =
-            createFeatureSettings(cameraMode, resolvedDynamicRanges, isPreviewStabilizationOn)
+            createFeatureSettings(
+                cameraMode,
+                resolvedDynamicRanges,
+                isPreviewStabilizationOn,
+                isUltraHdrOn
+            )
         val isSurfaceCombinationSupported =
             isUseCasesCombinationSupported(
                 featureSettings,
@@ -361,11 +381,13 @@ class SupportedSurfaceCombination(
      * @param cameraMode the working camera mode.
      * @param resolvedDynamicRanges the resolved dynamic range list of the newly added UseCases
      * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
+     * @param isUltraHdrOn whether the Ultra HDR image capture is enabled.
      */
     private fun createFeatureSettings(
         @CameraMode.Mode cameraMode: Int,
         resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
-        isPreviewStabilizationOn: Boolean
+        isPreviewStabilizationOn: Boolean,
+        isUltraHdrOn: Boolean
     ): FeatureSettings {
         val requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges)
         require(
@@ -375,7 +397,12 @@ class SupportedSurfaceCombination(
             "Camera device Id is $cameraId. 10 bit dynamic range is not " +
                 "currently supported in ${CameraMode.toLabelString(cameraMode)} camera mode."
         }
-        return FeatureSettings(cameraMode, requiredMaxBitDepth, isPreviewStabilizationOn)
+        return FeatureSettings(
+            cameraMode,
+            requiredMaxBitDepth,
+            isPreviewStabilizationOn,
+            isUltraHdrOn
+        )
     }
 
     /**
@@ -1246,6 +1273,12 @@ class SupportedSurfaceCombination(
         )
     }
 
+    private fun generateUltraHdrSupportedCombinationList() {
+        surfaceCombinationsUltraHdr.addAll(
+            GuaranteedConfigurationsUtil.getUltraHdrSupportedCombinationList()
+        )
+    }
+
     private fun generateStreamUseCaseSupportedCombinationList() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             surfaceCombinationsStreamUseCase.addAll(
@@ -1558,7 +1591,8 @@ class SupportedSurfaceCombination(
     data class FeatureSettings(
         @CameraMode.Mode val cameraMode: Int,
         val requiredMaxBitDepth: Int,
-        val isPreviewStabilizationOn: Boolean = false
+        val isPreviewStabilizationOn: Boolean = false,
+        val isUltraHdrOn: Boolean = false
     )
 
     data class BestSizesAndMaxFpsForConfigs(
@@ -1567,4 +1601,25 @@ class SupportedSurfaceCombination(
         val maxFps: Int,
         val maxFpsForStreamUseCase: Int
     )
+
+    companion object {
+        private fun isUltraHdrOn(
+            attachedSurfaces: List<AttachedSurfaceInfo>,
+            newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
+        ): Boolean {
+            for (surfaceInfo in attachedSurfaces) {
+                if (surfaceInfo.imageFormat == ImageFormat.JPEG_R) {
+                    return true
+                }
+            }
+
+            for (useCaseConfig in newUseCaseConfigsSupportedSizeMap.keys) {
+                if (useCaseConfig.inputFormat == ImageFormat.JPEG_R) {
+                    return true
+                }
+            }
+
+            return false
+        }
+    }
 }

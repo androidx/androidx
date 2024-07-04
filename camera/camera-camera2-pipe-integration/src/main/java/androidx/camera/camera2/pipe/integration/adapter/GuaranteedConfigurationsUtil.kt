@@ -430,6 +430,32 @@ object GuaranteedConfigurationsUtil {
         return combinationList
     }
 
+    /** Returns the minimally guaranteed stream combinations for Ultra HDR. */
+    @JvmStatic
+    fun getUltraHdrSupportedCombinationList(): List<SurfaceCombination> {
+        // Due to the unique characteristics of JPEG/R, some devices might configure an extra 8-bit
+        // JPEG stream internally in addition to the 10-bit YUV stream. The 10-bit mandatory
+        // stream combination table is actually not suitable for use. Adds only (PRIV, PREVIEW) +
+        // (JPEG_R, MAXIMUM), which is guaranteed by CTS test, as the supported combination.
+
+        val combinationList: MutableList<SurfaceCombination> = ArrayList()
+
+        // (JPEG_R, MAXIMUM)
+        SurfaceCombination()
+            .apply { addSurfaceConfig(SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.MAXIMUM)) }
+            .also { combinationList.add(it) }
+
+        // (PRIV, PREVIEW) + (JPEG_R, MAXIMUM)
+        SurfaceCombination()
+            .apply {
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW))
+                addSurfaceConfig(SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.MAXIMUM))
+            }
+            .also { combinationList.add(it) }
+
+        return combinationList
+    }
+
     @JvmStatic
     fun getConcurrentSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
