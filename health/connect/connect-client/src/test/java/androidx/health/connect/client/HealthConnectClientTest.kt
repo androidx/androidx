@@ -15,13 +15,16 @@
  */
 package androidx.health.connect.client
 
+import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
+import android.health.connect.HealthConnectManager
 import android.os.Build
 import android.os.UserManager
+import androidx.annotation.RequiresApi
 import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.platform.client.HealthDataService
 import androidx.test.core.app.ApplicationProvider
@@ -31,9 +34,12 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.robolectric.Shadows
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.shadows.ShadowContextImpl
 import org.robolectric.shadows.ShadowUserManager
 
 private const val PROVIDER_PACKAGE_NAME = "com.example.fake.provider"
@@ -147,6 +153,38 @@ class HealthConnectClientTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun healthConnectManagerNonNull_available() {
+        val shadowContext: ShadowContextImpl = Shadow.extract((context as Application).baseContext)
+        shadowContext.setSystemService(
+            Context.HEALTHCONNECT_SERVICE,
+            mock(HealthConnectManager::class.java)
+        )
+        assertThat(
+                HealthConnectClient.getSdkStatus(
+                    context,
+                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+                )
+            )
+            .isEqualTo(HealthConnectClient.SDK_AVAILABLE)
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    fun healthConnectManagerNull_unavailable() {
+        val shadowContext: ShadowContextImpl = Shadow.extract((context as Application).baseContext)
+        shadowContext.removeSystemService(Context.HEALTHCONNECT_SERVICE)
+        assertThat(
+                HealthConnectClient.getSdkStatus(
+                    context,
+                    HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME
+                )
+            )
+            .isEqualTo(HealthConnectClient.SDK_UNAVAILABLE)
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.P])
     fun getHealthConnectManageDataAction_noProvider_returnsDefaultIntent() {
         assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
@@ -185,7 +223,13 @@ class HealthConnectClientTest {
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun getHealthConnectManageDataAction_platformSupported() {
+        val shadowContext: ShadowContextImpl = Shadow.extract((context as Application).baseContext)
+        shadowContext.setSystemService(
+            Context.HEALTHCONNECT_SERVICE,
+            mock(HealthConnectManager::class.java)
+        )
         installDataManagementHandler(context, PROVIDER_PACKAGE_NAME)
         assertThat(HealthConnectClient.getHealthConnectManageDataIntent(context).action)
             .isEqualTo("android.health.connect.action.MANAGE_HEALTH_DATA")
