@@ -43,6 +43,7 @@ val WearMaterial3Demos =
         listOf(
             ComposableDemo("Scaffold") { ScaffoldSample() },
             Material3DemoCategory("ScrollAway", ScrollAwayDemos),
+            ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
             Material3DemoCategory(
                 "Button",
                 listOf(
