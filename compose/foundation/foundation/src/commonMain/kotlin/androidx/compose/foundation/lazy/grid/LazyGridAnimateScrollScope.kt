@@ -19,10 +19,19 @@ package androidx.compose.foundation.lazy.grid
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
+import androidx.compose.foundation.pager.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 
-internal fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollScope {
+/**
+ * An implementation of [LazyLayoutAnimateScrollScope] that can be used with LazyGrids.
+ *
+ * @param state The [LazyGridState] associated with the layout where this animated scroll should be
+ *   performed.
+ * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [LazyHorizontalGrid]
+ *   and [LazyVerticalGrid].
+ */
+fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {
         override val firstVisibleItemIndex: Int
             get() = state.firstVisibleItemIndex
@@ -36,8 +45,8 @@ internal fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnima
         override val itemCount: Int
             get() = state.layoutInfo.totalItemsCount
 
-        override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
-            state.snapToItemIndexInternal(index, scrollOffset, forceRemeasure = true)
+        override fun ScrollScope.snapToItem(index: Int, offset: Int) {
+            state.snapToItemIndexInternal(index, offset, forceRemeasure = true)
         }
 
         override fun calculateDistanceTo(targetIndex: Int, targetOffset: Int): Int {
