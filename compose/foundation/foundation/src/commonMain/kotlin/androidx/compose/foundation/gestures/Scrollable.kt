@@ -35,9 +35,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.focus.FocusProperties
-import androidx.compose.ui.focus.FocusPropertiesModifierNode
 import androidx.compose.ui.focus.FocusTargetModifierNode
+import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -276,7 +275,6 @@ private class ScrollableNode(
     ),
     ObserverModifierNode,
     CompositionLocalConsumerModifierNode,
-    FocusPropertiesModifierNode,
     KeyInputModifierNode,
     SemanticsModifierNode {
 
@@ -318,7 +316,7 @@ private class ScrollableNode(
         delegate(nestedScrollModifierNode(nestedScrollConnection, nestedScrollDispatcher))
 
         /** Focus scrolling */
-        delegate(FocusTargetModifierNode())
+        delegate(FocusTargetModifierNode(focusability = Focusability.Never))
         delegate(BringIntoViewResponderNode(contentInViewNode))
         delegate(FocusedBoundsObserverNode { contentInViewNode.onFocusBoundsChanged(it) })
     }
@@ -410,10 +408,6 @@ private class ScrollableNode(
             val density = currentValueOf(LocalDensity)
             defaultFlingBehavior.flingDecay = splineBasedDecay(density)
         }
-    }
-
-    override fun applyFocusProperties(focusProperties: FocusProperties) {
-        focusProperties.canFocus = false
     }
 
     // Key handler for Page up/down scrolling behavior.
