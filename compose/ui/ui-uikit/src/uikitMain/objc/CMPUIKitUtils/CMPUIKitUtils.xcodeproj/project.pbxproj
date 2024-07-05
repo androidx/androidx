@@ -70,6 +70,7 @@
 		997DFCF42B18E276000B56B5 /* XCTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XCTestCase.swift; sourceTree = "<group>"; };
 		997DFCFA2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CMPUIKitUtilsTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		997DFCFC2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMPUIKitUtilsTestApp.swift; sourceTree = "<group>"; };
+		99BE84D22C3467B100E43826 /* CMPUIKitUtilsTestApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMPUIKitUtilsTestApp.xctestplan; sourceTree = "<group>"; };
 		99D97A862BF73A9B0035552B /* CMPEditMenuView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPEditMenuView.h; sourceTree = "<group>"; };
 		99D97A872BF73A9B0035552B /* CMPEditMenuView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPEditMenuView.m; sourceTree = "<group>"; };
 		99DCAB0C2BD00F5C002E6AC7 /* CMPTextLoupeSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPTextLoupeSession.h; sourceTree = "<group>"; };
@@ -146,6 +147,7 @@
 		9975AAC02AEABB5600AF155F = {
 			isa = PBXGroup;
 			children = (
+				99BE84D22C3467B100E43826 /* CMPUIKitUtilsTestApp.xctestplan */,
 				996EFEEB2B02CE5D0000FE0F /* CMPUIKitUtils */,
 				997DFCE42B18D99E000B56B5 /* CMPUIKitUtilsTests */,
 				997DFCFB2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp */,
