@@ -48,10 +48,13 @@ import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.samples.RadioButtonSample
 import androidx.wear.compose.material3.samples.SplitRadioButtonSample
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -466,6 +469,108 @@ class RadioButtonTest {
         rule
             .setContentWithThemeForSizeAssertions { SplitRadioButtonWithDefaults() }
             .assertHeightIsEqualTo(52.dp)
+    }
+
+    @Test
+    fun radio_defines_default_textalign() {
+        var labelTextAlign: TextAlign? = null
+        var secondaryLabelTextAlign: TextAlign? = null
+
+        rule.setContentWithTheme {
+            RadioButtonWithDefaults(
+                selected = true,
+                label = { labelTextAlign = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+            )
+        }
+
+        Assert.assertEquals(TextAlign.Start, labelTextAlign)
+        Assert.assertEquals(TextAlign.Start, secondaryLabelTextAlign)
+    }
+
+    @Test
+    fun splitradio_defines_default_textalign() {
+        var labelTextAlign: TextAlign? = null
+        var secondaryLabelTextAlign: TextAlign? = null
+
+        rule.setContentWithTheme {
+            SplitRadioButtonWithDefaults(
+                selected = true,
+                label = { labelTextAlign = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+            )
+        }
+
+        Assert.assertEquals(TextAlign.Start, labelTextAlign)
+        Assert.assertEquals(TextAlign.Start, secondaryLabelTextAlign)
+    }
+
+    @Test
+    fun radio_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            RadioButtonWithDefaults(
+                selected = true,
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        Assert.assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        Assert.assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun splitradio_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            SplitRadioButtonWithDefaults(
+                selected = true,
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        Assert.assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        Assert.assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun radio_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            RadioButtonWithDefaults(
+                selected = true,
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        Assert.assertEquals(3, labelMaxLines)
+        Assert.assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun splitradio_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            SplitRadioButtonWithDefaults(
+                selected = true,
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        Assert.assertEquals(3, labelMaxLines)
+        Assert.assertEquals(2, secondaryLabelMaxLines)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

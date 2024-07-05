@@ -59,6 +59,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.CheckboxButtonTokens
 import androidx.wear.compose.material3.tokens.MotionTokens
@@ -74,7 +76,7 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * The [CheckboxButton] is Stadium shaped. The label should take no more than 3 lines of text. The
  * secondary label should take no more than 2 lines of text. With localisation and/or large font
  * sizes, the [CheckboxButton] height adjusts to accommodate the contents. The label and secondary
- * label should be start aligned.
+ * label are start aligned by default.
  *
  * Samples: Example of a CheckboxButton:
  *
@@ -128,6 +130,9 @@ fun CheckboxButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked),
                 textStyle = CheckboxButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign = TextAlign.Start,
                 content = label
             ),
         toggleControl = {
@@ -153,6 +158,9 @@ fun CheckboxButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, checked),
                 textStyle = CheckboxButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
                 content = secondaryLabel
             ),
         background = { isEnabled, isChecked ->
@@ -181,7 +189,7 @@ fun CheckboxButton(
  * The [SplitCheckboxButton] is Stadium shaped. The label should take no more than 3 lines of text.
  * The secondary label should take no more than 2 lines of text. With localisation and/or large font
  * sizes, the [SplitCheckboxButton] height adjusts to accommodate the contents. The label and
- * secondary label should be start aligned.
+ * secondary label are start aligned by default.
  *
  * A [SplitCheckboxButton] has two tappable areas, one tap area for the labels and another for the
  * checkbox. The [onContainerClick] listener will be associated with the main body of the
@@ -278,6 +286,9 @@ fun SplitCheckboxButton(
                     provideScopeContent(
                         contentColor = colors.contentColor(enabled = enabled, checked = checked),
                         textStyle = SplitCheckboxButtonTokens.LabelFont.value,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                        textAlign = TextAlign.Start,
                         content = label
                     ),
                 secondaryLabel =
@@ -285,6 +296,9 @@ fun SplitCheckboxButton(
                         contentColor =
                             colors.secondaryContentColor(enabled = enabled, checked = checked),
                         textStyle = SplitCheckboxButtonTokens.SecondaryLabelFont.value,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                        textAlign = TextAlign.Start,
                         content = secondaryLabel
                     ),
             )

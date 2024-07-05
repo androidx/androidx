@@ -26,10 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.LocalTextMaxLines
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 
@@ -75,15 +74,23 @@ fun SwitchButtonDemo() {
             DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary Label with 3 lines of content max"
+                primary = "Primary Label with at most three lines of content"
             )
         }
         item {
             DemoSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
-                primary = "Primary Label with 3 lines of content max",
-                secondary = "Secondary label with 2 lines"
+                primary = "Primary Label with at most three lines of content",
+                secondary = "Secondary label with at most two lines of text"
+            )
+        }
+        item {
+            DemoSwitchButton(
+                enabled = true,
+                initiallyChecked = true,
+                primary = "Override the maximum number of primary label content to be four",
+                primaryMaxLines = 4,
             )
         }
     }
@@ -94,6 +101,7 @@ private fun DemoSwitchButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
+    primaryMaxLines: Int? = null,
     secondary: String = "",
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
@@ -105,9 +113,7 @@ private fun DemoSwitchButton(
             Text(
                 primary,
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
+                maxLines = primaryMaxLines ?: LocalTextMaxLines.current,
             )
         },
         secondaryLabel = {
@@ -115,9 +121,6 @@ private fun DemoSwitchButton(
                 Text(
                     secondary,
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2,
-                    textAlign = TextAlign.Start,
-                    overflow = TextOverflow.Ellipsis
                 )
             }
         },

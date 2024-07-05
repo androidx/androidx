@@ -51,6 +51,8 @@ import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.samples.SplitSwitchButtonSample
@@ -423,6 +425,114 @@ class SwitchButtonTest {
         rule
             .setContentWithThemeForSizeAssertions { SplitSwitchButtonWithDefaults() }
             .assertHeightIsEqualTo(52.dp)
+    }
+
+    @Test
+    fun switch_defines_default_textalign() {
+        var labelTextAlign: TextAlign? = null
+        var secondaryLabelTextAlign: TextAlign? = null
+
+        rule.setContentWithTheme {
+            SwitchButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelTextAlign = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+            )
+        }
+
+        Assert.assertEquals(TextAlign.Start, labelTextAlign)
+        Assert.assertEquals(TextAlign.Start, secondaryLabelTextAlign)
+    }
+
+    @Test
+    fun splitswitch_defines_default_textalign() {
+        var labelTextAlign: TextAlign? = null
+        var secondaryLabelTextAlign: TextAlign? = null
+
+        rule.setContentWithTheme {
+            SplitSwitchButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelTextAlign = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+            )
+        }
+
+        Assert.assertEquals(TextAlign.Start, labelTextAlign)
+        Assert.assertEquals(TextAlign.Start, secondaryLabelTextAlign)
+    }
+
+    @Test
+    fun switch_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            SwitchButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        Assert.assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        Assert.assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun splitswitch_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            SplitSwitchButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        Assert.assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        Assert.assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun switch_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            SwitchButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        Assert.assertEquals(3, labelMaxLines)
+        Assert.assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun splitswitch_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            SplitSwitchButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        Assert.assertEquals(3, labelMaxLines)
+        Assert.assertEquals(2, secondaryLabelMaxLines)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

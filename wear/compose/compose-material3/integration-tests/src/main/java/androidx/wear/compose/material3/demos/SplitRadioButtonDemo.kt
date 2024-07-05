@@ -25,9 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.LocalTextMaxLines
 import androidx.wear.compose.material3.SplitRadioButton
 import androidx.wear.compose.material3.Text
 
@@ -66,7 +65,7 @@ fun SplitRadioButtonDemo() {
                 enabled = true,
                 selected = selectedMultiLineRadioIndex == 1,
                 onSelected = { selectedMultiLineRadioIndex = 1 },
-                primary = "Primary Label with 3 lines of very long content max"
+                primary = "Primary Label with at most three lines of content"
             )
         }
         item {
@@ -74,8 +73,17 @@ fun SplitRadioButtonDemo() {
                 enabled = true,
                 selected = selectedMultiLineRadioIndex == 2,
                 onSelected = { selectedMultiLineRadioIndex = 2 },
-                primary = "Primary Label with 3 lines of very long content max",
-                secondary = "Secondary label with 2 lines"
+                primary = "Primary Label with at most three lines of content",
+                secondary = "Secondary label with at most two lines of text"
+            )
+        }
+        item {
+            DemoSplitRadioButton(
+                enabled = true,
+                selected = selectedMultiLineRadioIndex == 3,
+                onSelected = { selectedMultiLineRadioIndex = 3 },
+                primary = "Override the maximum number of primary label content to be four",
+                primaryMaxLines = 4,
             )
         }
     }
@@ -86,6 +94,7 @@ private fun DemoSplitRadioButton(
     enabled: Boolean,
     selected: Boolean,
     primary: String = "Primary label",
+    primaryMaxLines: Int? = null,
     secondary: String? = null,
     onSelected: () -> Unit = {},
 ) {
@@ -96,9 +105,7 @@ private fun DemoSplitRadioButton(
             Text(
                 primary,
                 Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
+                maxLines = primaryMaxLines ?: LocalTextMaxLines.current
             )
         },
         secondaryLabel =
@@ -107,9 +114,6 @@ private fun DemoSplitRadioButton(
                     Text(
                         secondary,
                         modifier = Modifier.fillMaxWidth(),
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis
                     )
                 }
             },

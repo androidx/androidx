@@ -54,6 +54,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.MotionTokens
 import androidx.wear.compose.material3.tokens.RadioButtonTokens
@@ -67,9 +69,10 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * the optional icon at the start, a column containing the two label slots in the middle and the
  * selection control at the end.
  *
- * The [RadioButton] is Stadium shaped and has a max height designed to take no more than two lines
- * of text. With localisation and/or large font sizes, the [RadioButton] height adjusts to
- * accommodate the contents. The label and secondary label should be start aligned.
+ * The [RadioButton] is Stadium shaped. The label should take no more than 3 lines of text. The
+ * secondary label should take no more than 2 lines of text. With localisation and/or large font
+ * sizes, the [RadioButton] height adjusts to accommodate the contents. The label and secondary
+ * label are start aligned by default.
  *
  * Note that Modifier.selectableGroup() must be present on the parent control (such as Column) to
  * ensure correct accessibility behavior.
@@ -161,6 +164,9 @@ fun RadioButton(
                 provideScopeContent(
                     contentColor = colors.contentColor(enabled = enabled, selected = selected),
                     textStyle = RadioButtonTokens.LabelFont.value,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3,
+                    textAlign = TextAlign.Start,
                     content = label
                 ),
             secondaryLabel =
@@ -168,6 +174,9 @@ fun RadioButton(
                     contentColor =
                         colors.secondaryContentColor(enabled = enabled, selected = selected),
                     textStyle = RadioButtonTokens.SecondaryLabelFont.value,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 2,
+                    textAlign = TextAlign.Start,
                     content = secondaryLabel
                 )
         )
@@ -193,9 +202,10 @@ fun RadioButton(
  * secondaryLabel. The secondaryLabel is optional. The items are laid out with a column containing
  * the two label slots and radio button control at the end.
  *
- * The [SplitRadioButton] is Stadium shaped and has a max height designed to take no more than two
- * lines of text. With localisation and/or large font sizes, the [SplitRadioButton] height adjusts
- * to accommodate the contents. The label and secondary label should be consistently aligned.
+ * The [SplitRadioButton] is Stadium shaped. The label should take no more than 3 lines of text. The
+ * secondary label should take no more than 2 lines of text. With localisation and/or large font
+ * sizes, the [SplitRadioButton] height adjusts to accommodate the contents. The label and secondary
+ * label are start aligned by default.
  *
  * A [SplitRadioButton] has two tappable areas, one tap area for the labels and another for the
  * selection control. The [onContainerClick] listener will be associated with the main body of the
@@ -294,6 +304,9 @@ fun SplitRadioButton(
                     provideScopeContent(
                         contentColor = colors.contentColor(enabled = enabled, selected = selected),
                         textStyle = SplitRadioButtonTokens.LabelFont.value,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                        textAlign = TextAlign.Start,
                         content = label
                     ),
                 secondaryLabel =
@@ -301,6 +314,9 @@ fun SplitRadioButton(
                         contentColor =
                             colors.secondaryContentColor(enabled = enabled, selected = selected),
                         textStyle = SplitRadioButtonTokens.SecondaryLabelFont.value,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                        textAlign = TextAlign.Start,
                         content = secondaryLabel
                     ),
             )
@@ -755,8 +771,7 @@ object RadioButtonDefaults {
  * @constructor [RadioButtonColors] constructor to be used with [RadioButton]
  */
 @Immutable
-class RadioButtonColors
-constructor(
+class RadioButtonColors(
     val selectedContainerColor: Color,
     val selectedContentColor: Color,
     val selectedSecondaryContentColor: Color,

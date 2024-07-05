@@ -367,14 +367,16 @@ private fun Multiline3SlotButton(
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit = {
         Text(
-            text = "Multiline label that include a lot of text and stretches to third line",
+            text =
+                "Multiline label that include a lot of text and stretches to third line " +
+                    "may be truncated",
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
         )
     },
     secondaryLabel: @Composable RowScope.() -> Unit = {
         Text(
-            text = "Secondary label over two lines",
+            text = "Secondary label over two lines and should be truncated if longer",
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
