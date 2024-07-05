@@ -29,11 +29,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.LocalTextMaxLines
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.Text
 
@@ -99,7 +98,7 @@ fun RadioButtonDemo() {
                 enabled = true,
                 selected = selectedMultiLineRadioIndex == 1,
                 onSelected = { selectedMultiLineRadioIndex = 1 },
-                primary = "Primary Label with 3 lines of very long content max"
+                primary = "Primary Label with at most three lines of content"
             )
         }
         item {
@@ -107,8 +106,17 @@ fun RadioButtonDemo() {
                 enabled = true,
                 selected = selectedMultiLineRadioIndex == 2,
                 onSelected = { selectedMultiLineRadioIndex = 2 },
-                primary = "Primary Label with 3 lines of very long content max",
-                secondary = "Secondary label with 2 lines"
+                primary = "Primary Label with at most three lines of content",
+                secondary = "Secondary label with at most two lines of text"
+            )
+        }
+        item {
+            DemoRadioButton(
+                enabled = true,
+                selected = selectedMultiLineRadioIndex == 3,
+                onSelected = { selectedMultiLineRadioIndex = 3 },
+                primary = "Override the maximum number of primary label content to be four",
+                primaryMaxLines = 4,
             )
         }
     }
@@ -120,6 +128,7 @@ private fun DemoRadioButton(
     selected: Boolean,
     onSelected: () -> Unit = {},
     primary: String = "Primary label",
+    primaryMaxLines: Int? = null,
     secondary: String? = null,
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
@@ -130,9 +139,7 @@ private fun DemoRadioButton(
             Text(
                 primary,
                 Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
+                maxLines = primaryMaxLines ?: LocalTextMaxLines.current
             )
         },
         secondaryLabel =
@@ -141,9 +148,6 @@ private fun DemoRadioButton(
                     Text(
                         secondary,
                         Modifier.fillMaxWidth(),
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
-                        overflow = TextOverflow.Ellipsis
                     )
                 }
             },

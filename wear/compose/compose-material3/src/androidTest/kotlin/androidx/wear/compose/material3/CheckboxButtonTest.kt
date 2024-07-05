@@ -51,6 +51,8 @@ import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.samples.CheckboxButtonSample
@@ -427,6 +429,114 @@ class CheckboxButtonTest {
         rule
             .setContentWithThemeForSizeAssertions { SplitCheckboxButtonWithDefaults() }
             .assertHeightIsEqualTo(52.dp)
+    }
+
+    @Test
+    fun checkbox_defines_default_textalign() {
+        var labelTextAlign: TextAlign? = null
+        var secondaryLabelTextAlign: TextAlign? = null
+
+        rule.setContentWithTheme {
+            CheckboxButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelTextAlign = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+            )
+        }
+
+        Assert.assertEquals(TextAlign.Start, labelTextAlign)
+        Assert.assertEquals(TextAlign.Start, secondaryLabelTextAlign)
+    }
+
+    @Test
+    fun splitcheckbox_defines_default_textalign() {
+        var labelTextAlign: TextAlign? = null
+        var secondaryLabelTextAlign: TextAlign? = null
+
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelTextAlign = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+            )
+        }
+
+        Assert.assertEquals(TextAlign.Start, labelTextAlign)
+        Assert.assertEquals(TextAlign.Start, secondaryLabelTextAlign)
+    }
+
+    @Test
+    fun checkbox_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            CheckboxButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        Assert.assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        Assert.assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun splitcheckbox_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        Assert.assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        Assert.assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun checkbox_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            CheckboxButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        Assert.assertEquals(3, labelMaxLines)
+        Assert.assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun splitcheckbox_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            SplitCheckboxButtonWithDefaults(
+                checked = true,
+                onCheckedChange = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        Assert.assertEquals(3, labelMaxLines)
+        Assert.assertEquals(2, secondaryLabelMaxLines)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

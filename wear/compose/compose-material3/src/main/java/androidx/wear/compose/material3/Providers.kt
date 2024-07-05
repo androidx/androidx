@@ -21,6 +21,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 
 internal fun <T> provideScopeContent(
     contentColor: Color,
@@ -44,6 +46,26 @@ internal fun <T> provideScopeContent(
     CompositionLocalProvider(
         LocalContentColor provides color,
         LocalTextStyle provides textStyle,
+    ) {
+        content()
+    }
+}
+
+internal fun <T> provideScopeContent(
+    contentColor: State<Color>,
+    textStyle: TextStyle,
+    overflow: TextOverflow,
+    maxLines: Int,
+    textAlign: TextAlign,
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
+    val color = contentColor.value
+    CompositionLocalProvider(
+        LocalContentColor provides color,
+        LocalTextStyle provides textStyle,
+        LocalTextOverflow provides overflow,
+        LocalTextMaxLines provides maxLines,
+        LocalTextAlign provides textAlign
     ) {
         content()
     }
@@ -82,6 +104,29 @@ internal fun <T> provideNullableScopeContent(
             CompositionLocalProvider(
                 LocalContentColor provides color,
                 LocalTextStyle provides textStyle
+            ) {
+                content()
+            }
+        }
+    }
+
+internal fun <T> provideNullableScopeContent(
+    contentColor: State<Color>,
+    textStyle: TextStyle,
+    overflow: TextOverflow,
+    maxLines: Int,
+    textAlign: TextAlign,
+    content: (@Composable T.() -> Unit)?
+): (@Composable T.() -> Unit)? =
+    content?.let {
+        {
+            val color = contentColor.value
+            CompositionLocalProvider(
+                LocalContentColor provides color,
+                LocalTextStyle provides textStyle,
+                LocalTextOverflow provides overflow,
+                LocalTextMaxLines provides maxLines,
+                LocalTextAlign provides textAlign,
             ) {
                 content()
             }
