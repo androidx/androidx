@@ -144,6 +144,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         darwin()
         js()
         wasm()
+        iosInstrumentedTest()
 
         configureDarwinFlags()
     }
@@ -317,6 +318,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             wasmJsTest {
                 kotlin.srcDir("src/webTest/kotlin")
                 dependsOn(skikoTest)
+            }
+            uikitInstrumentedTest.dependencies {
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:foundation:foundation"))
             }
 
             desktopTest.dependencies {

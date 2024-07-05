@@ -187,15 +187,16 @@ tasks.register("testWeb") {
 }
 
 tasks.register("testUIKit") {
-    val subtaskName =
-        if (System.getProperty("os.arch") == "aarch64") "uikitSimArm64Test" else "uikitX64Test"
-    dependsOn(":compose:ui:ui-text:$subtaskName")
-    dependsOn(":compose:ui:ui:$subtaskName")
-// TODO fix it properly and uncomment https://youtrack.jetbrains.com/issue/COMPOSE-950/Reenable-material3-tests-on-iOS
-//  Commented because it crashes on CI.
-//    dependsOn(":compose:material3:material3:$subtaskName")
-    dependsOn(":compose:foundation:foundation:$subtaskName")
-    dependsOn(":collection:collection:$subtaskName")
+    val suffix = if (System.getProperty("os.arch") == "aarch64") "SimArm64Test" else "X64Test"
+    val uikitTestSubtaskName = "uikit$suffix"
+    val instrumentedTestSubtaskName = "uikitInstrumented$suffix"
+
+    dependsOn(":compose:ui:ui-text:$uikitTestSubtaskName")
+    dependsOn(":compose:ui:ui:$uikitTestSubtaskName")
+    dependsOn(":compose:ui:ui:$instrumentedTestSubtaskName")
+    dependsOn(":compose:material3:material3:$uikitTestSubtaskName")
+    dependsOn(":compose:foundation:foundation:$uikitTestSubtaskName")
+    dependsOn(":collection:collection:$uikitTestSubtaskName")
 }
 
 tasks.register("testRuntimeNative") {

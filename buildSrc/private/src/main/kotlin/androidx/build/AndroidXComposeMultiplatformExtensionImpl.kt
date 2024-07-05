@@ -16,10 +16,14 @@
 
 package androidx.build
 
+import com.android.build.gradle.internal.crash.afterEvaluate
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Exec
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getValue
@@ -27,8 +31,10 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.testing.KotlinJsTest
+import org.jetbrains.kotlin.gradle.targets.native.DefaultSimulatorTestRun
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.tomlj.Toml
 
@@ -219,7 +225,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     ): KotlinSourceSet = multiplatformExtension.run {
         sourceSets.findByName(name)
             ?: sourceSets.create(name).apply {
-                    dependsOn(sourceSets.getByName(dependsOnSourceSetName))
+                dependsOn(sourceSets.getByName(dependsOnSourceSetName))
             }
     }
 
@@ -262,4 +268,104 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
             iosSimulatorArm64("uikitSimArm64") { configureFreeCompilerArgs() }
         }
     }
+
+    // https://youtrack.jetbrains.com/issue/KT-55751/MPP-Gradle-Consumable-configurations-must-have-unique-attributes
+    private val instrumentedTestAttribute = Attribute.of("instrumentedTest", String::class.java)
+    private val instrumentedTestCompilationAttribute = Attribute.of("instrumentedTestCompilation", String::class.java)
+
+//    The consumer was configured to find a library for use during 'kotlin-metadata',
+//    preferably optimized for non-jvm, as well as
+//    attribute 'org.jetbrains.kotlin.platform.type'
+//        with value 'native',
+//    attribute 'org.jetbrains.kotlin.native.target'
+//        with value 'ios_simulator_arm64',
+//    attribute 'instrumentedTest'
+//        with value 'Test'.
+//    However we cannot choose between the following variants of project :compose:ui:ui:
+//        - uikitInstrumentedSimArm64ApiElements
+//        - uikitInstrumentedSimArm64MetadataElements
+//        - uikitSimArm64ApiElements
+//        - uikitSimArm64MetadataElements
+
+
+    override fun iosInstrumentedTest(): Unit =
+        multiplatformExtension.run {
+            fun getDeviceName(): String? {
+                return project.findProperty("iosSimulatorName") as? String
+            }
+
+            val bootTask = project.tasks.register("bootIosSimulator", Exec::class.java) { task ->
+                task.isIgnoreExitValue = true
+                task.errorOutput = ByteArrayOutputStream()
+                task.doFirst {
+                    val simulatorName = getDeviceName()
+                        ?: error("Device is not provided. Use Use the -PiosSimulatorName=<Device name> flag to pass the device.")
+                    task.commandLine("xcrun", "simctl", "boot", simulatorName)
+                }
+                task.doLast {
+                    val result = task.executionResult.get()
+                    if (result.exitValue != 148 && result.exitValue != 149) { // ignoring device already booted errors
+                        result.assertNormalExitValue()
+                    }
+                }
+            }
+
+            fun KotlinNativeTargetWithSimulatorTests.configureTestRun() {
+                attributes.attribute(instrumentedTestAttribute, "test")
+                testRuns.forEach {
+                    (it as DefaultSimulatorTestRun).executionTask.configure { task ->
+                        task.dependsOn(bootTask)
+                        task.standalone.set(false)
+                        task.device.set(getDeviceName())
+                    }
+                }
+                compilations.forEach {
+                    it.attributes.attribute(instrumentedTestCompilationAttribute, "test")
+                }
+            }
+
+            iosX64("uikitInstrumentedX64") {
+                configureTestRun()
+            }
+            // Testing on real iOS devices is not supported.
+            // iosArm64("uikitInstrumentedArm64") { ... }
+            iosSimulatorArm64("uikitInstrumentedSimArm64") {
+                configureTestRun()
+            }
+
+            val uikitMain = sourceSets.getByName("uikitMain")
+            val uikitInstrumentedMain = sourceSets.create("uikitInstrumentedMain")
+            val uikitInstrumentedX64Main = sourceSets.getByName("uikitInstrumentedX64Main")
+            val uikitInstrumentedSimArm64Main = sourceSets.getByName("uikitInstrumentedSimArm64Main")
+            uikitInstrumentedMain.dependsOn(uikitMain)
+            uikitInstrumentedX64Main.dependsOn(uikitInstrumentedMain)
+            uikitInstrumentedSimArm64Main.dependsOn(uikitInstrumentedMain)
+
+            val commonTest = sourceSets.getByName("commonTest")
+            val uikitInstrumentedTest = sourceSets.create("uikitInstrumentedTest")
+            val uikitInstrumentedX64Test = sourceSets.getByName("uikitInstrumentedX64Test")
+            val uikitInstrumentedSimArm64Test = sourceSets.getByName("uikitInstrumentedSimArm64Test")
+            uikitInstrumentedTest.dependsOn(commonTest)
+            uikitInstrumentedX64Test.dependsOn(uikitInstrumentedTest)
+            uikitInstrumentedSimArm64Test.dependsOn(uikitInstrumentedTest)
+
+            afterEvaluate {
+                println(">>> After ${it} - ${it.tasks.count()}")
+                it.tasks.forEach {
+                    println(">> NNN ${it.name}")
+                }
+                it.tasks.configureEach {
+                    println(">>> ${it.name}")
+                    if (
+                        it.name.startsWith("transform")
+                        && it.name.endsWith("DependenciesMetadataForIde")
+                    ) {
+                        // transformUikitInstrumentedTestCInteropDependenciesMetadataForIde
+                        // println("disabling ${this@subprojects}:$name")
+                        it.enabled = false
+                    }
+                }
+            }
+
+        }
 }

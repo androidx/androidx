@@ -23,7 +23,7 @@ Run tests for Web:
 
 Run tests for UIKit:
 ```bash
-./gradlew :mpp:testUIKit
+./gradlew :mpp:testUIKit -PiosSimulatorName='iPhone 15'
 ```
 
 ### API checks

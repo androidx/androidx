@@ -30,7 +30,7 @@ jobs:
       - name: install Android SDK
         run: ./jbdeps/android-sdk/downloadAndroidSdk
       - name: Run UIKit tests
-        run: ./gradlew :mpp:testUIKit --info
+        run: ./gradlew :mpp:testUIKit --info -PiosSimulatorName='iPhone 15'
       - name: Generate report
         uses: dorny/test-reporter@v1
         if: always()

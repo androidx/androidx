@@ -93,14 +93,13 @@ import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
-private val coroutineDispatcher = Dispatchers.Main
-
 // TODO: Move to androidx.compose.ui.scene
 @OptIn(BetaInteropApi::class)
 @ExportObjCClass
 internal class ComposeContainer(
     private val configuration: ComposeUIViewControllerConfiguration,
     private val content: @Composable () -> Unit,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
 ) : CMPViewController(nibName = null, bundle = null) {
     // TODO: Rename and make private
     val lifecycleOwner = ViewControllerBasedLifecycleOwner()
@@ -111,6 +110,10 @@ internal class ComposeContainer(
     private val layers: MutableList<UIViewComposeSceneLayer> = mutableListOf()
     private val layoutDirection get() = getLayoutDirection()
     private var isViewAppeared: Boolean = false
+
+    fun hasInvalidations(): Boolean {
+        return mediator?.hasInvalidations() == true || layers.any { it.hasInvalidations() }
+    }
 
     @OptIn(ExperimentalComposeApi::class)
     private val windowContainer: UIView
@@ -366,7 +369,7 @@ internal class ComposeContainer(
             configuration = configuration,
             focusStack = focusStack,
             windowContext = windowContext,
-            coroutineContext = coroutineDispatcher,
+            coroutineContext = coroutineContext,
             renderingUIViewFactory = ::createSkikoUIView,
             composeSceneFactory = ::createComposeScene,
         )

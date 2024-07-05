@@ -63,8 +63,8 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
 import androidx.compose.ui.window.ApplicationForegroundStateListener
+import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
 import androidx.compose.ui.window.KeyboardEventHandler
@@ -238,6 +238,11 @@ internal class ComposeSceneMediator(
             coroutineContext,
         )
     }
+
+    fun hasInvalidations(): Boolean {
+        return scene.hasInvalidations() || keyboardManager.isAnimating
+    }
+
     var compositionLocalContext
         get() = scene.compositionLocalContext
         set(value) {

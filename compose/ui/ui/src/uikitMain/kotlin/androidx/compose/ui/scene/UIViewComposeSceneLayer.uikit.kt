@@ -172,6 +172,8 @@ internal class UIViewComposeSceneLayer(
             invalidate = invalidate,
         )
 
+    fun hasInvalidations() = mediator.hasInvalidations()
+
     override var density by mediator::density
     override var layoutDirection by mediator::layoutDirection
     override var boundsInWindow: IntRect = IntRect.Zero
