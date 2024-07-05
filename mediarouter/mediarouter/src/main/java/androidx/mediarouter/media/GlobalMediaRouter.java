@@ -72,7 +72,7 @@ import java.util.Set;
         implements PlatformMediaRouter1RouteProvider.SyncCallback,
                 RegisteredMediaRouteProviderWatcher.Callback {
 
-    static final String TAG = "GlobalMediaRouter";
+    static final String TAG = MediaRouter.TAG;
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     final CallbackHandler mCallbackHandler = new CallbackHandler();
