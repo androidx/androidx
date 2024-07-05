@@ -16,6 +16,7 @@
 package androidx.compose.ui.text.android.selection
 
 import androidx.compose.ui.text.android.CharSequenceCharacterIterator
+import androidx.emoji2.text.EmojiCompat
 import java.text.BreakIterator
 import java.util.Locale
 import kotlin.math.max
@@ -33,12 +34,7 @@ import kotlin.math.min
  *   reasons.
  * @constructor Constructs a new WordIterator for the specified locale.
  */
-internal class WordIterator(
-    private val charSequence: CharSequence,
-    start: Int,
-    end: Int,
-    locale: Locale?
-) {
+internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int, locale: Locale?) {
     private val start: Int
     private val end: Int
     private val iterator: BreakIterator
@@ -61,7 +57,19 @@ internal class WordIterator(
      */
     fun nextBoundary(offset: Int): Int {
         checkOffsetIsValid(offset)
-        return iterator.following(offset)
+        val following = iterator.following(offset)
+        // We should iterate through if the boundary is between a letter/digit and emoji
+        // These should not be considered boundaries
+        if (
+            isOnLetterOrDigitOrEmoji(following - 1) &&
+                isOnLetterOrDigitOrEmoji(following) &&
+                // Extra logic for Japanese to detect boundary between Hiragana and Katakana
+                // characters
+                !isHiraganaKatakanaBoundary(following)
+        ) {
+            return nextBoundary(following)
+        }
+        return following
     }
 
     /**
@@ -73,7 +81,18 @@ internal class WordIterator(
      */
     fun prevBoundary(offset: Int): Int {
         checkOffsetIsValid(offset)
-        return iterator.preceding(offset)
+        val preceding = iterator.preceding(offset)
+        // We should iterate through if the boundary is between a letter/digit and emoji
+        // These should not be considered boundaries
+        return if (
+            isOnLetterOrDigitOrEmoji(preceding) &&
+                isAfterLetterOrDigitOrEmoji(preceding) &&
+                // Extra logic for Japanese to detect boundary between Hiragana and Katakana
+                // characters
+                !isHiraganaKatakanaBoundary(preceding)
+        ) {
+            prevBoundary(preceding)
+        } else preceding
     }
 
     /**
@@ -187,18 +206,19 @@ internal class WordIterator(
      */
     private fun getBeginning(offset: Int, getPrevWordBeginningOnTwoWordsBoundary: Boolean): Int {
         checkOffsetIsValid(offset)
-        if (isOnLetterOrDigit(offset)) {
+        if (isOnLetterOrDigitOrEmoji(offset)) {
             return if (
-                iterator.isBoundary(offset) &&
-                    (!isAfterLetterOrDigit(offset) || !getPrevWordBeginningOnTwoWordsBoundary)
+                isBoundary(offset) &&
+                    (!isAfterLetterOrDigitOrEmoji(offset) ||
+                        !getPrevWordBeginningOnTwoWordsBoundary)
             ) {
                 offset
             } else {
-                iterator.preceding(offset)
+                prevBoundary(offset)
             }
         } else {
-            if (isAfterLetterOrDigit(offset)) {
-                return iterator.preceding(offset)
+            if (isAfterLetterOrDigitOrEmoji(offset)) {
+                return prevBoundary(offset)
             }
         }
         return BreakIterator.DONE
@@ -220,18 +240,18 @@ internal class WordIterator(
      */
     private fun getEnd(offset: Int, getNextWordEndOnTwoWordBoundary: Boolean): Int {
         checkOffsetIsValid(offset)
-        if (isAfterLetterOrDigit(offset)) {
+        if (isAfterLetterOrDigitOrEmoji(offset)) {
             return if (
-                iterator.isBoundary(offset) &&
-                    (!isOnLetterOrDigit(offset) || !getNextWordEndOnTwoWordBoundary)
+                isBoundary(offset) &&
+                    (!isOnLetterOrDigitOrEmoji(offset) || !getNextWordEndOnTwoWordBoundary)
             ) {
                 offset
             } else {
-                iterator.following(offset)
+                nextBoundary(offset)
             }
         } else {
-            if (isOnLetterOrDigit(offset)) {
-                return iterator.following(offset)
+            if (isOnLetterOrDigitOrEmoji(offset)) {
+                return nextBoundary(offset)
             }
         }
         return BreakIterator.DONE
@@ -245,18 +265,36 @@ internal class WordIterator(
         return !isOnPunctuation(offset) && isAfterPunctuation(offset)
     }
 
-    private fun isAfterLetterOrDigit(offset: Int): Boolean {
+    private fun isAfterLetterOrDigitOrEmoji(offset: Int): Boolean {
         if (offset in (start + 1)..end) {
             val codePoint = Character.codePointBefore(charSequence, offset)
             if (Character.isLetterOrDigit(codePoint)) return true
+
+            if (EmojiCompat.isConfigured()) {
+                val emojiCompat = EmojiCompat.get()
+                if (emojiCompat.loadState == EmojiCompat.LOAD_STATE_SUCCEEDED) {
+                    val emojiStart = emojiCompat.getEmojiStart(charSequence, offset - 1)
+                    // If given offset points to emoji return true
+                    if (emojiStart != -1) return true
+                }
+            }
         }
         return false
     }
 
-    private fun isOnLetterOrDigit(offset: Int): Boolean {
+    private fun isOnLetterOrDigitOrEmoji(offset: Int): Boolean {
         if (offset in start until end) {
             val codePoint = Character.codePointAt(charSequence, offset)
             if (Character.isLetterOrDigit(codePoint)) return true
+
+            if (EmojiCompat.isConfigured()) {
+                val emojiCompat = EmojiCompat.get()
+                if (emojiCompat.loadState == EmojiCompat.LOAD_STATE_SUCCEEDED) {
+                    val emojiStart = emojiCompat.getEmojiStart(charSequence, offset)
+                    // If given offset points to emoji return true
+                    if (emojiStart != -1) return true
+                }
+            }
         }
         return false
     }
@@ -266,6 +304,35 @@ internal class WordIterator(
         require(offset in start..end) {
             ("Invalid offset: $offset. Valid range is [$start , $end]")
         }
+    }
+
+    /**
+     * Modified implementation of `iterator.isBoundary` that additionally checks boundary between
+     * letters/digits and emojis as these should not be treated as boundaries.
+     */
+    private fun isBoundary(offset: Int): Boolean {
+        checkOffsetIsValid(offset)
+        return iterator.isBoundary(offset) &&
+            // check offset and two characters before and after to see if all three characters
+            // are letters/digits/emojis
+            !(isOnLetterOrDigitOrEmoji(offset) &&
+                isOnLetterOrDigitOrEmoji(offset - 1) &&
+                isOnLetterOrDigitOrEmoji(offset + 1)) &&
+            // check if there is boundary between hiragana and katakana characters
+            // indexes 0 and charSequence.length - 1 should always be considered boundaries
+            !(offset > 0 &&
+                offset < charSequence.length - 1 &&
+                (isHiraganaKatakanaBoundary(offset) || isHiraganaKatakanaBoundary(offset + 1)))
+    }
+
+    /** Checks if characters before and at `offset` are either hiragana or katakana */
+    private fun isHiraganaKatakanaBoundary(offset: Int): Boolean {
+        return ((Character.UnicodeBlock.of(charSequence[offset - 1]) ==
+            Character.UnicodeBlock.HIRAGANA &&
+            Character.UnicodeBlock.of(charSequence[offset]) == Character.UnicodeBlock.KATAKANA) ||
+            (Character.UnicodeBlock.of(charSequence[offset]) == Character.UnicodeBlock.HIRAGANA &&
+                Character.UnicodeBlock.of(charSequence[offset - 1]) ==
+                    Character.UnicodeBlock.KATAKANA))
     }
 
     companion object {
