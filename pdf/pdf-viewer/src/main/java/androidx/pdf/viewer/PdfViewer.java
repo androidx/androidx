@@ -157,9 +157,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private Object mScrollPositionObserverKey;
 
-    /** The last stable zoom: we only re-draw bitmaps at stable zoom (not during a gesture). */
-    private float mStableZoom;
-
     private ZoomView mZoomView;
 
     private PaginatedView mPaginatedView;
@@ -617,14 +614,14 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private void loadPageAssets(ZoomScroll position) {
         // Change the resolution of the bitmaps only when a gesture is not in progress.
-        if (position.stable || mStableZoom == 0) {
-            mStableZoom = position.zoom;
+        if (position.stable || mZoomView.getStableZoom() == 0) {
+            mZoomView.setStableZoom(position.zoom);
         }
 
         mPaginationModel.setViewArea(mZoomView.getVisibleAreaInContentCoords());
         mPaginatedView.refreshPageRangeInVisibleArea(position, mZoomView.getHeight());
         mPaginatedView.handleGonePages(/* clearViews= */ false);
-        mPaginatedView.loadInvisibleNearPageRange(mStableZoom);
+        mPaginatedView.loadInvisibleNearPageRange(mZoomView.getStableZoom());
 
         // The step (4) below requires page Views to be created and laid out. So we create them here
         // and set this flag if that operation needs to wait for a layout pass.
@@ -633,9 +630,10 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         // 4. Refresh tiles and/or full pages.
         if (position.stable) {
             // Perform a full refresh on all visible pages
-            mPaginatedView.refreshVisiblePages(requiresLayoutPass, viewState().get(), mStableZoom);
+            mPaginatedView.refreshVisiblePages(requiresLayoutPass, viewState().get(),
+                    mZoomView.getStableZoom());
             mPaginatedView.handleGonePages(/* clearViews= */ true);
-        } else if (mStableZoom == position.zoom) {
+        } else if (mZoomView.getStableZoom() == position.zoom) {
             // Just load a few more tiles in case of tile-scroll
             mPaginatedView.refreshVisibleTiles(requiresLayoutPass, viewState().get());
         }
@@ -972,7 +970,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                 // During fast-scroll, we mostly don't need to fetch assets, but
                                 // make sure we keep pushing layout bounds far enough, and update
                                 // page numbers as we "scroll" down.
-                                if (mPageIndicator.setRangeAndZoom(newRange, mStableZoom, false)) {
+                                if (mPageIndicator.setRangeAndZoom(newRange,
+                                        mZoomView.getStableZoom(), false)) {
                                     showFastScrollView();
                                 }
                                 mLayoutHandler.maybeLayoutPages(newRange.getLast());
