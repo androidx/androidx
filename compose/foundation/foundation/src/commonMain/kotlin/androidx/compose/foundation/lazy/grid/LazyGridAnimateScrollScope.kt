@@ -30,6 +30,7 @@ import kotlin.math.max
  *   performed.
  * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [LazyHorizontalGrid]
  *   and [LazyVerticalGrid].
+ * @sample androidx.compose.foundation.samples.CustomLazyGridAnimateToItemScrollSample
  */
 fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {

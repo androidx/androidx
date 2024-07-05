@@ -24,12 +24,14 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
 
 /**
- * An implementation of [LazyLayoutAnimateScrollScope] that can be used with LazyLists.
+ * An implementation of [LazyLayoutAnimateScrollScope] that can be used with LazyLists. Please refer
+ * to the sample to learn how to use this API.
  *
  * @param state The [LazyListState] associated with the layout where this animated scroll should be
  *   performed.
  * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [LazyRow] and
  *   [LazyColumn].
+ * @sample androidx.compose.foundation.samples.CustomLazyListAnimateToItemScrollSample
  */
 fun LazyLayoutAnimateScrollScope(state: LazyListState): LazyLayoutAnimateScrollScope {
 

@@ -31,6 +31,7 @@ import androidx.compose.ui.util.fastSumBy
  *   should be performed.
  * @return An implementation of [LazyLayoutAnimateScrollScope] that works with
  *   [LazyHorizontalStaggeredGrid] and [LazyVerticalStaggeredGrid].
+ * @sample androidx.compose.foundation.samples.CustomLazyStaggeredGridAnimateToItemScrollSample
  */
 fun LazyLayoutAnimateScrollScope(state: LazyStaggeredGridState): LazyLayoutAnimateScrollScope {
 

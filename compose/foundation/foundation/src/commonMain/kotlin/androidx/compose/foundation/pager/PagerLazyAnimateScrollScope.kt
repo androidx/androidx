@@ -29,6 +29,7 @@ import kotlin.math.roundToInt
  *   performed.
  * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [HorizontalPager] and
  *   [VerticalPager].
+ * @sample androidx.compose.foundation.samples.CustomPagerAnimateToPageScrollSample
  */
 fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {
