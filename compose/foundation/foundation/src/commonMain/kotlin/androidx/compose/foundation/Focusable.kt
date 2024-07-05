@@ -26,8 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.Focusability
-import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.layout.PinnableContainer
@@ -43,9 +41,7 @@ import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireLayoutCoordinates
-import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.requestFocus
@@ -98,11 +94,28 @@ fun Modifier.focusable(
  */
 @Stable
 fun Modifier.focusGroup(): Modifier {
-    return this.then(focusGroupInspectorInfo).focusProperties { canFocus = false }.focusTarget()
+    return this.then(FocusGroupElement)
 }
 
-private val focusGroupInspectorInfo =
-    InspectableModifier(debugInspectorInfo { name = "focusGroup" })
+private object FocusGroupElement : ModifierNodeElement<FocusGroupNode>() {
+    override fun create() = FocusGroupNode()
+
+    override fun update(node: FocusGroupNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "focusGroup"
+    }
+
+    override fun hashCode() = "focusGroup".hashCode()
+
+    override fun equals(other: Any?) = other === this
+}
+
+private class FocusGroupNode : DelegatingNode() {
+    init {
+        delegate(FocusTargetModifierNode(focusability = Focusability.Never))
+    }
+}
 
 private class FocusableElement(private val interactionSource: MutableInteractionSource?) :
     ModifierNodeElement<FocusableNode>() {
