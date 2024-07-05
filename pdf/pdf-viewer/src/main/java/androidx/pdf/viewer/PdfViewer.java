@@ -757,23 +757,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     {
         mFastscrollerPositionObserver =
-                new ValueObserver<Integer>() {
-                    @Override
-                    public void onChange(@Nullable Integer oldValue, @Nullable Integer newValue) {
-                        if (mPageIndicator != null && newValue != null) {
-                            mPageIndicator.getView().setY(
-                                    newValue - (mPageIndicator.getView().getHeight() / 2));
-                            mPageIndicator.show();
-                            showFastScrollView();
-                        }
-                    }
-
-                    @NonNull
-                    @Override
-                    public String toString() {
-                        return TAG + "#fastscrollerPositionObserver";
-                    }
-                };
+                new FastScrollPositionValueObserver(mFastScrollView, mPageIndicator);
     }
 
     private FindInFileListener makeFindInFileListener() {
@@ -1219,4 +1203,5 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         intent.setData(mLocalUri);
         startActivity(intent);
     }
+
 }
