@@ -726,31 +726,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     { // Listen to selectionModel.
         mSelectionObserver =
-                new ValueObserver<PageSelection>() {
-                    @Override
-                    public void onChange(PageSelection oldSelection, PageSelection newSelection) {
-                        if (oldSelection != null && isPageCreated(oldSelection.getPage())) {
-                            getPage(oldSelection.getPage()).getPageView().setOverlay(null);
-                        }
-
-                        Range visiblePageRange =
-                                mPaginatedView.getPageRangeHandler().getVisiblePages();
-                        if (newSelection != null && visiblePageRange.contains(
-                                newSelection.getPage())) {
-                            ((PageMosaicView) mPageViewFactory.getOrCreatePageView(
-                                    newSelection.getPage(),
-                                    sScreen.pxFromDp(PAGE_ELEVATION_DP),
-                                    mPaginationModel.getPageSize(newSelection.getPage())))
-                                    .setOverlay(new PdfHighlightOverlay(newSelection));
-                        }
-                    }
-
-                    @NonNull
-                    @Override
-                    public String toString() {
-                        return TAG + "#selectionObserver";
-                    }
-                };
+                new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                        requireContext());
     }
 
     {
