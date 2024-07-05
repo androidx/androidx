@@ -71,7 +71,7 @@ dependencies {
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
 

@@ -36,7 +36,7 @@ dependencies {
 
     compileOnly files("../../wear_sdk/wear-sdk.jar")
 
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation(project(":wear:tiles:tiles-proto"))
 
