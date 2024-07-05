@@ -567,7 +567,7 @@ class AndroidAccessibilityTest {
     @Test
     fun testCreateAccessibilityNodeInfo_numberPicker_expectedClassName() {
         // Arrange.
-        setContent { Box(Modifier.semantics { role = Role.NumberPicker }.testTag(tag)) }
+        setContent { Box(Modifier.semantics { role = Role.ValuePicker }.testTag(tag)) }
         val virtualId = rule.onNodeWithTag(tag).semanticsId
 
         // Act.

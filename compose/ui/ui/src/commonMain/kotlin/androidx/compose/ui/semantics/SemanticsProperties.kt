@@ -672,10 +672,19 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
         val DropdownList = Role(6)
 
         /**
-         * This element is a number picker that a user can perform gesture to adjust and select the
-         * next or previous value.
+         * This element is a value picker. It should support the following accessibility actions to
+         * enable selection of the next and previous values:
+         *
+         * [android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_FORWARD]: Select the next
+         * value.
+         *
+         * [android.view.accessibility.AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD]: Select the
+         * previous value.
+         *
+         * These actions allow accessibility services to interact with this node programmatically on
+         * behalf of users, facilitating navigation within sets of selectable values.
          */
-        val NumberPicker = Role(7)
+        val ValuePicker = Role(7)
     }
 
     override fun toString() =
@@ -687,7 +696,7 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
             Tab -> "Tab"
             Image -> "Image"
             DropdownList -> "DropdownList"
-            NumberPicker -> "NumberPicker"
+            ValuePicker -> "Picker"
             else -> "Unknown"
         }
 }
