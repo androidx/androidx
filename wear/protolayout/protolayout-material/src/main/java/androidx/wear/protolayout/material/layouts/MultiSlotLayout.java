@@ -50,7 +50,8 @@ import java.util.List;
 /**
  * Opinionated ProtoLayout layout, row like style with horizontally aligned and spaced slots (for
  * icons or other small content). Should be used as a content passed in to the {@link
- * PrimaryLayout}.
+ * PrimaryLayout}. Visuals and design samples can be found
+ * <a href="https://developer.android.com/design/ui/wear/guides/surfaces/tiles-layouts#info-centric-with-progress-indicator">here</a>.
  *
  * <p>Recommended number of added slots is 1 to 3. Their width will be the width of an element
  * passed in, with the {@link LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} space
@@ -75,7 +76,6 @@ import java.util.List;
  * MultiSlotLayout myMsl = MultiSlotLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
-// TODO(b/274916652): Link visuals once they are available.
 public class MultiSlotLayout implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Row is actually a MultiSlotLayout. */
     static final String METADATA_TAG = "MSL";
