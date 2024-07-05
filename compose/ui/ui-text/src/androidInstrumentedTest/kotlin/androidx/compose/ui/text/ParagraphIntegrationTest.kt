@@ -49,20 +49,23 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import androidx.emoji2.text.EmojiCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.roundToInt
+import org.junit.AfterClass
+import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@LargeTest
 class ParagraphIntegrationTest {
     private val fontFamilyMeasureFont = BASIC_MEASURE_FONT.toFontFamily()
     private val fontFamilyKernFont = BASIC_KERN_FONT.toFontFamily()
@@ -74,6 +77,23 @@ class ParagraphIntegrationTest {
     private val ltrLocaleList = LocaleList("en")
 
     private val resourceLoader = UncachedFontFamilyResolver(context)
+
+    companion object {
+        private val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+
+        @BeforeClass
+        @JvmStatic
+        fun setup() {
+            EmojiCompat.reset(null)
+            EmojiCompat.init(appContext)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun clean() {
+            EmojiCompat.reset(null)
+        }
+    }
 
     private fun hasEdgeLetterSpacingBugFix(): Boolean {
         val text = "a"
@@ -4335,6 +4355,54 @@ class ParagraphIntegrationTest {
         assertThat(resultEnglish.end).isEqualTo(text.indexOf(' '))
         assertThat(resultHebrew.start).isEqualTo(text.indexOf('\u05d0'))
         assertThat(resultHebrew.end).isEqualTo(text.indexOf('\u05d2') + 1)
+    }
+
+    @Test(timeout = 5000)
+    fun getWordBoundary_emoji() {
+        // "ab 🧑🏿‍🦰 cd" - example of complex emoji
+        //             | (offset=3)      | (offset=6)
+        assertThat(EmojiCompat.isConfigured()).isTrue()
+        // If the EmojiCompat instance is loading, the test waits until it is fully loaded
+        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
+
+        val text = "ab \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0 cd"
+        val paragraph = simpleParagraph(text = text, style = TextStyle())
+        val result = paragraph.getWordBoundary(6)
+
+        assertThat(result.start).isEqualTo(3)
+        assertThat(result.end).isEqualTo(10)
+    }
+
+    @Test(timeout = 5000)
+    fun getWordBoundary_letters_emojis_mixed() {
+        assertThat(EmojiCompat.isConfigured()).isTrue()
+        // If the EmojiCompat instance is loading, the test waits until it is fully loaded
+        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
+
+        val text = "a b\uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0c\uD83D\uDC4D\uD83C\uDFFE d"
+        // a b🧑🏿‍🦰c👍🏾 d
+        val paragraph = simpleParagraph(text = text, style = TextStyle())
+        val result1 = paragraph.getWordBoundary(7)
+        val result2 = paragraph.getWordBoundary(13)
+
+        assertThat(result1.start).isEqualTo(text.indexOf('b'))
+        assertThat(result2.start).isEqualTo(text.indexOf('b'))
+
+        assertThat(result1.end).isEqualTo(text.indexOf('d') - 1)
+        assertThat(result2.end).isEqualTo(text.indexOf('d') - 1)
+    }
+
+    @Test(timeout = 5000)
+    fun getWordBoundary_multiple_emojis() {
+        assertThat(EmojiCompat.isConfigured()).isTrue()
+        // If the EmojiCompat instance is loading, the test waits until it is fully loaded
+        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
+        val text = "\uD83D\uDE00\uD83D\uDE00\uD83D\uDE00" // 😀😀😀
+        val paragraph = simpleParagraph(text, TextStyle())
+        val result = paragraph.getWordBoundary(3)
+
+        assertThat(result.start).isEqualTo(0)
+        assertThat(result.end).isEqualTo(text.length)
     }
 
     @Test
