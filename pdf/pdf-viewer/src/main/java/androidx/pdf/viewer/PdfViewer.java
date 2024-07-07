@@ -696,32 +696,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 new SearchQueryObserver(mPaginatedView);
 
         mSelectedMatchObserver =
-                new ValueObserver<SelectedMatch>() {
-                    @Override
-                    public void onChange(
-                            @Nullable SelectedMatch oldSelection,
-                            @Nullable SelectedMatch newSelection) {
-                        if (newSelection == null) {
-                            mPaginatedView.clearAllOverlays();
-                            return;
-                        }
-                        if (oldSelection != null && isPageCreated(oldSelection.getPage())) {
-                            // Selected match has moved onto a new page - update the overlay on
-                            // the old page.
-                            getPage(oldSelection.getPage())
-                                    .getPageView()
-                                    .setOverlay(
-                                            new PdfHighlightOverlay(oldSelection.getPageMatches()));
-                        }
-                        lookAtSelection(newSelection);
-                    }
-
-                    @NonNull
-                    @Override
-                    public String toString() {
-                        return TAG + "#selectedMatchObserver";
-                    }
-                };
+                new SelectedMatchValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                        mZoomView, mLayoutHandler, requireContext());
     }
 
     { // Listen to selectionModel.
