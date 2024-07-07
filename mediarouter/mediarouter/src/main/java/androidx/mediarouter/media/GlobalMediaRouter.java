@@ -72,7 +72,7 @@ import java.util.Set;
         implements PlatformMediaRouter1RouteProvider.SyncCallback,
                 RegisteredMediaRouteProviderWatcher.Callback {
 
-    static final String TAG = "GlobalMediaRouter";
+    static final String TAG = MediaRouter.TAG;
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     final CallbackHandler mCallbackHandler = new CallbackHandler();
@@ -956,6 +956,46 @@ import java.util.Set;
             @NonNull MediaRouter.RouteInfo route, @MediaRouter.UnselectReason int unselectReason) {
         if (mSelectedRoute == route) {
             return;
+        }
+
+        // TODO: b/294968421 - Remove the following logging.
+        // We don't call isDefaultRoute or getDefaultRoute as those rely on the global media router
+        // being initialized, which is not guaranteed to have happened yet.
+        boolean targetIsDefaultRoute = route == mDefaultRoute;
+        if (mBluetoothRoute != null && targetIsDefaultRoute) {
+            StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
+            StringBuilder readableStacktraceBuilder = new StringBuilder();
+            readableStacktraceBuilder.append("- Stracktrace: [");
+            // callStack[3] is the caller of this method.
+            for (int i = 3; i < callStack.length; i++) {
+                StackTraceElement caller = callStack[i];
+                readableStacktraceBuilder
+                        .append(caller.getClassName())
+                        .append(".")
+                        .append(caller.getMethodName())
+                        .append(":")
+                        .append(caller.getLineNumber());
+                if (i + 1 < callStack.length) {
+                    readableStacktraceBuilder.append(", ");
+                }
+            }
+            readableStacktraceBuilder.append("]");
+            String selectedRouteString =
+                    mSelectedRoute != null
+                            ? String.format(
+                                    Locale.US,
+                                    "%s(BT=%b)",
+                                    mSelectedRoute.getName(),
+                                    mSelectedRoute.isBluetooth())
+                            : null;
+            Log.w(
+                    TAG,
+                    "Changing selection("
+                            + selectedRouteString
+                            + ") to default while BT is "
+                            + "available: pkgName="
+                            + mApplicationContext.getPackageName()
+                            + readableStacktraceBuilder);
         }
 
         // Cancel the previous asynchronous select if exists.
