@@ -35,7 +35,6 @@ public open class ViewModelStore {
 
     private val map = mutableMapOf<String, ViewModel>()
 
-    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun put(key: String, viewModel: ViewModel) {
         val oldViewModel = map.put(key, viewModel)
@@ -43,13 +42,11 @@ public open class ViewModelStore {
     }
 
     /** Returns the `ViewModel` mapped to the given `key` or null if none exists. */
-    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public operator fun get(key: String): ViewModel? {
         return map[key]
     }
 
-    /**  */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun keys(): Set<String> {
         return HashSet(map.keys)
