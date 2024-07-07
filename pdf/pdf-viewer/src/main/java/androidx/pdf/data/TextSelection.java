@@ -16,6 +16,7 @@
 
 package androidx.pdf.data;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -35,6 +36,7 @@ public class TextSelection implements Parcelable {
             SelectionBoundary.PAGE_START, SelectionBoundary.PAGE_START);
 
     public static final Creator<TextSelection> CREATOR = new Creator<TextSelection>() {
+        @SuppressLint("ObsoleteSdkInt") //TODO: Remove after sdk extension 13 release
         @Override
         public TextSelection createFromParcel(Parcel parcel) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -77,6 +79,7 @@ public class TextSelection implements Parcelable {
         return String.format("TextSelection(start=%s, stop=%s)", mStart, mStop);
     }
 
+    @SuppressLint("ObsoleteSdkInt") //TODO: Remove after sdk extension 13 release
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -91,6 +94,7 @@ public class TextSelection implements Parcelable {
         return 0;
     }
 
+    @SuppressLint("ObsoleteSdkInt") //TODO: Remove after sdk extension 13 release
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU) // API 33
     private static final class Api33Impl {
 

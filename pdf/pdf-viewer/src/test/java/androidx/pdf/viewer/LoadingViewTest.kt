@@ -16,6 +16,7 @@
 package androidx.pdf.viewer
 
 import android.content.Context
+import android.os.Build
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -28,10 +29,13 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 /** Tests for [LoadingView]. */
 @SmallTest
 @RunWith(RobolectricTestRunner::class)
+// TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class LoadingViewTest {
     private lateinit var loadingView: LoadingView
 

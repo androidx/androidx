@@ -22,6 +22,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.DisplayMetrics;
 
 import androidx.pdf.data.Range;
@@ -34,10 +35,13 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class PageSelectionValueObserverTest {
     private final PaginatedView mMockPaginatedView = mock(PaginatedView.class);
     private final PaginationModel mMockPaginationModel = mock(PaginationModel.class);

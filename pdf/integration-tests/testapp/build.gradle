@@ -10,8 +10,9 @@ android {
 
     defaultConfig {
         applicationId "androidx.pdf.testapp"
-        minSdk 31
+        minSdk 35 //TODO: Set to 31 after sdk extension 13 release
         compileSdk 35
+        targetSdk 35 //TODO: Remove after sdk extension 13 release
     }
 }
 
