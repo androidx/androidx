@@ -63,6 +63,7 @@ dependencies {
         exclude group: "androidx.appcompat", module: "appcompat"
         exclude group: "androidx.core", module: "core"
     })
+    androidTestImplementation(project(":internal-testutils-fonts"))
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
