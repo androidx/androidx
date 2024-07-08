@@ -26,6 +26,7 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
+import kotlin.jvm.JvmInline
 
 /** Constructs a [IntOffset] from [x] and [y] position [Int] values. */
 @Stable fun IntOffset(x: Int, y: Int): IntOffset = IntOffset(packInts(x, y))
