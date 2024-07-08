@@ -18,8 +18,11 @@ package androidx.compose.ui.text.android
 
 import android.text.BoringLayout
 import android.text.Layout
+import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.CharacterStyle
+import android.text.style.MetricAffectingSpan
 import androidx.compose.ui.text.android.style.LetterSpacingSpanEm
 import androidx.compose.ui.text.android.style.LetterSpacingSpanPx
 import java.text.BreakIterator
@@ -79,15 +82,18 @@ internal class LayoutIntrinsics(
                 var desiredWidth = (boringMetrics?.width ?: -1).toFloat()
 
                 // boring metrics doesn't cover RTL text so we fallback to different calculation
-                // when boring
-                // metrics can't be calculated
+                // when boring metrics can't be calculated
                 if (desiredWidth < 0) {
                     // b/233856978, apply `ceil` function here to be consistent with the boring
-                    // metrics
-                    // width calculation that does it under the hood, too
+                    // metrics width calculation that does it under the hood, too
                     desiredWidth =
                         ceil(
-                            Layout.getDesiredWidth(charSequence, 0, charSequence.length, textPaint)
+                            Layout.getDesiredWidth(
+                                stripNonMetricAffectingCharacterStyleSpans(charSequence),
+                                0,
+                                charSequence.length,
+                                textPaint
+                            )
                         )
                 }
                 if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
@@ -142,11 +148,38 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
     var minWidth = 0f
 
     longestWordCandidates.forEach { (start, end) ->
-        val width = Layout.getDesiredWidth(text, start, end, paint)
+        val width =
+            Layout.getDesiredWidth(
+                stripNonMetricAffectingCharacterStyleSpans(text),
+                start,
+                end,
+                paint
+            )
         minWidth = maxOf(minWidth, width)
     }
 
     return minWidth
+}
+
+/**
+ * See [b/346918500#comment7](https://issuetracker.google.com/346918500#comment7).
+ *
+ * Remove all character styling spans for measuring intrinsic width. [CharacterStyle] spans may
+ * affect the intrinsic width, even though they aren't supposed to, resulting in a width that
+ * doesn't actually fit the text. This can cause the line to unexpectedly wrap, even if `maxLines`
+ * was set to `1` or `softWrap` was `false`.
+ *
+ * [MetricAffectingSpan] extends [CharacterStyle], but [MetricAffectingSpan]s are allowed to affect
+ * the width, so only remove spans that **do** extend [CharacterStyle] but **don't** extend
+ * [MetricAffectingSpan].
+ */
+private fun stripNonMetricAffectingCharacterStyleSpans(charSequence: CharSequence): CharSequence {
+    if (charSequence !is Spanned) return charSequence
+    val spans = charSequence.getSpans(0, charSequence.length, CharacterStyle::class.java)
+    if (spans.isNullOrEmpty()) return charSequence
+    return SpannableString(charSequence).apply {
+        spans.onEach { if (it !is MetricAffectingSpan) removeSpan(it) }
+    }
 }
 
 /**
@@ -157,7 +190,6 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
  *
  * This function checks if those conditions are met.
  */
-@OptIn(InternalPlatformTextApi::class)
 private fun shouldIncreaseMaxIntrinsic(
     desiredWidth: Float,
     charSequence: CharSequence,
