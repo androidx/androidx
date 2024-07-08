@@ -30,6 +30,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
+import kotlin.jvm.JvmName
 
 /**
  * The basic data structure of text with multiple styles. To construct an [AnnotatedString] you can
@@ -464,7 +465,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * copied and any other information held in the sequence, such as Android `Span`s, will be
          * dropped.
          */
-        @Suppress("BuilderSetStyle")
+        @Suppress("BuilderSetStyle", "PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun append(text: CharSequence?): Builder {
             if (text is AnnotatedString) {
                 append(text)
@@ -487,7 +488,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
          * @param start The index of the first character in [text] to copy over (inclusive).
          * @param end The index after the last character in [text] to copy over (exclusive).
          */
-        @Suppress("BuilderSetStyle")
+        @Suppress("BuilderSetStyle", "PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun append(text: CharSequence?, start: Int, end: Int): Builder {
             if (text is AnnotatedString) {
                 append(text, start, end)
@@ -498,6 +499,7 @@ internal constructor(internal val annotations: List<Range<out Annotation>>?, val
         }
 
         // Kdoc comes from interface method.
+        @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
         override fun append(char: Char): Builder {
             this.text.append(char)
             return this

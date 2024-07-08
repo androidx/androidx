@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+@file:Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 
-import androidx.compose.runtime.Immutable
+package androidx.compose.ui.text.intl
+
 import androidx.compose.ui.text.implementedInJetBrainsFork
 
-@Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
+actual class PlatformLocale
 
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
-    }
-}
+internal actual val PlatformLocale.language: String
+    get() = implementedInJetBrainsFork()
+
+internal actual val PlatformLocale.script: String
+    get() = implementedInJetBrainsFork()
+
+internal actual val PlatformLocale.region: String
+    get() = implementedInJetBrainsFork()
+
+internal actual fun PlatformLocale.getLanguageTag(): String = implementedInJetBrainsFork()

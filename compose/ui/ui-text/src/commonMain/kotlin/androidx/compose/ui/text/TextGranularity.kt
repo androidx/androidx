@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.text
 
+import kotlin.jvm.JvmInline
+
 /**
  * Used by [Paragraph.getRangeForRect]. It specifies the minimal unit of the text ranges that is
  * considered by the [Paragraph.getRangeForRect].
