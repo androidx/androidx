@@ -54,4 +54,10 @@ public interface CustomerDao {
      */
     @Query("SELECT * FROM customer")
     LiveData<List<Customer>> all();
+
+    /**
+     * @return True if customer is found
+     */
+    @Query("SELECT 1 FROM customer WHERE mId = :id AND mName = :name AND mLastName = :lastName")
+    boolean contains(int id, String name, String lastName);
 }
