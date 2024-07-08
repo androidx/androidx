@@ -16,11 +16,12 @@
 
 package androidx.wear.protolayout.material;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
 import static androidx.wear.protolayout.material.RunnerUtils.convertToTestParameters;
+import static androidx.wear.protolayout.material.RunnerUtils.getFontScale;
 import static androidx.wear.protolayout.material.RunnerUtils.runSingleScreenshotTest;
+import static androidx.wear.protolayout.material.RunnerUtils.setFontScale;
 import static androidx.wear.protolayout.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.protolayout.material.TestCasesGenerator.XXXL_SCALE_SUFFIX;
 import static androidx.wear.protolayout.material.TestCasesGenerator.generateTestCases;
@@ -38,6 +39,8 @@ import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.material.RunnerUtils.TestCase;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,14 +53,9 @@ import java.util.List;
 @RunWith(Parameterized.class)
 @LargeTest
 public class MaterialGoldenXLTest {
-    /* We set DisplayMetrics in the data() method for creating test cases. However, when running all
-    tests together, first all parametrization (data()) methods are called, and then individual
-    tests, causing that actual DisplayMetrics will be different. So we need to restore it before
-    each test. */
-    private static final DisplayMetrics DISPLAY_METRICS_FOR_TEST = new DisplayMetrics();
-    private static final DisplayMetrics OLD_DISPLAY_METRICS = new DisplayMetrics();
-
     private static final float FONT_SCALE_XXXL = 1.24f;
+
+    private static float originalFontScale;
 
     private final TestCase mTestCase;
     private final String mExpected;
@@ -76,27 +74,18 @@ public class MaterialGoldenXLTest {
         return (int) ((px - 0.5f) / scale);
     }
 
-    @SuppressWarnings("deprecation")
     @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> data() {
+    public static Collection<Object[]> data() throws Exception {
+        // These "parameters" methods are called before any parameterized test (from any class)
+        // executes. We set and later reset the font here to have the correct context during test
+        // generation. We later set and reset the font for the actual test in BeforeClass/AfterClass
+        // methods.
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DisplayMetrics currentDisplayMetrics = new DisplayMetrics();
+        originalFontScale =
+                getFontScale(InstrumentationRegistry.getInstrumentation().getTargetContext());
+        setFontScale(context, FONT_SCALE_XXXL);
+
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        currentDisplayMetrics.setTo(displayMetrics);
-        displayMetrics.scaledDensity *= FONT_SCALE_XXXL;
-
-        InstrumentationRegistry.getInstrumentation()
-                .getContext()
-                .getResources()
-                .getDisplayMetrics()
-                .setTo(displayMetrics);
-        InstrumentationRegistry.getInstrumentation()
-                .getTargetContext()
-                .getResources()
-                .getDisplayMetrics()
-                .setTo(displayMetrics);
-
-        DISPLAY_METRICS_FOR_TEST.setTo(displayMetrics);
 
         float scale = displayMetrics.density;
         DeviceParameters deviceParameters =
@@ -104,6 +93,7 @@ public class MaterialGoldenXLTest {
                         .setScreenWidthDp(pxToDp(SCREEN_WIDTH, scale))
                         .setScreenHeightDp(pxToDp(SCREEN_HEIGHT, scale))
                         .setScreenDensity(displayMetrics.density)
+                        .setFontScale(context.getResources().getConfiguration().fontScale)
                         // Not important for components.
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
@@ -126,31 +116,22 @@ public class MaterialGoldenXLTest {
                         /* isForLtr= */ true));
 
         // Restore state before this method, so other test have correct context.
-        InstrumentationRegistry.getInstrumentation()
-                .getContext()
-                .getResources()
-                .getDisplayMetrics()
-                .setTo(currentDisplayMetrics);
-        InstrumentationRegistry.getInstrumentation()
-                .getTargetContext()
-                .getResources()
-                .getDisplayMetrics()
-                .setTo(currentDisplayMetrics);
-
+        setFontScale(context, originalFontScale);
         waitForNotificationToDisappears();
 
         return testCaseList;
     }
 
-    @Parameterized.BeforeParam
-    public static void restoreBefore() {
-        OLD_DISPLAY_METRICS.setTo(getApplicationContext().getResources().getDisplayMetrics());
-        getApplicationContext().getResources().getDisplayMetrics().setTo(DISPLAY_METRICS_FOR_TEST);
+    @Before
+    public void setUp() {
+        setFontScale(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(), FONT_SCALE_XXXL);
     }
 
-    @Parameterized.AfterParam
-    public static void restoreAfter() {
-        getApplicationContext().getResources().getDisplayMetrics().setTo(OLD_DISPLAY_METRICS);
+    @After
+    public void tearDown() {
+        setFontScale(
+                InstrumentationRegistry.getInstrumentation().getTargetContext(), originalFontScale);
     }
 
     @Test

@@ -65,20 +65,9 @@ public class LayoutsGoldenTest {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
-        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float scale = displayMetrics.density;
-
-        InstrumentationRegistry.getInstrumentation()
-                .getContext()
-                .getResources()
-                .getDisplayMetrics()
-                .setTo(displayMetrics);
-        InstrumentationRegistry.getInstrumentation()
-                .getTargetContext()
-                .getResources()
-                .getDisplayMetrics()
-                .setTo(displayMetrics);
 
         DeviceParameters deviceParameters =
                 new DeviceParameters.Builder()

@@ -17,8 +17,9 @@
 package androidx.wear.protolayout.material;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -70,53 +71,39 @@ public class RunnerUtils {
         startIntent.putExtra("layout", layoutPayload);
         startIntent.putExtra(GoldenTestActivity.USE_RTL_DIRECTION, isRtlDirection);
 
-        ActivityScenario<GoldenTestActivity> scenario = ActivityScenario.launch(startIntent);
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        try (ActivityScenario<GoldenTestActivity> scenario = ActivityScenario.launch(startIntent)) {
+            InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        try {
-            // Wait 1s after launching the activity. This allows for the old white layout in the
-            // bootstrap activity to fully go away before proceeding.
-            Thread.sleep(1000);
-        } catch (Exception ex) {
-            if (ex instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
+            try {
+                // Wait 1s after launching the activity. This allows for the old white layout in the
+                // bootstrap activity to fully go away before proceeding.
+                Thread.sleep(100);
+            } catch (Exception ex) {
+                if (ex instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
+                }
+                Log.e("MaterialGoldenTest", "Error sleeping", ex);
             }
-            Log.e("MaterialGoldenTest", "Error sleeping", ex);
-        }
 
-        DisplayMetrics displayMetrics =
-                InstrumentationRegistry.getInstrumentation()
-                        .getTargetContext()
-                        .getResources()
-                        .getDisplayMetrics();
+            DisplayMetrics displayMetrics =
+                    InstrumentationRegistry.getInstrumentation()
+                            .getTargetContext()
+                            .getResources()
+                            .getDisplayMetrics();
 
-        // RTL will put the View on the right side.
-        int screenWidthStart = isRtlDirection ? displayMetrics.widthPixels - SCREEN_WIDTH : 0;
+            // RTL will put the View on the right side.
+            int screenWidthStart = isRtlDirection ? displayMetrics.widthPixels - SCREEN_WIDTH : 0;
 
-        Bitmap bitmap =
-                Bitmap.createBitmap(
-                        InstrumentationRegistry.getInstrumentation()
-                                .getUiAutomation()
-                                .takeScreenshot(),
-                        screenWidthStart,
-                        0,
-                        SCREEN_WIDTH,
-                        SCREEN_HEIGHT);
-        rule.assertBitmapAgainstGolden(bitmap, expected, new MSSIMMatcher());
-
-        // There's a weird bug (related to b/159805732) where, when calling .close() on
-        // ActivityScenario or calling finish() and immediately exiting the test, the test can hang
-        // on a white screen for 45s. Closing the activity here and waiting for 1s seems to fix
-        // this.
-        scenario.onActivity(Activity::finish);
-
-        try {
-            Thread.sleep(1000);
-        } catch (Exception ex) {
-            if (ex instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            Log.e("MaterialGoldenTest", "Error sleeping", ex);
+            Bitmap bitmap =
+                    Bitmap.createBitmap(
+                            InstrumentationRegistry.getInstrumentation()
+                                    .getUiAutomation()
+                                    .takeScreenshot(),
+                            screenWidthStart,
+                            0,
+                            SCREEN_WIDTH,
+                            SCREEN_HEIGHT);
+            rule.assertBitmapAgainstGolden(bitmap, expected, new MSSIMMatcher());
         }
     }
 
@@ -152,5 +139,18 @@ public class RunnerUtils {
             this.isForRtl = isForRtl;
             this.isForLtr = isForLtr;
         }
+    }
+
+    public static float getFontScale(Context context) {
+        return context.getResources().getConfiguration().fontScale;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void setFontScale(Context context, float fontScale) {
+        Configuration newConfiguration =
+                new Configuration(context.getResources().getConfiguration());
+        newConfiguration.fontScale = fontScale;
+        context.getResources()
+                .updateConfiguration(newConfiguration, context.getResources().getDisplayMetrics());
     }
 }
