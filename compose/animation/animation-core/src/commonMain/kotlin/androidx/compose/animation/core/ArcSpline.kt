@@ -29,7 +29,6 @@ import kotlin.math.sin
  * @param y Array of values (of size n), where each value is spread on a [FloatArray] for each of
  *   its dimensions, expected to be of even size since two values are needed to interpolate arcs.
  */
-@ExperimentalAnimationSpecApi
 internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<FloatArray>) {
     private val arcs: Array<Array<Arc>>
     private val isExtrapolate = true

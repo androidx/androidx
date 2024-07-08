@@ -620,14 +620,12 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          * E.g.: [RectToVector] assigns its values as `[left, top, right, bottom]` so the pairs of
          * dimensions animated as arcs are: `[left, top]` and `[right, bottom]`.
          */
-        @ExperimentalAnimationSpecApi
         infix fun KeyframeEntity<T>.using(arcMode: ArcMode): KeyframeEntity<T> {
             this.arcMode = arcMode
             return this
         }
     }
 
-    @OptIn(ExperimentalAnimationSpecApi::class)
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedKeyframesSpec<V> {
@@ -664,7 +662,6 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
     }
 
     /** Holder class for building a keyframes animation. */
-    @OptIn(ExperimentalAnimationSpecApi::class)
     class KeyframeEntity<T>
     internal constructor(
         value: T,
@@ -712,7 +709,6 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
  * @see keyframesWithSpline
  */
-@ExperimentalAnimationSpecApi
 @Immutable
 class KeyframesWithSplineSpec<T>(
     val config: KeyframesWithSplineSpecConfig<T>,
@@ -735,7 +731,6 @@ class KeyframesWithSplineSpec<T>(
         this.periodicBias = periodicBias
     }
 
-    @ExperimentalAnimationSpecApi
     class KeyframesWithSplineSpecConfig<T> :
         KeyframesSpecBaseConfig<T, KeyframesSpec.KeyframeEntity<T>>() {
 
@@ -822,7 +817,13 @@ fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): Keyfra
 }
 
 /**
- * Creates a [KeyframesWithSplineSpec] animation, initialized with [init]. For example:
+ * Creates a [KeyframesWithSplineSpec] animation, initialized with [init].
+ *
+ * For more details on implementation, see [KeyframesWithSplineSpec].
+ *
+ * Use overload that takes a [Float] parameter to use periodic splines.
+ *
+ * Example:
  *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
  * @param init Initialization function for the [KeyframesWithSplineSpec] animation
@@ -830,7 +831,6 @@ fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): Keyfra
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
  * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
  */
-@ExperimentalAnimationSpecApi
 fun <T> keyframesWithSpline(
     init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
 ): KeyframesWithSplineSpec<T> =
@@ -859,7 +859,6 @@ fun <T> keyframesWithSpline(
  * @param init Initialization function for the [KeyframesWithSplineSpec] animation
  * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
  */
-@ExperimentalAnimationSpecApi
 fun <T> keyframesWithSpline(
     @FloatRange(0.0, 1.0) periodicBias: Float,
     init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
