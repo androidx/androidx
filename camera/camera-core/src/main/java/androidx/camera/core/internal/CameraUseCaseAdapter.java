@@ -169,6 +169,9 @@ public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     private final RestrictedCameraInfo mAdapterCameraInfo;
 
+    @Nullable
+    private final RestrictedCameraInfo mAdapterSecondaryCameraInfo;
+
     @NonNull
     private final LayoutSettings mLayoutSettings;
     @NonNull
@@ -242,6 +245,7 @@ public final class CameraUseCaseAdapter implements Camera {
         mAdapterCameraControl = new RestrictedCameraControl(
                 mCameraInternal.getCameraControlInternal(), sessionProcessor);
         mAdapterCameraInfo = restrictedCameraInfo;
+        mAdapterSecondaryCameraInfo = secondaryRestrictedCameraInfo;
         mId = generateCameraId(restrictedCameraInfo, secondaryRestrictedCameraInfo);
     }
 
@@ -1119,6 +1123,11 @@ public final class CameraUseCaseAdapter implements Camera {
     @Override
     public CameraInfo getCameraInfo() {
         return mAdapterCameraInfo;
+    }
+
+    @Nullable
+    public CameraInfo getSecondaryCameraInfo() {
+        return mAdapterSecondaryCameraInfo;
     }
 
     @Override
