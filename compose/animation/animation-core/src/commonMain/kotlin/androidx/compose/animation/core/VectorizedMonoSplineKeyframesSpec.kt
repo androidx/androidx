@@ -20,7 +20,6 @@ import androidx.collection.IntList
 import androidx.collection.IntObjectMap
 
 /** Implementation of [VectorizedMonoSplineKeyframesSpec] using [MonoSpline]. */
-@ExperimentalAnimationSpecApi
 internal class VectorizedMonoSplineKeyframesSpec<V : AnimationVector>(
     private val timestamps: IntList,
     private val keyframes: IntObjectMap<Pair<V, Easing>>,
