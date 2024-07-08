@@ -166,12 +166,11 @@ actual constructor(
         val state = checkNotNull(multiInstanceClientInitState)
         multiInstanceInvalidationClient =
             MultiInstanceInvalidationClient(
-                context = state.context,
-                name = state.name,
-                serviceIntent = state.serviceIntent,
-                invalidationTracker = this,
-                executor = database.queryExecutor
-            )
+                    context = state.context,
+                    name = state.name,
+                    invalidationTracker = this,
+                )
+                .apply { start(state.serviceIntent) }
     }
 
     private fun stopMultiInstanceInvalidation() {
@@ -214,6 +213,12 @@ actual constructor(
     @WorkerThread
     open fun addObserver(observer: Observer): Unit = runBlocking {
         implementation.addObserver(observer)
+    }
+
+    /** An internal [addObserver] for remote observer only that skips trigger syncing. */
+    internal fun addRemoteObserver(observer: Observer): Unit {
+        check(observer.isRemote) { "isRemote was false of observer argument" }
+        implementation.addObserverOnly(observer)
     }
 
     /**
