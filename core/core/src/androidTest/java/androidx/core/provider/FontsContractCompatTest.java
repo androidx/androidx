@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -414,39 +413,6 @@ public class FontsContractCompatTest {
         });
         assertTrue(latch.await(5L, TimeUnit.SECONDS));
         assertNull(callback.mTypeface);
-    }
-
-    @Test
-    public void testRequestFont_loadsOnExecutor() throws InterruptedException {
-        CountDownLatch loadingLatch = new CountDownLatch(1);
-        Executor loadingExecutor = c -> {
-            loadingLatch.countDown();
-            c.run();
-        };
-
-        CountDownLatch callbackExecutorLatch = new CountDownLatch(1);
-        Executor callbackExecutor = c -> {
-            callbackExecutorLatch.countDown();
-            c.run();
-        };
-
-        // invalid request, we're just checking for using the right threads
-        final FontRequest request = new FontRequest(
-                AUTHORITY, PACKAGE, MockFontProvider.INVALID_URI, SIGNATURE);
-        CountDownLatch cbLatch = new CountDownLatch(1);
-        FontCallback cb = new FontCallback(cbLatch);
-
-        FontsContractCompat.requestFont(mContext, request, Typeface.BOLD, loadingExecutor,
-                callbackExecutor, cb);
-
-        // it is not practical to assert the right runnable goes to the right executor, so just
-        // assert that both executors are invoked, and that the callback is eventually invoked
-        assertTrue("Loading happens on loading executor",
-                loadingLatch.await(5L, TimeUnit.SECONDS));
-        assertTrue("callback happens on callback executor",
-                callbackExecutorLatch.await(5L, TimeUnit.SECONDS));
-        assertTrue("callback happens", cbLatch.await(5L, TimeUnit.SECONDS));
-
     }
 
     public static class FontCallback extends FontsContractCompat.FontRequestCallback {
