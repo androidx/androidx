@@ -55,10 +55,13 @@ import androidx.camera.testing.impl.GarbageCollectionUtil
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.asFlow
+import androidx.camera.testing.impl.getDurationMs
+import androidx.camera.testing.impl.getLocation
+import androidx.camera.testing.impl.getMimeType
 import androidx.camera.testing.impl.mocks.MockConsumer
-import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
-import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.useAndRelease
+import androidx.camera.testing.impl.video.RecordingSession
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
 import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.Recorder.sRetrySetupVideoDelayMs
@@ -70,15 +73,11 @@ import androidx.camera.video.VideoRecordEvent.Finalize
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INVALID_OUTPUT_OPTIONS
-import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NO_VALID_DATA
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERROR
-import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDING_GARBAGE_COLLECTED
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.VideoRecordEvent.Pause
 import androidx.camera.video.VideoRecordEvent.Resume
-import androidx.camera.video.VideoRecordEvent.Start
-import androidx.camera.video.VideoRecordEvent.Status
 import androidx.camera.video.internal.compat.quirk.DeactivateEncoderSurfaceBeforeStopEncoderQuirk
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk
@@ -120,9 +119,7 @@ import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
 
-private const val DEFAULT_STATUS_COUNT = 5
 private const val GENERAL_TIMEOUT = 5000L
-private const val STATUS_TIMEOUT = 15000L
 private const val TEST_ATTRIBUTION_TAG = "testAttribution"
 
 // For the file size is small, the final file length possibly exceeds the file size limit
@@ -180,11 +177,11 @@ class RecorderTest(
     private val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
     // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
     private val dynamicRange = DynamicRange.SDR
-    private val recordingsToStop = mutableListOf<RecordingProcess>()
 
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var preview: Preview
     private lateinit var surfaceTexturePreview: Preview
+    private lateinit var recordingSession: RecordingSession
 
     @Before
     fun setUp() {
@@ -252,7 +249,7 @@ class RecorderTest(
         // Add another Preview to provide an additional surface for b/168187087.
         surfaceTexturePreview = Preview.Builder().build()
         instrumentation.runOnMainSync {
-            surfaceTexturePreview.setSurfaceProvider(
+            surfaceTexturePreview.surfaceProvider =
                 SurfaceTextureProvider.createSurfaceTextureProvider(
                     object : SurfaceTextureProvider.SurfaceTextureCallback {
                         override fun onSurfaceTextureReady(
@@ -267,7 +264,6 @@ class RecorderTest(
                         }
                     }
                 )
-            )
         }
 
         assumeTrue(
@@ -284,19 +280,25 @@ class RecorderTest(
                 surfaceTexturePreview,
                 preview
             )
+
+        recordingSession =
+            RecordingSession(
+                RecordingSession.Defaults(
+                    context = context,
+                    recorder = createRecorder(),
+                    outputOptionsProvider = { createFileOutputOptions() },
+                    withAudio = true,
+                    recordingStopStrategy = { recording, recorder ->
+                        recording.stopSafely(recorder)
+                    },
+                ),
+            )
     }
 
     @After
     fun tearDown() {
-        for (recording in recordingsToStop) {
-            recording.stop()
-            try {
-                // Wait for recording done to avoid overlapping to next recording test.
-                // Overlapping recording tests may lead to uncertainty and flaky-ness.
-                recording.listener.verifyFinalize(inOrder = false)
-            } catch (e: AssertionError) {
-                // Ignored.
-            }
+        if (this::recordingSession.isInitialized) {
+            recordingSession.release(5000)
         }
 
         if (this::cameraUseCaseAdapter.isInitialized) {
@@ -312,16 +314,9 @@ class RecorderTest(
     fun canRecordToFile() {
         // Arrange.
         val outputOptions = createFileOutputOptions()
-        val recording = createRecordingProcess(outputOptions = outputOptions)
 
-        // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            val uri = finalize.outputResults.outputUri
-            assertThat(uri).isEqualTo(Uri.fromFile(outputOptions.file))
-            checkFileHasAudioAndVideo(uri)
-        }
+        // Act & Assert.
+        recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
     }
 
     @Test
@@ -357,18 +352,12 @@ class RecorderTest(
                 )
                 .setContentValues(contentValues)
                 .build()
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        // Act & Assert.
+        val result =
+            recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
 
-        // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            val uri = finalize.outputResults.outputUri
-            checkFileHasAudioAndVideo(uri)
-
-            // Clean-up.
-            contentResolver.delete(uri, null, null)
-        }
+        // Clean-up.
+        contentResolver.delete(result.uri, null, null)
     }
 
     @Test
@@ -378,16 +367,15 @@ class RecorderTest(
         val file = createTempFile()
         val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
         val outputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
         // Act.
         recording.startAndVerify()
         // ParcelFileDescriptor should be safe to close after PendingRecording#start.
         pfd.close()
-        recording.stopAndVerify()
 
         // Assert.
-        checkFileHasAudioAndVideo(Uri.fromFile(file))
+        recording.stopAndVerify()
     }
 
     @Test
@@ -398,14 +386,13 @@ class RecorderTest(
         val pfd = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_WRITE)
         pfd.close()
         val outputOptions = FileDescriptorOutputOptions.Builder(pfd).build()
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
         // Act.
         recording.start()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_INVALID_OUTPUT_OPTIONS)
-        }
+
+        // Assert.
+        recording.stopAndVerify(error = ERROR_INVALID_OUTPUT_OPTIONS)
     }
 
     @Test
@@ -426,24 +413,19 @@ class RecorderTest(
 
     @Test
     fun canPauseResume() {
-        // Arrange.
-        val recording = createRecordingProcess()
-
-        // Act.
-        recording.startAndVerify()
-        recording.pauseAndVerify()
-        recording.resumeAndVerify()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_NONE)
-        }
+        recordingSession
+            .createRecording()
+            .startAndVerify()
+            .pauseAndVerify()
+            .resumeAndVerify()
+            .stopAndVerify()
     }
 
     @Test
     fun canStartRecordingPaused_whenRecorderInitializing() {
         // Arrange.
         val recorder = createRecorder(sendSurfaceRequest = false)
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act.
         recording.start()
@@ -459,13 +441,10 @@ class RecorderTest(
     @Test
     fun canReceiveRecordingStats() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.pauseAndVerify()
-        recording.resumeAndVerify()
-        recording.stopAndVerify()
+        recording.startAndVerify().pauseAndVerify().resumeAndVerify().stopAndVerify()
 
         // Assert.
         val events = recording.getAllEvents()
@@ -500,19 +479,18 @@ class RecorderTest(
         // Arrange.
         val fileSizeLimit = 500L * 1024L // 500 KB
         val outputOptions = createFileOutputOptions(fileSizeLimit = fileSizeLimit)
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
         // Act.
         // To avoid long timeout of finalize, verify the start event to ensure the recording is
         // started. But don't verify the status count since we don't know how many status will
         // reach the file size limit.
         recording.startAndVerify(statusCount = 0)
-        recording.verifyFinalize(timeoutMs = 60_000L) { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
-            assertThat(outputOptions.file.length())
-                .isLessThan(fileSizeLimit + FILE_SIZE_LIMIT_BUFFER)
-        }
+
+        // Assert.
+        val result =
+            recording.verifyFinalize(timeoutMs = 60_000L, error = ERROR_FILE_SIZE_LIMIT_REACHED)
+        assertThat(result.file.length()).isLessThan(fileSizeLimit + FILE_SIZE_LIMIT_BUFFER)
     }
 
     // Sets the file size limit to 1 byte, which will be lower than the initial data sent from
@@ -523,14 +501,11 @@ class RecorderTest(
         // Arrange.
         val fileSizeLimit = 1L // 1 byte
         val outputOptions = createFileOutputOptions(fileSizeLimit = fileSizeLimit)
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
         // Act.
         recording.start()
-        recording.verifyFinalize { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_FILE_SIZE_LIMIT_REACHED)
-        }
+        recording.verifyFinalize(error = ERROR_FILE_SIZE_LIMIT_REACHED)
     }
 
     @Test
@@ -549,22 +524,20 @@ class RecorderTest(
         val durationLimitMs = 3000L
         val durationToleranceMs = 50L
         val outputOptions = createFileOutputOptions(durationLimitMillis = durationLimitMs)
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
         // Act.
         recording.start()
 
         // Assert.
-        recording.verifyFinalize(timeoutMs = durationLimitMs + 2000L) { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_DURATION_LIMIT_REACHED)
-            assertThat(finalize.recordingStats.recordedDurationNanos)
-                .isAtMost(TimeUnit.MILLISECONDS.toNanos(durationLimitMs + durationToleranceMs))
-            checkDurationAtMost(
-                Uri.fromFile(outputOptions.file),
-                durationLimitMs + durationToleranceMs
+        val result =
+            recording.verifyFinalize(
+                timeoutMs = durationLimitMs + 2000L,
+                error = ERROR_DURATION_LIMIT_REACHED,
             )
-        }
+        assertThat(result.finalize.recordingStats.recordedDurationNanos)
+            .isAtMost(TimeUnit.MILLISECONDS.toNanos(durationLimitMs + durationToleranceMs))
+        checkDurationAtMost(Uri.fromFile(outputOptions.file), durationLimitMs + durationToleranceMs)
     }
 
     @Test
@@ -581,7 +554,7 @@ class RecorderTest(
         inOrder
             .verify(streamInfoObserver, timeout(GENERAL_TIMEOUT).atLeastOnce())
             .onNewData(argThat { it!!.streamState == StreamInfo.StreamState.INACTIVE })
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act.
         recording.start()
@@ -604,7 +577,7 @@ class RecorderTest(
     fun start_throwsExceptionWhenActive() {
         // Arrange.
         val recorder = createRecorder()
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act: 1st start.
         recording.start()
@@ -612,7 +585,7 @@ class RecorderTest(
         // Assert.
         assertThrows(java.lang.IllegalStateException::class.java) {
             // Act: 2nd start.
-            val recording2 = createRecordingProcess(recorder = recorder)
+            val recording2 = recordingSession.createRecording(recorder = recorder)
             recording2.start()
         }
     }
@@ -621,33 +594,27 @@ class RecorderTest(
     fun start_whenSourceActiveNonStreaming() {
         // Arrange.
         val recorder = createRecorder(initSourceState = ACTIVE_NON_STREAMING)
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act.
         recording.start()
         recorder.onSourceStateChanged(ACTIVE_STREAMING)
         recording.verifyStart()
         recording.verifyStatus()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_NONE)
-        }
+        recording.stopAndVerify()
     }
 
     @Test
     fun start_finalizeImmediatelyWhenSourceInactive() {
         // Arrange.
         val recorder = createRecorder(initSourceState = INACTIVE)
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act.
         recording.start()
 
         // Assert.
-        recording.verifyFinalize { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
-        }
+        recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
     }
 
     @Test
@@ -655,7 +622,7 @@ class RecorderTest(
         // Arrange.
         val recorder =
             createRecorder(sendSurfaceRequest = false, initSourceState = ACTIVE_NON_STREAMING)
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act.
         recording.start()
@@ -665,21 +632,16 @@ class RecorderTest(
         // Assert.
         recording.verifyStart()
         recording.verifyPause()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_NO_VALID_DATA)
-        }
+        recording.stopAndVerify(error = ERROR_NO_VALID_DATA)
     }
 
     @Test
     fun pause_noOpWhenAlreadyPaused() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.pauseAndVerify()
-        recording.pause()
+        recording.startAndVerify().pauseAndVerify().pause()
 
         // Assert: One Pause event.
         val events = recording.getAllEvents()
@@ -690,11 +652,10 @@ class RecorderTest(
     @Test
     fun pause_throwsExceptionWhenStopping() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify()
+        recording.startAndVerify().stopAndVerify()
 
         // Assert.
         assertThrows(IllegalStateException::class.java) { recording.pause() }
@@ -703,47 +664,40 @@ class RecorderTest(
     @Test
     fun resume_noOpWhenNotPaused() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.resume()
-        recording.stopAndVerify()
+        recording.startAndVerify().resume().stopAndVerify()
 
         // Assert: No Resume event.
-        val events = recording.getAllEvents()
-        val resumeEvents = events.filterIsInstance<Resume>()
+        val resumeEvents = recording.getAllEvents().filterIsInstance<Resume>()
         assertThat(resumeEvents).isEmpty()
     }
 
     @Test
     fun resume_throwsExceptionWhenStopping() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.stop()
+        recording.startAndVerify().stop()
 
         // Assert.
-        assertThrows(IllegalStateException::class.java) { recording.resumeAndVerify() }
+        assertThrows(IllegalStateException::class.java) { recording.resume() }
     }
 
     @Test
     fun stop_beforeSurfaceRequested() {
         // Arrange.
         val recorder = createRecorder(sendSurfaceRequest = false)
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
 
         // Act.
-        recording.start()
-        recording.stop()
+        recording.start().stop()
         recorder.sendSurfaceRequest()
 
         // Assert.
-        recording.verifyFinalize { finalize ->
-            assertThat(finalize.error).isEqualTo(ERROR_NO_VALID_DATA)
-        }
+        recording.verifyFinalize(error = ERROR_NO_VALID_DATA)
     }
 
     @Test
@@ -751,50 +705,42 @@ class RecorderTest(
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
 
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
         recording.startAndVerify()
         instrumentation.runOnMainSync { cameraUseCaseAdapter.removeUseCases(listOf(preview)) }
 
         // Assert.
-        recording.verifyFinalize { finalize ->
-            assertThat(finalize.error).isEqualTo(ERROR_SOURCE_INACTIVE)
-        }
+        recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
     }
 
     @Test
     fun stop_whenRecordingIsGarbageCollected() {
         // Arrange.
-        var recording: RecordingProcess? = createRecordingProcess()
-        val listener = recording!!.listener
+        val recorder = createRecorder()
+        val listener = MockConsumer<VideoRecordEvent>()
 
         // Act.
-        recording.startAndVerify()
-        // Remove reference to recording and run GC. The recording should be stopped once
-        // the Recording's finalizer runs.
-        recordingsToStop.remove(recording)
-        @Suppress("UNUSED_VALUE")
-        recording = null
+        recorder
+            .prepareRecording(context, createFileOutputOptions())
+            .start(mainThreadExecutor(), listener)
         GarbageCollectionUtil.runFinalization()
 
         // Assert: Ensure the event listener gets a finalize event. Note: the word "finalize" is
         // very overloaded here. This event means the recording has finished, but does not relate
         // to the finalizer that runs during garbage collection. However, that is what causes the
         // recording to finish.
-        listener.verifyFinalize { finalize ->
-            assertThat(finalize.error).isEqualTo(ERROR_RECORDING_GARBAGE_COLLECTED)
-        }
+        listener.verifyAcceptCall(Finalize::class.java, true, GENERAL_TIMEOUT, CallTimes(1))
     }
 
     @Test
     fun stop_noOpWhenStopping() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify()
+        recording.recordAndVerify()
         recording.stop()
 
         // Assert.
@@ -805,58 +751,35 @@ class RecorderTest(
     fun mute_outputWithAudioTrack() {
         // Arrange.
         val outputOptions = createFileOutputOptions()
-        val recording = createRecordingProcess(outputOptions = outputOptions)
+        val recording = recordingSession.createRecording(outputOptions = outputOptions)
 
-        recording.startAndVerify()
-        recording.mute(true)
+        recording.startAndVerify().mute(true)
 
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            val uri = finalize.outputResults.outputUri
-            assertThat(uri).isEqualTo(Uri.fromFile(outputOptions.file))
-            // The output file should contain audio track even it's muted at the beginning.
-            checkFileHasAudioAndVideo(uri)
-        }
+        // The output file should contain audio track even it's muted at the beginning.
+        recording.stopAndVerify()
     }
 
     @Test
     fun mute_receiveCorrectAudioStats() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording()
 
         // Act.
-        recording.startAndVerify()
-        recording.mute(true)
-        // TODO(b/274862085): Change to verify the status events consecutively having MUTED state
-        //  by adding the utility to MockConsumer.
-        recording.verifyStatus(5) { statusList ->
-            // Assert.
-            assertThat(statusList.last().recordingStats.audioStats.audioState)
-                .isEqualTo(AudioStats.AUDIO_STATE_MUTED)
-        }
+        recording.startAndVerify().muteAndVerify(true).muteAndVerify(false)
 
-        // Act.
-        recording.mute(false)
-        recording.verifyStatus(5) { statusList ->
-            // Assert.
-            assertThat(statusList.last().recordingStats.audioStats.audioState)
-                .isEqualTo(AudioStats.AUDIO_STATE_ACTIVE)
-        }
         recording.stopAndVerify()
     }
 
     @Test
     fun mute_noOpIfAudioDisabled() {
         // Arrange.
-        val recording = createRecordingProcess(withAudio = false)
+        val recording = recordingSession.createRecording(withAudio = false)
 
         // Act.
         recording.startAndVerify()
 
-        // Assert: muting or unmuting a recording without audio should be no-op.
-        recording.mute(true)
-        recording.mute(false)
-        recording.stopAndVerify()
+        // Assert: muting or un-muting a recording without audio should be no-op.
+        recording.mute(true).mute(false).stopAndVerify()
     }
 
     @Test
@@ -884,69 +807,52 @@ class RecorderTest(
 
     @Test
     fun canRecordWithoutAudio() {
-        // Arrange.
-        val recording = createRecordingProcess(withAudio = false)
-
-        // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            val uri = finalize.outputResults.outputUri
-            checkFileHasAudioAndVideo(uri, hasAudio = false)
-        }
+        recordingSession.createRecording(withAudio = false).recordAndVerify()
     }
 
     @Test
     fun audioAmplitudeIsNoneWhenAudioIsDisabled() {
         // Arrange.
-        val recording = createRecordingProcess(withAudio = false)
+        val recording = recordingSession.createRecording(withAudio = false).startAndVerify()
 
         // Act.
-        recording.startAndVerify { onStatus ->
-            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
-            assertThat(amplitude).isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
-        }
+        val status = recording.getStatusEvents().first()
+        val amplitude = status.recordingStats.audioStats.audioAmplitude
+        assertThat(amplitude).isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
 
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            val uri = finalize.outputResults.outputUri
-            checkFileHasAudioAndVideo(uri, hasAudio = false)
-            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
-                .isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
-        }
+        // Assert.
+        val result = recording.stopAndVerify()
+        assertThat(result.finalize.recordingStats.audioStats.audioAmplitude)
+            .isEqualTo(AudioStats.AUDIO_AMPLITUDE_NONE)
     }
 
     @Test
     fun canGetAudioStatsAmplitude() {
         // Arrange.
-        val recording = createRecordingProcess()
+        val recording = recordingSession.createRecording().startAndVerify()
 
         // Act.
-        recording.startAndVerify { onStatus ->
-            val amplitude = onStatus[0].recordingStats.audioStats.audioAmplitude
-            assertThat(amplitude).isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
-        }
+        val status = recording.getStatusEvents().first()
+        val amplitude = status.recordingStats.audioStats.audioAmplitude
+        assertThat(amplitude).isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
 
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            val uri = finalize.outputResults.outputUri
-            checkFileHasAudioAndVideo(uri, hasAudio = true)
-            assertThat(finalize.recordingStats.audioStats.audioAmplitude)
-                .isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
-        }
+        // Assert.
+        val result = recording.stopAndVerify()
+        assertThat(result.finalize.recordingStats.audioStats.audioAmplitude)
+            .isAtLeast(AudioStats.AUDIO_AMPLITUDE_NONE)
     }
 
     @Test
     fun cannotStartMultiplePendingRecordingsWhileInitializing() {
         // Arrange: Prepare 1st recording and start.
         val recorder = createRecorder(sendSurfaceRequest = false)
-        val recording = createRecordingProcess(recorder = recorder)
+        val recording = recordingSession.createRecording(recorder = recorder)
         recording.start()
 
         // Assert.
         assertThrows<IllegalStateException> {
             // Act: Prepare 2nd recording and start.
-            createRecordingProcess(recorder = recorder).start()
+            recordingSession.createRecording(recorder = recorder).start()
         }
     }
 
@@ -966,16 +872,13 @@ class RecorderTest(
         } ?: fail("Do not observe STREAM_ID_ERROR from StreamInfo observer.")
 
         // Act: 1st recording request should fail by 2nd encoder creation fail.
-        var recording = createRecordingProcess(recorder = recorder)
-        recording.start()
-        recording.verifyFinalize { finalize ->
-            assertThat(finalize.error).isEqualTo(ERROR_RECORDER_ERROR)
-        }
+        recordingSession
+            .createRecording(recorder = recorder)
+            .start()
+            .verifyFinalize(error = ERROR_RECORDER_ERROR)
 
         // Act: 2nd recording request should be successful.
-        recording = createRecordingProcess(recorder = recorder)
-        recording.startAndVerify()
-        recording.stopAndVerify()
+        recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
     @Test
@@ -990,12 +893,7 @@ class RecorderTest(
             )
 
         // Act and verify.
-        val recording = createRecordingProcess(recorder = recorder)
-        recording.startAndVerify()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            assertThat(finalize.error).isEqualTo(ERROR_NONE)
-        }
+        recordingSession.createRecording(recorder = recorder).recordAndVerify()
     }
 
     @Test
@@ -1026,7 +924,7 @@ class RecorderTest(
             }
         )
         val attributionContext = context.createAttributionContext(TEST_ATTRIBUTION_TAG)
-        val recording = createRecordingProcess(context = attributionContext)
+        val recording = recordingSession.createRecording(context = attributionContext)
 
         // Act.
         recording.start()
@@ -1068,11 +966,10 @@ class RecorderTest(
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {
         // Arrange.
         val recorder = createRecorder(targetBitrate = targetBitrate)
-        val recording = createRecordingProcess(recorder = recorder, withAudio = false)
+        val recording = recordingSession.createRecording(recorder = recorder, withAudio = false)
 
         // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify { finalize -> assertThat(finalize.error).isEqualTo(ERROR_NONE) }
+        recording.recordAndVerify()
 
         // Assert.
         assertThat(recorder.mFirstRecordingVideoBitrate)
@@ -1140,136 +1037,6 @@ class RecorderTest(
             }
             .build()
 
-    private fun createRecordingProcess(
-        recorder: Recorder = createRecorder(),
-        context: Context = ApplicationProvider.getApplicationContext(),
-        outputOptions: OutputOptions = createFileOutputOptions(),
-        withAudio: Boolean = true
-    ) = RecordingProcess(recorder, context, outputOptions, withAudio)
-
-    inner class RecordingProcess(
-        private val recorder: Recorder,
-        context: Context,
-        outputOptions: OutputOptions,
-        withAudio: Boolean
-    ) {
-        private val pendingRecording: PendingRecording =
-            PendingRecording(context, recorder, outputOptions).apply {
-                if (withAudio) {
-                    withAudioEnabled()
-                }
-            }
-        val listener = MockConsumer<VideoRecordEvent>()
-        private lateinit var recording: Recording
-
-        fun startAndVerify(
-            statusCount: Int = DEFAULT_STATUS_COUNT,
-            onStatus: ((List<Status>) -> Unit)? = null,
-        ) = startInternal(verify = true, statusCount = statusCount, onStatus = onStatus)
-
-        fun start() = startInternal(verify = false)
-
-        private fun startInternal(
-            verify: Boolean = false,
-            statusCount: Int = DEFAULT_STATUS_COUNT,
-            onStatus: ((List<Status>) -> Unit)? = null
-        ) {
-            recording = pendingRecording.start(mainThreadExecutor(), listener)
-            recordingsToStop.add(this)
-            if (verify) {
-                verifyStart()
-                if (statusCount > 0) {
-                    verifyStatus(statusCount = statusCount, onStatus = onStatus)
-                }
-            }
-        }
-
-        fun verifyStart() {
-            listener.verifyStart()
-        }
-
-        fun verifyStatus(
-            statusCount: Int = DEFAULT_STATUS_COUNT,
-            onStatus: ((List<Status>) -> Unit)? = null,
-        ) {
-            listener.verifyStatus(eventCount = statusCount, onEvent = onStatus)
-        }
-
-        fun stopAndVerify(onFinalize: ((Finalize) -> Unit)? = null) =
-            stopInternal(verify = true, onFinalize)
-
-        fun stop() = stopInternal(verify = false)
-
-        private fun stopInternal(
-            verify: Boolean = false,
-            onFinalize: ((Finalize) -> Unit)? = null
-        ) {
-            recording.stopSafely(recorder)
-            if (verify) {
-                verifyFinalize(onFinalize = onFinalize)
-            }
-        }
-
-        fun verifyFinalize(
-            timeoutMs: Long = GENERAL_TIMEOUT,
-            onFinalize: ((Finalize) -> Unit)? = null
-        ) = listener.verifyFinalize(timeoutMs = timeoutMs, onFinalize = onFinalize)
-
-        fun pauseAndVerify() = pauseInternal(verify = true)
-
-        fun pause() = pauseInternal(verify = false)
-
-        private fun pauseInternal(verify: Boolean = false) {
-            recording.pause()
-            if (verify) {
-                verifyPause()
-            }
-        }
-
-        fun verifyPause() = listener.verifyPause()
-
-        fun resumeAndVerify() = resumeInternal(verify = true)
-
-        fun resume() = resumeInternal(verify = false)
-
-        private fun resumeInternal(verify: Boolean = false) {
-            recording.resume()
-            if (verify) {
-                verifyResume()
-            }
-        }
-
-        fun mute(muted: Boolean = false) = recording.mute(muted)
-
-        private fun verifyResume() {
-            listener.verifyResume()
-            listener.verifyStatus()
-        }
-
-        fun getAllEvents(): List<VideoRecordEvent> {
-            lateinit var events: List<VideoRecordEvent>
-            listener.verifyEvent(
-                VideoRecordEvent::class.java,
-                CallTimesAtLeast(1),
-                onEvent = { events = it }
-            )
-            return events
-        }
-
-        fun verifyNoMoreEvent() = listener.verifyNoMoreAcceptCalls(/* inOrder= */ true)
-    }
-
-    private fun checkFileHasAudioAndVideo(
-        uri: Uri,
-        hasAudio: Boolean = true,
-    ) {
-        MediaMetadataRetriever().useAndRelease {
-            it.setDataSource(context, uri)
-            assertThat(it.hasVideo()).isEqualTo(true)
-            assertThat(it.hasAudio()).isEqualTo(hasAudio)
-        }
-    }
-
     @Suppress("SameParameterValue")
     private fun checkLocation(uri: Uri, location: Location) {
         MediaMetadataRetriever().useAndRelease {
@@ -1328,7 +1095,7 @@ class RecorderTest(
         val deactivateSurfaceBeforeStop =
             DeviceQuirks.get(DeactivateEncoderSurfaceBeforeStopEncoderQuirk::class.java) != null
         if (deactivateSurfaceBeforeStop) {
-            instrumentation.runOnMainSync { preview.setSurfaceProvider(null) }
+            instrumentation.runOnMainSync { preview.surfaceProvider = null }
         }
         stop()
         if (deactivateSurfaceBeforeStop && Build.VERSION.SDK_INT >= 23) {
@@ -1339,14 +1106,13 @@ class RecorderTest(
     private fun runLocationTest(location: Location) {
         // Arrange.
         val outputOptions = createFileOutputOptions(location = location)
-        val recording = createRecordingProcess(outputOptions = outputOptions)
 
         // Act.
-        recording.startAndVerify()
-        recording.stopAndVerify { finalize ->
-            // Assert.
-            checkLocation(finalize.outputResults.outputUri, location)
-        }
+        val result =
+            recordingSession.createRecording(outputOptions = outputOptions).recordAndVerify()
+
+        // Assert.
+        checkLocation(result.uri, location)
     }
 
     private fun createLocation(
@@ -1358,86 +1124,4 @@ class RecorderTest(
             this.latitude = latitude
             this.longitude = longitude
         }
-
-    private fun MockConsumer<VideoRecordEvent>.verifyStart(
-        inOrder: Boolean = true,
-        onEvent: ((Start) -> Unit)? = null
-    ) {
-        verifyEvent(Start::class.java, inOrder = inOrder, onEvent = onEvent)
-    }
-
-    private fun MockConsumer<VideoRecordEvent>.verifyFinalize(
-        inOrder: Boolean = true,
-        timeoutMs: Long = GENERAL_TIMEOUT,
-        onFinalize: ((Finalize) -> Unit)? = null
-    ) {
-        verifyEvent(
-            Finalize::class.java,
-            inOrder = inOrder,
-            timeoutMs = timeoutMs,
-            onEvent = onFinalize
-        )
-    }
-
-    private fun MockConsumer<VideoRecordEvent>.verifyStatus(
-        eventCount: Int = DEFAULT_STATUS_COUNT,
-        inOrder: Boolean = true,
-        onEvent: ((List<Status>) -> Unit)? = null,
-    ) {
-        verifyEvent(
-            Status::class.java,
-            CallTimesAtLeast(eventCount),
-            inOrder = inOrder,
-            timeoutMs = STATUS_TIMEOUT,
-            onEvent = onEvent
-        )
-    }
-
-    private fun MockConsumer<VideoRecordEvent>.verifyPause(
-        inOrder: Boolean = true,
-        onEvent: ((Pause) -> Unit)? = null
-    ) {
-        verifyEvent(Pause::class.java, inOrder = inOrder, onEvent = onEvent)
-    }
-
-    private fun MockConsumer<VideoRecordEvent>.verifyResume(
-        inOrder: Boolean = true,
-        onEvent: ((Resume) -> Unit)? = null,
-    ) {
-        verifyEvent(Resume::class.java, inOrder = inOrder, onEvent = onEvent)
-    }
-
-    private fun <T : VideoRecordEvent> MockConsumer<VideoRecordEvent>.verifyEvent(
-        eventType: Class<T>,
-        inOrder: Boolean = false,
-        timeoutMs: Long = GENERAL_TIMEOUT,
-        onEvent: ((T) -> Unit)? = null,
-    ) {
-        verifyEvent(
-            eventType,
-            callTimes = CallTimes(1),
-            inOrder = inOrder,
-            timeoutMs = timeoutMs
-        ) { events ->
-            onEvent?.invoke(events.last())
-        }
-    }
-
-    private fun <T : VideoRecordEvent> MockConsumer<VideoRecordEvent>.verifyEvent(
-        eventType: Class<T>,
-        callTimes: CallTimes,
-        inOrder: Boolean = false,
-        timeoutMs: Long = GENERAL_TIMEOUT,
-        onEvent: ((List<T>) -> Unit)? = null,
-    ) {
-        verifyAcceptCall(eventType, inOrder, timeoutMs, callTimes)
-        if (onEvent != null) {
-            val captor =
-                ArgumentCaptorCameraX<VideoRecordEvent> { argument ->
-                    eventType.isInstance(argument)
-                }
-            verifyAcceptCall(eventType, false, callTimes, captor)
-            @Suppress("UNCHECKED_CAST") onEvent.invoke(captor.allValues as List<T>)
-        }
-    }
 }
