@@ -17,18 +17,24 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -37,11 +43,13 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
@@ -142,3 +150,44 @@ fun UsingListLayoutInfoForSideEffectSample() {
 }
 
 @Composable private fun ScrollToTopButton(@Suppress("UNUSED_PARAMETER") listState: LazyListState) {}
+
+@Sampled
+@Composable
+fun CustomLazyListAnimateToItemScrollSample() {
+    val itemsList = (0..100).toList()
+    val state = rememberLazyListState()
+    val scope = rememberCoroutineScope()
+    val animatedScrollScope = remember(state) { LazyLayoutAnimateScrollScope(state) }
+
+    Column(Modifier.verticalScroll(rememberScrollState())) {
+        Button(
+            onClick = {
+                scope.launch {
+                    state.scroll {
+                        with(animatedScrollScope) {
+                            snapToItem(40, 0) // teleport to item 40
+                            val distance = calculateDistanceTo(50).toFloat()
+                            var previousValue = 0f
+                            androidx.compose.animation.core.animate(
+                                0f,
+                                distance,
+                                animationSpec = tween(5_000)
+                            ) { currentValue, _ ->
+                                previousValue += scrollBy(currentValue - previousValue)
+                            }
+                        }
+                    }
+                }
+            }
+        ) {
+            Text("Scroll To Item 50")
+        }
+        LazyRow(state = state) {
+            items(itemsList) {
+                Box(Modifier.padding(2.dp).background(Color.Red).size(45.dp)) {
+                    Text(it.toString())
+                }
+            }
+        }
+    }
+}

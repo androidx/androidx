@@ -46,8 +46,15 @@ private inline fun debugLog(generateMsg: () -> String) {
 /**
  * A scope to allow customization of animated scroll in LazyLayouts. This scope contains all needed
  * information to perform an animatedScroll in a scrollable LazyLayout.
+ *
+ * For implementations for the most common layouts see:
+ *
+ * @see androidx.compose.foundation.lazy.grid.LazyLayoutAnimateScrollScope
+ * @see androidx.compose.foundation.lazy.staggeredgrid.LazyLayoutAnimateScrollScope
+ * @see androidx.compose.foundation.lazy.LazyLayoutAnimateScrollScope
+ * @see androidx.compose.foundation.pager.LazyLayoutAnimateScrollScope
  */
-internal interface LazyLayoutAnimateScrollScope {
+interface LazyLayoutAnimateScrollScope {
 
     /** The index of the first visible item in the lazy layout. */
     val firstVisibleItemIndex: Int
@@ -64,14 +71,24 @@ internal interface LazyLayoutAnimateScrollScope {
     /** The total item count. */
     val itemCount: Int
 
-    /** Immediately scroll to [index] and settle in [scrollOffset]. */
-    fun ScrollScope.snapToItem(index: Int, scrollOffset: Int)
+    /**
+     * Immediately scroll to [index] and settle in [offset].
+     *
+     * @param index The position index where we should immediately snap to.
+     * @param offset The offset where we should immediately snap to.
+     */
+    fun ScrollScope.snapToItem(index: Int, offset: Int = 0)
 
     /**
      * The "expected" distance to [targetIndex]. This means the "expected" offset of [targetIndex]
      * in the layout. In a LazyLayout, non-visible items don't have an actual offset, so this method
      * should return an approximation of the scroll offset to [targetIndex]. If [targetIndex] is
      * visible, then an "exact" offset should be provided.
+     *
+     * @param targetIndex The index position with respect to which this calculation should be done.
+     * @param targetOffset The offset with respect to which this calculation should be done.
+     * @return The expected distance to scroll so [targetIndex] is the firstVisibleItemIndex with
+     *   [targetOffset] as the firstVisibleItemScrollOffset.
      */
     fun calculateDistanceTo(targetIndex: Int, targetOffset: Int = 0): Int
 }
@@ -196,10 +213,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                                 ) {
                                     // Teleport
                                     debugLog { "Teleport forward" }
-                                    snapToItem(
-                                        index = index - numOfItemsForTeleport,
-                                        scrollOffset = 0
-                                    )
+                                    snapToItem(index = index - numOfItemsForTeleport, offset = 0)
                                 }
                             } else {
                                 if (
@@ -208,10 +222,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                                 ) {
                                     // Teleport
                                     debugLog { "Teleport backward" }
-                                    snapToItem(
-                                        index = index + numOfItemsForTeleport,
-                                        scrollOffset = 0
-                                    )
+                                    snapToItem(index = index + numOfItemsForTeleport, offset = 0)
                                 }
                             }
                         }
@@ -225,7 +236,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                                 "item $firstVisibleItemIndex at  $firstVisibleItemScrollOffset," +
                                 " target is $scrollOffset"
                         }
-                        snapToItem(index = index, scrollOffset = scrollOffset)
+                        snapToItem(index = index, offset = scrollOffset)
                         loop = false
                         cancelAnimation()
                         return@animateTo
@@ -277,7 +288,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
             // rounding error (otherwise we tend to end up with the previous item scrolled the
             // tiniest bit onscreen)
             // TODO: prevent temporarily scrolling *past* the item
-            snapToItem(index = index, scrollOffset = scrollOffset)
+            snapToItem(index = index, offset = scrollOffset)
         }
     }
 }

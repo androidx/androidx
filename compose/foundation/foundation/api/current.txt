@@ -825,6 +825,10 @@ package androidx.compose.foundation.lazy {
     method public androidx.compose.ui.Modifier fillParentMaxWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
   }
 
+  public final class LazyListAnimateScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.lazy.LazyListState state);
+  }
+
   public interface LazyListItemInfo {
     method public default Object? getContentType();
     method public int getIndex();
@@ -949,6 +953,10 @@ package androidx.compose.foundation.lazy.grid {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class GridItemSpan {
     method public int getCurrentLineSpan();
     property public final int currentLineSpan;
+  }
+
+  public final class LazyGridAnimateScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.lazy.grid.LazyGridState state);
   }
 
   public final class LazyGridDslKt {
@@ -1106,6 +1114,19 @@ package androidx.compose.foundation.lazy.layout {
     property public final T value;
   }
 
+  public interface LazyLayoutAnimateScrollScope {
+    method public int calculateDistanceTo(int targetIndex, optional int targetOffset);
+    method public int getFirstVisibleItemIndex();
+    method public int getFirstVisibleItemScrollOffset();
+    method public int getItemCount();
+    method public int getLastVisibleItemIndex();
+    method public void snapToItem(androidx.compose.foundation.gestures.ScrollScope, int index, optional int offset);
+    property public abstract int firstVisibleItemIndex;
+    property public abstract int firstVisibleItemScrollOffset;
+    property public abstract int itemCount;
+    property public abstract int lastVisibleItemIndex;
+  }
+
   public abstract class LazyLayoutIntervalContent<Interval extends androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent.Interval> {
     ctor public LazyLayoutIntervalContent();
     method public final Object? getContentType(int index);
@@ -1208,6 +1229,10 @@ package androidx.compose.foundation.lazy.layout {
 }
 
 package androidx.compose.foundation.lazy.staggeredgrid {
+
+  public final class LazyStaggeredGridAnimateScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state);
+  }
 
   public final class LazyStaggeredGridDslKt {
     method @androidx.compose.runtime.Composable public static void LazyHorizontalStaggeredGrid(androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells rows, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional float horizontalItemSpacing, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope,kotlin.Unit> content);
@@ -1392,6 +1417,10 @@ package androidx.compose.foundation.pager {
     property public abstract long viewportSize;
     property public abstract int viewportStartOffset;
     property public abstract java.util.List<androidx.compose.foundation.pager.PageInfo> visiblePagesInfo;
+  }
+
+  public final class PagerLazyAnimateScrollScopeKt {
+    method public static androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope LazyLayoutAnimateScrollScope(androidx.compose.foundation.pager.PagerState state);
   }
 
   public sealed interface PagerScope {

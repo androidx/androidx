@@ -24,8 +24,14 @@ import kotlin.math.roundToInt
  * A [LazyLayoutAnimateScrollScope] that allows customization of animated scroll in [Pager]. The
  * scope contains information about the layout where animated scroll can be performed as well as the
  * necessary tools to do that respecting the scroll mutation priority.
+ *
+ * @param state The [PagerState] associated with the layout where this animated scroll should be
+ *   performed.
+ * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [HorizontalPager] and
+ *   [VerticalPager].
+ * @sample androidx.compose.foundation.samples.CustomPagerAnimateToPageScrollSample
  */
-internal fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
+fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
     return object : LazyLayoutAnimateScrollScope {
 
         override val firstVisibleItemIndex: Int
@@ -40,8 +46,8 @@ internal fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateS
         override val itemCount: Int
             get() = state.pageCount
 
-        override fun ScrollScope.snapToItem(index: Int, scrollOffset: Int) {
-            val offsetFraction = scrollOffset / state.pageSizeWithSpacing.toFloat()
+        override fun ScrollScope.snapToItem(index: Int, offset: Int) {
+            val offsetFraction = offset / state.pageSizeWithSpacing.toFloat()
             state.snapToItem(index, offsetFraction, forceRemeasure = true)
         }
 
