@@ -25,7 +25,6 @@ import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.MetadataTransform
 import androidx.camera.camera2.pipe.Request
-import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,10 +32,9 @@ import org.junit.runners.JUnit4
 import org.robolectric.annotation.Config
 
 @RunWith(JUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
-public class MetadataTest {
+class MetadataTest {
     @Test
-    public fun testMetadataCanRetrieveValues() {
+    fun testMetadataCanRetrieveValues() {
         val metadata = FakeMetadata(mapOf(FakeMetadata.TEST_KEY to 42))
 
         assertThat(metadata[FakeMetadata.TEST_KEY]).isNotNull()
@@ -49,7 +47,7 @@ public class MetadataTest {
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class CameraMetadataTest {
+class CameraMetadataTest {
     @Test
     fun cameraMetadataIsNotEqual() {
         val metadata1 =
@@ -68,7 +66,7 @@ public class CameraMetadataTest {
     }
 
     @Test
-    public fun canRetrieveCameraCharacteristicsOrCameraMetadataViaInterface() {
+    fun canRetrieveCameraCharacteristicsOrCameraMetadataViaInterface() {
         val metadata =
             FakeCameraMetadata(
                 mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
@@ -85,10 +83,10 @@ public class CameraMetadataTest {
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class RequestMetadataTest {
+class RequestMetadataTest {
 
     @Test
-    public fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
+    fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
         val requestMetadata =
             FakeRequestMetadata(
                 requestParameters = mapOf(CaptureRequest.JPEG_QUALITY to 95),
@@ -114,9 +112,9 @@ public class RequestMetadataTest {
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class FrameMetadataTest {
+class FrameMetadataTest {
     @Test
-    public fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
+    fun canRetrieveCaptureRequestOrCameraMetadataViaInterface() {
         val metadata =
             FakeFrameMetadata(
                 resultMetadata = mapOf(CaptureResult.JPEG_QUALITY to 95),
@@ -133,7 +131,7 @@ public class FrameMetadataTest {
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class MetadataTransformTest {
+class MetadataTransformTest {
     private val metadata =
         FakeCameraMetadata(
             mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT),
@@ -154,7 +152,7 @@ public class MetadataTransformTest {
     private val fakeFrameInfo = FakeFrameInfo(requestMetadata = requestMetadata)
 
     @Test
-    public fun defaultMetadataTransformIsNoOp() {
+    fun defaultMetadataTransformIsNoOp() {
         val transform = MetadataTransform()
         val overrides =
             transform.transformFn.computeOverridesFor(fakeFrameInfo, CameraId("Fake"), listOf())
@@ -163,7 +161,7 @@ public class MetadataTransformTest {
     }
 
     @Test
-    public fun canCreateAndInvokeMetadataTransform() {
+    fun canCreateAndInvokeMetadataTransform() {
         val transform =
             MetadataTransform(
                 transformFn =
@@ -189,7 +187,7 @@ public class MetadataTransformTest {
     }
 
     @Test
-    public fun canUseCameraMetadataForTransforms() {
+    fun canUseCameraMetadataForTransforms() {
         val transform =
             MetadataTransform(
                 transformFn =
