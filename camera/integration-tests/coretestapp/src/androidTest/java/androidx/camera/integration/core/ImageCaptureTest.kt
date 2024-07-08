@@ -205,10 +205,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun capturedImageHasCorrectSize_whenOutputFormatIsUltraHdr() {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
-        )
-
         takeImageAndVerifySize(outputFormat = OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
@@ -279,10 +275,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canCaptureMultipleImages_whenOutputFormatIsUltraHdr() {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
-        )
-
         canTakeImages(defaultBuilder.setOutputFormat(OUTPUT_FORMAT_JPEG_ULTRA_HDR), numImages = 5) {
             assumeUltraHdrSupported(BACK_SELECTOR)
         }
@@ -299,10 +291,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canCaptureMultipleImagesWithMaxQuality_whenOutputFormatIsUltraHdr() {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
-        )
-
         val builder =
             ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
@@ -534,10 +522,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canSaveToFile_withGainmapInfoInMetadata_whenOutputFormatIsUltraHdr(): Unit = runBlocking {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
-        )
-
         val cameraSelector = BACK_SELECTOR
         assumeUltraHdrSupported(cameraSelector)
 
@@ -573,10 +557,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canSaveToUri_whenOutputFormatIsUltraHdr() {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
-        )
-
         saveToUri(outputFormat = OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
@@ -632,10 +612,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun canSaveToOutputStream_whenOutputFormatIsUltraHdr() {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/340210589): Enable when camera-pipe has Ultra HDR support"
-        )
-
         saveToOutputStream(outputFormat = OUTPUT_FORMAT_JPEG_ULTRA_HDR)
     }
 
