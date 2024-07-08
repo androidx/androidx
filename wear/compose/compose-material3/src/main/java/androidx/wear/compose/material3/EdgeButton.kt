@@ -58,6 +58,8 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -97,6 +99,10 @@ import kotlin.math.sqrt
  * Example of an [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.EdgeButtonSample
+ *
+ * For a sample integrating with ScalingLazyColumn, see:
+ *
+ * @sample androidx.wear.compose.material3.samples.EdgeButtonListSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button. When animating the button to appear/
  *   disappear from the screen, a Modifier.height can be used to change the height of the component,
@@ -155,7 +161,7 @@ fun EdgeButton(
         horizontalArrangement = Arrangement.Center,
         modifier =
             modifier
-                .padding(bottom = BOTTOM_PADDING)
+                .padding(vertical = VERTICAL_PADDING)
                 .layout { measurable, constraints ->
                     // Compute the actual size of the button, and save it for later.
                     // We take the max width available, and the height is determined by the
@@ -233,6 +239,9 @@ fun EdgeButton(
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
                 MaterialTheme.typography.labelMedium,
+                TextOverflow.Ellipsis,
+                maxLines = 3, // TODO(): Change according to buttonHeight
+                TextAlign.Center,
                 content
             )
     )
@@ -264,7 +273,7 @@ private fun Modifier.sizeAndOffset(rectFn: (Constraints) -> Rect) =
 internal class ShapeHelper(private val density: Density) {
     private val extraSmallHeightPx =
         with(density) { ButtonDefaults.EdgeButtonHeightExtraSmall.toPx() }
-    private val bottomPaddingPx = with(density) { BOTTOM_PADDING.toPx() }
+    private val bottomPaddingPx = with(density) { VERTICAL_PADDING.toPx() }
     private val extraSmallEllipsisHeightPx = with(density) { EXTRA_SMALL_ELLIPSIS_HEIGHT.toPx() }
     private val targetSidePadding = with(density) { TARGET_SIDE_PADDING.toPx() }
 
@@ -439,5 +448,5 @@ private const val BUTTON_TO_ELLIPSIS_RATIO = 1.42f
 // straight line parallel to the x axis.
 private val TARGET_SIDE_PADDING = 20.dp
 
-// Padding between the Edge Button and the bottom of the screen
-private val BOTTOM_PADDING = 3.dp
+// Padding around the Edge Button on it's top and bottom.
+private val VERTICAL_PADDING = 3.dp

@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -33,6 +34,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -67,24 +69,53 @@ class EdgeButtonScreenshotTest {
 
     @Test
     fun edge_button_xsmall() =
-        verifyScreenshot() { BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightExtraSmall) }
+        verifyScreenshot() {
+            BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall)
+        }
 
     @Test
     fun edge_button_small() =
-        verifyScreenshot() { BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightSmall) }
+        verifyScreenshot() { BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightSmall) }
 
     @Test
     fun edge_button_medium() =
-        verifyScreenshot() { BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightMedium) }
+        verifyScreenshot() { BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightMedium) }
 
     @Test
     fun edge_button_large() =
-        verifyScreenshot() { BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightLarge) }
+        verifyScreenshot() { BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightLarge) }
 
     @Test
     fun edge_button_disabled() =
         verifyScreenshot() {
-            BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightMedium, enabled = false)
+            BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightMedium, enabled = false)
+        }
+
+    @Test
+    fun edge_button_small_space_very_limited() =
+        verifyScreenshot() {
+            BasicEdgeButton(
+                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
+                constrainedHeight = 10.dp
+            )
+        }
+
+    @Test
+    fun edge_button_small_space_limited() =
+        verifyScreenshot() {
+            BasicEdgeButton(
+                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
+                constrainedHeight = 30.dp
+            )
+        }
+
+    @Test
+    fun edge_button_small_slightly_limited() =
+        verifyScreenshot() {
+            BasicEdgeButton(
+                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
+                constrainedHeight = 40.dp
+            )
         }
 
     private val LONG_TEXT =
@@ -94,23 +125,34 @@ class EdgeButtonScreenshotTest {
     @Test
     fun edge_button_xsmall_long_text() =
         verifyScreenshot() {
-            BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightExtraSmall, text = LONG_TEXT)
+            BasicEdgeButton(
+                buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall,
+                text = LONG_TEXT
+            )
         }
 
     @Test
     fun edge_button_large_long_text() =
         verifyScreenshot() {
-            BasicEdgeButton(height = ButtonDefaults.EdgeButtonHeightLarge, text = LONG_TEXT)
+            BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightLarge, text = LONG_TEXT)
         }
 
     @Composable
-    private fun BasicEdgeButton(height: Dp, enabled: Boolean = true, text: String = "Text") {
+    private fun BasicEdgeButton(
+        buttonHeight: Dp,
+        constrainedHeight: Dp? = null,
+        enabled: Boolean = true,
+        text: String = "Text"
+    ) {
         Box(Modifier.fillMaxSize()) {
             EdgeButton(
                 onClick = { /* Do something */ },
                 enabled = enabled,
-                buttonHeight = height,
-                modifier = Modifier.align(Alignment.BottomEnd).testTag(TEST_TAG)
+                buttonHeight = buttonHeight,
+                modifier =
+                    Modifier.align(Alignment.BottomEnd)
+                        .testTag(TEST_TAG)
+                        .then(constrainedHeight?.let { Modifier.height(it) } ?: Modifier)
             ) {
                 BasicText(text)
             }
