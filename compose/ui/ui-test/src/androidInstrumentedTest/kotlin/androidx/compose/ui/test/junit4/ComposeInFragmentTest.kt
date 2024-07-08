@@ -21,13 +21,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runEmptyComposeUiTest
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.fragment.app.testing.launchFragmentInContainer
+import androidx.fragment.app.testing.withFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import org.junit.Test
@@ -37,13 +44,37 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
 class ComposeInFragmentTest {
-    @Test
-    fun test() = runEmptyComposeUiTest {
-        launchFragmentInContainer<CustomFragment>()
-        onNodeWithText("Hello Compose").assertExists()
+    companion object {
+        const val fragment1Text = "Compose in fragment 1"
+        const val fragment2Text = "Compose in fragment 2"
     }
 
-    class CustomFragment : Fragment() {
+    @Test
+    fun test() {
+        runEmptyComposeUiTest {
+            val fragment1 = Fragment1()
+            val fragment2 = Fragment2()
+
+            // Launch fragment 1
+            val fragmentScenario = launchFragmentInContainer<Fragment1> { fragment1 }
+            onNodeWithText(fragment1Text).assertExists()
+            onNodeWithText(fragment2Text).assertDoesNotExist()
+
+            // Add fragment 2
+            fragmentScenario.withFragment {
+                parentFragmentManager.commit { add(android.R.id.content, fragment2) }
+            }
+            onNodeWithText(fragment1Text).assertExists()
+            onNodeWithText(fragment2Text).assertExists()
+
+            // Remove fragment 1
+            fragmentScenario.withFragment { parentFragmentManager.commit { remove(fragment1) } }
+            onNodeWithText(fragment1Text).assertDoesNotExist()
+            onNodeWithText(fragment2Text).assertExists()
+        }
+    }
+
+    class Fragment1 : Fragment() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -52,12 +83,28 @@ class ComposeInFragmentTest {
             return container?.let {
                 ComposeView(container.context).apply {
                     layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    setContent {
+                        Text(fragment1Text, Modifier.background(Color.White).padding(10.dp))
+                    }
                 }
             }
         }
+    }
 
-        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            (view as ComposeView).setContent { Text("Hello Compose") }
+    class Fragment2 : Fragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ): View? {
+            return container?.let {
+                ComposeView(container.context).apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    setContent {
+                        Text(fragment2Text, Modifier.background(Color.White).padding(10.dp))
+                    }
+                }
+            }
         }
     }
 }
