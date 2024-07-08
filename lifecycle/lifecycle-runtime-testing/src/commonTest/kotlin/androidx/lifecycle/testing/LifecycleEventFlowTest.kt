@@ -16,9 +16,11 @@
 
 package androidx.lifecycle.testing
 
+import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.eventFlow
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -26,20 +28,15 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
 class LifecycleEventFlowTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private val owner = TestLifecycleOwner(coroutineDispatcher = dispatcher)
     private val testScope = TestScope(dispatcher)
 
-    @Before
+    @BeforeTest
     fun setMainDispatcher() {
         Dispatchers.setMain(dispatcher)
     }

@@ -21,29 +21,53 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.PlatformIdentifier
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+}
+
+androidXMultiplatform {
+    android()
+    desktop()
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":lifecycle:lifecycle-runtime"))
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        androidInstrumentedTest {
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+    }
 }
 
 dependencies {
-    api(project(":lifecycle:lifecycle-runtime-ktx"))
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-
-    testImplementation(libs.truth)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-
-    androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-
     lintPublish(project(":lifecycle:lifecycle-runtime-testing-lint"))
 }
 
@@ -52,7 +76,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

@@ -16,30 +16,28 @@
 
 package androidx.lifecycle.testing
 
+import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleRegistry
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-@RunWith(JUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class LifecycleRegistryTest {
 
     private val dispatcher = UnconfinedTestDispatcher()
     private val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED, dispatcher)
     private val testScope = TestScope(dispatcher)
 
-    @Before
+    @BeforeTest
     fun setMainDispatcher() {
         Dispatchers.setMain(dispatcher)
     }
