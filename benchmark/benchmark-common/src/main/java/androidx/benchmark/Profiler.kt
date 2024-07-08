@@ -53,6 +53,7 @@ sealed class Profiler() {
         val type: ProfilerOutput.Type,
         val outputRelativePath: String,
         val source: Profiler?,
+        val convertBeforeSync: (() -> Unit)? = null
     ) {
 
         fun embedInPerfettoTrace(perfettoTracePath: String) {
@@ -86,13 +87,15 @@ sealed class Profiler() {
                 label: String,
                 type: ProfilerOutput.Type,
                 outputRelativePath: String,
-                source: Profiler
+                source: Profiler,
+                convertBeforeSync: (() -> Unit)? = null
             ) =
                 ResultFile(
                     label = label,
                     outputRelativePath = outputRelativePath,
                     type = type,
-                    source = source
+                    source = source,
+                    convertBeforeSync = convertBeforeSync
                 )
         }
     }
@@ -329,19 +332,23 @@ internal object StackSamplingSimpleperf : Profiler() {
             label = "Stack Sampling Trace",
             outputRelativePath = outputRelativePath!!,
             type = ProfilerOutput.Type.StackSamplingTrace,
-            source = this
+            source = this,
+            convertBeforeSync = this::convertBeforeSync
         )
     }
 
     @RequiresApi(29)
     override fun stop() {
         session!!.stopRecording()
+        securityPerfHarden.resetIfOverridden()
+    }
+
+    @RequiresApi(29)
+    fun convertBeforeSync() {
         Outputs.writeFile(fileName = outputRelativePath!!) {
             session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)
+            session = null
         }
-
-        session = null
-        securityPerfHarden.resetIfOverridden()
     }
 
     override fun config(packageNames: List<String>) =
