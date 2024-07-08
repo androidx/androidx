@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.focus
 
+import kotlin.jvm.JvmInline
+
 /**
  * The [FocusDirection] is used to specify the direction for a [FocusManager.moveFocus] request.
  *

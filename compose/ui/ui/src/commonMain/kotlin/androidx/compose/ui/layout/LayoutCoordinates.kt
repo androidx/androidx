@@ -28,6 +28,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastMaxOf
 import androidx.compose.ui.util.fastMinOf
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /** A holder of the measured bounds for the [Layout]. */
 @JvmDefaultWithCompatibility

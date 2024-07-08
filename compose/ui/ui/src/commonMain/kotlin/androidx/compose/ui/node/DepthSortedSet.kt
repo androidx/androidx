@@ -36,12 +36,12 @@ internal class DepthSortedSet(private val extraAssertions: Boolean) {
         lazy(LazyThreadSafetyMode.NONE) { mutableMapOf<LayoutNode, Int>() }
     private val DepthComparator: Comparator<LayoutNode> =
         object : Comparator<LayoutNode> {
-            override fun compare(l1: LayoutNode, l2: LayoutNode): Int {
-                val depthDiff = l1.depth.compareTo(l2.depth)
+            override fun compare(a: LayoutNode, b: LayoutNode): Int {
+                val depthDiff = a.depth.compareTo(b.depth)
                 if (depthDiff != 0) {
                     return depthDiff
                 }
-                return l1.hashCode().compareTo(l2.hashCode())
+                return a.hashCode().compareTo(b.hashCode())
             }
         }
     private val set = TreeSet(DepthComparator)

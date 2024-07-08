@@ -30,21 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 
-private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
-
-/**
- * Used in place of the standard Job cancellation pathway to avoid reflective javaClass.simpleName
- * lookups to build the exception message and stack trace collection. Remove if these are changed in
- * kotlinx.coroutines.
- */
-private class ModifierNodeDetachedCancellationException :
-    CancellationException("The Modifier.Node was detached") {
-    override fun fillInStackTrace(): Throwable {
-        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = EmptyStackTraceElements
-        return this
-    }
-}
+internal expect class ModifierNodeDetachedCancellationException() : CancellationException
 
 /**
  * An ordered, immutable collection of [modifier elements][Modifier.Element] that decorate or add
