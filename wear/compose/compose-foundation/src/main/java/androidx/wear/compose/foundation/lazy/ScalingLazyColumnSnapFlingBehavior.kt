@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import android.util.Log
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
@@ -40,6 +41,14 @@ internal class ScalingLazyColumnSnapFlingBehavior(
 ) : FlingBehavior {
 
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+        if (initialVelocity.isNaN()) {
+            Log.w(
+                "WearCompose",
+                "ScalingLazyColumnSnapFlingBehavior: ScrollScope.performFling called with initialVelocity NaN. Please use a valid value."
+            )
+            return Float.NaN
+        }
+
         val animationState =
             AnimationState(
                 initialValue = 0f,
