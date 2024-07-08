@@ -148,6 +148,10 @@ private constructor(
         cameraController.simulateCameraError(graphStateError)
     }
 
+    /**
+     * Configure all streams in the CameraGraph with fake surfaces that match the size of the first
+     * output stream.
+     */
     fun simulateFakeSurfaceConfiguration() {
         check(!closed.value) {
             "Cannot call simulateFakeSurfaceConfiguration on $this after close."

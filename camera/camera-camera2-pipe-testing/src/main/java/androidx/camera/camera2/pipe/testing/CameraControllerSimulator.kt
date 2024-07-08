@@ -40,7 +40,7 @@ import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
  * take time to configure and become ready.
  */
 class CameraControllerSimulator(
-    private val cameraContext: CameraContext,
+    cameraContext: CameraContext,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph
