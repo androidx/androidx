@@ -30,24 +30,31 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.material3.catalog.library.model.ColorMode
+import androidx.compose.material3.catalog.library.model.ExpressiveThemeMode
 import androidx.compose.material3.catalog.library.model.FontScaleMode
 import androidx.compose.material3.catalog.library.model.MaxFontScale
 import androidx.compose.material3.catalog.library.model.MinFontScale
 import androidx.compose.material3.catalog.library.model.TextDirection
 import androidx.compose.material3.catalog.library.model.Theme
-import androidx.compose.material3.catalog.library.model.ThemeMode
+import androidx.compose.material3.catalog.library.model.ThemeColorMode
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,6 +65,9 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
+    val openExpressiveDialog = remember { mutableStateOf(false) }
+    val expressiveThemeValue = remember { mutableStateOf(ExpressiveThemeMode.NonExpressive) }
+
     LazyColumn(
         contentPadding =
             WindowInsets.safeDrawing
@@ -73,30 +83,30 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                 modifier = Modifier.padding(horizontal = ThemePickerPadding)
             )
             // LazyVerticalGrid can't be used within LazyColumn due to nested scrolling
-            val themeModes = ThemeMode.values()
+            val themeColorModes = ThemeColorMode.values()
             Column(
                 modifier = Modifier.padding(ThemePickerPadding),
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)) {
                     RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        option = themeModes[0],
-                        selected = themeModes[0] == theme.themeMode,
-                        onClick = { onThemeChange(theme.copy(themeMode = it)) }
+                        option = themeColorModes[0],
+                        selected = themeColorModes[0] == theme.themeColorMode,
+                        onClick = { onThemeChange(theme.copy(themeColorMode = it)) }
                     )
                     RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        option = themeModes[1],
-                        selected = themeModes[1] == theme.themeMode,
-                        onClick = { onThemeChange(theme.copy(themeMode = it)) }
+                        option = themeColorModes[1],
+                        selected = themeColorModes[1] == theme.themeColorMode,
+                        onClick = { onThemeChange(theme.copy(themeColorMode = it)) }
                     )
                 }
                 Row {
                     RadioButtonOption(
                         modifier = Modifier.weight(1f),
-                        option = themeModes[2],
-                        selected = themeModes[2] == theme.themeMode,
-                        onClick = { onThemeChange(theme.copy(themeMode = it)) }
+                        option = themeColorModes[2],
+                        selected = themeColorModes[2] == theme.themeColorMode,
+                        onClick = { onThemeChange(theme.copy(themeColorMode = it)) }
                     )
                 }
             }
@@ -204,6 +214,53 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                     onValueChangeFinished = { onThemeChange(theme.copy(fontScale = fontScale)) }
                 )
             }
+            HorizontalDivider(Modifier.padding(horizontal = ThemePickerPadding))
+        }
+        item {
+            Row {
+                Text(
+                    text = stringResource(id = R.string.expressive_theme_mode),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier =
+                        Modifier.padding(
+                            start = ThemePickerPadding,
+                            // Align Badge closer to text
+                            end = ThemePickerPadding / 2
+                        )
+                )
+                Badge { Text(stringResource(R.string.experimental)) }
+            }
+            // LazyVerticalGrid can't be used within LazyColumn due to nested scrolling
+            val expressiveThemeModes = ExpressiveThemeMode.values()
+            Column(
+                modifier = Modifier.padding(ThemePickerPadding),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(ThemePickerPadding)) {
+                    RadioButtonOption(
+                        modifier = Modifier.weight(1f),
+                        option = expressiveThemeModes[0],
+                        selected = expressiveThemeModes[0] == theme.expressiveThemeMode,
+                        onClick = {
+                            if (theme.expressiveThemeMode != it) {
+                                expressiveThemeValue.value = it
+                                openExpressiveDialog.value = true
+                            }
+                        }
+                    )
+                    RadioButtonOption(
+                        modifier = Modifier.weight(1f),
+                        option = expressiveThemeModes[1],
+                        selected = expressiveThemeModes[1] == theme.expressiveThemeMode,
+                        onClick = {
+                            if (theme.expressiveThemeMode != it) {
+                                expressiveThemeValue.value = it
+                                openExpressiveDialog.value = true
+                            }
+                        }
+                    )
+                }
+            }
+            HorizontalDivider(Modifier.padding(horizontal = ThemePickerPadding))
         }
         item {
             Column(
@@ -215,6 +272,31 @@ fun ThemePicker(theme: Theme, onThemeChange: (theme: Theme) -> Unit) {
                 }
             }
         }
+    }
+    if (openExpressiveDialog.value) {
+        ExpressiveAlertDialog(
+            onDismissRequest = {
+                // Return to previous data type.
+                if (expressiveThemeValue.value == ExpressiveThemeMode.NonExpressive) {
+                    expressiveThemeValue.value = ExpressiveThemeMode.Expressive
+                } else {
+                    expressiveThemeValue.value = ExpressiveThemeMode.NonExpressive
+                }
+                openExpressiveDialog.value = false
+            },
+            onDismissButtonClick = {
+                // Return to previous data type.
+                if (expressiveThemeValue.value == ExpressiveThemeMode.NonExpressive) {
+                    expressiveThemeValue.value = ExpressiveThemeMode.Expressive
+                } else {
+                    expressiveThemeValue.value = ExpressiveThemeMode.NonExpressive
+                }
+                openExpressiveDialog.value = false
+            },
+            onConfirmButtonClick = {
+                onThemeChange(theme.copy(expressiveThemeMode = expressiveThemeValue.value))
+            }
+        )
     }
 }
 
@@ -271,6 +353,27 @@ private fun CustomFontScaleSlider(
             style = MaterialTheme.typography.bodyMedium
         )
     }
+}
+
+@Composable
+private fun ExpressiveAlertDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmButtonClick: () -> Unit,
+    onDismissButtonClick: () -> Unit,
+) {
+    AlertDialog(
+        icon = { Icon(imageVector = Icons.Filled.Warning, contentDescription = null) },
+        title = { Text("Warning") },
+        text = {
+            Text(
+                "Setting a new Material theme will reset the catalog and progress will be " +
+                    "lost. Please confirm before proceeding."
+            )
+        },
+        onDismissRequest = onDismissRequest,
+        confirmButton = { Button(onClick = onConfirmButtonClick) { Text("Confirm") } },
+        dismissButton = { Button(onClick = onDismissButtonClick) { Text("Cancel") } },
+    )
 }
 
 private val ThemePickerPadding = 16.dp
