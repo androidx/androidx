@@ -25,7 +25,6 @@ import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.OwnerScope
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
@@ -147,11 +146,6 @@ internal class SemanticsNodeWithAdjustedBounds(
 /** This function retrieves the View corresponding to a semanticsId, if it exists. */
 internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
     layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
-
-internal fun LayoutNode.isAncestorOf(node: LayoutNode): Boolean {
-    val p = node.parent ?: return false
-    return (p == this) || isAncestorOf(p)
-}
 
 // TODO(mnuzen): refactor `currentSemanticsNodes` in the AccessibilityDelegate file to also use
 // IntObjectMap's. Then ACVADC can also call `getAllUncoveredSemanticsNodesToIntObjectMap` instead

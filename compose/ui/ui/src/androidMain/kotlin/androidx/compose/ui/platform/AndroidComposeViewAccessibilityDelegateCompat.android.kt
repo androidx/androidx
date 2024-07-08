@@ -2352,13 +2352,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return
         }
 
-        // No need to send an event if an ancestor has also been changed
-        for (potentialAncestor in subtreeChangedLayoutNodes.indices) {
-            if (subtreeChangedLayoutNodes.valueAt(potentialAncestor).isAncestorOf(layoutNode)) {
-                return
-            }
-        }
-
         // When we finally send the event, make sure it is an accessibility-focusable node.
         val id =
             trace("GetSemanticsNode") {
