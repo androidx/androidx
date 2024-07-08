@@ -31,8 +31,6 @@ HSPLandroidx/compose/ui/text/android/style/BaselineShiftSpan;->**(**)**
 HSPLandroidx/compose/ui/text/android/style/LetterSpacingSpanPx;->**(**)**
 HSPLandroidx/compose/ui/text/android/style/LineHeightSpan;->**(**)**
 HSPLandroidx/compose/ui/text/android/style/TypefaceSpan;->**(**)**
-HSPLandroidx/compose/ui/text/caches/LruCache;->**(**)**
-HSPLandroidx/compose/ui/text/caches/SimpleArrayMap;->**(**)**
 HSPLandroidx/compose/ui/text/font/AndroidFontLoader;->**(**)**
 HSPLandroidx/compose/ui/text/font/AndroidFontResolveInterceptor**->**(**)**
 HSPLandroidx/compose/ui/text/font/AsyncTypefaceCache;->**(**)**
