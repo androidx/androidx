@@ -23,7 +23,6 @@ import android.view.View
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 @Suppress("unused") // Reflection usage from tests in privacysandbox:sdkruntime:sdkruntime-client
 class CompatProvider : SandboxedSdkProviderCompat() {
@@ -53,8 +52,8 @@ class CompatProvider : SandboxedSdkProviderCompat() {
         return View(windowContext)
     }
 
-    internal class SdkImpl(private val context: Context) : Binder() {
-        fun getSandboxedSdks(): List<SandboxedSdkCompat> =
-            SdkSandboxControllerCompat.from(context).getSandboxedSdks()
-    }
+    internal class SdkImpl(
+        @Suppress("MemberVisibilityCanBePrivate") // Reflection usage from LocalSdkTestUtils
+        val context: Context
+    ) : Binder()
 }

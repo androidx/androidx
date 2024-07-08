@@ -19,15 +19,10 @@ package androidx.privacysandbox.sdkruntime.testsdk
 import android.content.Context
 import android.os.Binder
 import android.os.Bundle
-import android.os.IBinder
 import android.view.View
-import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
-import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
-import kotlinx.coroutines.runBlocking
 
 @Suppress("unused") // Reflection usage from tests in privacysandbox:sdkruntime:sdkruntime-client
 class CompatProvider : SandboxedSdkProviderCompat() {
@@ -57,22 +52,8 @@ class CompatProvider : SandboxedSdkProviderCompat() {
         return View(windowContext)
     }
 
-    internal class SdkImpl(private val context: Context) : Binder() {
-        fun getSandboxedSdks(): List<SandboxedSdkCompat> =
-            SdkSandboxControllerCompat.from(context).getSandboxedSdks()
-
-        fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
-            SdkSandboxControllerCompat.from(context).getAppOwnedSdkSandboxInterfaces()
-
-        fun registerSdkSandboxActivityHandler(handler: SdkSandboxActivityHandlerCompat): IBinder =
-            SdkSandboxControllerCompat.from(context).registerSdkSandboxActivityHandler(handler)
-
-        fun unregisterSdkSandboxActivityHandler(handler: SdkSandboxActivityHandlerCompat) {
-            SdkSandboxControllerCompat.from(context).unregisterSdkSandboxActivityHandler(handler)
-        }
-
-        fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkCompat = runBlocking {
-            SdkSandboxControllerCompat.from(context).loadSdk(sdkName, sdkParams)
-        }
-    }
+    internal class SdkImpl(
+        @Suppress("MemberVisibilityCanBePrivate") // Reflection usage from LocalSdkTestUtils
+        val context: Context
+    ) : Binder()
 }

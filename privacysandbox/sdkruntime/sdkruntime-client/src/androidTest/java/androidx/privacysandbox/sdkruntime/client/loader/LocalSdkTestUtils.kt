@@ -27,10 +27,11 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
+import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
+import java.lang.reflect.UndeclaredThrowableException
 import java.util.concurrent.CountDownLatch
-import kotlin.reflect.cast
 
 /** Extract value of [Versions.API_VERSION] from loaded SDK. */
 internal fun LocalSdkProvider.extractApiVersion(): Int = extractVersionValue("API_VERSION")
@@ -38,45 +39,34 @@ internal fun LocalSdkProvider.extractApiVersion(): Int = extractVersionValue("AP
 /** Extract value of [Versions.CLIENT_VERSION] from loaded SDK. */
 internal fun LocalSdkProvider.extractClientVersion(): Int = extractVersionValue("CLIENT_VERSION")
 
+/** Extract value of static [versionFieldName] from [Versions] class. */
+private fun LocalSdkProvider.extractVersionValue(versionFieldName: String): Int =
+    extractSdkProviderClassloader()
+        .getClass(Versions::class.java.name)
+        .getStaticField(versionFieldName) as Int
+
 /** Extract [SandboxedSdkProviderCompat.context] from loaded SDK. */
-internal fun LocalSdkProvider.extractSdkContext(): Context {
-    val getContextMethod = sdkProvider.javaClass.getMethod("getContext")
-
-    val rawContext = getContextMethod.invoke(sdkProvider)
-
-    return Context::class.cast(rawContext)
-}
+internal fun LocalSdkProvider.extractSdkContext(): Context =
+    sdkProvider.callMethod("getContext") as Context
 
 /** Extract field value from [SandboxedSdkProviderCompat] */
 internal inline fun <reified T> LocalSdkProvider.extractSdkProviderFieldValue(
     fieldName: String
-): T {
-    return sdkProvider.javaClass.getField(fieldName).get(sdkProvider)!! as T
-}
+): T = sdkProvider.getField(fieldName) as T
 
 /** Extract classloader that was used for loading of [SandboxedSdkProviderCompat]. */
 internal fun LocalSdkProvider.extractSdkProviderClassloader(): ClassLoader =
     sdkProvider.javaClass.classLoader!!
 
-/**
- * Reflection wrapper for TestSDK object. Underlying TestSDK should implement and delegate to
- * [androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat]:
- * 1) getSandboxedSdks() : List<SandboxedSdkCompat>
- * 2) getAppOwnedSdkSandboxInterfaces() : List<AppOwnedSdkSandboxInterfaceCompat>
- * 3) registerSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat) : IBinder
- * 4) unregisterSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat)
- * 5) loadSdk(sdkName, sdkParams) : SandboxedSdkCompat
- */
-internal class TestSdkWrapper(private val sdk: Any) {
+/** Reflection wrapper for [SdkSandboxControllerCompat] */
+internal class SdkControllerWrapper(private val controller: Any) {
     fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkWrapper {
-        val loadSdkMethod =
-            sdk.javaClass.getMethod("loadSdk", String::class.java, Bundle::class.java)
-
         try {
-            val rawSandboxedSdkCompat = loadSdkMethod.invoke(sdk, sdkName, sdkParams) as Any
+            val rawSandboxedSdkCompat =
+                controller.callSuspendMethod("loadSdk", sdkName, sdkParams) as Any
             return SandboxedSdkWrapper(rawSandboxedSdkCompat)
-        } catch (ex: InvocationTargetException) {
-            throw tryRebuildCompatException(ex.targetException)
+        } catch (ex: Exception) {
+            throw tryRebuildCompatException(ex)
         }
     }
 
@@ -90,53 +80,34 @@ internal class TestSdkWrapper(private val sdk: Any) {
     }
 
     fun getSandboxedSdks(): List<SandboxedSdkWrapper> {
-        val sdks = sdk.callMethod(methodName = "getSandboxedSdks") as List<*>
+        val sdks = controller.callMethod(methodName = "getSandboxedSdks") as List<*>
         return sdks.map { SandboxedSdkWrapper(it!!) }
     }
 
     fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkWrapper> {
-        val sdks = sdk.callMethod(methodName = "getAppOwnedSdkSandboxInterfaces") as List<*>
+        val sdks = controller.callMethod(methodName = "getAppOwnedSdkSandboxInterfaces") as List<*>
         return sdks.map { AppOwnedSdkWrapper(it!!) }
     }
 
     fun registerSdkSandboxActivityHandler(handler: CatchingSdkActivityHandler): IBinder {
-        val classLoader = sdk.javaClass.classLoader!!
-        val activityHandlerClass =
-            Class.forName(SdkSandboxActivityHandlerCompat::class.java.name, false, classLoader)
+        val classLoader = controller.javaClass.classLoader!!
 
         val proxy =
-            Proxy.newProxyInstance(classLoader, arrayOf(activityHandlerClass)) { proxy, method, args
-                ->
-                when (method.name) {
-                    "hashCode" -> hashCode()
-                    "equals" -> proxy === args[0]
-                    "onActivityCreated" -> handler.setResult(args[0])
-                    else -> {
-                        throw UnsupportedOperationException(
-                            "Unexpected method call object:$proxy, method: $method, args: $args"
-                        )
-                    }
-                }
+            classLoader.createProxyFor(
+                SdkSandboxActivityHandlerCompat::class.java.name,
+                "onActivityCreated"
+            ) {
+                handler.setResult(it!![0]!!)
             }
 
-        val registerMethod =
-            sdk.javaClass.getMethod("registerSdkSandboxActivityHandler", activityHandlerClass)
-
-        val token = registerMethod.invoke(sdk, proxy) as IBinder
+        val token = controller.callMethod("registerSdkSandboxActivityHandler", proxy) as IBinder
         handler.proxy = proxy
 
         return token
     }
 
     fun unregisterSdkSandboxActivityHandler(handler: CatchingSdkActivityHandler) {
-        val classLoader = sdk.javaClass.classLoader!!
-        val activityHandlerClass =
-            Class.forName(SdkSandboxActivityHandlerCompat::class.java.name, false, classLoader)
-
-        val unregisterMethod =
-            sdk.javaClass.getMethod("unregisterSdkSandboxActivityHandler", activityHandlerClass)
-
-        unregisterMethod.invoke(sdk, handler.proxy)
+        controller.callMethod("unregisterSdkSandboxActivityHandler", handler.proxy)
         handler.proxy = null
     }
 }
@@ -184,8 +155,8 @@ internal class AppOwnedSdkWrapper(private val sdk: Any) {
 }
 
 /**
- * ActivityHandler to use with [TestSdkWrapper.registerSdkSandboxActivityHandler]. Store received
- * ActivityHolder.
+ * ActivityHandler to use with [SdkControllerWrapper.registerSdkSandboxActivityHandler]. Store
+ * received ActivityHolder.
  */
 internal class CatchingSdkActivityHandler {
     var proxy: Any? = null
@@ -217,30 +188,146 @@ internal class ActivityHolderWrapper(private val activityHolder: Any) {
     }
 }
 
-/**
- * Load SDK and wrap it as TestSDK.
- *
- * @see [TestSdkWrapper]
- */
-internal fun LocalSdkProvider.loadTestSdk(): TestSdkWrapper {
-    return onLoadSdk(Bundle()).asTestSdk()
+/** Create [SandboxedSdkWrapper] using SDK context from [SandboxedSdkProviderCompat.context]. */
+internal fun LocalSdkProvider.loadTestSdk(): SdkControllerWrapper {
+    return createSdkControllerWrapperFor(extractSdkProviderClassloader(), extractSdkContext())
 }
 
 /**
- * Wrap SandboxedSdkCompat as TestSDK.
+ * Create [SandboxedSdkWrapper] using SDK context from TestSDK.
+ *
+ * TestSDK must expose public "context" property.
  *
  * @see [SandboxedSdkWrapper]
  */
-internal fun SandboxedSdkCompat.asTestSdk(): TestSdkWrapper {
-    return TestSdkWrapper(sdk = getInterface()!!)
+internal fun SandboxedSdkCompat.asTestSdk(): SdkControllerWrapper {
+    val testSdk = getInterface()!!
+    val context = testSdk.callMethod("getContext")!!
+    return createSdkControllerWrapperFor(testSdk.javaClass.classLoader!!, context)
 }
 
-private fun Any.callMethod(methodName: String): Any? {
-    return javaClass.getMethod(methodName).invoke(this)
+/**
+ * Creates [SdkControllerWrapper] for instance of [SdkSandboxControllerCompat] class loaded by SDK
+ * classloader.
+ */
+private fun createSdkControllerWrapperFor(
+    classLoader: ClassLoader,
+    sdkContext: Any
+): SdkControllerWrapper {
+    val sdkController =
+        classLoader
+            .getClass(SdkSandboxControllerCompat::class.java.name)
+            .callStaticMethod("from", sdkContext)!!
+    return SdkControllerWrapper(sdkController)
 }
 
-private fun LocalSdkProvider.extractVersionValue(versionFieldName: String): Int {
-    val versionsClass =
-        Class.forName(Versions::class.java.name, false, extractSdkProviderClassloader())
-    return versionsClass.getDeclaredField(versionFieldName).get(null) as Int
+private fun ClassLoader.getClass(className: String): Class<*> =
+    Class.forName(className, false, this)
+
+private fun Class<*>.getStaticField(fieldName: String): Any? = getDeclaredField(fieldName).get(null)
+
+private fun Any.getField(fieldName: String): Any? = javaClass.getField(fieldName).get(this)
+
+/**
+ * Call static method and return result. Unwraps [InvocationTargetException] to actual exception.
+ */
+private fun Class<*>.callStaticMethod(methodName: String, vararg args: Any?): Any? {
+    try {
+        return methods.single { it.name == methodName }.invoke(null, *args)
+    } catch (ex: InvocationTargetException) {
+        throw ex.targetException
+    }
+}
+
+/** Call method and return result. Unwraps [InvocationTargetException] to actual exception. */
+private fun Any.callMethod(methodName: String, vararg args: Any?): Any? {
+    try {
+        return javaClass.methods.single { it.name == methodName }.invoke(this, *args)
+    } catch (ex: InvocationTargetException) {
+        throw ex.targetException
+    }
+}
+
+/**
+ * Call suspend method and wait for result (via runBlocking).
+ *
+ * KCallable#callSuspend can't be used here as it will pass Continuation instance loaded by app
+ * classloader while SDK will expect instance loaded by SDK classloader.
+ *
+ * Instead this method calls runBlocking() using classes loaded by SDK classloader.
+ */
+private fun Any.callSuspendMethod(methodName: String, vararg args: Any?): Any? {
+    val classLoader = javaClass.classLoader!!
+
+    val method = javaClass.methods.single { it.name == methodName }
+
+    val coroutineContextClass = classLoader.getClass("kotlin.coroutines.CoroutineContext")
+    val functionClass = classLoader.getClass("kotlin.jvm.functions.Function2")
+    val runBlockingMethod =
+        classLoader
+            .getClass("kotlinx.coroutines.BuildersKt")
+            .getMethod("runBlocking", coroutineContextClass, functionClass)
+
+    val coroutineContextInstance =
+        classLoader.getClass("kotlin.coroutines.EmptyCoroutineContext").getStaticField("INSTANCE")
+
+    val functionProxy =
+        classLoader.createProxyFor("kotlin.jvm.functions.Function2", "invoke") {
+            try {
+                // Receive Continuation as second function argument and pass it as last method
+                // argument
+                method.invoke(this, *args, it!![1])
+            } catch (ex: InvocationTargetException) {
+                // Rethrow original exception to correctly handle it later.
+                throw ex.targetException
+            }
+        }
+
+    try {
+        return runBlockingMethod.invoke(null, coroutineContextInstance, functionProxy)
+    } catch (ex: InvocationTargetException) {
+        // First unwrap InvocationTargetException to get exception while calling runBlocking
+        val runBlockingException = ex.targetException
+
+        // runBlocking doesn't declare exceptions, need to unwrap actual method exception
+        if (runBlockingException is UndeclaredThrowableException) {
+            throw runBlockingException.undeclaredThrowable
+        } else {
+            throw ex
+        }
+    }
+}
+
+/** Create Dynamic Proxy that handles single [methodName]. */
+private fun ClassLoader.createProxyFor(
+    className: String,
+    methodName: String,
+    handler: (args: Array<Any?>?) -> Any?
+): Any {
+    return createProxyFor(className) { calledMethodName, args ->
+        if (calledMethodName == methodName) {
+            handler.invoke(args)
+        } else {
+            throw UnsupportedOperationException(
+                "Unexpected method call: $calledMethodName, args: $args"
+            )
+        }
+    }
+}
+
+/** Create Dynamic Proxy that handles all methods of [className]. */
+private fun ClassLoader.createProxyFor(
+    className: String,
+    handler: (methodName: String, args: Array<Any?>?) -> Any?
+): Any {
+    return Proxy.newProxyInstance(this, arrayOf(getClass(className))) { proxy, method, args ->
+        when (method.name) {
+            "equals" -> proxy === args?.get(0)
+            "hashCode" -> hashCode()
+            "toString" -> toString()
+            else -> {
+                handler.invoke(method.name, args)
+            }
+        }
+    }
 }
