@@ -19,6 +19,7 @@ package androidx.camera.core.internal.compat.quirk;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.QuirkSettingsHolder;
 import androidx.camera.core.impl.Quirks;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class DeviceQuirks {
     /** Returns all device specific quirks loaded on the current device. */
     @NonNull
     public static Quirks getAll() {
-        return new Quirks(DeviceQuirksLoader.loadQuirks());
+        return new Quirks(DeviceQuirksLoader.loadQuirks(QuirkSettingsHolder.DEFAULT));
     }
 
     /**
@@ -55,7 +56,7 @@ public class DeviceQuirks {
     @SuppressWarnings("unchecked")
     @Nullable
     public static <T extends Quirk> T get(@NonNull final Class<T> quirkClass) {
-        final List<Quirk> quirks = DeviceQuirksLoader.loadQuirks();
+        final List<Quirk> quirks = DeviceQuirksLoader.loadQuirks(QuirkSettingsHolder.DEFAULT);
         for (final Quirk quirk : quirks) {
             if (quirk.getClass() == quirkClass) {
                 return (T) quirk;

@@ -18,6 +18,7 @@ package androidx.camera.video.internal.compat.quirk;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.QuirkSettings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,71 +36,110 @@ public class DeviceQuirksLoader {
      * on the current device.
      */
     @NonNull
-    static List<Quirk> loadQuirks() {
+    static List<Quirk> loadQuirks(@NonNull QuirkSettings quirkSettings) {
         final List<Quirk> quirks = new ArrayList<>();
 
         // Load all video specific quirks
-        if (MediaFormatMustNotUseFrameRateToFindEncoderQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                MediaFormatMustNotUseFrameRateToFindEncoderQuirk.class,
+                MediaFormatMustNotUseFrameRateToFindEncoderQuirk.load())) {
             quirks.add(new MediaFormatMustNotUseFrameRateToFindEncoderQuirk());
         }
-        if (MediaCodecInfoReportIncorrectInfoQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                MediaCodecInfoReportIncorrectInfoQuirk.class,
+                MediaCodecInfoReportIncorrectInfoQuirk.load())) {
             quirks.add(new MediaCodecInfoReportIncorrectInfoQuirk());
         }
-        if (DeactivateEncoderSurfaceBeforeStopEncoderQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class,
+                DeactivateEncoderSurfaceBeforeStopEncoderQuirk.load())) {
             quirks.add(new DeactivateEncoderSurfaceBeforeStopEncoderQuirk());
         }
-        if (CameraUseInconsistentTimebaseQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                CameraUseInconsistentTimebaseQuirk.class,
+                CameraUseInconsistentTimebaseQuirk.load())) {
             quirks.add(new CameraUseInconsistentTimebaseQuirk());
         }
-        if (ReportedVideoQualityNotSupportedQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ReportedVideoQualityNotSupportedQuirk.class,
+                ReportedVideoQualityNotSupportedQuirk.load())) {
             quirks.add(new ReportedVideoQualityNotSupportedQuirk());
         }
-        if (EncoderNotUsePersistentInputSurfaceQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                EncoderNotUsePersistentInputSurfaceQuirk.class,
+                EncoderNotUsePersistentInputSurfaceQuirk.load())) {
             quirks.add(new EncoderNotUsePersistentInputSurfaceQuirk());
         }
-        if (VideoEncoderCrashQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                VideoEncoderCrashQuirk.class,
+                VideoEncoderCrashQuirk.load())) {
             quirks.add(new VideoEncoderCrashQuirk());
         }
-        if (ExcludeStretchedVideoQualityQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExcludeStretchedVideoQualityQuirk.class,
+                ExcludeStretchedVideoQualityQuirk.load())) {
             quirks.add(new ExcludeStretchedVideoQualityQuirk());
         }
-        if (MediaStoreVideoCannotWrite.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                MediaStoreVideoCannotWrite.class,
+                MediaStoreVideoCannotWrite.load())) {
             quirks.add(new MediaStoreVideoCannotWrite());
         }
-        if (AudioEncoderIgnoresInputTimestampQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                AudioEncoderIgnoresInputTimestampQuirk.class,
+                AudioEncoderIgnoresInputTimestampQuirk.load())) {
             quirks.add(new AudioEncoderIgnoresInputTimestampQuirk());
         }
-        if (VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.class,
+                VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk.load())) {
             quirks.add(new VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk());
         }
-        if (NegativeLatLongSavesIncorrectlyQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                NegativeLatLongSavesIncorrectlyQuirk.class,
+                NegativeLatLongSavesIncorrectlyQuirk.load())) {
             quirks.add(new NegativeLatLongSavesIncorrectlyQuirk());
         }
-        if (AudioTimestampFramePositionIncorrectQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                AudioTimestampFramePositionIncorrectQuirk.class,
+                AudioTimestampFramePositionIncorrectQuirk.load())) {
             quirks.add(new AudioTimestampFramePositionIncorrectQuirk());
         }
-        if (ExtraSupportedResolutionQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExtraSupportedResolutionQuirk.class,
+                ExtraSupportedResolutionQuirk.load())) {
             quirks.add(new ExtraSupportedResolutionQuirk());
         }
-        if (StretchedVideoResolutionQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                StretchedVideoResolutionQuirk.class,
+                StretchedVideoResolutionQuirk.load())) {
             quirks.add(new StretchedVideoResolutionQuirk());
         }
-        if (CodecStuckOnFlushQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                CodecStuckOnFlushQuirk.class,
+                CodecStuckOnFlushQuirk.load())) {
             quirks.add(new CodecStuckOnFlushQuirk());
         }
-        if (StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.class,
+                StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.load())) {
             quirks.add(new StopCodecAfterSurfaceRemovalCrashMediaServerQuirk());
         }
-        if (ExtraSupportedQualityQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                ExtraSupportedQualityQuirk.class,
+                ExtraSupportedQualityQuirk.load())) {
             quirks.add(new ExtraSupportedQualityQuirk());
         }
-        if (SignalEosOutputBufferNotComeQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                SignalEosOutputBufferNotComeQuirk.class,
+                SignalEosOutputBufferNotComeQuirk.load())) {
             quirks.add(new SignalEosOutputBufferNotComeQuirk());
         }
-        if (SizeCannotEncodeVideoQuirk.load()) {
+        if (quirkSettings.shouldEnableQuirk(
+                SizeCannotEncodeVideoQuirk.class,
+                SizeCannotEncodeVideoQuirk.load())) {
             quirks.add(new SizeCannotEncodeVideoQuirk());
         }
-
         return quirks;
     }
 }

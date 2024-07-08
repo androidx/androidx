@@ -16,9 +16,13 @@
 
 package androidx.camera.core.internal.compat.quirk;
 
+import static androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.Quirk;
+import androidx.camera.core.impl.QuirkSettingsHolder;
 import androidx.camera.core.impl.Quirks;
 
 /**
@@ -31,12 +35,18 @@ import androidx.camera.core.impl.Quirks;
  * Device specific quirks are lazily loaded, i.e. They are loaded the first time they're needed.
  */
 public class DeviceQuirks {
+    private static final String TAG = "DeviceQuirks";
 
+    /** @noinspection NotNullFieldNotInitialized*/
     @NonNull
-    private static final Quirks QUIRKS;
+    private static volatile Quirks sQuirks;
 
     static {
-        QUIRKS = new Quirks(DeviceQuirksLoader.loadQuirks());
+        // Direct executor will initialize quirks immediately, guaranteeing it's never null.
+        QuirkSettingsHolder.instance().observe(directExecutor(), quirkSettings -> {
+            sQuirks = new Quirks(DeviceQuirksLoader.loadQuirks(quirkSettings));
+            Logger.d(TAG, "core DeviceQuirks = " + Quirks.toString(sQuirks));
+        });
     }
 
     private DeviceQuirks() {
@@ -45,7 +55,7 @@ public class DeviceQuirks {
     /** Returns all device specific quirks loaded on the current device. */
     @NonNull
     public static Quirks getAll() {
-        return QUIRKS;
+        return sQuirks;
     }
 
     /**
@@ -57,6 +67,6 @@ public class DeviceQuirks {
      */
     @Nullable
     public static <T extends Quirk> T get(@NonNull final Class<T> quirkClass) {
-        return QUIRKS.get(quirkClass);
+        return sQuirks.get(quirkClass);
     }
 }
