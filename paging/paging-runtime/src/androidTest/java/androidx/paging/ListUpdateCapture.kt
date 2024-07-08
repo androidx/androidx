@@ -18,25 +18,26 @@ package androidx.paging
 
 import androidx.recyclerview.widget.ListUpdateCallback
 
-class ListUpdateCapture : ListUpdateCallback {
+class ListUpdateCapture(
+    private val events: MutableList<ListUpdateEvent> = mutableListOf(),
+    val callBack: (event: ListUpdateEvent) -> Unit = { events.add(it) },
+) : ListUpdateCallback {
     private var lastEventsListIndex = -1
 
-    val events = mutableListOf<ListUpdateEvent>()
-
     override fun onChanged(position: Int, count: Int, payload: Any?) {
-        events.add(ListUpdateEvent.Changed(position, count, payload))
+        callBack(ListUpdateEvent.Changed(position, count, payload))
     }
 
     override fun onMoved(fromPosition: Int, toPosition: Int) {
-        events.add(ListUpdateEvent.Moved(fromPosition, toPosition))
+        callBack(ListUpdateEvent.Moved(fromPosition, toPosition))
     }
 
     override fun onInserted(position: Int, count: Int) {
-        events.add(ListUpdateEvent.Inserted(position, count))
+        callBack(ListUpdateEvent.Inserted(position, count))
     }
 
     override fun onRemoved(position: Int, count: Int) {
-        events.add(ListUpdateEvent.Removed(position, count))
+        callBack(ListUpdateEvent.Removed(position, count))
     }
 
     fun newEvents(): List<ListUpdateEvent> {
