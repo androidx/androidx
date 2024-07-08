@@ -53,7 +53,7 @@ dependencies {
     }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")

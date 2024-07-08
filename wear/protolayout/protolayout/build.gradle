@@ -33,7 +33,7 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api(project(":wear:protolayout:protolayout-expression"))
 
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(project(":wear:protolayout:protolayout-proto"))
 
     lintChecks(project(":wear:protolayout:protolayout-lint"))

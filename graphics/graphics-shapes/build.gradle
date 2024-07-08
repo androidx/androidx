@@ -71,7 +71,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 implementation("androidx.core:core-ktx:1.10.0")
-                implementation("androidx.annotation:annotation-experimental:1.4.0-rc01")
+                implementation("androidx.annotation:annotation-experimental:1.4.1")
             }
         }
 
