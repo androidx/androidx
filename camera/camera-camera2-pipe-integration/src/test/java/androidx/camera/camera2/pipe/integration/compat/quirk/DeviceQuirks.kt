@@ -17,6 +17,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirksLoader.loadQuirks
 import androidx.camera.core.impl.Quirk
+import androidx.camera.core.impl.QuirkSettingsHolder
 
 /**
  * Tests version of main/.../DeviceQuirks.java, which provides device specific quirks, used for
@@ -37,7 +38,7 @@ object DeviceQuirks {
      * @return A device [Quirk] instance of the provided type, or `null` if it isn't found.
      */
     operator fun <T : Quirk?> get(quirkClass: Class<T>): T? {
-        val quirks = loadQuirks()
+        val quirks = loadQuirks(QuirkSettingsHolder.DEFAULT)
         for (quirk in quirks) {
             if (quirk.javaClass == quirkClass) {
                 @Suppress("UNCHECKED_CAST") return quirk as T
@@ -54,7 +55,7 @@ object DeviceQuirks {
      *   found.
      */
     fun <T : Quirk?> getAll(quirkClass: Class<T>): List<T> {
-        val quirks = loadQuirks()
+        val quirks = loadQuirks(QuirkSettingsHolder.DEFAULT)
         val list: MutableList<T> = ArrayList()
         for (quirk in quirks) {
             if (quirkClass.isAssignableFrom(quirk.javaClass)) {

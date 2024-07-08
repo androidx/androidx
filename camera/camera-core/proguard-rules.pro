@@ -13,5 +13,6 @@
 # limitations under the License.
 
 # Keeps the quirk classes to prevent them from being merged incorrectly. For more information,
-# please see b/278818703.
--keep,allowobfuscation,allowshrinking class ** implements androidx.camera.core.impl.Quirk
+# please see b/278818703. Preserve Quirk subclasses and their names for correct name mapping in
+# QuirkSettings.
+-keep,allowshrinking class ** extends androidx.camera.core.impl.Quirk

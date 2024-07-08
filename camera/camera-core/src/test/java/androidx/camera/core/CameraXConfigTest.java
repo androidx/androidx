@@ -25,6 +25,7 @@ import android.util.Log;
 
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraFactory;
+import androidx.camera.core.impl.QuirkSettings;
 import androidx.camera.testing.fakes.FakeAppConfig;
 
 import org.junit.Before;
@@ -124,5 +125,14 @@ public class CameraXConfigTest {
 
         assertThat(cameraXConfig.getCameraProviderInitRetryPolicy())
                 .isEqualTo(RetryPolicy.RETRY_UNAVAILABLE_CAMERA);
+    }
+
+    @Test
+    public void canSetGetQuirkSettings() {
+        QuirkSettings quirkSettings = QuirkSettings.withAllQuirksDisabled();
+        CameraXConfig cameraXConfig = new CameraXConfig.Builder()
+                .setQuirkSettings(quirkSettings)
+                .build();
+        assertThat(cameraXConfig.getQuirkSettings()).isSameInstanceAs(quirkSettings);
     }
 }

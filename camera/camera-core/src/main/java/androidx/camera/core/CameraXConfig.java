@@ -32,6 +32,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.impl.QuirkSettings;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
 
@@ -121,6 +122,11 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
                     RetryPolicy.class);
 
     static final long DEFAULT_OPTION_CAMERA_OPEN_RETRY_MAX_TIMEOUT_IN_MILLIS_WHILE_RESUMING = -1L;
+
+    static final Option<QuirkSettings> OPTION_QUIRK_SETTINGS =
+            Option.create(
+                    "camerax.core.appConfig.quirksSettings",
+                    QuirkSettings.class);
 
     // *********************************************************************************************
 
@@ -231,6 +237,21 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
         return Objects.requireNonNull(
                 mConfig.retrieveOption(OPTION_CAMERA_PROVIDER_INIT_RETRY_POLICY,
                         RetryPolicy.DEFAULT));
+    }
+
+    /**
+     * Returns the quirk settings.
+     *
+     * <p>If this value is not set, a default quirk settings will be returned.
+     *
+     * @return the quirk settings.
+     *
+     * @see Builder#setQuirkSettings(QuirkSettings)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public QuirkSettings getQuirkSettings() {
+        return mConfig.retrieveOption(OPTION_QUIRK_SETTINGS, null);
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -452,6 +473,19 @@ public final class CameraXConfig implements TargetConfig<CameraX> {
             getMutableConfig().insertOption(
                     OPTION_CAMERA_PROVIDER_INIT_RETRY_POLICY,
                     retryPolicy);
+            return this;
+        }
+
+        /**
+         * Sets the quirk settings.
+         *
+         * @param quirkSettings the quirk settings.
+         * @return this builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setQuirkSettings(@NonNull QuirkSettings quirkSettings) {
+            getMutableConfig().insertOption(OPTION_QUIRK_SETTINGS, quirkSettings);
             return this;
         }
 
