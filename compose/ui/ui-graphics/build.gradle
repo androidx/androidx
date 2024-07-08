@@ -70,7 +70,7 @@ androidXMultiplatform {
                 compileOnly(project(":compose:ui:ui-android-stubs"))
                 implementation("androidx.graphics:graphics-path:1.0.1")
                 implementation libs.androidx.core
-                api("androidx.annotation:annotation-experimental:1.4.0")
+                api("androidx.annotation:annotation-experimental:1.4.1")
             }
         }
 

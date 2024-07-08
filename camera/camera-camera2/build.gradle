@@ -47,7 +47,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation("androidx.annotation:annotation-experimental:1.4.0")
+    testImplementation("androidx.annotation:annotation-experimental:1.4.1")
     testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation(project(":camera:camera-video"))
@@ -72,7 +72,7 @@ dependencies {
     }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
+    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
     androidTestImplementation("androidx.exifinterface:exifinterface:1.0.0")

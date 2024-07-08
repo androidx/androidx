@@ -74,7 +74,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation-experimental:1.4.0")
+                api("androidx.annotation:annotation-experimental:1.4.1")
                 // This has stub APIs for access to legacy Android APIs, so we don't want
                 // any dependency on this module.
                 compileOnly(project(":compose:ui:ui-android-stubs"))

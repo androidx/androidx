@@ -32,7 +32,7 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
 
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.collection:collection:1.2.0")
     implementation(project(":wear:protolayout:protolayout-proto"))
 

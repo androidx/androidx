@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
