@@ -1645,14 +1645,20 @@ package androidx.compose.material3 {
   }
 
   public final class ShapeDefaults {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.foundation.shape.CornerBasedShape getExtraExtraLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.foundation.shape.CornerBasedShape getExtraLargeIncreased();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
     method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.foundation.shape.CornerBasedShape getLargeIncreased();
     method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
     method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.shape.CornerBasedShape ExtraExtraLarge;
     property public final androidx.compose.foundation.shape.CornerBasedShape ExtraLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.shape.CornerBasedShape ExtraLargeIncreased;
     property public final androidx.compose.foundation.shape.CornerBasedShape ExtraSmall;
     property public final androidx.compose.foundation.shape.CornerBasedShape Large;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.shape.CornerBasedShape LargeIncreased;
     property public final androidx.compose.foundation.shape.CornerBasedShape Medium;
     property public final androidx.compose.foundation.shape.CornerBasedShape Small;
     field public static final androidx.compose.material3.ShapeDefaults INSTANCE;
@@ -1660,15 +1666,23 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class Shapes {
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
+    ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge, optional androidx.compose.foundation.shape.CornerBasedShape largeIncreased, optional androidx.compose.foundation.shape.CornerBasedShape extraLargeIncreased, optional androidx.compose.foundation.shape.CornerBasedShape extraExtraLarge);
     method public androidx.compose.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge, optional androidx.compose.foundation.shape.CornerBasedShape largeIncreased, optional androidx.compose.foundation.shape.CornerBasedShape extraLargeIncreased, optional androidx.compose.foundation.shape.CornerBasedShape extraExtraLarge);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.foundation.shape.CornerBasedShape getExtraExtraLarge();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.foundation.shape.CornerBasedShape getExtraLargeIncreased();
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraSmall();
     method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.foundation.shape.CornerBasedShape getLargeIncreased();
     method public androidx.compose.foundation.shape.CornerBasedShape getMedium();
     method public androidx.compose.foundation.shape.CornerBasedShape getSmall();
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.shape.CornerBasedShape extraExtraLarge;
     property public final androidx.compose.foundation.shape.CornerBasedShape extraLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.shape.CornerBasedShape extraLargeIncreased;
     property public final androidx.compose.foundation.shape.CornerBasedShape extraSmall;
     property public final androidx.compose.foundation.shape.CornerBasedShape large;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.shape.CornerBasedShape largeIncreased;
     property public final androidx.compose.foundation.shape.CornerBasedShape medium;
     property public final androidx.compose.foundation.shape.CornerBasedShape small;
   }

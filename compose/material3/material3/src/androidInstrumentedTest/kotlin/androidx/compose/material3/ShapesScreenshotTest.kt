@@ -44,6 +44,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 class ShapesScreenshotTest {
 
     @get:Rule val rule = createComposeRule()
@@ -69,7 +70,17 @@ class ShapesScreenshotTest {
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {}, shape = shapes.large) { Text("Large") }
                     Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {}, shape = shapes.largeIncreased) { Text("Large Increased") }
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {}, shape = shapes.extraLarge) { Text("Extra Large") }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {}, shape = shapes.extraLargeIncreased) {
+                        Text("Extra Large Increased")
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = {}, shape = shapes.extraExtraLarge) {
+                        Text("Extra Extra Large")
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = {}, shape = CircleShape) { Text("Full") }
                 }
