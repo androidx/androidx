@@ -59,6 +59,7 @@ abstract class BaseQueryTest {
         val dao = db.dao()
         assertThat(dao.insertItem(1)).isEqualTo(1)
         assertThat(dao.getSingleItem().pk).isEqualTo(1)
+        assertThat(dao.getSingleItemSkipVerification().pk).isEqualTo(1)
         assertThat(dao.deleteItem(1)).isEqualTo(1)
         assertThat(dao.deleteItem(1)).isEqualTo(0) // Nothing deleted
         assertThrows<IllegalStateException> { dao.getSingleItem() }
@@ -235,6 +236,9 @@ abstract class BaseQueryTest {
 
         val map = dao.getMapWithDupeColumns()
         assertThat(map[sampleEntity1]).isEqualTo(sampleEntity2)
+
+        val map2 = dao.getMapWithDupeColumnsSkipVerification()
+        assertThat(map2[sampleEntity1]).isEqualTo(sampleEntity2)
     }
 
     @Test

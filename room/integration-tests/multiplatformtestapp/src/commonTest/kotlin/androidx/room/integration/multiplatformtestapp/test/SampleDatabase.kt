@@ -32,6 +32,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.RoomDatabase
+import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
 import androidx.room.Upsert
@@ -82,6 +83,10 @@ interface SampleDao {
 
     @Query("SELECT * FROM SampleEntity") suspend fun getSingleItem(): SampleEntity
 
+    @SkipQueryVerification
+    @Query("SELECT * FROM SampleEntity")
+    suspend fun getSingleItemSkipVerification(): SampleEntity
+
     @Query("SELECT * FROM SampleEntity") suspend fun getItemList(): List<SampleEntity>
 
     @Query("SELECT * FROM SampleEntity") suspend fun getItemArray(): Array<SampleEntity>
@@ -109,6 +114,12 @@ interface SampleDao {
         "SELECT * FROM SampleEntity JOIN SampleEntityCopy ON SampleEntity.pk = SampleEntityCopy.pk"
     )
     suspend fun getMapWithDupeColumns(): Map<SampleEntity, SampleEntityCopy>
+
+    @SkipQueryVerification
+    @Query(
+        "SELECT * FROM SampleEntity JOIN SampleEntityCopy ON SampleEntity.pk = SampleEntityCopy.pk"
+    )
+    suspend fun getMapWithDupeColumnsSkipVerification(): Map<SampleEntity, SampleEntityCopy>
 
     @Query("SELECT * FROM SampleEntity JOIN SampleEntity2 ON SampleEntity.pk = SampleEntity2.pk2")
     suspend fun getMapReturnTypeWithList(): Map<SampleEntity, List<SampleEntity2>>

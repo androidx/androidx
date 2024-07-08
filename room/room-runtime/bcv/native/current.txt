@@ -325,6 +325,7 @@ final fun androidx.room.util/joinIntoString(kotlin.collections/List<kotlin/Int>?
 final fun androidx.room.util/newStringBuilder(): kotlin.text/StringBuilder // androidx.room.util/newStringBuilder|newStringBuilder(){}[0]
 final fun androidx.room.util/splitToIntList(kotlin/String?): kotlin.collections/List<kotlin/Int>? // androidx.room.util/splitToIntList|splitToIntList(kotlin.String?){}[0]
 final fun androidx.room.util/stringError(): kotlin/String // androidx.room.util/stringError|stringError(){}[0]
+final fun androidx.room.util/wrapMappedColumns(androidx.sqlite/SQLiteStatement, kotlin/Array<kotlin/String>, kotlin/IntArray): androidx.sqlite/SQLiteStatement // androidx.room.util/wrapMappedColumns|wrapMappedColumns(androidx.sqlite.SQLiteStatement;kotlin.Array<kotlin.String>;kotlin.IntArray){}[0]
 final object androidx.room/Room { // androidx.room/Room|null[0]
     final const val MASTER_TABLE_NAME // androidx.room/Room.MASTER_TABLE_NAME|{}MASTER_TABLE_NAME[0]
         final fun <get-MASTER_TABLE_NAME>(): kotlin/String // androidx.room/Room.MASTER_TABLE_NAME.<get-MASTER_TABLE_NAME>|<get-MASTER_TABLE_NAME>(){}[0]

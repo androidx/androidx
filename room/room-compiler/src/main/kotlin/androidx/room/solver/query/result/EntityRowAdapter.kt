@@ -18,11 +18,14 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.ArrayLiteral
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.RoomMemberNames
+import androidx.room.ext.RoomTypeNames.CURSOR_UTIL
+import androidx.room.ext.RoomTypeNames.STATEMENT_UTIL
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ColumnIndexVar
 import androidx.room.vo.Entity
@@ -30,6 +33,8 @@ import androidx.room.vo.columnNames
 import androidx.room.writer.EntityCursorConverterWriter
 
 class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) {
+
+    override fun isMigratedToDriver() = true
 
     override val mapping = EntityMapping(entity)
 
@@ -45,13 +50,19 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
             override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
                 indexVars =
                     entity.columnNames.map { columnName ->
+                        val packageMember =
+                            if (scope.useDriverApi) {
+                                STATEMENT_UTIL.packageMember("getColumnIndex")
+                            } else {
+                                CURSOR_UTIL.packageMember("getColumnIndex")
+                            }
                         ColumnIndexVar(
                             column = columnName,
                             indexVar =
                                 XCodeBlock.of(
                                         scope.language,
                                         "%M(%L, %S)",
-                                        RoomMemberNames.CURSOR_UTIL_GET_COLUMN_INDEX,
+                                        packageMember,
                                         cursorVarName,
                                         columnName
                                     )
@@ -75,10 +86,10 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
         if (indices.isNotEmpty() && indices != indexAdapter.getIndexVars()) {
             // Due to entity converter code being shared and using Cursor.getColumnIndex() we can't
             // generate code that uses the mapping directly. Instead we create a wrapped Cursor that
-            // is
-            // solely used in the shared converter method and whose getColumnIndex() is overridden
-            // to return the resolved column index.
-            cursorDelegateVarName = scope.getTmpVar("_wrappedCursor")
+            // is solely used in the shared converter method and whose getColumnIndex() is
+            // overridden to return the resolved column index.
+            cursorDelegateVarName =
+                scope.getTmpVar(if (scope.useDriverApi) "_wrappedStmt" else "_wrappedCursor")
             val entityColumnNamesParam =
                 ArrayLiteral(
                     scope.language,
@@ -91,21 +102,36 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
                     XTypeName.PRIMITIVE_INT,
                     *indices.map { it.indexVar }.toTypedArray()
                 )
+            val wrapperTypeName =
+                if (scope.useDriverApi) {
+                    SQLiteDriverTypeNames.STATEMENT
+                } else {
+                    AndroidTypeNames.CURSOR
+                }
+            val packageMember =
+                if (scope.useDriverApi) {
+                    STATEMENT_UTIL.packageMember("wrapMappedColumns")
+                } else {
+                    CURSOR_UTIL.packageMember("wrapMappedColumns")
+                }
             scope.builder.addLocalVariable(
                 checkNotNull(cursorDelegateVarName),
-                AndroidTypeNames.CURSOR,
+                wrapperTypeName,
                 assignExpr =
                     XCodeBlock.of(
                         scope.language,
                         "%M(%L, %L, %L)",
-                        RoomMemberNames.CURSOR_UTIL_WRAP_MAPPED_COLUMNS,
+                        packageMember,
                         cursorVarName,
                         entityColumnNamesParam,
                         entityColumnIndicesParam
                     )
             )
         }
-        functionSpec = scope.writer.getOrCreateFunction(EntityCursorConverterWriter(entity))
+        functionSpec =
+            scope.writer.getOrCreateFunction(
+                EntityCursorConverterWriter(entity = entity, userDriverApi = scope.useDriverApi)
+            )
     }
 
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
