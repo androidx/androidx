@@ -17,8 +17,27 @@
 package androidx.pdf
 
 import android.net.Uri
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.ProgressBar
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
+import androidx.pdf.fetcher.Fetcher
+import androidx.pdf.find.FindInFileView
+import androidx.pdf.util.ObservableValue.ValueObserver
+import androidx.pdf.util.Observables
+import androidx.pdf.util.Observables.ExposedValue
+import androidx.pdf.viewer.PageIndicator
+import androidx.pdf.viewer.PaginatedView
+import androidx.pdf.widget.FastScrollView
+import androidx.pdf.widget.ZoomView
+import androidx.pdf.widget.ZoomView.ContentResizedMode
+import androidx.pdf.widget.ZoomView.InitialZoomMode
+import androidx.pdf.widget.ZoomView.RotateMode
+import androidx.pdf.widget.ZoomView.ZoomScroll
 
 /**
  * A Fragment that renders a PDF document.
@@ -42,6 +61,23 @@ import androidx.fragment.app.Fragment
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class PdfViewerFragment : Fragment() {
+
+    private var pendingScrollPositionObserver: ValueObserver<ZoomScroll>? = null
+    private var viewState: ExposedValue<ViewState> =
+        Observables.newExposedValueWithInitialValue(ViewState.NO_VIEW)
+
+    private lateinit var fetcher: Fetcher
+    private lateinit var zoomView: ZoomView
+    private lateinit var fastScrollView: FastScrollView
+    private lateinit var pdfViewer: FrameLayout
+    private lateinit var findInFileView: FindInFileView
+    private lateinit var paginatedView: PaginatedView
+    private lateinit var loadingSpinner: ProgressBar
+    private lateinit var pageIndicator: PageIndicator
+    private lateinit var fastscrollerPositionObserver: ValueObserver<Int>
+    private lateinit var zoomScrollObserver: ValueObserver<ZoomScroll>
+    private lateinit var scrollPositionObserverKey: Any
+    private lateinit var fastscrollerPositionObserverKey: Any
 
     /**
      * The URI of the PDF document to display defaulting to `null`.
@@ -69,4 +105,93 @@ open class PdfViewerFragment : Fragment() {
      * @param throwable [Throwable] that occurred during document loading.
      */
     @Suppress("UNUSED_PARAMETER") fun onLoadDocumentError(throwable: Throwable) {}
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        fetcher = Fetcher.build(requireContext(), 1)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        super.onCreateView(inflater, container, savedInstanceState)
+
+        pdfViewer = inflater.inflate(R.layout.pdf_viewer_container, container, false) as FrameLayout
+        findInFileView = pdfViewer.findViewById(R.id.search)
+        fastScrollView = pdfViewer.findViewById(R.id.fast_scroll_view)
+        paginatedView = fastScrollView.findViewById(R.id.pdf_view)
+
+        zoomView = fastScrollView.findViewById(R.id.zoom_view)
+        zoomView.setStraightenVerticalScroll(true)
+
+        zoomView
+            .setFitMode(ZoomView.FitMode.FIT_TO_WIDTH)
+            .setInitialZoomMode(InitialZoomMode.ZOOM_TO_FIT)
+            .setRotateMode(RotateMode.KEEP_SAME_VIEWPORT_WIDTH)
+            .setContentResizedModeX(ContentResizedMode.KEEP_SAME_RELATIVE)
+
+        // Setting an id so that the View can restore itself. The Id has to be unique and
+        // predictable. An alternative that doesn't require id is to rely on this Fragment's
+        // onSaveInstanceState().
+        zoomView.id = id * 100
+
+        pageIndicator = PageIndicator(requireActivity(), fastScrollView)
+        applyReservedSpace()
+        zoomView.adjustZoomViewMargins()
+        fastscrollerPositionObserver.onChange(null, fastScrollView.scrollerPositionY.get())
+        fastscrollerPositionObserverKey =
+            fastScrollView.scrollerPositionY.addObserver(fastscrollerPositionObserver)
+
+        // The view system requires the document loaded in order to be properly initialized, so
+        // we delay anything view-related until ViewState.VIEW_READY.
+        zoomView.visibility = View.GONE
+
+        // TODO: Set fast scroll content model
+        // mFastScrollView.setScrollable(this)
+        fastScrollView.id = id * 10
+
+        loadingSpinner = fastScrollView.findViewById(R.id.progress_indicator)
+
+        zoomView.zoomScroll().addObserver(zoomScrollObserver)
+        if (pendingScrollPositionObserver != null) {
+            scrollPositionObserverKey =
+                zoomView.zoomScroll().addObserver(pendingScrollPositionObserver)
+            pendingScrollPositionObserver = null
+        }
+
+        // All views are inflated, update the view state.
+        if (viewState.get() == ViewState.NO_VIEW || viewState.get() == ViewState.ERROR) {
+            viewState.set(ViewState.VIEW_CREATED)
+        }
+
+        return pdfViewer
+    }
+
+    private fun applyReservedSpace() {
+        if (requireArguments().containsKey(KEY_SPACE_TOP)) {
+            zoomView.saveZoomViewBasePadding()
+            val left = requireArguments().getInt(KEY_SPACE_LEFT, 0)
+            val top = requireArguments().getInt(KEY_SPACE_TOP, 0)
+            val right = requireArguments().getInt(KEY_SPACE_RIGHT, 0)
+            val bottom = requireArguments().getInt(KEY_SPACE_BOTTOM, 0)
+
+            pageIndicator.view.translationX = -right.toFloat()
+
+            zoomView.setPaddingWithBase(left, top, right, bottom)
+
+            // Adjust the scroll bar to also include the same padding.
+            fastScrollView.setScrollbarMarginTop(zoomView.paddingTop)
+            fastScrollView.setScrollbarMarginRight(right)
+            fastScrollView.setScrollbarMarginBottom(zoomView.paddingBottom)
+        }
+    }
+
+    companion object {
+        private const val KEY_SPACE_LEFT: String = "leftSpace"
+        private const val KEY_SPACE_TOP: String = "topSpace"
+        private const val KEY_SPACE_BOTTOM: String = "bottomSpace"
+        private const val KEY_SPACE_RIGHT: String = "rightSpace"
+    }
 }
