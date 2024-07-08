@@ -104,6 +104,54 @@ class FragmentRecreateTest {
             assertThat(recreatedEditText.text.toString()).isEqualTo("Updated")
         }
     }
+
+    @Test
+    fun testReplaceParentFragment() {
+        with(ActivityScenario.launch(ChildInflatedFragmentActivity::class.java)) {
+            val fragment = withActivity {
+                FragmentManager.findFragment<SimpleEditTextFragment>(
+                    findViewById(R.id.fragment_layout)
+                )
+            }
+
+            assertWithMessage("Fragment should be added as a child fragment")
+                .that(fragment)
+                .isNotNull()
+            assertThat(fragment.requireView().parent).isNotNull()
+            val editText: EditText = fragment.requireView().findViewById(R.id.edit_text)
+            assertThat(editText.text.toString()).isEqualTo("Default")
+
+            // Update the state to make sure it gets saved and restored properly
+            withActivity { editText.setText("Updated") }
+
+            val replaceFragment = MyFragment()
+            withActivity {
+                supportFragmentManager.commit {
+                    setReorderingAllowed(true)
+                    replace(PARENT_FRAGMENT_CONTAINER_ID, replaceFragment)
+                    addToBackStack(null)
+                }
+                supportFragmentManager.executePendingTransactions()
+            }
+
+            // Now pop the back stack and go back to the parent fragment
+            withActivity { supportFragmentManager.popBackStackImmediate() }
+
+            val recreatedFragment = withActivity {
+                FragmentManager.findFragment<SimpleEditTextFragment>(
+                    findViewById(R.id.fragment_layout)
+                )
+            }
+            assertWithMessage("Fragment should be re-added").that(recreatedFragment).isNotNull()
+            assertWithMessage("Fragment should be added as a child fragment")
+                .that(recreatedFragment.parentFragment)
+                .isNotNull()
+            assertThat(recreatedFragment.requireView().parent).isNotNull()
+            val recreatedEditText: EditText =
+                recreatedFragment.requireView().findViewById(R.id.edit_text)
+            assertThat(recreatedEditText.text.toString()).isEqualTo("Updated")
+        }
+    }
 }
 
 class ChildInflatedFragmentActivity : FragmentActivity() {

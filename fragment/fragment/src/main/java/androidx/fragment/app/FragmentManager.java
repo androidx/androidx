@@ -1343,6 +1343,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             ) {
                 fragment.mContainer = container;
                 fragmentStateManager.addViewToContainer();
+                fragmentStateManager.moveToExpectedState();
             }
         }
     }
