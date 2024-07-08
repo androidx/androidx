@@ -90,6 +90,7 @@ package androidx.core.app {
     method public static androidx.core.app.ActivityOptionsCompat makeThumbnailScaleUpAnimation(android.view.View, android.graphics.Bitmap, int, int);
     method public void requestUsageTimeReport(android.app.PendingIntent);
     method public androidx.core.app.ActivityOptionsCompat setLaunchBounds(android.graphics.Rect?);
+    method public androidx.core.app.ActivityOptionsCompat setPendingIntentBackgroundActivityStartMode(int);
     method public androidx.core.app.ActivityOptionsCompat setShareIdentityEnabled(boolean);
     method public android.os.Bundle? toBundle();
     method public void update(androidx.core.app.ActivityOptionsCompat);
