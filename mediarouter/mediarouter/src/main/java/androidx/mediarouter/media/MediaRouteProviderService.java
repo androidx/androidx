@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.media;
 
+import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_ID;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_IDS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
@@ -54,7 +55,6 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
-import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 
 import android.app.Service;
 import android.content.Context;
@@ -79,6 +79,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Consumer;
 import androidx.core.util.ObjectsCompat;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
@@ -89,8 +90,10 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Base class for media route provider services.
@@ -174,6 +177,9 @@ public abstract class MediaRouteProviderService extends Service {
         boolean onSetDiscoveryRequest(Messenger messenger, int requestId,
                 MediaRouteDiscoveryRequest request);
         MediaRouteProvider.Callback getProviderCallback();
+        void addClientInfoListener(Executor listenerExecutor, Consumer<List<ClientInfo>> listener);
+        void removeClientInfoListener(Consumer<List<ClientInfo>> listener);
+        void removeAllClientInfoListeners();
     }
 
     /**
@@ -190,6 +196,31 @@ public abstract class MediaRouteProviderService extends Service {
             mImpl = new MediaRouteProviderServiceImplBase(this);
         }
         mProviderCallback = mImpl.getProviderCallback();
+    }
+
+    /**
+     * Adds a {@link Consumer} that will be used to provide updates when the list of
+     * bound clients changes.
+     *
+     * <p>The {@link Consumer} will be called with the current list of bound clients.</p>
+     *
+     * @param listenerExecutor an {@link Executor} that will be used to dispatch the callback
+     * @param listener a @code{@link Consumer} that takes a list of {@link ClientInfo}
+     */
+    public void addClientInfoListener(
+            @NonNull /* @CallbackExecutor */ Executor listenerExecutor,
+            @NonNull Consumer<List<ClientInfo>> listener) {
+        mImpl.addClientInfoListener(listenerExecutor, listener);
+    }
+
+    /**
+     * Removes the given {@link Consumer} if it was previously set.
+     *
+     * @param listener the {@link Consumer} to remove.
+     * @see #addClientInfoListener(Executor, Consumer)
+     */
+    public void removeClientInfoListener(@NonNull Consumer<List<ClientInfo>> listener) {
+        mImpl.removeClientInfoListener(listener);
     }
 
     /**
@@ -250,6 +281,7 @@ public abstract class MediaRouteProviderService extends Service {
         if (mProvider != null) {
             mProvider.setCallback(null);
         }
+        mImpl.removeAllClientInfoListeners();
         super.onDestroy();
     }
 
@@ -307,6 +339,42 @@ public abstract class MediaRouteProviderService extends Service {
 
     static String getClientId(Messenger messenger) {
         return "Client connection " + messenger.getBinder().toString();
+    }
+
+    /**
+     * Contains information about a client that is bound to this service.
+     */
+    public static final class ClientInfo {
+        private final String packageName;
+
+        private ClientInfo(@NonNull String packageName) {
+            this.packageName = packageName;
+        }
+
+        /**
+         * Returns the package name of the client.
+         *
+         * @return The package name of the client
+         */
+        @NonNull
+        public String getPackageName() {
+            return packageName;
+        }
+
+        /** Builder for {@link ClientInfo}. */
+        public static final class Builder {
+            private final String packageName;
+
+            public Builder(@NonNull String packageName) {
+                this.packageName = packageName;
+            }
+
+            /** Builds and returns the {@link ClientInfo} object. */
+            @NonNull
+            public ClientInfo build() {
+                return new ClientInfo(packageName);
+            }
+        }
     }
 
     private final class PrivateHandler extends Handler {
@@ -490,10 +558,14 @@ public abstract class MediaRouteProviderService extends Service {
 
     static class MediaRouteProviderServiceImplBase implements MediaRouteProviderServiceImpl {
         final MediaRouteProviderService mService;
-        final ArrayList<ClientRecord> mClients = new ArrayList<ClientRecord>();
+        final ArrayList<ClientRecord> mClients = new ArrayList<>();
         MediaRouteDiscoveryRequest mCompositeDiscoveryRequest;
         MediaRouteDiscoveryRequest mBaseDiscoveryRequest;
         long mBaseDiscoveryRequestTimestamp;
+        @Nullable
+        private final Map<Consumer<List<ClientInfo>>, Executor> mClientInfoListeners =
+                new HashMap<>();
+        private final Object mClientInfoListenersLock = new Object();
         private final MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper =
                 new MediaRouterActiveScanThrottlingHelper(new Runnable() {
                     @Override
@@ -537,7 +609,7 @@ public abstract class MediaRouteProviderService extends Service {
                 if (index < 0) {
                     ClientRecord client = createClientRecord(messenger, version, packageName);
                     if (client.register()) {
-                        mClients.add(client);
+                        addClient(client);
                         if (DEBUG) {
                             Log.d(TAG, client + ": Registered, version=" + version);
                         }
@@ -560,7 +632,7 @@ public abstract class MediaRouteProviderService extends Service {
         public boolean onUnregisterClient(Messenger messenger, int requestId) {
             int index = findClient(messenger);
             if (index >= 0) {
-                ClientRecord client = mClients.remove(index);
+                ClientRecord client = removeClient(index);
                 if (DEBUG) {
                     Log.d(TAG, client + ": Unregistered");
                 }
@@ -575,7 +647,7 @@ public abstract class MediaRouteProviderService extends Service {
         public void onBinderDied(Messenger messenger) {
             int index = findClient(messenger);
             if (index >= 0) {
-                ClientRecord client = mClients.remove(index);
+                ClientRecord client = removeClient(index);
                 if (DEBUG) {
                     Log.d(TAG, client + ": Binder died");
                 }
@@ -1100,10 +1172,70 @@ public abstract class MediaRouteProviderService extends Service {
                 sendMessage(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
                         0, controllerId, bundle, null);
             }
+
+            private ClientInfo getClientInfo() {
+                return new ClientInfo.Builder(mPackageName).build();
+            }
         }
 
         ClientRecord createClientRecord(Messenger messenger, int version, String packageName) {
             return new ClientRecord(messenger, version, packageName);
+        }
+
+        private void addClient(ClientRecord client) {
+            mClients.add(client);
+            notifyClientRecordsChanged();
+        }
+
+        private ClientRecord removeClient(int index) {
+            ClientRecord removedClient = mClients.remove(index);
+            notifyClientRecordsChanged();
+            return removedClient;
+        }
+
+        @Override
+        public void addClientInfoListener (
+                @NonNull /* @CallbackExecutor */ Executor listenerExecutor,
+                @NonNull Consumer<List<ClientInfo>> listener) {
+            synchronized (mClientInfoListenersLock) {
+                mClientInfoListeners.put(listener, listenerExecutor);
+                // Immediately provide the current list of bound clients.
+                notifyClientRecordsChanged();
+            }
+        }
+
+        @Override
+        public void removeClientInfoListener(Consumer<List<ClientInfo>> listener) {
+            synchronized (mClientInfoListenersLock) {
+                mClientInfoListeners.remove(listener);
+            }
+        }
+
+        @Override
+        public void removeAllClientInfoListeners() {
+            synchronized (mClientInfoListenersLock) {
+                mClientInfoListeners.clear();
+            }
+        }
+
+        private void notifyClientRecordsChanged() {
+            if (!mClientInfoListeners.isEmpty()) {
+                ArrayList<ClientInfo> clientInfos = new ArrayList<>();
+                for (ClientRecord client : new ArrayList<>(mClients)) {
+                    clientInfos.add(client.getClientInfo());
+                }
+
+                synchronized (mClientInfoListenersLock) {
+                    for (Map.Entry<Consumer<List<ClientInfo>>, Executor> entry :
+                            mClientInfoListeners.entrySet()) {
+                        Consumer<List<ClientInfo>> listener = entry.getKey();
+                        Executor executor = entry.getValue();
+                        executor.execute(() -> {
+                            listener.accept(clientInfos);
+                        });
+                    }
+                }
+            }
         }
 
         class ProviderCallbackBase extends MediaRouteProvider.Callback {
