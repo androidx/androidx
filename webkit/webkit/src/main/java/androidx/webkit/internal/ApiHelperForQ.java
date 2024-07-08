@@ -21,7 +21,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewRenderProcess;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -43,7 +42,6 @@ public class ApiHelperForQ {
      * @see WebSettings#setForceDark(int)
      * @deprecated in 31
      */
-    @DoNotInline
     @Deprecated
     public static void setForceDark(@NonNull WebSettings webSettings, int forceDark) {
         webSettings.setForceDark(forceDark);
@@ -53,7 +51,6 @@ public class ApiHelperForQ {
      * @see WebSettings#getForceDark()
      * @deprecated in 31
      */
-    @DoNotInline
     @Deprecated
     public static int getForceDark(@NonNull WebSettings webSettings) {
         return webSettings.getForceDark();
@@ -62,7 +59,6 @@ public class ApiHelperForQ {
     /**
      * @see WebView#getWebViewRenderProcess()
      */
-    @DoNotInline
     @Nullable
     public static WebViewRenderProcess getWebViewRenderProcess(@NonNull WebView webView) {
         return webView.getWebViewRenderProcess();
@@ -71,7 +67,6 @@ public class ApiHelperForQ {
     /**
      * @see WebViewRenderProcess#terminate()
      */
-    @DoNotInline
     public static boolean terminate(@NonNull WebViewRenderProcess webViewRenderProcess) {
         return webViewRenderProcess.terminate();
     }
@@ -80,7 +75,6 @@ public class ApiHelperForQ {
      * @see WebView#setWebViewRenderProcessClient(Executor,
      *          android.webkit.WebViewRenderProcessClient)
      */
-    @DoNotInline
     public static void setWebViewRenderProcessClient(@NonNull WebView webView,
             @NonNull Executor executor,
             @Nullable WebViewRenderProcessClient client) {
@@ -92,7 +86,6 @@ public class ApiHelperForQ {
     /**
      * @see WebView#setWebViewRenderProcessClient(android.webkit.WebViewRenderProcessClient)
      */
-    @DoNotInline
     public static void setWebViewRenderProcessClient(@NonNull WebView webView,
             @Nullable WebViewRenderProcessClient client) {
         WebViewRenderProcessClientFrameworkAdapter clientAdapter =
@@ -103,7 +96,6 @@ public class ApiHelperForQ {
     /**
      * @see WebView#getWebViewRenderProcessClient()
      */
-    @DoNotInline
     @Nullable
     public static android.webkit.WebViewRenderProcessClient getWebViewRenderProcessClient(
             @NonNull WebView webView) {

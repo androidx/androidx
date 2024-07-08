@@ -22,7 +22,6 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.util.Property;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 class PropertyValuesHolderUtils {
@@ -52,7 +51,6 @@ class PropertyValuesHolderUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static <V> PropertyValuesHolder ofObject(Property<?, V> property, Path path) {
             return PropertyValuesHolder.ofObject(property, null, path);
         }

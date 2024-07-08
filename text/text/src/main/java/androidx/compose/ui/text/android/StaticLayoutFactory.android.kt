@@ -24,7 +24,6 @@ import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
@@ -151,7 +150,7 @@ private class StaticLayoutParams(
 
 private interface StaticLayoutFactoryImpl {
 
-    @DoNotInline // API level specific, do not inline to prevent ART class verification breakages
+    // API level specific, do not inline to prevent ART class verification breakages
     fun create(params: StaticLayoutParams): StaticLayout
 
     fun isFallbackLineSpacingEnabled(layout: StaticLayout, useFallbackLineSpacing: Boolean): Boolean
@@ -160,7 +159,6 @@ private interface StaticLayoutFactoryImpl {
 @RequiresApi(23)
 private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 
-    @DoNotInline
     override fun create(params: StaticLayoutParams): StaticLayout {
         return Builder.obtain(params.text, params.start, params.end, params.paint, params.width)
             .apply {
@@ -211,7 +209,6 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 @RequiresApi(26)
 private object StaticLayoutFactory26 {
     @JvmStatic
-    @DoNotInline
     fun setJustificationMode(builder: Builder, justificationMode: Int) {
         builder.setJustificationMode(justificationMode)
     }
@@ -220,7 +217,6 @@ private object StaticLayoutFactory26 {
 @RequiresApi(28)
 private object StaticLayoutFactory28 {
     @JvmStatic
-    @DoNotInline
     fun setUseLineSpacingFromFallbacks(builder: Builder, useFallbackLineSpacing: Boolean) {
         builder.setUseLineSpacingFromFallbacks(useFallbackLineSpacing)
     }
@@ -229,13 +225,11 @@ private object StaticLayoutFactory28 {
 @RequiresApi(33)
 private object StaticLayoutFactory33 {
     @JvmStatic
-    @DoNotInline
     fun isFallbackLineSpacingEnabled(layout: StaticLayout): Boolean {
         return layout.isFallbackLineSpacingEnabled
     }
 
     @JvmStatic
-    @DoNotInline
     fun setLineBreakConfig(builder: Builder, lineBreakStyle: Int, lineBreakWordStyle: Int) {
         val lineBreakConfig =
             LineBreakConfig.Builder()
@@ -283,7 +277,6 @@ private class StaticLayoutFactoryDefault : StaticLayoutFactoryImpl {
         }
     }
 
-    @DoNotInline
     override fun create(params: StaticLayoutParams): StaticLayout {
         // On API 21 to 23, try to call the StaticLayoutConstructor which supports the
         // textDir and maxLines.

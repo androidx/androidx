@@ -25,7 +25,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -155,7 +154,6 @@ public class SystemForegroundService extends LifecycleService implements
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void startForeground(Service service, int id, Notification notification,
                 int foregroundServiceType) {
             service.startForeground(id, notification, foregroundServiceType);
@@ -168,7 +166,6 @@ public class SystemForegroundService extends LifecycleService implements
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void startForeground(Service service, int id, Notification notification,
                 int foregroundServiceType) {
             try {

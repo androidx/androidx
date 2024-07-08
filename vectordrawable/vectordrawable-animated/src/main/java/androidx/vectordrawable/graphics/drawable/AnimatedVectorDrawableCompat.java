@@ -40,7 +40,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.Xml;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -950,19 +949,16 @@ public class AnimatedVectorDrawableCompat extends VectorDrawableCommon
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean unregisterAnimationCallback(Object animatedVectorDrawable,
                 Object callback) {
             return ((AnimatedVectorDrawable) animatedVectorDrawable).unregisterAnimationCallback(
                     (Animatable2.AnimationCallback) callback);
         }
 
-        @DoNotInline
         static void clearAnimationCallbacks(Object animatedVectorDrawable) {
             ((AnimatedVectorDrawable) animatedVectorDrawable).clearAnimationCallbacks();
         }
 
-        @DoNotInline
         static void registerAnimationCallback(Object animatedVectorDrawable, Object callback) {
             ((AnimatedVectorDrawable) animatedVectorDrawable).registerAnimationCallback(
                     (Animatable2.AnimationCallback) callback);

@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.Build
 import android.view.WindowMetrics
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.core.util.Preconditions
@@ -277,7 +276,6 @@ internal constructor(
 
     @RequiresApi(30)
     internal object Api30Impl {
-        @DoNotInline
         fun getBounds(windowMetrics: WindowMetrics): Rect {
             return windowMetrics.bounds
         }
@@ -285,7 +283,6 @@ internal constructor(
 
     @RequiresApi(34)
     internal object Api34Impl {
-        @DoNotInline
         fun getDensity(windowMetrics: WindowMetrics, context: Context): Float {
             // TODO(b/265089843) remove the try catch after U is finalized.
             return try {

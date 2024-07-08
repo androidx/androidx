@@ -19,7 +19,6 @@ package androidx.work.impl.utils
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 internal data class NetworkRequestCompat(val wrapped: Any? = null) {
@@ -92,16 +91,13 @@ val NetworkRequest.capabilitiesCompat: IntArray
 
 @RequiresApi(28)
 object NetworkRequest28 {
-    @DoNotInline
     internal fun hasCapability(request: NetworkRequest, capability: Int) =
         request.hasCapability(capability)
 
-    @DoNotInline
     internal fun hasTransport(request: NetworkRequest, transport: Int) =
         request.hasTransport(transport)
 
     @JvmStatic
-    @DoNotInline
     fun createNetworkRequest(capabilities: IntArray, transports: IntArray): NetworkRequest {
         val networkRequest = NetworkRequest.Builder()
         capabilities.forEach { networkRequest.addCapability(it) }
@@ -109,7 +105,6 @@ object NetworkRequest28 {
         return networkRequest.build()
     }
 
-    @DoNotInline
     internal fun createNetworkRequestCompat(
         capabilities: IntArray,
         transports: IntArray
@@ -120,12 +115,12 @@ object NetworkRequest28 {
 
 @RequiresApi(31)
 private object NetworkRequest31 {
-    @DoNotInline fun capabilities(request: NetworkRequest) = request.capabilities
+    fun capabilities(request: NetworkRequest) = request.capabilities
 
-    @DoNotInline fun transportTypes(request: NetworkRequest) = request.transportTypes
+    fun transportTypes(request: NetworkRequest) = request.transportTypes
 }
 
 @RequiresApi(30)
 internal object NetworkRequest30 {
-    @DoNotInline fun getNetworkSpecifier(request: NetworkRequest) = request.networkSpecifier
+    fun getNetworkSpecifier(request: NetworkRequest) = request.networkSpecifier
 }

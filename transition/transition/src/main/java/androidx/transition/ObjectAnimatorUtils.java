@@ -22,7 +22,6 @@ import android.graphics.PointF;
 import android.os.Build;
 import android.util.Property;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 class ObjectAnimatorUtils {
@@ -42,7 +41,6 @@ class ObjectAnimatorUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static <T, V> ObjectAnimator ofObject(T target, Property<T, V> property, Path path) {
             return ObjectAnimator.ofObject(target, property, null, path);
         }

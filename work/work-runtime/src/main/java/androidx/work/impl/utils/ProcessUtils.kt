@@ -23,7 +23,6 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import android.os.Process
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.work.Configuration
 import androidx.work.Logger
@@ -68,7 +67,6 @@ private fun getProcessName(context: Context): String? {
 
 @RequiresApi(28)
 private object Api28Impl {
-    @get:DoNotInline
     val processName: String
         get() = Application.getProcessName()
 }

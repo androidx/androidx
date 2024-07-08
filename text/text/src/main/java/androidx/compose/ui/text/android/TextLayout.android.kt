@@ -32,7 +32,6 @@ import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
-import androidx.annotation.DoNotInline
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -1099,7 +1098,6 @@ internal fun Layout.isLineEllipsized(lineIndex: Int) = this.getEllipsisCount(lin
 
 @RequiresApi(34)
 internal object AndroidLayoutApi34 {
-    @DoNotInline
     internal fun getRangeForRect(
         layout: TextLayout,
         rectF: RectF,

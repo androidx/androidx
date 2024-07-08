@@ -38,7 +38,6 @@ import android.view.KeyEvent;
 import android.widget.Toast;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -397,24 +396,20 @@ public abstract class Player {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static NotificationChannel createNotificationChannel(String notificationChannelId,
                 String name, int importance) {
             return new NotificationChannel(notificationChannelId, name, importance);
         }
 
-        @DoNotInline
         static void createNotificationChannel(NotificationManager notificationManager,
                 NotificationChannel channel) {
             notificationManager.createNotificationChannel(channel);
         }
 
-        @DoNotInline
         static void setDescription(NotificationChannel notificationChannel, String description) {
             notificationChannel.setDescription(description);
         }
 
-        @DoNotInline
         static NotificationManager getSystemServiceReturnsNotificationManager(Context context) {
             return context.getSystemService(NotificationManager.class);
         }

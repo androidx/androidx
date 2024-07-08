@@ -23,7 +23,6 @@ import android.text.StaticLayout
 import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /** Factory Class for BoringLayout */
@@ -123,7 +122,6 @@ internal object BoringLayoutFactory {
 private object BoringLayoutFactory33 {
 
     @JvmStatic
-    @DoNotInline
     fun isBoring(text: CharSequence, paint: TextPaint, textDir: TextDirectionHeuristic): Metrics? {
         return BoringLayout.isBoring(
             text,
@@ -135,7 +133,6 @@ private object BoringLayoutFactory33 {
     }
 
     @JvmStatic
-    @DoNotInline
     fun create(
         text: CharSequence,
         paint: TextPaint,
@@ -165,7 +162,6 @@ private object BoringLayoutFactory33 {
     }
 
     @JvmStatic
-    @DoNotInline
     fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
         return layout.isFallbackLineSpacingEnabled
     }
@@ -173,7 +169,6 @@ private object BoringLayoutFactory33 {
 
 private object BoringLayoutFactoryDefault {
     @JvmStatic
-    @DoNotInline
     fun isBoring(text: CharSequence, paint: TextPaint, textDir: TextDirectionHeuristic): Metrics? {
         return if (!textDir.isRtl(text, 0, text.length)) {
             return BoringLayout.isBoring(text, paint, null /* metrics */)
@@ -183,7 +178,6 @@ private object BoringLayoutFactoryDefault {
     }
 
     @JvmStatic
-    @DoNotInline
     fun create(
         text: CharSequence,
         paint: TextPaint,

@@ -45,7 +45,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.PersistableBundle;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -245,12 +244,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Uri[] getTriggeredContentUris(JobParameters jobParameters) {
             return jobParameters.getTriggeredContentUris();
         }
 
-        @DoNotInline
         static String[] getTriggeredContentAuthorities(JobParameters jobParameters) {
             return jobParameters.getTriggeredContentAuthorities();
         }
@@ -262,7 +259,6 @@ public class SystemJobService extends JobService implements ExecutionListener {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Network getNetwork(JobParameters jobParameters) {
             return jobParameters.getNetwork();
         }
@@ -274,7 +270,6 @@ public class SystemJobService extends JobService implements ExecutionListener {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getStopReason(JobParameters jobParameters) {
             return stopReason(jobParameters.getStopReason());
         }

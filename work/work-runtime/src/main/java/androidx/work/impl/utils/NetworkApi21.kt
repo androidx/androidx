@@ -22,16 +22,12 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-@DoNotInline
 internal fun ConnectivityManager.unregisterNetworkCallbackCompat(networkCallback: NetworkCallback) =
     unregisterNetworkCallback(networkCallback)
 
-@DoNotInline
 internal fun ConnectivityManager.getNetworkCapabilitiesCompat(network: Network?) =
     getNetworkCapabilities(network)
 
-@DoNotInline
 internal fun NetworkCapabilities.hasCapabilityCompat(capability: Int) = hasCapability(capability)

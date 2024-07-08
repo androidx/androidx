@@ -17,7 +17,6 @@ package androidx.work.impl
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.work.Logger
@@ -116,7 +115,6 @@ object WorkDatabasePathHelper {
 
 @RequiresApi(21)
 internal object Api21Impl {
-    @DoNotInline
     fun getNoBackupFilesDir(context: Context): File {
         return context.noBackupFilesDir
     }

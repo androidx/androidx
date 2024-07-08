@@ -42,7 +42,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -2711,12 +2710,10 @@ public abstract class Transition implements Cloneable {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private static class Impl26 {
-        @DoNotInline
         static long getTotalDuration(Animator animator) {
             return animator.getTotalDuration();
         }
 
-        @DoNotInline
         static void setCurrentPlayTime(Animator animator, long playTimeMillis) {
             ((AnimatorSet) animator).setCurrentPlayTime(playTimeMillis);
         }

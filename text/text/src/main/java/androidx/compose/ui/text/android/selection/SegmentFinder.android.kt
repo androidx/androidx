@@ -19,7 +19,6 @@ package androidx.compose.ui.text.android.selection
 import android.graphics.Paint
 import android.os.Build
 import android.text.TextPaint
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.android.selection.SegmentFinder.Companion.DONE
 import java.text.BreakIterator
@@ -222,7 +221,6 @@ internal fun createGraphemeClusterSegmentFinder(
 
 @RequiresApi(34)
 internal object Api34SegmentFinder {
-    @DoNotInline
     internal fun SegmentFinder.toAndroidSegmentFinder(): android.text.SegmentFinder {
         return object : android.text.SegmentFinder() {
             override fun previousStartBoundary(offset: Int): Int =

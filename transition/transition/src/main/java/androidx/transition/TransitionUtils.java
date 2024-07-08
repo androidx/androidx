@@ -30,7 +30,6 @@ import android.view.ViewGroup;
 import android.view.ViewGroupOverlay;
 import android.widget.ImageView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 class TransitionUtils {
@@ -179,7 +178,6 @@ class TransitionUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Bitmap createBitmap(Picture source) {
             return Bitmap.createBitmap(source);
         }
