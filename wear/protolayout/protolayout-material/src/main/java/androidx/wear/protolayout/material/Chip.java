@@ -101,7 +101,6 @@ public class Chip implements LayoutElement {
         @NonNull private final Context mContext;
         @Nullable private LayoutElement mCustomContent;
         @Nullable private String mImageResourceId = null;
-        private boolean mIsIconOnly = false;
         @Nullable private String mPrimaryLabel = null;
         @Nullable private String mSecondaryLabel = null;
         @Nullable private StringProp mContentDescription = null;
@@ -200,7 +199,6 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setPrimaryLabelContent(@NonNull String primaryLabel) {
             this.mPrimaryLabel = primaryLabel;
-            this.mIsIconOnly = false;
             this.mCustomContent = null;
             return this;
         }
@@ -246,7 +244,6 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setSecondaryLabelContent(@NonNull String secondaryLabel) {
             this.mSecondaryLabel = secondaryLabel;
-            this.mIsIconOnly = false;
             this.mCustomContent = null;
             return this;
         }
@@ -260,20 +257,6 @@ public class Chip implements LayoutElement {
         @NonNull
         public Builder setIconContent(@NonNull String imageResourceId) {
             this.mImageResourceId = imageResourceId;
-            this.mCustomContent = null;
-            return this;
-        }
-
-        /**
-         * Sets the content of the {@link Chip} to be *only* icon. Any previously added custom
-         * content will be overridden. Provided icon will be tinted to the given content color from
-         * {@link ChipColors}. This icon should be image with chosen alpha channel and not an actual
-         * image. Should be used only for creating a {@link CompactChip}.
-         */
-        @NonNull
-        Builder setIconOnlyContent(@NonNull String imageResourceId) {
-            this.mImageResourceId = imageResourceId;
-            this.mIsIconOnly = true;
             this.mCustomContent = null;
             return this;
         }
@@ -368,6 +351,10 @@ public class Chip implements LayoutElement {
             }
         }
 
+        private boolean isIconOnly() {
+            return mPrimaryLabel == null && mSecondaryLabel == null && mCustomContent == null;
+        }
+
         @SuppressWarnings("deprecation") // TEXT_OVERFLOW_ELLIPSIZE_END as existing API
         private void setCorrectContent() {
             if (mImageResourceId != null) {
@@ -383,7 +370,7 @@ public class Chip implements LayoutElement {
                                 .build();
                 mCoreBuilder.setIconContent(icon);
 
-                if (mIsIconOnly) {
+                if (isIconOnly()) {
                     return;
                 }
             }
