@@ -23,7 +23,6 @@ import android.view.Display;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.test.uiautomator.util.Traces;
 import androidx.test.uiautomator.util.Traces.Section;
@@ -216,7 +215,6 @@ class AccessibilityNodeInfoDumper {
         private Api24Impl() {
         }
 
-        @DoNotInline
         static int getDrawingOrder(AccessibilityNodeInfo accessibilityNodeInfo) {
             return accessibilityNodeInfo.getDrawingOrder();
         }
@@ -227,7 +225,6 @@ class AccessibilityNodeInfoDumper {
         private Api26Impl() {
         }
 
-        @DoNotInline
         static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
             CharSequence chars = accessibilityNodeInfo.getHintText();
             return chars != null ? chars.toString() : null;
@@ -239,7 +236,6 @@ class AccessibilityNodeInfoDumper {
         private Api30Impl() {
         }
 
-        @DoNotInline
         static int getDisplayId(AccessibilityNodeInfo accessibilityNodeInfo) {
             AccessibilityWindowInfo accessibilityWindowInfo = accessibilityNodeInfo.getWindow();
             return accessibilityWindowInfo == null ? Display.DEFAULT_DISPLAY :

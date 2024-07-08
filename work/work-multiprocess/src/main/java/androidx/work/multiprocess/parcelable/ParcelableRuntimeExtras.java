@@ -26,7 +26,6 @@ import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -156,7 +155,6 @@ public class ParcelableRuntimeExtras implements Parcelable {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Parcelable castToParcelable(Network network) {
             return network;
         }

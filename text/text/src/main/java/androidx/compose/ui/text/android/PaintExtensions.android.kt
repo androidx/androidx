@@ -22,7 +22,6 @@ import android.os.Build
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.MetricAffectingSpan
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import kotlin.math.max
@@ -101,7 +100,6 @@ private fun Paint.fillStringBounds(text: CharSequence, start: Int, end: Int, rec
 @RequiresApi(29)
 private object Paint29 {
     @JvmStatic
-    @DoNotInline
     fun getTextBounds(paint: Paint, text: CharSequence, start: Int, end: Int, rect: Rect) {
         paint.getTextBounds(text, start, end, rect)
     }

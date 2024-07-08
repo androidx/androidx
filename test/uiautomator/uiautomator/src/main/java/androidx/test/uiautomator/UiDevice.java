@@ -46,7 +46,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
 import androidx.annotation.Discouraged;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
@@ -1519,7 +1518,6 @@ public class UiDevice implements Searchable {
         private Api24Impl() {
         }
 
-        @DoNotInline
         static UiAutomation getUiAutomationWithRetry(Instrumentation instrumentation, int flags) {
             UiAutomation uiAutomation = null;
             for (int i = 0; i < MAX_UIAUTOMATION_RETRY; i++) {
@@ -1541,7 +1539,6 @@ public class UiDevice implements Searchable {
         private Api30Impl() {
         }
 
-        @DoNotInline
         static SparseArray<List<AccessibilityWindowInfo>> getWindowsOnAllDisplays(
                 UiAutomation uiAutomation) {
             return uiAutomation.getWindowsOnAllDisplays();
@@ -1553,7 +1550,6 @@ public class UiDevice implements Searchable {
         private Api31Impl() {
         }
 
-        @DoNotInline
         static Context createWindowContext(Context context, Display display) {
             return context.createWindowContext(display,
                     WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY, null);

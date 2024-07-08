@@ -37,7 +37,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -716,7 +715,6 @@ public class WorkManagerImpl extends WorkManager {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isDeviceProtectedStorage(Context context) {
             return context.isDeviceProtectedStorage();
         }

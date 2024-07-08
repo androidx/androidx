@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -57,7 +56,6 @@ class ViewUtilsApi23 extends ViewUtilsApi22 {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setTransitionVisibility(View view, int visibility) {
             view.setTransitionVisibility(visibility);
         }

@@ -19,7 +19,6 @@ package androidx.transition;
 import android.annotation.SuppressLint;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -51,7 +50,6 @@ class ViewUtilsApi22 extends ViewUtilsApi21 {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setLeftTopRightBottom(View view, int left, int top, int right, int bottom) {
             view.setLeftTopRightBottom(left, top, right, bottom);
         }

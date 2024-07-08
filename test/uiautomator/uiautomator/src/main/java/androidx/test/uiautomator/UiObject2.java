@@ -33,7 +33,6 @@ import android.view.accessibility.AccessibilityWindowInfo;
 import android.widget.Checkable;
 import android.widget.TextView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1032,7 +1031,6 @@ public class UiObject2 implements Searchable {
         private Api24Impl() {
         }
 
-        @DoNotInline
         static int getDrawingOrder(AccessibilityNodeInfo accessibilityNodeInfo) {
             return accessibilityNodeInfo.getDrawingOrder();
         }
@@ -1043,7 +1041,6 @@ public class UiObject2 implements Searchable {
         private Api26Impl() {
         }
 
-        @DoNotInline
         static String getHintText(AccessibilityNodeInfo accessibilityNodeInfo) {
             CharSequence chars = accessibilityNodeInfo.getHintText();
             return chars != null ? chars.toString() : null;
@@ -1055,7 +1052,6 @@ public class UiObject2 implements Searchable {
         private Api30Impl() {
         }
 
-        @DoNotInline
         static int getDisplayId(AccessibilityWindowInfo accessibilityWindowInfo) {
             return accessibilityWindowInfo.getDisplayId();
         }

@@ -19,10 +19,8 @@
 package androidx.work.impl.utils
 
 import android.net.ConnectivityManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-@DoNotInline
 fun ConnectivityManager.registerDefaultNetworkCallbackCompat(
     networkCallback: ConnectivityManager.NetworkCallback
 ) = registerDefaultNetworkCallback(networkCallback)

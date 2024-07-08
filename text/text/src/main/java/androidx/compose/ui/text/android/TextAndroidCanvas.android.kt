@@ -33,7 +33,6 @@ import android.graphics.RenderNode
 import android.graphics.fonts.Font
 import android.graphics.text.MeasuredText
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -781,7 +780,6 @@ internal class TextAndroidCanvas : Canvas() {
 @RequiresApi(Build.VERSION_CODES.M)
 private object CanvasCompatM {
 
-    @DoNotInline
     fun drawTextRun(
         canvas: Canvas,
         text: CharArray,
@@ -797,7 +795,6 @@ private object CanvasCompatM {
         canvas.drawTextRun(text, index, count, contextIndex, contextCount, x, y, isRtl, paint)
     }
 
-    @DoNotInline
     fun drawTextRun(
         canvas: Canvas,
         text: CharSequence,
@@ -817,27 +814,22 @@ private object CanvasCompatM {
 @RequiresApi(Build.VERSION_CODES.O)
 private object CanvasCompatO {
 
-    @DoNotInline
     fun clipOutRect(canvas: Canvas, rect: RectF): Boolean {
         return canvas.clipOutRect(rect)
     }
 
-    @DoNotInline
     fun clipOutRect(canvas: Canvas, rect: Rect): Boolean {
         return canvas.clipOutRect(rect)
     }
 
-    @DoNotInline
     fun clipOutRect(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float): Boolean {
         return canvas.clipOutRect(left, top, right, bottom)
     }
 
-    @DoNotInline
     fun clipOutRect(canvas: Canvas, left: Int, top: Int, right: Int, bottom: Int): Boolean {
         return canvas.clipOutRect(left, top, right, bottom)
     }
 
-    @DoNotInline
     fun clipOutPath(canvas: Canvas, path: Path): Boolean {
         return canvas.clipOutPath(path)
     }
@@ -846,32 +838,26 @@ private object CanvasCompatO {
 @RequiresApi(Build.VERSION_CODES.Q)
 private object CanvasCompatQ {
 
-    @DoNotInline
     fun enableZ(canvas: Canvas) {
         canvas.enableZ()
     }
 
-    @DoNotInline
     fun disableZ(canvas: Canvas) {
         canvas.disableZ()
     }
 
-    @DoNotInline
     fun drawColor(canvas: Canvas, color: Long) {
         canvas.drawColor(color)
     }
 
-    @DoNotInline
     fun drawColor(canvas: Canvas, color: Int, mode: BlendMode) {
         canvas.drawColor(color, mode)
     }
 
-    @DoNotInline
     fun drawColor(canvas: Canvas, color: Long, mode: BlendMode) {
         canvas.drawColor(color, mode)
     }
 
-    @DoNotInline
     fun drawDoubleRoundRect(
         canvas: Canvas,
         outer: RectF,
@@ -885,7 +871,6 @@ private object CanvasCompatQ {
         canvas.drawDoubleRoundRect(outer, outerRx, outerRy, inner, innerRx, innerRy, paint)
     }
 
-    @DoNotInline
     fun drawDoubleRoundRect(
         canvas: Canvas,
         outer: RectF,
@@ -897,7 +882,6 @@ private object CanvasCompatQ {
         canvas.drawDoubleRoundRect(outer, outerRadii, inner, innerRadii, paint)
     }
 
-    @DoNotInline
     fun drawTextRun(
         canvas: Canvas,
         text: MeasuredText,
@@ -913,7 +897,6 @@ private object CanvasCompatQ {
         canvas.drawTextRun(text, start, end, contextStart, contextEnd, x, y, isRtl, paint)
     }
 
-    @DoNotInline
     fun drawRenderNode(canvas: Canvas, renderNode: RenderNode) {
         canvas.drawRenderNode(renderNode)
     }
@@ -922,17 +905,14 @@ private object CanvasCompatQ {
 @RequiresApi(Build.VERSION_CODES.R)
 private object CanvasCompatR {
 
-    @DoNotInline
     fun quickReject(canvas: Canvas, rect: RectF): Boolean {
         return canvas.quickReject(rect)
     }
 
-    @DoNotInline
     fun quickReject(canvas: Canvas, path: Path): Boolean {
         return canvas.quickReject(path)
     }
 
-    @DoNotInline
     fun quickReject(canvas: Canvas, left: Float, top: Float, right: Float, bottom: Float): Boolean {
         return canvas.quickReject(left, top, right, bottom)
     }
@@ -940,17 +920,14 @@ private object CanvasCompatR {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object CanvasCompatS {
-    @DoNotInline
     fun drawPatch(canvas: Canvas, patch: NinePatch, dst: Rect, paint: Paint?) {
         canvas.drawPatch(patch, dst, paint)
     }
 
-    @DoNotInline
     fun drawPatch(canvas: Canvas, patch: NinePatch, dst: RectF, paint: Paint?) {
         canvas.drawPatch(patch, dst, paint)
     }
 
-    @DoNotInline
     fun drawGlyphs(
         canvas: Canvas,
         glyphIds: IntArray,

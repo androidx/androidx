@@ -22,7 +22,6 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -117,7 +116,6 @@ public final class AudioManagerSystemRoutesSource extends SystemRoutesSource {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static String getAddress(AudioDeviceInfo audioDeviceInfo) {
             return audioDeviceInfo.getAddress();
         }

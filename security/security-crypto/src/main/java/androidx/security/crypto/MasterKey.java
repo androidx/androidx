@@ -26,7 +26,6 @@ import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -339,7 +338,6 @@ public final class MasterKey {
                 // This class is not instantiable.
             }
 
-            @DoNotInline
             static String getKeystoreAlias(KeyGenParameterSpec keyGenParameterSpec) {
                 return keyGenParameterSpec.getKeystoreAlias();
             }
@@ -397,7 +395,6 @@ public final class MasterKey {
                     // This class is not instantiable.
                 }
 
-                @DoNotInline
                 static void setIsStrongBoxBacked(KeyGenParameterSpec.Builder builder) {
                     builder.setIsStrongBoxBacked(true);
                 }
@@ -409,7 +406,6 @@ public final class MasterKey {
                     // This class is not instantiable.
                 }
 
-                @DoNotInline
                 static void setUserAuthenticationParameters(KeyGenParameterSpec.Builder builder,
                         int timeout,
                         int type) {
@@ -426,12 +422,10 @@ public final class MasterKey {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isUserAuthenticationRequired(KeyGenParameterSpec keyGenParameterSpec) {
             return keyGenParameterSpec.isUserAuthenticationRequired();
         }
 
-        @DoNotInline
         static int getUserAuthenticationValidityDurationSeconds(
                 KeyGenParameterSpec keyGenParameterSpec) {
             return keyGenParameterSpec.getUserAuthenticationValidityDurationSeconds();
@@ -444,7 +438,6 @@ public final class MasterKey {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isStrongBoxBacked(KeyGenParameterSpec keyGenParameterSpec) {
             return keyGenParameterSpec.isStrongBoxBacked();
         }

@@ -61,7 +61,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -653,7 +652,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static <T> T getSystemService(Context context, Class<T> serviceClass) {
             return context.getSystemService(serviceClass);
         }
@@ -666,7 +664,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static android.app.slice.Slice bindSlice(SliceManager sliceManager, Uri uri,
                 Set<android.app.slice.SliceSpec> supportedSpecs) {
             return sliceManager.bindSlice(uri, supportedSpecs);

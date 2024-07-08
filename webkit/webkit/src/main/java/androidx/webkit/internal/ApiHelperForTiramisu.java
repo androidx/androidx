@@ -21,7 +21,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -34,12 +33,10 @@ public class ApiHelperForTiramisu {
     private ApiHelperForTiramisu() {
     }
 
-    @DoNotInline
     static PackageManager.ComponentInfoFlags of(long value) {
         return PackageManager.ComponentInfoFlags.of(value);
     }
 
-    @DoNotInline
     static ServiceInfo getServiceInfo(PackageManager packageManager, ComponentName component,
             PackageManager.ComponentInfoFlags flags)
             throws PackageManager.NameNotFoundException {

@@ -28,7 +28,6 @@ import android.os.Build
 import android.os.CancellationSignal
 import android.text.TextUtils
 import android.util.Pair
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -324,7 +323,6 @@ internal class FrameworkSQLiteDatabase(private val delegate: SQLiteDatabase) :
 
     @RequiresApi(30)
     internal object Api30Impl {
-        @DoNotInline
         fun execPerConnectionSQL(
             sQLiteDatabase: SQLiteDatabase,
             sql: String,

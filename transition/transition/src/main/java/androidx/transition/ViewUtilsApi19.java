@@ -22,7 +22,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -206,12 +205,10 @@ class ViewUtilsApi19 {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setTransitionAlpha(View view, float alpha) {
             view.setTransitionAlpha(alpha);
         }
 
-        @DoNotInline
         static float getTransitionAlpha(View view) {
             return view.getTransitionAlpha();
         }

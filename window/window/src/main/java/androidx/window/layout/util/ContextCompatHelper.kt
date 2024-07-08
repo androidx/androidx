@@ -22,7 +22,6 @@ import android.content.ContextWrapper
 import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.view.WindowManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.UiContext
 import androidx.core.view.WindowInsetsCompat
@@ -65,10 +64,7 @@ internal object ContextCompatHelperApi30 {
      * Computes the [WindowInsetsCompat] for platforms above [Build.VERSION_CODES.R], inclusive.
      *
      * @see androidx.window.layout.WindowMetrics.getWindowInsets
-     * @DoNotInline required for implementation-specific class method to prevent it from being
-     *   inlined.
      */
-    @DoNotInline
     fun currentWindowInsets(@UiContext context: Context): WindowInsetsCompat {
         val platformInsets =
             context.getSystemService(WindowManager::class.java).currentWindowMetrics.windowInsets

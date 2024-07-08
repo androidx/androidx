@@ -19,7 +19,6 @@
 package androidx.work.impl.utils
 
 import android.net.ConnectivityManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
-@DoNotInline fun ConnectivityManager.getActiveNetworkCompat() = activeNetwork
+fun ConnectivityManager.getActiveNetworkCompat() = activeNetwork
