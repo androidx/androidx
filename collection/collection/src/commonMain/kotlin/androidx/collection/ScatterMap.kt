@@ -1096,7 +1096,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      */
     private fun adjustStorage() {
         if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
-            resizeStorage(_capacity)
+            removeDeletedMarkers()
         } else {
             resizeStorage(nextCapacity(_capacity))
         }
