@@ -21,7 +21,6 @@ import androidx.camera.camera2.pipe.core.Threads
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -32,7 +31,6 @@ object FakeThreads {
         return create(scope, dispatcher)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun fromTestScope(scope: TestScope): Threads {
         val dispatcher = StandardTestDispatcher(scope.testScheduler)
         return create(scope, dispatcher)

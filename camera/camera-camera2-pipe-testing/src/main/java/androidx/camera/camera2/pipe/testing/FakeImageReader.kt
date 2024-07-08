@@ -41,20 +41,32 @@ private constructor(
     val isClosed: Boolean
         get() = closed.value
 
-    fun simulateImage(timestamp: Long) {
+    /**
+     * Simulate an image at a specific [timestamp]. The timebase for an imageReader is undefined.
+     */
+    fun simulateImage(timestamp: Long): FakeImage {
         val outputId = outputs.keys.single()
-        simulateImage(outputId, timestamp)
+        return simulateImage(outputId, timestamp)
     }
 
-    fun simulateImage(outputId: OutputId, timestamp: Long) {
+    /**
+     * Simulate an image using a specific [outputId] and [timestamp]. The timebase for an
+     * imageReader is undefined.
+     */
+    fun simulateImage(outputId: OutputId, timestamp: Long): FakeImage {
         val size =
             checkNotNull(outputs[outputId]) {
                 "Unexpected $outputId! Available outputs are $outputs"
             }
         val image = FakeImage(size.width, size.height, format.value, timestamp)
         simulateImage(outputId, image)
+        return image
     }
 
+    /**
+     * Simulate an image using a specific [ImageWrapper] for the given outputId. The size must
+     * match.
+     */
     fun simulateImage(outputId: OutputId, image: ImageWrapper) {
         val size =
             checkNotNull(outputs[outputId]) {
@@ -110,4 +122,18 @@ private constructor(
             return FakeImageReader(format, capacity, surface, streamId, outputIdMap)
         }
     }
+}
+
+class FakeOnImageListener : ImageReaderWrapper.OnImageListener {
+    val onImageEvents = mutableListOf<OnImageEvent>()
+
+    override fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper) {
+        onImageEvents.add(OnImageEvent(streamId, outputId, image))
+    }
+
+    data class OnImageEvent(
+        val streamId: StreamId,
+        val outputId: OutputId,
+        val image: ImageWrapper
+    )
 }
