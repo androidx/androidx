@@ -69,8 +69,6 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     BanSynchronizedMethods.ISSUE,
                     MetadataTagInsideApplicationTagDetector.ISSUE,
                     PrivateConstructorForUtilityClassDetector.ISSUE,
-                    ClassVerificationFailureDetector.METHOD_CALL_ISSUE,
-                    ClassVerificationFailureDetector.IMPLICIT_CAST_ISSUE,
                     IdeaSuppressionDetector.ISSUE,
                     CameraXQuirksClassDetector.ISSUE,
                     NullabilityAnnotationsDetector.ISSUE,
