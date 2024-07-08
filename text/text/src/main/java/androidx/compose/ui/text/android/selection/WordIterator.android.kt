@@ -265,6 +265,12 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
         return !isOnPunctuation(offset) && isAfterPunctuation(offset)
     }
 
+    /**
+     * Check if offset before current offset points to letter or digit. Emoji and surrogate
+     * codepoints are treated as letters or digits.
+     *
+     * Note: if EmojiCompat is not initialized, emojis are not treated like letters/digits
+     */
     private fun isAfterLetterOrDigitOrEmoji(offset: Int): Boolean {
         if (offset in (start + 1)..end) {
             val codePoint = Character.codePointBefore(charSequence, offset)
@@ -282,6 +288,12 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
         return false
     }
 
+    /**
+     * Check if current offset points to letter or digit. Emoji and surrogate codepoints are treated
+     * as letters or digits.
+     *
+     * Note: if EmojiCompat is not initialized, emojis are not treated like letters/digits
+     */
     private fun isOnLetterOrDigitOrEmoji(offset: Int): Boolean {
         if (offset in start until end) {
             val codePoint = Character.codePointAt(charSequence, offset)
