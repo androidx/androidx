@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.SplitButtonDefaults.InnerCornerRadiusPercentage
 import androidx.compose.material3.SplitButtonDefaults.LeadingButtonShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.tokens.SplitButtonSmallTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -477,7 +478,7 @@ private fun LeadingButtonLayout(modifier: Modifier = Modifier, content: @Composa
 @ExperimentalMaterial3ExpressiveApi
 object SplitButtonDefaults {
     /** Default spacing between the `leading` and `trailing` button */
-    val Spacing = 2.dp
+    val Spacing = SplitButtonSmallTokens.BetweenSpace
 
     /**
      * Default corner radius percentage for the inner corners, a.k.a. leading button `end` corners
@@ -505,7 +506,7 @@ object SplitButtonDefaults {
      * Default minimum height of the split button. This applies to both [LeadingButton] and
      * [TrailingButton]. Applies to all 4 variants of the split button
      */
-    private val MinHeight = ButtonDefaults.MinHeight
+    private val MinHeight = SplitButtonSmallTokens.ContainerHeight
 
     /** Default minimum width of the [TrailingButton]. */
     private val TrailingButtonMinWidth = LeadingButtonMinWidth
