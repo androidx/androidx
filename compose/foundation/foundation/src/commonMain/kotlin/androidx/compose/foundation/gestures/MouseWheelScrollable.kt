@@ -125,6 +125,7 @@ internal class MouseWheelScrollNode(
         )
     }
     private val channel = Channel<MouseWheelScrollDelta>(capacity = Channel.UNLIMITED)
+    private var isScrolling = false
 
     private suspend fun receiveMouseWheelEvents() {
         while (coroutineContext.isActive) {
@@ -136,11 +137,11 @@ internal class MouseWheelScrollNode(
         }
     }
 
-    private suspend fun ScrollingLogic.userScroll(
-        block: suspend NestedScrollScope.() -> Unit
-    ) = supervisorScope {
+    private suspend fun ScrollingLogic.userScroll(block: suspend NestedScrollScope.() -> Unit) {
+        isScrolling = true
         // Run it in supervisorScope to ignore cancellations from scrolls with higher MutatePriority
-        scroll(MutatePriority.UserInput, block)
+        supervisorScope { scroll(MutatePriority.UserInput, block) }
+        isScrolling = false
     }
 
     private fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean {
@@ -156,7 +157,7 @@ internal class MouseWheelScrollNode(
                     // no notches or trackpads, delta should apply immediately, without any delays.
                     || mouseWheelScrollConfig.isPreciseWheelScroll(pointerEvent)
             )).isSuccess
-        } else false
+        } else isScrolling
     }
 
     private fun Channel<MouseWheelScrollDelta>.sumOrNull() =
