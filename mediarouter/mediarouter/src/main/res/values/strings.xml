@@ -112,4 +112,17 @@
     <!-- Text displayed to link the user to the support article. [CHAR_LIMIT=NONE] -->
     <string name="mr_chooser_wifi_learn_more"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">Learn more</a></string>
     <string name="ic_media_route_learn_more_accessibility">Learn how to cast</string>
+
+    <!-- Name of a route whose type is unknown [CHAR LIMIT=25] -->
+    <string name="mr_route_name_unknown">Unknown</string>
+
+    <!-- Name of a route whose type is bluetooth [CHAR LIMIT=25] -->
+    <string name="mr_route_name_bluetooth">Bluetooth</string>
+
+    <!-- Name of a route whose type is TV [CHAR LIMIT=25] -->
+    <string name="mr_route_name_tv">TV</string>
+
+    <!-- Name of a route whose type is speaker [CHAR LIMIT=25] -->
+    <string name="mr_route_name_speaker">Speaker</string>
+
 </resources>

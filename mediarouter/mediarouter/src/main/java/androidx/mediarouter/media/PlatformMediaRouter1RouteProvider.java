@@ -16,12 +16,18 @@
 
 package androidx.mediarouter.media;
 
+import static android.media.MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH;
+import static android.media.MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
+import static android.media.MediaRouter.RouteInfo.DEVICE_TYPE_TV;
+import static android.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
+
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 
@@ -492,12 +498,39 @@ abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
         }
 
         protected String getRouteName(android.media.MediaRouter.RouteInfo route) {
-            // Routes should not have null names but it may happen for badly configured
-            // user routes.  We tolerate this by using an empty name string here but
-            // such unnamed routes will be discarded by the media router upstream
-            // (with a log message so we can track down the problem).
-            CharSequence name = route.getName(getContext());
-            return name != null ? name.toString() : "";
+            // Routes with null or empty names are discarded by MediaRouter as not valid. This may
+            // happen for badly configured user routes, or for system routes (which are not
+            // guaranteed to have a non-empty name). For system routes, we replace the empty name
+            // with a placeholder one so that the route is not swallowed. Otherwise, that can mean
+            // that media router thinks no bluetooth route is available, and selects the default
+            // route instead. See b/294968421.
+            CharSequence routeInfoName = route.getName(getContext());
+            if (!TextUtils.isEmpty(routeInfoName)) {
+                return routeInfoName.toString();
+            } else if ((route.getSupportedTypes() & ROUTE_TYPE_USER) == 0) {
+                int fallbackRouteNameResourceId =
+                        getStringResourceIdForType(
+                                Build.VERSION.SDK_INT >= 24
+                                        ? route.getDeviceType()
+                                        : DEVICE_TYPE_UNKNOWN);
+                return getContext().getString(fallbackRouteNameResourceId);
+            } else {
+                return "";
+            }
+        }
+
+        private static int getStringResourceIdForType(int deviceType) {
+            switch (deviceType) {
+                case DEVICE_TYPE_BLUETOOTH:
+                    return R.string.mr_route_name_bluetooth;
+                case DEVICE_TYPE_TV:
+                    return R.string.mr_route_name_tv;
+                case DEVICE_TYPE_SPEAKER:
+                    return R.string.mr_route_name_speaker;
+                case DEVICE_TYPE_UNKNOWN:
+                default:
+                    return R.string.mr_route_name_unknown;
+            }
         }
 
         @DoNotInline
