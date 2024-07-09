@@ -30,7 +30,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import android.view.ViewTreeObserver
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.customview.poolingcontainer.PoolingContainerListener
@@ -629,7 +628,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         private object Api34PlusImpl {
 
             @JvmStatic
-            @DoNotInline
             fun setClippingBounds(
                 contentView: View?,
                 isAttachedToWindow: Boolean,
@@ -667,7 +665,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
             }
 
             @JvmStatic
-            @DoNotInline
             fun attachTemporarySurfaceViewAndOpenSession(
                 context: Context,
                 sandboxedSdkView: SandboxedSdkView
@@ -693,7 +690,6 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         private object Api29PlusImpl {
 
             @JvmStatic
-            @DoNotInline
             fun registerFrameCommitCallback(observer: ViewTreeObserver, callback: Runnable) {
                 observer.registerFrameCommitCallback(callback)
             }

@@ -21,7 +21,6 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
@@ -361,6 +360,7 @@ private fun RemoteViews.selectChild(
     height: LayoutSize
 ): Int {
     val child = makeViewStubSelector(width, height)
+    @Suppress("PrimitiveInCollection")
     val children =
         translationContext.parentContext.children[pos]
             ?: throw IllegalStateException("Parent doesn't have child position $pos")
@@ -404,6 +404,7 @@ internal fun RemoteViews.insertContainerView(
             ?: throw IllegalArgumentException(
                 "Cannot find container $type with $numChildren children"
             )
+    @Suppress("PrimitiveInCollection")
     val childrenMapping =
         generatedChildren[type]
             ?: throw IllegalArgumentException("Cannot find generated children for $type")
@@ -433,7 +434,6 @@ internal fun Dimension.resolveDimension(context: Context): Dimension {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object LayoutSelectionApi31Impl {
-    @DoNotInline
     fun remoteViews(packageName: String, @LayoutRes layoutId: Int, viewId: Int) =
         RemoteViews(packageName, layoutId, viewId)
 }

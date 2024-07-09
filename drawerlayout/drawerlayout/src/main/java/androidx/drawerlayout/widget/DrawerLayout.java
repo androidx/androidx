@@ -46,7 +46,6 @@ import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -2550,7 +2549,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void tryRegisterOnBackInvokedCallback(@NonNull Object dispatcherObj,
                 @NonNull Object callback) {
             OnBackInvokedDispatcher dispatcher = (OnBackInvokedDispatcher) dispatcherObj;
@@ -2558,7 +2556,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
                     (OnBackInvokedCallback) callback);
         }
 
-        @DoNotInline
         static void tryUnregisterOnBackInvokedCallback(@NonNull Object dispatcherObj,
                 @NonNull Object callbackObj) {
             OnBackInvokedDispatcher dispatcher = (OnBackInvokedDispatcher) dispatcherObj;
@@ -2566,13 +2563,11 @@ public class DrawerLayout extends ViewGroup implements Openable {
         }
 
         @Nullable
-        @DoNotInline
         static OnBackInvokedDispatcher findOnBackInvokedDispatcher(@NonNull DrawerLayout view) {
             return view.findOnBackInvokedDispatcher();
         }
 
         @NonNull
-        @DoNotInline
         static OnBackInvokedCallback newOnBackInvokedCallback(@NonNull Runnable action) {
             return action::run;
         }

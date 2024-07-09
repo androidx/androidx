@@ -25,7 +25,6 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.RemoteViewsCompat.setTextViewHeight
@@ -321,7 +320,6 @@ private fun applyRoundedCorners(rv: RemoteViews, viewId: Int, radius: Dimension)
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object ApplyModifiersApi31Impl {
-    @DoNotInline
     fun setViewWidth(rv: RemoteViews, viewId: Int, width: Dimension) {
         when (width) {
             is Dimension.Wrap -> {
@@ -336,7 +334,6 @@ private object ApplyModifiersApi31Impl {
         }.let {}
     }
 
-    @DoNotInline
     fun setViewHeight(rv: RemoteViews, viewId: Int, height: Dimension) {
         when (height) {
             is Dimension.Wrap -> {
@@ -351,7 +348,6 @@ private object ApplyModifiersApi31Impl {
         }.let {}
     }
 
-    @DoNotInline
     fun applyRoundedCorners(rv: RemoteViews, viewId: Int, radius: Dimension) {
         rv.setViewClipToOutline(viewId, true)
         when (radius) {

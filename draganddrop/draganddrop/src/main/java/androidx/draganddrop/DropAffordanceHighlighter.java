@@ -39,7 +39,6 @@ import android.view.Gravity;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -223,7 +222,6 @@ final class DropAffordanceHighlighter {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private static class Api29BackUpImpl {
-        @DoNotInline
         static void backUp(DropAffordanceHighlighter highlighter) {
             highlighter.mOriginalForegroundTintBlendMode =
                     highlighter.mViewToHighlight.getForegroundTintBlendMode();
@@ -233,7 +231,6 @@ final class DropAffordanceHighlighter {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private static class Api29RestoreImpl {
-        @DoNotInline
         static void restore(DropAffordanceHighlighter highlighter) {
             highlighter.mViewToHighlight.setForegroundTintBlendMode(
                     highlighter.mOriginalForegroundTintBlendMode);

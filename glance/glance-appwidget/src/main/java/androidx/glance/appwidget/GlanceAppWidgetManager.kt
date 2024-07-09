@@ -24,7 +24,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
@@ -371,11 +370,9 @@ class GlanceAppWidgetManager(private val context: Context) {
     @RequiresApi(Build.VERSION_CODES.O)
     private object AppWidgetManagerApi26Impl {
 
-        @DoNotInline
         fun isRequestPinAppWidgetSupported(manager: AppWidgetManager) =
             manager.isRequestPinAppWidgetSupported
 
-        @DoNotInline
         fun requestPinAppWidget(
             manager: AppWidgetManager,
             target: ComponentName,

@@ -19,7 +19,6 @@ package androidx.glance.appwidget
 import android.content.Context
 import android.os.Build
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.CorruptionException
@@ -385,7 +384,6 @@ private fun Dimension.toProto(context: Context): LayoutProto.DimensionType {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object WidgetLayoutImpl31 {
-    @DoNotInline
     fun toProto(dimension: Dimension) =
         if (dimension is Dimension.Expand) {
             LayoutProto.DimensionType.EXPAND

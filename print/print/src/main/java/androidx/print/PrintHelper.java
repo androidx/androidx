@@ -41,7 +41,6 @@ import android.print.PrintManager;
 import android.print.pdf.PrintedPdfDocument;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -839,12 +838,10 @@ public final class PrintHelper {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getDuplexMode(PrintAttributes printAttributes) {
             return printAttributes.getDuplexMode();
         }
 
-        @DoNotInline
         static void setDuplexMode(PrintAttributes.Builder builder, int duplexMode) {
             builder.setDuplexMode(duplexMode);
         }
@@ -856,7 +853,6 @@ public final class PrintHelper {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ColorSpace get(ColorSpace.Named name) {
             return ColorSpace.get(name);
         }

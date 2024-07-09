@@ -21,7 +21,6 @@ import android.os.FileUtils
 import android.system.ErrnoException
 import android.system.Os
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import java.io.File
 import java.io.FileInputStream
@@ -97,6 +96,6 @@ internal object MigrationUtils {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private object Api29 {
-        @DoNotInline fun copy(from: InputStream, to: OutputStream): Long = FileUtils.copy(from, to)
+        fun copy(from: InputStream, to: OutputStream): Long = FileUtils.copy(from, to)
     }
 }

@@ -21,7 +21,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -104,7 +103,6 @@ class ConcurrencyHelpers {
             // Non-instantiable.
         }
 
-        @DoNotInline
         public static Handler createAsync(Looper looper) {
             return Handler.createAsync(looper);
         }

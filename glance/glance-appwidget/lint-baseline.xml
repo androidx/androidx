@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.5.0-alpha06" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0-alpha06)" variant="all" version="8.5.0-alpha06">
+<issues format="6" by="lint 8.6.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-alpha07)" variant="all" version="8.6.0-alpha07">
 
     <issue
         id="BanThreadSleep"
@@ -501,42 +501,6 @@
         message="field LayoutMap with type Map&lt;LayoutType, Integer>: replace with ObjectIntMap"
         errorLine1="/** Mapping from layout type to fixed layout (if any). */"
         errorLine2="^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable children with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
-        errorLine1="    val children ="
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable var6b5af7fa with type Map&lt;SizeSelector, ? extends Integer>: replace with ObjectIntMap"
-        errorLine1="        translationContext.parentContext.children[pos]"
-        errorLine2="        ^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable childrenMapping with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
-        errorLine1="    val childrenMapping ="
-        errorLine2="    ^">
-        <location
-            file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable var405cd718 with type Map&lt;Integer, ? extends Map&lt;SizeSelector, ? extends Integer>>: replace with IntObjectMap"
-        errorLine1="        generatedChildren[type]"
-        errorLine2="        ^">
         <location
             file="src/main/java/androidx/glance/appwidget/LayoutSelection.kt"/>
     </issue>

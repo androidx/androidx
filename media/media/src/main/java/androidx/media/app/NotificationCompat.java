@@ -33,7 +33,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -542,17 +541,14 @@ public class NotificationCompat {
     private static class Api21Impl {
         private Api21Impl() {}
 
-        @DoNotInline
         static void setMediaStyle(Notification.Builder builder, Notification.MediaStyle style) {
             builder.setStyle(style);
         }
 
-        @DoNotInline
         static Notification.MediaStyle createMediaStyle() {
             return new Notification.MediaStyle();
         }
 
-        @DoNotInline
         static Notification.MediaStyle fillInMediaStyle(Notification.MediaStyle style,
                 int[] actionsToShowInCompact, MediaSessionCompat.Token token) {
             if (actionsToShowInCompact != null) {
@@ -564,12 +560,10 @@ public class NotificationCompat {
             return style;
         }
 
-        @DoNotInline
         static void setShowActionsInCompactView(Notification.MediaStyle style, int... actions) {
             style.setShowActionsInCompactView(actions);
         }
 
-        @DoNotInline
         static void setMediaSession(Notification.MediaStyle style, MediaSession.Token token) {
             style.setMediaSession(token);
         }
@@ -579,7 +573,6 @@ public class NotificationCompat {
     private static class Api24Impl {
         private Api24Impl() {}
 
-        @DoNotInline
         static Notification.MediaStyle createDecoratedMediaCustomViewStyle() {
             return new Notification.DecoratedMediaCustomViewStyle();
         }
@@ -591,7 +584,6 @@ public class NotificationCompat {
         private Api34Impl() {}
 
         @SuppressLint({"MissingPermission"})
-        @DoNotInline
         static Notification.MediaStyle setRemotePlaybackInfo(Notification.MediaStyle style,
                 @NonNull CharSequence deviceName, @DrawableRes int iconResource,
                 @Nullable PendingIntent chipIntent, Boolean showRemotePlaybackInfo) {

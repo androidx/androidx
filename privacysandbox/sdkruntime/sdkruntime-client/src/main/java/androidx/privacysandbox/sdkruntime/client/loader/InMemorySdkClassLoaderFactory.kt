@@ -18,7 +18,6 @@ package androidx.privacysandbox.sdkruntime.client.loader
 import android.content.Context
 import android.content.res.AssetManager
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
@@ -33,7 +32,6 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
     private class Api27Impl(private val assetLoader: AssetLoader) :
         InMemorySdkClassLoaderFactory() {
 
-        @DoNotInline
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
             parent: ClassLoader
@@ -58,7 +56,6 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
     private class Api26Impl(private val assetLoader: AssetLoader) :
         InMemorySdkClassLoaderFactory() {
 
-        @DoNotInline
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
             parent: ClassLoader
@@ -83,7 +80,6 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
     }
 
     private class FailImpl : InMemorySdkClassLoaderFactory() {
-        @DoNotInline
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
             parent: ClassLoader

@@ -29,7 +29,6 @@ import android.util.Log
 import android.view.Display
 import android.view.SurfaceControlViewHost
 import android.view.View
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.privacysandbox.ui.core.IRemoteSessionClient
@@ -319,7 +318,6 @@ private class BinderAdapterDelegate(
         private object Api34PlusImpl {
 
             @JvmStatic
-            @DoNotInline
             fun createSurfaceControlViewHost(
                 context: Context,
                 display: Display,

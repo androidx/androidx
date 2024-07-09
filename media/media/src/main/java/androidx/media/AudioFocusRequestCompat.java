@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -430,7 +429,6 @@ public class AudioFocusRequestCompat {
     private static class Api26Impl {
         private Api26Impl() {}
 
-        @DoNotInline
         static AudioFocusRequest createInstance(
                 int focusGain,
                 AudioAttributes audioAttributes,

@@ -19,7 +19,6 @@ package androidx.datastore.migrations
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.datastore.core.DataMigration
 import java.io.File
@@ -205,7 +204,6 @@ private constructor(
     @RequiresApi(24)
     private object Api24Impl {
         @JvmStatic
-        @DoNotInline
         fun deleteSharedPreferences(context: Context, name: String): Boolean {
             return context.deleteSharedPreferences(name)
         }

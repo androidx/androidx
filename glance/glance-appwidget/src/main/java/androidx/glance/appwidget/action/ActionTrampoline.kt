@@ -24,7 +24,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.glance.appwidget.TranslationContext
 
@@ -156,7 +155,6 @@ private const val ActivityOptionsKey = "ACTIVITY_OPTIONS"
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object ListAdapterTrampolineApi26Impl {
-    @DoNotInline
     fun startForegroundService(context: Context, intent: Intent) {
         context.startForegroundService(intent)
     }
@@ -164,7 +162,6 @@ private object ListAdapterTrampolineApi26Impl {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object StrictModeVmPolicyApi31Impl {
-    @DoNotInline
     fun permitUnsafeIntentLaunch(builder: StrictMode.VmPolicy.Builder) =
         builder.permitUnsafeIntentLaunch()
 }
