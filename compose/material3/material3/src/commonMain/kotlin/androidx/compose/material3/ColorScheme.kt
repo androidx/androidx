@@ -498,6 +498,8 @@ class ColorScheme(
     internal var defaultOutlinedIconButtonColorsCached: IconButtonColors? = null
     internal var defaultOutlinedIconToggleButtonColorsCached: IconToggleButtonColors? = null
 
+    internal var defaultListItemColorsCached: ListItemColors? = null
+
     internal var defaultMenuItemColorsCached: MenuItemColors? = null
 
     internal var defaultNavigationBarItemColorsCached: NavigationBarItemColors? = null
