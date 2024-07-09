@@ -49,21 +49,6 @@ interface SemanticsModifier : Modifier.Element {
     val semanticsConfiguration: SemanticsConfiguration
 }
 
-internal class EmptySemanticsElement(private val node: EmptySemanticsModifier) :
-    ModifierNodeElement<EmptySemanticsModifier>() {
-    override fun create() = node
-
-    override fun update(node: EmptySemanticsModifier) {}
-
-    override fun InspectorInfo.inspectableProperties() {
-        // Nothing to inspect.
-    }
-
-    override fun hashCode(): Int = System.identityHashCode(this)
-
-    override fun equals(other: Any?) = (other === this)
-}
-
 internal class CoreSemanticsModifierNode(
     var mergeDescendants: Boolean,
     var isClearingSemantics: Boolean,

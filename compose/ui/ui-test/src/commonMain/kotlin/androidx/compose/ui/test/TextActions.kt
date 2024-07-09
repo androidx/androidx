@@ -87,7 +87,7 @@ fun SemanticsNodeInteraction.performImeAction() {
 
     wrapAssertionErrorsWithNodeInfo(selector, node) {
         performSemanticsAction(OnImeAction) {
-            assert(it()) {
+            assertOnJvm(it()) {
                 buildGeneralErrorMessage(
                     "Failed to perform IME action, handler returned false.",
                     selector,
@@ -116,26 +116,10 @@ private fun SemanticsNodeInteraction.getNodeAndFocus(
     return node
 }
 
-private inline fun <R> wrapAssertionErrorsWithNodeInfo(
+internal expect inline fun <R> wrapAssertionErrorsWithNodeInfo(
     selector: SemanticsSelector,
     node: SemanticsNode,
     block: () -> R
-): R {
-    try {
-        return block()
-    } catch (e: AssertionError) {
-        throw ProxyAssertionError(e.message.orEmpty(), selector, node, e)
-    }
-}
+): R
 
-private class ProxyAssertionError(
-    message: String,
-    selector: SemanticsSelector,
-    node: SemanticsNode,
-    cause: Throwable
-) : AssertionError(buildGeneralErrorMessage(message, selector, node), cause) {
-    init {
-        // Duplicate the stack trace to make troubleshooting easier.
-        stackTrace = cause.stackTrace
-    }
-}
+internal expect inline fun assertOnJvm(value: Boolean, lazyMessage: () -> Any)
