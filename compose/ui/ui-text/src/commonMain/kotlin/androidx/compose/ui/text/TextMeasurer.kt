@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.text
 
+import androidx.collection.LruCache
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.text.caches.LruCache
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -38,7 +38,7 @@ import kotlin.math.ceil
  * that cache does not becomes unnecessarily large and miss penalty stays low. Of course developers
  * should be aware that in a use case like that the cache should explicitly be disabled.
  */
-private val DefaultCacheSize = 8
+private const val DefaultCacheSize = 8
 
 /**
  * TextMeasurer is responsible for measuring a text in its entirety so that it's ready to be drawn.
