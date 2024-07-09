@@ -17,6 +17,7 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.ui.text.PlatformParagraphStyle
+import kotlin.jvm.JvmInline
 
 /**
  * The configuration for line height such as alignment of the line in the provided line height,

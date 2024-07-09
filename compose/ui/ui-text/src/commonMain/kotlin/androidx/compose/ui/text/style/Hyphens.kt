@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.text.style
 
+import kotlin.jvm.JvmInline
+
 /**
  * Automatic hyphenation configuration.
  *
