@@ -206,6 +206,40 @@ class TextFieldTest {
     }
 
     @Test
+    fun testTextField_withSupportingText_heightDoesNotChange_duringFocusAnimation() {
+        val numTicks = 5
+        val tick = TextFieldAnimationDuration / numTicks
+        rule.mainClock.autoAdvance = false
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = "",
+                onValueChange = {},
+                label = { Text("Label") },
+                supportingText = { Text("Supporting") }
+            )
+        }
+
+        // click to focus
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        repeat(numTicks + 1) {
+            rule
+                .onNodeWithTag(TextFieldTag)
+                .getBoundsInRoot()
+                .height
+                .assertIsEqualTo(
+                    ExpectedDefaultTextFieldHeight +
+                        SupportingTopPadding +
+                        MinSupportingTextLineHeight
+                )
+
+            rule.mainClock.advanceTimeBy(tick.toLong())
+        }
+    }
+
+    @Test
     fun testTextFields_singleFocus() {
         val textField1Tag = "TextField1"
         val textField2Tag = "TextField2"
