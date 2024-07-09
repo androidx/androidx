@@ -55,6 +55,10 @@ abstract class androidx.room/BaseRoomConnectionManager { // androidx.room/BaseRo
         constructor <init>(androidx.sqlite/SQLiteDriver) // androidx.room/BaseRoomConnectionManager.DriverWrapper.<init>|<init>(androidx.sqlite.SQLiteDriver){}[0]
         final fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.room/BaseRoomConnectionManager.DriverWrapper.open|open(kotlin.String){}[0]
     }
+    final object Companion { // androidx.room/BaseRoomConnectionManager.Companion|null[0]
+        final const val BUSY_TIMEOUT_MS // androidx.room/BaseRoomConnectionManager.Companion.BUSY_TIMEOUT_MS|<get-BUSY_TIMEOUT_MS>(){}[0]
+            final fun <get-BUSY_TIMEOUT_MS>(): kotlin/Int // androidx.room/BaseRoomConnectionManager.Companion.BUSY_TIMEOUT_MS.<get-BUSY_TIMEOUT_MS>|<get-BUSY_TIMEOUT_MS>(){}[0]
+    }
 }
 abstract class androidx.room/RoomDatabase { // androidx.room/RoomDatabase|null[0]
     abstract class Callback { // androidx.room/RoomDatabase.Callback|null[0]
@@ -314,6 +318,7 @@ final class androidx.room/InvalidationTracker { // androidx.room/InvalidationTra
 }
 final fun <#A: kotlin/Any, #B: kotlin/Any?> androidx.room.util/recursiveFetchMap(kotlin.collections/MutableMap<#A, #B>, kotlin/Boolean, kotlin/Function1<kotlin.collections/MutableMap<#A, #B>, kotlin/Unit>) // androidx.room.util/recursiveFetchMap|recursiveFetchMap(kotlin.collections.MutableMap<0:0,0:1>;kotlin.Boolean;kotlin.Function1<kotlin.collections.MutableMap<0:0,0:1>,kotlin.Unit>){0§<kotlin.Any>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.room.coroutines/createFlow(androidx.room/RoomDatabase, kotlin/Boolean, kotlin/Array<kotlin/String>, kotlin/Function1<androidx.sqlite/SQLiteConnection, #A>): kotlinx.coroutines.flow/Flow<#A> // androidx.room.coroutines/createFlow|createFlow(androidx.room.RoomDatabase;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Function1<androidx.sqlite.SQLiteConnection,0:0>){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.room.util/recursiveFetchLongSparseArray(androidx.collection/LongSparseArray<#A>, kotlin/Boolean, kotlin/Function1<androidx.collection/LongSparseArray<#A>, kotlin/Unit>) // androidx.room.util/recursiveFetchLongSparseArray|recursiveFetchLongSparseArray(androidx.collection.LongSparseArray<0:0>;kotlin.Boolean;kotlin.Function1<androidx.collection.LongSparseArray<0:0>,kotlin.Unit>){0§<kotlin.Any?>}[0]
 final fun androidx.room.util/appendPlaceholders(kotlin.text/StringBuilder, kotlin/Int) // androidx.room.util/appendPlaceholders|appendPlaceholders(kotlin.text.StringBuilder;kotlin.Int){}[0]
 final fun androidx.room.util/dropFtsSyncTriggers(androidx.sqlite/SQLiteConnection) // androidx.room.util/dropFtsSyncTriggers|dropFtsSyncTriggers(androidx.sqlite.SQLiteConnection){}[0]
 final fun androidx.room.util/foreignKeyCheck(androidx.sqlite/SQLiteConnection, kotlin/String) // androidx.room.util/foreignKeyCheck|foreignKeyCheck(androidx.sqlite.SQLiteConnection;kotlin.String){}[0]
