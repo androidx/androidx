@@ -27,6 +27,7 @@
 package androidx.collection
 
 import androidx.collection.internal.EMPTY_OBJECTS
+import androidx.collection.internal.requirePrecondition
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.math.max
@@ -158,7 +159,7 @@ import kotlin.math.max
 
 // Indicates that all the slot in a [Group] are empty
 // 0x8080808080808080UL, see explanation in [BitmaskMsb]
-internal const val AllEmpty = -0x7f7f7f7f7f7f7f80L
+internal const val AllEmpty = -0x7f7f7f7f_7f7f7f80L
 
 internal const val Empty = 0b10000000L
 internal const val Deleted = 0b11111110L
@@ -175,7 +176,7 @@ internal const val Deleted = 0b11111110L
 internal val EmptyGroup =
     longArrayOf(
         // NOTE: the first byte in the array's logical order is in the LSB
-        -0x7f7f7f7f7f7f7f01L, // Sentinel, Empty, Empty... or 0x80808080808080FFUL
+        -0x7f7f7f7f_7f7f7f01L, // Sentinel, Empty, Empty... or 0xFF80808080808080UL
         -1L // 0xFFFFFFFFFFFFFFFFUL
     )
 
@@ -337,7 +338,7 @@ public sealed class ScatterMap<K, V> {
                 // 0 when i < lastIndex, 1 otherwise.
                 val bitCount = 8 - ((i - lastIndex).inv() ushr 31)
                 for (j in 0 until bitCount) {
-                    if (isFull(slot and 0xFFL)) {
+                    if (isFull(slot and 0xffL)) {
                         val index = (i shl 3) + j
                         block(index)
                     }
@@ -730,7 +731,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
     private var growthLimit = 0
 
     init {
-        require(initialCapacity >= 0) { "Capacity must be a positive value." }
+        requirePrecondition(initialCapacity >= 0) { "Capacity must be a positive value." }
         initializeStorage(unloadedCapacity(initialCapacity))
     }
 
@@ -1127,18 +1128,43 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
     }
 
     private fun removeDeletedMarkers() {
+        // TODO: Rehash in place instead of just purging deleted markers
+
         val m = metadata
         val capacity = _capacity
         var removedDeletes = 0
 
-        // TODO: this can be done in a more efficient way
-        for (i in 0 until capacity) {
-            val slot = readRawMetadata(m, i)
-            if (slot == Deleted) {
-                writeMetadata(i, Empty)
-                removedDeletes++
-            }
+        // Loop over each group except the last one containing the sentinel.
+        // We treat the last group separately because the sentinel will match
+        // the query for Deleted in some cases (sentinel followed by a deleted
+        // marker), causing us to erase the sentinel and over-count deleted markers
+        val end = (capacity + 7) shr 3
+        for (i in 0 until end - 1) {
+            val group = m[i]
+            val match = group.match(Deleted.toInt())
+
+            // Each entry marked Deleted is indicated in the match with the byte 0x80
+            // Counting the ones tell us how many entries we are about to remove
+            removedDeletes += match.countOneBits()
+
+            // For every byte with the msb set, use 0xff instead
+            val mask = (match ushr 7) * 0xff
+            // match == AllEmpty and mask, just use match to mark deleted entries as empty
+            m[i] = match or (group and mask.inv())
         }
+
+        // Remove deleted markers in the last group containing the sentinel
+        val group = m[end - 1]
+        val match = group.match(Deleted.toInt()) and 0x00ffffff_ffffffffL
+
+        removedDeletes += match.countOneBits()
+
+        val mask = (match ushr 7) * 0xff
+        m[end - 1] = match or (group and mask.inv())
+
+        // Copies the metadata into the clone area
+        // NOTE: Assumes GroupWidth = 8, and therefore ClonedMetadataCount = 7
+        m[m.lastIndex] = 0x80000000_00000000UL.toLong() or (m[0] and 0x00ffffff_ffffffffL)
 
         growthLimit += removedDeletes
     }
@@ -1487,7 +1513,7 @@ internal inline fun h1(hash: Int) = hash ushr 7
 
 // Returns the "H2" part of the specified hash code. In our implementation,
 // this corresponds to the lower 7 bits
-internal inline fun h2(hash: Int) = hash and 0x7F
+internal inline fun h2(hash: Int) = hash and 0x7f
 
 // Assumes [capacity] was normalized with [normalizedCapacity].
 // Returns the next 2^m - 1
@@ -1500,7 +1526,7 @@ internal fun nextCapacity(capacity: Int) =
 
 // n -> nearest 2^m - 1
 internal fun normalizeCapacity(n: Int) =
-    if (n > 0) (0xFFFFFFFF.toInt() ushr n.countLeadingZeroBits()) else 0
+    if (n > 0) (0xffffffff.toInt() ushr n.countLeadingZeroBits()) else 0
 
 // Computes the growth based on a load factor of 7/8 for the general case.
 // When capacity is < GroupWidth - 1, we use a load factor of 1 instead
@@ -1528,7 +1554,7 @@ internal fun unloadedCapacity(capacity: Int): Int {
 internal inline fun readRawMetadata(data: LongArray, offset: Int): Long {
     // Take the Long at index `offset / 8` and shift by `offset % 8`
     // A longer explanation can be found in [group()].
-    return (data[offset shr 3] shr ((offset and 0x7) shl 3)) and 0xFF
+    return (data[offset shr 3] shr ((offset and 0x7) shl 3)) and 0xff
 }
 
 /**
@@ -1542,7 +1568,7 @@ internal inline fun writeRawMetadata(data: LongArray, offset: Int, value: Long) 
     val b = (offset and 0x7) shl 3
     // Mask the source data with 0xFF in the right place, then and [value]
     // moved to the right spot
-    data[i] = (data[i] and (0xFFL shl b).inv()) or (value shl b)
+    data[i] = (data[i] and (0xffL shl b).inv()) or (value shl b)
 }
 
 internal inline fun isEmpty(metadata: LongArray, index: Int) =
@@ -1599,7 +1625,7 @@ internal inline fun Bitmask.next() = this and (this - 1L)
 internal inline fun Bitmask.hasNext() = this != 0L
 
 // Least significant bits in the bitmask, one for each metadata in the group
-@PublishedApi internal const val BitmaskLsb: Long = 0x0101010101010101L
+@PublishedApi internal const val BitmaskLsb: Long = 0x01010101_01010101L
 
 // Most significant bits in the bitmask, one for each metadata in the group
 //
@@ -1608,7 +1634,7 @@ internal inline fun Bitmask.hasNext() = this != 0L
 // a Long. And since Kotlin hates signed constants, we have to use
 // -0x7f7f7f7f7f7f7f80L instead of the more sensible 0x8080808080808080L (and
 // 0x8080808080808080UL.toLong() isn't considered a constant)
-@PublishedApi internal const val BitmaskMsb: Long = -0x7f7f7f7f7f7f7f80L // srsly Kotlin @#!
+@PublishedApi internal const val BitmaskMsb: Long = -0x7f7f7f7f_7f7f7f80L // srsly Kotlin @#!
 
 /**
  * Creates a [Group] from a metadata array, starting at the specified offset. [offset] must be a

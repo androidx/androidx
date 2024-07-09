@@ -18,6 +18,7 @@ package androidx.collection
 
 import androidx.collection.internal.binarySearch
 import androidx.collection.internal.idealLongArraySize
+import androidx.collection.internal.requirePrecondition
 import kotlin.DeprecationLevel.HIDDEN
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -399,7 +400,9 @@ internal inline fun <E> LongSparseArray<E>.commonIsEmpty(): Boolean = size() == 
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonKeyAt(index: Int): Long {
-    require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
+    requirePrecondition(index in 0 until size) {
+        "Expected index to be within 0..size()-1, but was $index"
+    }
 
     if (garbage) {
         commonGc()
@@ -409,7 +412,9 @@ internal inline fun <E> LongSparseArray<E>.commonKeyAt(index: Int): Long {
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
-    require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
+    requirePrecondition(index in 0 until size) {
+        "Expected index to be within 0..size()-1, but was $index"
+    }
 
     if (garbage) {
         commonGc()
@@ -420,7 +425,9 @@ internal inline fun <E> LongSparseArray<E>.commonValueAt(index: Int): E {
 
 @Suppress("NOTHING_TO_INLINE")
 internal inline fun <E> LongSparseArray<E>.commonSetValueAt(index: Int, value: E) {
-    require(index in 0 until size) { "Expected index to be within 0..size()-1, but was $index" }
+    requirePrecondition(index in 0 until size) {
+        "Expected index to be within 0..size()-1, but was $index"
+    }
 
     if (garbage) {
         commonGc()

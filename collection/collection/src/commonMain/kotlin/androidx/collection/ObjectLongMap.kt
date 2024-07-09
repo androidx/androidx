@@ -19,6 +19,7 @@
 package androidx.collection
 
 import androidx.collection.internal.EMPTY_OBJECTS
+import androidx.collection.internal.requirePrecondition
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
@@ -603,7 +604,7 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
     private var growthLimit = 0
 
     init {
-        require(initialCapacity >= 0) { "Capacity must be a positive value." }
+        requirePrecondition(initialCapacity >= 0) { "Capacity must be a positive value." }
         initializeStorage(unloadedCapacity(initialCapacity))
     }
 
@@ -915,18 +916,43 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
     }
 
     private fun removeDeletedMarkers() {
+        // TODO: Rehash in place instead of just purging deleted markers
+
         val m = metadata
         val capacity = _capacity
         var removedDeletes = 0
 
-        // TODO: this can be done in a more efficient way
-        for (i in 0 until capacity) {
-            val slot = readRawMetadata(m, i)
-            if (slot == Deleted) {
-                writeMetadata(i, Empty)
-                removedDeletes++
-            }
+        // Loop over each group except the last one containing the sentinel.
+        // We treat the last group separately because the sentinel will match
+        // the query for Deleted in some cases (sentinel followed by a deleted
+        // marker), causing us to erase the sentinel and over-count deleted markers
+        val end = (capacity + 7) shr 3
+        for (i in 0 until end - 1) {
+            val group = m[i]
+            val match = group.match(Deleted.toInt())
+
+            // Each entry marked Deleted is indicated in the match with the byte 0x80
+            // Counting the ones tell us how many entries we are about to remove
+            removedDeletes += match.countOneBits()
+
+            // For every byte with the msb set, use 0xff instead
+            val mask = (match ushr 7) * 0xff
+            // match == AllEmpty and mask, just use match to mark deleted entries as empty
+            m[i] = match or (group and mask.inv())
         }
+
+        // Remove deleted markers in the last group containing the sentinel
+        val group = m[end - 1]
+        val match = group.match(Deleted.toInt()) and 0x00ffffff_ffffffffL
+
+        removedDeletes += match.countOneBits()
+
+        val mask = (match ushr 7) * 0xff
+        m[end - 1] = match or (group and mask.inv())
+
+        // Copies the metadata into the clone area
+        // NOTE: Assumes GroupWidth = 8, and therefore ClonedMetadataCount = 7
+        m[m.lastIndex] = 0x80000000_00000000UL.toLong() or (m[0] and 0x00ffffff_ffffffffL)
 
         growthLimit += removedDeletes
     }
