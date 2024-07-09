@@ -184,6 +184,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // Set to true when the view has actually been inflated in its layout.
     boolean mInLayout;
 
+    // Set to true if the fragment has been added to a specific container
+    // that may not be available immediately.
+    boolean mInDynamicContainer;
+
     // True if this fragment has been restored from previously saved state.
     boolean mRestored;
 

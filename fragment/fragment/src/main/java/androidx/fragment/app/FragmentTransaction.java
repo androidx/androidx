@@ -308,6 +308,7 @@ public abstract class FragmentTransaction {
     public final FragmentTransaction add(@NonNull ViewGroup container, @NonNull Fragment fragment,
             @Nullable String tag) {
         fragment.mContainer = container;
+        fragment.mInDynamicContainer = true;
         return add(container.getId(), fragment, tag);
     }
 
