@@ -23,6 +23,6 @@ internal external interface InputEventInit {
     val inputType: String
 }
 
-internal fun InputEventInit(inputType: String, data: String): InputEventInit = js("({data, inputType})")
+internal fun InputEventInit(inputType: String, data: String): InputEventInit = js("({data: data, inputType: inputType})")
 
 internal external class InputEvent(type: String, options: InputEventInit) : Event

@@ -177,6 +177,7 @@ tasks.register("checkDesktop") {
 tasks.register("testWeb") {
     dependsOn(":compose:runtime:runtime:jsTest")
     dependsOn(":compose:runtime:runtime:wasmJsTest")
+    dependsOn(":compose:ui:ui:compileTestKotlinJs")
     // TODO: ideally we want to run all wasm tests that are possible but now we deal only with modules that have skikoTests
 
     dependsOn(":compose:foundation:foundation:wasmJsBrowserTest")
