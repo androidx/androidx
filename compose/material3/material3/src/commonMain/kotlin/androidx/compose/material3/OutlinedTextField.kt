@@ -122,6 +122,10 @@ import kotlin.math.roundToInt
  * This overload of [OutlinedTextField] uses [TextFieldState] to keep track of its text content and
  * position of the cursor or selection.
  *
+ * See example usage:
+ *
+ * @sample androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
+ * @sample androidx.compose.material3.samples.OutlinedTextFieldWithInitialValueAndSelection
  * @param state [TextFieldState] object that holds the internal editing state of the text field.
  * @param modifier the [Modifier] to be applied to this text field.
  * @param enabled controls the enabled state of this text field. When `false`, this component will
@@ -302,10 +306,6 @@ fun OutlinedTextField(
  * ![Outlined text field
  * image](https://developer.android.com/images/reference/androidx/compose/material3/outlined-text-field.png)
  *
- * See example usage:
- *
- * @sample androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
- *
  * If apart from input text change you also want to observe the cursor location, selection range, or
  * IME composition use the OutlinedTextField overload with the [TextFieldValue] parameter instead.
  *
@@ -475,10 +475,6 @@ fun OutlinedTextField(
  *
  * ![Outlined text field
  * image](https://developer.android.com/images/reference/androidx/compose/material3/outlined-text-field.png)
- *
- * See example usage:
- *
- * @sample androidx.compose.material3.samples.OutlinedTextFieldSample
  *
  * This overload provides access to the input text, cursor position and selection range and IME
  * composition. If you only want to observe an input text change, use the OutlinedTextField overload
