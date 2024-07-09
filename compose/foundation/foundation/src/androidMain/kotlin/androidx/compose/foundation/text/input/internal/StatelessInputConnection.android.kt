@@ -35,7 +35,6 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputConnectionWrapper
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -509,7 +508,6 @@ internal class StatelessInputConnection(
 @RequiresApi(25)
 private object Api25CommitContentImpl {
 
-    @DoNotInline
     fun commitContent(
         inputConnection: InputConnection,
         inputContentInfo: InputContentInfo,
@@ -522,7 +520,6 @@ private object Api25CommitContentImpl {
 
 @RequiresApi(34)
 private object Api34PerformHandwritingGestureImpl {
-    @DoNotInline
     fun performHandwritingGesture(
         session: TextInputSession,
         gesture: HandwritingGesture,
@@ -539,7 +536,6 @@ private object Api34PerformHandwritingGestureImpl {
         }
     }
 
-    @DoNotInline
     fun previewHandwritingGesture(
         session: TextInputSession,
         gesture: PreviewableHandwritingGesture,

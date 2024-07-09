@@ -29,7 +29,6 @@ import android.view.PixelCopy.OnPixelCopyFinishedListener
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.Window
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -120,7 +119,6 @@ fun View.captureToImage(): ImageBitmap {
 
 @RequiresApi(29)
 private object FrameCommitCallbackHelper {
-    @DoNotInline
     fun registerFrameCommitCallback(viewTreeObserver: ViewTreeObserver, runnable: Runnable) {
         viewTreeObserver.registerFrameCommitCallback(runnable)
     }
@@ -128,7 +126,6 @@ private object FrameCommitCallbackHelper {
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object PixelCopyHelper {
-    @DoNotInline
     fun request(
         source: Window,
         srcRect: Rect?,

@@ -23,7 +23,6 @@ import android.location.Location;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -535,43 +534,35 @@ public final class LocationCompat {
         private Api34Impl() {
         }
 
-        @DoNotInline
         static double getMslAltitudeMeters(Location location) {
             return location.getMslAltitudeMeters();
         }
 
-        @DoNotInline
         static void setMslAltitudeMeters(Location location, double mslAltitudeMeters) {
             location.setMslAltitudeMeters(mslAltitudeMeters);
         }
 
-        @DoNotInline
         static boolean hasMslAltitude(Location location) {
             return location.hasMslAltitude();
         }
 
-        @DoNotInline
         static void removeMslAltitude(Location location) {
             location.removeMslAltitude();
         }
 
-        @DoNotInline
         static float getMslAltitudeAccuracyMeters(Location location) {
             return location.getMslAltitudeAccuracyMeters();
         }
 
-        @DoNotInline
         static void setMslAltitudeAccuracyMeters(Location location,
                 float mslAltitudeAccuracyMeters) {
             location.setMslAltitudeAccuracyMeters(mslAltitudeAccuracyMeters);
         }
 
-        @DoNotInline
         static boolean hasMslAltitudeAccuracy(Location location) {
             return location.hasMslAltitudeAccuracy();
         }
 
-        @DoNotInline
         static void removeMslAltitudeAccuracy(Location location) {
             location.removeMslAltitudeAccuracy();
         }
@@ -582,17 +573,14 @@ public final class LocationCompat {
 
         private Api33Impl() {}
 
-        @DoNotInline
         static void removeVerticalAccuracy(Location location) {
             location.removeVerticalAccuracy();
         }
 
-        @DoNotInline
         static void removeSpeedAccuracy(Location location) {
             location.removeSpeedAccuracy();
         }
 
-        @DoNotInline
         static void removeBearingAccuracy(Location location) {
             location.removeBearingAccuracy();
         }
@@ -603,7 +591,6 @@ public final class LocationCompat {
 
         private Api29Impl() {}
 
-        @DoNotInline
         static void removeVerticalAccuracy(Location location) {
             if (!location.hasVerticalAccuracy()) {
                 return;
@@ -615,7 +602,6 @@ public final class LocationCompat {
             location.setElapsedRealtimeUncertaintyNanos(elapsedRealtimeUncertaintyNs);
         }
 
-        @DoNotInline
         static void removeSpeedAccuracy(Location location) {
             if (!location.hasSpeedAccuracy()) {
                 return;
@@ -627,7 +613,6 @@ public final class LocationCompat {
             location.setElapsedRealtimeUncertaintyNanos(elapsedRealtimeUncertaintyNs);
         }
 
-        @DoNotInline
         static void removeBearingAccuracy(Location location) {
             if (!location.hasBearingAccuracy()) {
                 return;
@@ -645,7 +630,6 @@ public final class LocationCompat {
 
         private Api28Impl() {}
 
-        @DoNotInline
         static void removeVerticalAccuracy(Location location) {
             if (!location.hasVerticalAccuracy()) {
                 return;
@@ -702,7 +686,6 @@ public final class LocationCompat {
             }
         }
 
-        @DoNotInline
         static void removeSpeedAccuracy(Location location) {
             if (!location.hasSpeedAccuracy()) {
                 return;
@@ -759,7 +742,6 @@ public final class LocationCompat {
             }
         }
 
-        @DoNotInline
         static void removeBearingAccuracy(Location location) {
             if (!location.hasBearingAccuracy()) {
                 return;
@@ -823,22 +805,18 @@ public final class LocationCompat {
         private Api26Impl() {
         }
 
-        @DoNotInline
         static boolean hasVerticalAccuracy(Location location) {
             return location.hasVerticalAccuracy();
         }
 
-        @DoNotInline
         static float getVerticalAccuracyMeters(Location location) {
             return location.getVerticalAccuracyMeters();
         }
 
-        @DoNotInline
         static void setVerticalAccuracyMeters(Location location, float verticalAccuracyM) {
             location.setVerticalAccuracyMeters(verticalAccuracyM);
         }
 
-        @DoNotInline
         static void removeVerticalAccuracy(Location location) {
             try {
                 byte fieldsMask = getFieldsMaskField().getByte(location);
@@ -851,22 +829,18 @@ public final class LocationCompat {
             }
         }
 
-        @DoNotInline
         static boolean hasSpeedAccuracy(Location location) {
             return location.hasSpeedAccuracy();
         }
 
-        @DoNotInline
         static float getSpeedAccuracyMetersPerSecond(Location location) {
             return location.getSpeedAccuracyMetersPerSecond();
         }
 
-        @DoNotInline
         static void setSpeedAccuracyMetersPerSecond(Location location, float speedAccuracyMps) {
             location.setSpeedAccuracyMetersPerSecond(speedAccuracyMps);
         }
 
-        @DoNotInline
         static void removeSpeedAccuracy(Location location) {
             try {
                 byte fieldsMask = getFieldsMaskField().getByte(location);
@@ -883,22 +857,18 @@ public final class LocationCompat {
             }
         }
 
-        @DoNotInline
         static boolean hasBearingAccuracy(Location location) {
             return location.hasBearingAccuracy();
         }
 
-        @DoNotInline
         static float getBearingAccuracyDegrees(Location location) {
             return location.getBearingAccuracyDegrees();
         }
 
-        @DoNotInline
         static void setBearingAccuracyDegrees(Location location, float bearingAccuracyD) {
             location.setBearingAccuracyDegrees(bearingAccuracyD);
         }
 
-        @DoNotInline
         static void removeBearingAccuracy(Location location) {
             try {
                 byte fieldsMask = getFieldsMaskField().getByte(location);
@@ -1006,7 +976,6 @@ public final class LocationCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isMock(Location location) {
             return location.isMock();
         }

@@ -23,7 +23,6 @@ import android.telecom.PhoneAccount
 import android.telecom.PhoneAccountHandle
 import android.telecom.TelecomManager
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallsManager
@@ -134,7 +133,6 @@ internal class Utils {
         @RequiresApi(VERSION_CODES.M)
         private object Api23PlusImpl {
             @JvmStatic
-            @DoNotInline
             fun createExtras(
                 callAttributes: CallAttributesCompat,
                 handle: PhoneAccountHandle

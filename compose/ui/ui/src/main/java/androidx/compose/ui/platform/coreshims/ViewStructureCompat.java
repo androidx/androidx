@@ -21,7 +21,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.os.Bundle;
 import android.view.ViewStructure;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -220,34 +219,28 @@ public class ViewStructureCompat {
             viewStructure.setId(id, packageName, typeName, entryName);
         }
 
-        @DoNotInline
         static void setDimens(ViewStructure viewStructure, int left, int top, int scrollX,
                 int scrollY, int width, int height) {
             viewStructure.setDimens(left, top, scrollX, scrollY, width, height);
         }
 
-        @DoNotInline
         static void setText(ViewStructure viewStructure, CharSequence charSequence) {
             viewStructure.setText(charSequence);
         }
 
-        @DoNotInline
         static void setClassName(ViewStructure viewStructure, String string) {
             viewStructure.setClassName(string);
         }
 
-        @DoNotInline
         static void setContentDescription(ViewStructure viewStructure, CharSequence charSequence) {
             viewStructure.setContentDescription(charSequence);
         }
 
-        @DoNotInline
         static void setTextStyle(
                 ViewStructure viewStructure, float size, int fgColor, int bgColor, int style) {
             viewStructure.setTextStyle(size, fgColor, bgColor, style);
         }
 
-        @DoNotInline
         static Bundle getExtras(ViewStructure viewStructure) {
             return viewStructure.getExtras();
         }

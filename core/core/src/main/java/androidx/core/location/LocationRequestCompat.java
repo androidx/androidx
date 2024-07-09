@@ -24,7 +24,6 @@ import android.annotation.SuppressLint;
 import android.location.LocationRequest;
 import android.os.Build.VERSION;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -504,7 +503,6 @@ public final class LocationRequestCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         public static LocationRequest toLocationRequest(LocationRequestCompat obj) {
             return new LocationRequest.Builder(obj.getIntervalMillis())
                     .setQuality(obj.getQuality())

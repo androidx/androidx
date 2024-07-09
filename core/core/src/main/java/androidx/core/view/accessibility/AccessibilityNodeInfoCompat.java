@@ -42,7 +42,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -5168,7 +5167,6 @@ public class AccessibilityNodeInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         public static CollectionItemInfoCompat createCollectionItemInfo(int rowIndex, int rowSpan,
                 int columnIndex, int columnSpan, boolean heading, boolean selected) {
             return new CollectionItemInfoCompat(
@@ -5183,18 +5181,15 @@ public class AccessibilityNodeInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         public static void setStateDescription(AccessibilityNodeInfo info,
                 CharSequence stateDescription) {
             info.setStateDescription(stateDescription);
         }
 
-        @DoNotInline
         public static CharSequence getStateDescription(AccessibilityNodeInfo info) {
             return info.getStateDescription();
         }
 
-        @DoNotInline
         public static Object createRangeInfo(int type, float min, float max, float current) {
             return new AccessibilityNodeInfo.RangeInfo(type, min, max, current);
         }
@@ -5206,23 +5201,19 @@ public class AccessibilityNodeInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         public static AccessibilityNodeInfo.ExtraRenderingInfo getExtraRenderingInfo(
                 AccessibilityNodeInfo info) {
             return info.getExtraRenderingInfo();
         }
 
-        @DoNotInline
         public static boolean isTextSelectable(AccessibilityNodeInfo info) {
             return info.isTextSelectable();
         }
 
-        @DoNotInline
         public static void setTextSelectable(AccessibilityNodeInfo info, boolean selectable) {
             info.setTextSelectable(selectable);
         }
 
-        @DoNotInline
         public static CollectionItemInfoCompat buildCollectionItemInfoCompat(
                 boolean heading, int columnIndex, int rowIndex, int columnSpan,
                 int rowSpan, boolean selected, String rowTitle, String columnTitle) {
@@ -5238,37 +5229,31 @@ public class AccessibilityNodeInfoCompat {
                     .build());
         }
 
-        @DoNotInline
         public static AccessibilityNodeInfoCompat getChild(AccessibilityNodeInfo info, int index,
                 int prefetchingStrategy) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(info.getChild(index,
                     prefetchingStrategy));
         }
 
-        @DoNotInline
         public static AccessibilityNodeInfoCompat getParent(AccessibilityNodeInfo info,
                 int prefetchingStrategy) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(info.getParent(
                     prefetchingStrategy));
         }
 
-        @DoNotInline
         public static String getUniqueId(AccessibilityNodeInfo info) {
             return info.getUniqueId();
         }
 
-        @DoNotInline
         public static void setUniqueId(AccessibilityNodeInfo info, String uniqueId) {
             info.setUniqueId(uniqueId);
         }
 
-        @DoNotInline
         public static String getCollectionItemRowTitle(Object info) {
             return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowTitle();
 
         }
 
-        @DoNotInline
         public static String getCollectionItemColumnTitle(Object info) {
             return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnTitle();
         }
@@ -5280,67 +5265,55 @@ public class AccessibilityNodeInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         public static boolean isAccessibilityDataSensitive(AccessibilityNodeInfo info) {
             return info.isAccessibilityDataSensitive();
         }
 
-        @DoNotInline
         public static void setAccessibilityDataSensitive(AccessibilityNodeInfo info,
                 boolean accessibilityDataSensitive) {
             info.setAccessibilityDataSensitive(accessibilityDataSensitive);
         }
 
-        @DoNotInline
         public static CharSequence getContainerTitle(AccessibilityNodeInfo info) {
             return info.getContainerTitle();
         }
 
-        @DoNotInline
         public static void setContainerTitle(AccessibilityNodeInfo info,
                 CharSequence containerTitle) {
             info.setContainerTitle(containerTitle);
         }
 
-        @DoNotInline
         public static void getBoundsInWindow(AccessibilityNodeInfo info, Rect bounds) {
             info.getBoundsInWindow(bounds);
         }
 
-        @DoNotInline
         public static void setBoundsInWindow(AccessibilityNodeInfo info, Rect bounds) {
             info.setBoundsInWindow(bounds);
         }
 
-        @DoNotInline
         public static boolean hasRequestInitialAccessibilityFocus(AccessibilityNodeInfo info) {
             return info.hasRequestInitialAccessibilityFocus();
         }
 
-        @DoNotInline
         public static void setRequestInitialAccessibilityFocus(AccessibilityNodeInfo info,
                 boolean requestInitialAccessibilityFocus) {
             info.setRequestInitialAccessibilityFocus(requestInitialAccessibilityFocus);
         }
 
-        @DoNotInline
         public static long getMinDurationBetweenContentChangeMillis(AccessibilityNodeInfo info) {
             return info.getMinDurationBetweenContentChanges().toMillis();
         }
 
-        @DoNotInline
         public static void setMinDurationBetweenContentChangeMillis(AccessibilityNodeInfo info,
                 long duration) {
             info.setMinDurationBetweenContentChanges(Duration.ofMillis(duration));
         }
 
-        @DoNotInline
         public static void setQueryFromAppProcessEnabled(AccessibilityNodeInfo info, View view,
                 boolean enabled) {
             info.setQueryFromAppProcessEnabled(view, enabled);
         }
 
-        @DoNotInline
         public static AccessibilityNodeInfo.AccessibilityAction getActionScrollInDirection() {
             return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION;
         }

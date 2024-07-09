@@ -30,7 +30,6 @@ import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
-import androidx.annotation.DoNotInline
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
@@ -256,7 +255,6 @@ public object RemoteViewsCompat {
      */
     @RequiresApi(31)
     private object CollectionItemsApi31Impl {
-        @DoNotInline
         fun setRemoteAdapter(remoteViews: RemoteViews, viewId: Int, items: RemoteCollectionItems) {
             remoteViews.setRemoteAdapter(viewId, toPlatformCollectionItems(items))
         }
@@ -264,7 +262,6 @@ public object RemoteViewsCompat {
         /**
          * Returns a [RemoteViews.RemoteCollectionItems] equivalent to this [RemoteCollectionItems].
          */
-        @DoNotInline
         private fun toPlatformCollectionItems(
             items: RemoteCollectionItems
         ): RemoteViews.RemoteCollectionItems {
@@ -3763,7 +3760,6 @@ public object RemoteViewsCompat {
 
     @RequiresApi(23)
     private object Api23Impl {
-        @DoNotInline
         @JvmStatic
         fun setIcon(rv: RemoteViews, @IdRes id: Int, method: String, icon: Icon?) {
             rv.setIcon(id, method, icon)
@@ -3772,13 +3768,11 @@ public object RemoteViewsCompat {
 
     @RequiresApi(31)
     private object Api31Impl {
-        @DoNotInline
         @JvmStatic
         fun setBlendMode(rv: RemoteViews, @IdRes id: Int, method: String, mode: BlendMode?) {
             rv.setBlendMode(id, method, mode)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setCharSequence(
             rv: RemoteViews,
@@ -3789,7 +3783,6 @@ public object RemoteViewsCompat {
             rv.setCharSequence(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setCharSequenceAttr(
             rv: RemoteViews,
@@ -3800,19 +3793,16 @@ public object RemoteViewsCompat {
             rv.setCharSequenceAttr(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColor(rv: RemoteViews, @IdRes id: Int, method: String, @ColorRes resId: Int) {
             rv.setColor(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColorAttr(rv: RemoteViews, @IdRes id: Int, method: String, @AttrRes resId: Int) {
             rv.setColorAttr(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColorInt(
             rv: RemoteViews,
@@ -3824,7 +3814,6 @@ public object RemoteViewsCompat {
             rv.setColorInt(id, method, notNight, night)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColorStateList(
             rv: RemoteViews,
@@ -3835,7 +3824,6 @@ public object RemoteViewsCompat {
             rv.setColorStateList(id, method, colorStateList)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColorStateList(
             rv: RemoteViews,
@@ -3847,7 +3835,6 @@ public object RemoteViewsCompat {
             rv.setColorStateList(id, method, notNight, night)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColorStateList(
             rv: RemoteViews,
@@ -3858,7 +3845,6 @@ public object RemoteViewsCompat {
             rv.setColorStateList(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setColorStateListAttr(
             rv: RemoteViews,
@@ -3869,7 +3855,6 @@ public object RemoteViewsCompat {
             rv.setColorStateListAttr(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setIcon(
             rv: RemoteViews,
@@ -3881,25 +3866,21 @@ public object RemoteViewsCompat {
             rv.setIcon(id, method, notNight, night)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setIntDimen(rv: RemoteViews, @IdRes id: Int, method: String, value: Float, unit: Int) {
             rv.setIntDimen(id, method, value, unit)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setIntDimen(rv: RemoteViews, @IdRes id: Int, method: String, @DimenRes resId: Int) {
             rv.setIntDimen(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setIntDimenAttr(rv: RemoteViews, @IdRes id: Int, method: String, @AttrRes resId: Int) {
             rv.setIntDimenAttr(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setFloatDimen(
             rv: RemoteViews,
@@ -3911,13 +3892,11 @@ public object RemoteViewsCompat {
             rv.setFloatDimen(id, method, value, unit)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setFloatDimen(rv: RemoteViews, @IdRes id: Int, method: String, @DimenRes resId: Int) {
             rv.setFloatDimen(id, method, resId)
         }
 
-        @DoNotInline
         @JvmStatic
         fun setFloatDimenAttr(
             rv: RemoteViews,

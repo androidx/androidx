@@ -18,7 +18,6 @@ package androidx.core.telecom.internal.utils
 
 import android.net.Uri
 import android.telecom.PhoneAccountHandle
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 
@@ -26,7 +25,6 @@ import androidx.core.telecom.CallAttributesCompat
 internal class CallAttributesUtils {
     internal object Api34PlusImpl {
         @JvmStatic
-        @DoNotInline
         fun toTelecomCallAttributes(
             phoneAccountHandle: PhoneAccountHandle,
             direction: Int,

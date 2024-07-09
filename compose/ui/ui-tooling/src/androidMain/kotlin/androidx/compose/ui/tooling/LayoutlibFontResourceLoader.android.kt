@@ -19,7 +19,6 @@ package androidx.compose.ui.tooling
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.ResourceFont
@@ -42,7 +41,6 @@ internal class LayoutlibFontResourceLoader(private val context: Context) : Font.
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object ResourceFontHelper {
-    @DoNotInline
     fun load(context: Context, font: ResourceFont): Typeface {
         return context.resources.getFont(font.resId)
     }

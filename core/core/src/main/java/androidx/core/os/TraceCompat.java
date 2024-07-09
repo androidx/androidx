@@ -17,7 +17,6 @@ import android.os.Build;
 import android.os.Trace;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -189,22 +188,18 @@ public final class TraceCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isEnabled() {
             return Trace.isEnabled();
         }
 
-        @DoNotInline
         static void endAsyncSection(String methodName, int cookie) {
             Trace.endAsyncSection(methodName, cookie);
         }
 
-        @DoNotInline
         static void beginAsyncSection(String methodName, int cookie) {
             Trace.beginAsyncSection(methodName, cookie);
         }
 
-        @DoNotInline
         static void setCounter(String counterName, long counterValue) {
             Trace.setCounter(counterName, counterValue);
         }

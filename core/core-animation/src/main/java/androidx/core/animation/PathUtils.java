@@ -19,7 +19,6 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
@@ -171,7 +170,6 @@ class PathUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static float[] approximate(Path path, float acceptableError) {
             return path.approximate(acceptableError);
         }

@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.LocaleList;
 
 import androidx.annotation.AnyThread;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -116,7 +115,6 @@ public final class LocaleManagerCompat {
     static class Api21Impl {
         private Api21Impl() {}
 
-        @DoNotInline
         static String toLanguageTag(Locale locale) {
             return locale.toLanguageTag();
         }
@@ -126,7 +124,6 @@ public final class LocaleManagerCompat {
     static class Api24Impl {
         private Api24Impl() {}
 
-        @DoNotInline
         static LocaleListCompat getLocales(Configuration configuration) {
             return LocaleListCompat.forLanguageTags(configuration.getLocales().toLanguageTags());
         }
@@ -136,13 +133,11 @@ public final class LocaleManagerCompat {
     static class Api33Impl {
         private Api33Impl() {}
 
-        @DoNotInline
         static LocaleList localeManagerGetSystemLocales(Object localeManager) {
             LocaleManager mLocaleManager = (LocaleManager) localeManager;
             return mLocaleManager.getSystemLocales();
         }
 
-        @DoNotInline
         static LocaleList localeManagerGetApplicationLocales(Object localeManager) {
             LocaleManager mLocaleManager = (LocaleManager) localeManager;
             return mLocaleManager.getApplicationLocales();

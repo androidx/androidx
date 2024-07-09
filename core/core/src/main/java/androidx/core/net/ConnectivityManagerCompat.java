@@ -25,7 +25,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -142,7 +141,6 @@ public final class ConnectivityManagerCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getRestrictBackgroundStatus(ConnectivityManager connectivityManager) {
             return connectivityManager.getRestrictBackgroundStatus();
         }

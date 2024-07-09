@@ -25,7 +25,6 @@ import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -728,24 +727,20 @@ public final class ViewPropertyAnimatorCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ViewPropertyAnimator translationZBy(ViewPropertyAnimator viewPropertyAnimator,
                 float value) {
             return viewPropertyAnimator.translationZBy(value);
         }
 
-        @DoNotInline
         static ViewPropertyAnimator translationZ(ViewPropertyAnimator viewPropertyAnimator,
                 float value) {
             return viewPropertyAnimator.translationZ(value);
         }
 
-        @DoNotInline
         static ViewPropertyAnimator z(ViewPropertyAnimator viewPropertyAnimator, float value) {
             return viewPropertyAnimator.z(value);
         }
 
-        @DoNotInline
         static ViewPropertyAnimator zBy(ViewPropertyAnimator viewPropertyAnimator, float value) {
             return viewPropertyAnimator.zBy(value);
         }

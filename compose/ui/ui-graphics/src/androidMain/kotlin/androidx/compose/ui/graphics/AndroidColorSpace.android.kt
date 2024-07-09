@@ -18,7 +18,6 @@ package androidx.compose.ui.graphics
 
 import android.graphics.ColorSpace.get
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.ColorSpaceVerificationHelper.composeColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpace
@@ -40,7 +39,6 @@ fun android.graphics.ColorSpace.toComposeColorSpace() =
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private object ColorSpaceVerificationHelperV34 {
 
-    @DoNotInline
     @JvmStatic
     fun obtainAndroidColorSpace(colorSpace: ColorSpace): android.graphics.ColorSpace? =
         when (colorSpace) {
@@ -49,7 +47,6 @@ private object ColorSpaceVerificationHelperV34 {
             else -> null
         }
 
-    @DoNotInline
     @JvmStatic
     fun obtainComposeColorSpaceFromId(id: Int): ColorSpace =
         when (id) {
@@ -62,7 +59,6 @@ private object ColorSpaceVerificationHelperV34 {
 @RequiresApi(Build.VERSION_CODES.O)
 private object ColorSpaceVerificationHelper {
 
-    @DoNotInline
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.O)
     fun ColorSpace.androidColorSpace(): android.graphics.ColorSpace {
@@ -134,7 +130,6 @@ private object ColorSpaceVerificationHelper {
         }
     }
 
-    @DoNotInline
     @JvmStatic
     @RequiresApi(Build.VERSION_CODES.O)
     fun android.graphics.ColorSpace.composeColorSpace(): ColorSpace {

@@ -22,7 +22,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.widget.ImageView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -115,22 +114,18 @@ public class ImageViewCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ColorStateList getImageTintList(ImageView imageView) {
             return imageView.getImageTintList();
         }
 
-        @DoNotInline
         static void setImageTintList(ImageView imageView, ColorStateList tint) {
             imageView.setImageTintList(tint);
         }
 
-        @DoNotInline
         static PorterDuff.Mode getImageTintMode(ImageView imageView) {
             return imageView.getImageTintMode();
         }
 
-        @DoNotInline
         static void setImageTintMode(ImageView imageView, PorterDuff.Mode tintMode) {
             imageView.setImageTintMode(tintMode);
         }

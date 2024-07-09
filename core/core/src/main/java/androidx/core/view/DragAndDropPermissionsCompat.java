@@ -23,7 +23,6 @@ import android.os.Build;
 import android.view.DragAndDropPermissions;
 import android.view.DragEvent;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -75,13 +74,11 @@ public final class DragAndDropPermissionsCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static DragAndDropPermissions requestDragAndDropPermissions(Activity activity,
                 DragEvent event) {
             return activity.requestDragAndDropPermissions(event);
         }
 
-        @DoNotInline
         static void release(DragAndDropPermissions dragAndDropPermissions) {
             dragAndDropPermissions.release();
         }

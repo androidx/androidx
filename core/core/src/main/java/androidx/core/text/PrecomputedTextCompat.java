@@ -32,7 +32,6 @@ import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.MetricAffectingSpan;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -744,7 +743,6 @@ public class PrecomputedTextCompat implements Spannable {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Spannable castToSpannable(PrecomputedText precomputedText) {
             return precomputedText;
         }

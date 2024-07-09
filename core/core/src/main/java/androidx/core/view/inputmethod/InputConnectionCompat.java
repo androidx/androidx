@@ -37,7 +37,6 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputConnectionWrapper;
 import android.view.inputmethod.InputContentInfo;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -410,7 +409,6 @@ public final class InputConnectionCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean commitContent(InputConnection inputConnection,
                 InputContentInfo inputContentInfo, int i, Bundle bundle) {
             return inputConnection.commitContent(inputContentInfo, i, bundle);

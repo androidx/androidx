@@ -20,7 +20,6 @@ import android.content.res.Resources
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowInsetsController
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -39,7 +38,6 @@ internal object ThemeUtils {
          */
         @JvmStatic
         @JvmOverloads
-        @DoNotInline
         fun applyThemesSystemBarAppearance(
             theme: Resources.Theme,
             decor: View,

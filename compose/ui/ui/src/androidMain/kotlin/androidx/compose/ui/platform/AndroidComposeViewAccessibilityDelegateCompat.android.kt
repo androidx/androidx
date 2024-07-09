@@ -35,7 +35,6 @@ import android.view.accessibility.AccessibilityManager.TouchExplorationStateChan
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -3193,7 +3192,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     @RequiresApi(Build.VERSION_CODES.N)
     private object Api24Impl {
-        @DoNotInline
         @JvmStatic
         fun addSetProgressAction(info: AccessibilityNodeInfoCompat, semanticsNode: SemanticsNode) {
             if (semanticsNode.enabled()) {
@@ -3212,7 +3210,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     @RequiresApi(Build.VERSION_CODES.Q)
     private object Api29Impl {
         @JvmStatic
-        @DoNotInline
         fun addPageActions(info: AccessibilityNodeInfoCompat, semanticsNode: SemanticsNode) {
             if (semanticsNode.enabled()) {
                 semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PageUp)?.let {

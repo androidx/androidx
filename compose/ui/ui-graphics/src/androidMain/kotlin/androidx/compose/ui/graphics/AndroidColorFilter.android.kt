@@ -22,7 +22,6 @@ import android.graphics.ColorMatrixColorFilter as AndroidColorMatrixColorFilter
 import android.graphics.LightingColorFilter as AndroidLightingColorFilter
 import android.graphics.PorterDuffColorFilter as AndroidPorterDuffColorFilter
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import java.lang.IllegalArgumentException
 
@@ -72,12 +71,10 @@ internal actual fun actualLightingColorFilter(multiply: Color, add: Color): Nati
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private object BlendModeColorFilterHelper {
-    @DoNotInline
     fun BlendModeColorFilter(color: Color, blendMode: BlendMode): AndroidBlendModeColorFilter {
         return AndroidBlendModeColorFilter(color.toArgb(), blendMode.toAndroidBlendMode())
     }
 
-    @DoNotInline
     fun createBlendModeColorFilter(
         androidBlendModeColorFilter: AndroidBlendModeColorFilter
     ): BlendModeColorFilter {
@@ -117,7 +114,6 @@ internal fun supportsLightingColorFilterQuery() = Build.VERSION_CODES.O <= Build
 @RequiresApi(Build.VERSION_CODES.O)
 private object ColorMatrixFilterHelper {
 
-    @DoNotInline
     fun getColorMatrix(colorFilter: AndroidColorMatrixColorFilter): ColorMatrix {
         val androidColorMatrix = AndroidColorMatrix()
         colorFilter.getColorMatrix(androidColorMatrix)

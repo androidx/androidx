@@ -23,7 +23,6 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.CompoundButton;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -155,22 +154,18 @@ public final class CompoundButtonCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setButtonTintList(CompoundButton compoundButton, ColorStateList tint) {
             compoundButton.setButtonTintList(tint);
         }
 
-        @DoNotInline
         static ColorStateList getButtonTintList(CompoundButton compoundButton) {
             return compoundButton.getButtonTintList();
         }
 
-        @DoNotInline
         static void setButtonTintMode(CompoundButton compoundButton, PorterDuff.Mode tintMode) {
             compoundButton.setButtonTintMode(tintMode);
         }
 
-        @DoNotInline
         static PorterDuff.Mode getButtonTintMode(CompoundButton compoundButton) {
             return compoundButton.getButtonTintMode();
         }
@@ -182,7 +177,6 @@ public final class CompoundButtonCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Drawable getButtonDrawable(CompoundButton compoundButton) {
             return compoundButton.getButtonDrawable();
         }

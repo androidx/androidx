@@ -62,7 +62,6 @@ import android.view.autofill.AutofillId;
 import android.view.contentcapture.ContentCaptureSession;
 import android.view.inputmethod.InputConnection;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -3293,7 +3292,6 @@ public class ViewCompat {
     private static final class Api31Impl {
         private Api31Impl() {}
 
-        @DoNotInline
         public static void setOnReceiveContentListener(@NonNull View view,
                 @Nullable String[] mimeTypes, @Nullable final OnReceiveContentListener listener) {
             if (listener == null) {
@@ -3304,13 +3302,11 @@ public class ViewCompat {
             }
         }
 
-        @DoNotInline
         @Nullable
         public static String[] getReceiveContentMimeTypes(@NonNull View view) {
             return view.getReceiveContentMimeTypes();
         }
 
-        @DoNotInline
         @Nullable
         public static ContentInfoCompat performReceiveContent(@NonNull View view,
                 @NonNull ContentInfoCompat payload) {
@@ -5250,13 +5246,11 @@ public class ViewCompat {
         }
 
         // Only called on SDK 21 and 22
-        @DoNotInline
         @Nullable
         public static WindowInsetsCompat getRootWindowInsets(@NonNull View v) {
             return WindowInsetsCompat.Api21ReflectionHolder.getRootWindowInsets(v);
         }
 
-        @DoNotInline
         static WindowInsetsCompat computeSystemWindowInsets(@NonNull View v,
                 @NonNull WindowInsetsCompat insets, @NonNull Rect outLocalInsets) {
             WindowInsets platformInsets = insets.toWindowInsets();
@@ -5269,7 +5263,6 @@ public class ViewCompat {
             }
         }
 
-        @DoNotInline
         static void setOnApplyWindowInsetsListener(final @NonNull View v,
                 final @Nullable OnApplyWindowInsetsListener listener) {
             // For backward compatibility of WindowInsetsAnimation, we use an
@@ -5329,7 +5322,6 @@ public class ViewCompat {
          * The backport of {@link WindowInsetsAnimationCompat.Callback} on API < 30 relies on
          * onApplyWindowInsetsListener, so if this callback is set, we'll call it in this method
          */
-        @DoNotInline
         static void callCompatInsetAnimationCallback(final @NonNull WindowInsets insets,
                 final @NonNull View v) {
             // In case a WindowInsetsAnimationCompat.Callback is set, make sure to
@@ -5342,116 +5334,94 @@ public class ViewCompat {
             }
         }
 
-        @DoNotInline
         static boolean dispatchNestedFling(@NonNull View view, float velocityX, float velocityY,
                 boolean consumed) {
             return view.dispatchNestedFling(velocityX, velocityY, consumed);
         }
 
-        @DoNotInline
         static boolean dispatchNestedPreFling(@NonNull View view, float velocityX,
                 float velocityY) {
             return view.dispatchNestedPreFling(velocityX, velocityY);
         }
 
-        @DoNotInline
         static float getZ(@NonNull View view) {
             return view.getZ();
         }
 
-        @DoNotInline
         static void setZ(@NonNull View view, float z) {
             view.setZ(z);
         }
 
-        @DoNotInline
         static void setElevation(View view, float elevation) {
             view.setElevation(elevation);
         }
 
-        @DoNotInline
         static void setTranslationZ(View view, float translationZ) {
             view.setTranslationZ(translationZ);
         }
 
-        @DoNotInline
         static float getTranslationZ(View view) {
             return view.getTranslationZ();
         }
 
-        @DoNotInline
         static void setTransitionName(View view, String transitionName) {
             view.setTransitionName(transitionName);
         }
 
-        @DoNotInline
         static boolean isImportantForAccessibility(View view) {
             return view.isImportantForAccessibility();
         }
 
-        @DoNotInline
         static float getElevation(View view) {
             return view.getElevation();
         }
 
-        @DoNotInline
         static String getTransitionName(View view) {
             return view.getTransitionName();
         }
 
-        @DoNotInline
         static void setBackgroundTintList(View view, ColorStateList tint) {
             view.setBackgroundTintList(tint);
         }
 
-        @DoNotInline
         static ColorStateList getBackgroundTintList(View view) {
             return view.getBackgroundTintList();
         }
 
-        @DoNotInline
         static PorterDuff.Mode getBackgroundTintMode(View view) {
             return view.getBackgroundTintMode();
         }
 
-        @DoNotInline
         static void setBackgroundTintMode(View view, PorterDuff.Mode tintMode) {
             view.setBackgroundTintMode(tintMode);
         }
 
-        @DoNotInline
         static void setNestedScrollingEnabled(View view, boolean enabled) {
             view.setNestedScrollingEnabled(enabled);
         }
 
-        @DoNotInline
         static boolean isNestedScrollingEnabled(View view) {
             return view.isNestedScrollingEnabled();
         }
 
-        @DoNotInline
         static boolean startNestedScroll(View view, int axes) {
             return view.startNestedScroll(axes);
         }
 
-        @DoNotInline
         static void stopNestedScroll(View view) {
             view.stopNestedScroll();
         }
 
-        @DoNotInline
         static boolean hasNestedScrollingParent(View view) {
             return view.hasNestedScrollingParent();
         }
 
-        @DoNotInline
         static boolean dispatchNestedScroll(View view, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed, int[] offsetInWindow) {
             return view.dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed,
                     offsetInWindow);
         }
 
-        @DoNotInline
         static boolean dispatchNestedPreScroll(View view, int dx, int dy, int[] consumed,
                 int[] offsetInWindow) {
             return view.dispatchNestedPreScroll(dx, dy, consumed, offsetInWindow);
@@ -5477,17 +5447,14 @@ public class ViewCompat {
             return insets;
         }
 
-        @DoNotInline
         static void setScrollIndicators(@NonNull View view, int indicators) {
             view.setScrollIndicators(indicators);
         }
 
-        @DoNotInline
         static void setScrollIndicators(@NonNull View view, int indicators, int mask) {
             view.setScrollIndicators(indicators, mask);
         }
 
-        @DoNotInline
         static int getScrollIndicators(@NonNull View view) {
             return view.getScrollIndicators();
         }
@@ -5499,7 +5466,6 @@ public class ViewCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void saveAttributeDataForStyleable(@NonNull View view,
                 @NonNull Context context, @NonNull int[] styleable, @Nullable AttributeSet attrs,
                 @NonNull TypedArray t, int defStyleAttr, int defStyleRes) {
@@ -5507,27 +5473,22 @@ public class ViewCompat {
                     context, styleable, attrs, t, defStyleAttr, defStyleRes);
         }
 
-        @DoNotInline
         static View.AccessibilityDelegate getAccessibilityDelegate(View view) {
             return view.getAccessibilityDelegate();
         }
 
-        @DoNotInline
         static void setSystemGestureExclusionRects(View view, List<Rect> rects) {
             view.setSystemGestureExclusionRects(rects);
         }
 
-        @DoNotInline
         static List<Rect> getSystemGestureExclusionRects(View view) {
             return view.getSystemGestureExclusionRects();
         }
 
-        @DoNotInline
         static ContentCaptureSession getContentCaptureSession(View view) {
             return view.getContentCaptureSession();
         }
 
-        @DoNotInline
         static void setContentCaptureSession(View view,
                 ContentCaptureSessionCompat contentCaptureSession) {
             view.setContentCaptureSession(contentCaptureSession == null
@@ -5549,27 +5510,22 @@ public class ViewCompat {
                     windowInsetsController) : null;
         }
 
-        @DoNotInline
         static void setStateDescription(View view, CharSequence stateDescription) {
             view.setStateDescription(stateDescription);
         }
 
-        @DoNotInline
         static CharSequence getStateDescription(View view) {
             return view.getStateDescription();
         }
 
-        @DoNotInline
         static void setImportantForContentCapture(View view, int mode) {
             view.setImportantForContentCapture(mode);
         }
 
-        @DoNotInline
         static boolean isImportantForContentCapture(View view) {
             return view.isImportantForContentCapture();
         }
 
-        @DoNotInline
         static int getImportantForContentCapture(View view) {
             return view.getImportantForContentCapture();
         }
@@ -5581,84 +5537,68 @@ public class ViewCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setAutofillHints(@NonNull View view, String... autofillHints) {
             view.setAutofillHints(autofillHints);
         }
 
-        @DoNotInline
         static void setTooltipText(@NonNull View view, CharSequence tooltipText) {
             view.setTooltipText(tooltipText);
         }
 
-        @DoNotInline
         static int getNextClusterForwardId(@NonNull View view) {
             return view.getNextClusterForwardId();
         }
 
-        @DoNotInline
         static void setNextClusterForwardId(View view, int nextClusterForwardId) {
             view.setNextClusterForwardId(nextClusterForwardId);
         }
 
-        @DoNotInline
         static boolean isKeyboardNavigationCluster(@NonNull View view) {
             return view.isKeyboardNavigationCluster();
         }
 
-        @DoNotInline
         static void setKeyboardNavigationCluster(@NonNull View view, boolean isCluster) {
             view.setKeyboardNavigationCluster(isCluster);
         }
 
-        @DoNotInline
         static boolean isFocusedByDefault(@NonNull View view) {
             return view.isFocusedByDefault();
         }
 
-        @DoNotInline
         static void setFocusedByDefault(@NonNull View view, boolean isFocusedByDefault) {
             view.setFocusedByDefault(isFocusedByDefault);
         }
 
-        @DoNotInline
         static View keyboardNavigationClusterSearch(@NonNull View view, View currentCluster,
                 int direction) {
             return view.keyboardNavigationClusterSearch(currentCluster, direction);
         }
 
-        @DoNotInline
         static void addKeyboardNavigationClusters(@NonNull View view, Collection<View> views,
                 int direction) {
             view.addKeyboardNavigationClusters(views, direction);
         }
 
-        @DoNotInline
         static boolean restoreDefaultFocus(@NonNull View view) {
             return view.restoreDefaultFocus();
         }
 
-        @DoNotInline
         static boolean hasExplicitFocusable(@NonNull View view) {
             return view.hasExplicitFocusable();
         }
 
-        @DoNotInline
         static int getImportantForAutofill(View view) {
             return view.getImportantForAutofill();
         }
 
-        @DoNotInline
         static void setImportantForAutofill(View view, int mode) {
             view.setImportantForAutofill(mode);
         }
 
-        @DoNotInline
         static boolean isImportantForAutofill(View view) {
             return view.isImportantForAutofill();
         }
 
-        @DoNotInline
         public static AutofillId getAutofillId(View view) {
             return view.getAutofillId();
         }
@@ -5670,35 +5610,29 @@ public class ViewCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setPointerIcon(@NonNull View view, PointerIcon pointerIcon) {
             view.setPointerIcon(pointerIcon);
         }
 
-        @DoNotInline
         static boolean startDragAndDrop(@NonNull View view, @Nullable ClipData data,
                 @NonNull View.DragShadowBuilder shadowBuilder, @Nullable Object myLocalState,
                 int flags) {
             return view.startDragAndDrop(data, shadowBuilder, myLocalState, flags);
         }
 
-        @DoNotInline
         static void cancelDragAndDrop(@NonNull View view) {
             view.cancelDragAndDrop();
         }
 
-        @DoNotInline
         static void updateDragShadow(@NonNull View view,
                 @NonNull View.DragShadowBuilder shadowBuilder) {
             view.updateDragShadow(shadowBuilder);
         }
 
-        @DoNotInline
         static void dispatchStartTemporaryDetach(View view) {
             view.dispatchStartTemporaryDetach();
         }
 
-        @DoNotInline
         static void dispatchFinishTemporaryDetach(View view) {
             view.dispatchFinishTemporaryDetach();
         }
@@ -5711,43 +5645,35 @@ public class ViewCompat {
         }
 
         @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-        @DoNotInline
         static <T> T requireViewById(View view, int id) {
             return (T) view.requireViewById(id);
         }
 
-        @DoNotInline
         static CharSequence getAccessibilityPaneTitle(View view) {
             return view.getAccessibilityPaneTitle();
         }
 
-        @DoNotInline
         static void setAccessibilityPaneTitle(View view,
                 CharSequence accessibilityPaneTitle) {
             view.setAccessibilityPaneTitle(accessibilityPaneTitle);
         }
 
-        @DoNotInline
         static void setAccessibilityHeading(View view, boolean isHeading) {
             view.setAccessibilityHeading(isHeading);
         }
 
-        @DoNotInline
         static boolean isAccessibilityHeading(View view) {
             return view.isAccessibilityHeading();
         }
 
-        @DoNotInline
         static boolean isScreenReaderFocusable(View view) {
             return view.isScreenReaderFocusable();
         }
 
-        @DoNotInline
         static void setScreenReaderFocusable(View view, boolean screenReaderFocusable) {
             view.setScreenReaderFocusable(screenReaderFocusable);
         }
 
-        @DoNotInline
         @SuppressWarnings("unchecked")
         static void addOnUnhandledKeyEventListener(@NonNull View v,
                 final @NonNull OnUnhandledKeyEventListenerCompat listener) {
@@ -5766,7 +5692,6 @@ public class ViewCompat {
             v.addOnUnhandledKeyEventListener(fwListener);
         }
 
-        @DoNotInline
         @SuppressWarnings("unchecked")
         static void removeOnUnhandledKeyEventListener(@NonNull View v,
                 @NonNull OnUnhandledKeyEventListenerCompat listener) {
@@ -5783,7 +5708,6 @@ public class ViewCompat {
             }
         }
 
-        @DoNotInline
         public static void setAutofillId(View view, AutofillIdCompat id) {
             view.setAutofillId(id == null ? null : id.toAutofillId());
         }
@@ -5795,17 +5719,14 @@ public class ViewCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void requestApplyInsets(View view) {
             view.requestApplyInsets();
         }
 
-        @DoNotInline
         static WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
             return view.onApplyWindowInsets(insets);
         }
 
-        @DoNotInline
         static WindowInsets dispatchApplyWindowInsets(View view, WindowInsets insets) {
             return view.dispatchApplyWindowInsets(insets);
         }

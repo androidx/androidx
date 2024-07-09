@@ -23,7 +23,6 @@ import android.graphics.drawable.Drawable
 import androidx.annotation.AnyRes
 import androidx.annotation.ColorInt
 import androidx.annotation.Dimension
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.StyleableRes
 
@@ -231,7 +230,6 @@ public inline fun <R> TypedArray.use(block: (TypedArray) -> R): R {
 
 @RequiresApi(26)
 private object TypedArrayApi26ImplKt {
-    @DoNotInline
     @JvmStatic
     fun getFont(typedArray: TypedArray, @StyleableRes index: Int): Typeface {
         return typedArray.getFont(index)!!

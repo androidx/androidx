@@ -18,7 +18,6 @@ package androidx.core.haptics.impl
 
 import android.os.Build
 import android.os.VibrationEffect
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.haptics.PatternVibrationWrapper
 import androidx.core.haptics.VibrationEffectWrapper
@@ -76,7 +75,6 @@ internal object HapticSignalConverter {
     @RequiresApi(31)
     private object Api31Impl {
         @JvmStatic
-        @DoNotInline
         fun toVibrationEffect(composition: CompositionSignal): VibrationEffectWrapper? =
             if (composition.minSdk() <= 31) {
                 // Use same API to create composition from API 30, but allow constants from API 31.
@@ -90,7 +88,6 @@ internal object HapticSignalConverter {
     @RequiresApi(30)
     private object Api30Impl {
         @JvmStatic
-        @DoNotInline
         fun toVibrationEffect(composition: CompositionSignal): VibrationEffectWrapper? =
             if (composition.minSdk() <= 30) {
                 createComposition(composition)
@@ -99,7 +96,6 @@ internal object HapticSignalConverter {
             }
 
         @JvmStatic
-        @DoNotInline
         fun createComposition(composition: CompositionSignal): VibrationEffectWrapper? {
             val platformComposition = VibrationEffect.startComposition()
             var delayMs = 0
@@ -128,7 +124,6 @@ internal object HapticSignalConverter {
     @RequiresApi(29)
     private object Api29Impl {
         @JvmStatic
-        @DoNotInline
         fun toVibrationEffect(effect: PredefinedEffectSignal): VibrationEffectWrapper? =
             if (effect.minSdk() <= 29) {
                 VibrationEffectWrapper(VibrationEffect.createPredefined(effect.type))
@@ -142,7 +137,6 @@ internal object HapticSignalConverter {
     private object Api26Impl {
 
         @JvmStatic
-        @DoNotInline
         fun toVibrationEffect(
             initialWaveform: WaveformSignal? = null,
             repeatingWaveform: WaveformSignal? = null,

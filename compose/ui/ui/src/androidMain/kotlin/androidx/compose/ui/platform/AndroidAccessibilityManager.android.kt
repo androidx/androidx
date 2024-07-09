@@ -18,7 +18,6 @@ package androidx.compose.ui.platform
 
 import android.content.Context
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /** Android implementation for [AccessibilityManager]. */
@@ -79,7 +78,6 @@ internal class AndroidAccessibilityManager(context: Context) : AccessibilityMana
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object Api29Impl {
-    @DoNotInline
     fun getRecommendedTimeoutMillis(
         accessibilityManager: android.view.accessibility.AccessibilityManager,
         originalTimeout: Int,

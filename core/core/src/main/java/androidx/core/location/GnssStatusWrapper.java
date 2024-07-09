@@ -22,7 +22,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.location.GnssStatus;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
@@ -141,12 +140,10 @@ class GnssStatusWrapper extends GnssStatusCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static float getCarrierFrequencyHz(GnssStatus gnssStatus, int satelliteIndex) {
             return gnssStatus.getCarrierFrequencyHz(satelliteIndex);
         }
 
-        @DoNotInline
         static boolean hasCarrierFrequencyHz(GnssStatus gnssStatus, int satelliteIndex) {
             return gnssStatus.hasCarrierFrequencyHz(satelliteIndex);
         }
@@ -158,12 +155,10 @@ class GnssStatusWrapper extends GnssStatusCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean hasBasebandCn0DbHz(GnssStatus gnssStatus, int satelliteIndex) {
             return gnssStatus.hasBasebandCn0DbHz(satelliteIndex);
         }
 
-        @DoNotInline
         static float getBasebandCn0DbHz(GnssStatus gnssStatus, int satelliteIndex) {
             return gnssStatus.getBasebandCn0DbHz(satelliteIndex);
         }

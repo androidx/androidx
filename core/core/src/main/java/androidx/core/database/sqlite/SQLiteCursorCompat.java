@@ -20,7 +20,6 @@ import android.database.AbstractWindowedCursor;
 import android.database.sqlite.SQLiteCursor;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -56,7 +55,6 @@ public final class SQLiteCursorCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setFillWindowForwardOnly(SQLiteCursor cursor, boolean fillWindowForwardOnly) {
             cursor.setFillWindowForwardOnly(fillWindowForwardOnly);
         }

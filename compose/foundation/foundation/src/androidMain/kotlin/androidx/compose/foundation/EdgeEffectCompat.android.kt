@@ -21,7 +21,6 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.ViewConfiguration
 import android.widget.EdgeEffect
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -156,7 +155,6 @@ private class GlowEdgeEffectCompat(context: Context) : EdgeEffect(context) {
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object Api31Impl {
-    @DoNotInline
     fun create(context: Context, attrs: AttributeSet?): EdgeEffect {
         return try {
             EdgeEffect(context, attrs)
@@ -165,7 +163,6 @@ private object Api31Impl {
         }
     }
 
-    @DoNotInline
     fun onPullDistance(edgeEffect: EdgeEffect, deltaDistance: Float, displacement: Float): Float {
         return try {
             edgeEffect.onPullDistance(deltaDistance, displacement)
@@ -175,7 +172,6 @@ private object Api31Impl {
         }
     }
 
-    @DoNotInline
     fun getDistance(edgeEffect: EdgeEffect): Float {
         return try {
             edgeEffect.getDistance()

@@ -23,7 +23,6 @@ import android.annotation.SuppressLint;
 import android.os.Build.VERSION;
 import android.telephony.TelephonyManager;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -137,7 +136,6 @@ public class TelephonyManagerCompat {
     private static class Api30Impl {
         private Api30Impl() {}
 
-        @DoNotInline
         static int getSubscriptionId(TelephonyManager telephonyManager) {
             return telephonyManager.getSubscriptionId();
         }
@@ -149,7 +147,6 @@ public class TelephonyManagerCompat {
 
         @SuppressLint("MissingPermission")
         @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE)
-        @DoNotInline
         @Nullable
         static String getImei(TelephonyManager telephonyManager) {
             return telephonyManager.getImei();
@@ -162,7 +159,6 @@ public class TelephonyManagerCompat {
 
         @SuppressLint("MissingPermission")
         @RequiresPermission(android.Manifest.permission.READ_PHONE_STATE)
-        @DoNotInline
         @Nullable
         static String getDeviceId(TelephonyManager telephonyManager, int slotIndex) {
             return telephonyManager.getDeviceId(slotIndex);

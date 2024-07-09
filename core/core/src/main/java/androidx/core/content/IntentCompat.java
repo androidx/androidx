@@ -31,7 +31,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Parcelable;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -331,25 +330,21 @@ public final class IntentCompat {
             // This class is non-instantiable.
         }
 
-        @DoNotInline
         static <T> T getParcelableExtra(@NonNull Intent in, @Nullable String name,
                 @NonNull Class<T> clazz) {
             return in.getParcelableExtra(name, clazz);
         }
 
-        @DoNotInline
         static <T> T[] getParcelableArrayExtra(@NonNull Intent in, @Nullable String name,
                 @NonNull Class<T> clazz) {
             return in.getParcelableArrayExtra(name, clazz);
         }
 
-        @DoNotInline
         static <T> ArrayList<T> getParcelableArrayListExtra(@NonNull Intent in,
                 @Nullable String name, @NonNull Class<? extends T> clazz) {
             return in.getParcelableArrayListExtra(name, clazz);
         }
 
-        @DoNotInline
         static <T extends Serializable> T getSerializableExtra(@NonNull Intent in,
                 @Nullable String name, @NonNull Class<T> clazz) {
             return in.getSerializableExtra(name, clazz);

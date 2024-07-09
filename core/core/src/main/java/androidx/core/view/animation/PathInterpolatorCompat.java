@@ -21,7 +21,6 @@ import android.os.Build;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -97,17 +96,14 @@ public final class PathInterpolatorCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Interpolator createPathInterpolator(Path path) {
             return new PathInterpolator(path);
         }
 
-        @DoNotInline
         static Interpolator createPathInterpolator(float controlX, float controlY) {
             return new PathInterpolator(controlX, controlY);
         }
 
-        @DoNotInline
         static Interpolator createPathInterpolator(float controlX1, float controlY1,
                 float controlX2, float controlY2) {
             return new PathInterpolator(controlX1, controlY1, controlX2, controlY2);

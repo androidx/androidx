@@ -17,7 +17,6 @@
 package androidx.compose.ui.platform
 
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.AndroidViewConfigurationApi34.getScaledHandwritingGestureLineMargin
 import androidx.compose.ui.platform.AndroidViewConfigurationApi34.getScaledHandwritingSlop
@@ -62,11 +61,9 @@ class AndroidViewConfiguration(private val viewConfiguration: android.view.ViewC
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 private object AndroidViewConfigurationApi34 {
-    @DoNotInline
     fun getScaledHandwritingSlop(viewConfiguration: android.view.ViewConfiguration) =
         viewConfiguration.scaledHandwritingSlop.toFloat()
 
-    @DoNotInline
     fun getScaledHandwritingGestureLineMargin(viewConfiguration: android.view.ViewConfiguration) =
         viewConfiguration.scaledHandwritingGestureLineMargin.toFloat()
 }

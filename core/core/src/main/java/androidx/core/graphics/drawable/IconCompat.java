@@ -49,7 +49,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
@@ -1048,22 +1047,18 @@ public class IconCompat extends CustomVersionedParcelable {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static String getResPackage(Object icon) {
             return ((Icon) icon).getResPackage();
         }
 
-        @DoNotInline
         static int getType(Object icon) {
             return ((Icon) icon).getType();
         }
 
-        @DoNotInline
         static int getResId(Object icon) {
             return ((Icon) icon).getResId();
         }
 
-        @DoNotInline
         static Uri getUri(Object icon) {
             return ((Icon) icon).getUri();
         }
@@ -1075,13 +1070,11 @@ public class IconCompat extends CustomVersionedParcelable {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Drawable createAdaptiveIconDrawable(Drawable backgroundDrawable,
                 Drawable foregroundDrawable) {
             return new AdaptiveIconDrawable(backgroundDrawable, foregroundDrawable);
         }
 
-        @DoNotInline
         static Icon createWithAdaptiveBitmap(Bitmap bits) {
             return Icon.createWithAdaptiveBitmap(bits);
         }
@@ -1093,7 +1086,6 @@ public class IconCompat extends CustomVersionedParcelable {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Icon createWithAdaptiveBitmapContentUri(Uri uri) {
             return Icon.createWithAdaptiveBitmapContentUri(uri);
         }
@@ -1238,7 +1230,6 @@ public class IconCompat extends CustomVersionedParcelable {
          * Returns {@code null} if the uri cannot be gotten.
          */
         @Nullable
-        @DoNotInline
         static Uri getUri(@NonNull Object icon) {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.getUri(icon);
@@ -1258,7 +1249,6 @@ public class IconCompat extends CustomVersionedParcelable {
             }
         }
 
-        @DoNotInline
         static Icon toIcon(IconCompat iconCompat, Context context) {
             Icon icon;
             switch (iconCompat.mType) {
@@ -1320,7 +1310,6 @@ public class IconCompat extends CustomVersionedParcelable {
             return icon;
         }
 
-        @DoNotInline
         static Drawable loadDrawable(Icon icon, Context context) {
             return icon.loadDrawable(context);
         }

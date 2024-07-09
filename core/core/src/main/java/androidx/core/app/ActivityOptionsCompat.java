@@ -27,7 +27,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -459,18 +458,15 @@ public class ActivityOptionsCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ActivityOptions makeClipRevealAnimation(View source, int startX, int startY,
                 int width, int height) {
             return ActivityOptions.makeClipRevealAnimation(source, startX, startY, width, height);
         }
 
-        @DoNotInline
         static ActivityOptions makeBasic() {
             return ActivityOptions.makeBasic();
         }
 
-        @DoNotInline
         static void requestUsageTimeReport(ActivityOptions activityOptions,
                 PendingIntent receiver) {
             activityOptions.requestUsageTimeReport(receiver);
@@ -483,7 +479,6 @@ public class ActivityOptionsCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ActivityOptions makeSceneTransitionAnimation(Activity activity, View sharedElement,
                 String sharedElementName) {
             return ActivityOptions.makeSceneTransitionAnimation(activity, sharedElement,
@@ -491,13 +486,11 @@ public class ActivityOptionsCompat {
         }
 
         @SafeVarargs
-        @DoNotInline
         static ActivityOptions makeSceneTransitionAnimation(Activity activity,
                 android.util.Pair<View, String>... sharedElements) {
             return ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
         }
 
-        @DoNotInline
         static ActivityOptions makeTaskLaunchBehind() {
             return ActivityOptions.makeTaskLaunchBehind();
         }
@@ -509,13 +502,11 @@ public class ActivityOptionsCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ActivityOptions setLaunchBounds(ActivityOptions activityOptions,
                 Rect screenSpacePixelRect) {
             return activityOptions.setLaunchBounds(screenSpacePixelRect);
         }
 
-        @DoNotInline
         static Rect getLaunchBounds(ActivityOptions activityOptions) {
             return activityOptions.getLaunchBounds();
         }
@@ -528,7 +519,6 @@ public class ActivityOptionsCompat {
         }
 
         @SuppressWarnings("deprecation")
-        @DoNotInline
         static void setPendingIntentBackgroundActivityLaunchAllowed(ActivityOptions activityOptions,
                 boolean allowed) {
             activityOptions.setPendingIntentBackgroundActivityLaunchAllowed(allowed);
@@ -541,13 +531,11 @@ public class ActivityOptionsCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ActivityOptions setShareIdentityEnabled(ActivityOptions activityOptions,
                 boolean shareIdentity) {
             return activityOptions.setShareIdentityEnabled(shareIdentity);
         }
 
-        @DoNotInline
         static ActivityOptions setPendingIntentBackgroundActivityStartMode(
                 ActivityOptions activityOptions, int state) {
             return activityOptions.setPendingIntentBackgroundActivityStartMode(state);

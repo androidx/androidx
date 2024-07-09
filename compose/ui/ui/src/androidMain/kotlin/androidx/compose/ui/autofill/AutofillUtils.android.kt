@@ -21,7 +21,6 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillId
 import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ClassName
 import androidx.compose.ui.semantics.Role
@@ -34,7 +33,6 @@ import androidx.compose.ui.semantics.Role
 @RequiresApi(28)
 internal object AutofillApi28Helper {
     @RequiresApi(28)
-    @DoNotInline
     fun setMaxTextLength(structure: ViewStructure, length: Int) = structure.setMaxTextLength(length)
 }
 
@@ -46,7 +44,6 @@ internal object AutofillApi28Helper {
 @RequiresApi(27)
 internal object AutofillApi27Helper {
     @RequiresApi(27)
-    @DoNotInline
     fun notifyViewVisibilityChanged(
         view: View,
         autofillManager: AutofillManager,
@@ -65,15 +62,12 @@ internal object AutofillApi27Helper {
 @RequiresApi(26)
 internal object AutofillApi26Helper {
     @RequiresApi(26)
-    @DoNotInline
     fun newChild(structure: ViewStructure, index: Int): ViewStructure? = structure.newChild(index)
 
     @RequiresApi(26)
-    @DoNotInline
     fun addChildCount(structure: ViewStructure, num: Int) = structure.addChildCount(num)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setId(
         structure: ViewStructure,
         id: Int,
@@ -83,7 +77,6 @@ internal object AutofillApi26Helper {
     ) = structure.setId(id, packageName, typeName, entryName)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setDimens(
         structure: ViewStructure,
         left: Int,
@@ -94,130 +87,104 @@ internal object AutofillApi26Helper {
         height: Int
     ) = structure.setDimens(left, top, scrollX, scrollY, width, height)
 
-    @RequiresApi(26) @DoNotInline fun getAutofillId(structure: ViewStructure) = structure.autofillId
+    @RequiresApi(26) fun getAutofillId(structure: ViewStructure) = structure.autofillId
 
-    @RequiresApi(26) @DoNotInline fun isDate(value: AutofillValue) = value.isDate
+    @RequiresApi(26) fun isDate(value: AutofillValue) = value.isDate
 
-    @RequiresApi(26) @DoNotInline fun isList(value: AutofillValue) = value.isList
+    @RequiresApi(26) fun isList(value: AutofillValue) = value.isList
 
-    @RequiresApi(26) @DoNotInline fun isText(value: AutofillValue) = value.isText
+    @RequiresApi(26) fun isText(value: AutofillValue) = value.isText
 
-    @RequiresApi(26) @DoNotInline fun isToggle(value: AutofillValue) = value.isToggle
+    @RequiresApi(26) fun isToggle(value: AutofillValue) = value.isToggle
 
     @RequiresApi(26)
-    @DoNotInline
     fun setContentDescription(structure: ViewStructure, contentDescription: CharSequence) =
         structure.setContentDescription(contentDescription)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setAutofillHints(structure: ViewStructure, hints: Array<String>) =
         structure.setAutofillHints(hints)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setAutofillId(structure: ViewStructure, parent: AutofillId, virtualId: Int) =
         structure.setAutofillId(parent, virtualId)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setAutofillType(structure: ViewStructure, type: Int) = structure.setAutofillType(type)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setAutofillValue(structure: ViewStructure, value: AutofillValue) =
         structure.setAutofillValue(value)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setCheckable(structure: ViewStructure, checkable: Boolean) =
         structure.setCheckable(checkable)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setChecked(structure: ViewStructure, checked: Boolean) = structure.setChecked(checked)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setChildCount(structure: ViewStructure, numChildren: Int) {
         structure.childCount = numChildren
     }
 
     @RequiresApi(26)
-    @DoNotInline
     fun setClassName(structure: ViewStructure, classname: String) =
         structure.setClassName(classname)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setClickable(structure: ViewStructure, clickable: Boolean) =
         structure.setClickable(clickable)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setDataIsSensitive(structure: ViewStructure, isSensitive: Boolean) =
         structure.setDataIsSensitive(isSensitive)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setEnabled(structure: ViewStructure, enabled: Boolean) = structure.setEnabled(enabled)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setFocusable(structure: ViewStructure, focusable: Boolean) =
         structure.setFocusable(focusable)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setFocused(structure: ViewStructure, focused: Boolean) = structure.setFocused(focused)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setInputType(structure: ViewStructure, type: Int) = structure.setInputType(type)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setLongClickable(structure: ViewStructure, longClickable: Boolean) =
         structure.setLongClickable(longClickable)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setOpaque(structure: ViewStructure, isOpaque: Boolean) = structure.setOpaque(isOpaque)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setSelected(structure: ViewStructure, isSelected: Boolean) =
         structure.setSelected(isSelected)
 
     @RequiresApi(26)
-    @DoNotInline
     fun setText(structure: ViewStructure, text: CharSequence) {
         structure.text = text
     }
 
     @RequiresApi(26)
-    @DoNotInline
     fun setVisibility(structure: ViewStructure, visibility: Int) =
         structure.setVisibility(visibility)
 
-    @RequiresApi(26)
-    @DoNotInline
-    fun textValue(value: AutofillValue): CharSequence = value.textValue
+    @RequiresApi(26) fun textValue(value: AutofillValue): CharSequence = value.textValue
+
+    @RequiresApi(26) fun booleanValue(value: AutofillValue): Boolean = value.toggleValue
+
+    @RequiresApi(26) fun listValue(value: AutofillValue): Int = value.listValue
 
     @RequiresApi(26)
-    @DoNotInline
-    fun booleanValue(value: AutofillValue): Boolean = value.toggleValue
-
-    @RequiresApi(26) @DoNotInline fun listValue(value: AutofillValue): Int = value.listValue
-
-    @RequiresApi(26)
-    @DoNotInline
     fun getAutofillTextValue(value: String): AutofillValue {
         return AutofillValue.forText(value)
     }
 
     @RequiresApi(26)
-    @DoNotInline
     fun setAutofillTypeForViewStruct(child: ViewStructure, dataType: ContentDataType) {
         val autofillType =
             when (dataType) {

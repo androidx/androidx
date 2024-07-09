@@ -32,7 +32,6 @@ import android.view.inputmethod.HandwritingGesture
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
@@ -588,7 +587,6 @@ private fun TextFieldValue.toExtractedText(): ExtractedText {
 @RequiresApi(34)
 private object Api34LegacyPerformHandwritingGestureImpl {
 
-    @DoNotInline
     fun performHandwritingGesture(
         legacyTextFieldState: LegacyTextFieldState?,
         textFieldSelectionManager: TextFieldSelectionManager?,
@@ -614,7 +612,6 @@ private object Api34LegacyPerformHandwritingGestureImpl {
         }
     }
 
-    @DoNotInline
     fun previewHandwritingGesture(
         legacyTextFieldState: LegacyTextFieldState?,
         textFieldSelectionManager: TextFieldSelectionManager?,
