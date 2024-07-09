@@ -995,6 +995,7 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class ListItemColors {
     ctor public ListItemColors(long containerColor, long headlineColor, long leadingIconColor, long overlineColor, long supportingTextColor, long trailingIconColor, long disabledHeadlineColor, long disabledLeadingIconColor, long disabledTrailingIconColor);
+    method public androidx.compose.material3.ListItemColors copy(optional long containerColor, optional long headlineColor, optional long leadingIconColor, optional long overlineColor, optional long supportingTextColor, optional long trailingIconColor, optional long disabledHeadlineColor, optional long disabledLeadingIconColor, optional long disabledTrailingIconColor);
     method public long getContainerColor();
     method public long getDisabledHeadlineColor();
     method public long getDisabledLeadingIconColor();
@@ -1016,6 +1017,7 @@ package androidx.compose.material3 {
   }
 
   public final class ListItemDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ListItemColors colors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ListItemColors colors(optional long containerColor, optional long headlineColor, optional long leadingIconColor, optional long overlineColor, optional long supportingColor, optional long trailingIconColor, optional long disabledHeadlineColor, optional long disabledLeadingIconColor, optional long disabledTrailingIconColor);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getContainerColor();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public long getContentColor();
