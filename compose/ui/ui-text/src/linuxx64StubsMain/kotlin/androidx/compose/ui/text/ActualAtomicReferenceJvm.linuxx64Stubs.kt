@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.ui.text
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.implementedInJetBrainsFork
-
-@Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
-
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
+internal actual class AtomicReference<V> actual constructor(value: V) {
+    init {
+        implementedInJetBrainsFork()
     }
+
+    actual fun get(): V = implementedInJetBrainsFork()
+
+    actual fun set(value: V): Unit = implementedInJetBrainsFork()
+
+    actual fun getAndSet(value: V): V = implementedInJetBrainsFork()
+
+    actual fun compareAndSet(expect: V, newValue: V): Boolean = implementedInJetBrainsFork()
 }

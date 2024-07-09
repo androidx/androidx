@@ -17,13 +17,18 @@
 package androidx.compose.ui.text.style
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.implementedInJetBrainsFork
 
 @Immutable
-actual class TextMotion private constructor() {
+actual value class LineBreak private constructor(internal val mask: Int) {
     actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
+        @Stable actual val Simple: LineBreak = implementedInJetBrainsFork()
 
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
+        @Stable actual val Heading: LineBreak = implementedInJetBrainsFork()
+
+        @Stable actual val Paragraph: LineBreak = implementedInJetBrainsFork()
+
+        @Stable actual val Unspecified: LineBreak = implementedInJetBrainsFork()
     }
 }

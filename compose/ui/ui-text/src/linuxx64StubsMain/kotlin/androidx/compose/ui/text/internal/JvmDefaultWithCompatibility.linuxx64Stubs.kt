@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.ui.text.internal
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.implementedInJetBrainsFork
-
-@Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
-
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
-    }
-}
+internal actual annotation class JvmDefaultWithCompatibility

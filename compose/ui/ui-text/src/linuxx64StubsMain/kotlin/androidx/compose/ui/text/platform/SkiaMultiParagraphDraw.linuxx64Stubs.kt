@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.ui.text.platform
 
-import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.implementedInJetBrainsFork
+import androidx.compose.ui.text.style.TextDecoration
 
-@Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
-
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
-    }
-}
+internal actual fun MultiParagraph.drawMultiParagraph(
+    canvas: Canvas,
+    brush: Brush,
+    alpha: Float,
+    shadow: Shadow?,
+    decoration: TextDecoration?,
+    drawStyle: DrawStyle?,
+    blendMode: BlendMode
+): Unit = implementedInJetBrainsFork()

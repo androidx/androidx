@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.text
 
+import kotlin.jvm.JvmInline
+
 /**
  * An [AnnotatedString.Annotation] class which holds a String [value].
  *

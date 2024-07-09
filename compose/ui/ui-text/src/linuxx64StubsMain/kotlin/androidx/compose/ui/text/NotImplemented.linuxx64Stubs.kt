@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.ui.text
 
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.implementedInJetBrainsFork
-
-@Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
-
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
-    }
-}
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun implementedInJetBrainsFork(): Nothing =
+    throw NotImplementedError(
+        """
+        Implemented only in JetBrains fork.
+        Please use `org.jetbrains.compose.ui:ui-text` package instead.
+        """
+            .trimIndent()
+    )

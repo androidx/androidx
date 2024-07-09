@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.style
+package androidx.compose.ui.text.font
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.implementedInJetBrainsFork
 
-@Immutable
-actual class TextMotion private constructor() {
-    actual companion object {
-        actual val Static: TextMotion = implementedInJetBrainsFork()
+internal actual class PlatformFontFamilyTypefaceAdapter actual constructor() :
+    FontFamilyTypefaceAdapter {
 
-        actual val Animated: TextMotion = implementedInJetBrainsFork()
-    }
+    actual override fun resolve(
+        typefaceRequest: TypefaceRequest,
+        platformFontLoader: PlatformFontLoader,
+        onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,
+        createDefaultTypeface: (TypefaceRequest) -> Any
+    ): TypefaceResult? = implementedInJetBrainsFork()
 }
