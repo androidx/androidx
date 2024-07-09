@@ -355,7 +355,7 @@ internal class ComposeContainer(
         val density = container.density
         return when (layerType) {
             LayerType.OnSameCanvas ->
-                MultiLayerComposeScene(
+                CanvasLayersComposeScene(
                     density = density,
                     layoutDirection = layoutDirection,
                     coroutineContext = mediator.coroutineContext,
@@ -364,7 +364,7 @@ internal class ComposeContainer(
                     ),
                     invalidate = mediator::onComposeInvalidation,
                 )
-            else -> SingleLayerComposeScene(
+            else -> PlatformLayersComposeScene(
                 density = density,
                 layoutDirection = layoutDirection,
                 coroutineContext = mediator.coroutineContext,

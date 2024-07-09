@@ -164,7 +164,7 @@ internal class UIViewComposeSceneLayer(
         platformContext: PlatformContext,
         coroutineContext: CoroutineContext,
     ): ComposeScene =
-        SingleLayerComposeScene(
+        PlatformLayersComposeScene(
             density = initDensity, // We should use the local density already set for the current layer.
             layoutDirection = initLayoutDirection,
             coroutineContext = coroutineContext,

@@ -36,9 +36,9 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.ComposeSceneMediator
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.SceneLayout
-import androidx.compose.ui.scene.SingleLayerComposeScene
+import androidx.compose.ui.scene.PlatformLayersComposeScene
 import androidx.compose.ui.scene.UIViewComposeSceneLayer
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.InterfaceOrientation
@@ -336,7 +336,7 @@ internal class ComposeContainer(
         platformContext: PlatformContext,
         coroutineContext: CoroutineContext,
     ): ComposeScene = if (configuration.platformLayers) {
-        SingleLayerComposeScene(
+        PlatformLayersComposeScene(
             density = systemDensity,
             layoutDirection = layoutDirection,
             coroutineContext = coroutineContext,
@@ -346,7 +346,7 @@ internal class ComposeContainer(
             invalidate = invalidate,
         )
     } else {
-        MultiLayerComposeScene(
+        CanvasLayersComposeScene(
             density = systemDensity,
             layoutDirection = layoutDirection,
             coroutineContext = coroutineContext,

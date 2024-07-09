@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.MacosTextInputService
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.scene.ComposeSceneContext
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
@@ -96,7 +96,7 @@ private class ComposeWindow(
             override val textInputService get() = macosTextInputService
         }
     private val skiaLayer = SkiaLayer()
-    private val scene = MultiLayerComposeScene(
+    private val scene = CanvasLayersComposeScene(
         coroutineContext = Dispatchers.Main,
         composeSceneContext = object : ComposeSceneContext {
             override val platformContext get() = this@ComposeWindow.platformContext

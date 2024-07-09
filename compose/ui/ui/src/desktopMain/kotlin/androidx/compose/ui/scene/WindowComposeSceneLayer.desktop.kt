@@ -203,7 +203,7 @@ internal class WindowComposeSceneLayer(
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
         val layoutDirection = layoutDirectionFor(container)
-        return SingleLayerComposeScene(
+        return PlatformLayersComposeScene(
             coroutineContext = mediator.coroutineContext,
             density = density,
             invalidate = mediator::onComposeInvalidation,

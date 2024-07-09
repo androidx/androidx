@@ -32,7 +32,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.scene.ComposeScene
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.EditCommand
@@ -57,7 +57,7 @@ interface PlatformContext {
      * This is used when rendering the scrim of a dialog - if set to true, a special blending mode
      * will be used to take into account the existing alpha-channel values.
      *
-     * @see MultiLayerComposeScene
+     * @see CanvasLayersComposeScene
      */
     val isWindowTransparent: Boolean get() = false
 
