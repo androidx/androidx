@@ -28,7 +28,6 @@ import android.view.inputmethod.PreviewableHandwritingGesture
 import android.view.inputmethod.RemoveSpaceGesture
 import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.input.TextHighlightType
@@ -55,7 +54,6 @@ import kotlin.math.min
 
 @RequiresApi(34)
 internal object HandwritingGestureApi34 {
-    @DoNotInline
     internal fun TransformedTextFieldState.performHandwritingGesture(
         handwritingGesture: HandwritingGesture,
         layoutState: TextLayoutState,
@@ -76,7 +74,6 @@ internal object HandwritingGestureApi34 {
         }
     }
 
-    @DoNotInline
     internal fun TransformedTextFieldState.previewHandwritingGesture(
         handwritingGesture: PreviewableHandwritingGesture,
         layoutState: TextLayoutState,
@@ -93,7 +90,6 @@ internal object HandwritingGestureApi34 {
         return true
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performSelectGesture(
         gesture: SelectGesture,
         layoutState: TextLayoutState
@@ -112,7 +108,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.previewSelectGesture(
         gesture: SelectGesture,
         layoutState: TextLayoutState
@@ -127,7 +122,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performDeleteGesture(
         gesture: DeleteGesture,
         layoutState: TextLayoutState
@@ -149,7 +143,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.previewDeleteGesture(
         gesture: DeleteGesture,
         layoutState: TextLayoutState
@@ -164,7 +157,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performSelectRangeGesture(
         gesture: SelectRangeGesture,
         layoutState: TextLayoutState
@@ -184,7 +176,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.previewSelectRangeGesture(
         gesture: SelectRangeGesture,
         layoutState: TextLayoutState
@@ -200,7 +191,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performDeleteRangeGesture(
         gesture: DeleteRangeGesture,
         layoutState: TextLayoutState
@@ -223,7 +213,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.previewDeleteRangeGesture(
         gesture: DeleteRangeGesture,
         layoutState: TextLayoutState
@@ -239,7 +228,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performJoinOrSplitGesture(
         gesture: JoinOrSplitGesture,
         layoutState: TextLayoutState,
@@ -274,7 +262,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performInsertGesture(
         gesture: InsertGesture,
         layoutState: TextLayoutState,
@@ -295,7 +282,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performRemoveSpaceGesture(
         gesture: RemoveSpaceGesture,
         layoutState: TextLayoutState,
@@ -345,7 +331,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.performDeletion(
         rangeInTransformedText: TextRange,
         adjustRange: Boolean
@@ -359,7 +344,6 @@ internal object HandwritingGestureApi34 {
         replaceText("", finalRange)
     }
 
-    @DoNotInline
     private fun TransformedTextFieldState.fallback(gesture: HandwritingGesture): Int {
         editUntransformedTextAsUser { clearHighlight() }
 
@@ -384,7 +368,6 @@ internal object HandwritingGestureApi34 {
         }
     }
 
-    @DoNotInline
     internal fun LegacyTextFieldState.performHandwritingGesture(
         gesture: HandwritingGesture,
         textFieldSelectionManager: TextFieldSelectionManager?,
@@ -413,7 +396,6 @@ internal object HandwritingGestureApi34 {
         }
     }
 
-    @DoNotInline
     internal fun LegacyTextFieldState.previewHandwritingGesture(
         gesture: PreviewableHandwritingGesture,
         textFieldSelectionManager: TextFieldSelectionManager?,
@@ -437,7 +419,6 @@ internal object HandwritingGestureApi34 {
         return true
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performSelectGesture(
         gesture: SelectGesture,
         textSelectionManager: TextFieldSelectionManager?,
@@ -457,7 +438,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.previewSelectGesture(
         gesture: SelectGesture,
         textFieldSelectionManager: TextFieldSelectionManager?
@@ -471,7 +451,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performDeleteGesture(
         gesture: DeleteGesture,
         text: AnnotatedString,
@@ -497,7 +476,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.previewDeleteGesture(
         gesture: DeleteGesture,
         textFieldSelectionManager: TextFieldSelectionManager?
@@ -511,7 +489,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performSelectRangeGesture(
         gesture: SelectRangeGesture,
         textSelectionManager: TextFieldSelectionManager?,
@@ -536,7 +513,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.previewSelectRangeGesture(
         gesture: SelectRangeGesture,
         textFieldSelectionManager: TextFieldSelectionManager?
@@ -551,7 +527,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performDeleteRangeGesture(
         gesture: DeleteRangeGesture,
         text: AnnotatedString,
@@ -577,7 +552,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.previewDeleteRangeGesture(
         gesture: DeleteRangeGesture,
         textFieldSelectionManager: TextFieldSelectionManager?
@@ -592,7 +566,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performJoinOrSplitGesture(
         gesture: JoinOrSplitGesture,
         text: AnnotatedString,
@@ -628,7 +601,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performInsertGesture(
         gesture: InsertGesture,
         viewConfiguration: ViewConfiguration?,
@@ -652,7 +624,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun LegacyTextFieldState.performRemoveSpaceGesture(
         gesture: RemoveSpaceGesture,
         text: AnnotatedString,
@@ -710,7 +681,6 @@ internal object HandwritingGestureApi34 {
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
-    @DoNotInline
     private fun performInsertionOnLegacyTextField(
         offset: Int,
         text: String,
@@ -721,7 +691,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun performSelectionOnLegacyTextField(
         range: TextRange,
         textSelectionManager: TextFieldSelectionManager?,
@@ -731,7 +700,6 @@ internal object HandwritingGestureApi34 {
         textSelectionManager?.enterSelectionMode(showFloatingToolbar = true)
     }
 
-    @DoNotInline
     private fun performDeletionOnLegacyTextField(
         range: TextRange,
         text: AnnotatedString,
@@ -756,7 +724,6 @@ internal object HandwritingGestureApi34 {
         )
     }
 
-    @DoNotInline
     private fun fallbackOnLegacyTextField(
         gesture: HandwritingGesture,
         editCommandConsumer: (EditCommand) -> Unit
@@ -768,7 +735,6 @@ internal object HandwritingGestureApi34 {
     }
 
     /** Convert the Platform text granularity to Compose [TextGranularity] object. */
-    @DoNotInline
     private fun Int.toTextGranularity(): TextGranularity {
         return when (this) {
             HandwritingGesture.GRANULARITY_CHARACTER -> TextGranularity.Character

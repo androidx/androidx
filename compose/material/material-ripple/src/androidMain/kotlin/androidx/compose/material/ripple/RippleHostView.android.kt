@@ -25,7 +25,6 @@ import android.graphics.drawable.RippleDrawable
 import android.os.Build
 import android.view.View
 import android.view.animation.AnimationUtils
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.ui.geometry.Size
@@ -366,7 +365,6 @@ private class UnprojectedRipple(private val bounded: Boolean) :
     @RequiresApi(Build.VERSION_CODES.M)
     private object MRadiusHelper {
         /** Sets the [radius] for the given [ripple]. */
-        @DoNotInline
         fun setRadius(ripple: RippleDrawable, radius: Int) {
             ripple.radius = radius
         }

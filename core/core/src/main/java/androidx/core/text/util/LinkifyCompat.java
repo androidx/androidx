@@ -31,7 +31,6 @@ import android.text.util.Linkify.TransformFilter;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -546,13 +545,11 @@ public final class LinkifyCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void addLinks(TextView text, Pattern pattern, String defaultScheme, String[] schemes,
                 MatchFilter matchFilter, TransformFilter transformFilter) {
             Linkify.addLinks(text, pattern, defaultScheme, schemes, matchFilter, transformFilter);
         }
 
-        @DoNotInline
         static boolean addLinks(Spannable spannable, Pattern pattern, String defaultScheme,
                 String[] schemes, MatchFilter matchFilter, TransformFilter transformFilter) {
             return Linkify.addLinks(spannable, pattern, defaultScheme, schemes, matchFilter,

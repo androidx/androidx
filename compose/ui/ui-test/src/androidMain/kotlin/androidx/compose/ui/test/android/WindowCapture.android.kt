@@ -25,7 +25,6 @@ import android.view.PixelCopy
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.Window
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.graphics.ImageBitmap
@@ -185,7 +184,6 @@ private fun MainTestClock.waitUntil(timeoutMillis: Long, condition: () -> Boolea
 
 @RequiresApi(Build.VERSION_CODES.Q)
 private object FrameCommitCallbackHelper {
-    @DoNotInline
     fun registerFrameCommitCallback(viewTreeObserver: ViewTreeObserver, runnable: Runnable) {
         viewTreeObserver.registerFrameCommitCallback(runnable)
     }
@@ -193,7 +191,6 @@ private object FrameCommitCallbackHelper {
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object PixelCopyHelper {
-    @DoNotInline
     fun request(
         source: Window,
         srcRect: Rect?,

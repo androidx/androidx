@@ -18,7 +18,6 @@ package androidx.constraintlayout.compose
 
 import android.os.Build
 import android.view.View
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -1169,7 +1168,6 @@ value class DebugFlags internal constructor(private val flags: Int) {
 @RequiresApi(30)
 private object Api30Impl {
     @JvmStatic
-    @DoNotInline
     fun isShowingLayoutBounds(view: View): Boolean {
         return view.isShowingLayoutBounds
     }

@@ -21,7 +21,6 @@ import android.icu.util.ULocale;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -155,17 +154,14 @@ public final class ICUCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ULocale forLocale(Locale loc) {
             return ULocale.forLocale(loc);
         }
 
-        @DoNotInline
         static ULocale addLikelySubtags(Object loc) {
             return ULocale.addLikelySubtags((ULocale) loc);
         }
 
-        @DoNotInline
         static String getScript(Object uLocale) {
             return ((ULocale) uLocale).getScript();
         }
@@ -177,7 +173,6 @@ public final class ICUCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static String getScript(Locale locale) {
             return locale.getScript();
         }

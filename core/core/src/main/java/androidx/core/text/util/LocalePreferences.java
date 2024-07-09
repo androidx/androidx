@@ -24,7 +24,6 @@ import android.icu.util.MeasureUnit;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -562,13 +561,11 @@ public final class LocalePreferences {
 
     @RequiresApi(VERSION_CODES.N)
     private static class Api24Impl {
-        @DoNotInline
         @CalendarType.CalendarTypes
         static String getCalendarType(@NonNull Locale locale) {
             return android.icu.util.Calendar.getInstance(locale).getType();
         }
 
-        @DoNotInline
         static Locale getDefaultLocale() {
             return Locale.getDefault(Category.FORMAT);
         }
@@ -579,7 +576,6 @@ public final class LocalePreferences {
 
     @RequiresApi(VERSION_CODES.TIRAMISU)
     private static class Api33Impl {
-        @DoNotInline
         @TemperatureUnit.TemperatureUnits
         static String getResolvedTemperatureUnit(@NonNull Locale locale) {
             LocalizedNumberFormatter nf = NumberFormatter.with()
@@ -593,7 +589,6 @@ public final class LocalePreferences {
             return unit;
         }
 
-        @DoNotInline
         @HourCycle.HourCycleTypes
         static String getHourCycle(@NonNull Locale locale) {
             return getHourCycleType(

@@ -19,7 +19,6 @@ package androidx.compose.ui.res
 import android.content.Context
 import android.os.Build
 import androidx.annotation.ColorRes
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -45,7 +44,6 @@ fun colorResource(@ColorRes id: Int): Color {
 
 @RequiresApi(23)
 private object ColorResourceHelper {
-    @DoNotInline
     fun getColor(context: Context, @ColorRes id: Int): Color {
         return Color(context.resources.getColor(id, context.theme))
     }

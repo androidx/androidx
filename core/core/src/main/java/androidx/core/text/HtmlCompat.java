@@ -30,7 +30,6 @@ import android.text.Spanned;
 import android.text.style.BulletSpan;
 import android.text.style.ParagraphStyle;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -187,18 +186,15 @@ public final class HtmlCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Spanned fromHtml(String source, int flags) {
             return Html.fromHtml(source, flags);
         }
 
-        @DoNotInline
         static Spanned fromHtml(String source, int flags, ImageGetter imageGetter,
                 TagHandler tagHandler) {
             return Html.fromHtml(source, flags, imageGetter, tagHandler);
         }
 
-        @DoNotInline
         static String toHtml(Spanned text, int option) {
             return Html.toHtml(text, option);
         }

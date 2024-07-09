@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -304,19 +303,16 @@ public class FingerprintManagerCompat {
         }
 
         @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
-        @DoNotInline
         static boolean hasEnrolledFingerprints(Object fingerprintManager) {
             return ((FingerprintManager) fingerprintManager).hasEnrolledFingerprints();
         }
 
         @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
-        @DoNotInline
         static boolean isHardwareDetected(Object fingerprintManager) {
             return ((FingerprintManager) fingerprintManager).isHardwareDetected();
         }
 
         @RequiresPermission(Manifest.permission.USE_FINGERPRINT)
-        @DoNotInline
         static void authenticate(Object fingerprintManager, Object crypto,
                 CancellationSignal cancel, int flags, Object callback, Handler handler) {
             ((FingerprintManager) fingerprintManager).authenticate(
@@ -324,13 +320,11 @@ public class FingerprintManagerCompat {
                     (FingerprintManager.AuthenticationCallback) callback, handler);
         }
 
-        @DoNotInline
         static FingerprintManager.CryptoObject getCryptoObject(Object authenticationResult) {
             return ((FingerprintManager.AuthenticationResult) authenticationResult)
                     .getCryptoObject();
         }
 
-        @DoNotInline
         public static FingerprintManager getFingerprintManagerOrNull(Context context) {
             if (Build.VERSION.SDK_INT == 23) {
                 return context.getSystemService(FingerprintManager.class);
@@ -342,7 +336,6 @@ public class FingerprintManagerCompat {
             }
         }
 
-        @DoNotInline
         public static FingerprintManager.CryptoObject wrapCryptoObject(CryptoObject cryptoObject) {
             if (cryptoObject == null) {
                 return null;
@@ -357,7 +350,6 @@ public class FingerprintManagerCompat {
             }
         }
 
-        @DoNotInline
         public static CryptoObject unwrapCryptoObject(Object cryptoObjectObj) {
             FingerprintManager.CryptoObject cryptoObject =
                     (FingerprintManager.CryptoObject) cryptoObjectObj;

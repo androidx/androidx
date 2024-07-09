@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.platform.extensions
 
 import android.text.style.LocaleSpan
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.AndroidTextPaint
@@ -30,12 +29,10 @@ import androidx.compose.ui.text.platform.AndroidTextPaint
 @RequiresApi(24)
 internal object LocaleListHelperMethods {
     @RequiresApi(24)
-    @DoNotInline
     fun localeSpan(localeList: LocaleList): Any =
         LocaleSpan(android.os.LocaleList(*localeList.map { it.platformLocale }.toTypedArray()))
 
     @RequiresApi(24)
-    @DoNotInline
     fun setTextLocales(textPaint: AndroidTextPaint, localeList: LocaleList) {
         textPaint.textLocales =
             android.os.LocaleList(*localeList.map { it.platformLocale }.toTypedArray())

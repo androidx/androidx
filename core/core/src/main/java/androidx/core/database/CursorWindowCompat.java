@@ -19,7 +19,6 @@ package androidx.core.database;
 import android.database.CursorWindow;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -54,7 +53,6 @@ public final class CursorWindowCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static CursorWindow createCursorWindow(String name, long windowSizeBytes) {
             return new CursorWindow(name, windowSizeBytes);
         }

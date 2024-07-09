@@ -27,7 +27,6 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.view.Display;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -397,12 +396,10 @@ public final class DisplayCompat {
                 // This class is not instantiable.
             }
 
-            @DoNotInline
             static int getPhysicalWidth(Display.Mode mode) {
                 return mode.getPhysicalWidth();
             }
 
-            @DoNotInline
             static int getPhysicalHeight(Display.Mode mode) {
                 return mode.getPhysicalHeight();
             }

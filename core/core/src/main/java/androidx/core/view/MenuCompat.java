@@ -20,7 +20,6 @@ import android.os.Build;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.internal.view.SupportMenu;
@@ -65,7 +64,6 @@ public final class MenuCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setGroupDividerEnabled(Menu menu, boolean groupDividerEnabled) {
             menu.setGroupDividerEnabled(groupDividerEnabled);
         }

@@ -25,7 +25,6 @@ import android.text.Annotation
 import android.text.SpannableString
 import android.text.Spanned
 import android.util.Base64
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -123,7 +122,6 @@ actual typealias NativeClipboard = android.content.ClipboardManager
 @RequiresApi(28)
 private object Api28ClipboardManagerClipClear {
 
-    @DoNotInline
     @JvmStatic
     fun clearPrimaryClip(clipboardManager: android.content.ClipboardManager) {
         clipboardManager.clearPrimaryClip()

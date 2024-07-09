@@ -25,7 +25,6 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.TypefaceSpan
 import android.text.style.UnderlineSpan
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.text.AnnotatedString
@@ -189,7 +188,7 @@ private fun SpannableString.setSpanStyle(
 
 @RequiresApi(28)
 private object Api28Impl {
-    @DoNotInline fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
+    fun createTypefaceSpan(typeface: Typeface): TypefaceSpan = TypefaceSpan(typeface)
 }
 
 private fun AnnotatedString.Range<LinkAnnotation>.toUrlLink() =

@@ -20,7 +20,6 @@ import android.app.Dialog;
 import android.os.Build;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -73,7 +72,6 @@ public class DialogCompat {
         }
 
         @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-        @DoNotInline
         static <T> T requireViewById(Dialog dialog, int id) {
             return (T) dialog.requireViewById(id);
         }

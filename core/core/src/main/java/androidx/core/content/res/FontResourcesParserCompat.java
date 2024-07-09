@@ -28,7 +28,6 @@ import android.util.TypedValue;
 import android.util.Xml;
 
 import androidx.annotation.ArrayRes;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -364,7 +363,6 @@ public class FontResourcesParserCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getType(TypedArray typedArray, int index) {
             return typedArray.getType(index);
         }

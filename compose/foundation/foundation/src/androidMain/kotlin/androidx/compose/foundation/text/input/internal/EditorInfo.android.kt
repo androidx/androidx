@@ -26,7 +26,6 @@ import android.view.inputmethod.JoinOrSplitGesture
 import android.view.inputmethod.RemoveSpaceGesture
 import android.view.inputmethod.SelectGesture
 import android.view.inputmethod.SelectRangeGesture
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.ui.text.TextRange
@@ -158,7 +157,6 @@ private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 @RequiresApi(24)
 internal object LocaleListHelper {
     @RequiresApi(24)
-    @DoNotInline
     fun setHintLocales(editorInfo: EditorInfo, localeList: LocaleList) {
         when (localeList) {
             LocaleList.Empty -> {
@@ -174,7 +172,6 @@ internal object LocaleListHelper {
 
 @RequiresApi(34)
 private object EditorInfoApi34 {
-    @DoNotInline
     fun setHandwritingGestures(editorInfo: EditorInfo) {
         editorInfo.supportedHandwritingGestures =
             listOf(

@@ -23,7 +23,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -399,13 +398,11 @@ public final class ParcelCompat {
             // This class is non-instantiable.
         }
 
-        @DoNotInline
         static <T extends Parcelable> List<T> readParcelableList(@NonNull Parcel in,
                 @NonNull List<T> list, @Nullable ClassLoader cl) {
             return in.readParcelableList(list, cl);
         }
 
-        @DoNotInline
         static void writeBoolean(@NonNull Parcel parcel, boolean val) {
             parcel.writeBoolean(val);
         }
@@ -417,7 +414,6 @@ public final class ParcelCompat {
             // This class is non-instantiable.
         }
 
-        @DoNotInline
         static Parcelable.Creator<?> readParcelableCreator(@NonNull Parcel in,
                 @Nullable ClassLoader loader) {
             return in.readParcelableCreator(loader);
@@ -430,66 +426,55 @@ public final class ParcelCompat {
             // This class is non-instantiable.
         }
 
-        @DoNotInline
         static <T extends Serializable> T readSerializable(@NonNull Parcel in,
                 @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
             return in.readSerializable(loader, clazz);
         }
 
-        @DoNotInline
         static <T extends Parcelable> T readParcelable(@NonNull Parcel in,
                 @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
             return in.readParcelable(loader, clazz);
         }
 
-        @DoNotInline
         static <T> Parcelable.Creator<T> readParcelableCreator(Parcel in, ClassLoader loader,
                 Class<T> clazz) {
             return in.readParcelableCreator(loader, clazz);
         }
 
-        @DoNotInline
         static <T> T[] readParcelableArray(@NonNull Parcel in, @Nullable ClassLoader loader,
                 @NonNull Class<T> clazz) {
             return in.readParcelableArray(loader, clazz);
         }
 
-        @DoNotInline
         static <T> List<T> readParcelableList(@NonNull Parcel in, @NonNull List<T> list,
                 @Nullable ClassLoader cl, @NonNull Class<T> clazz) {
             return in.readParcelableList(list, cl, clazz);
         }
 
-        @DoNotInline
         static <T> void readList(@NonNull Parcel in, @NonNull List<? super T> outVal,
                 @Nullable ClassLoader loader, @NonNull Class<T> clazz) {
             in.readList(outVal, loader, clazz);
         }
 
-        @DoNotInline
         static <T> ArrayList<T> readArrayList(Parcel in, ClassLoader loader,
                 Class<? extends T> clazz) {
             return in.readArrayList(loader, clazz);
         }
 
-        @DoNotInline
         static <T> T[] readArray(Parcel in, ClassLoader loader, Class<T> clazz) {
             return in.readArray(loader, clazz);
         }
 
-        @DoNotInline
         static <T> SparseArray<T> readSparseArray(Parcel in, ClassLoader loader,
                 Class<? extends T> clazz) {
             return in.readSparseArray(loader, clazz);
         }
 
-        @DoNotInline
         static <K, V> void readMap(Parcel in, Map<? super K, ? super V> outVal,
                 ClassLoader loader, Class<K> clazzKey, Class<V> clazzValue) {
             in.readMap(outVal, loader, clazzKey, clazzValue);
         }
 
-        @DoNotInline
         static <V, K> HashMap<K, V> readHashMap(Parcel in, ClassLoader loader,
                 Class<? extends K> clazzKey, Class<? extends V> clazzValue) {
             return in.readHashMap(loader, clazzKey, clazzValue);

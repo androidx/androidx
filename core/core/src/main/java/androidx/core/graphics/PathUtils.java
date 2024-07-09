@@ -19,7 +19,6 @@ package androidx.core.graphics;
 import android.graphics.Path;
 import android.graphics.PointF;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -92,7 +91,6 @@ public final class PathUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static float[] approximate(Path path, float acceptableError) {
             return path.approximate(acceptableError);
         }

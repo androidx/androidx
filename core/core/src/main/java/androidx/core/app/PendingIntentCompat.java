@@ -28,7 +28,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -295,7 +294,6 @@ public final class PendingIntentCompat {
     private static class Api23Impl {
         private Api23Impl() {}
 
-        @DoNotInline
         public static void send(
                 @NonNull PendingIntent pendingIntent,
                 @NonNull Context context,
@@ -320,7 +318,6 @@ public final class PendingIntentCompat {
     private static class Api26Impl {
         private Api26Impl() {}
 
-        @DoNotInline
         public static PendingIntent getForegroundService(
                 Context context, int requestCode, Intent intent, int flags) {
             return PendingIntent.getForegroundService(context, requestCode, intent, flags);

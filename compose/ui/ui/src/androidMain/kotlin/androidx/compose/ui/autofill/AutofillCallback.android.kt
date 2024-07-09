@@ -20,7 +20,6 @@ import android.os.Build
 import android.util.Log
 import android.view.View
 import android.view.autofill.AutofillManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -58,13 +57,11 @@ internal object AutofillCallback : AutofillManager.AutofillCallback() {
     }
 
     /** Registers the autofill debug callback. */
-    @DoNotInline
     fun register(autofill: AndroidAutofill) {
         autofill.autofillManager.registerCallback(this)
     }
 
     /** Unregisters the autofill debug callback. */
-    @DoNotInline
     fun unregister(autofill: AndroidAutofill) {
         autofill.autofillManager.unregisterCallback(this)
     }

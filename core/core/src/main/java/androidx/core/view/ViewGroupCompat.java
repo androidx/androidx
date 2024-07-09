@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.R;
@@ -200,17 +199,14 @@ public final class ViewGroupCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setTransitionGroup(ViewGroup viewGroup, boolean isTransitionGroup) {
             viewGroup.setTransitionGroup(isTransitionGroup);
         }
 
-        @DoNotInline
         static boolean isTransitionGroup(ViewGroup viewGroup) {
             return viewGroup.isTransitionGroup();
         }
 
-        @DoNotInline
         static int getNestedScrollAxes(ViewGroup viewGroup) {
             return viewGroup.getNestedScrollAxes();
         }

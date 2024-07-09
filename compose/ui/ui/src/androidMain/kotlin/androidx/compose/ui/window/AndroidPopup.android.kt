@@ -33,7 +33,6 @@ import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
@@ -866,13 +865,11 @@ internal class PopupLayout(
 @RequiresApi(33)
 private object Api33Impl {
     @JvmStatic
-    @DoNotInline
     fun createBackCallback(onDismissRequest: (() -> Unit)?) = OnBackInvokedCallback {
         onDismissRequest?.invoke()
     }
 
     @JvmStatic
-    @DoNotInline
     fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
         if (backCallback is OnBackInvokedCallback) {
             view
@@ -885,7 +882,6 @@ private object Api33Impl {
     }
 
     @JvmStatic
-    @DoNotInline
     fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
         if (backCallback is OnBackInvokedCallback) {
             view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)

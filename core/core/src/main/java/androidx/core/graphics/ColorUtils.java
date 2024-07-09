@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -101,7 +100,6 @@ public final class ColorUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Color compositeColors(Color foreground, Color background) {
             if (!Objects.equals(foreground.getModel(), background.getModel())) {
                 throw new IllegalArgumentException(

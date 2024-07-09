@@ -22,7 +22,6 @@ import android.os.IBinder
 import android.os.Parcelable
 import android.util.Size
 import android.util.SizeF
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import java.io.Serializable
 
@@ -114,11 +113,8 @@ public fun bundleOf(): Bundle = Bundle(0)
 
 @RequiresApi(21)
 private object BundleApi21ImplKt {
-    @DoNotInline
-    @JvmStatic
-    fun putSize(bundle: Bundle, key: String, value: Size?) = bundle.putSize(key, value)
+    @JvmStatic fun putSize(bundle: Bundle, key: String, value: Size?) = bundle.putSize(key, value)
 
-    @DoNotInline
     @JvmStatic
     fun putSizeF(bundle: Bundle, key: String, value: SizeF?) = bundle.putSizeF(key, value)
 }

@@ -25,7 +25,6 @@ import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.DisconnectCause
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.telecom.CallAttributesCompat
@@ -256,7 +255,6 @@ internal class CallSessionLegacy(
     @RequiresApi(VERSION_CODES.O)
     private object Api26PlusImpl {
         @JvmStatic
-        @DoNotInline
         fun setAudio(callEndpoint: CallEndpointCompat, connection: CallSessionLegacy) {
             connection.setAudioRoute(EndpointUtils.mapTypeToRoute(callEndpoint.type))
         }
@@ -266,7 +264,6 @@ internal class CallSessionLegacy(
     @RequiresApi(VERSION_CODES.P)
     private object Api28PlusImpl {
         @JvmStatic
-        @DoNotInline
         fun setAudio(
             callEndpoint: CallEndpointCompat,
             connection: CallSessionLegacy,
@@ -286,7 +283,6 @@ internal class CallSessionLegacy(
         }
 
         @JvmStatic
-        @DoNotInline
         fun refreshBluetoothDeviceCache(
             btCacheList: ArrayList<BluetoothDevice>,
             state: CallAudioState
@@ -296,7 +292,6 @@ internal class CallSessionLegacy(
         }
 
         @JvmStatic
-        @DoNotInline
         fun getBluetoothDeviceFromEndpoint(
             btCacheList: ArrayList<BluetoothDevice>,
             endpoint: CallEndpointCompat

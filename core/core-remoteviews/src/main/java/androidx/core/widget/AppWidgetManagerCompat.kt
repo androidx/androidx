@@ -24,7 +24,6 @@ import android.os.Build.VERSION.SDK_INT
 import android.util.Log
 import android.util.SizeF
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.util.SizeFCompat
 import kotlin.math.ceil
@@ -183,7 +182,6 @@ private fun AppWidgetManager.requireValidAppWidgetId(appWidgetId: Int) {
 @RequiresApi(31)
 @Suppress("DEPRECATION")
 private object AppWidgetManagerApi31Impl {
-    @DoNotInline
     fun createExactSizeAppWidget(
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int,
@@ -202,7 +200,6 @@ private object AppWidgetManagerApi31Impl {
         return RemoteViews(sizes.associateWith { factory(it.toSizeFCompat()) })
     }
 
-    @DoNotInline
     fun createResponsiveSizeAppWidget(
         dpSizes: Collection<SizeFCompat>,
         factory: (SizeFCompat) -> RemoteViews

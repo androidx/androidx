@@ -20,7 +20,6 @@ import android.graphics.Matrix
 import android.os.Build
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorBoundsInfo
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toAndroidRectF
@@ -190,7 +189,6 @@ private fun CursorAnchorInfo.Builder.addCharacterBounds(
 @RequiresApi(33)
 private object CursorAnchorInfoApi33Helper {
     @JvmStatic
-    @DoNotInline
     fun setEditorBoundsInfo(
         builder: CursorAnchorInfo.Builder,
         decorationBoxBounds: Rect
@@ -206,7 +204,6 @@ private object CursorAnchorInfoApi33Helper {
 @RequiresApi(34)
 private object CursorAnchorInfoApi34Helper {
     @JvmStatic
-    @DoNotInline
     fun addVisibleLineBounds(
         builder: CursorAnchorInfo.Builder,
         textLayoutResult: TextLayoutResult,

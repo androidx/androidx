@@ -18,7 +18,6 @@ package androidx.compose.ui.graphics
 
 import android.graphics.Shader
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -62,7 +61,7 @@ fun Shader.TileMode.toComposeTileMode(): TileMode =
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object TileModeVerificationHelper {
-    @DoNotInline fun getFrameworkTileModeDecal() = Shader.TileMode.DECAL
+    fun getFrameworkTileModeDecal() = Shader.TileMode.DECAL
 
-    @DoNotInline fun getComposeTileModeDecal() = TileMode.Decal
+    fun getComposeTileModeDecal() = TileMode.Decal
 }

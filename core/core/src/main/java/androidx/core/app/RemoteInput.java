@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -591,24 +590,20 @@ public final class RemoteInput {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Map<String, Uri> getDataResultsFromIntent(Intent intent,
                 String remoteInputResultKey) {
             return android.app.RemoteInput.getDataResultsFromIntent(intent, remoteInputResultKey);
         }
 
-        @DoNotInline
         static Set<String> getAllowedDataTypes(Object remoteInput) {
             return ((android.app.RemoteInput) remoteInput).getAllowedDataTypes();
         }
 
-        @DoNotInline
         static void addDataResultToIntent(RemoteInput remoteInput, Intent intent,
                 Map<String, Uri> results) {
             android.app.RemoteInput.addDataResultToIntent(fromCompat(remoteInput), intent, results);
         }
 
-        @DoNotInline
         static android.app.RemoteInput.Builder setAllowDataType(
                 android.app.RemoteInput.Builder builder, String mimeType, boolean doAllow) {
             return builder.setAllowDataType(mimeType, doAllow);
@@ -621,12 +616,10 @@ public final class RemoteInput {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Bundle getResultsFromIntent(Intent intent) {
             return android.app.RemoteInput.getResultsFromIntent(intent);
         }
 
-        @DoNotInline
         static void addResultsToIntent(Object remoteInputs, Intent intent, Bundle results) {
             android.app.RemoteInput.addResultsToIntent((android.app.RemoteInput[]) remoteInputs,
                     intent, results);
@@ -682,12 +675,10 @@ public final class RemoteInput {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getEditChoicesBeforeSending(Object remoteInput) {
             return ((android.app.RemoteInput) remoteInput).getEditChoicesBeforeSending();
         }
 
-        @DoNotInline
         static android.app.RemoteInput.Builder setEditChoicesBeforeSending(
                 android.app.RemoteInput.Builder builder, int editChoicesBeforeSending) {
             return builder.setEditChoicesBeforeSending(editChoicesBeforeSending);
@@ -700,12 +691,10 @@ public final class RemoteInput {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setResultsSource(Intent intent, int source) {
             android.app.RemoteInput.setResultsSource(intent, source);
         }
 
-        @DoNotInline
         static int getResultsSource(Intent intent) {
             return android.app.RemoteInput.getResultsSource(intent);
         }

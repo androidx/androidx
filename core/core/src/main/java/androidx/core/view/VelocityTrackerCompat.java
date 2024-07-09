@@ -25,7 +25,6 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -308,17 +307,14 @@ public final class VelocityTrackerCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isAxisSupported(VelocityTracker velocityTracker, int axis) {
             return velocityTracker.isAxisSupported(axis);
         }
 
-        @DoNotInline
         static float getAxisVelocity(VelocityTracker velocityTracker, int axis, int id) {
             return velocityTracker.getAxisVelocity(axis, id);
         }
 
-        @DoNotInline
         static float getAxisVelocity(VelocityTracker velocityTracker, int axis) {
             return velocityTracker.getAxisVelocity(axis);
         }

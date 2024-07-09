@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.media.AudioAttributes
 import android.os.Build
 import android.os.VibrationAttributes
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.haptics.AttributesWrapper
 import androidx.core.haptics.AudioAttributesWrapper
@@ -92,7 +91,6 @@ internal object HapticAttributesConverter {
     private object Api33Impl {
 
         @JvmStatic
-        @DoNotInline
         fun toVibrationAttributesUsage(@HapticAttributes.Usage usage: Int): Int =
             when (usage) {
                 // Check this usage constant exists in this SDK level.
@@ -118,19 +116,16 @@ internal object HapticAttributesConverter {
     private object Api30Impl {
 
         @JvmStatic
-        @DoNotInline
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @HapticAttributes.Usage
         fun fromVibrationAttributesUsage(attrs: VibrationAttributes): Int = attrs.usage
 
         @JvmStatic
-        @DoNotInline
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
         @HapticAttributes.Flag
         fun fromVibrationAttributesFlags(attrs: VibrationAttributes): Int = attrs.flags
 
         @JvmStatic
-        @DoNotInline
         fun createVibrationAttributes(
             vibrationUsage: Int,
             vibrationFlags: Int
@@ -142,7 +137,6 @@ internal object HapticAttributesConverter {
         }
 
         @JvmStatic
-        @DoNotInline
         fun toVibrationAttributesUsage(@HapticAttributes.Usage usage: Int): Int =
             when (usage) {
                 // Check this usage constant exists in this SDK level.
@@ -157,7 +151,6 @@ internal object HapticAttributesConverter {
             }
 
         @JvmStatic
-        @DoNotInline
         fun toVibrationAttributesFlags(@HapticAttributes.Flag flags: Int): Int =
             flags and VibrationAttributes.FLAG_BYPASS_INTERRUPTION_POLICY
     }
@@ -167,7 +160,6 @@ internal object HapticAttributesConverter {
     private object Api26Impl {
 
         @JvmStatic
-        @DoNotInline
         @HapticAttributes.Usage
         fun fromAudioAttributesUsage(attrs: AudioAttributes): Int =
             when (attrs.usage) {
@@ -181,7 +173,6 @@ internal object HapticAttributesConverter {
     private object Api21Impl {
 
         @JvmStatic
-        @DoNotInline
         @Suppress("DEPRECATION") // ApkVariant for compatibility
         @HapticAttributes.Usage
         fun fromAudioAttributesUsage(attrs: AudioAttributes): Int =
@@ -206,10 +197,9 @@ internal object HapticAttributesConverter {
                 else -> HapticAttributes.USAGE_UNKNOWN
             }
 
-        @JvmStatic @DoNotInline @HapticAttributes.Flag fun fromAudioAttributesFlags(): Int = 0
+        @JvmStatic @HapticAttributes.Flag fun fromAudioAttributesFlags(): Int = 0
 
         @JvmStatic
-        @DoNotInline
         fun createAudioAttributes(
             usage: Int,
             contentType: Int,

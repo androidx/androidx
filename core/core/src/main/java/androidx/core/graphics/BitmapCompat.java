@@ -26,7 +26,6 @@ import android.graphics.Rect;
 import android.hardware.HardwareBuffer;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -340,7 +339,6 @@ public final class BitmapCompat {
         private Api27Impl() {
         }
 
-        @DoNotInline
         static Bitmap createBitmapWithSourceColorspace(int w, int h, Bitmap src, boolean linear) {
             Bitmap.Config config = src.getConfig();
             ColorSpace colorSpace = src.getColorSpace();
@@ -358,13 +356,11 @@ public final class BitmapCompat {
             return Bitmap.createBitmap(w, h, config, src.hasAlpha(), colorSpace);
         }
 
-        @DoNotInline
         static boolean isAlreadyF16AndLinear(Bitmap b) {
             ColorSpace linearCs = ColorSpace.get(ColorSpace.Named.LINEAR_EXTENDED_SRGB);
             return b.getConfig() == Bitmap.Config.RGBA_F16 && b.getColorSpace().equals(linearCs);
         }
 
-        @DoNotInline
         static Bitmap copyBitmapIfHardware(Bitmap bm) {
             if (bm.getConfig() == Bitmap.Config.HARDWARE) {
                 Bitmap.Config newConfig = Bitmap.Config.ARGB_8888;
@@ -383,7 +379,6 @@ public final class BitmapCompat {
         private Api29Impl() {
         }
 
-        @DoNotInline
         static void setPaintBlendMode(Paint paint) {
             paint.setBlendMode(BlendMode.SRC);
         }
@@ -394,7 +389,6 @@ public final class BitmapCompat {
         private Api31Impl() {
         }
 
-        @DoNotInline
         static Bitmap.Config getHardwareBitmapConfig(Bitmap bm) {
             if (bm.getHardwareBuffer().getFormat() == HardwareBuffer.RGBA_FP16) {
                 return Bitmap.Config.RGBA_F16;

@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.autofill.AutofillId;
 import android.view.contentcapture.ContentCaptureSession;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -160,7 +159,6 @@ public class ViewCompatShims {
         private Api26Impl() {
             // This class is not instantiable.
         }
-        @DoNotInline
         public static AutofillId getAutofillId(View view) {
             return view.getAutofillId();
         }
@@ -172,7 +170,6 @@ public class ViewCompatShims {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static ContentCaptureSession getContentCaptureSession(View view) {
             return view.getContentCaptureSession();
         }
@@ -183,7 +180,6 @@ public class ViewCompatShims {
         private Api30Impl() {
             // This class is not instantiable.
         }
-        @DoNotInline
         static void setImportantForContentCapture(View view, int mode) {
             view.setImportantForContentCapture(mode);
         }

@@ -22,7 +22,6 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.view.SoftwareKeyboardControllerCompat
 
@@ -107,7 +106,6 @@ internal class InputMethodManagerImpl(private val view: View) : InputMethodManag
 
 @RequiresApi(34)
 internal object Api34StartStylusHandwriting {
-    @DoNotInline
     fun startStylusHandwriting(imm: android.view.inputmethod.InputMethodManager, view: View) {
         imm.startStylusHandwriting(view)
     }

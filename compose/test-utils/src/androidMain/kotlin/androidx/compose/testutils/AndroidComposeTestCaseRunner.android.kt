@@ -29,7 +29,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
@@ -415,7 +414,6 @@ private class MRenderNodeCapture : DrawCapture {
 
 @RequiresApi(28)
 private object BitmapHelper {
-    @DoNotInline
     fun createBitmap(picture: Picture): Bitmap {
         return Bitmap.createBitmap(picture)
     }

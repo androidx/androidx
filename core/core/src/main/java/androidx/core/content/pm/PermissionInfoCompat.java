@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.content.pm.PermissionInfo;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -98,12 +97,10 @@ public final class PermissionInfoCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getProtection(PermissionInfo permissionInfo) {
             return permissionInfo.getProtection();
         }
 
-        @DoNotInline
         static int getProtectionFlags(PermissionInfo permissionInfo) {
             return permissionInfo.getProtectionFlags();
         }

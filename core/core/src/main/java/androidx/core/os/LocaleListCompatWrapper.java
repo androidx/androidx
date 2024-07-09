@@ -18,7 +18,6 @@ package androidx.core.os;
 
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -277,7 +276,6 @@ final class LocaleListCompatWrapper implements LocaleListInterface {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static String getScript(Locale locale) {
             return locale.getScript();
         }

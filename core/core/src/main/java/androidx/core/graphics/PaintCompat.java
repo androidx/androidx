@@ -25,7 +25,6 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -166,7 +165,6 @@ public final class PaintCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setBlendMode(Paint paint, Object blendmode) {
             paint.setBlendMode((BlendMode) blendmode);
         }
@@ -178,7 +176,6 @@ public final class PaintCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean hasGlyph(Paint paint, String string) {
             return paint.hasGlyph(string);
         }

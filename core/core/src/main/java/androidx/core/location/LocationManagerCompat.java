@@ -46,7 +46,6 @@ import android.provider.Settings;
 import android.provider.Settings.Secure;
 import android.text.TextUtils;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1195,13 +1194,11 @@ public final class LocationManagerCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean hasProvider(LocationManager locationManager, @NonNull String provider) {
             return locationManager.hasProvider(provider);
         }
 
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-        @DoNotInline
         static void requestLocationUpdates(LocationManager locationManager,
                 @NonNull String provider, @NonNull LocationRequest locationRequest,
                 @NonNull Executor executor, @NonNull LocationListener listener) {
@@ -1209,7 +1206,6 @@ public final class LocationManagerCompat {
         }
 
         @RequiresPermission(ACCESS_FINE_LOCATION)
-        @DoNotInline
         static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
                 @NonNull Executor executor, @NonNull GnssMeasurementsEvent.Callback callback) {
             return locationManager.registerGnssMeasurementsCallback(executor, callback);
@@ -1226,7 +1222,6 @@ public final class LocationManagerCompat {
         }
 
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-        @DoNotInline
         static void getCurrentLocation(LocationManager locationManager, @NonNull String provider,
                 @Nullable CancellationSignal cancellationSignal,
                 @NonNull Executor executor, final @NonNull Consumer<Location> consumer) {
@@ -1237,7 +1232,6 @@ public final class LocationManagerCompat {
         }
 
         @SuppressWarnings("JavaReflectionMemberAccess")
-        @DoNotInline
         public static boolean tryRequestLocationUpdates(LocationManager locationManager,
                 String provider, LocationRequestCompat locationRequest, Executor executor,
                 LocationListenerCompat listener) {
@@ -1274,7 +1268,6 @@ public final class LocationManagerCompat {
         }
 
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-        @DoNotInline
         public static boolean registerGnssStatusCallback(LocationManager locationManager,
                 Handler baseHandler, Executor executor, GnssStatusCompat.Callback callback) {
             synchronized (GnssListenersHolder.sGnssStatusListeners) {
@@ -1300,17 +1293,14 @@ public final class LocationManagerCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isLocationEnabled(LocationManager locationManager) {
             return locationManager.isLocationEnabled();
         }
 
-        @DoNotInline
         static String getGnssHardwareModelName(LocationManager locationManager) {
             return locationManager.getGnssHardwareModelName();
         }
 
-        @DoNotInline
         static int getGnssYearOfHardware(LocationManager locationManager) {
             return locationManager.getGnssYearOfHardware();
         }
@@ -1327,7 +1317,6 @@ public final class LocationManagerCompat {
         @SuppressLint("BanUncheckedReflection")
         @SuppressWarnings("JavaReflectionMemberAccess")
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-        @DoNotInline
         static boolean tryRequestLocationUpdates(LocationManager locationManager,
                 String provider, LocationRequestCompat locationRequest,
                 LocationListenerTransport transport) {
@@ -1366,7 +1355,6 @@ public final class LocationManagerCompat {
 
         @SuppressLint("BanUncheckedReflection")
         @SuppressWarnings("JavaReflectionMemberAccess")
-        @DoNotInline
         static boolean tryRequestLocationUpdates(LocationManager locationManager, String provider,
                 LocationRequestCompat locationRequest, LocationListenerCompat listener,
                 Looper looper) {
@@ -1409,27 +1397,23 @@ public final class LocationManagerCompat {
         }
 
         @RequiresPermission(ACCESS_FINE_LOCATION)
-        @DoNotInline
         static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
                 @NonNull GnssMeasurementsEvent.Callback callback) {
             return locationManager.registerGnssMeasurementsCallback(callback);
         }
 
         @RequiresPermission(ACCESS_FINE_LOCATION)
-        @DoNotInline
         static boolean registerGnssMeasurementsCallback(@NonNull LocationManager locationManager,
                 @NonNull GnssMeasurementsEvent.Callback callback, @NonNull Handler handler) {
             return locationManager.registerGnssMeasurementsCallback(callback, handler);
         }
 
-        @DoNotInline
         static void unregisterGnssMeasurementsCallback(@NonNull LocationManager locationManager,
                 @NonNull GnssMeasurementsEvent.Callback callback) {
             locationManager.unregisterGnssMeasurementsCallback(callback);
         }
 
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
-        @DoNotInline
         static boolean registerGnssStatusCallback(LocationManager locationManager,
                 Handler baseHandler, Executor executor, GnssStatusCompat.Callback callback) {
             Preconditions.checkArgument(baseHandler != null);
@@ -1454,7 +1438,6 @@ public final class LocationManagerCompat {
             }
         }
 
-        @DoNotInline
         static void unregisterGnssStatusCallback(LocationManager locationManager, Object callback) {
             if (callback instanceof PreRGnssStatusTransport) {
                 ((PreRGnssStatusTransport) callback).unregister();

@@ -20,7 +20,6 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -99,7 +98,6 @@ public final class AltitudeConverterCompat {
         private Api34Impl() {
         }
 
-        @DoNotInline
         static void addMslAltitudeToLocation(@NonNull Context context,
                 @NonNull Location location) throws IOException {
             android.location.altitude.AltitudeConverter altitudeConverter;

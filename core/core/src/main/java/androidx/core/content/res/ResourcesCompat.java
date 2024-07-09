@@ -42,7 +42,6 @@ import androidx.annotation.AnyRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DimenRes;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.FontRes;
 import androidx.annotation.GuardedBy;
@@ -668,7 +667,6 @@ public final class ResourcesCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static float getFloat(@NonNull Resources res, @DimenRes int id) {
             return res.getFloat(id);
         }
@@ -680,14 +678,12 @@ public final class ResourcesCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @NonNull
         static ColorStateList getColorStateList(@NonNull Resources res, @ColorRes int id,
                 @Nullable Theme theme) {
             return res.getColorStateList(id, theme);
         }
 
-        @DoNotInline
         static int getColor(Resources resources, int id, Theme theme) {
             return resources.getColor(id, theme);
         }
@@ -699,12 +695,10 @@ public final class ResourcesCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Drawable getDrawable(Resources resources, int id, Theme theme) {
             return resources.getDrawable(id, theme);
         }
 
-        @DoNotInline
         static Drawable getDrawableForDensity(Resources resources, int id, int density,
                 Theme theme) {
             return resources.getDrawableForDensity(id, density, theme);
@@ -749,7 +743,6 @@ public final class ResourcesCompat {
                 // This class is not instantiable.
             }
 
-            @DoNotInline
             static void rebase(@NonNull Theme theme) {
                 theme.rebase();
             }

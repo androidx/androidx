@@ -29,7 +29,6 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -438,49 +437,40 @@ public final class DrawableCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setHotspot(Drawable drawable, float x, float y) {
             drawable.setHotspot(x, y);
         }
 
-        @DoNotInline
         static void setTint(Drawable drawable, int tintColor) {
             drawable.setTint(tintColor);
         }
 
-        @DoNotInline
         static void setTintList(Drawable drawable, ColorStateList tint) {
             drawable.setTintList(tint);
         }
 
-        @DoNotInline
         static void setTintMode(Drawable drawable, PorterDuff.Mode tintMode) {
             drawable.setTintMode(tintMode);
         }
 
-        @DoNotInline
         static void applyTheme(Drawable drawable, Resources.Theme t) {
             drawable.applyTheme(t);
         }
 
-        @DoNotInline
         static boolean canApplyTheme(Drawable drawable) {
             return drawable.canApplyTheme();
         }
 
-        @DoNotInline
         static ColorFilter getColorFilter(Drawable drawable) {
             return drawable.getColorFilter();
         }
 
-        @DoNotInline
         static void inflate(Drawable drawable, Resources r, XmlPullParser parser,
                 AttributeSet attrs, Resources.Theme theme)
                 throws XmlPullParserException, IOException {
             drawable.inflate(r, parser, attrs, theme);
         }
 
-        @DoNotInline
         static void setHotspotBounds(Drawable drawable, int left, int top, int right, int bottom) {
             drawable.setHotspotBounds(left, top, right, bottom);
         }
@@ -492,12 +482,10 @@ public final class DrawableCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean setLayoutDirection(Drawable drawable, int layoutDirection) {
             return drawable.setLayoutDirection(layoutDirection);
         }
 
-        @DoNotInline
         static int getLayoutDirection(Drawable drawable) {
             return drawable.getLayoutDirection();
         }
