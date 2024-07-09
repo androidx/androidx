@@ -21,7 +21,6 @@ import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -485,7 +484,6 @@ interface HealthConnectClient {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private object Api34Impl {
         @JvmStatic
-        @DoNotInline
         @AvailabilityStatus
         fun getSdkStatus(context: Context): Int {
             return if (

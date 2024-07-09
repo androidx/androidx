@@ -21,7 +21,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Build.VERSION_CODES.LOLLIPOP
 import android.os.Build.VERSION_CODES.TIRAMISU
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import java.io.DataInputStream
@@ -128,12 +127,11 @@ internal class LocalSdkFolderProvider private constructor(private val sdkRootFol
 
     @RequiresApi(LOLLIPOP)
     private object Api21Impl {
-        @DoNotInline fun codeCacheDir(context: Context): File = context.codeCacheDir
+        fun codeCacheDir(context: Context): File = context.codeCacheDir
     }
 
     @RequiresApi(TIRAMISU)
     private object Api33Impl {
-        @DoNotInline
         fun getLastUpdateTime(context: Context): Long =
             context.packageManager
                 .getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))

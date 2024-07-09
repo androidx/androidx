@@ -18,7 +18,6 @@ package androidx.credentials.provider
 
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
@@ -49,7 +48,6 @@ constructor(
         private const val REQUEST_KEY = "androidx.credentials.provider.BeginGetCredentialRequest"
 
         @JvmStatic
-        @DoNotInline
         fun asBundle(bundle: Bundle, request: BeginGetCredentialRequest) {
             bundle.putParcelable(
                 REQUEST_KEY,
@@ -58,7 +56,6 @@ constructor(
         }
 
         @JvmStatic
-        @DoNotInline
         fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
             val frameworkRequest =
                 bundle.getParcelable(

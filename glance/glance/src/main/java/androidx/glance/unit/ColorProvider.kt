@@ -20,7 +20,6 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.graphics.Color
@@ -68,7 +67,6 @@ data class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider {
 @RequiresApi(23)
 private object ColorProviderApi23Impl {
     @ColorInt
-    @DoNotInline
     fun getColor(context: Context, @ColorRes resId: Int): Int {
         return context.getColor(resId)
     }

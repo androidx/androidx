@@ -32,7 +32,6 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.widget.RemoteViewsCompat.setTextViewGravity
@@ -184,7 +183,6 @@ private fun TextAlign.toAlignment(isRtl: Boolean): Alignment =
 
 @RequiresApi(Build.VERSION_CODES.S)
 private object TextTranslatorApi31Impl {
-    @DoNotInline
     fun setTextViewGravity(rv: RemoteViews, viewId: Int, gravity: Int) {
         rv.setTextViewGravity(viewId, gravity)
     }

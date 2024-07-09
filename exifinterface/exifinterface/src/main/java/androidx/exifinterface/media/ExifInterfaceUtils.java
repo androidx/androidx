@@ -23,7 +23,6 @@ import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 
 import java.io.Closeable;
@@ -164,17 +163,14 @@ class ExifInterfaceUtils {
     static class Api21Impl {
         private Api21Impl() {}
 
-        @DoNotInline
         static FileDescriptor dup(FileDescriptor fileDescriptor) throws ErrnoException {
             return Os.dup(fileDescriptor);
         }
 
-        @DoNotInline
         static long lseek(FileDescriptor fd, long offset, int whence) throws ErrnoException {
             return Os.lseek(fd, offset, whence);
         }
 
-        @DoNotInline
         static void close(FileDescriptor fd) throws ErrnoException {
             Os.close(fd);
         }
@@ -184,7 +180,6 @@ class ExifInterfaceUtils {
     static class Api23Impl {
         private Api23Impl() {}
 
-        @DoNotInline
         static void setDataSource(MediaMetadataRetriever retriever, MediaDataSource dataSource) {
             retriever.setDataSource(dataSource);
         }

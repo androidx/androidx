@@ -27,7 +27,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import androidx.activity.BackEventCompat
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
 import androidx.core.view.OneShotPreDrawListener
@@ -1210,7 +1209,6 @@ internal class DefaultSpecialEffectsController(container: ViewGroup) :
 
     @RequiresApi(24)
     internal object Api24Impl {
-        @DoNotInline
         fun totalDuration(animatorSet: AnimatorSet): Long {
             return animatorSet.totalDuration
         }
@@ -1218,12 +1216,10 @@ internal class DefaultSpecialEffectsController(container: ViewGroup) :
 
     @RequiresApi(26)
     internal object Api26Impl {
-        @DoNotInline
         fun reverse(animatorSet: AnimatorSet) {
             animatorSet.reverse()
         }
 
-        @DoNotInline
         fun setCurrentPlayTime(animatorSet: AnimatorSet, time: Long) {
             animatorSet.currentPlayTime = time
         }

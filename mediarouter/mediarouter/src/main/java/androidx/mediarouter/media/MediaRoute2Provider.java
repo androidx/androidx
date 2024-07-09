@@ -44,7 +44,6 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -727,7 +726,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setPlatformRouteListingPreference(
                 @NonNull MediaRouter2 mediaRouter2,
                 @Nullable android.media.RouteListingPreference routeListingPreference) {

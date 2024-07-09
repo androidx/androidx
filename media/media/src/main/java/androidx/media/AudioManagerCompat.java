@@ -20,7 +20,6 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -178,7 +177,6 @@ public final class AudioManagerCompat {
     @RequiresApi(21)
     private static class Api21Impl {
 
-        @DoNotInline
         static boolean isVolumeFixed(AudioManager audioManager) {
             return audioManager.isVolumeFixed();
         }
@@ -189,13 +187,11 @@ public final class AudioManagerCompat {
     @RequiresApi(26)
     private static class Api26Impl {
 
-        @DoNotInline
         static int abandonAudioFocusRequest(AudioManager audioManager,
                 AudioFocusRequest focusRequest) {
             return audioManager.abandonAudioFocusRequest(focusRequest);
         }
 
-        @DoNotInline
         static int requestAudioFocus(AudioManager audioManager, AudioFocusRequest focusRequest) {
             return audioManager.requestAudioFocus(focusRequest);
         }
@@ -206,7 +202,6 @@ public final class AudioManagerCompat {
     @RequiresApi(28)
     private static class Api28Impl {
 
-        @DoNotInline
         static int getStreamMinVolume(AudioManager audioManager, int streamType) {
             return audioManager.getStreamMinVolume(streamType);
         }

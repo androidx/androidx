@@ -17,7 +17,6 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.app.sdksandbox.LoadSdkException
 import android.os.Bundle
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -116,12 +115,10 @@ class LoadSdkCompatException : Exception {
     @RequiresApi(34)
     private object Api34Impl {
 
-        @DoNotInline
         fun toLoadSdkException(ex: LoadSdkCompatException): LoadSdkException {
             return LoadSdkException(ex.cause!!, ex.extraInformation)
         }
 
-        @DoNotInline
         fun toLoadCompatSdkException(ex: LoadSdkException): LoadSdkCompatException {
             return LoadSdkCompatException(
                 toLoadSdkErrorCodeCompat(ex.loadSdkErrorCode),

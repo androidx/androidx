@@ -22,7 +22,6 @@ import android.media.VolumeProvider;
 import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -239,7 +238,6 @@ public abstract class VolumeProviderCompat {
     private static class Api21Impl {
         private Api21Impl() {}
 
-        @DoNotInline
         static void setCurrentVolume(VolumeProvider volumeProvider, int currentVolume) {
             volumeProvider.setCurrentVolume(currentVolume);
         }

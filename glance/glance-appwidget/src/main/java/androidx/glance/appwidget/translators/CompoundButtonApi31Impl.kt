@@ -18,12 +18,10 @@ package androidx.glance.appwidget.translators
 
 import android.os.Build
 import android.widget.RemoteViews
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.S)
 internal object CompoundButtonApi31Impl {
-    @DoNotInline
     fun setCompoundButtonChecked(rv: RemoteViews, viewId: Int, checked: Boolean) {
         rv.setCompoundButtonChecked(viewId, checked)
     }

@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -562,7 +561,6 @@ public final class RouteListingPreference {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @NonNull
         public static android.media.RouteListingPreference toPlatformRouteListingPreference(
                 RouteListingPreference routeListingPreference) {
@@ -579,7 +577,6 @@ public final class RouteListingPreference {
                     .build();
         }
 
-        @DoNotInline
         @NonNull
         public static android.media.RouteListingPreference.Item toPlatformItem(Item item) {
             return new android.media.RouteListingPreference.Item.Builder(item.getRouteId())

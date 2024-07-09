@@ -21,7 +21,6 @@ import android.content.SharedPreferences
 import android.database.DatabaseErrorHandler
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import java.io.File
 import java.io.FileInputStream
@@ -254,20 +253,18 @@ internal class SandboxedSdkContextCompat(
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private object Api21 {
-        @DoNotInline fun codeCacheDir(context: Context): File = context.codeCacheDir
+        fun codeCacheDir(context: Context): File = context.codeCacheDir
 
-        @DoNotInline fun noBackupFilesDir(context: Context): File = context.noBackupFilesDir
+        fun noBackupFilesDir(context: Context): File = context.noBackupFilesDir
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     private object Api24 {
-        @DoNotInline
         fun createDeviceProtectedStorageContext(context: Context): Context =
             context.createDeviceProtectedStorageContext()
 
-        @DoNotInline fun dataDir(context: Context): File = context.dataDir
+        fun dataDir(context: Context): File = context.dataDir
 
-        @DoNotInline
         fun deleteSharedPreferences(context: Context, name: String): Boolean =
             context.deleteSharedPreferences(name)
     }
