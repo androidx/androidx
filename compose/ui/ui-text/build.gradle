@@ -52,6 +52,8 @@ androidXMultiplatform {
                 implementation(project(":compose:runtime:runtime-saveable"))
 
                 implementation(project(":compose:ui:ui-util"))
+
+                implementation("androidx.collection:collection:1.4.0")
             }
         }
 
@@ -76,7 +78,6 @@ androidXMultiplatform {
                 api("androidx.annotation:annotation-experimental:1.4.1")
                 implementation("androidx.core:core:1.7.0")
                 implementation("androidx.emoji2:emoji2:1.4.0")
-                implementation("androidx.collection:collection:1.4.0")
             }
         }
 
