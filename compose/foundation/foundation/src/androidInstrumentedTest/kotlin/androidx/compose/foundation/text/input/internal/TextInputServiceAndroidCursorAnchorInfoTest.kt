@@ -371,6 +371,8 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
 
         override fun localToWindow(relativeToLocal: Offset): Offset = relativeToLocal + windowOffset
 
+        override fun localToScreen(relativeToLocal: Offset): Offset = relativeToLocal + windowOffset
+
         override fun localToRoot(relativeToLocal: Offset): Offset = relativeToLocal
 
         override fun localPositionOf(
@@ -384,8 +386,6 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
         ): Rect =
             Rect(localPositionOf(sourceCoordinates, Offset.Zero), sourceCoordinates.size.toSize())
 
-        override fun transformToScreen(matrix: Matrix) {
-            matrix.translate(windowOffset.x, windowOffset.y, 0f)
-        }
+        override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {}
     }
 }

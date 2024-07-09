@@ -20,7 +20,7 @@ import android.view.inputmethod.CursorAnchorInfo
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.setFrom
-import androidx.compose.ui.input.pointer.PositionCalculator
+import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.text.TextLayoutResult
 
 @Deprecated(
@@ -28,7 +28,7 @@ import androidx.compose.ui.text.TextLayoutResult
         "code. A copy of this class in foundation is used by the legacy BasicTextField."
 )
 internal class CursorAnchorInfoController(
-    private val rootPositionCalculator: PositionCalculator,
+    private val rootPositionCalculator: MatrixPositionCalculator,
     @Suppress("DEPRECATION") private val inputMethodManager: InputMethodManager
 ) {
     private val lock = Any()

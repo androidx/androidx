@@ -144,12 +144,12 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.AndroidPointerIcon
 import androidx.compose.ui.input.pointer.AndroidPointerIconType
+import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.input.pointer.MotionEventAdapter
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.input.pointer.PointerInputEventProcessor
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
@@ -224,7 +224,7 @@ private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 @Suppress("ViewConstructor", "VisibleForTests", "ConstPropertyName", "NullAnnotationGroup")
 @OptIn(InternalComposeUiApi::class)
 internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
-    ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
+    ViewGroup(context), Owner, ViewRootForTest, MatrixPositionCalculator, DefaultLifecycleObserver {
 
     /**
      * Remembers the position of the last pointer input event that was down. This position will be

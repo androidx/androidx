@@ -207,10 +207,6 @@ private class FakeOwner(
         TODO("Not yet implemented")
     }
 
-    override fun localToScreen(localTransform: Matrix) {
-        TODO("Not yet implemented")
-    }
-
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")
 
