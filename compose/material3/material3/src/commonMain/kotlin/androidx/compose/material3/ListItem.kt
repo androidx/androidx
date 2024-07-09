@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
@@ -545,6 +546,12 @@ object ListItemDefaults {
     /**
      * Creates a [ListItemColors] that represents the default container and content colors used in a
      * [ListItem].
+     */
+    @Composable fun colors() = MaterialTheme.colorScheme.defaultListItemColors
+
+    /**
+     * Creates a [ListItemColors] that represents the default container and content colors used in a
+     * [ListItem].
      *
      * @param containerColor the container color of this list item when enabled.
      * @param headlineColor the headline text content color of this list item when enabled.
@@ -560,26 +567,17 @@ object ListItemDefaults {
      */
     @Composable
     fun colors(
-        containerColor: Color = ListTokens.ListItemContainerColor.value,
-        headlineColor: Color = ListTokens.ListItemLabelTextColor.value,
-        leadingIconColor: Color = ListTokens.ListItemLeadingIconColor.value,
-        overlineColor: Color = ListTokens.ListItemOverlineColor.value,
-        supportingColor: Color = ListTokens.ListItemSupportingTextColor.value,
-        trailingIconColor: Color = ListTokens.ListItemTrailingIconColor.value,
-        disabledHeadlineColor: Color =
-            ListTokens.ListItemDisabledLabelTextColor.value.copy(
-                alpha = ListTokens.ListItemDisabledLabelTextOpacity
-            ),
-        disabledLeadingIconColor: Color =
-            ListTokens.ListItemDisabledLeadingIconColor.value.copy(
-                alpha = ListTokens.ListItemDisabledLeadingIconOpacity
-            ),
-        disabledTrailingIconColor: Color =
-            ListTokens.ListItemDisabledTrailingIconColor.value.copy(
-                alpha = ListTokens.ListItemDisabledTrailingIconOpacity
-            )
+        containerColor: Color = Color.Unspecified,
+        headlineColor: Color = Color.Unspecified,
+        leadingIconColor: Color = Color.Unspecified,
+        overlineColor: Color = Color.Unspecified,
+        supportingColor: Color = Color.Unspecified,
+        trailingIconColor: Color = Color.Unspecified,
+        disabledHeadlineColor: Color = Color.Unspecified,
+        disabledLeadingIconColor: Color = Color.Unspecified,
+        disabledTrailingIconColor: Color = Color.Unspecified,
     ): ListItemColors =
-        ListItemColors(
+        MaterialTheme.colorScheme.defaultListItemColors.copy(
             containerColor = containerColor,
             headlineColor = headlineColor,
             leadingIconColor = leadingIconColor,
@@ -590,6 +588,29 @@ object ListItemDefaults {
             disabledLeadingIconColor = disabledLeadingIconColor,
             disabledTrailingIconColor = disabledTrailingIconColor,
         )
+
+    internal val ColorScheme.defaultListItemColors: ListItemColors
+        get() {
+            return defaultListItemColorsCached
+                ?: ListItemColors(
+                        containerColor = fromToken(ListTokens.ListItemContainerColor),
+                        headlineColor = fromToken(ListTokens.ListItemLabelTextColor),
+                        leadingIconColor = fromToken(ListTokens.ListItemLeadingIconColor),
+                        overlineColor = fromToken(ListTokens.ListItemOverlineColor),
+                        supportingTextColor = fromToken(ListTokens.ListItemSupportingTextColor),
+                        trailingIconColor = fromToken(ListTokens.ListItemTrailingIconColor),
+                        disabledHeadlineColor =
+                            fromToken(ListTokens.ListItemDisabledLabelTextColor)
+                                .copy(alpha = ListTokens.ListItemDisabledLabelTextOpacity),
+                        disabledLeadingIconColor =
+                            fromToken(ListTokens.ListItemDisabledLeadingIconColor)
+                                .copy(alpha = ListTokens.ListItemDisabledLeadingIconOpacity),
+                        disabledTrailingIconColor =
+                            fromToken(ListTokens.ListItemDisabledTrailingIconColor)
+                                .copy(alpha = ListTokens.ListItemDisabledTrailingIconOpacity),
+                    )
+                    .also { defaultListItemColorsCached = it }
+        }
 }
 
 /**
@@ -620,6 +641,35 @@ constructor(
     val disabledLeadingIconColor: Color,
     val disabledTrailingIconColor: Color,
 ) {
+    /**
+     * Returns a copy of this ListItemColors, optionally overriding some of the values. This uses
+     * the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        headlineColor: Color = this.headlineColor,
+        leadingIconColor: Color = this.leadingIconColor,
+        overlineColor: Color = this.overlineColor,
+        supportingTextColor: Color = this.supportingTextColor,
+        trailingIconColor: Color = this.trailingIconColor,
+        disabledHeadlineColor: Color = this.disabledHeadlineColor,
+        disabledLeadingIconColor: Color = this.disabledLeadingIconColor,
+        disabledTrailingIconColor: Color = this.disabledTrailingIconColor,
+    ) =
+        ListItemColors(
+            containerColor = containerColor.takeOrElse { this.containerColor },
+            headlineColor = headlineColor.takeOrElse { this.headlineColor },
+            leadingIconColor = leadingIconColor.takeOrElse { this.leadingIconColor },
+            overlineColor = overlineColor.takeOrElse { this.overlineColor },
+            supportingTextColor = supportingTextColor.takeOrElse { this.supportingTextColor },
+            trailingIconColor = trailingIconColor.takeOrElse { this.trailingIconColor },
+            disabledHeadlineColor = disabledHeadlineColor.takeOrElse { this.disabledHeadlineColor },
+            disabledLeadingIconColor =
+                disabledLeadingIconColor.takeOrElse { this.disabledLeadingIconColor },
+            disabledTrailingIconColor =
+                disabledTrailingIconColor.takeOrElse { this.disabledTrailingIconColor },
+        )
+
     /** The container color of this [ListItem] based on enabled state */
     internal fun containerColor(): Color {
         return containerColor
