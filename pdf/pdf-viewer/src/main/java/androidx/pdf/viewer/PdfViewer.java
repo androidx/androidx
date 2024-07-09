@@ -338,6 +338,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     protected void onContentsAvailable(@NonNull DisplayData contents, @Nullable Bundle savedState) {
         mFileData = contents;
+        mLocalUri = contents.getUri();
+
         createContentModel(
                 PdfLoader.create(
                         getActivity().getApplicationContext(),
@@ -360,6 +362,21 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         mLayoutHandler, mAnnotationButton, mFindInFileView, mPageIndicator,
                         mFastScrollView, mIsAnnotationIntentResolvable, mViewState);
         mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
+        mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton,
+                mFindInFileView, mZoomView, mSelectionModel, mPaginationModel, mLayoutHandler);
+        mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
+                mPaginatedView, mZoomView, mSingleTapHandler);
+        mPaginatedView.setPageViewFactory(mPageViewFactory);
+
+        mSelectionObserver =
+                new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                        requireContext());
+        mSelectionModel.selection().addObserver(mSelectionObserver);
+
+        mSelectedMatchObserver =
+                new SelectedMatchValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                        mZoomView, mLayoutHandler, requireContext());
+        mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
 
         if (savedState != null) {
             int layoutReach = savedState.getInt(KEY_LAYOUT_REACH);
@@ -377,20 +394,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
             mPdfLoader.reconnect();
         }
 
-        mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton,
-                mFindInFileView, mZoomView, mSelectionModel, mPaginationModel, mLayoutHandler);
-        mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
-                mPaginatedView, mZoomView, mSingleTapHandler);
-        mPaginatedView.setPageViewFactory(mPageViewFactory);
-        mSelectionObserver =
-                new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
-                        requireContext());
-        mSelectionModel.selection().addObserver(mSelectionObserver);
-
-        mSelectedMatchObserver =
-                new SelectedMatchValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
-                        mZoomView, mLayoutHandler, requireContext());
-        mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
         if (mPaginatedView != null && mPaginatedView.getChildCount() > 0) {
             loadPageAssets(mZoomView.zoomScroll().get());
         }

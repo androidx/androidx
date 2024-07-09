@@ -29,13 +29,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.pdf.viewer.PdfViewer;
 
-import java.util.Objects;
-
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings({"deprecation", "RestrictedApiAndroidX"})
 public class LegacyMainActivity extends AppCompatActivity {
-
-    private static final String PDFVIEWER_TAG = "pdfviewer_tag";
 
     private PdfViewer mPdfViewer;
 
@@ -71,18 +67,10 @@ public class LegacyMainActivity extends AppCompatActivity {
     void setPdfViewer() {
 
         FragmentManager fragmentManager = getSupportFragmentManager();
-
-        if (mPdfViewer != null) {
-            FragmentTransaction transaction = fragmentManager.beginTransaction();
-            transaction.remove(
-                    Objects.requireNonNull(fragmentManager.findFragmentByTag(PDFVIEWER_TAG)));
-            transaction.commitAllowingStateLoss();
-            fragmentManager.executePendingTransactions();
-        }
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         mPdfViewer = new PdfViewer();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.add(R.id.fragment_container_view, mPdfViewer, PDFVIEWER_TAG);
+        transaction.replace(R.id.fragment_container_view, mPdfViewer, null);
         transaction.commitAllowingStateLoss();
         fragmentManager.executePendingTransactions();
     }
