@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -71,6 +72,14 @@ fun LoadingIndicatorSample() {
 @Preview
 @Sampled
 @Composable
+fun ContainedLoadingIndicatorSample() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) { ContainedLoadingIndicator() }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
 fun DeterminateLoadingIndicatorSample() {
     var progress by remember { mutableFloatStateOf(0f) }
     val animatedProgress by
@@ -86,6 +95,36 @@ fun DeterminateLoadingIndicatorSample() {
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         LoadingIndicator(progress = { animatedProgress })
+        Spacer(Modifier.requiredHeight(30.dp))
+        Text("Set loading progress:")
+        Slider(
+            modifier = Modifier.width(300.dp),
+            value = progress,
+            valueRange = 0f..1f,
+            onValueChange = { progress = it },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun DeterminateContainedLoadingIndicatorSample() {
+    var progress by remember { mutableFloatStateOf(0f) }
+    val animatedProgress by
+        animateFloatAsState(
+            targetValue = progress,
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioNoBouncy,
+                    stiffness = Spring.StiffnessVeryLow,
+                    visibilityThreshold = 1 / 1000f
+                )
+        )
+
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        ContainedLoadingIndicator(progress = { animatedProgress })
         Spacer(Modifier.requiredHeight(30.dp))
         Text("Set loading progress:")
         Slider(

@@ -68,16 +68,156 @@ import kotlinx.coroutines.launch
 /**
  * A Material Design loading indicator.
  *
- * This version of the loading indicator morphs between its [indicatorPolygons] shapes by the value
- * of its [progress].
+ * This version of the loading indicator morphs between its [polygons] shapes by the value of its
+ * [progress].
  *
  * It can be created like this:
  *
  * @sample androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
+ * @param progress the progress of this loading indicator, where 0.0 represents no progress and 1.0
+ *   represents full progress. Values outside of this range are coerced into the range. The
+ *   indicator will morph its shapes between the provided [polygons] according to the value of the
+ *   progress.
+ * @param modifier the [Modifier] to be applied to this loading indicator
+ * @param color the loading indicator's color
+ * @param polygons a list of [RoundedPolygon]s for the sequence of shapes this loading indicator
+ *   will morph between as it progresses from 0.0 to 1.0. The loading indicator expects at least two
+ *   items in that list.
+ * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun LoadingIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    color: Color = LoadingIndicatorDefaults.IndicatorColor,
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
+) =
+    LoadingIndicatorImpl(
+        progress = progress,
+        modifier = modifier,
+        containerColor = Color.Unspecified,
+        indicatorColor = color,
+        containerShape = LoadingIndicatorDefaults.ContainerShape,
+        indicatorPolygons = polygons,
+    )
+
+// TODO Update the docs images to point to the loading indicator.
+/**
+ * A Material Design loading indicator.
+ *
+ * This version of the loading indicator animates and morphs between various shapes as long as the
+ * loading indicator is visible.
+ *
+ * It can be created like this:
+ *
+ * @sample androidx.compose.material3.samples.LoadingIndicatorSample
+ * @param modifier the [Modifier] to be applied to this loading indicator
+ * @param color the loading indicator's color
+ * @param polygons a list of [RoundedPolygon]s for the sequence of shapes this loading indicator
+ *   will morph between. The loading indicator expects at least two items in that list.
+ * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun LoadingIndicator(
+    modifier: Modifier = Modifier,
+    color: Color = LoadingIndicatorDefaults.IndicatorColor,
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
+) =
+    LoadingIndicatorImpl(
+        modifier = modifier,
+        containerColor = Color.Unspecified,
+        indicatorColor = color,
+        containerShape = LoadingIndicatorDefaults.ContainerShape,
+        indicatorPolygons = polygons,
+    )
+
+// TODO Update the docs images to point to the loading indicator
+/**
+ * A Material Design contained loading indicator.
+ *
+ * This version of the loading indicator morphs between its [polygons] shapes by the value of its
+ * [progress]. The shapes in this variation are contained within a colored [containerShape].
+ *
+ * It can be created like this:
+ *
+ * @sample androidx.compose.material3.samples.DeterminateContainedLoadingIndicatorSample
  *
  * It can also be used as an indicator for a [PullToRefreshBox] like this:
  *
  * @sample androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
+ * @param progress the progress of this loading indicator, where 0.0 represents no progress and 1.0
+ *   represents full progress. Values outside of this range are coerced into the range. The
+ *   indicator will morph its shapes between the provided [polygons] according to the value of the
+ *   progress.
+ * @param modifier the [Modifier] to be applied to this loading indicator
+ * @param containerColor the loading indicator's container color
+ * @param indicatorColor the loading indicator's color
+ * @param containerShape the loading indicator's container shape
+ * @param polygons a list of [RoundedPolygon]s for the sequence of shapes this loading indicator
+ *   will morph between as it progresses from 0.0 to 1.0. The loading indicator expects at least two
+ *   items in that list.
+ * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun ContainedLoadingIndicator(
+    progress: () -> Float,
+    modifier: Modifier = Modifier,
+    containerColor: Color = LoadingIndicatorDefaults.ContainerColor,
+    indicatorColor: Color = LoadingIndicatorDefaults.ContainedIndicatorColor,
+    containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
+) =
+    LoadingIndicatorImpl(
+        progress = progress,
+        modifier = modifier,
+        containerColor = containerColor,
+        indicatorColor = indicatorColor,
+        containerShape = containerShape,
+        indicatorPolygons = polygons,
+    )
+
+// TODO Update the docs images to point to the loading indicator.
+/**
+ * A Material Design contained loading indicator.
+ *
+ * This version of the loading indicator animates and morphs between various shapes as long as the
+ * loading indicator is visible. The shapes in this variation are contained within a colored
+ * [containerShape].
+ *
+ * It can be created like this:
+ *
+ * @sample androidx.compose.material3.samples.ContainedLoadingIndicatorSample
+ * @param modifier the [Modifier] to be applied to this loading indicator
+ * @param containerColor the loading indicator's container color
+ * @param indicatorColor the loading indicator's color
+ * @param containerShape the loading indicator's container shape
+ * @param polygons a list of [RoundedPolygon]s for the sequence of shapes this loading indicator
+ *   will morph between. The loading indicator expects at least two items in that list.
+ * @throws IllegalArgumentException if the [polygons] list holds less than two items
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun ContainedLoadingIndicator(
+    modifier: Modifier = Modifier,
+    containerColor: Color = LoadingIndicatorDefaults.ContainerColor,
+    indicatorColor: Color = LoadingIndicatorDefaults.ContainedIndicatorColor,
+    containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
+    polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
+) =
+    LoadingIndicatorImpl(
+        modifier = modifier,
+        containerColor = containerColor,
+        indicatorColor = indicatorColor,
+        containerShape = containerShape,
+        indicatorPolygons = polygons,
+    )
+
+/**
+ * A determinate loading indicator implementation.
+ *
  * @param progress the progress of this loading indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range. The
  *   indicator will morph its shapes between the provided [indicatorPolygons] according to the value
@@ -85,22 +225,21 @@ import kotlinx.coroutines.launch
  * @param modifier the [Modifier] to be applied to this loading indicator
  * @param containerColor the loading indicator's container color
  * @param indicatorColor the loading indicator's color
- * @param containerShape the loading indicator's container shape. Note that the indicator will be
- *   clipped to this shape only when the [containerColor] is defined and non-transparent.
- * @param indicatorPolygons a list of [RoundedPolygon]s that defines the sequence of shapes this
- *   loading indicator will morph between as it progresses from 0.0 to 1.0. The loading indicator
- *   expects at least two items in that list.
+ * @param containerShape the loading indicator's container shape
+ * @param indicatorPolygons a list of [RoundedPolygon]s for the sequence of shapes this loading
+ *   indicator will morph between as it progresses from 0.0 to 1.0. The loading indicator expects at
+ *   least two items in that list.
  * @throws IllegalArgumentException if the [indicatorPolygons] list holds less than two items
  */
-@ExperimentalMaterial3ExpressiveApi
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LoadingIndicator(
+private fun LoadingIndicatorImpl(
     progress: () -> Float,
-    modifier: Modifier = Modifier,
-    containerColor: Color = LoadingIndicatorDefaults.ContainerColor,
-    indicatorColor: Color = LoadingIndicatorDefaults.IndicatorColor,
-    containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
-    indicatorPolygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
+    modifier: Modifier,
+    containerColor: Color,
+    indicatorColor: Color,
+    containerShape: Shape,
+    indicatorPolygons: List<RoundedPolygon>
 ) {
     require(indicatorPolygons.size > 1) {
         "indicatorPolygons should have, at least, two RoundedPolygons"
@@ -184,35 +323,25 @@ fun LoadingIndicator(
     }
 }
 
-// TODO Update the docs images to point to the loading indicator.
 /**
- * A Material Design loading indicator.
+ * An indeterminate loading indicator implementation.
  *
- * This version of the loading indicator animates and morphs between various shapes as long as the
- * loading indicator is visible.
- *
- * It can be created like this:
- *
- * @sample androidx.compose.material3.samples.LoadingIndicatorSample
  * @param modifier the [Modifier] to be applied to this loading indicator
  * @param containerColor the loading indicator's container color
  * @param indicatorColor the loading indicator's color
- * @param containerShape the loading indicator's container shape. Note that the indicator will be
- *   clipped to this shape only when the [containerColor] is defined and non-transparent.
- * @param indicatorPolygons a list of [RoundedPolygon]s that defines the sequence of shapes this
- *   loading indicator will morph between. The loading indicator expects at least two items in that
- *   list.
+ * @param containerShape the loading indicator's container shape
+ * @param indicatorPolygons a list of [RoundedPolygon]s for the sequence of shapes this loading
+ *   indicator will morph between. The loading indicator expects at least two items in that list.
  * @throws IllegalArgumentException if the [indicatorPolygons] list holds less than two items
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun LoadingIndicator(
-    modifier: Modifier = Modifier,
-    containerColor: Color = Color.Unspecified,
-    indicatorColor: Color = LoadingIndicatorDefaults.IndicatorColor,
-    containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
-    indicatorPolygons: List<RoundedPolygon> =
-        LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
+private fun LoadingIndicatorImpl(
+    modifier: Modifier,
+    containerColor: Color,
+    indicatorColor: Color,
+    containerShape: Shape,
+    indicatorPolygons: List<RoundedPolygon>
 ) {
     require(indicatorPolygons.size > 1) {
         "indicatorPolygons should have, at least, two RoundedPolygons"
@@ -334,13 +463,25 @@ object LoadingIndicatorDefaults {
     val ContainerShape: Shape
         @Composable get() = LoadingIndicatorTokens.ContainerShape.value
 
-    /** A [LoadingIndicator] default active indicator [Color]. */
+    /**
+     * A [LoadingIndicator] default active indicator [Color] when using an uncontained
+     * [LoadingIndicator].
+     */
     val IndicatorColor: Color
         @Composable get() = LoadingIndicatorTokens.ActiveIndicatorColor.value
 
-    /** A [LoadingIndicator] default container [Color]. */
+    /**
+     * A [LoadingIndicator] default active indicator [Color] when using a
+     * [ContainedLoadingIndicator].
+     */
+    // TODO Read this value from the tokens when available.
+    val ContainedIndicatorColor: Color
+        @Composable get() = MaterialTheme.colorScheme.onPrimaryContainer
+
+    /** A [LoadingIndicator] default container [Color] when using a [ContainedLoadingIndicator]. */
+    // TODO Read this value from the tokens when available.
     val ContainerColor: Color
-        @Composable get() = LoadingIndicatorTokens.ContainerColor.value
+        @Composable get() = MaterialTheme.colorScheme.primaryContainer
 
     /**
      * The sequence of [RoundedPolygon]s that the indeterminate [LoadingIndicator] will morph

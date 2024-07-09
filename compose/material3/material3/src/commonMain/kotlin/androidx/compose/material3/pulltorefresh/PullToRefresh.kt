@@ -33,16 +33,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.loadingIndicatorColor
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.loadingIndicatorContainerColor
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionTokens
-import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -407,7 +405,7 @@ object PullToRefreshDefaults {
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorColor: Color
-        @Composable get() = LoadingIndicatorDefaults.IndicatorColor
+        @Composable get() = LoadingIndicatorDefaults.ContainedIndicatorColor
 
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
@@ -543,7 +541,7 @@ object PullToRefreshDefaults {
                 animationSpec = tween(durationMillis = CrossfadeDurationMs)
             ) { refreshing ->
                 if (refreshing) {
-                    androidx.compose.material3.LoadingIndicator(
+                    ContainedLoadingIndicator(
                         // TODO Set the LoadingIndicator colors
                         modifier =
                             Modifier.requiredSize(
@@ -557,7 +555,7 @@ object PullToRefreshDefaults {
                     // The LoadingIndicator will rotate and morph for a coerced progress value of 0
                     // to 1. When the state's distanceFraction is above one, we rotate the entire
                     // component we have a continuous rotation until the refreshing flag is true.
-                    androidx.compose.material3.LoadingIndicator(
+                    ContainedLoadingIndicator(
                         // TODO Set the LoadingIndicator colors
                         progress = { state.distanceFraction },
                         modifier =
