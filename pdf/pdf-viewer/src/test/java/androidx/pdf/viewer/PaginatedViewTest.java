@@ -74,7 +74,7 @@ public class PaginatedViewTest {
         PdfViewer.setScreenForTest(mContext);
         // Setting uninitialized model.
         mPaginatedView = new PaginatedView(mContext);
-        mPaginationModel = new PaginationModel();
+        mPaginationModel = new PaginationModel(mContext);
 
         mPaginatedView.setModel(mPaginationModel);
         mTestPageView0 = new PageMosaicView(mContext, 0, mDimensions, mMockBitmapSource,

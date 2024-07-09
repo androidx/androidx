@@ -269,17 +269,6 @@ public class PdfLoaderTest {
 
     @Test
     @UiThreadTest
-    public void testCloneWithoutSecurity() throws InterruptedException, RemoteException {
-        CountDownLatch latch = new CountDownLatch(1);
-        mWeakPdfLoaderCallbacks.setClonedLatch(latch);
-        mPdfLoader.cloneWithoutSecurity(mFileOutputStream);
-        /** Wait for {@link TestCallbacks#documentCloned(boolean)} to be called. */
-        latch.await(LATCH_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        verify(mPdfDocument).cloneWithoutSecurity(any(ParcelFileDescriptor.class));
-    }
-
-    @Test
-    @UiThreadTest
     public void testGotoLinksTask() throws RemoteException, InterruptedException {
         getGotoLinks(mPdfLoader);
         verify(mPdfDocument).getPageGotoLinks(PAGE);
@@ -362,14 +351,6 @@ public class PdfLoaderTest {
 
         private TestCallbacks() {
             super(null);
-        }
-
-        @Override
-        public void documentCloned(boolean result) {
-            super.documentCloned(result);
-            if (mClonedLatch != null) {
-                mClonedLatch.countDown();
-            }
         }
 
         @Override

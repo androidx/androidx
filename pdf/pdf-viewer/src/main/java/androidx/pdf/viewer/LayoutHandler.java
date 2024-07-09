@@ -18,6 +18,7 @@ package androidx.pdf.viewer;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.pdf.ViewState;
 import androidx.pdf.util.ThreadUtils;
 import androidx.pdf.viewer.loader.PdfLoader;
 
@@ -95,11 +96,12 @@ public class LayoutHandler {
     }
 
     /** */
-    public void processCallbacksInQueue(@NonNull Viewer.ViewState viewState, int pageNum) {
+    public void processCallbacksInQueue(@NonNull ViewState viewState,
+            int pageNum) {
         ThreadUtils.postOnUiThread(
                 () -> {
                     if (mDimensCallbackQueue.isEmpty()
-                            || viewState == Viewer.ViewState.NO_VIEW) {
+                            || viewState == ViewState.NO_VIEW) {
                         return;
                     }
 

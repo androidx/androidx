@@ -18,6 +18,7 @@ package androidx.pdf.viewer;
 
 import android.view.View;
 
+import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
 import androidx.pdf.util.ObservableValue;
@@ -35,13 +36,14 @@ class ZoomScrollValueObserver implements ObservableValue.ValueObserver<ZoomView.
     private final PageIndicator mPageIndicator;
     private final FastScrollView mFastScrollView;
     private final boolean mIsAnnotationIntentResolvable;
-    private final ObservableValue<Viewer.ViewState> mViewState;
+    private final ObservableValue<ViewState> mViewState;
 
     ZoomScrollValueObserver(ZoomView zoomView, PaginatedView paginatedView,
             LayoutHandler layoutHandler,
             FloatingActionButton annotationButton, FindInFileView findInFileView,
             PageIndicator pageIndicator, FastScrollView fastScrollView,
-            boolean isAnnotationIntentResolvable, ObservableValue<Viewer.ViewState> viewState) {
+            boolean isAnnotationIntentResolvable,
+            ObservableValue<ViewState> viewState) {
         mZoomView = zoomView;
         mPaginatedView = paginatedView;
         mLayoutHandler = layoutHandler;

@@ -19,7 +19,6 @@ package androidx.pdf.viewer.loader;
 import android.content.Context;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
-import android.print.PrintManager;
 import android.text.TextUtils;
 import android.util.SparseArray;
 
@@ -36,7 +35,6 @@ import androidx.pdf.service.PdfDocumentRemoteProto;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.TileBoard.TileInfo;
 
-import java.io.FileOutputStream;
 import java.lang.ref.WeakReference;
 
 /**
@@ -156,70 +154,6 @@ public class PdfLoader {
     /** Tries to re-open the PDF with the given password. */
     public void applyPassword(@NonNull String password) {
         mExecutor.schedule(new LoadDocumentTask(password));
-    }
-
-    /**
-     * Creates a copy of the current document without security, if it is password protected. This
-     * maybe necessary for the {@link PrintManager} which can't handle password protected files.
-     *
-     * @param fileOutputStream points to where pdfClient should make a copy of the pdf without
-     *                         security.
-     */
-    public void cloneWithoutSecurity(@NonNull FileOutputStream fileOutputStream) {
-        mExecutor.schedule(new CloneDocumentWithoutSecurityTask(fileOutputStream));
-    }
-
-    class CloneDocumentWithoutSecurityTask extends AbstractWriteTask {
-        CloneDocumentWithoutSecurityTask(FileOutputStream fileOutputStream) {
-            super(PdfLoader.this, fileOutputStream, Priority.CLONE_PDF);
-        }
-
-        @Override
-        protected String getLogTag() {
-            return "CloneDocNoSecurityTask";
-        }
-
-        @Override
-        boolean execute(PdfDocumentRemoteProto pdfDocument, ParcelFileDescriptor pfd)
-                throws RemoteException {
-            return pdfDocument.getPdfDocumentRemote().cloneWithoutSecurity(pfd);
-        }
-
-        @Override
-        protected void doCallback(PdfLoaderCallbacks callbacks, Boolean result) {
-            callbacks.documentCloned(result.booleanValue());
-        }
-    }
-
-    /**
-     * Saves the current document to the given {@link FileOutputStream}.
-     *
-     * @param fileOutputStream where the currently open PDF should be written.
-     */
-    public void saveAs(@NonNull FileOutputStream fileOutputStream) {
-        mExecutor.schedule(new SaveAsTask(fileOutputStream));
-    }
-
-    class SaveAsTask extends AbstractWriteTask {
-        SaveAsTask(FileOutputStream fileOutputStream) {
-            super(PdfLoader.this, fileOutputStream, Priority.CLONE_PDF);
-        }
-
-        @Override
-        protected String getLogTag() {
-            return "SaveAsTask";
-        }
-
-        @Override
-        boolean execute(PdfDocumentRemoteProto pdfDocument, ParcelFileDescriptor pfd)
-                throws RemoteException {
-            return pdfDocument.getPdfDocumentRemote().saveAs(pfd);
-        }
-
-        @Override
-        protected void doCallback(PdfLoaderCallbacks callbacks, Boolean result) {
-            callbacks.documentSavedAs(result.booleanValue());
-        }
     }
 
     /** Cancels all requests related to one page (bitmaps, texts,...). */

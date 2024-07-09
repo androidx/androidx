@@ -23,6 +23,11 @@
 
     <include layout="@layout/file_viewer_pdf"/>
     <include layout="@layout/search" android:id="@+id/search"/>
+    <androidx.pdf.viewer.LoadingView
+        android:id="@+id/loadingView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/edit_fab"
         android:layout_width="wrap_content"

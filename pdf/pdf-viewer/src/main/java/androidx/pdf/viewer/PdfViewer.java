@@ -50,7 +50,6 @@ import androidx.pdf.R;
 import androidx.pdf.data.DisplayData;
 import androidx.pdf.data.ErrorType;
 import androidx.pdf.data.FutureValue;
-import androidx.pdf.data.FutureValues.SettableFutureValue;
 import androidx.pdf.data.Openable;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.data.Range;
@@ -184,14 +183,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
      * so we know to callwhen the new document content is loaded.
      */
     private boolean mShouldRedrawOnDocumentLoaded = false;
-
-    @Nullable
-    private SettableFutureValue<Boolean> mPrintableVersionCallback;
-
-    // Non-null when a save-as operation is in progress. Cleared when operation is complete and
-    // value has been set with success/failure result.
-    @Nullable
-    private SettableFutureValue<Boolean> mSaveAsCallback;
 
     private Snackbar mSnackbar;
 
@@ -357,11 +348,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                 new SearchQueryObserver(mPaginatedView);
         mSearchModel.query().addObserver(mSearchQueryObserver);
 
-        mZoomScrollObserver =
-                new ZoomScrollValueObserver(mZoomView, mPaginatedView,
-                        mLayoutHandler, mAnnotationButton, mFindInFileView, mPageIndicator,
-                        mFastScrollView, mIsAnnotationIntentResolvable, mViewState);
-        mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
         mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton,
                 mFindInFileView, mZoomView, mSelectionModel, mPaginationModel, mLayoutHandler);
         mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
@@ -490,7 +476,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mPdfLoader != null) {
             destroyContentModel();
         }
-        mPrintableVersionCallback = null;
     }
 
     @Override
@@ -649,12 +634,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         // 4. Refresh tiles and/or full pages.
         if (position.stable) {
             // Perform a full refresh on all visible pages
-            mPaginatedView.refreshVisiblePages(requiresLayoutPass, viewState().get(),
-                    mZoomView.getStableZoom());
             mPaginatedView.handleGonePages(/* clearViews= */ true);
-        } else if (mZoomView.getStableZoom() == position.zoom) {
-            // Just load a few more tiles in case of tile-scroll
-            mPaginatedView.refreshVisibleTiles(requiresLayoutPass, viewState().get());
         }
 
         mLayoutHandler.maybeLayoutPages(
@@ -876,8 +856,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                                         });
                             }
 
-                            mLayoutHandler.processCallbacksInQueue(viewState().get(), pageNum);
-
                             // The new page might actually be visible on the screen, so we need
                             // to fetch assets:
                             ZoomScroll position = mZoomView.zoomScroll().get();
@@ -970,22 +948,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         if (viewState().get() != ViewState.NO_VIEW && isPageCreated(pageNum)) {
                             getPage(pageNum).setPageGotoLinks(links);
                         }
-                    }
-
-                    @Override
-                    public void documentCloned(boolean result) {
-                        if (mPrintableVersionCallback != null) {
-                            mPrintableVersionCallback.set(result);
-                        }
-                        mPrintableVersionCallback = null;
-                    }
-
-                    @Override
-                    public void documentSavedAs(boolean result) {
-                        if (mSaveAsCallback != null) {
-                            mSaveAsCallback.set(result);
-                        }
-                        mSaveAsCallback = null;
                     }
 
                     /**
