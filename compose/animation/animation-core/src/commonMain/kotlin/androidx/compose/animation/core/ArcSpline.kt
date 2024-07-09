@@ -16,6 +16,7 @@
 
 package androidx.compose.animation.core
 
+import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.hypot
@@ -241,7 +242,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
 
         fun setPoint(time: Float) {
             val percent = (if (isVertical) time2 - time else time - time1) * oneOverDeltaTime
-            val angle = Math.PI.toFloat() * 0.5f * lookup(percent)
+            val angle = PI.toFloat() * 0.5f * lookup(percent)
             tmpSinAngle = sin(angle)
             tmpCosAngle = cos(angle)
         }
@@ -308,7 +309,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
             var ly = 0f
             var dist = 0f
             for (i in ourPercent.indices) {
-                val angle = Math.toRadians(90.0 * i / (ourPercent.size - 1)).toFloat()
+                val angle = toRadians(90.0 * i / (ourPercent.size - 1)).toFloat()
                 val s = sin(angle)
                 val c = cos(angle)
                 val px = a * s
@@ -326,7 +327,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
             }
             for (i in lut.indices) {
                 val pos = i / (lut.size - 1).toFloat()
-                val index = ourPercent.binarySearch(pos)
+                val index = binarySearch(ourPercent, pos)
                 if (index >= 0) {
                     lut[i] = index / (ourPercent.size - 1).toFloat()
                 } else if (index == -1) {
@@ -371,3 +372,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
         private const val UpArc = 5
     }
 }
+
+internal expect inline fun toRadians(value: Double): Double
+
+internal expect inline fun binarySearch(array: FloatArray, position: Float): Int
