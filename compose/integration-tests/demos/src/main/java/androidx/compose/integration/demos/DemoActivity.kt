@@ -75,7 +75,7 @@ class DemoActivity : FragmentActivity() {
         val rootDemo =
             when (val demoName = intent.getStringExtra(DEMO_NAME)) {
                 null -> AllDemosCategory
-                else -> requireDemo(demoName, Navigator.findDemo(AllDemosCategory, demoName))
+                else -> Navigator.searchAllDemos(demoName)
             }
 
         ComposeView(this)
@@ -137,11 +137,6 @@ class DemoActivity : FragmentActivity() {
 
     companion object {
         const val DEMO_NAME = "demoname"
-
-        internal fun requireDemo(demoName: String, demo: Demo?) =
-            requireNotNull(demo) {
-                "No demo called \"$demoName\" could be found. Note substring matches are allowed."
-            }
     }
 }
 
@@ -245,31 +240,57 @@ private constructor(
                     require(restored.isNotEmpty()) { "no restored items" }
                     val backStack =
                         restored.mapTo(mutableListOf()) {
-                            requireNotNull(findDemo(rootDemo, it, exact = true)) { "no root demo" }
+                            requireNotNull(findDemo(rootDemo, it)) { "no root demo" }
                         }
                     val initial = backStack.removeAt(backStack.lastIndex)
                     Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
                 }
             )
 
-        fun findDemo(demo: Demo, title: String, exact: Boolean = false): Demo? {
-            if (exact) {
-                if (demo.title == title) {
-                    return demo
-                }
-            } else {
-                if (demo.title.contains(title)) {
-                    return demo
-                }
-            }
+        fun findDemo(demo: Demo, title: String): Demo? {
+            if (demo.title == title) return demo
             if (demo is DemoCategory) {
                 demo.demos.forEach { child ->
-                    findDemo(child, title, exact)?.let {
+                    findDemo(child, title)?.let {
                         return it
                     }
                 }
             }
             return null
+        }
+
+        fun searchAllDemos(demoName: String): Demo {
+            val demos = mutableListOf<Demo>()
+            demos.addDemos(AllDemosCategory, demoName, exact = true)
+            if (demos.size == 1) return demos.single()
+
+            require(demos.isEmpty()) {
+                "${demos.size} demos have the demo name \"$demoName\", " +
+                    "can't disambiguate between them."
+            }
+
+            demos.addDemos(AllDemosCategory, demoName, exact = false)
+            if (demos.size == 1) return demos.single()
+
+            val errorMessage =
+                if (demos.isEmpty()) {
+                    "No demo called \"$demoName\" could be found. " +
+                        "Note substring matches are allowed."
+                } else {
+                    "Found multiple demos matching the substring \"$demoName\", " +
+                        "please use a more specific substring. " +
+                        "Matching demo names: ${demos.joinToString { "\"${it.title}\"" }}"
+                }
+            throw IllegalArgumentException(errorMessage)
+        }
+
+        private fun MutableList<Demo>.addDemos(demo: Demo, title: String, exact: Boolean = false) {
+            if ((exact && demo.title == title) || (!exact && demo.title.contains(title))) {
+                add(demo)
+            }
+            if (demo is DemoCategory) {
+                demo.demos.forEach { addDemos(it, title, exact) }
+            }
         }
     }
 }
