@@ -29,9 +29,11 @@ import androidx.room.Junction
 import androidx.room.MapColumn
 import androidx.room.PrimaryKey
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Relation
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.RoomDatabase
+import androidx.room.RoomRawQuery
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
@@ -86,6 +88,8 @@ interface SampleDao {
     @SkipQueryVerification
     @Query("SELECT * FROM SampleEntity")
     suspend fun getSingleItemSkipVerification(): SampleEntity
+
+    @RawQuery suspend fun getSingleItemRaw(query: RoomRawQuery): SampleEntity
 
     @Query("SELECT * FROM SampleEntity") suspend fun getItemList(): List<SampleEntity>
 

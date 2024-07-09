@@ -24,8 +24,8 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.Update
 import androidx.room.Upsert
 import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CustomTypeConverter
@@ -795,8 +795,8 @@ object ProcessorErrors {
     }
 
     val RAW_QUERY_STRING_PARAMETER_REMOVED =
-        "RawQuery does not allow passing a string anymore." +
-            " Please use ${SupportDbTypeNames.QUERY.canonicalName}."
+        "@RawQuery does not allow passing a string anymore." +
+            " Please use ${RoomTypeNames.RAW_QUERY.canonicalName}."
 
     val MISSING_COPY_ANNOTATIONS =
         "Annotated property getter is missing " + "@AutoValue.CopyAnnotations."

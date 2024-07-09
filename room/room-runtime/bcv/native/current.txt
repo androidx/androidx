@@ -312,6 +312,12 @@ final class androidx.room/InvalidationTracker { // androidx.room/InvalidationTra
     final suspend fun subscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.subscribe|subscribe(androidx.room.InvalidationTracker.Observer){}[0]
     final suspend fun unsubscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.unsubscribe|unsubscribe(androidx.room.InvalidationTracker.Observer){}[0]
 }
+final class androidx.room/RoomRawQuery { // androidx.room/RoomRawQuery|null[0]
+    constructor <init>(kotlin/String, kotlin/Function1<androidx.sqlite/SQLiteStatement, kotlin/Unit> =...) // androidx.room/RoomRawQuery.<init>|<init>(kotlin.String;kotlin.Function1<androidx.sqlite.SQLiteStatement,kotlin.Unit>){}[0]
+    final fun getBindingFunction(): kotlin/Function1<androidx.sqlite/SQLiteStatement, kotlin/Unit> // androidx.room/RoomRawQuery.getBindingFunction|getBindingFunction(){}[0]
+    final val sql // androidx.room/RoomRawQuery.sql|{}sql[0]
+        final fun <get-sql>(): kotlin/String // androidx.room/RoomRawQuery.sql.<get-sql>|<get-sql>(){}[0]
+}
 final fun <#A: kotlin/Any, #B: kotlin/Any?> androidx.room.util/recursiveFetchMap(kotlin.collections/MutableMap<#A, #B>, kotlin/Boolean, kotlin/Function1<kotlin.collections/MutableMap<#A, #B>, kotlin/Unit>) // androidx.room.util/recursiveFetchMap|recursiveFetchMap(kotlin.collections.MutableMap<0:0,0:1>;kotlin.Boolean;kotlin.Function1<kotlin.collections.MutableMap<0:0,0:1>,kotlin.Unit>){0§<kotlin.Any>;1§<kotlin.Any?>}[0]
 final fun <#A: kotlin/Any?> androidx.room.coroutines/createFlow(androidx.room/RoomDatabase, kotlin/Boolean, kotlin/Array<kotlin/String>, kotlin/Function1<androidx.sqlite/SQLiteConnection, #A>): kotlinx.coroutines.flow/Flow<#A> // androidx.room.coroutines/createFlow|createFlow(androidx.room.RoomDatabase;kotlin.Boolean;kotlin.Array<kotlin.String>;kotlin.Function1<androidx.sqlite.SQLiteConnection,0:0>){0§<kotlin.Any?>}[0]
 final fun androidx.room.util/appendPlaceholders(kotlin.text/StringBuilder, kotlin/Int) // androidx.room.util/appendPlaceholders|appendPlaceholders(kotlin.text.StringBuilder;kotlin.Int){}[0]
