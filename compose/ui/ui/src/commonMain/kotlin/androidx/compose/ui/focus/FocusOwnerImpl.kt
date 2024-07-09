@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 
+private const val Warning = "FocusRelatedWarning"
+
 /**
  * The focus manager is used by different [Owner][androidx.compose.ui.node.Owner] implementations to
  * control focus.
@@ -257,10 +259,11 @@ internal class FocusOwnerImpl(
 
     /** Dispatches a key event through the compose hierarchy. */
     override fun dispatchKeyEvent(keyEvent: KeyEvent, onFocusedItem: () -> Boolean): Boolean {
-        check(!focusInvalidationManager.hasPendingInvalidation()) {
-            "Dispatching key event while focus system is invalidated."
+        if (focusInvalidationManager.hasPendingInvalidation()) {
+            // Ignoring this to unblock b/346370327.
+            println("$Warning: Dispatching key event while focus system is invalidated.")
+            return false
         }
-
         if (!validateKeyEvent(keyEvent)) return false
 
         val activeFocusTarget = rootFocusNode.findActiveFocusNode()
@@ -278,8 +281,13 @@ internal class FocusOwnerImpl(
     }
 
     override fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean {
-        check(!focusInvalidationManager.hasPendingInvalidation()) {
-            "Dispatching intercepted soft keyboard event while focus system is invalidated."
+        if (focusInvalidationManager.hasPendingInvalidation()) {
+            // Ignoring this to unblock b/346370327.
+            println(
+                "$Warning: Dispatching intercepted soft keyboard event while the focus system" +
+                    " is invalidated."
+            )
+            return false
         }
 
         val focusedSoftKeyboardInterceptionNode =
