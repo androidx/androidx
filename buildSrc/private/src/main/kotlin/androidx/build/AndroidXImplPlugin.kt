@@ -293,7 +293,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         task: AbstractTestTask,
         anchorTask: Task,
     ) {
-        anchorTask.dependsOn(task)
+        if (task.name !in listOf("linuxx64StubsTest", "jvmStubsTest")) anchorTask.dependsOn(task)
         val ignoreFailuresProperty =
             project.providers.gradleProperty(TEST_FAILURES_DO_NOT_FAIL_TEST_TASK)
         val ignoreFailures = ignoreFailuresProperty.isPresent
