@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.LocalContext
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
@@ -51,21 +50,30 @@ fun Scaffold(
     horizontalPadding: Dp = 12.dp,
     content: @Composable () -> Unit,
 ) {
-    var theModifier = modifier.fillMaxSize().background(backgroundColor).appWidgetBackground()
 
-    val systemCornerRadiusDefined =
-        LocalContext.current.resources.getResourceName(
-            android.R.dimen.system_app_widget_background_radius
-        ) != null
-    if (android.os.Build.VERSION.SDK_INT >= 31 && systemCornerRadiusDefined) {
-        theModifier = theModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
-    }
-
-    Column(modifier = theModifier) {
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .appWidgetBackground()
+                .widgetCornerRadius()
+    ) {
         titleBar?.invoke()
         Box(
             modifier = GlanceModifier.padding(horizontal = horizontalPadding).defaultWeight(),
             content = content
         )
     }
+}
+
+private fun GlanceModifier.widgetCornerRadius(): GlanceModifier {
+    val cornerRadiusModifier =
+        if (android.os.Build.VERSION.SDK_INT >= 31) {
+            GlanceModifier.cornerRadius(android.R.dimen.system_app_widget_background_radius)
+        } else {
+            GlanceModifier
+        }
+
+    return this.then(cornerRadiusModifier)
 }
