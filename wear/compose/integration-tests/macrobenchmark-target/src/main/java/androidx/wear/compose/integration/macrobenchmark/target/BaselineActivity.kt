@@ -471,7 +471,6 @@ fun Expandables() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun FocusCoordinator() {
     var selected by remember { mutableIntStateOf(0) }

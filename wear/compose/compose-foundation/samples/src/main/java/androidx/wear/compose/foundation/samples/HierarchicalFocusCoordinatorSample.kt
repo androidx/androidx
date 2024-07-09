@@ -40,11 +40,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun HierarchicalFocusCoordinatorSample() {

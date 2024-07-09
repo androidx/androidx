@@ -31,13 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastSumBy
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider
 import androidx.wear.compose.foundation.rotary.rotaryScrollable
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun RotaryScrollSample() {
@@ -63,7 +61,6 @@ fun RotaryScrollSample() {
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Sampled
 @Composable
 fun RotarySnapSample() {
