@@ -954,19 +954,8 @@ private fun Density.calculateHeight(
     constraints: Constraints,
     paddingValues: PaddingValues
 ): Int {
-    val hasLabel = labelHeight > 0
-
-    // The padding defined by the user only applies to the text field when the label
-    // is focused. More padding needs to be added when the text field is unfocused.
-    val baseVerticalPadding =
-        (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()).toPx()
-    val labelVerticalPadding =
-        if (hasLabel) {
-            lerp((TextFieldLabelExtraPadding * 2).toPx(), 0f, animationProgress)
-        } else {
-            0f
-        }
-    val verticalPadding = (baseVerticalPadding + labelVerticalPadding).roundToInt()
+    val verticalPadding =
+        (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()).roundToPx()
 
     val inputFieldHeight =
         maxOf(
@@ -977,8 +966,21 @@ private fun Density.calculateHeight(
             lerp(labelHeight, 0, animationProgress)
         )
 
-    val middleSectionHeight =
-        verticalPadding + (if (animationProgress == 1f) labelHeight else 0) + inputFieldHeight
+    val hasLabel = labelHeight > 0
+    val nonOverlappedLabelHeight =
+        if (hasLabel) {
+            // The label animates from overlapping the input field to floating above it,
+            // so its contribution to the height calculation changes over time. Extra padding
+            // is added in the unfocused state to keep the height consistent.
+            max(
+                (TextFieldLabelExtraPadding * 2).roundToPx(),
+                lerp(0, labelHeight, animationProgress)
+            )
+        } else {
+            0
+        }
+
+    val middleSectionHeight = verticalPadding + nonOverlappedLabelHeight + inputFieldHeight
 
     return max(
         constraints.minHeight,
