@@ -3485,7 +3485,7 @@ public abstract interface class androidx/compose/ui/scene/ComposeScene {
 	public abstract fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
 	public abstract fun getSize-bOM6tXw ()Landroidx/compose/ui/unit/IntSize;
 	public abstract fun hasInvalidations ()Z
-	public abstract fun hitTestInteropView-k-4lQ0M (J)Z
+	public abstract fun hitTestInteropView-k-4lQ0M (J)Ljava/lang/Object;
 	public abstract fun invalidatePositionInWindow ()V
 	public abstract fun render (Landroidx/compose/ui/graphics/Canvas;J)V
 	public abstract fun sendKeyEvent-ZmokQxo (Ljava/lang/Object;)Z
@@ -3963,6 +3963,15 @@ public final class androidx/compose/ui/state/ToggleableStateKt {
 
 public final class androidx/compose/ui/text/TextMeasurerHelperKt {
 	public static final fun rememberTextMeasurer (ILandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/text/TextMeasurer;
+}
+
+public class androidx/compose/ui/viewinterop/InteropViewAnchorModifierNode : androidx/compose/ui/Modifier$Node, androidx/compose/ui/node/PointerInputModifierNode {
+	public static final field $stable I
+	public fun <init> (Ljava/lang/Object;)V
+	public final fun getInteropView ()Ljava/lang/Object;
+	public fun onCancelPointerInput ()V
+	public fun onPointerEvent-H0pRuoY (Landroidx/compose/ui/input/pointer/PointerEvent;Landroidx/compose/ui/input/pointer/PointerEventPass;J)V
+	public final fun setInteropView (Ljava/lang/Object;)V
 }
 
 public abstract interface class androidx/compose/ui/window/ApplicationScope {

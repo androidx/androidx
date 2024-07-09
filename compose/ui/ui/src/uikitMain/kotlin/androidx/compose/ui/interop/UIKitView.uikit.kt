@@ -27,7 +27,6 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.InteropViewCatchPointerModifier
 import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -58,6 +57,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpOffset
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.viewinterop.interopViewAnchor
+import androidx.compose.ui.viewinterop.InteropView
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectZero
 
@@ -66,6 +67,10 @@ private val DefaultViewResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.
 private val DefaultViewControllerResize: UIViewController.(CValue<CGRect>) -> Unit =
     { rect -> this.view.setFrame(rect) }
 
+/**
+ * A [UIView] that contains underlying interop element, such as an independent [UIView]
+ * or [UIViewController]'s root [UIView].
+ */
 internal class InteropWrappingView : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
     var actualAccessibilityContainer: Any? = null
 
@@ -101,7 +106,7 @@ internal val InteropViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
 private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
 
 /**
- * Chain [this] with [Modifier.semantics] that sets the [interopView] of the node if [enabled] is true.
+ * Chain [this] with [Modifier.semantics] that sets the [interopViewAnchor] of the node if [enabled] is true.
  * If [enabled] is false, [this] is returned as is.
  */
 private fun Modifier.interopSemantics(
@@ -116,9 +121,16 @@ private fun Modifier.interopSemantics(
         this
     }
 
-private fun Modifier.catchInteropPointer(isInteractive: Boolean): Modifier =
+/**
+ * Add an association with [InteropView] to the modified element.
+ * Allows hit testing and custom pointer input handling for the [InteropView].
+ *
+ * @param isInteractive If `true`, the modifier will be applied. If `false`, returns the original modifier.
+ * @param wrappingView The [InteropWrappingView] to associate with the modified element.
+ */
+private fun Modifier.interopViewAnchor(isInteractive: Boolean, wrappingView: InteropWrappingView): Modifier =
     if (isInteractive) {
-        this then InteropViewCatchPointerModifier()
+        this.interopViewAnchor(wrappingView)
     } else {
         this
     }
@@ -168,7 +180,7 @@ private fun <T : Any> UIKitInteropLayout(
             )
         }
         .trackUIKitInterop(interopContainer, componentHandler.wrappingView)
-        .catchInteropPointer(interactive)
+        .interopViewAnchor(interactive, componentHandler.wrappingView)
         .interopSemantics(accessibilityEnabled, componentHandler.wrappingView)
 
     EmptyLayout(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+package androidx.compose.ui.viewinterop
 
-//! Project version number for CMPUIKitUtils.
-FOUNDATION_EXPORT double CMPUIKitUtilsVersionNumber;
-
-//! Project version string for CMPUIKitUtils.
-FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
-
-#import "CMPViewController.h"
-#import "CMPAccessibilityElement.h"
-#import "CMPAccessibilityContainer.h"
-#import "CMPOSLogger.h"
-#import "CMPTextLoupeSession.h"
-#import "CMPMetalDrawablesHandler.h"
-#import "CMPGestureRecognizer.h"
+/**
+ * A typealias for the platform's built-in View type, which may be hosted inside of a Compose UI
+ * hierarchy to allow for interoperability. Not all platforms support interoperability in this way,
+ * in which case the typealias will resolve to [Any].
+ */
+actual typealias InteropView = Any

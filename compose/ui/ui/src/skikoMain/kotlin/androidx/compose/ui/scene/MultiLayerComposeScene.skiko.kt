@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.window.getDialogScrimBlendMode
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
@@ -210,18 +211,12 @@ private class MultiLayerComposeSceneImpl(
         )
     }
 
-    @Deprecated("To be removed. Temporary hack for iOS interop")
-    override fun hitTestInteropView(position: Offset): Boolean {
-        // TODO:
-        //  Temporary solution copying control flow from [processPress].
-        //  A proper solution is to send touches to scene as black box
-        //  and handle only that ones that were received in interop view
-        //  instead of using [pointInside].
+    override fun hitTestInteropView(position: Offset): InteropView? {
         forEachLayerReversed { layer ->
             if (layer.isInBounds(position)) {
                 return layer.owner.hitTestInteropView(position)
             } else if (layer == focusedLayer) {
-                return false
+                return null
             }
         }
         return mainOwner.hitTestInteropView(position)

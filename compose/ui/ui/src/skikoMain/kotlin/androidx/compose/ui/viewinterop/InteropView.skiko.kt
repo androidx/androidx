@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,49 @@
 
 package androidx.compose.ui.viewinterop
 
-// Interop Views aren't supported in Skiko. Use Any instead of Nothing because we can't have a type
-// aliased to Nothing appear as a function return type or property type.
-actual typealias InteropView = Any
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.unit.IntSize
+
+/**
+ * [Modifier.Node] to associate an [InteropView] with the modified element to allow hit testing it and
+ * perform custom pointer input handling if needed.
+ */
+@InternalComposeUiApi
+open class InteropViewAnchorModifierNode(
+    var interopView: InteropView
+) : Modifier.Node(), PointerInputModifierNode {
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {}
+
+    override fun onCancelPointerInput() {}
+}
+
+/**
+ * Element for [InteropViewAnchorModifierNode]. A custom implementation of [ModifierNodeElement] is needed
+ * for possible [InteropViewAnchorModifierNode] subclasses.
+ */
+internal data class InteropViewAnchorModifierNodeElement(
+    val interopView: InteropView
+) : ModifierNodeElement<InteropViewAnchorModifierNode>() {
+    override fun create(): InteropViewAnchorModifierNode =
+        InteropViewAnchorModifierNode(interopView)
+
+    override fun update(node: InteropViewAnchorModifierNode) {
+        node.interopView = interopView
+    }
+}
+
+/**
+ * Add an association with [InteropView] to the modified element.
+ * Allows hit testing and custom pointer input handling for the [InteropView].
+ */
+internal fun Modifier.interopViewAnchor(view: InteropView): Modifier =
+    this then InteropViewAnchorModifierNodeElement(view)

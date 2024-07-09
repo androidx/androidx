@@ -18,6 +18,7 @@ package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 
+// TODO: implement this for iOS
 // Skiko doesn't have an intrinsic interop view type, so satisfy the expect declaration with a
 // no-op and unusable type.
 internal actual class InteropViewFactoryHolder private constructor(

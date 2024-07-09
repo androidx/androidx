@@ -98,8 +98,8 @@ private data class RootTrackInteropModifierElement<T>(
  * @see ModifierNodeElement
  */
 internal data class TrackInteropModifierElement<T>(
-    var container: InteropContainer<T>,
-    var nativeView: T,
+    val container: InteropContainer<T>,
+    val nativeView: T,
 ) : ModifierNodeElement<TrackInteropModifierNode<T>>() {
     override fun create() = TrackInteropModifierNode(
         container = container,

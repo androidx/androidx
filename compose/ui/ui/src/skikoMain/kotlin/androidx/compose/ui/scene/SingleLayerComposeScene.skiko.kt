@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -33,6 +34,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.viewinterop.InteropView
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 
@@ -155,8 +157,7 @@ private class SingleLayerComposeSceneImpl(
         )
     }
 
-    @Deprecated("To be removed. Temporary hack for iOS interop")
-    override fun hitTestInteropView(position: Offset): Boolean {
+    override fun hitTestInteropView(position: Offset): InteropView? {
         return mainOwner.hitTestInteropView(position)
     }
 
