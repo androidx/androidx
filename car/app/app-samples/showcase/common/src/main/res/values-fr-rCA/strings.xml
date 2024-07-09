@@ -110,10 +110,10 @@
     <string name="route_list_limit" msgid="505793441615134116">"Limite de la liste d\'itinéraires"</string>
     <string name="content_limits" msgid="5726880972110281095">"Limites de contenu"</string>
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Démo des limites de contenu"</string>
-    <string name="finish_app_msg" msgid="8354334557053141891">"L\'application sera fermée, et un écran d\'autorisation sera ajouté quand vous la rouvrirez"</string>
-    <string name="finish_app_title" msgid="9013328479438745074">"Terminer la démo de l\'application"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"L\'appli sera fermée, et un écran d\'autorisation sera ajouté quand vous la rouvrirez"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"Terminer la démo de l\'appli"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"Ajout de l\'écran d\'autorisation lors de la prochaine exécution de la démo"</string>
-    <string name="preseed_permission_app_title" msgid="182847662545676962">"Ajout d\'autorisations à l\'application de démonstration"</string>
+    <string name="preseed_permission_app_title" msgid="182847662545676962">"Ajout d\'autorisations à l\'appli de démonstration"</string>
     <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Ajout de l\'écran d\'autorisation lors de la prochaine exécution de la démo"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Chargement de la démo en cours…"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Chargement terminé!"</string>
@@ -124,7 +124,7 @@
     <string name="pop_to_title" msgid="3924696281273379455">"Aller à la démo"</string>
     <string name="package_not_found_error_msg" msgid="7525619456883627939">"Ensemble non trouvé."</string>
     <string name="permissions_granted_msg" msgid="2348556088141992714">"Toutes les autorisations ont été accordées. Veuillez révoquer les autorisations dans Paramètres."</string>
-    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"L\'application a besoin d\'accéder aux autorisations suivantes :\n"</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"L\'appli a besoin d\'accéder aux autorisations suivantes :\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Accorder l\'autorisation sur l\'écran du téléphone"</string>
     <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Activer les autorisations de localisation sur l\'appareil"</string>
     <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"Activer la position sur l\'écran du téléphone"</string>
@@ -133,8 +133,8 @@
     <string name="cancel_reservation_title" msgid="1374986823057959608">"Écran d\'annulation de la réservation"</string>
     <string name="reservation_cancelled_msg" msgid="6334213670275547875">"Réservation annulée"</string>
     <string name="result_demo_title" msgid="3900525190662148290">"Démo du résultat"</string>
-    <string name="not_started_for_result_msg" msgid="7498800528148447270">"Cette application n\'a pas été lancée à partir du résultat"</string>
-    <string name="started_for_result_msg" msgid="4225260243713833974">"Cette application a été lancée à partir du résultat de %s. Veuillez sélectionner le résultat à renvoyer à l\'appelant"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"Cette appli n\'a pas été lancée à partir du résultat"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"Cette appli a été lancée à partir du résultat de %s. Veuillez sélectionner le résultat à renvoyer à l\'appelant"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Arrivée!"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"Aller chercher Alice"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"Envoyer une notification"</string>
@@ -271,14 +271,14 @@
     <string name="icon_title_prefix" msgid="8487026131229541244">"Icône"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Démo des icônes du fournisseur de contenu"</string>
     <string name="icons_demo_title" msgid="4082976685262307357">"Démo d\'icônes"</string>
-    <string name="app_icon_title" msgid="7534936683349723423">"L\'icône de l\'application"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"L\'icône de l\'appli"</string>
     <string name="vector_no_tint_title" msgid="874591632279039146">"Une vectorielle dessinable, sans teinte"</string>
     <string name="vector_with_tint_title" msgid="1022346419829696827">"Une vectorielle dessinable, avec teinte"</string>
-    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Une vectorielle dessinable, avec comme couleur l\'attribut du thème d\'une application"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Une vectorielle dessinable, avec comme couleur l\'attribut du thème d\'une appli"</string>
     <string name="png_res_title" msgid="7437083018336747544">"Un PNG, envoyé comme ressource"</string>
     <string name="png_bitmap_title" msgid="3385912074130977032">"Un PNG, envoyé comme table de bits"</string>
     <string name="just_row_title" msgid="965700021568970725">"Juste un titre"</string>
-    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Titre avec icône d\'application"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Titre avec icône d\'appli"</string>
     <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Titre avec image d\'identifiant de ressource"</string>
     <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"Titre avec image SVG"</string>
     <string name="colored_secondary_row_title" msgid="5173288934252528929">"Texte secondaire en couleur"</string>
@@ -337,11 +337,11 @@
     <string name="voice_access_demo_title" msgid="3825223890895361496">"Écran d\'autorisation à l\'accès vocal"</string>
     <string name="user_interactions_demo_title" msgid="1356952319161314986">"Interactions avec l\'utilisateur"</string>
     <string name="request_permission_menu_demo_title" msgid="4796486779527427017">"Demande d\'autorisation pour les démos."</string>
-    <string name="application_overflow_title" msgid="396427940886169325">"Outil de validation de menu à développer d\'application"</string>
+    <string name="application_overflow_title" msgid="396427940886169325">"Outil de validation de menu à développer d\'appli"</string>
     <string name="application_overflow_subtitle1" msgid="7429415605726615529">"Veuillez tester les modèles suivants lorsque vous basculez"</string>
     <string name="application_overflow_subtitle2" msgid="4385123036846369714">"l\'état du véhicule stationné à celui de conduite"</string>
     <string name="perm_group" msgid="3834918337351876270">"Groupe d\'autorisations"</string>
-    <string name="perm_group_description" msgid="7348847631139139024">"Groupe d\'autorisations pour l\'application Showcase"</string>
+    <string name="perm_group_description" msgid="7348847631139139024">"Groupe d\'autorisations pour l\'appli Showcase"</string>
     <string name="perm_fine_location" msgid="5438874642600304118">"Accès à la localisation précise"</string>
     <string name="perm_fine_location_desc" msgid="3549183883787912516">"Autorisation pour l\'accès à la localisation précise"</string>
     <string name="perm_coarse_location" msgid="6140337431619481015">"Accès à la localisation imprécise"</string>
