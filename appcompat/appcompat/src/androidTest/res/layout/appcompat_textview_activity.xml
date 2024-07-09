@@ -380,21 +380,25 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_fontVariation_textView"
+            android:text="A"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:fontVariationSettings="'wdth' 30"/>
+            android:fontFamily="@font/variable_font"
+            app:fontVariationSettings="'wght' 200"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_fontVariation_textAppearance"
+            android:text="A"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/variable_font"
             android:textAppearance="@style/TextView_FontVariation"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_fontVariation_textView_and_textAppearance"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:fontVariationSettings="'wdth' 30"
+            app:fontVariationSettings="'wght' 700"
             android:textAppearance="@style/TextView_FontVariation"/>
 
         <androidx.appcompat.widget.AppCompatTextView
