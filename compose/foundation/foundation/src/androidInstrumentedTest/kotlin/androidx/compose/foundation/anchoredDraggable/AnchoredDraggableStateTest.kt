@@ -262,7 +262,7 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
         // Swipe towards B, close after threshold
         state.dispatchRawDelta(aToBThreshold * 0.2f)
 
-        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.currentValue).isEqualTo(B)
         assertThat(state.targetValue).isEqualTo(B)
 
         runBlocking(AutoTestFrameClock()) { performFling(flingBehavior, state, 0f) }
@@ -279,7 +279,7 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
         // Swipe towards A, close after threshold
         state.dispatchRawDelta(-(aToBThreshold * 0.2f))
 
-        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.currentValue).isEqualTo(A)
         assertThat(state.targetValue).isEqualTo(A)
 
         runBlocking(AutoTestFrameClock()) { performFling(flingBehavior, state, 0f) }

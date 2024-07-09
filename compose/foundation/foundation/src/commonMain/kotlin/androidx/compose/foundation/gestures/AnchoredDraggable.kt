@@ -1174,9 +1174,9 @@ class AnchoredDraggableState<T>(
      */
     fun dispatchRawDelta(delta: Float): Float {
         val newOffset = newOffsetForDelta(delta)
-        val oldOffset = if (offset.isNaN()) 0f else offset
-        offset = newOffset
-        return newOffset - oldOffset
+        val consumedDelta = (newOffset - requireOffset())
+        anchoredDragScope.dragTo(newOffset)
+        return consumedDelta
     }
 
     /**
