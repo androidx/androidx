@@ -206,6 +206,14 @@ class FragmentStateManager {
                 }
             }
         }
+        // For fragments that are added via FragmentTransaction.add(ViewGroup)
+        if (mFragment.mInDynamicContainer) {
+            if (mFragment.mContainer == null) {
+                // If their container is not available yet (onContainerAvailable hasn't been
+                // called), don't allow the fragment to go beyond ACTIVITY_CREATED
+                maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
+            }
+        }
         // Fragments that are not currently added will sit in the CREATED state.
         if (!mFragment.mAdded) {
             maxState = Math.min(maxState, Fragment.CREATED);
@@ -548,7 +556,7 @@ class FragmentStateManager {
             FragmentContainer fragmentContainer = mFragment.mFragmentManager.getContainer();
             container = (ViewGroup) fragmentContainer.onFindViewById(mFragment.mContainerId);
             if (container == null) {
-                if (!mFragment.mRestored) {
+                if (!mFragment.mRestored && !mFragment.mInDynamicContainer) {
                     String resName;
                     try {
                         resName = mFragment.getResources().getResourceName(mFragment.mContainerId);
