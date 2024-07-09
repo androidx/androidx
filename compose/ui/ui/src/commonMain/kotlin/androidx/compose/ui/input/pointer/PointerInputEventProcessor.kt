@@ -28,6 +28,9 @@ internal interface PositionCalculator {
     fun screenToLocal(positionOnScreen: Offset): Offset
 
     fun localToScreen(localPosition: Offset): Offset
+}
+
+internal interface MatrixPositionCalculator : PositionCalculator {
 
     /**
      * Takes a matrix which transforms some coordinate system to local coordinates, and updates the

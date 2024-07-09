@@ -30,7 +30,7 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.input.pointer.PositionCalculator
+import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.HideKeyboard
@@ -57,7 +57,7 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
 )
 internal class TextInputServiceAndroid(
     val view: View,
-    rootPositionCalculator: PositionCalculator,
+    rootPositionCalculator: MatrixPositionCalculator,
     private val inputMethodManager: InputMethodManager,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
@@ -118,7 +118,7 @@ internal class TextInputServiceAndroid(
 
     constructor(
         view: View,
-        positionCalculator: PositionCalculator
+        positionCalculator: MatrixPositionCalculator
     ) : this(
         view,
         positionCalculator,

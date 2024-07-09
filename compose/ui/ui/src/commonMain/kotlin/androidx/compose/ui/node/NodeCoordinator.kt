@@ -883,14 +883,7 @@ internal abstract class NodeCoordinator(
         transformFromAncestor(commonAncestor, matrix)
     }
 
-    override fun transformToScreen(matrix: Matrix) {
-        val owner = layoutNode.requireOwner()
-        val rootCoordinator = findRootCoordinates().toCoordinator()
-        transformToAncestor(rootCoordinator, matrix)
-        owner.localToScreen(matrix)
-    }
-
-    private fun transformToAncestor(ancestor: NodeCoordinator, matrix: Matrix) {
+    fun transformToAncestor(ancestor: NodeCoordinator, matrix: Matrix) {
         var wrapper = this
         while (wrapper != ancestor) {
             wrapper.layer?.transform(matrix)

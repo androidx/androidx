@@ -454,10 +454,6 @@ private class MockOwner(
         TODO("Not yet implemented")
     }
 
-    override fun localToScreen(localTransform: Matrix) {
-        TODO("Not yet implemented")
-    }
-
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")

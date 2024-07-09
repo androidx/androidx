@@ -33,7 +33,6 @@ import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.GraphicsContext
-import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
@@ -457,10 +456,6 @@ class ModifierLocalConsumerEntityTest {
         }
 
         override fun localToScreen(localPosition: Offset): Offset {
-            TODO("Not yet implemented")
-        }
-
-        override fun localToScreen(localTransform: Matrix) {
             TODO("Not yet implemented")
         }
     }
