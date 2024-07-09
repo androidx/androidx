@@ -16,6 +16,8 @@
 
 import androidx.build.PlatformIdentifier
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -38,6 +40,7 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api("androidx.paging:paging-common:3.3.2")
                 api(project(":room:room-runtime"))
+                implementation(libs.atomicFu)
             }
         }
 
@@ -52,6 +55,18 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
+        jvmNativeMain {
+            dependsOn(commonMain)
+        }
+
+        jvmMain {
+            dependsOn(jvmNativeMain)
+        }
+
+        nativeMain {
+            dependsOn(jvmNativeMain)
+        }
+
         androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
@@ -63,6 +78,13 @@ androidXMultiplatform {
                 implementation(libs.testRunner)
                 implementation("androidx.arch.core:core-testing:2.2.0")
                 implementation("androidx.paging:paging-testing:3.3.2")
+            }
+        }
+        targets.configureEach { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
             }
         }
     }
@@ -82,4 +104,5 @@ androidx {
     inceptionYear = "2021"
     description = "Room Paging integration"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false // Due to b/360195094
 }

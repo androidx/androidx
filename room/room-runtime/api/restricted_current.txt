@@ -349,6 +349,7 @@ package androidx.room {
     method public void bindNull(int index);
     method public void bindString(int index, String value);
     method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram statement);
+    method public void bindTo(androidx.sqlite.SQLiteStatement statement);
     method public void clearBindings();
     method public void close();
     method public void copyArgumentsFrom(androidx.room.RoomSQLiteQuery other);

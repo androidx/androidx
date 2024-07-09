@@ -272,6 +272,11 @@ actual constructor(
         implementation.refreshInvalidationAsync(onRefreshScheduled, onRefreshCompleted)
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun refreshInvalidation() {
+        implementation.refreshInvalidation(onRefreshScheduled, onRefreshCompleted)
+    }
+
     /** Check versions for tables, and run observers synchronously if tables have been updated. */
     @WorkerThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)

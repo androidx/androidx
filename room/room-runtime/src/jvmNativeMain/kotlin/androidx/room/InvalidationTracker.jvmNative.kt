@@ -97,6 +97,11 @@ actual constructor(
         implementation.refreshInvalidationAsync()
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual suspend fun refreshInvalidation() {
+        implementation.refreshInvalidation()
+    }
+
     /** Stops invalidation tracker operations. */
     actual fun stop() {}
 
