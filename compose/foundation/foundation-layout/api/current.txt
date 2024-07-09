@@ -127,7 +127,8 @@ package androidx.compose.foundation.layout {
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowColumnOverflowScope extends androidx.compose.foundation.layout.FlowColumnOverflowScope {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowColumnScope extends androidx.compose.foundation.layout.FlowColumnScope {
+  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowColumnScope extends androidx.compose.foundation.layout.ColumnScope {
+    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxColumnWidth(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
     method public int getIndexInLine();
     method public int getLineIndex();
     method public float getMaxHeightInLine();
@@ -159,7 +160,8 @@ package androidx.compose.foundation.layout {
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowRowOverflowScope extends androidx.compose.foundation.layout.FlowRowOverflowScope {
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowRowScope extends androidx.compose.foundation.layout.FlowRowScope {
+  @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable public interface ContextualFlowRowScope extends androidx.compose.foundation.layout.RowScope {
+    method @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public androidx.compose.ui.Modifier fillMaxRowHeight(androidx.compose.ui.Modifier, optional @FloatRange(from=0.0, to=1.0) float fraction);
     method public int getIndexInLine();
     method public int getLineIndex();
     method public float getMaxHeight();

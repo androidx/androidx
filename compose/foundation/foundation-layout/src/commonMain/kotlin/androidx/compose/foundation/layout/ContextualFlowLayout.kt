@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
@@ -175,7 +176,23 @@ fun ContextualFlowColumn(
 @LayoutScopeMarker
 @Immutable
 @ExperimentalLayoutApi
-interface ContextualFlowRowScope : FlowRowScope {
+interface ContextualFlowRowScope : RowScope {
+    /**
+     * Have the item fill (possibly only partially) the max height of the tallest item in the row it
+     * was placed in, within the [FlowRow].
+     *
+     * @param fraction The fraction of the max height of the tallest item between `0` and `1`,
+     *   inclusive.
+     *
+     * Example usage:
+     *
+     * @sample androidx.compose.foundation.layout.samples.SimpleFlowRow_EqualHeight
+     */
+    @ExperimentalLayoutApi
+    fun Modifier.fillMaxRowHeight(
+        @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f,
+    ): Modifier
+
     /**
      * Identifies the row or column index where the UI component(s) are to be placed, provided they
      * do not exceed the specified [maxWidthInLine] and [maxHeight] for that row or column.
@@ -238,7 +255,23 @@ interface ContextualFlowColumnOverflowScope : FlowColumnOverflowScope
 @LayoutScopeMarker
 @Immutable
 @ExperimentalLayoutApi
-interface ContextualFlowColumnScope : FlowColumnScope {
+interface ContextualFlowColumnScope : ColumnScope {
+    /**
+     * Have the item fill (possibly only partially) the max width of the widest item in the column
+     * it was placed in, within the [FlowColumn].
+     *
+     * @param fraction The fraction of the max width of the widest item between `0` and `1`,
+     *   inclusive.
+     *
+     * Example usage:
+     *
+     * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumn_EqualWidth
+     */
+    @ExperimentalLayoutApi
+    fun Modifier.fillMaxColumnWidth(
+        @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f,
+    ): Modifier
+
     /**
      * Identifies the row or column index where the UI component(s) are to be placed, provided they
      * do not exceed the specified [maxWidth] and [maxHeightInLine] for that row or column.
@@ -291,7 +324,19 @@ internal class ContextualFlowRowScopeImpl(
     override val indexInLine: Int,
     override val maxWidthInLine: Dp,
     override val maxHeight: Dp
-) : FlowRowScope by FlowRowScopeInstance, ContextualFlowRowScope
+) : RowScope by RowScopeInstance, ContextualFlowRowScope {
+    override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
+        require(fraction >= 0.0) {
+            "invalid fraction $fraction; must be greater than " + "or equal to zero"
+        }
+        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " + "than 1.0" }
+        return this.then(
+            FillCrossAxisSizeElement(
+                fraction = fraction,
+            )
+        )
+    }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 internal class ContextualFlowColumnScopeImpl(
@@ -299,7 +344,19 @@ internal class ContextualFlowColumnScopeImpl(
     override val indexInLine: Int,
     override val maxWidth: Dp,
     override val maxHeightInLine: Dp
-) : FlowColumnScope by FlowColumnScopeInstance, ContextualFlowColumnScope
+) : ColumnScope by ColumnScopeInstance, ContextualFlowColumnScope {
+    override fun Modifier.fillMaxColumnWidth(fraction: Float): Modifier {
+        require(fraction >= 0.0) {
+            "invalid fraction $fraction; must be greater than or " + "equal to zero"
+        }
+        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " + "than 1.0" }
+        return this.then(
+            FillCrossAxisSizeElement(
+                fraction = fraction,
+            )
+        )
+    }
+}
 
 @ExperimentalLayoutApi
 internal class ContextualFlowRowOverflowScopeImpl(private val state: FlowLayoutOverflowState) :
