@@ -24,10 +24,12 @@ import static androidx.camera.core.ImageCapture.ERROR_INVALID_CAMERA;
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.integration.extensions.CameraDirection.BACKWARD;
 import static androidx.camera.integration.extensions.CameraDirection.FORWARD;
+import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_CAMERA_IMPLEMENTATION;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_DIRECTION;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE;
+import static androidx.camera.integration.extensions.utils.PermissionUtil.setupPermissions;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
@@ -37,13 +39,10 @@ import static androidx.core.util.Preconditions.checkNotNull;
 
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureRequest;
@@ -55,6 +54,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -131,7 +131,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
-    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
     public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
     public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
 
@@ -618,7 +617,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
         setupPinchToZoomAndTapToFocus(mPreviewView);
         String cameraImplementation =
                 getIntent().getStringExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
-        Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
+        Pair<ListenableFuture<Boolean>, CallbackToFutureAdapter.Completer<Boolean>>
+                futureCompleter = setupPermissions(this);
+        mPermissionCompleter = futureCompleter.second;
+        Futures.addCallback(futureCompleter.first, new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(@Nullable Boolean result) {
                 mPermissionsGranted = Preconditions.checkNotNull(result);
@@ -805,76 +807,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
             }
             return true;
         });
-    }
-
-    private ListenableFuture<Boolean> setupPermissions() {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            mPermissionCompleter = completer;
-            if (!allPermissionsGranted()) {
-                makePermissionRequest();
-            } else {
-                mPermissionCompleter.set(true);
-            }
-
-            return "get_permissions";
-        });
-    }
-
-    private void makePermissionRequest() {
-        ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSIONS_REQUEST_CODE);
-    }
-
-    /** Returns true if all the necessary permissions have been granted already. */
-    private boolean allPermissionsGranted() {
-        for (String permission : getRequiredPermissions()) {
-            if (ContextCompat.checkSelfPermission(this, permission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /** Tries to acquire all the necessary permissions through a dialog. */
-    @SuppressWarnings("deprecation")
-    private String[] getRequiredPermissions() {
-        PackageInfo info;
-        try {
-            info = getPackageManager().getPackageInfo(getPackageName(),
-                    PackageManager.GET_PERMISSIONS);
-        } catch (NameNotFoundException exception) {
-            Log.e(TAG, "Failed to obtain all required permissions.", exception);
-            return new String[0];
-        }
-
-        if (info.requestedPermissions == null || info.requestedPermissions.length == 0) {
-            return new String[0];
-        }
-
-        List<String> requiredPermissions = new ArrayList<>();
-
-        // From Android T, skips the permission check of WRITE_EXTERNAL_STORAGE since it won't be
-        // granted any more. When querying the requested permissions from PackageManager,
-        // READ_EXTERNAL_STORAGE will also be included if we specify WRITE_EXTERNAL_STORAGE
-        // requirement in AndroidManifest.xml. Therefore, also need to skip the permission check
-        // of READ_EXTERNAL_STORAGE.
-        for (String permission : info.requestedPermissions) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && (
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE.equals(permission)
-                            || Manifest.permission.READ_EXTERNAL_STORAGE.equals(permission))) {
-                continue;
-            }
-
-            requiredPermissions.add(permission);
-        }
-
-        String[] permissions = requiredPermissions.toArray(new String[0]);
-
-        if (permissions.length > 0) {
-            return permissions;
-        } else {
-            return new String[0];
-        }
     }
 
     @Nullable

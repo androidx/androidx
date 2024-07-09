@@ -83,6 +83,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".proguard.ReleaseTestActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.camera.integration.extensions.release_test" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
 
