@@ -253,7 +253,7 @@ class XNullabilityTest {
     fun changeNullability_primitives() {
         runProcessorTest { invocation ->
             PRIMITIVE_JTYPE_NAMES.forEachIndexed { index, primitiveJTypeName ->
-                val primitive = invocation.processingEnv.requireType(primitiveJTypeName)
+                val primitive = invocation.processingEnv.requireType(primitiveJTypeName.toString())
                 assertThat(primitive.nullability).isEqualTo(NONNULL)
                 val nullable = primitive.makeNullable()
                 assertThat(nullable.nullability).isEqualTo(NULLABLE)
@@ -268,7 +268,8 @@ class XNullabilityTest {
                 // it) it is more consistent as it is completely valid to annotate a boxed primitive
                 // with non-null while you cannot annoteted a primitive with nullable as it is not
                 // a valid state.
-                val boxedPrimitive = invocation.processingEnv.requireType(primitiveJTypeName.box())
+                val boxedPrimitive =
+                    invocation.processingEnv.requireType(primitiveJTypeName.box().toString())
                 val nonNull = boxedPrimitive.makeNonNullable()
                 assertThat(nonNull.nullability).isEqualTo(NONNULL)
                 assertThat(nonNull.asTypeName().java).isEqualTo(primitiveJTypeName.box())
