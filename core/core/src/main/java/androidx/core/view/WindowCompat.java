@@ -22,7 +22,6 @@ import android.os.Build;
 import android.view.View;
 import android.view.Window;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -163,7 +162,6 @@ public final class WindowCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
             final View decorView = window.getDecorView();
@@ -179,7 +177,6 @@ public final class WindowCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
             window.setDecorFitsSystemWindows(decorFitsSystemWindows);
@@ -193,7 +190,6 @@ public final class WindowCompat {
         }
 
         @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-        @DoNotInline
         static <T> T requireViewById(Window window, int id) {
             return (T) window.requireViewById(id);
         }

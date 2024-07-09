@@ -37,7 +37,6 @@ import android.view.Display;
 import android.view.DragEvent;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -766,13 +765,11 @@ public class ActivityCompat extends ContextCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setLocusContext(@NonNull final Activity activity,
                 @Nullable final LocusIdCompat locusId, @Nullable final Bundle bundle) {
             activity.setLocusContext(locusId == null ? null : locusId.toLocusId(), bundle);
         }
 
-        @DoNotInline
         static Display getDisplay(ContextWrapper contextWrapper) {
             return contextWrapper.getDisplay();
         }
@@ -784,7 +781,6 @@ public class ActivityCompat extends ContextCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean isLaunchedFromBubble(@NonNull final Activity activity)  {
             return activity.isLaunchedFromBubble();
         }
@@ -796,7 +792,6 @@ public class ActivityCompat extends ContextCompat {
          * </a>
          */
         @SuppressLint("BanUncheckedReflection")
-        @DoNotInline
         static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
             try {
                 // 1. Background of the problem：Fix shouldShowRequestPermissionRationale causing memory leak in Android 12，
@@ -828,7 +823,6 @@ public class ActivityCompat extends ContextCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
             return activity.shouldShowRequestPermissionRationale(permission);
         }
@@ -840,29 +834,24 @@ public class ActivityCompat extends ContextCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void finishAfterTransition(Activity activity) {
             activity.finishAfterTransition();
         }
 
-        @DoNotInline
         static void setEnterSharedElementCallback(Activity activity,
                 android.app.SharedElementCallback callback) {
             activity.setEnterSharedElementCallback(callback);
         }
 
-        @DoNotInline
         static void setExitSharedElementCallback(Activity activity,
                 android.app.SharedElementCallback callback) {
             activity.setExitSharedElementCallback(callback);
         }
 
-        @DoNotInline
         static void postponeEnterTransition(Activity activity) {
             activity.postponeEnterTransition();
         }
 
-        @DoNotInline
         static void startPostponedEnterTransition(Activity activity) {
             activity.startPostponedEnterTransition();
         }
@@ -874,7 +863,6 @@ public class ActivityCompat extends ContextCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Uri getReferrer(Activity activity) {
             return activity.getReferrer();
         }
@@ -887,7 +875,6 @@ public class ActivityCompat extends ContextCompat {
         }
 
         @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
-        @DoNotInline
         static <T> T requireViewById(Activity activity, int id) {
             return (T) activity.requireViewById(id);
         }
@@ -899,17 +886,14 @@ public class ActivityCompat extends ContextCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void requestPermissions(Activity activity, String[] permissions, int requestCode) {
             activity.requestPermissions(permissions, requestCode);
         }
 
-        @DoNotInline
         static boolean shouldShowRequestPermissionRationale(Activity activity, String permission) {
             return activity.shouldShowRequestPermissionRationale(permission);
         }
 
-        @DoNotInline
         static void onSharedElementsReady(Object onSharedElementsReadyListener) {
             ((android.app.SharedElementCallback.OnSharedElementsReadyListener)
                     onSharedElementsReadyListener).onSharedElementsReady();

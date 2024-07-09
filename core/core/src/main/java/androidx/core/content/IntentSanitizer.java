@@ -29,7 +29,6 @@ import android.os.Parcelable;
 import android.os.strictmode.UnsafeIntentLaunchViolation;
 import android.provider.MediaStore;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Consumer;
@@ -950,7 +949,6 @@ public class IntentSanitizer {
         private Api31Impl() {
         }
 
-        @DoNotInline
         static void checkOtherMembers(int i, ClipData.Item item, Consumer<String> penalty) {
             if (item.getHtmlText() != null || item.getIntent() != null
                     || item.getTextLinks() != null) {
@@ -966,12 +964,10 @@ public class IntentSanitizer {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Intent setIdentifier(Intent intent, String identifier) {
             return intent.setIdentifier(identifier);
         }
 
-        @DoNotInline
         static String getIdentifier(Intent intent) {
             return intent.getIdentifier();
         }

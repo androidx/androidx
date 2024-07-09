@@ -25,7 +25,6 @@ import android.view.ViewConfiguration;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -530,39 +529,32 @@ public final class ViewParentCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean onStartNestedScroll(ViewParent viewParent, View view, View view1, int i) {
             return viewParent.onStartNestedScroll(view, view1, i);
         }
 
-        @DoNotInline
         static void onNestedScrollAccepted(ViewParent viewParent, View view, View view1, int i) {
             viewParent.onNestedScrollAccepted(view, view1, i);
         }
 
-        @DoNotInline
         static void onStopNestedScroll(ViewParent viewParent, View view) {
             viewParent.onStopNestedScroll(view);
         }
 
-        @DoNotInline
         static void onNestedScroll(ViewParent viewParent, View view, int i, int i1, int i2,
                 int i3) {
             viewParent.onNestedScroll(view, i, i1, i2, i3);
         }
 
-        @DoNotInline
         static void onNestedPreScroll(ViewParent viewParent, View view, int i, int i1, int[] ints) {
             viewParent.onNestedPreScroll(view, i, i1, ints);
         }
 
-        @DoNotInline
         static boolean onNestedFling(ViewParent viewParent, View view, float v, float v1,
                 boolean b) {
             return viewParent.onNestedFling(view, v, v1, b);
         }
 
-        @DoNotInline
         static boolean onNestedPreFling(ViewParent viewParent, View view, float v, float v1) {
             return viewParent.onNestedPreFling(view, v, v1);
         }

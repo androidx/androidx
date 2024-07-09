@@ -19,7 +19,6 @@ package androidx.core.os;
 import android.os.Build;
 import android.os.Environment;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -74,7 +73,6 @@ public final class EnvironmentCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static String getExternalStorageState(File path) {
             return Environment.getExternalStorageState(path);
         }

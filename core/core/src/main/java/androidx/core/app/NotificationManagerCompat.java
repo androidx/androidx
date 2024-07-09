@@ -48,7 +48,6 @@ import android.service.notification.StatusBarNotification;
 import android.support.v4.app.INotificationSideChannel;
 import android.util.Log;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -1246,7 +1245,6 @@ public final class NotificationManagerCompat {
     static class Api23Impl {
         private Api23Impl() { }
 
-        @DoNotInline
         static List<StatusBarNotification> getActiveNotifications(
                 NotificationManager notificationManager) {
             StatusBarNotification[] notifs = notificationManager.getActiveNotifications();
@@ -1256,7 +1254,6 @@ public final class NotificationManagerCompat {
             return Arrays.asList(notifs);
         }
 
-        @DoNotInline
         static int getCurrentInterruptionFilter(
                 NotificationManager notificationManager) {
             return notificationManager.getCurrentInterruptionFilter();
@@ -1272,12 +1269,10 @@ public final class NotificationManagerCompat {
     static class Api24Impl {
         private Api24Impl() { }
 
-        @DoNotInline
         static boolean areNotificationsEnabled(NotificationManager notificationManager) {
             return notificationManager.areNotificationsEnabled();
         }
 
-        @DoNotInline
         static int getImportance(NotificationManager notificationManager) {
             return notificationManager.getImportance();
         }
@@ -1294,67 +1289,56 @@ public final class NotificationManagerCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void createNotificationChannel(NotificationManager notificationManager,
                 NotificationChannel channel) {
             notificationManager.createNotificationChannel(channel);
         }
 
-        @DoNotInline
         static NotificationChannel getNotificationChannel(NotificationManager notificationManager,
                 String channelId) {
             return notificationManager.getNotificationChannel(channelId);
         }
 
-        @DoNotInline
         static void createNotificationChannels(
                 NotificationManager notificationManager, List<NotificationChannel> channels) {
             notificationManager.createNotificationChannels(channels);
         }
 
-        @DoNotInline
         static List<NotificationChannel> getNotificationChannels(
                 NotificationManager notificationManager) {
             return notificationManager.getNotificationChannels();
         }
 
-        @DoNotInline
         static void createNotificationChannelGroup(NotificationManager notificationManager,
                 NotificationChannelGroup group) {
             notificationManager.createNotificationChannelGroup(group);
         }
 
-        @DoNotInline
         static void createNotificationChannelGroups(NotificationManager notificationManager,
                 List<NotificationChannelGroup> groups) {
             notificationManager.createNotificationChannelGroups(groups);
         }
 
-        @DoNotInline
         static List<NotificationChannelGroup> getNotificationChannelGroups(
                 NotificationManager notificationManager) {
             return notificationManager.getNotificationChannelGroups();
         }
 
-        @DoNotInline
         static void deleteNotificationChannel(NotificationManager notificationManager,
                 String channelId) {
             notificationManager.deleteNotificationChannel(channelId);
         }
 
-        @DoNotInline
         static void deleteNotificationChannelGroup(NotificationManager notificationManager,
                 String groupId) {
             notificationManager.deleteNotificationChannelGroup(groupId);
         }
 
 
-        @DoNotInline
         static String getId(NotificationChannel notificationChannel) {
             return notificationChannel.getId();
         }
 
-        @DoNotInline
         static String getId(NotificationChannelGroup notificationChannelGroup) {
             return notificationChannelGroup.getId();
         }
@@ -1369,7 +1353,6 @@ public final class NotificationManagerCompat {
     static class Api28Impl {
         private Api28Impl() { }
 
-        @DoNotInline
         static NotificationChannelGroup getNotificationChannelGroup(
                 NotificationManager notificationManager, String channelGroupId) {
             return notificationManager.getNotificationChannelGroup(channelGroupId);
@@ -1385,12 +1368,10 @@ public final class NotificationManagerCompat {
     static class Api30Impl {
         private Api30Impl() { }
 
-        @DoNotInline
         static String getParentChannelId(NotificationChannel notificationChannel) {
             return notificationChannel.getParentChannelId();
         }
 
-        @DoNotInline
         static NotificationChannel getNotificationChannel(NotificationManager notificationManager,
                 String channelId, String conversationId) {
             return notificationManager.getNotificationChannel(channelId, conversationId);
@@ -1406,7 +1387,6 @@ public final class NotificationManagerCompat {
     static class Api34Impl {
         private Api34Impl() { }
 
-        @DoNotInline
         static boolean canUseFullScreenIntent(NotificationManager notificationManager) {
             return notificationManager.canUseFullScreenIntent();
         }

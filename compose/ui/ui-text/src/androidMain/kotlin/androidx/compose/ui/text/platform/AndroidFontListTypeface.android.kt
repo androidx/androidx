@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.util.TypedValue
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.LruCache
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -168,7 +167,6 @@ internal object AndroidTypefaceCache {
 @Deprecated("Only used by deprecated APIs in this file, remove with them.")
 private object AndroidResourceFontLoaderHelper {
     @RequiresApi(26)
-    @DoNotInline
     fun create(context: Context, resourceId: Int): Typeface {
         return context.resources.getFont(resourceId)
     }

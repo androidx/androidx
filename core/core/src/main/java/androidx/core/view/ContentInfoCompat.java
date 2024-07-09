@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.view.ContentInfo;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -329,7 +328,6 @@ public final class ContentInfoCompat {
     private static final class Api31Impl {
         private Api31Impl() {}
 
-        @DoNotInline
         @NonNull
         public static Pair<ContentInfo, ContentInfo> partition(@NonNull ContentInfo payload,
                 @NonNull Predicate<ClipData.Item> itemPredicate) {

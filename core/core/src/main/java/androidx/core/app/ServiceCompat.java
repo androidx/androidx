@@ -26,7 +26,6 @@ import android.app.Service;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -200,7 +199,6 @@ public final class ServiceCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void stopForeground(Service service, int flags) {
             service.stopForeground(flags);
         }
@@ -212,7 +210,6 @@ public final class ServiceCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void startForeground(Service service, int id, Notification notification,
                 int foregroundServiceType) {
             if (foregroundServiceType == FOREGROUND_SERVICE_TYPE_NONE
@@ -231,7 +228,6 @@ public final class ServiceCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void startForeground(Service service, int id, Notification notification,
                 int foregroundServiceType) {
             if (foregroundServiceType == FOREGROUND_SERVICE_TYPE_NONE

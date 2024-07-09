@@ -23,7 +23,6 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -251,31 +250,26 @@ public final class BundleCompat {
             // This class is non-instantiable.
         }
 
-        @DoNotInline
         static <T> T getParcelable(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<T> clazz) {
             return in.getParcelable(key, clazz);
         }
 
-        @DoNotInline
         static <T> T[] getParcelableArray(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<T> clazz) {
             return in.getParcelableArray(key, clazz);
         }
 
-        @DoNotInline
         static <T> ArrayList<T> getParcelableArrayList(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<? extends T> clazz) {
             return in.getParcelableArrayList(key, clazz);
         }
 
-        @DoNotInline
         static <T> SparseArray<T> getSparseParcelableArray(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<? extends T> clazz) {
             return in.getSparseParcelableArray(key, clazz);
         }
 
-        @DoNotInline
         static <T extends Serializable> T getSerializable(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<T> clazz) {
             return in.getSerializable(key, clazz);

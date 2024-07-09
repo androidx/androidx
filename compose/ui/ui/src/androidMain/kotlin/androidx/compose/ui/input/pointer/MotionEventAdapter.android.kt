@@ -35,7 +35,6 @@ import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import android.view.MotionEvent.TOOL_TYPE_STYLUS
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
@@ -342,7 +341,6 @@ internal class MotionEventAdapter {
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 private object MotionEventHelper {
-    @DoNotInline
     fun toRawOffset(motionEvent: MotionEvent, index: Int): Offset {
         return Offset(motionEvent.getRawX(index), motionEvent.getRawY(index))
     }

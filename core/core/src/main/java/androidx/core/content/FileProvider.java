@@ -45,7 +45,6 @@ import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -993,7 +992,6 @@ public class FileProvider extends ContentProvider {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static File[] getExternalMediaDirs(Context context) {
             // Deprecated, otherwise this would belong on ContextCompat as a public method.
             return context.getExternalMediaDirs();

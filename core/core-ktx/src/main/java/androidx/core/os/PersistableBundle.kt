@@ -18,7 +18,6 @@ package androidx.core.os
 
 import android.os.Build
 import android.os.PersistableBundle
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -68,11 +67,9 @@ fun Map<String, Any?>.toPersistableBundle(): PersistableBundle {
 // Jetifier to keep them grouped with other members of the core-ktx module.
 @RequiresApi(21)
 private object PersistableBundleApi21ImplKt {
-    @DoNotInline
     @JvmStatic
     fun createPersistableBundle(capacity: Int): PersistableBundle = PersistableBundle(capacity)
 
-    @DoNotInline
     @JvmStatic
     fun putValue(persistableBundle: PersistableBundle, key: String?, value: Any?) {
         persistableBundle.apply {
@@ -142,13 +139,11 @@ private object PersistableBundleApi21ImplKt {
 
 @RequiresApi(22)
 private object PersistableBundleApi22ImplKt {
-    @DoNotInline
     @JvmStatic
     fun putBoolean(persistableBundle: PersistableBundle, key: String?, value: Boolean) {
         persistableBundle.putBoolean(key, value)
     }
 
-    @DoNotInline
     @JvmStatic
     fun putBooleanArray(persistableBundle: PersistableBundle, key: String?, value: BooleanArray) {
         persistableBundle.putBooleanArray(key, value)

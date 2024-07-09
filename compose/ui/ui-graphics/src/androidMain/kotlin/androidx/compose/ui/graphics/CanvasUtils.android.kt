@@ -19,7 +19,6 @@ package androidx.compose.ui.graphics
 import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -93,7 +92,6 @@ internal object CanvasUtils {
 
 @RequiresApi(29)
 private object CanvasZHelper {
-    @DoNotInline
     fun enableZ(canvas: Canvas, enable: Boolean) {
         if (enable) {
             canvas.enableZ()

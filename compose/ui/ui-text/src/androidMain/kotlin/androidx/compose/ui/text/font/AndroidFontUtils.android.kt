@@ -17,7 +17,6 @@
 package androidx.compose.ui.text.font
 
 import android.graphics.Typeface
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 internal val FontWeight.Companion.AndroidBold
@@ -67,7 +66,6 @@ internal fun getAndroidTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {
 @RequiresApi(28)
 internal object TypefaceHelperMethodsApi28 {
     @RequiresApi(28)
-    @DoNotInline
     fun create(typeface: Typeface, finalFontWeight: Int, finalFontStyle: Boolean) =
         Typeface.create(typeface, finalFontWeight, finalFontStyle)
 }

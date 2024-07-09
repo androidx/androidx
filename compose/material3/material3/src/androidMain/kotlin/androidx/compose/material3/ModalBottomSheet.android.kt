@@ -31,7 +31,6 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentDialog
 import androidx.activity.addCallback
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
@@ -391,7 +390,6 @@ private class ModalBottomSheetDialogLayout(
     @RequiresApi(34)
     private object Api34Impl {
         @JvmStatic
-        @DoNotInline
         fun createBackCallback(
             onDismissRequest: () -> Unit,
             predictiveBackProgress: Animatable<Float, AnimationVector1D>,
@@ -423,12 +421,10 @@ private class ModalBottomSheetDialogLayout(
     @RequiresApi(33)
     private object Api33Impl {
         @JvmStatic
-        @DoNotInline
         fun createBackCallback(onDismissRequest: () -> Unit) =
             OnBackInvokedCallback(onDismissRequest)
 
         @JvmStatic
-        @DoNotInline
         fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
             if (backCallback is OnBackInvokedCallback) {
                 view
@@ -441,7 +437,6 @@ private class ModalBottomSheetDialogLayout(
         }
 
         @JvmStatic
-        @DoNotInline
         fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
             if (backCallback is OnBackInvokedCallback) {
                 view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)

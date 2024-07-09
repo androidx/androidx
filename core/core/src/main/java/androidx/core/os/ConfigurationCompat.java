@@ -21,7 +21,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.content.res.Configuration;
 import android.os.LocaleList;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -70,12 +69,10 @@ public final class ConfigurationCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static android.os.LocaleList getLocales(Configuration configuration) {
             return configuration.getLocales();
         }
 
-        @DoNotInline
         static void setLocales(
                 @NonNull Configuration configuration, @NonNull LocaleListCompat locales) {
             configuration.setLocales((LocaleList) locales.unwrap());

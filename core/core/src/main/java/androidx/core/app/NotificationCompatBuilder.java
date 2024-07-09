@@ -37,7 +37,6 @@ import android.text.TextUtils;
 import android.util.SparseArray;
 import android.widget.RemoteViews;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -537,58 +536,48 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     static class Api20Impl {
         private Api20Impl() { }
 
-        @DoNotInline
         static Notification.Action.Builder createBuilder(int icon, CharSequence title,
                 PendingIntent intent) {
             return new Notification.Action.Builder(icon, title, intent);
         }
 
-        @DoNotInline
         static Notification.Action.Builder addRemoteInput(Notification.Action.Builder builder,
                 android.app.RemoteInput remoteInput) {
             return builder.addRemoteInput(remoteInput);
         }
 
-        @DoNotInline
         static Notification.Action.Builder addExtras(Notification.Action.Builder builder,
                 Bundle extras) {
             return builder.addExtras(extras);
         }
 
 
-        @DoNotInline
         static Notification.Builder addAction(Notification.Builder builder,
                 Notification.Action action) {
             return builder.addAction(action);
         }
 
-        @DoNotInline
         static Notification.Action build(Notification.Action.Builder builder) {
             return builder.build();
         }
 
-        @DoNotInline
         static String getGroup(Notification notification) {
             return notification.getGroup();
         }
 
-        @DoNotInline
         static Notification.Builder setGroup(Notification.Builder builder, String groupKey) {
             return builder.setGroup(groupKey);
         }
 
-        @DoNotInline
         static Notification.Builder setGroupSummary(Notification.Builder builder,
                 boolean isGroupSummary) {
             return builder.setGroupSummary(isGroupSummary);
         }
 
-        @DoNotInline
         static Notification.Builder setLocalOnly(Notification.Builder builder, boolean localOnly) {
             return builder.setLocalOnly(localOnly);
         }
 
-        @DoNotInline
         static Notification.Builder setSortKey(Notification.Builder builder, String sortKey) {
             return builder.setSortKey(sortKey);
         }
@@ -603,32 +592,26 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     static class Api21Impl {
         private Api21Impl() { }
 
-        @DoNotInline
         static Notification.Builder addPerson(Notification.Builder builder, String uri) {
             return builder.addPerson(uri);
         }
 
-        @DoNotInline
         static Notification.Builder setCategory(Notification.Builder builder, String category) {
             return builder.setCategory(category);
         }
 
-        @DoNotInline
         static Notification.Builder setColor(Notification.Builder builder, int argb) {
             return builder.setColor(argb);
         }
 
-        @DoNotInline
         static Notification.Builder setVisibility(Notification.Builder builder, int visibility) {
             return builder.setVisibility(visibility);
         }
 
-        @DoNotInline
         static Notification.Builder setPublicVersion(Notification.Builder builder, Notification n) {
             return builder.setPublicVersion(n);
         }
 
-        @DoNotInline
         static Notification.Builder setSound(Notification.Builder builder, Uri sound,
                 Object audioAttributes /* AudioAttributes */) {
             return builder.setSound(sound, (AudioAttributes) audioAttributes);
@@ -644,19 +627,16 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     static class Api23Impl {
         private Api23Impl() { }
 
-        @DoNotInline
         static Notification.Action.Builder createBuilder(Icon icon, CharSequence title,
                 PendingIntent intent) {
             return new Notification.Action.Builder(icon, title, intent);
         }
 
-        @DoNotInline
         static Notification.Builder setSmallIcon(Notification.Builder builder,
                 Object icon /* Icon */) {
             return builder.setSmallIcon((Icon) icon);
         }
 
-        @DoNotInline
         static Notification.Builder setLargeIcon(Notification.Builder builder, Icon icon) {
             return builder.setLargeIcon(icon);
         }
@@ -671,31 +651,26 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     static class Api24Impl {
         private Api24Impl() { }
 
-        @DoNotInline
         static Notification.Action.Builder setAllowGeneratedReplies(
                 Notification.Action.Builder builder, boolean allowGeneratedReplies) {
             return builder.setAllowGeneratedReplies(allowGeneratedReplies);
         }
 
-        @DoNotInline
         static Notification.Builder setRemoteInputHistory(Notification.Builder builder,
                 CharSequence[] text) {
             return builder.setRemoteInputHistory(text);
         }
 
-        @DoNotInline
         static Notification.Builder setCustomContentView(Notification.Builder builder,
                 RemoteViews contentView) {
             return builder.setCustomContentView(contentView);
         }
 
-        @DoNotInline
         static Notification.Builder setCustomBigContentView(Notification.Builder builder,
                 RemoteViews contentView) {
             return builder.setCustomBigContentView(contentView);
         }
 
-        @DoNotInline
         static Notification.Builder setCustomHeadsUpContentView(Notification.Builder builder,
                 RemoteViews contentView) {
             return builder.setCustomHeadsUpContentView(contentView);
@@ -711,39 +686,32 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     static class Api26Impl {
         private Api26Impl() { }
 
-        @DoNotInline
         static Notification.Builder createBuilder(Context context, String channelId) {
             return new Notification.Builder(context, channelId);
         }
 
-        @DoNotInline
         static Notification.Builder setGroupAlertBehavior(Notification.Builder builder,
                 int groupAlertBehavior) {
             return builder.setGroupAlertBehavior(groupAlertBehavior);
         }
 
-        @DoNotInline
         static Notification.Builder setColorized(Notification.Builder builder, boolean colorize) {
             return builder.setColorized(colorize);
         }
 
-        @DoNotInline
         static Notification.Builder setBadgeIconType(Notification.Builder builder, int icon) {
             return builder.setBadgeIconType(icon);
         }
 
-        @DoNotInline
         static Notification.Builder setSettingsText(Notification.Builder builder,
                 CharSequence text) {
             return builder.setSettingsText(text);
         }
 
-        @DoNotInline
         static Notification.Builder setShortcutId(Notification.Builder builder, String shortcutId) {
             return builder.setShortcutId(shortcutId);
         }
 
-        @DoNotInline
         static Notification.Builder setTimeoutAfter(Notification.Builder builder, long durationMs) {
             return builder.setTimeoutAfter(durationMs);
         }
@@ -759,13 +727,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         private Api28Impl() {
         }
 
-        @DoNotInline
         static Notification.Action.Builder setSemanticAction(Notification.Action.Builder builder,
                 int semanticAction) {
             return builder.setSemanticAction(semanticAction);
         }
 
-        @DoNotInline
         static Notification.Builder addPerson(Notification.Builder builder,
                 android.app.Person person) {
             return builder.addPerson(person);
@@ -781,25 +747,21 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     static class Api29Impl {
         private Api29Impl() { }
 
-        @DoNotInline
         static Notification.Action.Builder setContextual(Notification.Action.Builder builder,
                 boolean isContextual) {
             return builder.setContextual(isContextual);
         }
 
-        @DoNotInline
         static Notification.Builder setLocusId(Notification.Builder builder,
                 Object locusId /* LocusId */) {
             return builder.setLocusId((LocusId) locusId);
         }
 
-        @DoNotInline
         static Notification.Builder setBubbleMetadata(Notification.Builder builder,
                 Notification.BubbleMetadata data) {
             return builder.setBubbleMetadata(data);
         }
 
-        @DoNotInline
         static Notification.Builder setAllowSystemGeneratedContextualActions(
                 Notification.Builder builder, boolean allowed) {
             return builder.setAllowSystemGeneratedContextualActions(allowed);
@@ -816,13 +778,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         private Api31Impl() {
         }
 
-        @DoNotInline
         static Notification.Action.Builder setAuthenticationRequired(
                 Notification.Action.Builder builder, boolean authenticationRequired) {
             return builder.setAuthenticationRequired(authenticationRequired);
         }
 
-        @DoNotInline
         static Notification.Builder setForegroundServiceBehavior(Notification.Builder builder,
                 int behavior) {
             return builder.setForegroundServiceBehavior(behavior);

@@ -19,7 +19,6 @@ package androidx.core.os;
 import android.os.Build;
 import android.os.LocaleList;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -263,7 +262,6 @@ public final class LocaleListCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean matchesLanguageAndScript(@NonNull Locale supported,
                 @NonNull Locale desired) {
             if (supported.equals(desired)) {
@@ -306,7 +304,6 @@ public final class LocaleListCompat {
             return false;
         }
 
-        @DoNotInline
         static Locale forLanguageTag(String languageTag) {
             return Locale.forLanguageTag(languageTag);
         }
@@ -334,17 +331,14 @@ public final class LocaleListCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static LocaleList createLocaleList(Locale... list) {
             return new LocaleList(list);
         }
 
-        @DoNotInline
         static LocaleList getAdjustedDefault() {
             return LocaleList.getAdjustedDefault();
         }
 
-        @DoNotInline
         static LocaleList getDefault() {
             return LocaleList.getDefault();
         }

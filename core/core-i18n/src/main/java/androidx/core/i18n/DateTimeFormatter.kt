@@ -21,7 +21,6 @@ import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.provider.Settings
 import android.text.format.DateFormat
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.core.i18n.LocaleCompatUtils.getDefaultFormattingLocale
 import java.util.Calendar
@@ -160,7 +159,6 @@ class DateTimeFormatter {
         @RequiresApi(Build.VERSION_CODES.N)
         private class Api24Utils {
             companion object {
-                @DoNotInline
                 fun is24HourLocale(locale: Locale): Boolean {
                     val tmpDf = android.icu.text.DateFormat.getInstanceForSkeleton("jm", locale)
                     val tmpPattern =

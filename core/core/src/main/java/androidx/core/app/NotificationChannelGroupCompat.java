@@ -21,7 +21,6 @@ import android.app.NotificationChannelGroup;
 import android.content.Intent;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -226,29 +225,24 @@ public class NotificationChannelGroupCompat {
     static class Api26Impl {
         private Api26Impl() { }
 
-        @DoNotInline
         static NotificationChannelGroup createNotificationChannelGroup(String id,
                 CharSequence name) {
             return new NotificationChannelGroup(id, name);
         }
 
-        @DoNotInline
         static String getId(NotificationChannelGroup notificationChannelGroup) {
             return notificationChannelGroup.getId();
         }
 
-        @DoNotInline
         static CharSequence getName(NotificationChannelGroup notificationChannelGroup) {
             return notificationChannelGroup.getName();
         }
 
-        @DoNotInline
         static List<NotificationChannel> getChannels(
                 NotificationChannelGroup notificationChannelGroup) {
             return notificationChannelGroup.getChannels();
         }
 
-        @DoNotInline
         static String getGroup(NotificationChannel notificationChannel) {
             return notificationChannel.getGroup();
         }
@@ -263,17 +257,14 @@ public class NotificationChannelGroupCompat {
     static class Api28Impl {
         private Api28Impl() { }
 
-        @DoNotInline
         static boolean isBlocked(NotificationChannelGroup notificationChannelGroup) {
             return notificationChannelGroup.isBlocked();
         }
 
-        @DoNotInline
         static String getDescription(NotificationChannelGroup notificationChannelGroup) {
             return notificationChannelGroup.getDescription();
         }
 
-        @DoNotInline
         static void setDescription(NotificationChannelGroup notificationChannelGroup,
                 String description) {
             notificationChannelGroup.setDescription(description);

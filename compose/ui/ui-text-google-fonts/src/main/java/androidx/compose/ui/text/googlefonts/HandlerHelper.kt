@@ -19,7 +19,6 @@ package androidx.compose.ui.text.googlefonts
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 /**
@@ -40,7 +39,6 @@ internal object HandlerHelper {
 
     @RequiresApi(28)
     internal object Handler28Impl {
-        @DoNotInline
         fun createAsync(looper: Looper): Handler {
             return Handler.createAsync(looper)
         }

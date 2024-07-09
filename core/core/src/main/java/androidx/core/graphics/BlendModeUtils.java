@@ -19,7 +19,6 @@ package androidx.core.graphics;
 import android.graphics.BlendMode;
 import android.graphics.PorterDuff;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -39,7 +38,6 @@ class BlendModeUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @Nullable
         static Object obtainBlendModeFromCompat(@NonNull BlendModeCompat blendModeCompat) {
             switch (blendModeCompat) {

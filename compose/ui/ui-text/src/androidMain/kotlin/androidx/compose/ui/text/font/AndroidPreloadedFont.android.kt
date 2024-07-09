@@ -22,7 +22,6 @@ import android.graphics.Typeface
 import android.graphics.fonts.FontVariationAxis
 import android.os.Build
 import android.os.ParcelFileDescriptor
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.Density
@@ -175,7 +174,6 @@ constructor(
 @RequiresApi(api = 26)
 private object TypefaceBuilderCompat {
     @ExperimentalTextApi
-    @DoNotInline
     fun createFromAssets(
         assetManager: AssetManager,
         path: String,
@@ -191,7 +189,6 @@ private object TypefaceBuilderCompat {
     }
 
     @ExperimentalTextApi
-    @DoNotInline
     fun createFromFile(
         file: File,
         context: Context?,
@@ -206,7 +203,6 @@ private object TypefaceBuilderCompat {
     }
 
     @ExperimentalTextApi
-    @DoNotInline
     fun createFromFileDescriptor(
         fileDescriptor: ParcelFileDescriptor,
         context: Context?,

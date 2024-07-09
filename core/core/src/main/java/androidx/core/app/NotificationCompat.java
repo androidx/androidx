@@ -63,7 +63,6 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.DimenRes;
 import androidx.annotation.Dimension;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -2617,29 +2616,24 @@ public class NotificationCompat {
         static class Api21Impl {
             private Api21Impl() { }
 
-            @DoNotInline
             static AudioAttributes.Builder createBuilder() {
                 return new AudioAttributes.Builder();
             }
 
-            @DoNotInline
             static AudioAttributes.Builder setContentType(AudioAttributes.Builder builder,
                     int contentType) {
                 return builder.setContentType(contentType);
             }
 
-            @DoNotInline
             static AudioAttributes.Builder setUsage(AudioAttributes.Builder builder, int usage) {
                 return builder.setUsage(usage);
             }
 
-            @DoNotInline
             static AudioAttributes.Builder setLegacyStreamType(AudioAttributes.Builder builder,
                     int streamType) {
                 return builder.setLegacyStreamType(streamType);
             }
 
-            @DoNotInline
             static AudioAttributes build(AudioAttributes.Builder builder) {
                 return builder.build();
             }
@@ -2654,12 +2648,10 @@ public class NotificationCompat {
         static class Api23Impl {
             private Api23Impl() { }
 
-            @DoNotInline
             static Icon getSmallIcon(Notification notification) {
                 return notification.getSmallIcon();
             }
 
-            @DoNotInline
             static Icon getLargeIcon(Notification notification) {
                 return notification.getLargeIcon();
             }
@@ -2674,22 +2666,18 @@ public class NotificationCompat {
         static class Api24Impl {
             private Api24Impl() { }
 
-            @DoNotInline
             static Notification.Builder recoverBuilder(Context context, Notification n) {
                 return Notification.Builder.recoverBuilder(context, n);
             }
 
-            @DoNotInline
             static RemoteViews createContentView(Notification.Builder builder) {
                 return builder.createContentView();
             }
 
-            @DoNotInline
             static RemoteViews createHeadsUpContentView(Notification.Builder builder) {
                 return builder.createHeadsUpContentView();
             }
 
-            @DoNotInline
             static RemoteViews createBigContentView(Notification.Builder builder) {
                 return builder.createHeadsUpContentView();
             }
@@ -3181,7 +3169,6 @@ public class NotificationCompat {
         static class Api24Impl {
             private Api24Impl() { }
 
-            @DoNotInline
             static void setChronometerCountDown(RemoteViews remoteViews, int viewId,
                     boolean isCountDown) {
                 remoteViews.setChronometerCountDown(viewId, isCountDown);
@@ -4398,13 +4385,11 @@ public class NotificationCompat {
                     // This class is not instantiable.
                 }
 
-                @DoNotInline
                 static Notification.MessagingStyle.Message createMessage(CharSequence text,
                         long timestamp, CharSequence sender) {
                     return new Notification.MessagingStyle.Message(text, timestamp, sender);
                 }
 
-                @DoNotInline
                 static Notification.MessagingStyle.Message setData(
                         Notification.MessagingStyle.Message message, String dataMimeType,
                         Uri dataUri) {
@@ -4423,13 +4408,11 @@ public class NotificationCompat {
                     // This class is not instantiable.
                 }
 
-                @DoNotInline
                 static Notification.MessagingStyle.Message createMessage(CharSequence text,
                         long timestamp, android.app.Person sender) {
                     return new Notification.MessagingStyle.Message(text, timestamp, sender);
                 }
 
-                @DoNotInline
                 static Parcelable castToParcelable(android.app.Person person) {
                     return person;
                 }
@@ -4445,19 +4428,16 @@ public class NotificationCompat {
         static class Api24Impl {
             private Api24Impl() { }
 
-            @DoNotInline
             static Notification.MessagingStyle createMessagingStyle(CharSequence userDisplayName) {
                 return new Notification.MessagingStyle(userDisplayName);
             }
 
-            @DoNotInline
             static Notification.MessagingStyle addMessage(
                     Notification.MessagingStyle messagingStyle,
                     Notification.MessagingStyle.Message message) {
                 return messagingStyle.addMessage(message);
             }
 
-            @DoNotInline
             static Notification.MessagingStyle setConversationTitle(
                     Notification.MessagingStyle messagingStyle, CharSequence conversationTitle) {
                 return messagingStyle.setConversationTitle(conversationTitle);
@@ -4473,7 +4453,6 @@ public class NotificationCompat {
         static class Api26Impl {
             private Api26Impl() { }
 
-            @DoNotInline
             static Notification.MessagingStyle addHistoricMessage(
                     Notification.MessagingStyle messagingStyle,
                     Notification.MessagingStyle.Message message) {
@@ -4491,12 +4470,10 @@ public class NotificationCompat {
         static class Api28Impl {
             private Api28Impl() { }
 
-            @DoNotInline
             static Notification.MessagingStyle createMessagingStyle(android.app.Person user) {
                 return new Notification.MessagingStyle(user);
             }
 
-            @DoNotInline
             static Notification.MessagingStyle setGroupConversation(
                     Notification.MessagingStyle messagingStyle, boolean isGroupConversation) {
                 return messagingStyle.setGroupConversation(isGroupConversation);
@@ -5082,12 +5059,10 @@ public class NotificationCompat {
             private Api20Impl() {
             }
 
-            @DoNotInline
             static Notification.Action build(Notification.Action.Builder builder) {
                 return builder.build();
             }
 
-            @DoNotInline
             static Notification.Action.Builder createActionBuilder(int icon,
                     CharSequence title,
                     android.app.PendingIntent intent) {
@@ -5095,13 +5070,11 @@ public class NotificationCompat {
 
             }
 
-            @DoNotInline
             static Notification.Action.Builder addExtras(Notification.Action.Builder builder,
                     android.os.Bundle extras) {
                 return builder.addExtras(extras);
             }
 
-            @DoNotInline
             static Notification.Action.Builder addRemoteInput(Notification.Action.Builder builder,
                     android.app.RemoteInput remoteInput) {
                 return builder.addRemoteInput(remoteInput);
@@ -5118,12 +5091,10 @@ public class NotificationCompat {
             private Api21Impl() {
             }
 
-            @DoNotInline
             static Notification.Builder addPerson(Notification.Builder builder, String uri) {
                 return builder.addPerson(uri);
             }
 
-            @DoNotInline
             static Notification.Builder setCategory(Notification.Builder builder, String category) {
                 return builder.setCategory(category);
             }
@@ -5139,13 +5110,11 @@ public class NotificationCompat {
             private Api23Impl() {
             }
 
-            @DoNotInline
             static void setLargeIcon(Notification.Builder builder,
                     Icon icon) {
                 builder.setLargeIcon(icon);
             }
 
-            @DoNotInline
             static Notification.Action.Builder createActionBuilder(
                     Icon icon,
                     CharSequence title,
@@ -5153,7 +5122,6 @@ public class NotificationCompat {
                 return new Notification.Action.Builder(icon, title, intent);
             }
 
-            @DoNotInline
             static Parcelable castToParcelable(Icon icon) {
                 return icon;
             }
@@ -5169,7 +5137,6 @@ public class NotificationCompat {
             private Api24Impl() {
             }
 
-            @DoNotInline
             static Notification.Action.Builder setAllowGeneratedReplies(
                     Notification.Action.Builder builder, boolean allowGeneratedReplies) {
                 return builder.setAllowGeneratedReplies(allowGeneratedReplies);
@@ -5186,13 +5153,11 @@ public class NotificationCompat {
             private Api28Impl() {
             }
 
-            @DoNotInline
             static Notification.Builder addPerson(Notification.Builder builder,
                     android.app.Person person) {
                 return builder.addPerson(person);
             }
 
-            @DoNotInline
             static Parcelable castToParcelable(android.app.Person person) {
                 return person;
             }
@@ -5208,55 +5173,46 @@ public class NotificationCompat {
             private Api31Impl() {
             }
 
-            @DoNotInline
             static Notification.CallStyle forIncomingCall(@NonNull android.app.Person person,
                     @NonNull PendingIntent declineIntent, @NonNull PendingIntent answerIntent) {
                 return Notification.CallStyle.forIncomingCall(person, declineIntent, answerIntent);
             }
 
-            @DoNotInline
             static Notification.CallStyle forOngoingCall(@NonNull android.app.Person person,
                     @NonNull PendingIntent hangUpIntent) {
                 return Notification.CallStyle.forOngoingCall(person, hangUpIntent);
             }
 
-            @DoNotInline
             static Notification.CallStyle forScreeningCall(@NonNull android.app.Person person,
                     @NonNull PendingIntent hangUpIntent, @NonNull PendingIntent answerIntent) {
                 return Notification.CallStyle.forScreeningCall(person, hangUpIntent, answerIntent);
             }
 
-            @DoNotInline
             static Notification.CallStyle setIsVideo(Notification.CallStyle callStyle,
                     boolean isVideo) {
                 return callStyle.setIsVideo(isVideo);
             }
 
-            @DoNotInline
             static Notification.CallStyle setVerificationIcon(Notification.CallStyle callStyle,
                     @Nullable Icon verificationIcon) {
                 return callStyle.setVerificationIcon(verificationIcon);
             }
 
-            @DoNotInline
             static Notification.CallStyle setVerificationText(Notification.CallStyle callStyle,
                     @Nullable CharSequence verificationText) {
                 return callStyle.setVerificationText(verificationText);
             }
 
-            @DoNotInline
             static Notification.CallStyle setAnswerButtonColorHint(Notification.CallStyle callStyle,
                     @ColorInt int color) {
                 return callStyle.setAnswerButtonColorHint(color);
             }
 
-            @DoNotInline
             static Notification.CallStyle setDeclineButtonColorHint(
                     Notification.CallStyle callStyle, @ColorInt int color) {
                 return callStyle.setDeclineButtonColorHint(color);
             }
 
-            @DoNotInline
             static Notification.Action.Builder setAuthenticationRequired(
                     Notification.Action.Builder actionBuilder, boolean authenticationRequired) {
                 return actionBuilder.setAuthenticationRequired(authenticationRequired);
@@ -5643,7 +5599,6 @@ public class NotificationCompat {
         static class Api24Impl {
             private Api24Impl() { }
 
-            @DoNotInline
             static Notification.Style createDecoratedCustomViewStyle() {
                 return new Notification.DecoratedCustomViewStyle();
             }
@@ -6213,12 +6168,10 @@ public class NotificationCompat {
             static class Api20Impl {
                 private Api20Impl() { }
 
-                @DoNotInline
                 static android.app.RemoteInput[] getRemoteInputs(Notification.Action action) {
                     return action.getRemoteInputs();
                 }
 
-                @DoNotInline
                 static Bundle getExtras(Notification.Action action) {
                     return action.getExtras();
                 }
@@ -6233,7 +6186,6 @@ public class NotificationCompat {
             static class Api23Impl {
                 private Api23Impl() { }
 
-                @DoNotInline
                 static Icon getIcon(Notification.Action action) {
                     return action.getIcon();
                 }
@@ -6248,7 +6200,6 @@ public class NotificationCompat {
             static class Api24Impl {
                 private Api24Impl() { }
 
-                @DoNotInline
                 static boolean getAllowGeneratedReplies(Notification.Action action) {
                     return action.getAllowGeneratedReplies();
                 }
@@ -6263,7 +6214,6 @@ public class NotificationCompat {
             static class Api28Impl {
                 private Api28Impl() { }
 
-                @DoNotInline
                 static int getSemanticAction(Notification.Action action) {
                     return action.getSemanticAction();
                 }
@@ -6278,7 +6228,6 @@ public class NotificationCompat {
             static class Api29Impl {
                 private Api29Impl() { }
 
-                @DoNotInline
                 static boolean isContextual(Notification.Action action) {
                     return action.isContextual();
                 }
@@ -6293,7 +6242,6 @@ public class NotificationCompat {
             static class Api31Impl {
                 private Api31Impl() { }
 
-                @DoNotInline
                 static boolean isAuthenticationRequired(Notification.Action action) {
                     return action.isAuthenticationRequired();
                 }
@@ -7592,30 +7540,25 @@ public class NotificationCompat {
         static class Api20Impl {
             private Api20Impl() { }
 
-            @DoNotInline
             static Notification.Action.Builder createBuilder(int icon, CharSequence title,
                     PendingIntent intent) {
                 return new Notification.Action.Builder(icon, title, intent);
             }
 
-            @DoNotInline
             static Notification.Action.Builder addExtras(Notification.Action.Builder builder,
                     Bundle extras) {
                 return builder.addExtras(extras);
             }
 
-            @DoNotInline
             static Notification.Action.Builder addRemoteInput(Notification.Action.Builder builder,
                     android.app.RemoteInput remoteInput) {
                 return builder.addRemoteInput(remoteInput);
             }
 
-            @DoNotInline
             static Notification.Action build(Notification.Action.Builder builder) {
                 return builder.build();
             }
 
-            @DoNotInline
             public static Action getActionCompatFromAction(ArrayList<Parcelable> parcelables,
                     int i) {
                 // Cast to Notification.Action (added in API 19) must happen in static inner class.
@@ -7633,7 +7576,6 @@ public class NotificationCompat {
         static class Api23Impl {
             private Api23Impl() { }
 
-            @DoNotInline
             static Notification.Action.Builder createBuilder(Icon icon, CharSequence title,
                     PendingIntent intent) {
                 return new Notification.Action.Builder(icon, title, intent);
@@ -7649,7 +7591,6 @@ public class NotificationCompat {
         static class Api24Impl {
             private Api24Impl() { }
 
-            @DoNotInline
             static Notification.Action.Builder setAllowGeneratedReplies(
                     Notification.Action.Builder builder, boolean allowGeneratedReplies) {
                 return builder.setAllowGeneratedReplies(allowGeneratedReplies);
@@ -7665,7 +7606,6 @@ public class NotificationCompat {
         static class Api31Impl {
             private Api31Impl() { }
 
-            @DoNotInline
             static Notification.Action.Builder setAuthenticationRequired(
                     Notification.Action.Builder builder, boolean authenticationRequired) {
                 return builder.setAuthenticationRequired(authenticationRequired);
@@ -8133,66 +8073,54 @@ public class NotificationCompat {
                 // This class is not instantiable.
             }
 
-            @DoNotInline
             static android.app.RemoteInput.Builder createBuilder(String resultKey) {
                 return new android.app.RemoteInput.Builder(resultKey);
             }
 
-            @DoNotInline
             static android.app.RemoteInput build(android.app.RemoteInput.Builder builder) {
                 return builder.build();
             }
 
-            @DoNotInline
             static String getResultKey(android.app.RemoteInput remoteInput) {
                 return remoteInput.getResultKey();
             }
 
-            @DoNotInline
             static CharSequence[] getChoices(android.app.RemoteInput remoteInput) {
                 return remoteInput.getChoices();
             }
 
-            @DoNotInline
             static android.app.RemoteInput.Builder setChoices(
                     android.app.RemoteInput.Builder builder, CharSequence[] choices) {
                 return builder.setChoices(choices);
             }
 
-            @DoNotInline
             static CharSequence getLabel(android.app.RemoteInput remoteInput) {
                 return remoteInput.getLabel();
             }
 
-            @DoNotInline
             static android.app.RemoteInput.Builder setLabel(android.app.RemoteInput.Builder builder,
                     CharSequence label) {
                 return builder.setLabel(label);
             }
 
-            @DoNotInline
             static boolean getAllowFreeFormInput(android.app.RemoteInput remoteInput) {
                 return remoteInput.getAllowFreeFormInput();
             }
 
-            @DoNotInline
             static android.app.RemoteInput.Builder setAllowFreeFormInput(
                     android.app.RemoteInput.Builder builder, boolean allowFreeFormInput) {
                 return builder.setAllowFreeFormInput(allowFreeFormInput);
             }
 
-            @DoNotInline
             static Bundle getExtras(android.app.RemoteInput remoteInput) {
                 return remoteInput.getExtras();
             }
 
-            @DoNotInline
             static android.app.RemoteInput.Builder addExtras(
                     android.app.RemoteInput.Builder builder, Bundle extras) {
                 return builder.addExtras(extras);
             }
 
-            @DoNotInline
             static Parcelable castToParcelable(android.app.RemoteInput remoteInput) {
                 return remoteInput;
             }
@@ -8207,7 +8135,6 @@ public class NotificationCompat {
         static class Api29Impl {
             private Api29Impl() { }
 
-            @DoNotInline
             static int getEditChoicesBeforeSending(android.app.RemoteInput remoteInput) {
                 return remoteInput.getEditChoicesBeforeSending();
             }
@@ -9514,47 +9441,38 @@ public class NotificationCompat {
     static class Api20Impl {
         private Api20Impl() { }
 
-        @DoNotInline
         static boolean getAllowFreeFormInput(android.app.RemoteInput remoteInput) {
             return remoteInput.getAllowFreeFormInput();
         }
 
-        @DoNotInline
         static CharSequence[] getChoices(android.app.RemoteInput remoteInput) {
             return remoteInput.getChoices();
         }
 
-        @DoNotInline
         static CharSequence getLabel(android.app.RemoteInput remoteInput) {
             return remoteInput.getLabel();
         }
 
-        @DoNotInline
         static String getResultKey(android.app.RemoteInput remoteInput) {
             return remoteInput.getResultKey();
         }
 
-        @DoNotInline
         static android.app.RemoteInput[] getRemoteInputs(Notification.Action action) {
             return action.getRemoteInputs();
         }
 
-        @DoNotInline
         static String getSortKey(Notification notification) {
             return notification.getSortKey();
         }
 
-        @DoNotInline
         static String getGroup(Notification notification) {
             return notification.getGroup();
         }
 
-        @DoNotInline
         static Bundle getExtras(Notification.Action action) {
             return action.getExtras();
         }
 
-        @DoNotInline
         static Bundle getExtras(android.app.RemoteInput remoteInput) {
             return remoteInput.getExtras();
         }
@@ -9569,7 +9487,6 @@ public class NotificationCompat {
     static class Api23Impl {
         private Api23Impl() { }
 
-        @DoNotInline
         static Icon getIcon(Notification.Action action) {
             return action.getIcon();
         }
@@ -9584,7 +9501,6 @@ public class NotificationCompat {
     static class Api24Impl {
         private Api24Impl() { }
 
-        @DoNotInline
         static boolean getAllowGeneratedReplies(Notification.Action action) {
             return action.getAllowGeneratedReplies();
         }
@@ -9600,32 +9516,26 @@ public class NotificationCompat {
     static class Api26Impl {
         private Api26Impl() { }
 
-        @DoNotInline
         static int getGroupAlertBehavior(Notification notification) {
             return notification.getGroupAlertBehavior();
         }
 
-        @DoNotInline
         static CharSequence getSettingsText(Notification notification) {
             return notification.getSettingsText();
         }
 
-        @DoNotInline
         static String getShortcutId(Notification notification) {
             return notification.getShortcutId();
         }
 
-        @DoNotInline
         static int getBadgeIconType(Notification notification) {
             return notification.getBadgeIconType();
         }
 
-        @DoNotInline
         static long getTimeoutAfter(Notification notification) {
             return notification.getTimeoutAfter();
         }
 
-        @DoNotInline
         static String getChannelId(Notification notification) {
             return notification.getChannelId();
         }
@@ -9640,7 +9550,6 @@ public class NotificationCompat {
     static class Api28Impl {
         private Api28Impl() { }
 
-        @DoNotInline
         static int getSemanticAction(Notification.Action action) {
             return action.getSemanticAction();
         }
@@ -9655,27 +9564,22 @@ public class NotificationCompat {
     static class Api29Impl {
         private Api29Impl() { }
 
-        @DoNotInline
         static boolean getAllowSystemGeneratedContextualActions(Notification notification) {
             return notification.getAllowSystemGeneratedContextualActions();
         }
 
-        @DoNotInline
         static LocusId getLocusId(Notification notification) {
             return notification.getLocusId();
         }
 
-        @DoNotInline
         static boolean isContextual(Notification.Action action) {
             return action.isContextual();
         }
 
-        @DoNotInline
         static int getEditChoicesBeforeSending(android.app.RemoteInput remoteInput) {
             return remoteInput.getEditChoicesBeforeSending();
         }
 
-        @DoNotInline
         static Notification.BubbleMetadata getBubbleMetadata(Notification notification) {
             return notification.getBubbleMetadata();
         }
@@ -9690,7 +9594,6 @@ public class NotificationCompat {
     static class Api31Impl {
         private Api31Impl() { }
 
-        @DoNotInline
         static boolean isAuthenticationRequired(Notification.Action action) {
             return action.isAuthenticationRequired();
         }

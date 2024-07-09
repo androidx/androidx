@@ -23,7 +23,6 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.view.DisplayCutout;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -271,32 +270,26 @@ public final class DisplayCutoutCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static DisplayCutout createDisplayCutout(Rect safeInsets, List<Rect> boundingRects) {
             return new DisplayCutout(safeInsets, boundingRects);
         }
 
-        @DoNotInline
         static int getSafeInsetTop(DisplayCutout displayCutout) {
             return displayCutout.getSafeInsetTop();
         }
 
-        @DoNotInline
         static int getSafeInsetBottom(DisplayCutout displayCutout) {
             return displayCutout.getSafeInsetBottom();
         }
 
-        @DoNotInline
         static int getSafeInsetLeft(DisplayCutout displayCutout) {
             return displayCutout.getSafeInsetLeft();
         }
 
-        @DoNotInline
         static int getSafeInsetRight(DisplayCutout displayCutout) {
             return displayCutout.getSafeInsetRight();
         }
 
-        @DoNotInline
         static List<Rect> getBoundingRects(DisplayCutout displayCutout) {
             return displayCutout.getBoundingRects();
         }
@@ -308,7 +301,6 @@ public final class DisplayCutoutCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
                 Rect boundTop, Rect boundRight, Rect boundBottom) {
             return new DisplayCutout(safeInsets, boundLeft, boundTop, boundRight, boundBottom);
@@ -321,7 +313,6 @@ public final class DisplayCutoutCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
                 Rect boundTop, Rect boundRight, Rect boundBottom,
                 android.graphics.Insets waterfallInsets) {
@@ -329,7 +320,6 @@ public final class DisplayCutoutCompat {
                     waterfallInsets);
         }
 
-        @DoNotInline
         static android.graphics.Insets getWaterfallInsets(DisplayCutout displayCutout) {
             return displayCutout.getWaterfallInsets();
         }
@@ -341,7 +331,6 @@ public final class DisplayCutoutCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @Nullable
         static Path getCutoutPath(DisplayCutout displayCutout) {
             return displayCutout.getCutoutPath();
@@ -354,7 +343,6 @@ public final class DisplayCutoutCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static DisplayCutout createDisplayCutout(android.graphics.Insets safeInsets, Rect boundLeft,
                 Rect boundTop, Rect boundRight, Rect boundBottom,
                 android.graphics.Insets waterfallInsets, Path cutoutPath) {

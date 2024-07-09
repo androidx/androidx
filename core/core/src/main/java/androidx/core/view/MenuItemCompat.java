@@ -26,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -612,70 +611,57 @@ public final class MenuItemCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static MenuItem setContentDescription(MenuItem menuItem, CharSequence contentDescription) {
             return menuItem.setContentDescription(contentDescription);
         }
 
-        @DoNotInline
         static CharSequence getContentDescription(MenuItem menuItem) {
             return menuItem.getContentDescription();
         }
 
-        @DoNotInline
         static MenuItem setTooltipText(MenuItem menuItem, CharSequence tooltipText) {
             return menuItem.setTooltipText(tooltipText);
         }
 
-        @DoNotInline
         static CharSequence getTooltipText(MenuItem menuItem) {
             return menuItem.getTooltipText();
         }
 
-        @DoNotInline
         static MenuItem setShortcut(MenuItem menuItem, char numericChar, char alphaChar,
                 int numericModifiers, int alphaModifiers) {
             return menuItem.setShortcut(numericChar, alphaChar, numericModifiers, alphaModifiers);
         }
 
-        @DoNotInline
         static MenuItem setNumericShortcut(MenuItem menuItem, char numericChar,
                 int numericModifiers) {
             return menuItem.setNumericShortcut(numericChar, numericModifiers);
         }
 
-        @DoNotInline
         static int getNumericModifiers(MenuItem menuItem) {
             return menuItem.getNumericModifiers();
         }
 
-        @DoNotInline
         static MenuItem setAlphabeticShortcut(MenuItem menuItem, char alphaChar,
                 int alphaModifiers) {
             return menuItem.setAlphabeticShortcut(alphaChar, alphaModifiers);
         }
 
-        @DoNotInline
         static int getAlphabeticModifiers(MenuItem menuItem) {
             return menuItem.getAlphabeticModifiers();
         }
 
-        @DoNotInline
         static MenuItem setIconTintList(MenuItem menuItem, ColorStateList tint) {
             return menuItem.setIconTintList(tint);
         }
 
-        @DoNotInline
         static ColorStateList getIconTintList(MenuItem menuItem) {
             return menuItem.getIconTintList();
         }
 
-        @DoNotInline
         static MenuItem setIconTintMode(MenuItem menuItem, PorterDuff.Mode tintMode) {
             return menuItem.setIconTintMode(tintMode);
         }
 
-        @DoNotInline
         static PorterDuff.Mode getIconTintMode(MenuItem menuItem) {
             return menuItem.getIconTintMode();
         }

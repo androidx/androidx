@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -375,7 +374,6 @@ public class Person {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Person fromPersistableBundle(PersistableBundle bundle) {
             return new Builder()
                     .setName(bundle.getString(NAME_KEY))
@@ -386,7 +384,6 @@ public class Person {
                     .build();
         }
 
-        @DoNotInline
         static PersistableBundle toPersistableBundle(Person person) {
             PersistableBundle result = new PersistableBundle();
             result.putString(NAME_KEY, person.mName != null ? person.mName.toString() : null);
@@ -404,7 +401,6 @@ public class Person {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Person fromAndroidPerson(android.app.Person person) {
             return new Builder()
                     .setName(person.getName())
@@ -420,7 +416,6 @@ public class Person {
         }
 
         @SuppressWarnings("deprecation")
-        @DoNotInline
         static android.app.Person toAndroidPerson(Person person) {
             return new android.app.Person.Builder()
                     .setName(person.getName())

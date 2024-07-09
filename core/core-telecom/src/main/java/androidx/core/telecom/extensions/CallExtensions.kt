@@ -32,7 +32,6 @@ import android.telecom.InCallService
 import android.telecom.PhoneAccount
 import android.telecom.TelecomManager
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
@@ -415,7 +414,6 @@ internal class CallExtensionsScope(
 private object Api26Impl {
     @Suppress("DEPRECATION")
     @JvmStatic
-    @DoNotInline
     fun getCallState(call: Call): Int {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             Api31Impl.getCallState(call)
@@ -429,7 +427,6 @@ private object Api26Impl {
 @RequiresApi(Build.VERSION_CODES.S)
 private object Api31Impl {
     @JvmStatic
-    @DoNotInline
     fun getCallState(call: Call): Int {
         return call.details.state
     }

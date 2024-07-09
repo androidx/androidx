@@ -20,7 +20,6 @@ import android.graphics.Point
 import android.view.ScrollCaptureCallback
 import android.view.ScrollCaptureTarget
 import android.view.View
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
@@ -67,7 +66,6 @@ internal class ScrollCapture : ComposeScrollCaptureCallback.ScrollCaptureSession
      * See go/compose-long-screenshots for more background.
      */
     // Required not to be inlined for class verification.
-    @DoNotInline
     fun onScrollCaptureSearch(
         view: View,
         semanticsOwner: SemanticsOwner,

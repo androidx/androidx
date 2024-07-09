@@ -28,7 +28,6 @@ import android.view.ViewStructure
 import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.ArraySet
 import androidx.collection.IntObjectMap
@@ -298,13 +297,11 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
             }
 
             /** Registers the autofill debug callback. */
-            @DoNotInline
             fun register(semanticAutofill: AndroidSemanticAutofill) {
                 semanticAutofill.autofillManager.autofillManager.registerCallback(this)
             }
 
             /** Unregisters the autofill debug callback. */
-            @DoNotInline
             fun unregister(semanticAutofill: AndroidSemanticAutofill) {
                 semanticAutofill.autofillManager.autofillManager.unregisterCallback(this)
             }

@@ -19,7 +19,6 @@ package androidx.compose.ui.graphics
 import android.graphics.Bitmap
 import android.os.Build
 import android.util.DisplayMetrics
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
@@ -170,7 +169,6 @@ internal fun Bitmap.Config.toImageConfig(): ImageBitmapConfig {
  */
 @RequiresApi(Build.VERSION_CODES.O)
 internal object Api26Bitmap {
-    @DoNotInline
     @JvmStatic
     internal fun createBitmap(
         width: Int,
@@ -190,7 +188,6 @@ internal object Api26Bitmap {
         )
     }
 
-    @DoNotInline
     @JvmStatic
     internal fun Bitmap.composeColorSpace() = colorSpace?.toComposeColorSpace() ?: ColorSpaces.Srgb
 }

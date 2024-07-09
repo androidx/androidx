@@ -29,7 +29,6 @@ import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.SystemClock;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 import androidx.test.filters.SdkSuppress;
@@ -171,7 +170,6 @@ public class LocationRequestCompatTestApi19 {
         }
 
         @RequiresApi(Build.VERSION_CODES.S) // Work around a bug in NewApi check.
-        @DoNotInline
         private static long getExpireIn(LocationRequest request)
                 throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
             if (sGetExpireInMethod == null) {

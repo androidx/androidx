@@ -27,7 +27,6 @@ import android.os.SystemClock;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -543,67 +542,54 @@ public class AccessibilityWindowInfoCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void getBoundsInScreen(AccessibilityWindowInfo info, Rect outBounds) {
             info.getBoundsInScreen(outBounds);
         }
 
-        @DoNotInline
         static AccessibilityWindowInfo getChild(AccessibilityWindowInfo info, int index) {
             return info.getChild(index);
         }
 
-        @DoNotInline
         static int getChildCount(AccessibilityWindowInfo info) {
             return info.getChildCount();
         }
 
-        @DoNotInline
         static int getId(AccessibilityWindowInfo info) {
             return info.getId();
         }
 
-        @DoNotInline
         static int getLayer(AccessibilityWindowInfo info) {
             return info.getLayer();
         }
 
-        @DoNotInline
         static AccessibilityWindowInfo getParent(AccessibilityWindowInfo info) {
             return info.getParent();
         }
 
-        @DoNotInline
         static AccessibilityNodeInfo getRoot(AccessibilityWindowInfo info) {
             return info.getRoot();
         }
 
-        @DoNotInline
         static int getType(AccessibilityWindowInfo info) {
             return info.getType();
         }
 
-        @DoNotInline
         static boolean isAccessibilityFocused(AccessibilityWindowInfo info) {
             return info.isAccessibilityFocused();
         }
 
-        @DoNotInline
         static boolean isActive(AccessibilityWindowInfo info) {
             return info.isActive();
         }
 
-        @DoNotInline
         static boolean isFocused(AccessibilityWindowInfo info) {
             return info.isFocused();
         }
 
-        @DoNotInline
         static AccessibilityWindowInfo obtain() {
             return AccessibilityWindowInfo.obtain();
         }
 
-        @DoNotInline
         static AccessibilityWindowInfo obtain(AccessibilityWindowInfo info) {
             return AccessibilityWindowInfo.obtain(info);
         }
@@ -615,12 +601,10 @@ public class AccessibilityWindowInfoCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static AccessibilityNodeInfo getAnchor(AccessibilityWindowInfo info) {
             return info.getAnchor();
         }
 
-        @DoNotInline
         static CharSequence getTitle(AccessibilityWindowInfo info) {
             return info.getTitle();
         }
@@ -632,7 +616,6 @@ public class AccessibilityWindowInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         static boolean isInPictureInPictureMode(AccessibilityWindowInfo info) {
             return info.isInPictureInPictureMode();
         }
@@ -644,7 +627,6 @@ public class AccessibilityWindowInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         static AccessibilityWindowInfo instantiateAccessibilityWindowInfo() {
             return new AccessibilityWindowInfo();
         }
@@ -656,17 +638,14 @@ public class AccessibilityWindowInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         static int getDisplayId(AccessibilityWindowInfo info) {
             return info.getDisplayId();
         }
 
-        @DoNotInline
         static void getRegionInScreen(AccessibilityWindowInfo info, Region outRegion) {
             info.getRegionInScreen(outRegion);
         }
 
-        @DoNotInline
         public static AccessibilityNodeInfoCompat getRoot(Object info, int prefetchingStrategy) {
             return AccessibilityNodeInfoCompat.wrapNonNullInstance(
                     ((AccessibilityWindowInfo) info).getRoot(prefetchingStrategy));
@@ -679,12 +658,10 @@ public class AccessibilityWindowInfoCompat {
             // This class is non instantiable.
         }
 
-        @DoNotInline
         public static long getTransitionTimeMillis(AccessibilityWindowInfo info) {
             return info.getTransitionTimeMillis();
         }
 
-        @DoNotInline
         static LocaleList getLocales(AccessibilityWindowInfo info) {
             return info.getLocales();
         }

@@ -26,7 +26,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -196,7 +195,6 @@ private class ColoredSquareView(context: Context) : View(context) {
 
 @RequiresApi(Build.VERSION_CODES.O)
 private object Api26Impl {
-    @DoNotInline
     @JvmStatic
     fun setAccessibilityTraversalAfter(view: View, id: Int) {
         view.setAccessibilityTraversalAfter(id)

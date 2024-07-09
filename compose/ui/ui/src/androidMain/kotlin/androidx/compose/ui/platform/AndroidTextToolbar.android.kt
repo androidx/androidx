@@ -19,7 +19,6 @@ package androidx.compose.ui.platform
 import android.os.Build
 import android.view.ActionMode
 import android.view.View
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.actionmodecallback.FloatingTextActionModeCallback
@@ -78,7 +77,6 @@ internal class AndroidTextToolbar(private val view: View) : TextToolbar {
 @RequiresApi(23)
 internal object TextToolbarHelperMethods {
     @RequiresApi(23)
-    @DoNotInline
     fun startActionMode(
         view: View,
         actionModeCallback: ActionMode.Callback,
@@ -88,7 +86,6 @@ internal object TextToolbarHelperMethods {
     }
 
     @RequiresApi(23)
-    @DoNotInline
     fun invalidateContentRect(actionMode: ActionMode) {
         actionMode.invalidateContentRect()
     }

@@ -25,7 +25,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.view.PointerIcon;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -193,17 +192,14 @@ public final class PointerIconCompat {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static PointerIcon getSystemIcon(Context context, int type) {
             return PointerIcon.getSystemIcon(context, type);
         }
 
-        @DoNotInline
         static PointerIcon create(Bitmap bitmap, float hotSpotX, float hotSpotY) {
             return PointerIcon.create(bitmap, hotSpotX, hotSpotY);
         }
 
-        @DoNotInline
         static PointerIcon load(Resources resources, int resourceId) {
             return PointerIcon.load(resources, resourceId);
         }

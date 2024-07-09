@@ -21,7 +21,6 @@ package androidx.compose.material3
 import android.content.Context
 import android.os.Build
 import androidx.annotation.ColorRes
-import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
 import androidx.annotation.RequiresApi
 import androidx.compose.material3.internal.colorUtil.Cam
@@ -235,7 +234,6 @@ fun dynamicDarkColorScheme(context: Context): ColorScheme {
 
 @RequiresApi(23)
 private object ColorResourceHelper {
-    @DoNotInline
     fun getColor(context: Context, @ColorRes id: Int): Color {
         return Color(context.resources.getColor(id, context.theme))
     }

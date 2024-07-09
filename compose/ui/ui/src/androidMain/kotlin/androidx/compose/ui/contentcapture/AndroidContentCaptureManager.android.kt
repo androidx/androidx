@@ -24,7 +24,6 @@ import android.view.View
 import android.view.translation.TranslationRequestValue
 import android.view.translation.ViewTranslationRequest
 import android.view.translation.ViewTranslationResponse
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
@@ -555,7 +554,6 @@ internal class AndroidContentCaptureManager(
 
     @RequiresApi(Build.VERSION_CODES.S)
     private object ViewTranslationHelperMethods {
-        @DoNotInline
         @Suppress("UNUSED_PARAMETER")
         @RequiresApi(Build.VERSION_CODES.S)
         fun onCreateVirtualViewTranslationRequests(
@@ -590,7 +588,6 @@ internal class AndroidContentCaptureManager(
             }
         }
 
-        @DoNotInline
         @RequiresApi(Build.VERSION_CODES.S)
         fun onVirtualViewTranslationResponses(
             contentCaptureManager: AndroidContentCaptureManager,

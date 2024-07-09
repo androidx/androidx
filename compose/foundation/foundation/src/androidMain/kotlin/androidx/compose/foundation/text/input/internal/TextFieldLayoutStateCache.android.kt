@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.style.TextDirection
@@ -44,7 +43,6 @@ internal actual fun resolveTextDirectionForKeyboardTypePhone(
 }
 
 private object DigitDirectionalityApi21 {
-    @DoNotInline
     fun resolve(locale: PlatformLocale): Byte {
         val symbols = java.text.DecimalFormatSymbols.getInstance(locale)
         val zero = symbols.zeroDigit
@@ -54,7 +52,6 @@ private object DigitDirectionalityApi21 {
 
 @RequiresApi(Build.VERSION_CODES.N)
 private object DigitDirectionalityApi24 {
-    @DoNotInline
     fun resolve(locale: PlatformLocale): Byte {
         val symbols = android.icu.text.DecimalFormatSymbols.getInstance(locale)
         val zero = symbols.zeroDigit
@@ -64,7 +61,6 @@ private object DigitDirectionalityApi24 {
 
 @RequiresApi(Build.VERSION_CODES.P)
 private object DigitDirectionalityApi28 {
-    @DoNotInline
     fun resolve(locale: PlatformLocale): Byte {
         val symbols = android.icu.text.DecimalFormatSymbols.getInstance(locale)
         val zero = symbols.digitStrings[0].codePointAt(0)

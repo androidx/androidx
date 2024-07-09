@@ -18,7 +18,6 @@ package androidx.core.util;
 
 import android.util.SizeF;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -89,14 +88,12 @@ public final class SizeFCompat {
 
     @RequiresApi(21)
     private static final class Api21Impl {
-        @DoNotInline
         @NonNull
         static SizeFCompat toSizeFCompat(@NonNull SizeF size) {
             Preconditions.checkNotNull(size);
             return new SizeFCompat(size.getWidth(), size.getHeight());
         }
 
-        @DoNotInline
         @NonNull
         static SizeF toSizeF(@NonNull SizeFCompat size) {
             Preconditions.checkNotNull(size);
