@@ -130,7 +130,6 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
         private val mEmptyAttributes = longArrayOf(EGL14.EGL_NONE.toLong())
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun createSyncFenceCompatV33(): SyncFenceCompat {
             val display = EGL14.eglGetCurrentDisplay()
             if (display == EGL15.EGL_NO_DISPLAY) {

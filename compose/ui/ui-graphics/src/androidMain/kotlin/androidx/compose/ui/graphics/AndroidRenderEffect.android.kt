@@ -123,7 +123,6 @@ actual constructor(private val renderEffect: RenderEffect?, private val offset: 
 @RequiresApi(Build.VERSION_CODES.S)
 private object RenderEffectVerificationHelper {
 
-    @androidx.annotation.DoNotInline
     fun createBlurEffect(
         inputRenderEffect: RenderEffect?,
         radiusX: Float,
@@ -145,7 +144,6 @@ private object RenderEffectVerificationHelper {
             )
         }
 
-    @androidx.annotation.DoNotInline
     fun createOffsetEffect(
         inputRenderEffect: RenderEffect?,
         offset: Offset
