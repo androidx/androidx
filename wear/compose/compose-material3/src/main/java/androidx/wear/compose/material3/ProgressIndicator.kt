@@ -34,8 +34,6 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.ProgressIndicatorDefaults.StartAngle
-import androidx.wear.compose.material3.ProgressIndicatorDefaults.StrokeWidth
 import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.materialcore.toRadians
 import kotlin.math.asin
@@ -85,10 +83,10 @@ import kotlin.math.sin
 fun CircularProgressIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
-    startAngle: Float = StartAngle,
+    startAngle: Float = ProgressIndicatorDefaults.StartAngle,
     endAngle: Float = startAngle,
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
-    strokeWidth: Dp = StrokeWidth,
+    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
     gapSize: Dp = ProgressIndicatorDefaults.gapSize(strokeWidth),
 ) {
     val coercedProgress = { progress().coerceIn(0f, 1f) }
@@ -264,7 +262,7 @@ class ProgressIndicatorColors(val indicatorBrush: Brush, val trackBrush: Brush) 
  *
  * If indicator gets too small, the circle that proportionally scales down is drawn instead.
  */
-private fun DrawScope.drawIndicatorSegment(
+internal fun DrawScope.drawIndicatorSegment(
     startAngle: Float,
     sweep: Float,
     gapSweep: Float,
