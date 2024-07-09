@@ -76,6 +76,8 @@ class AppCompatTextHelper {
     private int mStyle = Typeface.NORMAL;
     private int mFontWeight = TEXT_FONT_WEIGHT_UNSPECIFIED;
     private Typeface mFontTypeface;
+    @Nullable
+    private String mFontVariationSettings = null;
     private boolean mAsyncFontPending;
 
     AppCompatTextHelper(@NonNull TextView view) {
@@ -134,7 +136,6 @@ class AppCompatTextHelper {
         ColorStateList textColor = null;
         ColorStateList textColorHint = null;
         ColorStateList textColorLink = null;
-        String fontVariation = null;
         String localeListString = null;
 
         // First check TextAppearance's textAllCaps value
@@ -163,10 +164,6 @@ class AppCompatTextHelper {
             }
             if (a.hasValue(R.styleable.TextAppearance_textLocale)) {
                 localeListString = a.getString(R.styleable.TextAppearance_textLocale);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                    && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
-                fontVariation = a.getString(R.styleable.TextAppearance_fontVariationSettings);
             }
             a.recycle();
         }
@@ -197,10 +194,6 @@ class AppCompatTextHelper {
             localeListString = a.getString(R.styleable.TextAppearance_textLocale);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
-            fontVariation = a.getString(R.styleable.TextAppearance_fontVariationSettings);
-        }
         // In P, when the text size attribute is 0, this would not be set. Fix this here.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && a.hasValue(R.styleable.TextAppearance_android_textSize)) {
@@ -224,16 +217,9 @@ class AppCompatTextHelper {
         if (!hasPwdTm && allCapsSet) {
             setAllCaps(allCaps);
         }
-        if (mFontTypeface != null) {
-            if (mFontWeight == TEXT_FONT_WEIGHT_UNSPECIFIED) {
-                mView.setTypeface(mFontTypeface, mStyle);
-            } else {
-                mView.setTypeface(mFontTypeface);
-            }
-        }
-        if (fontVariation != null) {
-            Api26Impl.setFontVariationSettings(mView, fontVariation);
-        }
+
+        applyFontAndVariationSettings(/* forceNullSet */ false);
+
         if (localeListString != null) {
             if (Build.VERSION.SDK_INT >= 24) {
                 Api24Impl.setTextLocales(mView, Api24Impl.forLanguageTags(localeListString));
@@ -355,7 +341,42 @@ class AppCompatTextHelper {
         }
     }
 
-    private void updateTypefaceAndStyle(Context context, TintTypedArray a) {
+    /**
+     * Apply mFontTypeface previously loaded from XML, and apply mFontVariationSettings to it.
+     *
+     * This should only be called from xml initialization, or setTextAppearance.
+     *
+     * @param forceNullSet Explicit null values should clobber existing Typefaces
+     */
+    private void applyFontAndVariationSettings(boolean forceNullSet) {
+        if (mFontTypeface != null) {
+            if (mFontWeight == TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                mView.setTypeface(mFontTypeface, mStyle);
+            } else {
+                mView.setTypeface(mFontTypeface);
+            }
+        } else if (forceNullSet) {
+            mView.setTypeface(null);
+        }
+
+        if (mFontVariationSettings != null && Build.VERSION.SDK_INT >= 26) {
+            Api26Impl.setFontVariationSettings(mView, mFontVariationSettings);
+        }
+
+        mFontVariationSettings = null;
+        mFontTypeface = null;
+    }
+
+    /**
+     * Load mFontTypeface from an xml, may be called multiple times with e.g. style, textAppearance,
+     * and attribute items.
+     *
+     * Note: Setting multiple fonts at different levels currently triggers multiple font-loads.
+     *
+     * @param context to check if restrictions avoid loading downloadable fonts
+     * @param a attributes to read from, e.g. a textappearance
+     */
+    private boolean updateTypefaceAndStyle(Context context, TintTypedArray a) {
         mStyle = a.getInt(R.styleable.TextAppearance_android_textStyle, mStyle);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -364,6 +385,11 @@ class AppCompatTextHelper {
             if (mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
                 mStyle = Typeface.NORMAL | (mStyle & Typeface.ITALIC);
             }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
+            mFontVariationSettings = a.getString(R.styleable.TextAppearance_fontVariationSettings);
         }
 
         if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
@@ -375,27 +401,12 @@ class AppCompatTextHelper {
             final int fontWeight = mFontWeight;
             final int style = mStyle;
             if (!context.isRestricted()) {
-                final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
-                ResourcesCompat.FontCallback replyCallback = new ResourcesCompat.FontCallback() {
-                    @Override
-                    public void onFontRetrieved(@NonNull Typeface typeface) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            if (fontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
-                                typeface = Api28Impl.create(typeface, fontWeight,
-                                        (style & Typeface.ITALIC) != 0);
-                            }
-                        }
-                        onAsyncTypefaceReceived(textViewWeak, typeface);
-                    }
-
-                    @Override
-                    public void onFontRetrievalFailed(int reason) {
-                        // Do nothing.
-                    }
-                };
+                ResourcesCompat.FontCallback replyCallback = makeFontCallback(fontWeight,
+                        style);
                 try {
                     // Note the callback will be triggered on the UI thread.
                     final Typeface typeface = a.getFont(fontFamilyId, mStyle, replyCallback);
+                    // assume Typeface does have fontVariationSettings in this path
                     if (typeface != null) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                                 && mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
@@ -426,7 +437,7 @@ class AppCompatTextHelper {
                     }
                 }
             }
-            return;
+            return true;
         }
 
         if (a.hasValue(R.styleable.TextAppearance_android_typeface)) {
@@ -446,13 +457,39 @@ class AppCompatTextHelper {
                     mFontTypeface = Typeface.MONOSPACE;
                     break;
             }
+            return true;
         }
+        return false;
+    }
+
+    @NonNull
+    private ResourcesCompat.FontCallback makeFontCallback(int fontWeight, int style) {
+        final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
+        return new ResourcesCompat.FontCallback() {
+            @Override
+            public void onFontRetrieved(@NonNull Typeface typeface) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    if (fontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                        typeface = Api28Impl.create(typeface, fontWeight,
+                                (style & Typeface.ITALIC) != 0);
+                    }
+                }
+                onAsyncTypefaceReceived(textViewWeak, typeface);
+            }
+
+            @Override
+            public void onFontRetrievalFailed(int reason) {
+                // Do nothing.
+            }
+        };
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, final Typeface typeface) {
         if (mAsyncFontPending) {
+            // we assume that typeface has the correct variation settings from androidx.core
             mFontTypeface = typeface;
+            // TODO(b/266112457) unset mFontVariationSettings here so we don't double apply it
             final TextView textView = textViewWeak.get();
             if (textView != null) {
                 if (textView.isAttachedToWindow()) {
@@ -512,20 +549,9 @@ class AppCompatTextHelper {
             }
         }
 
-        updateTypefaceAndStyle(context, a);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-                && a.hasValue(R.styleable.TextAppearance_fontVariationSettings)) {
-            final String fontVariation = a.getString(
-                    R.styleable.TextAppearance_fontVariationSettings);
-            if (fontVariation != null) {
-                Api26Impl.setFontVariationSettings(mView, fontVariation);
-            }
-        }
+        boolean containsTypeface = updateTypefaceAndStyle(context, a);
         a.recycle();
-        if (mFontTypeface != null) {
-            mView.setTypeface(mFontTypeface, mStyle);
-        }
+        applyFontAndVariationSettings(containsTypeface);
     }
 
     void setAllCaps(boolean allCaps) {
