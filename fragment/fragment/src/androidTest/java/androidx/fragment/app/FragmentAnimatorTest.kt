@@ -680,14 +680,12 @@ class FragmentAnimatorTest {
         activityRule.runOnUiThread {
             dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
         }
-        activityRule.executePendingTransactions(fm1)
 
         activityRule.runOnUiThread {
             dispatcher.dispatchOnBackProgressed(
                 BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
             )
         }
-        activityRule.executePendingTransactions(fm1)
 
         if (FragmentManager.USE_PREDICTIVE_BACK) {
             assertThat(fragment1.startLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -700,7 +698,6 @@ class FragmentAnimatorTest {
         }
 
         activityRule.runOnUiThread { dispatcher.onBackPressed() }
-        activityRule.executePendingTransactions(fm1)
 
         assertThat(fragment2.wasStarted).isTrue()
         // Now fragment2 should be animating away
@@ -749,7 +746,6 @@ class FragmentAnimatorTest {
         activityRule.runOnUiThread {
             dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
         }
-        activityRule.executePendingTransactions(fm1)
 
         fragment2.resumeLatch = CountDownLatch(1)
 
@@ -758,7 +754,6 @@ class FragmentAnimatorTest {
                 BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
             )
         }
-        activityRule.executePendingTransactions(fm1)
 
         if (FragmentManager.USE_PREDICTIVE_BACK) {
             assertThat(fragment1.startLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
@@ -771,7 +766,6 @@ class FragmentAnimatorTest {
         }
 
         activityRule.runOnUiThread { dispatcher.dispatchOnBackCancelled() }
-        activityRule.executePendingTransactions(fm1)
 
         assertThat(fragment2.wasStarted).isTrue()
         // Now fragment1 should be animating away

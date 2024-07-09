@@ -28,6 +28,8 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
@@ -550,12 +552,10 @@ class OnBackStackChangedListenerTest {
 
             withActivity {
                 onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, 0))
-                executePendingTransactions()
             }
 
             withActivity {
                 onBackPressedDispatcher.dispatchOnBackProgressed(BackEventCompat(0f, 0f, 0.5f, 0))
-                executePendingTransactions()
             }
 
             if (FragmentManager.USE_PREDICTIVE_BACK) {
@@ -589,6 +589,10 @@ class OnBackStackChangedListenerTest {
             var cancelledCount = 0
             var backStackChangedCount = 0
 
+            val startedLatch = CountDownLatch(1)
+            val cancelLatch = CountDownLatch(1)
+            val changedLatch = CountDownLatch(1)
+
             withActivity {
                 fragmentManager
                     .beginTransaction()
@@ -609,17 +613,16 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
-            var beforeOnBackStackChanged = false
-
             val listener =
                 object : OnBackStackChangedListener {
                     override fun onBackStackChanged() {
-                        beforeOnBackStackChanged = false
                         backStackChangedCount++
+                        changedLatch.countDown()
                     }
 
                     override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
                         startedCount++
+                        startedLatch.countDown()
                     }
 
                     override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
@@ -627,8 +630,9 @@ class OnBackStackChangedListenerTest {
                     }
 
                     override fun onBackStackChangeCancelled() {
-                        if (beforeOnBackStackChanged) {
+                        if (backStackChangedCount == 1) {
                             cancelledCount++
+                            cancelLatch.countDown()
                         }
                     }
                 }
@@ -636,30 +640,31 @@ class OnBackStackChangedListenerTest {
 
             withActivity {
                 onBackPressedDispatcher.dispatchOnBackStarted(BackEventCompat(0f, 0f, 0f, 0))
-                executePendingTransactions()
             }
 
             if (FragmentManager.USE_PREDICTIVE_BACK) {
+                assertThat(startedLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
                 assertThat(startedCount).isEqualTo(1)
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
-            assertThat(backStackChangedCount).isEqualTo(1)
-            assertThat(committedCount).isEqualTo(0)
 
-            beforeOnBackStackChanged = true
+            assertThat(changedLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+            assertThat(backStackChangedCount).isEqualTo(1)
+
+            assertThat(committedCount).isEqualTo(0)
 
             withActivity { onBackPressedDispatcher.dispatchOnBackCancelled() }
 
             if (FragmentManager.USE_PREDICTIVE_BACK) {
                 assertThat(startedCount).isEqualTo(1)
+                assertThat(cancelLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
                 assertThat(cancelledCount).isEqualTo(1)
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
             assertThat(committedCount).isEqualTo(0)
             assertThat(backStackChangedCount).isEqualTo(2)
-            assertThat(beforeOnBackStackChanged).isFalse()
 
             assertThat(fragment2).isSameInstanceAs(fragmentManager.findFragmentById(R.id.content))
         }
