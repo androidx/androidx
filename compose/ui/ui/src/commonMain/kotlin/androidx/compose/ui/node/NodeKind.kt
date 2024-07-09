@@ -43,6 +43,8 @@ import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.semantics.SemanticsModifier
+import kotlin.jvm.JvmInline
+import kotlin.jvm.JvmStatic
 
 @Suppress("NOTHING_TO_INLINE")
 @JvmInline

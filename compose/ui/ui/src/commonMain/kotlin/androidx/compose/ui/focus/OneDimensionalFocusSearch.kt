@@ -224,19 +224,16 @@ private inline fun <T> MutableVector<T>.forEachItemBefore(item: T, action: (T) -
  * the items makes the next focus search more efficient.
  */
 private object FocusableChildrenComparator : Comparator<FocusTargetNode> {
-    override fun compare(focusTarget1: FocusTargetNode?, focusTarget2: FocusTargetNode?): Int {
-        requireNotNull(focusTarget1) { "compare requires non-null focus targets" }
-        requireNotNull(focusTarget2) { "compare requires non-null focus targets" }
-
+    override fun compare(a: FocusTargetNode, b: FocusTargetNode): Int {
         // Ignore focus modifiers that won't be considered during focus search.
-        if (!focusTarget1.isEligibleForFocusSearch || !focusTarget2.isEligibleForFocusSearch) {
-            if (focusTarget1.isEligibleForFocusSearch) return -1
-            if (focusTarget2.isEligibleForFocusSearch) return 1
+        if (!a.isEligibleForFocusSearch || !b.isEligibleForFocusSearch) {
+            if (a.isEligibleForFocusSearch) return -1
+            if (b.isEligibleForFocusSearch) return 1
             return 0
         }
 
-        val layoutNode1 = focusTarget1.requireLayoutNode()
-        val layoutNode2 = focusTarget2.requireLayoutNode()
+        val layoutNode1 = a.requireLayoutNode()
+        val layoutNode2 = b.requireLayoutNode()
 
         // Use natural order for focus modifiers within the same layout node.
         if (layoutNode1 == layoutNode2) return 0

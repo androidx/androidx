@@ -888,43 +888,22 @@ internal class SuspendingPointerInputModifierNodeImpl(
     }
 }
 
-private val EmptyStackTraceElements = emptyArray<StackTraceElement>()
-
 /**
  * An exception thrown from [AwaitPointerEventScope.withTimeout] when the execution time of the
  * coroutine is too long.
  */
-class PointerEventTimeoutCancellationException(time: Long) :
-    CancellationException("Timed out waiting for $time ms") {
-    override fun fillInStackTrace(): Throwable {
-        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = EmptyStackTraceElements
-        return this
-    }
-}
+expect class PointerEventTimeoutCancellationException(time: Long) : CancellationException
 
 /**
  * Used in place of the standard Job cancellation pathway to avoid reflective javaClass.simpleName
  * lookups to build the exception message and stack trace collection. Remove if these are changed in
  * kotlinx.coroutines.
  */
-private class PointerInputResetException : CancellationException("Pointer input was reset") {
-    override fun fillInStackTrace(): Throwable {
-        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = EmptyStackTraceElements
-        return this
-    }
-}
+internal expect class PointerInputResetException() : CancellationException
 
 /**
  * Also used in place of standard Job cancellation pathway; since we control this code path we
  * shouldn't need to worry about other code calling addSuppressed on this exception so a singleton
  * instance is used
  */
-private object CancelTimeoutCancellationException : CancellationException() {
-    override fun fillInStackTrace(): Throwable {
-        // Avoid null.clone() on Android <= 6.0 when accessing stackTrace
-        stackTrace = EmptyStackTraceElements
-        return this
-    }
-}
+internal expect object CancelTimeoutCancellationException : CancellationException

@@ -20,6 +20,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.LocalInputModeManager
+import kotlin.jvm.JvmInline
 
 /**
  * Focusability configures whether a focus target can be focused.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalComposeUiApi::class)
+package androidx.compose.ui.draganddrop
 
-package androidx.compose.ui.test
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.implementedInJetBrainsFork
 
-import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.node.RootForTest
+actual class DragAndDropTransferData
 
-internal actual fun createInputDispatcher(
-    testContext: TestContext,
-    root: RootForTest
-): InputDispatcher = implementedInJetBrainsFork()
+actual class DragAndDropEvent
+
+internal actual val DragAndDropEvent.positionInRoot: Offset
+    get() = implementedInJetBrainsFork()

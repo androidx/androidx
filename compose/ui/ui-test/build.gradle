@@ -33,6 +33,7 @@ plugins {
 androidXMultiplatform {
     android()
     jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -44,7 +45,8 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-unit"))
                 api(project(":compose:runtime:runtime"))
                 api(libs.kotlinStdlib)
-
+                api(libs.kotlinCoroutinesCore)
+                api(libs.kotlinCoroutinesTest)
                 implementation(project(":compose:ui:ui-util"))
             }
         }
@@ -57,8 +59,6 @@ androidXMultiplatform {
         jvmMain {
             dependsOn(commonMain)
             dependencies {
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinCoroutinesTest)
             }
         }
 
@@ -75,12 +75,16 @@ androidXMultiplatform {
             }
         }
 
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
+
         jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+            dependsOn(commonStubsMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
         }
 
         androidCommonTest {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package androidx.compose.ui.test
 
-@JvmInline
-actual value class MouseButton(val buttonId: Int) {
-    actual companion object {
-        actual val Primary: MouseButton = implementedInJetBrainsFork()
-        actual val Secondary: MouseButton = implementedInJetBrainsFork()
-        actual val Tertiary: MouseButton = implementedInJetBrainsFork()
-    }
-}
+import androidx.compose.ui.node.RootForTest
+
+internal actual fun createInputDispatcher(
+    testContext: TestContext,
+    root: RootForTest
+): InputDispatcher = implementedInJetBrainsFork()
