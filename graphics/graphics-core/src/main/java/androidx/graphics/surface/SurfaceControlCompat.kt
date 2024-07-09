@@ -685,19 +685,15 @@ internal class SurfaceControlVerificationHelper private constructor() {
 
     companion object {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun createBuilderV33(): SurfaceControlImpl.Builder = SurfaceControlV33.Builder()
 
         @RequiresApi(Build.VERSION_CODES.Q)
-        @androidx.annotation.DoNotInline
         fun createBuilderV29(): SurfaceControlImpl.Builder = SurfaceControlV29.Builder()
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun createTransactionV33(): SurfaceControlImpl.Transaction = SurfaceControlV33.Transaction()
 
         @RequiresApi(Build.VERSION_CODES.Q)
-        @androidx.annotation.DoNotInline
         fun createTransactionV29(): SurfaceControlImpl.Transaction = SurfaceControlV29.Transaction()
     }
 }

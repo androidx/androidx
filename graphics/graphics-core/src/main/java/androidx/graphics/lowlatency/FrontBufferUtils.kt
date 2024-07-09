@@ -85,7 +85,6 @@ internal class UsageFlagsVerificationHelper private constructor() {
         // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
         @SuppressLint("WrongConstant")
         @RequiresApi(Build.VERSION_CODES.Q)
-        @androidx.annotation.DoNotInline
         internal fun isSupported(flag: Long): Boolean =
             HardwareBuffer.isSupported(
                 1, // width
@@ -96,7 +95,6 @@ internal class UsageFlagsVerificationHelper private constructor() {
             )
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun obtainUsageFlagsV33(): Long {
             // First verify if the front buffer usage flag is supported along with the
             // "usage composer overlay" flag that was introduced in API level 33

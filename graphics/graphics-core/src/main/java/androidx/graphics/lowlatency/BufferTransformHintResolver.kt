@@ -151,7 +151,6 @@ internal class TransformHintHelper private constructor() {
 
     companion object {
         @RequiresApi(Build.VERSION_CODES.S_V2)
-        @androidx.annotation.DoNotInline
         fun resolveBufferTransformHint(view: View): Int =
             view.rootSurfaceControl?.bufferTransformHint ?: 0
     }

@@ -950,7 +950,6 @@ internal interface GraphicsLayerImpl {
 @RequiresApi(Build.VERSION_CODES.R)
 internal object OutlineVerificationHelper {
 
-    @androidx.annotation.DoNotInline
     fun setPath(outline: AndroidOutline, path: Path) {
         outline.setPath(path.asAndroidPath())
     }

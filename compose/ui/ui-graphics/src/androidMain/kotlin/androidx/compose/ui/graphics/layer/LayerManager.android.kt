@@ -162,6 +162,5 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
 @RequiresApi(Build.VERSION_CODES.M)
 private object LockHardwareCanvasHelper {
 
-    @androidx.annotation.DoNotInline
     fun lockHardwareCanvas(surface: Surface): android.graphics.Canvas = surface.lockHardwareCanvas()
 }

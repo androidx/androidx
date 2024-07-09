@@ -678,7 +678,6 @@ internal class ColorSpaceVerificationHelper {
     companion object {
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        @androidx.annotation.DoNotInline
         fun getColorSpaceFromDataSpace(dataSpace: Int) =
             ColorSpace.getFromDataSpace(dataSpace)
                 // If wide color gamut is supported, then this should always return non-null

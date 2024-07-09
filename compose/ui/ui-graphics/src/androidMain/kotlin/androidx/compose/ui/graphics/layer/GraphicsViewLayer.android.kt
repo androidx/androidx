@@ -511,7 +511,6 @@ internal class GraphicsViewLayer(
 @RequiresApi(Build.VERSION_CODES.S)
 private object ViewLayerVerificationHelper31 {
 
-    @androidx.annotation.DoNotInline
     fun setRenderEffect(view: View, target: RenderEffect?) {
         view.setRenderEffect(target?.asAndroidRenderEffect())
     }
@@ -520,17 +519,14 @@ private object ViewLayerVerificationHelper31 {
 @RequiresApi(Build.VERSION_CODES.P)
 private object ViewLayerVerificationHelper28 {
 
-    @androidx.annotation.DoNotInline
     fun setOutlineAmbientShadowColor(view: View, target: Int) {
         view.outlineAmbientShadowColor = target
     }
 
-    @androidx.annotation.DoNotInline
     fun setOutlineSpotShadowColor(view: View, target: Int) {
         view.outlineSpotShadowColor = target
     }
 
-    @androidx.annotation.DoNotInline
     fun resetPivot(view: View) {
         view.resetPivot()
     }
