@@ -34,6 +34,7 @@ plugins {
 androidXMultiplatform {
     android()
     jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -56,14 +57,8 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(commonMain)
             dependencies {
                 // This has stub APIs for access to legacy Android APIs, so we don't want
                 // any dependency on this module.
@@ -74,10 +69,14 @@ androidXMultiplatform {
             }
         }
 
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
         jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
+            dependsOn(commonStubsMain)
+        }
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
         }
 
         androidInstrumentedTest {
