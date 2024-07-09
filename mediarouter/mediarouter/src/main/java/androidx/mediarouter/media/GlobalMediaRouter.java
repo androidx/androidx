@@ -769,7 +769,12 @@ import java.util.Set;
                 }
             }
         } else {
-            Log.w(TAG, "Ignoring invalid provider descriptor: " + providerDescriptor);
+            String message =
+                    providerDescriptor != null
+                            ? "Ignoring invalid provider descriptor: " + providerDescriptor
+                            : "Ignoring null provider descriptor from "
+                                    + provider.getComponentName();
+            Log.w(TAG, message);
         }
 
         // Dispose all remaining routes that do not have matching descriptors.
