@@ -632,6 +632,33 @@ sealed class FlowLayoutOverflow(
     }
 }
 
+internal fun lazyInt(
+    errorMessage: String = "Lazy item is not yet initialized",
+    initializer: () -> Int
+): Lazy<Int> = LazyImpl(initializer, errorMessage)
+
+private class LazyImpl(val initializer: () -> Int, val errorMessage: String) : Lazy<Int> {
+    private var _value: Int = UNINITIALIZED_VALUE
+    override val value: Int
+        get() {
+            if (_value == UNINITIALIZED_VALUE) {
+                _value = initializer()
+            }
+            if (_value == UNINITIALIZED_VALUE) {
+                throw IllegalStateException(errorMessage)
+            }
+            return _value
+        }
+
+    override fun isInitialized(): Boolean = _value != UNINITIALIZED_VALUE
+
+    override fun toString(): String = if (isInitialized()) value.toString() else errorMessage
+
+    companion object {
+        internal const val UNINITIALIZED_VALUE: Int = -1
+    }
+}
+
 /** Overflow State for managing overflow state within FlowLayouts. */
 @OptIn(ExperimentalLayoutApi::class)
 internal data class FlowLayoutOverflowState
@@ -643,17 +670,18 @@ internal constructor(
     internal val shownItemCount: Int
         get() {
             if (itemShown == -1) {
-                throw IllegalStateException(
-                    "Accessing shownItemCount before it is set. " +
-                        "Are you calling this in the Composition phase, " +
-                        "rather than in the draw phase? " +
-                        "Consider our samples on how to use it during the draw phase " +
-                        "or consider using ContextualFlowRow/ContextualFlowColumn " +
-                        "which initializes this method in the composition phase."
-                )
+                throw IllegalStateException(shownItemLazyErrorMessage)
             }
             return itemShown
         }
+
+    internal val shownItemLazyErrorMessage =
+        "Accessing shownItemCount before it is set. " +
+            "Are you calling this in the Composition phase, " +
+            "rather than in the draw phase? " +
+            "Consider our samples on how to use it during the draw phase " +
+            "or consider using ContextualFlowRow/ContextualFlowColumn " +
+            "which initializes this method in the composition phase."
 
     internal var itemShown: Int = -1
     internal var itemCount = 0

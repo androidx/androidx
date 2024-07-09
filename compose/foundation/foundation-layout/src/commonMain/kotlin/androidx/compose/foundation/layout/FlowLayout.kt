@@ -21,7 +21,7 @@ import androidx.collection.IntIntPair
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.remember
@@ -100,7 +100,7 @@ fun FlowRow(
             overflowState
         )
     val list: List<@Composable () -> Unit> =
-        remember(overflow, content) {
+        remember(overflow, content, maxLines) {
             val mutableList: MutableList<@Composable () -> Unit> = mutableListOf()
             mutableList.add { FlowRowScopeInstance.content() }
             overflow.addOverflowComposables(overflowState, mutableList)
@@ -158,7 +158,7 @@ fun FlowColumn(
             overflowState
         )
     val list: List<@Composable () -> Unit> =
-        remember(overflow, content) {
+        remember(overflow, content, maxLines) {
             val mutableList: MutableList<@Composable () -> Unit> = mutableListOf()
             mutableList.add { FlowColumnScopeInstance.content() }
             overflow.addOverflowComposables(overflowState, mutableList)
@@ -169,7 +169,7 @@ fun FlowColumn(
 
 /** Scope for the children of [FlowRow]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface FlowRowScope : RowScope {
     /**
@@ -191,7 +191,7 @@ interface FlowRowScope : RowScope {
 
 /** Scope for the overflow [FlowRow]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface FlowRowOverflowScope : FlowRowScope {
     /**
@@ -208,7 +208,7 @@ interface FlowRowOverflowScope : FlowRowScope {
 
 /** Scope for the children of [FlowColumn]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface FlowColumnScope : ColumnScope {
     /**
@@ -230,7 +230,7 @@ interface FlowColumnScope : ColumnScope {
 
 /** Scope for the overflow [FlowColumn]. */
 @LayoutScopeMarker
-@Immutable
+@Stable
 @ExperimentalLayoutApi
 interface FlowColumnOverflowScope : FlowColumnScope {
     /**
@@ -263,21 +263,17 @@ internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScop
 @OptIn(ExperimentalLayoutApi::class)
 internal class FlowRowOverflowScopeImpl(private val state: FlowLayoutOverflowState) :
     FlowRowScope by FlowRowScopeInstance, FlowRowOverflowScope {
-    override val totalItemCount: Int
-        get() = state.itemCount
+    override val totalItemCount: Int by lazyInt { state.itemCount }
 
-    override val shownItemCount: Int
-        get() = state.shownItemCount
+    override val shownItemCount: Int by lazyInt(state.shownItemLazyErrorMessage) { state.itemShown }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 internal class FlowColumnOverflowScopeImpl(private val state: FlowLayoutOverflowState) :
     FlowColumnScope by FlowColumnScopeInstance, FlowColumnOverflowScope {
-    override val totalItemCount: Int
-        get() = state.itemCount
+    override val totalItemCount: Int by lazyInt { state.itemCount }
 
-    override val shownItemCount: Int
-        get() = state.shownItemCount
+    override val shownItemCount: Int by lazyInt(state.shownItemLazyErrorMessage) { state.itemShown }
 }
 
 @OptIn(ExperimentalLayoutApi::class)

@@ -1687,7 +1687,6 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(itemsShownCount).isEqualTo(5)
             Truth.assertThat(seeMoreShown).isTrue()
             Truth.assertThat(collapseShown).isFalse()
-            Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
         rule.onNodeWithTag(seeMoreTag).performTouchInput { click() }
@@ -1699,7 +1698,6 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(finalMaxLines).isEqualTo(4)
             Truth.assertThat(seeMoreShown).isTrue()
             Truth.assertThat(collapseShown).isFalse()
-            Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
 
@@ -1711,7 +1709,6 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(finalMaxLines).isEqualTo(6)
             Truth.assertThat(seeMoreShown).isTrue()
             Truth.assertThat(collapseShown).isFalse()
-            Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
 
@@ -1723,8 +1720,7 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(finalMaxLines).isEqualTo(8)
             Truth.assertThat(collapseShown).isTrue()
             Truth.assertThat(seeMoreShown).isFalse()
-            Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
-            Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(itemsShownCount)
+            Truth.assertThat(collapseOnScope.shownItemCount).isEqualTo(itemsShownCount)
         }
         rule.onNodeWithTag(collapseTag).performTouchInput { click() }
 
@@ -1734,7 +1730,6 @@ class ContextualFlowRowColumnTest {
             Truth.assertThat(finalMaxLines).isEqualTo(2)
             Truth.assertThat(seeMoreShown).isTrue()
             Truth.assertThat(collapseShown).isFalse()
-            Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(collapseOnScope.shownItemCount)
             Truth.assertThat(expandOnScope.shownItemCount).isEqualTo(5)
         }
     }
