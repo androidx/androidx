@@ -17,6 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.collection.IntList
+import kotlin.jvm.JvmOverloads
 
 // TODO(b/311454748): Move to :collection as public API once it's back on alpha. Also, add versions
 //  for LongList and FloatList.

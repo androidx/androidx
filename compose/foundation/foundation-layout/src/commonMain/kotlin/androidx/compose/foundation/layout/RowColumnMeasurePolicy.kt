@@ -170,7 +170,8 @@ internal fun RowColumnMeasurePolicy.measure(
             try {
                 remainder -= weightedSize.fastRoundToInt()
             } catch (e: IllegalArgumentException) {
-                throw IllegalArgumentException(
+                throw initCause(
+                    IllegalArgumentException(
                         "This log indicates a hard-to-reproduce Compose issue, " +
                             "modified with additional debugging details. " +
                             "Please help us by adding your experiences to the bug link provided. " +
@@ -200,8 +201,9 @@ internal fun RowColumnMeasurePolicy.measure(
                             itemWeight +
                             "weightedSize " +
                             weightedSize
-                    )
-                    .initCause(e)
+                    ),
+                    e
+                )
             }
         }
 
@@ -241,7 +243,8 @@ internal fun RowColumnMeasurePolicy.measure(
                             isPrioritizing = true
                         )
                 } catch (e: IllegalArgumentException) {
-                    throw IllegalArgumentException(
+                    throw initCause(
+                        IllegalArgumentException(
                             "This log indicates a hard-to-reproduce Compose issue, " +
                                 "modified with additional debugging details. " +
                                 "Please help us by adding your experiences to the bug link provided. " +
@@ -277,8 +280,9 @@ internal fun RowColumnMeasurePolicy.measure(
                                 remainderUnit +
                                 "childMainAxisSize " +
                                 childMainAxisSize
-                        )
-                        .initCause(e)
+                        ),
+                        e
+                    )
                 }
                 val placeable = child.measure(childConstraints)
                 val placeableMainAxisSize = placeable.mainAxisSize()
@@ -349,3 +353,8 @@ internal fun RowColumnMeasurePolicy.measure(
         endIndex
     )
 }
+
+internal expect inline fun initCause(
+    exception: IllegalArgumentException,
+    cause: Exception
+): Throwable
