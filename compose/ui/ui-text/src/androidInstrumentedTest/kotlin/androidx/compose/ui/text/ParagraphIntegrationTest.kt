@@ -4406,6 +4406,18 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getWordBoundary_multichar() {
+        // "ab 𐐔𐐯𐑅𐐨𐑉𐐯𐐻 cd" - example of multi-char code units
+        //             | (offset=3)      | (offset=6)
+        val text =
+            "ab \uD801\uDC14\uD801\uDC2F\uD801\uDC45\uD801\uDC28\uD801\uDC49\uD801\uDC2F\uD801\uDC3B cd"
+        val paragraph = simpleParagraph(text, TextStyle())
+        val result = paragraph.getWordBoundary(6)
+        assertThat(result.start).isEqualTo(3)
+        assertThat(result.end).isEqualTo(17)
+    }
+
+    @Test
     fun test_finalFontSizeChangesWithDensity() {
         val text = "a"
         val fontSize = 20.sp

@@ -269,6 +269,7 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
         if (offset in (start + 1)..end) {
             val codePoint = Character.codePointBefore(charSequence, offset)
             if (Character.isLetterOrDigit(codePoint)) return true
+            if (Character.isSurrogate(charSequence[offset - 1])) return true
 
             if (EmojiCompat.isConfigured()) {
                 val emojiCompat = EmojiCompat.get()
@@ -286,6 +287,7 @@ internal class WordIterator(val charSequence: CharSequence, start: Int, end: Int
         if (offset in start until end) {
             val codePoint = Character.codePointAt(charSequence, offset)
             if (Character.isLetterOrDigit(codePoint)) return true
+            if (Character.isSurrogate(charSequence[offset])) return true
 
             if (EmojiCompat.isConfigured()) {
                 val emojiCompat = EmojiCompat.get()
