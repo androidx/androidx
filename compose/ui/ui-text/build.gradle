@@ -91,6 +91,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
+                implementation("androidx.emoji2:emoji2-bundled:1.4.0")
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":internal-testutils-fonts"))
                 implementation(project(":compose:foundation:foundation"))

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text.android.selection
 
+import androidx.emoji2.bundled.BundledEmojiCompatConfig
 import androidx.emoji2.text.EmojiCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -38,7 +39,9 @@ class WordIteratorTest {
         @JvmStatic
         fun setup() {
             EmojiCompat.reset(null)
-            EmojiCompat.init(context)
+            // we want a temporary thread, we don't need to control the font loading thread
+            // for this test, hence the deprecation suppression
+            @Suppress("DEPRECATION") EmojiCompat.init(BundledEmojiCompatConfig(context))
         }
 
         @AfterClass
