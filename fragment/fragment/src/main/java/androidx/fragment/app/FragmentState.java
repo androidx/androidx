@@ -115,7 +115,7 @@ final class FragmentState implements Parcelable {
         if (mFromLayout) {
             sb.append(" fromLayout");
         }
-        if (mFromLayout) {
+        if (mInDynamicContainer) {
             sb.append(" dynamicContainer");
         }
         if (mContainerId != 0) {
