@@ -47,11 +47,13 @@ import androidx.compose.material3.samples.CircularWavyProgressIndicatorSample
 import androidx.compose.material3.samples.ClickableCardSample
 import androidx.compose.material3.samples.ClickableElevatedCardSample
 import androidx.compose.material3.samples.ClickableOutlinedCardSample
+import androidx.compose.material3.samples.ContainedLoadingIndicatorSample
 import androidx.compose.material3.samples.DateInputSample
 import androidx.compose.material3.samples.DatePickerDialogSample
 import androidx.compose.material3.samples.DatePickerSample
 import androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
 import androidx.compose.material3.samples.DateRangePickerSample
+import androidx.compose.material3.samples.DeterminateContainedLoadingIndicatorSample
 import androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
 import androidx.compose.material3.samples.DockedSearchBarSample
@@ -870,11 +872,25 @@ val LoadingIndicatorsExamples =
             LoadingIndicatorSample()
         },
         Example(
+            name = "ContainedLoadingIndicatorSample",
+            description = LoadingIndicatorsExampleDescription,
+            sourceUrl = LoadingIndicatorsExampleSourceUrl
+        ) {
+            ContainedLoadingIndicatorSample()
+        },
+        Example(
             name = "DeterminateLoadingIndicatorSample",
             description = LoadingIndicatorsExampleDescription,
             sourceUrl = LoadingIndicatorsExampleSourceUrl
         ) {
             DeterminateLoadingIndicatorSample()
+        },
+        Example(
+            name = "DeterminateContainedLoadingIndicatorSample",
+            description = LoadingIndicatorsExampleDescription,
+            sourceUrl = LoadingIndicatorsExampleSourceUrl
+        ) {
+            DeterminateContainedLoadingIndicatorSample()
         },
         Example(
             name = "LoadingIndicatorPullToRefreshSample",
