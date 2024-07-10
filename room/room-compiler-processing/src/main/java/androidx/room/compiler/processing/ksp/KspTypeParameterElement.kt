@@ -47,6 +47,10 @@ internal class KspTypeParameterElement(
         declaration.bounds
             .map { env.wrap(it, it.resolve()) }
             .toList()
+            // In Kotlin the order doesn't matter but in Java class bound should go
+            // before interface bounds:
+            // https://docs.oracle.com/javase/specs/jls/se8/html/jls-4.html#jls-4.4
+            .sortedBy { it.typeElement?.isInterface() ?: false }
             .ifEmpty { listOf(env.requireType(Any::class).makeNullable()) }
     }
 

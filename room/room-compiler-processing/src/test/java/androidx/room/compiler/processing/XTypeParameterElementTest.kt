@@ -423,4 +423,26 @@ class XTypeParameterElementTest {
             }
         }
     }
+
+    @Test
+    fun classBoundsGoBeforeInterfaceBounds() {
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
+                class Foo<T> where T: InterfaceBound1, T: InterfaceBound2, T: ClassBound
+                open class ClassBound
+                interface InterfaceBound1
+                interface InterfaceBound2
+                """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("Foo")
+
+            val t = foo.typeParameters[0]
+            assertThat(t.bounds).hasSize(3)
+            assertThat(t.bounds[0].asTypeName().java.toString()).isEqualTo("ClassBound")
+        }
+    }
 }
