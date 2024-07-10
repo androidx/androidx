@@ -577,6 +577,7 @@ includeProject(":concurrent:concurrent-futures", [BuildType.MAIN, BuildType.COMP
 includeProject(":concurrent:concurrent-futures-ktx", [BuildType.MAIN])
 includeProject(":constraintlayout:constraintlayout-compose", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose-lint", [BuildType.COMPOSE])
+includeProject(":constraintlayout:constraintlayout-compose:constraintlayout-compose-samples", "constraintlayout/constraintlayout-compose/samples", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:demos", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark", [BuildType.COMPOSE])
 includeProject(":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target", [BuildType.COMPOSE])
