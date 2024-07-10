@@ -38,25 +38,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.toIntRect
 import kotlin.math.max
 
-/**
- * [Material Design Exposed Dropdown Menu](https://material.io/components/menus#exposed-dropdown-menu).
- *
- * Box for Exposed Dropdown Menu. Expected to contain [TextField] and
- * [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as a content.
- *
- * An example of read-only Exposed Dropdown Menu:
- *
- * @sample androidx.compose.material.samples.ExposedDropdownMenuSample
- *
- * An example of editable Exposed Dropdown Menu:
- *
- * @sample androidx.compose.material.samples.EditableExposedDropdownMenuSample
- *
- * @param expanded Whether Dropdown Menu should be expanded or not.
- * @param onExpandedChange Executes when the user clicks on the ExposedDropdownMenuBox.
- * @param modifier The modifier to apply to this layout
- * @param content The content to be displayed inside ExposedDropdownMenuBox.
- */
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
@@ -72,40 +53,42 @@ actual fun ExposedDropdownMenuBox(
     var menuHeight by remember { mutableIntStateOf(0) }
     val verticalMarginInPx = with(density) { MenuVerticalMargin.roundToPx() }
 
-    val scope = remember(density, menuHeight, width) {
-        object : ExposedDropdownMenuBoxScope {
-            override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
-                return with(density) {
-                    heightIn(max = menuHeight.toDp()).let {
-                        if (matchTextFieldWidth) {
-                            it.width(width.toDp())
-                        } else it
+    val scope =
+        remember(density, menuHeight, width) {
+            object : ExposedDropdownMenuBoxScope() {
+                override fun Modifier.exposedDropdownSize(matchTextFieldWidth: Boolean): Modifier {
+                    return with(density) {
+                        heightIn(max = menuHeight.toDp()).let {
+                            if (matchTextFieldWidth) {
+                                it.width(width.toDp())
+                            } else it
+                        }
                     }
                 }
             }
         }
-    }
     val focusRequester = remember { FocusRequester() }
 
     Box(
-        modifier.onGloballyPositioned {
-            width = it.size.width
-            val boundsInWindow = it.boundsInWindow()
-            val visibleWindowBounds = windowInfo.containerSize.toIntRect()
-            val heightAbove = boundsInWindow.top - visibleWindowBounds.top
-            val heightBelow = visibleWindowBounds.height - boundsInWindow.bottom
-            menuHeight = max(heightAbove, heightBelow).toInt() - verticalMarginInPx
-        }.expandable(
-            onExpandedChange = { onExpandedChange(!expanded) },
-            menuLabel = getString(Strings.ExposedDropdownMenu)
-        ).focusRequester(focusRequester)
+        modifier
+            .onGloballyPositioned {
+                width = it.size.width
+                val boundsInWindow = it.boundsInWindow()
+                val visibleWindowBounds = windowInfo.containerSize.toIntRect()
+                val heightAbove = boundsInWindow.top - visibleWindowBounds.top
+                val heightBelow = visibleWindowBounds.height - boundsInWindow.bottom
+                menuHeight = max(heightAbove, heightBelow).toInt() - verticalMarginInPx
+            }
+            .expandable(
+                onExpandedChange = { onExpandedChange(!expanded) },
+                menuLabel = getString(Strings.ExposedDropdownMenu)
+            )
+            .focusRequester(focusRequester)
     ) {
         scope.content()
     }
 
-    SideEffect {
-        if (expanded) focusRequester.requestFocus()
-    }
+    SideEffect { if (expanded) focusRequester.requestFocus() }
 }
 
 @Composable
