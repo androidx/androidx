@@ -249,13 +249,13 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
             )
 
         val leadingPlaceable = leadingMeasurable.firstOrNull()?.measure(paddedLooseConstraints)
-        currentTotalWidth += widthOrZero(leadingPlaceable)
+        currentTotalWidth += leadingPlaceable.widthOrZero
 
         val trailingPlaceable =
             trailingMeasurable
                 .firstOrNull()
                 ?.measure(paddedLooseConstraints.offset(horizontal = -currentTotalWidth))
-        currentTotalWidth += widthOrZero(trailingPlaceable)
+        currentTotalWidth += trailingPlaceable.widthOrZero
 
         var currentTotalHeight = 0
 
@@ -263,7 +263,7 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
             headlineMeasurable
                 .firstOrNull()
                 ?.measure(paddedLooseConstraints.offset(horizontal = -currentTotalWidth))
-        currentTotalHeight += heightOrZero(headlinePlaceable)
+        currentTotalHeight += headlinePlaceable.heightOrZero
 
         val supportingPlaceable =
             supportingMeasurable
@@ -274,7 +274,7 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
                         vertical = -currentTotalHeight
                     )
                 )
-        currentTotalHeight += heightOrZero(supportingPlaceable)
+        currentTotalHeight += supportingPlaceable.heightOrZero
         val isSupportingMultiline =
             supportingPlaceable != null &&
                 (supportingPlaceable[FirstBaseline] != supportingPlaceable[LastBaseline])
@@ -300,21 +300,21 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
 
         val width =
             calculateWidth(
-                leadingWidth = widthOrZero(leadingPlaceable),
-                trailingWidth = widthOrZero(trailingPlaceable),
-                headlineWidth = widthOrZero(headlinePlaceable),
-                overlineWidth = widthOrZero(overlinePlaceable),
-                supportingWidth = widthOrZero(supportingPlaceable),
+                leadingWidth = leadingPlaceable.widthOrZero,
+                trailingWidth = trailingPlaceable.widthOrZero,
+                headlineWidth = headlinePlaceable.widthOrZero,
+                overlineWidth = overlinePlaceable.widthOrZero,
+                supportingWidth = supportingPlaceable.widthOrZero,
                 horizontalPadding = horizontalPadding,
                 constraints = constraints,
             )
         val height =
             calculateHeight(
-                leadingHeight = heightOrZero(leadingPlaceable),
-                trailingHeight = heightOrZero(trailingPlaceable),
-                headlineHeight = heightOrZero(headlinePlaceable),
-                overlineHeight = heightOrZero(overlinePlaceable),
-                supportingHeight = heightOrZero(supportingPlaceable),
+                leadingHeight = leadingPlaceable.heightOrZero,
+                trailingHeight = trailingPlaceable.heightOrZero,
+                headlineHeight = headlinePlaceable.heightOrZero,
+                overlineHeight = overlinePlaceable.heightOrZero,
+                supportingHeight = supportingPlaceable.heightOrZero,
                 listItemType = listItemType,
                 verticalPadding = verticalPadding.roundToPx(),
                 constraints = constraints,
@@ -503,24 +503,24 @@ private fun MeasureScope.place(
             )
         }
 
-        val mainContentX = startPadding + widthOrZero(leadingPlaceable)
+        val mainContentX = startPadding + leadingPlaceable.widthOrZero
         val mainContentY =
             if (isThreeLine) {
                 topPadding
             } else {
                 val totalHeight =
-                    heightOrZero(headlinePlaceable) +
-                        heightOrZero(overlinePlaceable) +
-                        heightOrZero(supportingPlaceable)
+                    headlinePlaceable.heightOrZero +
+                        overlinePlaceable.heightOrZero +
+                        supportingPlaceable.heightOrZero
                 CenterVertically.align(totalHeight, height)
             }
         var currentY = mainContentY
 
         overlinePlaceable?.placeRelative(mainContentX, currentY)
-        currentY += heightOrZero(overlinePlaceable)
+        currentY += overlinePlaceable.heightOrZero
 
         headlinePlaceable?.placeRelative(mainContentX, currentY)
-        currentY += heightOrZero(headlinePlaceable)
+        currentY += headlinePlaceable.heightOrZero
 
         supportingPlaceable?.placeRelative(mainContentX, currentY)
     }
