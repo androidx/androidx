@@ -24,7 +24,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -638,7 +637,6 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         private Api23Impl() {
         }
 
-        @DoNotInline
         static Surface getInputSurface(CameraCaptureSession cameraCaptureSession) {
             return cameraCaptureSession.getInputSurface();
         }

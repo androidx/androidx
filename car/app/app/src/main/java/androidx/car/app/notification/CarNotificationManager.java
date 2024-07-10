@@ -42,7 +42,6 @@ import android.graphics.Bitmap;
 import android.os.Build;
 
 import androidx.annotation.ColorInt;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -504,7 +503,6 @@ public final class CarNotificationManager {
          * Convert the list of {@link Notification.Action} to {@link NotificationCompat.Action} and
          * add them to the input {@code notification}.
          */
-        @DoNotInline
         static void convertActionsToCompatActions(@NonNull NotificationCompat.Builder notification,
                 @NonNull List<Notification.Action> actions) {
             if (actions.isEmpty()) {

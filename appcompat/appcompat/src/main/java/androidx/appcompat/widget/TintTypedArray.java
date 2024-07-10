@@ -28,7 +28,6 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -263,12 +262,10 @@ public class TintTypedArray {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static int getType(TypedArray typedArray, int index) {
             return typedArray.getType(index);
         }
 
-        @DoNotInline
         static int getChangingConfigurations(TypedArray typedArray) {
             return typedArray.getChangingConfigurations();
         }

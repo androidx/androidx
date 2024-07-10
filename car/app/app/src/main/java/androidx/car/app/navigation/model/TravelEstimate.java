@@ -20,12 +20,12 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
@@ -35,7 +35,6 @@ import androidx.car.app.model.Distance;
 import androidx.car.app.model.constraints.CarColorConstraints;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
-import androidx.car.app.annotations.KeepFields;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -387,7 +386,6 @@ public final class TravelEstimate {
             private Api26Impl() {
             }
 
-            @DoNotInline
             @NonNull
             public static Builder setRemainingTime(Builder builder,
                     @NonNull Duration remainingTime) {

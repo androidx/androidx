@@ -19,7 +19,6 @@ package androidx.camera.effects.internal;
 import android.graphics.Canvas;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -49,7 +48,6 @@ public class Utils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Canvas lockHardwareCanvas(Surface surface) {
             return surface.lockHardwareCanvas();
         }

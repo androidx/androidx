@@ -43,7 +43,6 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -354,7 +353,6 @@ public class OpenGLActivity extends AppCompatActivity {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Set<DynamicRange> getHighDynamicRangesSupportedByDisplay(
                 @NonNull Display display) {
             Display.HdrCapabilities hdrCapabilities = display.getHdrCapabilities();
@@ -377,7 +375,6 @@ public class OpenGLActivity extends AppCompatActivity {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Display getDisplay(ContextWrapper contextWrapper) {
             return contextWrapper.getDisplay();
         }

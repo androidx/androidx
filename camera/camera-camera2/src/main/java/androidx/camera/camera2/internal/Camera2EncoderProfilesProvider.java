@@ -24,7 +24,6 @@ import android.media.EncoderProfiles;
 import android.os.Build;
 import android.util.Size;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -194,7 +193,6 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
 
     @RequiresApi(31)
     static class Api31Impl {
-        @DoNotInline
         static EncoderProfiles getAll(String cameraId, int quality) {
             return CamcorderProfile.getAll(cameraId, quality);
         }

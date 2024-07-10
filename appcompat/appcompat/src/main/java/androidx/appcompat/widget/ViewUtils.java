@@ -28,7 +28,6 @@ import android.view.View;
 import android.view.WindowInsets;
 
 import androidx.annotation.ChecksSdkIntAtLeast;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -118,7 +117,6 @@ public class ViewUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void computeFitSystemWindows(@NonNull View view, @NonNull Rect inoutInsets,
                 @NonNull Rect outLocalInsets) {
             WindowInsets in =

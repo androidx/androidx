@@ -39,7 +39,6 @@ import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1542,7 +1541,6 @@ final class SupportedSurfaceCombination {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Size[] getHighResolutionOutputSizes(StreamConfigurationMap streamConfigurationMap,
                 int format) {
             return streamConfigurationMap.getHighResolutionOutputSizes(format);

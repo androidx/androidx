@@ -46,7 +46,6 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1103,7 +1102,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setDropDownViewTheme(
                 @NonNull android.widget.ThemedSpinnerAdapter themedSpinnerAdapter,
                 @Nullable Resources.Theme theme

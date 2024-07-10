@@ -33,7 +33,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
@@ -334,12 +333,10 @@ public class TestImageUtil {
 
     @RequiresApi(34)
     private static class Api34Impl {
-        @DoNotInline
         static Gainmap createGainmap(@NonNull Bitmap bitmap) {
             return new Gainmap(bitmap);
         }
 
-        @DoNotInline
         static void setGainmap(@NonNull Bitmap bitmap, @NonNull Gainmap gainmap) {
             bitmap.setGainmap(gainmap);
         }

@@ -20,12 +20,10 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 
 @RequiresApi(Build.VERSION_CODES.N)
 internal object Api24Compat {
-    @DoNotInline
     @JvmStatic
     fun onCaptureBufferLost(
         callback: CameraCaptureSession.CaptureCallback,
@@ -40,7 +38,6 @@ internal object Api24Compat {
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 internal object Api34Compat {
-    @DoNotInline
     @JvmStatic
     fun onReadoutStarted(
         callback: CameraCaptureSession.CaptureCallback,

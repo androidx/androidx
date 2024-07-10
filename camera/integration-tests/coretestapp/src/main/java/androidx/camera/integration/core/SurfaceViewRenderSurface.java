@@ -27,7 +27,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewStub;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -208,7 +207,6 @@ public final class SurfaceViewRenderSurface {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static SurfaceControl createSurfaceControl(int format, int width, int height) {
             return new SurfaceControl.Builder()
                     .setName("ChildSurfaceControl")
@@ -217,17 +215,14 @@ public final class SurfaceViewRenderSurface {
                     .build();
         }
 
-        @DoNotInline
         static Surface createSurface(SurfaceControl from) {
             return new Surface(from);
         }
 
-        @DoNotInline
         static SurfaceControl getSurfaceControl(SurfaceView surfaceView) {
             return surfaceView.getSurfaceControl();
         }
 
-        @DoNotInline
         static void reparent(SurfaceControl sc, SurfaceControl newParent) {
             SurfaceControl.Transaction transaction = new SurfaceControl.Transaction();
             transaction.reparent(sc, newParent).setVisibility(sc, true).apply();

@@ -26,7 +26,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -269,7 +268,6 @@ final class SurfaceViewImplementation extends ViewfinderImplementation {
         private Api24Impl() {
         }
 
-        @DoNotInline
         static void pixelCopyRequest(@NonNull SurfaceView source, @NonNull Bitmap dest,
                 @NonNull PixelCopy.OnPixelCopyFinishedListener listener, @NonNull Handler handler) {
             PixelCopy.request(source, dest, listener, handler);

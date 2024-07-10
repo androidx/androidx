@@ -20,7 +20,6 @@ import android.view.textclassifier.TextClassificationManager;
 import android.view.textclassifier.TextClassifier;
 import android.widget.TextView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -72,7 +71,6 @@ final class AppCompatTextClassifierHelper {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         @NonNull
         static TextClassifier getTextClassifier(@NonNull TextView textView) {
             final TextClassificationManager tcm =

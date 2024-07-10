@@ -20,7 +20,6 @@ import android.Manifest;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
@@ -35,7 +34,6 @@ public final class Api23Impl {
     }
 
     /** Creates an {@link AudioRecord.Builder}. */
-    @DoNotInline
     @NonNull
     public static AudioRecord.Builder createAudioRecordBuilder() {
         return new AudioRecord.Builder();
@@ -45,7 +43,6 @@ public final class Api23Impl {
      * Sets the {@linkplain AudioRecord.Builder#setAudioSource(int) audio source} on an
      * {@link AudioRecord.Builder}.
      */
-    @DoNotInline
     public static void setAudioSource(@NonNull AudioRecord.Builder audioRecordBuilder,
             int audioSource) {
         audioRecordBuilder.setAudioSource(audioSource);
@@ -55,7 +52,6 @@ public final class Api23Impl {
      * Sets the {@linkplain AudioRecord.Builder#setAudioFormat(AudioFormat) audio format} on an
      * {@link AudioRecord.Builder}.
      */
-    @DoNotInline
     public static void setAudioFormat(@NonNull AudioRecord.Builder audioRecordBuilder,
             @NonNull AudioFormat audioFormat) {
         audioRecordBuilder.setAudioFormat(audioFormat);
@@ -65,7 +61,6 @@ public final class Api23Impl {
      * Sets the {@linkplain AudioRecord.Builder#setBufferSizeInBytes(int) buffer size} on an
      * {@link AudioRecord.Builder}.
      */
-    @DoNotInline
     public static void setBufferSizeInBytes(@NonNull AudioRecord.Builder audioRecordBuilder,
             int bufferSizeInBytes) {
         audioRecordBuilder.setBufferSizeInBytes(bufferSizeInBytes);
@@ -75,7 +70,6 @@ public final class Api23Impl {
     /**
      * Builds an {@link AudioRecord} from an {@link AudioRecord.Builder}.
      */
-    @DoNotInline
     @NonNull
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     public static AudioRecord build(@NonNull AudioRecord.Builder audioRecordBuilder) {

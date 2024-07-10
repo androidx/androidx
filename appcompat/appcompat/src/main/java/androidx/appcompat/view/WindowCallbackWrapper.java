@@ -30,7 +30,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -194,12 +193,10 @@ public class WindowCallbackWrapper implements Window.Callback {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static boolean onSearchRequested(Window.Callback callback, SearchEvent searchEvent) {
             return callback.onSearchRequested(searchEvent);
         }
 
-        @DoNotInline
         static ActionMode onWindowStartingActionMode(Window.Callback windowCallback,
                 ActionMode.Callback actionModeCallback, int i) {
             return windowCallback.onWindowStartingActionMode(actionModeCallback, i);
@@ -212,7 +209,6 @@ public class WindowCallbackWrapper implements Window.Callback {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void onProvideKeyboardShortcuts(Window.Callback callback,
                 List<KeyboardShortcutGroup> data, Menu menu, int deviceId) {
             callback.onProvideKeyboardShortcuts(data, menu, deviceId);
@@ -226,7 +222,6 @@ public class WindowCallbackWrapper implements Window.Callback {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void onPointerCaptureChanged(Window.Callback callback, boolean hasCapture) {
             callback.onPointerCaptureChanged(hasCapture);
         }

@@ -20,7 +20,6 @@ import android.window.BackEvent
 import android.window.OnBackAnimationCallback
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
-import androidx.annotation.DoNotInline
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -326,21 +325,18 @@ constructor(
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     internal object Api33Impl {
-        @DoNotInline
         fun registerOnBackInvokedCallback(dispatcher: Any, priority: Int, callback: Any) {
             val onBackInvokedDispatcher = dispatcher as OnBackInvokedDispatcher
             val onBackInvokedCallback = callback as OnBackInvokedCallback
             onBackInvokedDispatcher.registerOnBackInvokedCallback(priority, onBackInvokedCallback)
         }
 
-        @DoNotInline
         fun unregisterOnBackInvokedCallback(dispatcher: Any, callback: Any) {
             val onBackInvokedDispatcher = dispatcher as OnBackInvokedDispatcher
             val onBackInvokedCallback = callback as OnBackInvokedCallback
             onBackInvokedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback)
         }
 
-        @DoNotInline
         fun createOnBackInvokedCallback(onBackInvoked: () -> Unit): OnBackInvokedCallback {
             return OnBackInvokedCallback { onBackInvoked() }
         }
@@ -348,7 +344,6 @@ constructor(
 
     @RequiresApi(34)
     internal object Api34Impl {
-        @DoNotInline
         fun createOnBackAnimationCallback(
             onBackStarted: (backEvent: BackEventCompat) -> Unit,
             onBackProgressed: (backEvent: BackEventCompat) -> Unit,

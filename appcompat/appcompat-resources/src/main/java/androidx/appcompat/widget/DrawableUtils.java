@@ -26,7 +26,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -220,7 +219,6 @@ public class DrawableUtils {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static Insets getOpticalInsets(Drawable drawable) {
             return drawable.getOpticalInsets();
         }

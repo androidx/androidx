@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.core.impl.SessionConfig
@@ -147,7 +146,6 @@ class CameraInteropStateCallbackRepository {
 
         @RequiresApi(Build.VERSION_CODES.M)
         private object Api23CompatImpl {
-            @DoNotInline
             @JvmStatic
             fun onSurfacePrepared(
                 session: CameraCaptureSession,
@@ -162,7 +160,6 @@ class CameraInteropStateCallbackRepository {
 
         @RequiresApi(Build.VERSION_CODES.O)
         private object Api26CompatImpl {
-            @DoNotInline
             @JvmStatic
             fun onCaptureQueueEmpty(
                 session: CameraCaptureSession,

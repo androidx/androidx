@@ -41,7 +41,6 @@ import android.os.SystemClock;
 import android.util.Range;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1720,13 +1719,11 @@ public class EncoderImpl implements Encoder {
         private Api23Impl() {
         }
 
-        @DoNotInline
         @NonNull
         static Surface createPersistentInputSurface() {
             return MediaCodec.createPersistentInputSurface();
         }
 
-        @DoNotInline
         static void setInputSurface(@NonNull MediaCodec mediaCodec, @NonNull Surface surface) {
             mediaCodec.setInputSurface(surface);
         }

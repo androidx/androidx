@@ -19,7 +19,6 @@ package androidx.bluetooth
 import android.bluetooth.le.ScanFilter as FwkScanFilter
 import android.os.Build
 import android.os.ParcelUuid
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import java.util.UUID
 
@@ -90,7 +89,6 @@ class ScanFilter(
     @RequiresApi(29)
     private object ScanFilterApi29Impl {
         @JvmStatic
-        @DoNotInline
         fun setServiceSolicitationUuid(
             builder: FwkScanFilter.Builder,
             serviceSolicitationUuid: UUID,
