@@ -149,7 +149,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     public final PdfLoaderCallbacks mPdfLoaderCallbacks;
 
     /** Observer of the page position that controls loading of relevant PDF assets. */
-    private final ValueObserver<ZoomScroll> mZoomScrollObserver;
+    private ValueObserver<ZoomScroll> mZoomScrollObserver;
 
     /** Observer to be set when the view is created. */
     @Nullable
@@ -167,10 +167,11 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private SearchModel mSearchModel;
     private PdfSelectionModel mSelectionModel;
     private PdfSelectionHandles mSelectionHandles;
-    private final ValueObserver<String> mSearchQueryObserver;
-    private final ValueObserver<SelectedMatch> mSelectedMatchObserver;
-    private final ValueObserver<PageSelection> mSelectionObserver;
-    private final ValueObserver<Integer> mFastscrollerPositionObserver;
+
+    private ValueObserver<String> mSearchQueryObserver;
+    private ValueObserver<Integer> mFastscrollerPositionObserver;
+    private ValueObserver<SelectedMatch> mSelectedMatchObserver;
+    private ValueObserver<PageSelection> mSelectionObserver;
     private Object mFastscrollerPositionObserverKey;
     private FastScrollView mFastScrollView;
     private ProgressBar mLoadingSpinner;
@@ -276,6 +277,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         mPageIndicator = new PageIndicator(getActivity(), mFastScrollView);
         applyReservedSpace();
         mZoomView.adjustZoomViewMargins();
+        mFastscrollerPositionObserver =
+                new FastScrollPositionValueObserver(mFastScrollView, mPageIndicator);
         mFastscrollerPositionObserver.onChange(null, mFastScrollView.getScrollerPositionY().get());
         mFastscrollerPositionObserverKey =
                 mFastScrollView.getScrollerPositionY().addObserver(mFastscrollerPositionObserver);
@@ -326,7 +329,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
         if (mPendingScrollPositionObserver != null) {
             mScrollPositionObserverKey = mZoomView.zoomScroll().addObserver(
                     mPendingScrollPositionObserver);
@@ -350,6 +352,16 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         mPaginatedView.setSearchModel(mSearchModel);
         mPaginatedView.setPdfLoader(mPdfLoader);
 
+        mSearchQueryObserver =
+                new SearchQueryObserver(mPaginatedView);
+        mSearchModel.query().addObserver(mSearchQueryObserver);
+
+        mZoomScrollObserver =
+                new ZoomScrollValueObserver(mZoomView, mPaginatedView,
+                        mLayoutHandler, mAnnotationButton, mFindInFileView, mPageIndicator,
+                        mFastScrollView, mIsAnnotationIntentResolvable, mViewState);
+        mZoomView.zoomScroll().addObserver(mZoomScrollObserver);
+
         if (savedState != null) {
             int layoutReach = savedState.getInt(KEY_LAYOUT_REACH);
             mLayoutHandler.setInitialPageLayoutReachWithMax(layoutReach);
@@ -371,7 +383,15 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
                 mPaginatedView, mZoomView, mSingleTapHandler);
         mPaginatedView.setPageViewFactory(mPageViewFactory);
+        mSelectionObserver =
+                new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                        requireContext());
+        mSelectionModel.selection().addObserver(mSelectionObserver);
 
+        mSelectedMatchObserver =
+                new SelectedMatchValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                        mZoomView, mLayoutHandler, requireContext());
+        mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
         if (mPaginatedView != null && mPaginatedView.getChildCount() > 0) {
             loadPageAssets(mZoomView.zoomScroll().get());
         }
@@ -390,11 +410,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         this.mPdfLoader = pdfLoader;
 
         mSearchModel = new SearchModel(pdfLoader);
-        mSearchModel.query().addObserver(mSearchQueryObserver);
-        mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
 
         mSelectionModel = new PdfSelectionModel(pdfLoader);
-        mSelectionModel.selection().addObserver(mSelectionObserver);
 
         mSelectionHandles = new PdfSelectionHandles(mSelectionModel, mZoomView, mPaginatedView);
 
@@ -656,59 +673,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mLoadingSpinner != null) {
             mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.GONE));
         }
-    }
-
-    { // Listen to ZoomView.
-        mZoomScrollObserver =
-                new ValueObserver<ZoomScroll>() {
-                    @Override
-                    public void onChange(ZoomScroll oldPosition, ZoomScroll position) {
-                        loadPageAssets(position);
-                        Range visiblePageRange = mPaginatedView.getPageRangeHandler()
-                                .computeVisibleRange(position.scrollY, position.zoom,
-                                        mZoomView.getHeight(), false);
-                        if (mPageIndicator.setRangeAndZoom(visiblePageRange, position.zoom,
-                                position.stable)) {
-                            showFastScrollView();
-                        }
-
-                        if (mIsAnnotationIntentResolvable) {
-                            if (position.scrollY > 0) {
-                                mAnnotationButton.setVisibility(View.GONE);
-                            } else if (position.scrollY == 0
-                                    && mAnnotationButton.getVisibility() == View.GONE
-                                    && mFindInFileView.getVisibility() == View.GONE) {
-                                mAnnotationButton.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-
-                    @NonNull
-                    @Override
-                    public String toString() {
-                        return TAG + "#zoomScrollObserver";
-                    }
-                };
-    }
-
-    { // Listen to searchModel.
-        mSearchQueryObserver =
-                new SearchQueryObserver(mPaginatedView);
-
-        mSelectedMatchObserver =
-                new SelectedMatchValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
-                        mZoomView, mLayoutHandler, requireContext());
-    }
-
-    { // Listen to selectionModel.
-        mSelectionObserver =
-                new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
-                        requireContext());
-    }
-
-    {
-        mFastscrollerPositionObserver =
-                new FastScrollPositionValueObserver(mFastScrollView, mPageIndicator);
     }
 
     private FindInFileListener makeFindInFileListener() {
