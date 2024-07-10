@@ -376,6 +376,35 @@ class ScatterSetTest {
     }
 
     @Test
+    fun removeDoesNotCauseGrowthOnInsert() {
+        val set = MutableScatterSet<String>(10) // Must be > GroupWidth (8)
+        assertEquals(15, set.capacity)
+
+        set += "Hello"
+        set += "Bonjour"
+        set += "Hallo"
+        set += "Konnichiwa"
+        set += "Ciao"
+        set += "Annyeong"
+
+        // Reach the upper limit of what we can store without increasing the map size
+        for (i in 0..7) {
+            set += i.toString()
+        }
+
+        // Delete a few items
+        for (i in 0..5) {
+            set.remove(i.toString())
+        }
+
+        // Inserting a new item shouldn't cause growth, but the deleted markers to be purged
+        set += "Foo"
+        assertEquals(15, set.capacity)
+
+        assertTrue(set.contains("Foo"))
+    }
+
+    @Test
     fun minusAssignArray() {
         val set = mutableScatterSetOf("Hello", "World")
         set -= arrayOf("Hola", "Bonjour")

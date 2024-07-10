@@ -419,6 +419,35 @@ class ScatterMapTest {
     }
 
     @Test
+    fun removeDoesNotCauseGrowthOnInsert() {
+        val map = MutableScatterMap<String, String>(10) // Must be > GroupWidth (8)
+        assertEquals(15, map.capacity)
+
+        map["Hello"] = "World"
+        map["Bonjour"] = "Monde"
+        map["Hallo"] = "Welt"
+        map["Konnichiwa"] = "Sekai"
+        map["Ciao"] = "Mondo"
+        map["Annyeong"] = "Sesang"
+
+        // Reach the upper limit of what we can store without increasing the map size
+        for (i in 0..7) {
+            map[i.toString()] = i.toString()
+        }
+
+        // Delete a few items
+        for (i in 0..5) {
+            map.remove(i.toString())
+        }
+
+        // Inserting a new item shouldn't cause growth, but the deleted markers to be purged
+        map["Foo"] = "Bar"
+        assertEquals(15, map.capacity)
+
+        assertEquals("Bar", map["Foo"])
+    }
+
+    @Test
     fun minus() {
         val map = MutableScatterMap<String, String>()
         map["Hello"] = "World"
