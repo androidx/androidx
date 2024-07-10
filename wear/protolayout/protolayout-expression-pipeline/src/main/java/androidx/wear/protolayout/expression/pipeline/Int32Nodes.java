@@ -258,7 +258,7 @@ class Int32Nodes {
                 AnimatableFixedInt32 protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 QuotaManager quotaManager) {
-            super(quotaManager, protoNode.getAnimationSpec());
+            super(quotaManager, protoNode.getAnimationSpec(), AnimatableNode.INT_EVALUATOR);
             this.mProtoNode = protoNode;
             this.mDownstream = downstream;
             mQuotaAwareAnimator.addUpdateCallback(
@@ -318,7 +318,7 @@ class Int32Nodes {
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream,
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
-            super(quotaManager, spec);
+            super(quotaManager, spec, AnimatableNode.INT_EVALUATOR);
             this.mDownstream = downstream;
             mQuotaAwareAnimator.addUpdateCallback(
                     animatedValue -> {

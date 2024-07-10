@@ -21,13 +21,15 @@ import static androidx.wear.protolayout.expression.pipeline.AnimationsHelper.get
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.ArgbEvaluator;
+import android.animation.FloatEvaluator;
+import android.animation.IntEvaluator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.os.HandlerCompat;
 import androidx.wear.protolayout.expression.pipeline.AnimationsHelper.RepeatDelays;
@@ -47,14 +49,10 @@ class QuotaAwareAnimator {
     @NonNull protected final Handler mUiHandler;
     private long mStartDelay = 0;
     protected Runnable mAcquireQuotaAndAnimateRunnable = this::acquireQuotaAndAnimate;
-    @Nullable protected final TypeEvaluator<?> mEvaluator;
+    @NonNull protected final TypeEvaluator<?> mEvaluator;
 
     interface UpdateCallback {
         void onUpdate(@NonNull Object animatedValue);
-    }
-
-    QuotaAwareAnimator(@NonNull QuotaManager quotaManager, @NonNull AnimationSpec spec) {
-        this(quotaManager, spec, null);
     }
 
     /**
@@ -64,14 +62,14 @@ class QuotaAwareAnimator {
     QuotaAwareAnimator(
             @NonNull QuotaManager quotaManager,
             @NonNull AnimationSpec spec,
-            @Nullable TypeEvaluator<?> evaluator) {
+            @NonNull TypeEvaluator<?> evaluator) {
         this(quotaManager, spec, evaluator, false);
     }
 
     protected QuotaAwareAnimator(
             @NonNull QuotaManager quotaManager,
             @NonNull AnimationSpec spec,
-            @Nullable TypeEvaluator<?> evaluator,
+            @NonNull TypeEvaluator<?> evaluator,
             boolean alwaysPauseWhenRepeatForward) {
         mQuotaManager = quotaManager;
         mAnimator = new ValueAnimator();
@@ -118,10 +116,13 @@ class QuotaAwareAnimator {
     }
 
     protected static void setFloatValues(
-            ValueAnimator animator, @Nullable TypeEvaluator<?> evaluator, float... values) {
+            ValueAnimator animator, @NonNull TypeEvaluator<?> evaluator, float... values) {
+        if (!(evaluator instanceof FloatEvaluator)) {
+            throw new IllegalArgumentException("FloatEvaluator is needed for setting float values");
+        }
         animator.cancel();
         // ValueAnimator#setEvaluator only valid after values are set, and only need to set once.
-        boolean needToSetEvaluator = animator.getValues() == null && evaluator != null;
+        boolean needToSetEvaluator = animator.getValues() == null;
         animator.setFloatValues(values);
         if (needToSetEvaluator) {
             animator.setEvaluator(evaluator);
@@ -138,11 +139,14 @@ class QuotaAwareAnimator {
     }
 
     protected static void setIntValues(
-            ValueAnimator animator, @Nullable TypeEvaluator<?> evaluator, int... values) {
+            ValueAnimator animator, @NonNull TypeEvaluator<?> evaluator, int... values) {
         animator.cancel();
-
+        if (!(evaluator instanceof IntEvaluator) && !(evaluator instanceof ArgbEvaluator)) {
+            throw new IllegalArgumentException(
+                    "IntEvaluator or ArgbEvaluator is needed for setting int values");
+        }
         // ValueAnimator#setEvaluator only valid after values are set, and only need to set once.
-        boolean needToSetEvaluator = animator.getValues() == null && evaluator != null;
+        boolean needToSetEvaluator = animator.getValues() == null;
         animator.setIntValues(values);
         if (needToSetEvaluator) {
             animator.setEvaluator(evaluator);
@@ -325,7 +329,7 @@ class QuotaAwareAnimator {
 
         @Override
         @UiThread
-        public void onAnimationStart(Animator animation, boolean isReverse) {
+        public void onAnimationStart(@NonNull Animator animation, boolean isReverse) {
             super.onAnimationStart(animation, isReverse);
             mIsReverse = isReverse;
         }
