@@ -28,7 +28,6 @@ import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAct
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.util.trace
-import kotlin.system.measureNanoTime
 
 /**
  * State for lazy items prefetching, used by lazy layouts to instruct the prefetcher.
@@ -210,6 +209,8 @@ internal class PrefetchMetrics {
         }
     }
 }
+
+internal expect inline fun measureNanoTime(doMeasure: () -> Unit): Long
 
 @ExperimentalFoundationApi
 private object DummyHandle : PrefetchHandle {

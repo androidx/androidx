@@ -22,6 +22,8 @@ package androidx.compose.foundation.relocation
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.DelegatableNode
+import kotlin.jvm.JvmMultifileClass
+import kotlin.jvm.JvmName
 
 /**
  * Platform-specific "root" of the [BringIntoViewParent] chain to call into when there are no

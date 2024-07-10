@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,18 @@
 
 package androidx.compose.foundation.content
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.implementedInJetBrainsFork
-import androidx.compose.ui.platform.ClipEntry
-import java.awt.datatransfer.Transferable
 
-@ExperimentalFoundationApi
-actual class PlatformTransferableContent internal constructor(val transferable: Transferable)
+actual class MediaType internal constructor() {
+    actual constructor(representation: String) : this()
 
-@ExperimentalFoundationApi
-actual fun TransferableContent.hasMediaType(mediaType: MediaType): Boolean =
-    implementedInJetBrainsFork()
+    actual val representation: String = implementedInJetBrainsFork()
 
-internal actual fun ClipEntry.readPlainText(): String? = implementedInJetBrainsFork()
+    actual companion object {
+        actual val Text: MediaType = implementedInJetBrainsFork()
+        actual val PlainText: MediaType = implementedInJetBrainsFork()
+        actual val HtmlText: MediaType = implementedInJetBrainsFork()
+        actual val Image: MediaType = implementedInJetBrainsFork()
+        actual val All: MediaType = implementedInJetBrainsFork()
+    }
+}
