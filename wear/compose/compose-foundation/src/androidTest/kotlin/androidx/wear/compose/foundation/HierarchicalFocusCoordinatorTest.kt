@@ -49,7 +49,7 @@ class HierarchicalFocusCoordinatorTest {
         rule.setContent {
             repeat(numItems) { ix ->
                 HierarchicalFocusCoordinator({ ix == selected }) {
-                    OnFocusChange(onFocusChanged = { focused[ix] = it })
+                    ActiveFocusListener(onFocusChanged = { focused[ix] = it })
                 }
             }
         }

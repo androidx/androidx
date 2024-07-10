@@ -35,8 +35,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
-import androidx.wear.compose.foundation.OnFocusChange
+import androidx.wear.compose.foundation.ActiveFocusListener
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
@@ -191,7 +190,6 @@ fun ScreenScaffold(
  *   provided by default. No scroll indicator is displayed if null is passed.
  * @param content The body content for this screen.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 fun ScreenScaffold(
     modifier: Modifier = Modifier,
@@ -206,7 +204,7 @@ fun ScreenScaffold(
     key(scrollInfoProvider) {
         DisposableEffect(key) { onDispose { scaffoldState.removeScreen(key) } }
 
-        OnFocusChange { focused ->
+        ActiveFocusListener { focused ->
             if (focused) {
                 scaffoldState.addScreen(key, timeText, scrollInfoProvider)
             } else {

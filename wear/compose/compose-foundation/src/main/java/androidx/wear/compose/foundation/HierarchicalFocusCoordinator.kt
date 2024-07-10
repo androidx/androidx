@@ -35,24 +35,25 @@ import kotlinx.coroutines.CoroutineScope
 /**
  * Coordinates focus for any composables in [content] and determines which composable will get
  * focus. [HierarchicalFocusCoordinator]s can be nested, and form a tree, with an implicit root.
- * Focus-requiring components (i.e. components using [OnFocusChange] or [RequestFocusWhenActive])
- * should only be in the leaf [HierarchicalFocusCoordinator]s, and there should be at most one per
- * [HierarchicalFocusCoordinator]. For [HierarchicalFocusCoordinator] elements sharing a parent (or
- * at the top level, sharing the implicit root parent), only one should have focus enabled. The
- * selected [HierarchicalFocusCoordinator] is the one that has focus enabled for itself and all
- * ancestors, it will pass focus to its focus-requiring component if it has one, or call
- * FocusManager#clearFocus() otherwise. If no [HierarchicalFocusCoordinator] is selected, there will
- * be no change on the focus state.
+ * Focus-requiring components (i.e. components using [ActiveFocusListener] or
+ * [ActiveFocusRequester]) should only be in the leaf [HierarchicalFocusCoordinator]s, and there
+ * should be at most one per [HierarchicalFocusCoordinator]. For [HierarchicalFocusCoordinator]
+ * elements sharing a parent (or at the top level, sharing the implicit root parent), only one
+ * should have focus enabled. The selected [HierarchicalFocusCoordinator] is the one that has focus
+ * enabled for itself and all ancestors, it will pass focus to its focus-requiring component if it
+ * has one, or call FocusManager#clearFocus() otherwise. If no [HierarchicalFocusCoordinator] is
+ * selected, there will be no change on the focus state.
  *
  * Example usage:
  *
  * @sample androidx.wear.compose.foundation.samples.HierarchicalFocusCoordinatorSample
- * @param requiresFocus a function that returns true when the [content] is active in the composition
- *   and requires the focus
+ * @param requiresFocus a function should return true when the [content] subtree of the composition
+ *   is active and may requires the focus (and false when it's not). For example, a pager can
+ *   enclose each page's content with a call to [HierarchicalFocusCoordinator], marking only the
+ *   current page as requiring focus.
  * @param content The content of this component.
  */
 @Composable
-@ExperimentalWearFoundationApi
 public fun HierarchicalFocusCoordinator(
     requiresFocus: () -> Boolean,
     content: @Composable () -> Unit
@@ -73,10 +74,15 @@ public fun HierarchicalFocusCoordinator(
  *   new state (if true, we are becoming active and should request focus).
  */
 @Composable
-@ExperimentalWearFoundationApi
-public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) {
+public fun ActiveFocusListener(onFocusChanged: CoroutineScope.(Boolean) -> Unit) {
     FocusComposableImpl(focusEnabled = { true }, onFocusChanged = onFocusChanged, content = {})
 }
+
+@Deprecated("Renamed ActiveFocusListener, use that instead", level = DeprecationLevel.HIDDEN)
+@Composable
+@ExperimentalWearFoundationApi
+public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) =
+    ActiveFocusListener(onFocusChanged)
 
 /**
  * Use as part of a focus-requiring component to register a callback to automatically request focus
@@ -87,10 +93,15 @@ public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) {
  * @param focusRequester The associated [FocusRequester] to request focus on.
  */
 @Composable
-@ExperimentalWearFoundationApi
-public fun RequestFocusWhenActive(focusRequester: FocusRequester) {
-    OnFocusChange { if (it) focusRequester.requestFocus() }
+public fun ActiveFocusRequester(focusRequester: FocusRequester) {
+    ActiveFocusListener { if (it) focusRequester.requestFocus() }
 }
+
+@Deprecated("Renamed ActiveFocusRequester, use that instead", level = DeprecationLevel.HIDDEN)
+@Composable
+@ExperimentalWearFoundationApi
+public fun RequestFocusWhenActive(focusRequester: FocusRequester) =
+    ActiveFocusRequester(focusRequester)
 
 /**
  * Creates, remembers and returns a new [FocusRequester], that will have .requestFocus called when
@@ -100,13 +111,12 @@ public fun RequestFocusWhenActive(focusRequester: FocusRequester) {
  * .focusRequester modifier on a Composable that is part of the composition.
  */
 @Composable
-@ExperimentalWearFoundationApi
 public fun rememberActiveFocusRequester() =
-    remember { FocusRequester() }.also { RequestFocusWhenActive(it) }
+    remember { FocusRequester() }.also { ActiveFocusRequester(it) }
 
 /**
  * Implements a node in the Focus control tree (either a [HierarchicalFocusCoordinator] or
- * [OnFocusChange]). Each [FocusComposableImpl] maps to a [FocusNode] in our internal
+ * [ActiveFocusListener]). Each [FocusComposableImpl] maps to a [FocusNode] in our internal
  * representation, this is used to:
  * 1) Check that our parent is focused (or we have no explicit parent), to see if we can be focused.
  * 2) See if we have children. If not, we are a leaf node and will forward focus status updates to
