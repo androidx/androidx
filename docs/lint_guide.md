@@ -712,7 +712,18 @@ Don't just update the checksum -- delete the binary file arguments and re-run th
   ...
 ```
 
-Here are the steps to fix this:
+To fix this, you will need access to `kotlinc` (Kotlin Compiler) to generate a
+bytecode replacement. While Studio does include `kotlinc`, it is not available
+to the terminal and the permissions can not be changed to allow you to use it.
+That means you need your own `kotlinc` available in the terminal.
+
+For instructions on how install the compiler, please read
+[this Kotlin page](https://kotlinlang.org/docs/command-line.html#install-the-compiler).
+
+Important Note: It's best practice to match the compiler version you install to
+the kotlin version in your project to avoid issues.
+
+Otherwise, below are the steps to generate the bytecode:
 
 1.  Remove the arguments in `compiled()`:
 
