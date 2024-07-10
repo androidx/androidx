@@ -212,11 +212,7 @@ public class CompactChip implements LayoutElement {
             }
 
             if (mIconResourceId != null) {
-                if (mText != null) {
-                    chipBuilder.setIconContent(mIconResourceId);
-                } else {
-                    chipBuilder.setIconOnlyContent(mIconResourceId);
-                }
+                chipBuilder.setIconContent(mIconResourceId);
                 chipBuilder.setIconSize(COMPACT_ICON_SIZE);
             }
 
