@@ -33,6 +33,7 @@ plugins {
 androidXMultiplatform {
     android()
     jvmStubs()
+    linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -42,13 +43,13 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
 
                 api(project(":compose:animation:animation"))
-                api("androidx.compose.foundation:foundation-layout:1.6.0")
+                api(project(":compose:foundation:foundation-layout"))
                 api(project(":compose:runtime:runtime"))
-                api("androidx.compose.ui:ui:1.6.0")
-                api("androidx.compose.ui:ui-geometry:1.6.0")
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-geometry"))
 
                 implementation(project(":compose:ui:ui-util"))
-                implementation("androidx.collection:collection:1.4.0")
+                implementation(project(":collection:collection"))
             }
         }
         androidMain.dependencies {
@@ -74,10 +75,16 @@ androidXMultiplatform {
             }
         }
 
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
+
         jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
+            dependsOn(commonStubsMain)
+        }
+
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
         }
 
         androidInstrumentedTest {
