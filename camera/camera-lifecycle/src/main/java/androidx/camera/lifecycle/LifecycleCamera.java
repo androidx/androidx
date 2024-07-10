@@ -21,6 +21,7 @@ import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
@@ -267,6 +268,11 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
     @Override
     public CameraInfo getCameraInfo() {
         return mCameraUseCaseAdapter.getCameraInfo();
+    }
+
+    @Nullable
+    CameraInfo getSecondaryCameraInfo() {
+        return mCameraUseCaseAdapter.getSecondaryCameraInfo();
     }
 
     @NonNull
