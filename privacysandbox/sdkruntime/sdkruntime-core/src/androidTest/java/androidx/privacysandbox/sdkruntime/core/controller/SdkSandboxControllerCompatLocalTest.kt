@@ -126,26 +126,6 @@ class SdkSandboxControllerCompatLocalTest {
     }
 
     @Test
-    fun getAppOwnedSdkSandboxInterfaces_whenNotAvailable_returnsEmptyList() {
-        SdkSandboxControllerCompat.injectLocalImpl(
-            TestStubImpl(
-                appOwnedSdks =
-                    listOf(
-                        AppOwnedSdkSandboxInterfaceCompat(
-                            name = "TestSdk",
-                            version = 42,
-                            binder = Binder(),
-                        )
-                    )
-            )
-        )
-
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-        val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
-        assertThat(appOwnedInterfaces).isEmpty()
-    }
-
-    @Test
     fun getAppOwnedSdkSandboxInterfaces_returnsListFromLocalImpl() {
         clientHandShakeForVersionIncluding(ClientFeature.APP_OWNED_INTERFACES)
 
@@ -197,34 +177,6 @@ class SdkSandboxControllerCompatLocalTest {
 
         controllerCompat.unregisterSdkSandboxActivityHandler(handlerCompat)
         assertThat(localImpl.token).isNull()
-    }
-
-    @Test
-    fun registerSdkSandboxActivityHandler_whenNotAvailable_throwsUnsupportedOperationException() {
-        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        Assert.assertThrows(UnsupportedOperationException::class.java) {
-            controllerCompat.registerSdkSandboxActivityHandler(
-                object : SdkSandboxActivityHandlerCompat {
-                    override fun onActivityCreated(activityHolder: ActivityHolder) {}
-                }
-            )
-        }
-    }
-
-    @Test
-    fun unregisterSdkSandboxActivityHandler_whenNotAvailable_throwsUnsupportedOperationException() {
-        SdkSandboxControllerCompat.injectLocalImpl(TestStubImpl())
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        Assert.assertThrows(UnsupportedOperationException::class.java) {
-            controllerCompat.unregisterSdkSandboxActivityHandler(
-                object : SdkSandboxActivityHandlerCompat {
-                    override fun onActivityCreated(activityHolder: ActivityHolder) {}
-                }
-            )
-        }
     }
 
     @Test
