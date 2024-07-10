@@ -123,6 +123,11 @@ private constructor(
      * The attributes of a draggable divider. A draggable divider draws a line between the primary
      * and secondary containers with a drag handle that the user can drag and resize the containers.
      *
+     * While dragging, the content of the activity is temporarily covered by a solid color veil,
+     * where the color is determined by the window background color of the activity. Apps may use
+     * [android.app.Activity.getWindow] and [android.view.Window.setBackgroundDrawable] to configure
+     * the veil colors.
+     *
      * @property widthDp the width of the divider.
      * @property color the color of the divider.
      * @property dragRange the range that a divider is allowed to be dragged. When the user drags
