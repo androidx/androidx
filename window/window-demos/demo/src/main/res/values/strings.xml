@@ -71,7 +71,7 @@
     <string name="activity_display_listener_title">Activity DisplayListener#onDisplayChanged</string>
     <string name="application_configuration_title">Application#onConfigurationChanged</string>
     <string name="activity_configuration_title">Activity#onConfigurationChanged</string>
-    <string name="display_feature_title">WindowInfoTracker</string>
+    <string name="display_feature_title">WindowInfoTracker#windowLayoutInfo</string>
     <string name="timestamp_title">Timestamp:</string>
     <string name="application_display_rotation_title">Application Display Rotation:</string>
     <string name="activity_display_rotation_title">Activity Display Rotation:</string>
