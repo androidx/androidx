@@ -57,6 +57,8 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import org.junit.Assert.assertEquals
@@ -804,6 +806,323 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() }
         )
+    }
+
+    @Test
+    fun button_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            Button(
+                onClick = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun button_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            Button(
+                onClick = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        assertEquals(3, labelMaxLines)
+        assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun button_defines_start_alignment() {
+        var labelAlignment: TextAlign? = null
+        var secondaryLabelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            Button(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Start, labelAlignment)
+        assertEquals(TextAlign.Start, secondaryLabelAlignment)
+    }
+
+    @Test
+    fun button_defines_center_alignment_for_label_only() {
+        var labelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            Button(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Center, labelAlignment)
+    }
+
+    @Test
+    fun filled_tonal_button_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            FilledTonalButton(
+                onClick = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun filled_tonal_button_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            FilledTonalButton(
+                onClick = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        assertEquals(3, labelMaxLines)
+        assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun filled_tonal_button_defines_start_alignment() {
+        var labelAlignment: TextAlign? = null
+        var secondaryLabelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            FilledTonalButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Start, labelAlignment)
+        assertEquals(TextAlign.Start, secondaryLabelAlignment)
+    }
+
+    @Test
+    fun filled_tonal_button_defines_center_alignment_for_label_only() {
+        var labelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            FilledTonalButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Center, labelAlignment)
+    }
+
+    @Test
+    fun outlined_button_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            OutlinedButton(
+                onClick = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun outlined_button_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            OutlinedButton(
+                onClick = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        assertEquals(3, labelMaxLines)
+        assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun outlined_tonal_button_defines_start_alignment() {
+        var labelAlignment: TextAlign? = null
+        var secondaryLabelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            OutlinedButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Start, labelAlignment)
+        assertEquals(TextAlign.Start, secondaryLabelAlignment)
+    }
+
+    @Test
+    fun outlined_button_defines_center_alignment_for_label_only() {
+        var labelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            OutlinedButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Center, labelAlignment)
+    }
+
+    @Test
+    fun child_button_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+        var secondaryLabelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            ChildButton(
+                onClick = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        assertEquals(TextOverflow.Ellipsis, labelOverflow)
+        assertEquals(TextOverflow.Ellipsis, secondaryLabelOverflow)
+    }
+
+    @Test
+    fun child_button_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+        var secondaryLabelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            ChildButton(
+                onClick = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        assertEquals(3, labelMaxLines)
+        assertEquals(2, secondaryLabelMaxLines)
+    }
+
+    @Test
+    fun child_button_defines_start_alignment() {
+        var labelAlignment: TextAlign? = null
+        var secondaryLabelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            ChildButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Start, labelAlignment)
+        assertEquals(TextAlign.Start, secondaryLabelAlignment)
+    }
+
+    @Test
+    fun child_button_defines_center_alignment_for_label_only() {
+        var labelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            ChildButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Center, labelAlignment)
+    }
+
+    @Test
+    fun compact_button_defines_default_overflow() {
+        var labelOverflow: TextOverflow? = null
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                label = { labelOverflow = LocalTextOverflow.current },
+            )
+        }
+
+        assertEquals(TextOverflow.Ellipsis, labelOverflow)
+    }
+
+    @Test
+    fun compact_button_defines_default_maxlines() {
+        var labelMaxLines: Int? = null
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                label = { labelMaxLines = LocalTextMaxLines.current },
+            )
+        }
+
+        assertEquals(1, labelMaxLines)
+    }
+
+    @Test
+    fun compact_button_defines_start_alignment() {
+        var labelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+                icon = {},
+            )
+        }
+
+        assertEquals(TextAlign.Start, labelAlignment)
+    }
+
+    @Test
+    fun compact_button_defines_center_alignment_for_label_only() {
+        var labelAlignment: TextAlign? = null
+
+        rule.setContentWithTheme {
+            CompactButton(
+                onClick = {},
+                label = { labelAlignment = LocalTextAlign.current },
+            )
+        }
+
+        assertEquals(TextAlign.Center, labelAlignment)
     }
 
     private fun responds_to_long_click(
