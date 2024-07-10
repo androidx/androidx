@@ -24,7 +24,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.AfterTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -39,8 +38,6 @@ class TextTests : OnCanvasTests {
     }
 
     @Test
-    @Ignore
-    // TODO: Activate after fixing https://youtrack.jetbrains.com/issue/CMP-1580/Fix-flaky-tests
     // https://github.com/JetBrains/compose-multiplatform/issues/4078
     fun baselineShouldBeNotZero() = runTest {
         val canvas = createCanvasAndAttach()
@@ -56,7 +53,7 @@ class TextTests : OnCanvasTests {
                         "Heading",
                         modifier = Modifier.alignByBaseline()
                             .onGloballyPositioned {
-                                headingOnPositioned.trySend(it[FirstBaseline] / density)
+                                headingOnPositioned.sendFromScope(it[FirstBaseline] / density)
                             },
                         style = MaterialTheme.typography.h4
                     )
@@ -64,7 +61,7 @@ class TextTests : OnCanvasTests {
                         " — Subtitle",
                         modifier = Modifier.alignByBaseline()
                             .onGloballyPositioned {
-                                subtitleOnPositioned.trySend(it[FirstBaseline] / density)
+                                subtitleOnPositioned.sendFromScope(it[FirstBaseline] / density)
                             },
                         style = MaterialTheme.typography.subtitle1
                     )

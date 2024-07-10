@@ -29,9 +29,9 @@ import androidx.compose.ui.events.createTouchEvent
 import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.sendFromScope
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
-import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -53,8 +53,6 @@ class TextInputTests : OnCanvasTests  {
     }
 
     @Test
-    @Ignore
-    // TODO: Activate after fixing https://youtrack.jetbrains.com/issue/CMP-1580/Fix-flaky-tests
     fun keyboardEventPassedToTextField() = runTest {
 
         val textInputChannel = Channel<String>(
@@ -70,7 +68,7 @@ class TextInputTests : OnCanvasTests  {
             TextField(
                 value = "",
                 onValueChange = { value ->
-                    textInputChannel.trySend(value)
+                    textInputChannel.sendFromScope(value)
                 },
                 modifier = Modifier.focusRequester(firstFocusRequester)
             )
@@ -78,7 +76,7 @@ class TextInputTests : OnCanvasTests  {
             TextField(
                 value = "",
                 onValueChange = { value ->
-                    textInputChannel.trySend(value)
+                    textInputChannel.sendFromScope(value)
                 },
                 modifier = Modifier.focusRequester(secondFocusRequester)
             )
