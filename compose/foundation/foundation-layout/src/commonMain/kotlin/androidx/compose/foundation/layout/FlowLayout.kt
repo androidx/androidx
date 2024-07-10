@@ -71,6 +71,7 @@ import kotlin.math.min
  * @param modifier The modifier to be applied to the Row.
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual rows.
+ * @param itemVerticalAlignment The cross axis/vertical alignment of an item in the column.
  * @param maxItemsInEachRow The maximum number of items per row
  * @param maxLines The max number of rows
  * @param overflow The strategy to handle overflowing items
@@ -85,6 +86,7 @@ fun FlowRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    itemVerticalAlignment: Alignment.Vertical = Alignment.Top,
     maxItemsInEachRow: Int = Int.MAX_VALUE,
     maxLines: Int = Int.MAX_VALUE,
     overflow: FlowRowOverflow = FlowRowOverflow.Clip,
@@ -95,6 +97,7 @@ fun FlowRow(
         rowMeasurementMultiContentHelper(
             horizontalArrangement,
             verticalArrangement,
+            itemVerticalAlignment,
             maxItemsInEachRow,
             maxLines,
             overflowState
@@ -129,6 +132,7 @@ fun FlowRow(
  * @param modifier The modifier to be applied to the Row.
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalArrangement The horizontal arrangement of the layout's virtual columns
+ * @param itemHorizontalAlignment The cross axis/horizontal alignment of an item in the column.
  * @param maxItemsInEachColumn The maximum number of items per column
  * @param maxLines The max number of rows
  * @param overflow The strategy to handle overflowing items
@@ -143,6 +147,7 @@ fun FlowColumn(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    itemHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
     maxItemsInEachColumn: Int = Int.MAX_VALUE,
     maxLines: Int = Int.MAX_VALUE,
     overflow: FlowColumnOverflow = FlowColumnOverflow.Clip,
@@ -153,6 +158,7 @@ fun FlowColumn(
         columnMeasurementMultiContentHelper(
             verticalArrangement,
             horizontalArrangement,
+            itemHorizontalAlignment,
             maxItemsInEachColumn,
             maxLines,
             overflowState
@@ -370,6 +376,7 @@ internal fun rowMeasurementHelper(
 internal fun rowMeasurementMultiContentHelper(
     horizontalArrangement: Arrangement.Horizontal,
     verticalArrangement: Arrangement.Vertical,
+    itemVerticalAlignment: Alignment.Vertical,
     maxItemsInMainAxis: Int,
     maxLines: Int,
     overflowState: FlowLayoutOverflowState,
@@ -377,6 +384,7 @@ internal fun rowMeasurementMultiContentHelper(
     return remember(
         horizontalArrangement,
         verticalArrangement,
+        itemVerticalAlignment,
         maxItemsInMainAxis,
         maxLines,
         overflowState
@@ -385,7 +393,7 @@ internal fun rowMeasurementMultiContentHelper(
             isHorizontal = true,
             horizontalArrangement = horizontalArrangement,
             mainAxisSpacing = horizontalArrangement.spacing,
-            crossAxisAlignment = CROSS_AXIS_ALIGNMENT_TOP,
+            crossAxisAlignment = CrossAxisAlignment.vertical(itemVerticalAlignment),
             verticalArrangement = verticalArrangement,
             crossAxisArrangementSpacing = verticalArrangement.spacing,
             maxItemsInMainAxis = maxItemsInMainAxis,
@@ -430,6 +438,7 @@ internal fun columnMeasurementHelper(
 internal fun columnMeasurementMultiContentHelper(
     verticalArrangement: Arrangement.Vertical,
     horizontalArrangement: Arrangement.Horizontal,
+    itemHorizontalAlignment: Alignment.Horizontal,
     maxItemsInMainAxis: Int,
     maxLines: Int,
     overflowState: FlowLayoutOverflowState
@@ -437,6 +446,7 @@ internal fun columnMeasurementMultiContentHelper(
     return remember(
         verticalArrangement,
         horizontalArrangement,
+        itemHorizontalAlignment,
         maxItemsInMainAxis,
         maxLines,
         overflowState
@@ -445,7 +455,7 @@ internal fun columnMeasurementMultiContentHelper(
             isHorizontal = false,
             verticalArrangement = verticalArrangement,
             mainAxisSpacing = verticalArrangement.spacing,
-            crossAxisAlignment = CROSS_AXIS_ALIGNMENT_START,
+            crossAxisAlignment = CrossAxisAlignment.horizontal(itemHorizontalAlignment),
             horizontalArrangement = horizontalArrangement,
             crossAxisArrangementSpacing = horizontalArrangement.spacing,
             maxItemsInMainAxis = maxItemsInMainAxis,

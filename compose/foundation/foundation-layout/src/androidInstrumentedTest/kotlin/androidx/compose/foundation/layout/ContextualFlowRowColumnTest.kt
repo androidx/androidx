@@ -919,6 +919,44 @@ class ContextualFlowRowColumnTest {
     }
 
     @Test
+    fun testContextualFlowRow_alignItemsCenterVertically_UsingTopLevelAPI() {
+        val totalRowHeight = 20
+        val shorterHeight = 10
+        val expectedResult = (totalRowHeight - shorterHeight) / 2
+        var positionInParentY = 0f
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.size(200.toDp())) {
+                    ContextualFlowRow(
+                        itemCount = 5,
+                        itemVerticalAlignment = Alignment.CenterVertically
+                    ) { index ->
+                        Box(
+                            Modifier.size(
+                                    20.toDp(),
+                                    if (index == 4) {
+                                        shorterHeight.toDp()
+                                    } else {
+                                        totalRowHeight.toDp()
+                                    }
+                                )
+                                .onPlaced {
+                                    if (index == 4) {
+                                        val positionInParent = it.positionInParent()
+                                        positionInParentY = positionInParent.y
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        Truth.assertThat(positionInParentY).isEqualTo(expectedResult)
+    }
+
+    @Test
     fun testContextualFlowColumn_alignItemsDefaultsToTop() {
         val shorterWidth = 10
         val expectedResult = 0f
@@ -955,6 +993,44 @@ class ContextualFlowRowColumnTest {
                         Box(
                             Modifier.align(Alignment.CenterHorizontally)
                                 .size(
+                                    if (index == 4) {
+                                        shorterWidth.toDp()
+                                    } else {
+                                        totalColumnWidth.toDp()
+                                    },
+                                    20.toDp()
+                                )
+                                .onPlaced {
+                                    if (index == 4) {
+                                        val positionInParent = it.positionInParent()
+                                        positionInParentX = positionInParent.x
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        Truth.assertThat(positionInParentX).isEqualTo(expectedResult)
+    }
+
+    @Test
+    fun testContextualFlowColumn_alignItemsCenterHorizontally_UsingTopLevelAPI() {
+        val totalColumnWidth = 20
+        val shorterWidth = 10
+        val expectedResult = (totalColumnWidth - shorterWidth) / 2
+        var positionInParentX = 0f
+        rule.setContent {
+            with(LocalDensity.current) {
+                Box(Modifier.size(200.toDp())) {
+                    ContextualFlowColumn(
+                        itemCount = 5,
+                        itemHorizontalAlignment = Alignment.CenterHorizontally
+                    ) { index ->
+                        Box(
+                            Modifier.size(
                                     if (index == 4) {
                                         shorterWidth.toDp()
                                     } else {
