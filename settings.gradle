@@ -839,6 +839,7 @@ includeProject(":privacysandbox:sdkruntime:sdkruntime-provider", [BuildType.MAIN
 includeProject(":privacysandbox:sdkruntime:test-sdks:current", [BuildType.MAIN])
 includeProject(":privacysandbox:sdkruntime:test-sdks:v4", [BuildType.MAIN])
 includeProject(":privacysandbox:sdkruntime:test-sdks:v5", [BuildType.MAIN])
+includeProject(":privacysandbox:sdkruntime:test-sdks:v6", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-apicompiler", [BuildType.MAIN])
 includeProject(":privacysandbox:tools:tools-apigenerator", [BuildType.MAIN])

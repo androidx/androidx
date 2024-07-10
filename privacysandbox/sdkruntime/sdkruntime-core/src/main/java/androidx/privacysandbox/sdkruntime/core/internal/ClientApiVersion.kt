@@ -42,6 +42,7 @@ enum class ClientApiVersion(
             )
     ),
     V5__1_0_ALPHA13(apiLevel = 5, newFeatures = setOf(ClientFeature.LOAD_SDK)),
+    V6__1_0_ALPHA14(apiLevel = 6, newFeatures = setOf(ClientFeature.GET_CLIENT_PACKAGE_NAME)),
 
     /**
      * Unreleased API version. Features not added to other versions will be automatically added here
