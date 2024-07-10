@@ -1243,7 +1243,7 @@ class XExecutableElementTest {
         runProcessorTest(sources = listOf(source)) { invocation ->
             val objectMethodNames =
                 invocation.processingEnv
-                    .requireTypeElement(TypeName.OBJECT)
+                    .requireTypeElement(XTypeName.ANY_OBJECT)
                     .getAllNonPrivateInstanceMethods()
                     .map { it.jvmName }
                     .toSet()

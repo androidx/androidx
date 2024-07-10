@@ -720,7 +720,7 @@ class XConvertersTest {
         var runCount = 0
         runKaptTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val className = ClassName.get("foo.bar", "ToBeGenerated")
-            if (invocation.processingEnv.findTypeElement(className) == null) {
+            if (invocation.processingEnv.findTypeElement(className.toString()) == null) {
                 // Assert that this is only run only on the first round
                 assertThat(++runCount).isEqualTo(1)
 
@@ -734,7 +734,8 @@ class XConvertersTest {
             } else {
                 // Asserts that the class was generated in the second round
                 assertThat(++runCount).isEqualTo(2)
-                assertThat(invocation.processingEnv.findTypeElement(className)).isNotNull()
+                assertThat(invocation.processingEnv.findTypeElement(className.toString()))
+                    .isNotNull()
             }
         }
     }

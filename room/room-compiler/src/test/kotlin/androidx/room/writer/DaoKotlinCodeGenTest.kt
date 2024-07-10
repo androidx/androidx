@@ -989,11 +989,21 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 """
             import androidx.room.*
             import androidx.sqlite.db.SupportSQLiteQuery
+            import kotlinx.coroutines.flow.Flow
 
             @Dao
             interface MyDao {
-              @RawQuery(observedEntities = [MyEntity::class])
-              fun getEntity(sql: SupportSQLiteQuery): MyEntity
+                @RawQuery
+                fun getEntitySupport(sql: SupportSQLiteQuery): MyEntity
+
+                @RawQuery(observedEntities = [MyEntity::class])
+                fun getEntitySupportFlow(sql: SupportSQLiteQuery): Flow<MyEntity>
+
+                @RawQuery
+                fun getEntity(query: RoomRawQuery): MyEntity
+
+                @RawQuery(observedEntities = [MyEntity::class])
+                fun getEntityFlow(query: RoomRawQuery): Flow<MyEntity>
             }
 
             @Entity

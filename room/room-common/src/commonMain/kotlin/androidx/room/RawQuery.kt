@@ -20,19 +20,19 @@ import kotlin.reflect.KClass
 
 /**
  * Marks a method in a [Dao] annotated class as a raw query method where you can pass the query as a
- * [androidx.sqlite.db.SupportSQLiteQuery].
+ * [androidx.room.RoomRawQuery] or [androidx.sqlite.db.SupportSQLiteQuery].
  *
  * ```
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     getSongViaQuery(query: SupportSQLiteQuery): Song
+ *     fun getSongViaQuery(query: RoomRawQuery): Song
  * }
  *
  * // Usage of RawDao
- * val query = SimpleSQLiteQuery(
- *     "SELECT * FROM Song WHERE id = ? LIMIT 1",
- *     arrayOf<Any>(songId)
+ * val query = RoomRawQuery(
+ *     sql = "SELECT * FROM Song WHERE id = ? LIMIT 1",
+ *     onBindStatement = { it.bindLong(1, songId) }
  * )
  * val song = rawDao.getSongViaQuery(query)
  * ```
@@ -41,40 +41,40 @@ import kotlin.reflect.KClass
  * query will result in a runtime failure or an undefined result.
  *
  * If you know the query at compile time, you should always prefer [Query] since it validates the
- * query at compile time and also generates more efficient code since Room can compute the query
+ * query at compile time and also generates more efficient code, since Room can compute the query
  * result at compile time (e.g. it does not need to account for possibly missing columns in the
- * response).
+ * result).
  *
- * On the other hand, `RawQuery` serves as an escape hatch where you can build your own SQL query at
- * runtime but still use Room to convert it into objects.
+ * On the other hand, `@RawQuery` serves as an escape hatch where you can build your own SQL query
+ * at runtime but still use Room to convert it into objects.
  *
- * `RawQuery` methods must return a non-void type. If you want to execute a raw query that does not
+ * `@RawQuery` methods must return a non-void type. If you want to execute a raw query that does not
  * return any value, use [androidx.room.RoomDatabase.query] methods.
  *
- * RawQuery methods can only be used for read queries. For write queries, use
- * [androidx.room.RoomDatabase.getOpenHelper].
+ * `@RawQuery` methods can only be used for read queries. For write queries, use
+ * [androidx.room.RoomDatabase.openHelper].
  *
  * **Observable Queries:**
  *
- * `RawQuery` methods can return observable types but you need to specify which tables are accessed
+ * `@RawQuery` methods can return observable types but you need to specify which tables are accessed
  * in the query using the [observedEntities] field in the annotation.
  *
  * ```
  * @Dao
  * interface RawDao {
  *     @RawQuery(observedEntities = Song::class)
- *     fun getSongs(query: SupportSQLiteQuery): LiveData<List<Song>>
+ *     fun getSongs(query: RoomRawQuery): Flow<List<Song>>
  * }
  *
  * // Usage of RawDao
  * val liveSongs = rawDao.getSongs(
- *     SimpleSQLiteQuery("SELECT * FROM song ORDER BY name DESC")
+ *     RoomRawQuery("SELECT * FROM song ORDER BY name DESC")
  * )
  * ```
  *
  * **Returning POJOs:**
  *
- * RawQueries can also return plain old java objects, similar to [Query] methods.
+ * `@RawQuery` can also return plain old java objects, similar to [Query] methods.
  *
  * ```
  * data class NameAndReleaseYear (
@@ -86,17 +86,21 @@ import kotlin.reflect.KClass
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getNameAndReleaseYear(query: SupportSQLiteQuery): NameAndReleaseYear
+ *     fun getNameAndReleaseYear(query: RoomRawQuery): NameAndReleaseYear
  * }
  *
  * // Usage of RawDao
  * val result: NameAndReleaseYear = rawDao.getNameAndReleaseYear(
- *     SimpleSQLiteQuery("SELECT * FROM song WHERE id = ?", arrayOf<Any>(songId)))
+ *     RoomRawQuery(
+ *         sql = "SELECT * FROM song WHERE id = ?",
+ *         onBindStatement = { it.bindLong(1, songId) }
+ *     )
+ * )
  * ```
  *
  * **POJOs with Embedded Fields:**
  *
- * `RawQuery` methods can return POJOs that include [Embedded] fields as well.
+ * `@RawQuery` methods can return POJOs that include [Embedded] fields as well.
  *
  * ```
  * data class SongAndArtist (
@@ -109,36 +113,37 @@ import kotlin.reflect.KClass
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getSongAndArtist(query: SupportSQLiteQuery): SongAndArtist
+ *     fun getSongAndArtist(query: RoomRawQuery): SongAndArtist
  * }
  *
  * // Usage of RawDao
  * val result: = rawDao.getSongAndArtist(
- *     SimpleSQLiteQuery("SELECT * FROM Song, Artist WHERE Song.artistId = Artist.id LIMIT 1"))
+ *     RoomRawQuery("SELECT * FROM Song, Artist WHERE Song.artistId = Artist.id LIMIT 1")
+ * )
  * ```
  *
  * **Relations:**
  *
- * `RawQuery` return types can also be objects with [Relation].
+ * `@RawQuery` return types can also be objects with [Relation].
  *
  * ```
  * data class AlbumAndSongs {
  *     @Embedded
- *     public val album: Album,
+ *     val album: Album,
  *     @Relation(parentColumn = "id", entityColumn = "albumId")
- *     public val pets: List<Song>
+ *     val songs: List<Song>
  * }
  *
  * @Dao
  * interface RawDao {
  *     @RawQuery
- *     fun getAlbumAndSongs(query: SupportSQLiteQuery): List<AlbumAndSongs>
+ *     fun getAlbumAndSongs(query: RoomRawQuery): List<AlbumAndSongs>
  * }
  *
  * // Usage of RawDao
- * val result: = rawDao.getAlbumAndSongs(
- *     SimpleSQLiteQuery("SELECT * FROM album")
- * ): List<AlbumAndSongs>
+ * val result = rawDao.getAlbumAndSongs(
+ *     RoomRawQuery("SELECT * FROM album")
+ * )
  * ```
  */
 @Target(AnnotationTarget.FUNCTION)
@@ -157,10 +162,11 @@ public annotation class RawQuery(
      * @Dao
      * interface RawDao {
      *   @RawQuery(observedEntities = Song::class)
-     *   fun getUsers(query: String): LiveData<List<User>>
+     *   fun getSongs(query: RoomRawQuery): Flow<List<Song>>
      * }
-     * val liveSongs: = rawDao.getUsers(
-     *     "SELECT * FROM song ORDER BY name DESC")
+     * val liveSongs: = rawDao.getSongs(
+     *     RoomRawQuery("SELECT * FROM song ORDER BY name DESC")
+     * )
      * ```
      *
      * @return List of entities that should invalidate the query if changed.

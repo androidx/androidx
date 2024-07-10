@@ -16,13 +16,14 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.codegen.JArrayTypeName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.javapoet.JClassName
+import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import javax.annotation.processing.ProcessingEnvironment
 import kotlin.reflect.KClass
@@ -80,13 +81,6 @@ interface XProcessingEnv {
      */
     fun findType(qName: String): XType?
 
-    /**
-     * Returns the [XType] with the given qualified name or throws an exception if it does not
-     * exist.
-     */
-    fun requireType(qName: String): XType =
-        checkNotNull(findType(qName)) { "cannot find required type $qName" }
-
     /** Returns the [XTypeElement] for the annotation that should be added to the generated code. */
     fun findGeneratedAnnotation(): XTypeElement?
 
@@ -116,23 +110,89 @@ interface XProcessingEnv {
         return checkNotNull(findTypeElement(qName)) { "Cannot find required type element $qName" }
     }
 
-    // helpers for smooth migration, these could be extension methods
-    fun requireType(typeName: TypeName) =
-        checkNotNull(findType(typeName)) { "cannot find required type $typeName" }
+    fun requireTypeElement(typeName: XTypeName): XTypeElement {
+        return checkNotNull(findTypeElement(typeName)) {
+            "Cannot find required type element $typeName"
+        }
+    }
 
-    fun requireType(typeName: XTypeName): XType {
+    fun requireTypeElement(klass: KClass<*>) = requireTypeElement(klass.java.canonicalName!!)
+
+    @Deprecated(
+        message = "Prefer using XTypeName or String overload instead of JavaPoet.",
+        replaceWith = ReplaceWith(expression = "requireTypeElement(typeName.toString())")
+    )
+    fun requireTypeElement(typeName: JTypeName) = requireTypeElement(typeName.toString())
+
+    fun findTypeElement(typeName: XTypeName): XTypeElement? {
         if (typeName.isPrimitive) {
-            return requireType(typeName.java)
+            return findTypeElement(typeName.java.toString())
         }
         return when (backend) {
-            Backend.JAVAC -> requireType(typeName.java)
+            Backend.JAVAC -> {
+                val jClassName =
+                    typeName.java as? JClassName
+                        ?: error("Cannot find required type element ${typeName.java}")
+                findTypeElement(jClassName.canonicalName())
+            }
             Backend.KSP -> {
                 val kClassName =
                     typeName.kotlin as? KClassName
-                        ?: error("cannot find required type ${typeName.kotlin}")
-                requireType(kClassName.canonicalName)
+                        ?: error("Cannot find required type element ${typeName.kotlin}")
+                findTypeElement(kClassName.canonicalName)
             }
-        }.let {
+        }
+    }
+
+    fun findTypeElement(klass: KClass<*>) = findTypeElement(klass.java.canonicalName!!)
+
+    @Deprecated(
+        message = "Prefer using XTypeName or String overload instead of JavaPoet.",
+        replaceWith = ReplaceWith(expression = "findTypeElement(typeName.toString())")
+    )
+    fun findTypeElement(typeName: JTypeName) = findTypeElement(typeName.toString())
+
+    /**
+     * Returns the [XType] with the given qualified name or throws an exception if it does not
+     * exist.
+     */
+    fun requireType(qName: String): XType =
+        checkNotNull(findType(qName)) { "cannot find required type $qName" }
+
+    fun requireType(typeName: XTypeName): XType =
+        checkNotNull(findType(typeName)) { "cannot find required type $typeName" }
+
+    fun requireType(klass: KClass<*>) = requireType(klass.java.canonicalName!!)
+
+    @Deprecated(
+        message = "Prefer using XTypeName or String overload instead of JavaPoet.",
+        replaceWith = ReplaceWith(expression = "requireType(typeName.toString())")
+    )
+    fun requireType(typeName: JTypeName) =
+        checkNotNull(findType(typeName.toString())) { "cannot find required type $typeName" }
+
+    fun findType(typeName: XTypeName): XType? {
+        if (typeName.isPrimitive) {
+            return findType(typeName.java.toString())
+        }
+        val jTypeName = typeName.java
+        if (jTypeName is JArrayTypeName) {
+            return findType(jTypeName.componentType.toString())?.let { getArrayType(it) }
+        }
+        return when (backend) {
+            Backend.JAVAC -> {
+                val jClassName =
+                    typeName.java as? JClassName
+                        ?: error("Cannot find required type element ${typeName.java}")
+                findType(jClassName.canonicalName())
+            }
+            Backend.KSP -> {
+                val kClassName =
+                    typeName.kotlin as? KClassName
+                        ?: error("Cannot find required type ${typeName.kotlin}")
+                findType(kClassName.canonicalName)
+            }
+        }?.let {
             when (typeName.nullability) {
                 XNullability.NULLABLE -> it.makeNullable()
                 XNullability.NONNULL -> it.makeNonNullable()
@@ -141,45 +201,23 @@ interface XProcessingEnv {
         }
     }
 
-    fun requireType(klass: KClass<*>) = requireType(klass.java.canonicalName!!)
+    fun findType(klass: KClass<*>) = findType(klass.java.canonicalName!!)
 
-    fun findType(typeName: TypeName): XType? {
-        // TODO we probably need more complicated logic here but right now room only has these
-        //  usages.
-        if (typeName is ArrayTypeName) {
-            return findType(typeName.componentType)?.let { getArrayType(it) }
+    @Deprecated(
+        message = "Prefer using XTypeName or String overload instead of JavaPoet.",
+        replaceWith = ReplaceWith(expression = "findType(typeName.toString())")
+    )
+    fun findType(typeName: JTypeName): XType? {
+        if (typeName is JArrayTypeName) {
+            return findType(typeName.componentType.toString())?.let { getArrayType(it) }
         }
         return findType(typeName.toString())
     }
 
-    fun findType(klass: KClass<*>) = findType(klass.java.canonicalName!!)
-
-    fun requireTypeElement(typeName: XTypeName): XTypeElement {
-        if (typeName.isPrimitive) {
-            return requireTypeElement(typeName.java)
-        }
-        return when (backend) {
-            Backend.JAVAC -> requireTypeElement(typeName.java)
-            Backend.KSP -> {
-                val kClassName =
-                    typeName.kotlin as? KClassName
-                        ?: error("cannot find required type element ${typeName.kotlin}")
-                requireTypeElement(kClassName.canonicalName)
-            }
-        }
-    }
-
-    fun requireTypeElement(typeName: TypeName) = requireTypeElement(typeName.toString())
-
-    fun requireTypeElement(klass: KClass<*>) = requireTypeElement(klass.java.canonicalName!!)
-
-    fun findTypeElement(typeName: TypeName) = findTypeElement(typeName.toString())
-
-    fun findTypeElement(klass: KClass<*>) = findTypeElement(klass.java.canonicalName!!)
-
     fun getArrayType(typeName: XTypeName) = getArrayType(requireType(typeName))
 
-    fun getArrayType(typeName: TypeName) = getArrayType(requireType(typeName))
+    @Deprecated("Prefer using XTypeName or String overload instead of JavaPoet.")
+    fun getArrayType(typeName: JTypeName) = getArrayType(requireType(typeName.toString()))
 
     enum class Backend {
         JAVAC,
