@@ -16,11 +16,15 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.window.PopupProperties
 
 @Composable
 actual fun DropdownMenuItem(
@@ -31,3 +35,16 @@ actual fun DropdownMenuItem(
     interactionSource: MutableInteractionSource?,
     content: @Composable RowScope.() -> Unit
 ): Unit = implementedInJetBrainsFork()
+
+@Composable
+actual fun DropdownMenu(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    offset: DpOffset,
+    scrollState: ScrollState,
+    properties: PopupProperties,
+    content: @Composable ColumnScope.() -> Unit
+): Unit = implementedInJetBrainsFork()
+
+internal actual val DefaultMenuProperties: PopupProperties = implementedInJetBrainsFork()

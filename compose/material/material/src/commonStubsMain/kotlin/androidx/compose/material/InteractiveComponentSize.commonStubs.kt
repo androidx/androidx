@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material.ripple
+package androidx.compose.material
 
 @Suppress("NOTHING_TO_INLINE")
-internal inline fun implementedInJetBrainsFork(): Nothing =
-    throw NotImplementedError(
-        """
-        Implemented only in JetBrains fork.
-        Please use `org.jetbrains.compose.material:material` package instead.
-        """
-            .trimIndent()
-    )
+internal actual inline fun identityHashCode(value: Any): Int = implementedInJetBrainsFork()
