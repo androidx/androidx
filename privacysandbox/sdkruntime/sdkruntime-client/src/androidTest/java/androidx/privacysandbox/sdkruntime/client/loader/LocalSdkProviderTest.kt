@@ -126,8 +126,6 @@ internal class LocalSdkProviderTest(
 
     @Test
     fun getSandboxedSdks_delegateToSdkController() {
-        assumeFeatureAvailable(ClientFeature.SDK_SANDBOX_CONTROLLER)
-
         val expectedResult =
             SandboxedSdkCompat(
                 sdkInterface = Binder(),

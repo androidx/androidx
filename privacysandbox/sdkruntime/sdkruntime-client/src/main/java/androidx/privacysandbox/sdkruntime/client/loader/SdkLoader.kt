@@ -22,7 +22,7 @@ import androidx.privacysandbox.sdkruntime.client.loader.impl.SdkProviderV1
 import androidx.privacysandbox.sdkruntime.client.loader.storage.CachedLocalSdkStorage
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
-import androidx.privacysandbox.sdkruntime.core.internal.ClientFeature
+import androidx.privacysandbox.sdkruntime.core.internal.ClientApiVersion
 
 /** Load SDK bundled with App. */
 internal class SdkLoader
@@ -71,18 +71,26 @@ internal constructor(
     ): LocalSdkProvider {
         try {
             val sdkApiVersion = versionHandshake.perform(sdkClassLoader)
-            ResourceRemapping.apply(sdkClassLoader, sdkConfig.resourceRemapping)
-            if (ClientFeature.SDK_SANDBOX_CONTROLLER.isAvailable(sdkApiVersion)) {
-                val controller = controllerFactory.createControllerFor(sdkConfig)
-                SandboxControllerInjector.inject(sdkClassLoader, sdkApiVersion, controller)
+            if (sdkApiVersion < ClientApiVersion.MIN_SUPPORTED.apiLevel) {
+                throw LoadSdkCompatException(
+                    LoadSdkCompatException.LOAD_SDK_NOT_FOUND,
+                    "SDK built with unsupported version of sdkruntime-provider library"
+                )
             }
+            ResourceRemapping.apply(sdkClassLoader, sdkConfig.resourceRemapping)
+            val controller = controllerFactory.createControllerFor(sdkConfig)
+            SandboxControllerInjector.inject(sdkClassLoader, sdkApiVersion, controller)
             return SdkProviderV1.create(sdkClassLoader, sdkConfig, appContext)
         } catch (ex: Exception) {
-            throw LoadSdkCompatException(
-                LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
-                "Failed to instantiate local SDK",
-                ex
-            )
+            if (ex is LoadSdkCompatException) {
+                throw ex
+            } else {
+                throw LoadSdkCompatException(
+                    LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                    "Failed to instantiate local SDK",
+                    ex
+                )
+            }
         }
     }
 

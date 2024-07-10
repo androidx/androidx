@@ -213,7 +213,7 @@ class SdkSandboxManagerCompatSandboxedTest {
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk(TestSdkConfigs.forSdkName("v2").packageName, Bundle())
+            managerCompat.loadSdk(TestSdkConfigs.CURRENT.packageName, Bundle())
         }
 
         val testSdk = localSdk.asTestSdk()

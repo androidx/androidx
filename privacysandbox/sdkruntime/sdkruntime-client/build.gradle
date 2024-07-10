@@ -124,9 +124,6 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
 
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:current"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v1"))
-    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v2"))
-    // V3 was released as V4 (original release postponed)
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v4"))
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v5"))
 }

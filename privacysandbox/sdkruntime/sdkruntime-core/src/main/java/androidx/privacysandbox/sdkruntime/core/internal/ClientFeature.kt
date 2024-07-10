@@ -25,9 +25,6 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 enum class ClientFeature {
-    /** Support for retrieving [SdkSandboxControllerCompat] on SDK side. */
-    SDK_SANDBOX_CONTROLLER,
-
     /**
      * Support for starting SDK Activity:
      * [SdkSandboxControllerCompat.registerSdkSandboxActivityHandler]
