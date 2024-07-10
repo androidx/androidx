@@ -20,6 +20,7 @@ import androidx.compose.material3.implementedInJetBrainsFork
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
+import kotlin.jvm.JvmInline
 
 @Composable
 @ReadOnlyComposable

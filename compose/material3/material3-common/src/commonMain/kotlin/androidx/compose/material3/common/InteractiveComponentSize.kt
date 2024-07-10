@@ -73,10 +73,12 @@ internal object MinimumInteractiveModifier : ModifierNodeElement<MinimumInteract
                 "interactions if the element would measure smaller"
     }
 
-    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun hashCode(): Int = identifyHashCode(this)
 
     override fun equals(other: Any?) = (other === this)
 }
+
+internal expect inline fun identifyHashCode(value: Any): Int
 
 internal class MinimumInteractiveModifierNode :
     Modifier.Node(), CompositionLocalConsumerModifierNode, LayoutModifierNode {

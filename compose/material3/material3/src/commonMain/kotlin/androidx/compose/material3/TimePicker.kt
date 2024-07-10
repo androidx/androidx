@@ -174,6 +174,7 @@ import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
+import kotlin.jvm.JvmInline
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
