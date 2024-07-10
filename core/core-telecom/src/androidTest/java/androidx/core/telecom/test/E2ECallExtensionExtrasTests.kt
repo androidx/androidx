@@ -101,7 +101,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeIncoming_V2() {
-        setUpV2TestWithExtensions()
+        setUpV2TestWithExtensionsOld()
         addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
     }
 
@@ -114,7 +114,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeOutgoing_V2() {
-        setUpV2TestWithExtensions()
+        setUpV2TestWithExtensionsOld()
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
