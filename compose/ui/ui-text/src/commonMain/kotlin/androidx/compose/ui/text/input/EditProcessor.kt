@@ -58,7 +58,7 @@ class EditProcessor {
         var selectionChanged = false
         val compositionChanged = value.composition != mBuffer.composition
 
-        if (mBufferState.annotatedString != value.annotatedString) {
+        if (mBufferState.annotatedString.text != value.annotatedString.text) {
             mBuffer = EditingBuffer(text = value.annotatedString, selection = value.selection)
             textChanged = true
         } else if (mBufferState.selection != value.selection) {
