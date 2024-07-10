@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -36,16 +38,18 @@ import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.TextFieldDefaults.indicatorLine
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.materialIcon
 import androidx.compose.material.icons.materialPath
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -57,53 +61,52 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
 fun SimpleTextFieldSample() {
-    var text by rememberSaveable { mutableStateOf("") }
-
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        state = rememberTextFieldState(),
         label = { Text("Label") },
-        singleLine = true
+        lineLimits = TextFieldLineLimits.SingleLine,
     )
 }
 
 @Sampled
 @Composable
 fun SimpleOutlinedTextFieldSample() {
-    var text by rememberSaveable { mutableStateOf("") }
-
-    OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("Label") })
+    OutlinedTextField(
+        state = rememberTextFieldState(),
+        label = { Text("Label") },
+        lineLimits = TextFieldLineLimits.SingleLine,
+    )
 }
 
 @Sampled
 @Composable
 fun TextFieldWithIcons() {
-    var text by rememberSaveable { mutableStateOf("") }
-
+    val state = rememberTextFieldState()
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        state = state,
+        lineLimits = TextFieldLineLimits.SingleLine,
         placeholder = { Text("placeholder") },
-        leadingIcon = { Icon(Icons.Filled.Favorite, contentDescription = "Localized description") },
-        trailingIcon = { Icon(Icons.Filled.Info, contentDescription = "Localized description") }
+        leadingIcon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+        trailingIcon = {
+            IconButton(onClick = { state.clearText() }) {
+                Icon(Icons.Filled.Clear, contentDescription = "Clear text")
+            }
+        }
     )
 }
 
 @Sampled
 @Composable
 fun TextFieldWithPlaceholder() {
-    var text by rememberSaveable { mutableStateOf("") }
-
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
         label = { Text("Email") },
         placeholder = { Text("example@gmail.com") }
     )
@@ -112,23 +115,28 @@ fun TextFieldWithPlaceholder() {
 @Sampled
 @Composable
 fun TextFieldWithErrorState() {
-    var text by rememberSaveable { mutableStateOf("") }
+    val state = rememberTextFieldState()
     var isError by rememberSaveable { mutableStateOf(false) }
 
-    fun validate(text: String) {
-        isError = text.count() < 5
+    fun validate(text: CharSequence) {
+        val atIndex = text.indexOf('@')
+        isError = atIndex < 0 || text.indexOf('.', startIndex = atIndex) < 0
     }
 
+    LaunchedEffect(Unit) {
+        snapshotFlow { state.text }
+            .collect {
+                // Do something whenever text field value changes
+                isError = false
+            }
+    }
     TextField(
-        value = text,
-        onValueChange = {
-            text = it
-            isError = false
-        },
-        singleLine = true,
+        state = state,
+        lineLimits = TextFieldLineLimits.SingleLine,
         label = { Text(if (isError) "Email*" else "Email") },
         isError = isError,
-        keyboardActions = KeyboardActions { validate(text) },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+        onKeyboardAction = { validate(state.text) },
         modifier =
             Modifier.semantics {
                 // Provide localized description of the error
@@ -140,10 +148,12 @@ fun TextFieldWithErrorState() {
 @Sampled
 @Composable
 fun TextFieldWithHelperMessage() {
-    var text by rememberSaveable { mutableStateOf("") }
-
     Column {
-        TextField(value = text, onValueChange = { text = it }, label = { Text("Label") })
+        TextField(
+            state = rememberTextFieldState(),
+            label = { Text("Label") },
+            lineLimits = TextFieldLineLimits.SingleLine,
+        )
         Text(
             text = "Helper message",
             color = MaterialTheme.colors.onSurface.copy(alpha = ContentAlpha.medium),
@@ -153,7 +163,7 @@ fun TextFieldWithHelperMessage() {
     }
 }
 
-@Sampled
+// TODO: update sample with TextFieldState once we have wrappers for BasicSecureTextField
 @Composable
 fun PasswordTextField() {
     var password by rememberSaveable { mutableStateOf("") }
@@ -269,59 +279,45 @@ private var _visibilityOff: ImageVector? = null
 
 @Sampled
 @Composable
-fun TextFieldSample() {
-    var text by
-        rememberSaveable(stateSaver = TextFieldValue.Saver) {
-            mutableStateOf(TextFieldValue("example", TextRange(0, 7)))
-        }
-
-    TextField(value = text, onValueChange = { text = it }, label = { Text("Label") })
+fun TextFieldWithInitialValueAndSelection() {
+    val state = rememberTextFieldState("Initial text", TextRange(0, 12))
+    TextField(
+        state = state,
+        label = { Text("Label") },
+        lineLimits = TextFieldLineLimits.SingleLine,
+    )
 }
 
 @Sampled
 @Composable
-fun OutlinedTextFieldSample() {
-    var text by
-        rememberSaveable(stateSaver = TextFieldValue.Saver) {
-            mutableStateOf(TextFieldValue("example", TextRange(0, 7)))
-        }
-
-    OutlinedTextField(value = text, onValueChange = { text = it }, label = { Text("Label") })
+fun OutlinedTextFieldWithInitialValueAndSelection() {
+    val state = rememberTextFieldState("Initial text", TextRange(0, 12))
+    OutlinedTextField(
+        state = state,
+        label = { Text("Label") },
+        lineLimits = TextFieldLineLimits.SingleLine,
+    )
 }
 
 @Sampled
 @Composable
 fun TextFieldWithHideKeyboardOnImeAction() {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var text by rememberSaveable { mutableStateOf("") }
     TextField(
-        value = text,
-        onValueChange = { text = it },
+        state = rememberTextFieldState(),
         label = { Text("Label") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-        keyboardActions =
-            KeyboardActions(
-                onDone = {
-                    keyboardController?.hide()
-                    // do something here
-                }
-            )
+        onKeyboardAction = { keyboardController?.hide() },
     )
 }
 
 @Composable
 fun TextArea() {
-    var text by rememberSaveable {
-        mutableStateOf(
-            "This is a very long input that extends beyond " + "the height of the text area."
+    val state =
+        rememberTextFieldState(
+            "This is a very long input that extends beyond the height of the text area."
         )
-    }
-    TextField(
-        value = text,
-        onValueChange = { text = it },
-        modifier = Modifier.height(100.dp),
-        label = { Text("Label") }
-    )
+    TextField(state = state, modifier = Modifier.height(100.dp), label = { Text("Label") })
 }
 
 @Sampled

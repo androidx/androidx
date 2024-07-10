@@ -58,7 +58,7 @@ import androidx.compose.material.samples.OneLineListItems
 import androidx.compose.material.samples.OneLineRtlLtrListItems
 import androidx.compose.material.samples.OutlinedButtonSample
 import androidx.compose.material.samples.OutlinedChipWithIconSample
-import androidx.compose.material.samples.OutlinedTextFieldSample
+import androidx.compose.material.samples.OutlinedTextFieldWithInitialValueAndSelection
 import androidx.compose.material.samples.PasswordTextField
 import androidx.compose.material.samples.RadioButtonSample
 import androidx.compose.material.samples.RadioGroupSample
@@ -82,11 +82,11 @@ import androidx.compose.material.samples.SwitchSample
 import androidx.compose.material.samples.TextAndIconTabs
 import androidx.compose.material.samples.TextArea
 import androidx.compose.material.samples.TextButtonSample
-import androidx.compose.material.samples.TextFieldSample
 import androidx.compose.material.samples.TextFieldWithErrorState
 import androidx.compose.material.samples.TextFieldWithHelperMessage
 import androidx.compose.material.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.compose.material.samples.TextFieldWithIcons
+import androidx.compose.material.samples.TextFieldWithInitialValueAndSelection
 import androidx.compose.material.samples.TextFieldWithPlaceholder
 import androidx.compose.material.samples.TextTabs
 import androidx.compose.material.samples.ThreeLineListItems
@@ -664,11 +664,11 @@ val TextFieldsExamples =
                 SimpleTextFieldSample()
             },
             Example(
-                name = "TextFieldSample",
+                name = "TextFieldWithInitialValueAndSelection",
                 description = TextFieldsExampleDescription,
                 sourceUrl = TextFieldsExampleSourceUrl
             ) {
-                TextFieldSample()
+                TextFieldWithInitialValueAndSelection()
             },
             Example(
                 name = "SimpleOutlinedTextFieldSample",
@@ -678,11 +678,11 @@ val TextFieldsExamples =
                 SimpleOutlinedTextFieldSample()
             },
             Example(
-                name = "OutlinedTextFieldSample",
+                name = "OutlinedTextFieldWithInitialValueAndSelection",
                 description = TextFieldsExampleDescription,
                 sourceUrl = TextFieldsExampleSourceUrl
             ) {
-                OutlinedTextFieldSample()
+                OutlinedTextFieldWithInitialValueAndSelection()
             },
             Example(
                 name = "TextFieldWithIcons",
