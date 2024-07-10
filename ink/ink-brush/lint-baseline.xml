@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="Range"
+        message="Expected length ≥ 1 (was 0)"
+        errorLine1="            Rgb(&quot;&quot;, FloatArray(6), WhitePoint(0f, 0f), sIdentity, sIdentity, 0.0f, 1.0f)"
+        errorLine2="                ~~">
+        <location
+            file="src/jvmAndroidTest/kotlin/androidx/ink/brush/color/ColorSpaceTest.kt"/>
+    </issue>
+
+</issues>
