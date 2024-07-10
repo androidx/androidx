@@ -23,7 +23,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -212,7 +211,6 @@ public final class DateTimeWithZone {
         private Api26Impl() {
         }
 
-        @DoNotInline
         @NonNull
         public static DateTimeWithZone create(@NonNull ZonedDateTime zonedDateTime) {
             LocalDateTime localDateTime = requireNonNull(zonedDateTime).toLocalDateTime();

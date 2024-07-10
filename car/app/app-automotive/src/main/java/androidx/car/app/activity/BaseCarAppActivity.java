@@ -40,7 +40,6 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -254,18 +253,15 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         private Api30Impl() {
         }
 
-        @DoNotInline
         static Insets getInsets(WindowInsets windowInsets) {
             return windowInsets.getInsets(WindowInsets.Type.systemBars() | WindowInsets.Type.ime());
         }
 
-        @DoNotInline
         static WindowInsets getDecorViewInsets(WindowInsets insets) {
             return new WindowInsets.Builder(insets).setInsets(
                     WindowInsets.Type.displayCutout(), Insets.NONE).build();
         }
 
-        @DoNotInline
         static void setDecorFitsSystemWindows(BaseCarAppActivity activity, Window window,
                 boolean decorFitsSystemWindows) {
             // Set mDecorFitsSystemWindows so we can retrieve its value for testing.

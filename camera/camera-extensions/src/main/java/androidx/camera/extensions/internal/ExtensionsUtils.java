@@ -19,7 +19,6 @@ package androidx.camera.extensions.internal;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -81,7 +80,6 @@ public class ExtensionsUtils {
         private Api28Impl() {
         }
 
-        @DoNotInline
         static Set<String> getPhysicalCameraIds(
                 @NonNull CameraCharacteristics cameraCharacteristics) {
             try {

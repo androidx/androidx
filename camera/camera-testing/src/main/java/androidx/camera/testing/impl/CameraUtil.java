@@ -42,7 +42,6 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Surface;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -182,7 +181,6 @@ public final class CameraUtil {
 
     @RequiresApi(28)
     private static class Api28Impl {
-        @DoNotInline
         static Set<String> getPhysicalCameraId(CameraCharacteristics cameraCharacteristics) {
             return cameraCharacteristics.getPhysicalCameraIds();
         }

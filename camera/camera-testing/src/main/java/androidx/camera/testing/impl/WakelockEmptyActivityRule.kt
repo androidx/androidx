@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.view.WindowManager
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 import androidx.camera.testing.impl.Api27Impl.setShowWhenLocked
@@ -103,12 +102,10 @@ class WakelockEmptyActivityRule(val brandsToEnable: List<String>? = null) : Test
 
 @RequiresApi(Build.VERSION_CODES.O_MR1)
 object Api27Impl {
-    @DoNotInline
     fun Activity.setShowWhenLocked() {
         setShowWhenLocked(true)
     }
 
-    @DoNotInline
     fun Activity.setTurnScreenOn() {
         setTurnScreenOn(true)
     }

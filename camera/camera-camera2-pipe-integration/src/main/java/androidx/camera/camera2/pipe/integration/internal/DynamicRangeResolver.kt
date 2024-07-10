@@ -2,7 +2,6 @@ package androidx.camera.camera2.pipe.integration.internal
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.core.Log
@@ -454,7 +453,6 @@ class DynamicRangeResolver(val cameraMetadata: CameraMetadata) {
 
     @RequiresApi(33)
     internal object Api33Impl {
-        @DoNotInline
         fun getRecommended10BitDynamicRange(cameraMetadata: CameraMetadata): DynamicRange? {
             val recommendedProfile =
                 cameraMetadata[

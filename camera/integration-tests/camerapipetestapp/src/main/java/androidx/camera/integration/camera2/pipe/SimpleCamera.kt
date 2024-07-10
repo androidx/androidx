@@ -29,7 +29,6 @@ import android.util.Log
 import android.util.Range
 import android.util.Size
 import android.view.Surface
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -410,7 +409,6 @@ class SimpleCamera(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private object Api29CompatImpl {
-        @DoNotInline
         fun newImageReaderInstance(
             width: Int,
             height: Int,

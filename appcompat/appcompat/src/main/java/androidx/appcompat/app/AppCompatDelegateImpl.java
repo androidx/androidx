@@ -78,7 +78,6 @@ import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.CallSuper;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -3892,12 +3891,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     static class Api21Impl {
         private Api21Impl() { }
 
-        @DoNotInline
         static boolean isPowerSaveMode(PowerManager powerManager) {
             return powerManager.isPowerSaveMode();
         }
 
-        @DoNotInline
         static String toLanguageTag(Locale locale) {
             return locale.toLanguageTag();
         }
@@ -3909,7 +3906,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         // Most methods of LocaleListCompat requires a minimum API of 24 to be used and these are
         // the helper implementations of those methods, used to indirectly invoke them in our code.
-        @DoNotInline
         static void generateConfigDelta_locale(@NonNull Configuration base,
                 @NonNull Configuration change, @NonNull Configuration delta) {
             final LocaleList baseLocales = base.getLocales();
@@ -3920,17 +3916,14 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        @DoNotInline
         static LocaleListCompat getLocales(Configuration configuration) {
             return LocaleListCompat.forLanguageTags(configuration.getLocales().toLanguageTags());
         }
 
-        @DoNotInline
         static void setLocales(Configuration configuration, LocaleListCompat locales) {
             configuration.setLocales(LocaleList.forLanguageTags(locales.toLanguageTags()));
         }
 
-        @DoNotInline
         public static void setDefaultLocales(LocaleListCompat locales) {
             LocaleList.setDefault(LocaleList.forLanguageTags(locales.toLanguageTags()));
         }
@@ -3961,7 +3954,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static OnBackInvokedCallback registerOnBackPressedCallback(
                 Object dispatcher, AppCompatDelegateImpl delegate) {
             OnBackInvokedCallback onBackInvokedCallback = delegate::onBackPressed;
@@ -3971,14 +3963,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             return onBackInvokedCallback;
         }
 
-        @DoNotInline
         static void unregisterOnBackInvokedCallback(Object dispatcher, Object callback) {
             OnBackInvokedCallback onBackInvokedCallback = (OnBackInvokedCallback) callback;
             OnBackInvokedDispatcher typedDispatcher = (OnBackInvokedDispatcher) dispatcher;
             typedDispatcher.unregisterOnBackInvokedCallback(onBackInvokedCallback);
         }
 
-        @DoNotInline
         static OnBackInvokedDispatcher getOnBackInvokedDispatcher(Activity activity) {
             return activity.getOnBackInvokedDispatcher();
         }

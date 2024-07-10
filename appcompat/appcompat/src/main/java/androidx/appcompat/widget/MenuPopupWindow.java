@@ -33,7 +33,6 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -248,12 +247,10 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setEnterTransition(PopupWindow popupWindow, Transition enterTransition) {
             popupWindow.setEnterTransition(enterTransition);
         }
 
-        @DoNotInline
         static void setExitTransition(PopupWindow popupWindow, Transition exitTransition) {
             popupWindow.setExitTransition(exitTransition);
         }
@@ -265,7 +262,6 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setTouchModal(PopupWindow popupWindow, boolean touchModal) {
             popupWindow.setTouchModal(touchModal);
         }

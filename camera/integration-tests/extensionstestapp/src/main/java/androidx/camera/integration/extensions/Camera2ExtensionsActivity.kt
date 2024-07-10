@@ -57,7 +57,6 @@ import android.widget.ImageButton
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
@@ -1432,7 +1431,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
     @RequiresApi(33)
     private object ZoomUtilExtensions {
         @JvmStatic
-        @DoNotInline
         fun hasZoomSupport(
             cameraId: String,
             cameraManager: CameraManager,
@@ -1446,7 +1444,6 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
 
     @RequiresApi(31)
     private object ZoomUtil {
-        @DoNotInline
         fun hasZoomSupport(cameraId: String, cameraManager: CameraManager): Boolean {
             val characteristics = cameraManager.getCameraCharacteristics(cameraId)
             val availableCaptureRequestKeys = characteristics.availableCaptureRequestKeys

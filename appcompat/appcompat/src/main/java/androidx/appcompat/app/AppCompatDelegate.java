@@ -44,7 +44,6 @@ import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.CallSuper;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.LayoutRes;
@@ -1155,7 +1154,6 @@ public abstract class AppCompatDelegate {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static LocaleList localeListForLanguageTags(String list) {
             return LocaleList.forLanguageTags(list);
         }
@@ -1167,14 +1165,12 @@ public abstract class AppCompatDelegate {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void localeManagerSetApplicationLocales(Object localeManager,
                 LocaleList locales) {
             LocaleManager mLocaleManager = (LocaleManager) localeManager;
             mLocaleManager.setApplicationLocales(locales);
         }
 
-        @DoNotInline
         static LocaleList localeManagerGetApplicationLocales(Object localeManager) {
             LocaleManager mLocaleManager = (LocaleManager) localeManager;
             return mLocaleManager.getApplicationLocales();

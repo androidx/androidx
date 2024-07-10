@@ -19,7 +19,6 @@ package androidx.bluetooth
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.os.Build
 import android.os.ParcelUuid
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.bluetooth.utils.addressType
@@ -51,7 +50,6 @@ constructor(private val fwkScanResult: FwkScanResult) {
     @RequiresApi(29)
     private object ScanResultApi29Impl {
         @JvmStatic
-        @DoNotInline
         fun serviceSolicitationUuids(fwkScanResult: FwkScanResult): List<ParcelUuid> =
             fwkScanResult.scanRecord?.serviceSolicitationUuids.orEmpty()
     }
@@ -59,11 +57,9 @@ constructor(private val fwkScanResult: FwkScanResult) {
     @RequiresApi(26)
     private object ScanResultApi26Impl {
         @JvmStatic
-        @DoNotInline
         fun isConnectable(fwkScanResult: FwkScanResult): Boolean = fwkScanResult.isConnectable
 
         @JvmStatic
-        @DoNotInline
         fun periodicAdvertisingInterval(fwkScanResult: FwkScanResult): Long =
             (fwkScanResult.periodicAdvertisingInterval * 1.25).toLong()
     }

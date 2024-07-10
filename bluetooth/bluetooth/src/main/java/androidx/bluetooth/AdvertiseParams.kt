@@ -21,7 +21,6 @@ import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
 import android.bluetooth.le.AdvertisingSetParameters as FwkAdvertisingSetParameters
 import android.os.Build
 import android.os.ParcelUuid
-import androidx.annotation.DoNotInline
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import java.util.UUID
@@ -69,13 +68,11 @@ class AdvertiseParams(
     @RequiresApi(34)
     private object AdvertiseParamsApi34Impl {
         @JvmStatic
-        @DoNotInline
         fun setDiscoverable(builder: FwkAdvertiseSettings.Builder, isDiscoverable: Boolean) {
             builder.setDiscoverable(isDiscoverable)
         }
 
         @JvmStatic
-        @DoNotInline
         fun setDiscoverable(builder: FwkAdvertisingSetParameters.Builder, isDiscoverable: Boolean) {
             builder.setDiscoverable(isDiscoverable)
         }
@@ -84,7 +81,6 @@ class AdvertiseParams(
     @RequiresApi(31)
     private object AdvertiseParamsApi31Impl {
         @JvmStatic
-        @DoNotInline
         fun addServiceSolicitationUuid(builder: FwkAdvertiseData.Builder, parcelUuid: ParcelUuid) {
             builder.addServiceSolicitationUuid(parcelUuid)
         }
@@ -93,7 +89,6 @@ class AdvertiseParams(
     @RequiresApi(26)
     private object AdvertiseParamsApi26Impl {
         @JvmStatic
-        @DoNotInline
         fun fwkAdvertiseSetParams(
             isConnectable: Boolean,
             isDiscoverable: Boolean

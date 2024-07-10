@@ -42,7 +42,6 @@ import android.view.Display;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -770,7 +769,6 @@ public class CarContext extends ContextWrapper {
     @RequiresApi(api = VERSION_CODES.O)
     private static class Api26Impl {
 
-        @DoNotInline
         static Bundle makeBasicActivityOptionsBundle() {
             return ActivityOptions.makeBasic()
                     .setLaunchDisplayId(Display.DEFAULT_DISPLAY).toBundle();

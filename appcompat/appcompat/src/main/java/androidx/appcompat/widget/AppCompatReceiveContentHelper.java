@@ -33,7 +33,6 @@ import android.view.DragEvent;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -117,7 +116,6 @@ final class AppCompatReceiveContentHelper {
     private static final class OnDropApi24Impl {
         private OnDropApi24Impl() {}
 
-        @DoNotInline
         static boolean onDropForTextView(@NonNull DragEvent event, @NonNull TextView view,
                 @NonNull Activity activity) {
             activity.requestDragAndDropPermissions(event);
@@ -134,7 +132,6 @@ final class AppCompatReceiveContentHelper {
             return true;
         }
 
-        @DoNotInline
         static boolean onDropForView(@NonNull DragEvent event, @NonNull View view,
                 @NonNull Activity activity) {
             activity.requestDragAndDropPermissions(event);

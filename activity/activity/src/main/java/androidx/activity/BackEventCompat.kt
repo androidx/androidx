@@ -18,7 +18,6 @@ package androidx.activity
 
 import android.os.Build
 import android.window.BackEvent
-import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
@@ -93,15 +92,14 @@ constructor(
 
 @RequiresApi(34)
 internal object Api34Impl {
-    @DoNotInline
     fun createOnBackEvent(touchX: Float, touchY: Float, progress: Float, swipeEdge: Int) =
         BackEvent(touchX, touchY, progress, swipeEdge)
 
-    @DoNotInline fun progress(backEvent: BackEvent) = backEvent.progress
+    fun progress(backEvent: BackEvent) = backEvent.progress
 
-    @DoNotInline fun touchX(backEvent: BackEvent) = backEvent.touchX
+    fun touchX(backEvent: BackEvent) = backEvent.touchX
 
-    @DoNotInline fun touchY(backEvent: BackEvent) = backEvent.touchY
+    fun touchY(backEvent: BackEvent) = backEvent.touchY
 
-    @DoNotInline fun swipeEdge(backEvent: BackEvent) = backEvent.swipeEdge
+    fun swipeEdge(backEvent: BackEvent) = backEvent.swipeEdge
 }

@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.security.NetworkSecurityPolicy
 import android.util.Log
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
@@ -314,7 +313,6 @@ internal class PerfettoHttpServer {
 
 @RequiresApi(24)
 private object Api24Impl {
-    @DoNotInline
     fun isCleartextTrafficPermittedForLocalhost() =
         NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted("localhost")
 }

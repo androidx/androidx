@@ -40,7 +40,6 @@ import android.widget.RemoteViews;
 import androidx.annotation.AnimRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.Dimension;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1788,12 +1787,10 @@ public final class CustomTabsIntent {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private static class Api21Impl {
-        @DoNotInline
         static void setLanguageTag(Intent intent, Locale locale) {
             intent.putExtra(EXTRA_TRANSLATE_LANGUAGE_TAG, locale.toLanguageTag());
         }
 
-        @DoNotInline
         @Nullable
         static Locale getLocaleForLanguageTag(Intent intent) {
             String languageTag = intent.getStringExtra(EXTRA_TRANSLATE_LANGUAGE_TAG);
@@ -1803,7 +1800,6 @@ public final class CustomTabsIntent {
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private static class Api23Impl {
-        @DoNotInline
         static ActivityOptions makeBasicActivityOptions() {
             return ActivityOptions.makeBasic();
         }
@@ -1811,7 +1807,6 @@ public final class CustomTabsIntent {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static class Api24Impl {
-        @DoNotInline
         @Nullable
         static String getDefaultLocale() {
             LocaleList defaultLocaleList = LocaleList.getAdjustedDefault();
@@ -1821,7 +1816,6 @@ public final class CustomTabsIntent {
 
     @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private static class Api34Impl {
-        @DoNotInline
         static void setShareIdentityEnabled(ActivityOptions activityOptions, boolean enabled) {
             activityOptions.setShareIdentityEnabled(enabled);
         }

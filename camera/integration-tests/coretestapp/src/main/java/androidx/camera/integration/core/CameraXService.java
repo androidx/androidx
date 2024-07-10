@@ -49,7 +49,6 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -537,14 +536,12 @@ public class CameraXService extends LifecycleService {
         }
 
         /** @noinspection SameParameterValue */
-        @DoNotInline
         @NonNull
         static NotificationChannel newNotificationChannel(@NonNull String id,
                 @NonNull CharSequence name, int importance) {
             return new NotificationChannel(id, name, importance);
         }
 
-        @DoNotInline
         static void createNotificationChannel(@NonNull NotificationManager manager,
                 @NonNull NotificationChannel channel) {
             manager.createNotificationChannel(channel);

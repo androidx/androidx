@@ -20,7 +20,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -95,7 +94,6 @@ public class SessionInfoIntentEncoder {
         }
 
         /** Wrapper for {@link Intent#setIdentifier(String)}. */
-        @DoNotInline
         static void setIdentifier(@NonNull Intent intent, @NonNull String identifier) {
             intent.setIdentifier(identifier);
         }

@@ -19,7 +19,6 @@ package androidx.appcompat.widget;
 import android.os.Build;
 import android.view.View;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -59,7 +58,6 @@ public class TooltipCompat  {
             // This class is not instantiable.
         }
 
-        @DoNotInline
         static void setTooltipText(View view, CharSequence tooltipText) {
             view.setTooltipText(tooltipText);
         }

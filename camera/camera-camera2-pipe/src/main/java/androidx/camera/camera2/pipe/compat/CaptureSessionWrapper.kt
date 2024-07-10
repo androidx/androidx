@@ -23,7 +23,6 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.os.Handler
 import android.view.Surface
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Debug
@@ -245,7 +244,6 @@ internal class AndroidCaptureSessionStateCallback(
 
     @RequiresApi(Build.VERSION_CODES.O)
     private object Api26CompatImpl {
-        @DoNotInline
         @JvmStatic
         fun onCaptureQueueEmpty(
             session: CameraCaptureSession,

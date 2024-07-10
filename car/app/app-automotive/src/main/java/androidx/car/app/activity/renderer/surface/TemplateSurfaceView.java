@@ -40,7 +40,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -341,17 +340,14 @@ public final class TemplateSurfaceView extends SurfaceView {
         private Api30Impl() {
         }
 
-        @DoNotInline
         static IBinder getHostToken(TemplateSurfaceView view) {
             return view.getHostToken();
         }
 
-        @DoNotInline
         static void setSurfacePackage(TemplateSurfaceView view, SurfacePackage surfacePackage) {
             view.setChildSurfacePackage(surfacePackage);
         }
 
-        @DoNotInline
         public static void releaseSurfacePackage(SurfacePackage surfacePackage) {
             surfacePackage.release();
         }
