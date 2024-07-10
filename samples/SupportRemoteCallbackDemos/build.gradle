@@ -27,6 +27,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
     }
     namespace "com.example.androidx.remotecallback.demos"

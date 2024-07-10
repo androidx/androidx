@@ -22,6 +22,7 @@ plugins {
 }
 
 android {
+    compileSdkVersion 35
     namespace "androidx.compose.integration.hero.macrobenchmark.target"
 
     buildTypes {
