@@ -28,6 +28,7 @@ import androidx.pdf.util.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * File data that can be displayed in a Viewer. This class contains meta-data specific to Projector
@@ -142,5 +143,26 @@ public class DisplayData {
         return String.format(
                 "Display Data [%s] +%s, uri: %s",
                 mName, mOpenable.getClass().getSimpleName(), mUri);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof DisplayData)) {
+            return false;
+        }
+
+        DisplayData other = (DisplayData) obj;
+        return mUri.equals(other.mUri)
+                && mName.equals(other.mName)
+                && mOpenable.equals(other.mOpenable);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mUri, mName, mOpenable);
     }
 }

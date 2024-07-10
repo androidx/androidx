@@ -279,6 +279,8 @@ public class PdfLoaderTest {
     public void testLoadDocumentTask() throws InterruptedException, RemoteException {
         CountDownLatch latch = new CountDownLatch(1);
         mWeakPdfLoaderCallbacks.setDocumentLoadedLatch(latch);
+        // ensure document is not already loaded
+        when(mConnection.isLoaded()).thenReturn(false);
         mPdfLoader.applyPassword(TEST_PW);
         /** Wait for {@link TestCallbacks#documentLoaded(int)} ()} to be called. */
         latch.await(LATCH_TIMEOUT_MS, TimeUnit.MILLISECONDS);
