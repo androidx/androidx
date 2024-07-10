@@ -127,7 +127,7 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
                 mPrimarySurfaceTexture = surfaceTexture;
             } else {
                 mSecondarySurfaceTexture = surfaceTexture;
-                // Only render when primary camera frames come in
+                // Only render when secondary camera frames come in
                 surfaceTexture.setOnFrameAvailableListener(this, mGlHandler);
             }
         }, surfaceRequest::willNotProvideSurface);
