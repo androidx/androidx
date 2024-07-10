@@ -39,6 +39,8 @@ import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrNull
@@ -141,6 +143,7 @@ fun PickerGroup(
                     readOnlyLabel = pickerData.readOnlyLabel,
                     flingBehavior = flingBehavior,
                     onSelected = pickerData.onSelected,
+                    spacing = pickerData.spacing,
                     userScrollEnabled = !touchExplorationServicesEnabled || pickerSelected,
                     option = { optionIndex ->
                         with(pickerData) {
@@ -220,6 +223,8 @@ class PickerGroupState(
  * @param focusRequester Optional [FocusRequester] for the [Picker]. If not provided, a local
  *   instance of [FocusRequester] will be created to handle the focus between different pickers.
  * @param onSelected Action triggered when the [Picker] is selected by clicking.
+ * @param spacing The amount of spacing in [Dp] between items. Can be negative, which can be useful
+ *   for Text if it has plenty of whitespace.
  * @param readOnlyLabel A slot for providing a label, displayed above the selected option when the
  *   [Picker] is read-only. The label is overlaid with the currently selected option within a Box,
  *   so it is recommended that the label is given [Alignment.TopCenter].
@@ -233,6 +238,7 @@ class PickerGroupItem(
     val focusRequester: FocusRequester? = null,
     val onSelected: () -> Unit = {},
     val readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    val spacing: Dp = 0.dp,
     val option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit
 )
 

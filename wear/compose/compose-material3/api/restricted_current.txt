@@ -477,7 +477,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class PickerGroupItem {
-    ctor public PickerGroupItem(androidx.wear.compose.material3.PickerState pickerState, optional androidx.compose.ui.Modifier modifier, optional String? contentDescription, optional androidx.compose.ui.focus.FocusRequester? focusRequester, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> option);
+    ctor public PickerGroupItem(androidx.wear.compose.material3.PickerState pickerState, optional androidx.compose.ui.Modifier modifier, optional String? contentDescription, optional androidx.compose.ui.focus.FocusRequester? focusRequester, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional float spacing, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> option);
     method public String? getContentDescription();
     method public androidx.compose.ui.focus.FocusRequester? getFocusRequester();
     method public androidx.compose.ui.Modifier getModifier();
@@ -485,6 +485,7 @@ package androidx.wear.compose.material3 {
     method public kotlin.jvm.functions.Function3<androidx.wear.compose.material3.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> getOption();
     method public androidx.wear.compose.material3.PickerState getPickerState();
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? getReadOnlyLabel();
+    method public float getSpacing();
     property public final String? contentDescription;
     property public final androidx.compose.ui.focus.FocusRequester? focusRequester;
     property public final androidx.compose.ui.Modifier modifier;
@@ -492,6 +493,7 @@ package androidx.wear.compose.material3 {
     property public final kotlin.jvm.functions.Function3<androidx.wear.compose.material3.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> option;
     property public final androidx.wear.compose.material3.PickerState pickerState;
     property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel;
+    property public final float spacing;
   }
 
   public final class PickerGroupKt {
@@ -514,7 +516,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class PickerKt {
-    method @androidx.compose.runtime.Composable public static void Picker(androidx.wear.compose.material3.PickerState state, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional boolean readOnly, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional androidx.wear.compose.foundation.lazy.ScalingParams scalingParams, optional float separation, optional @FloatRange(from=0.0, to=0.5) float gradientRatio, optional long gradientColor, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,kotlin.Unit> option);
+    method @androidx.compose.runtime.Composable public static void Picker(androidx.wear.compose.material3.PickerState state, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional boolean readOnly, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional androidx.wear.compose.foundation.lazy.ScalingParams scalingParams, optional float spacing, optional @FloatRange(from=0.0, to=0.5) float gradientRatio, optional long gradientColor, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,kotlin.Unit> option);
     method @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.PickerState rememberPickerState(int initialNumberOfOptions, optional int initiallySelectedOption, optional boolean repeatItems);
   }
 
@@ -1058,6 +1060,47 @@ package androidx.wear.compose.material3 {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Integer> LocalTextMaxLines;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.style.TextOverflow> LocalTextOverflow;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
+  }
+
+  @androidx.compose.runtime.Immutable public final class TimePickerColors {
+    ctor public TimePickerColors(long selectedPickerContentColor, long unselectedPickerContentColor, long separatorColor, long pickerLabelColor, long confirmButtonContentColor, long confirmButtonContainerColor);
+    method public long getConfirmButtonContainerColor();
+    method public long getConfirmButtonContentColor();
+    method public long getPickerLabelColor();
+    method public long getSelectedPickerContentColor();
+    method public long getSeparatorColor();
+    method public long getUnselectedPickerContentColor();
+    property public final long confirmButtonContainerColor;
+    property public final long confirmButtonContentColor;
+    property public final long pickerLabelColor;
+    property public final long selectedPickerContentColor;
+    property public final long separatorColor;
+    property public final long unselectedPickerContentColor;
+  }
+
+  public final class TimePickerDefaults {
+    method @androidx.compose.runtime.Composable public int getTimePickerType();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimePickerColors timePickerColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimePickerColors timePickerColors(optional long selectedPickerContentColor, optional long unselectedPickerContentColor, optional long separatorColor, optional long pickerLabelColor, optional long confirmButtonContentColor, optional long confirmButtonContainerColor);
+    property @androidx.compose.runtime.Composable public final int timePickerType;
+    field public static final androidx.wear.compose.material3.TimePickerDefaults INSTANCE;
+  }
+
+  public final class TimePickerKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.runtime.Composable public static void TimePicker(java.time.LocalTime initialTime, kotlin.jvm.functions.Function1<? super java.time.LocalTime,kotlin.Unit> onTimePicked, optional androidx.compose.ui.Modifier modifier, optional int timePickerType, optional androidx.wear.compose.material3.TimePickerColors colors);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class TimePickerType {
+    field public static final androidx.wear.compose.material3.TimePickerType.Companion Companion;
+  }
+
+  public static final class TimePickerType.Companion {
+    method public int getHoursMinutes24H();
+    method public int getHoursMinutesAmPm12H();
+    method public int getHoursMinutesSeconds24H();
+    property public final int HoursMinutes24H;
+    property public final int HoursMinutesAmPm12H;
+    property public final int HoursMinutesSeconds24H;
   }
 
   public interface TimeSource {

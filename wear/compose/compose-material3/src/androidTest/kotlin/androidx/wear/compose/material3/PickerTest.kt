@@ -212,7 +212,7 @@ class PickerTest {
                     modifier =
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
-                    separation = separationDp * separationSign
+                    spacing = separationDp * separationSign
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -759,7 +759,7 @@ class PickerTest {
                         Modifier.testTag(TEST_TAG)
                             .requiredSize(pickerHeightDp)
                             .onGloballyPositioned { pickerLayoutCoordinates = it },
-                    separation = separationDp * separationSign,
+                    spacing = separationDp * separationSign,
                     readOnly = readOnly.value,
                     contentDescription = CONTENT_DESCRIPTION,
                 ) { optionIndex ->
