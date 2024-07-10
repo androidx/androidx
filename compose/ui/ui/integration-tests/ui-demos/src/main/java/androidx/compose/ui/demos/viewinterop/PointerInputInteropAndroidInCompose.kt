@@ -17,10 +17,12 @@
 package androidx.compose.ui.demos.viewinterop
 
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -44,8 +46,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.demos.R
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
@@ -66,6 +74,9 @@ val AndroidInComposeDemos =
                 TwoAndroidScrollViewsInCompose()
             },
             ComposableDemo("MotionEventPointerInputFilter") { PointerInteropFilterDemo() },
+            ComposableDemo("Sharing event with sibling of parent Demo") {
+                SharingEventWithSiblingOfParent()
+            },
         )
     )
 
@@ -295,4 +306,65 @@ private fun PointerInteropFilterDemo() {
             Text(motionEventString.value)
         }
     }
+}
+
+@Preview
+@Composable
+fun SharingEventWithSiblingOfParent() {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Text(
+            "Search \"SHARING\" in Logcat to see events (Cyan box is child to parent that " +
+                "is sharing)."
+        )
+        Box {
+            ClickableSurface()
+
+            MyView(
+                0xFFFF0000.toInt(), // Manually created hex for Color.Red,
+                Modifier.align(Alignment.TopStart)
+            )
+
+            // Parent
+            Box(
+                modifier =
+                    Modifier.align(Alignment.BottomEnd)
+                        // This is the part that shares with the sibling...
+                        .then(
+                            object : PointerInputModifier {
+                                override val pointerInputFilter: PointerInputFilter =
+                                    object : PointerInputFilter() {
+                                        override fun onPointerEvent(
+                                            pointerEvent: PointerEvent,
+                                            pass: PointerEventPass,
+                                            bounds: IntSize
+                                        ) {}
+
+                                        override fun onCancel() {}
+
+                                        override val shareWithSiblings: Boolean = true
+                                    }
+                            }
+                        )
+            ) {
+                // Tapping here with code above will allow ClickableSurface (sibling of a parent)
+                // to get the event.
+                MyView(
+                    0xFF00FFFF.toInt(), // Manually created hex for Color.Cyan,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ClickableSurface(modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxSize().clickable { Log.d("SHARING", "onClick") })
+}
+
+@Composable
+fun MyView(color: Int, modifier: Modifier = Modifier) {
+    AndroidView(
+        modifier = modifier.fillMaxSize(0.5f),
+        factory = { context -> View(context).apply { setBackgroundColor(color) } },
+    )
 }
