@@ -43,6 +43,7 @@ import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
@@ -79,6 +80,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Pipeline for dynamic data.
@@ -1127,6 +1129,12 @@ public class ProtoLayoutDynamicDataPipeline {
                 + mExitAnimations.stream()
                         .mapToInt(QuotaAwareAnimationSet::getRunningAnimationCount)
                         .sum();
+    }
+
+    public @NonNull List<DynamicTypeAnimator> getAnimations() {
+        return mPositionIdTree.getAllNodes().stream()
+                .flatMap(nodeInfo -> nodeInfo.getAnimations().stream())
+                .collect(Collectors.toList());
     }
 
     /** Returns the cost of nodes existing in the pipeline. */

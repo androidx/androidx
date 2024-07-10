@@ -17,15 +17,22 @@
 package androidx.wear.tiles.tooling
 
 import android.content.Context
+import androidx.wear.protolayout.ColorBuilders.ColorProp
 import androidx.wear.protolayout.ColorBuilders.argb
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.protolayout.TypeBuilders
+import androidx.wear.protolayout.expression.AnimationParameterBuilders
+import androidx.wear.protolayout.expression.DynamicBuilders
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
 import androidx.wear.protolayout.expression.PlatformDataValues
 import androidx.wear.protolayout.expression.PlatformHealthSources
+import androidx.wear.protolayout.material.CircularProgressIndicator
+import androidx.wear.protolayout.material.Colors
+import androidx.wear.protolayout.material.ProgressIndicatorColors
 import androidx.wear.tiles.TileBuilders
+import androidx.wear.tiles.TileBuilders.Tile
 import androidx.wear.tiles.tooling.preview.Preview
 import androidx.wear.tiles.tooling.preview.TilePreviewData
 import androidx.wear.tiles.tooling.preview.TilePreviewHelper.singleTimelineEntryTileBuilder
@@ -139,3 +146,122 @@ fun tilePreviewWithOverriddenPlatformData() =
     ) {
         tileWithPlatformData()
     }
+
+private const val startValue = 15f
+private const val endValue = 105f
+private const val animationDurationInMillis = 2000L // 2 seconds
+
+private fun tileWithAnimations(): Tile {
+    val animationSpec =
+        AnimationParameterBuilders.AnimationSpec.Builder()
+            .setAnimationParameters(
+                AnimationParameterBuilders.AnimationParameters.Builder()
+                    .setDurationMillis(animationDurationInMillis)
+                    .build()
+            )
+            .build()
+
+    val floatAnimation = DynamicBuilders.DynamicFloat.animate(startValue, endValue, animationSpec)
+    val colorAnimation =
+        DynamicBuilders.DynamicColor.animate(Colors.PRIMARY, Colors.SURFACE, animationSpec)
+
+    val layoutElement =
+        CircularProgressIndicator.Builder()
+            .setProgress(
+                TypeBuilders.FloatProp.Builder(0.25f).setDynamicValue(floatAnimation).build()
+            )
+            .setCircularProgressIndicatorColors(
+                ProgressIndicatorColors(
+                    ColorProp.Builder(-0x1).setDynamicValue(colorAnimation).build(),
+                    ColorProp.Builder(-0x1).build()
+                )
+            )
+            .build()
+
+    val layout = LayoutElementBuilders.Layout.Builder().setRoot(layoutElement).build()
+    return Tile.Builder()
+        .setResourcesVersion(RESOURCES_VERSION)
+        .setTileTimeline(
+            TimelineBuilders.Timeline.Builder()
+                .addTimelineEntry(
+                    TimelineBuilders.TimelineEntry.Builder().setLayout(layout).build()
+                )
+                .build()
+        )
+        .build()
+}
+
+@Preview fun testGetAnimations() = TilePreviewData { tileWithAnimations() }
+
+private fun tileWithAnimationDependedOnAnotherAnimation(): Tile {
+    val animationSpecBuilder =
+        AnimationParameterBuilders.AnimationSpec.Builder()
+            .setAnimationParameters(
+                AnimationParameterBuilders.AnimationParameters.Builder()
+                    .setDurationMillis(animationDurationInMillis)
+                    .build()
+            )
+    val animationSpec = animationSpecBuilder.build()
+
+    val floatAnimation =
+        DynamicBuilders.DynamicFloat.animate(startValue, endValue, animationSpec)
+            .times(100f)
+            .animate(animationSpec)
+
+    val circularProgressIndicatorBuilder =
+        CircularProgressIndicator.Builder()
+            .setProgress(
+                TypeBuilders.FloatProp.Builder(0.25f).setDynamicValue(floatAnimation).build()
+            )
+    val layoutElement: LayoutElementBuilders.LayoutElement =
+        circularProgressIndicatorBuilder.build()
+
+    val layout = LayoutElementBuilders.Layout.Builder().setRoot(layoutElement).build()
+
+    val timeline =
+        TimelineBuilders.Timeline.Builder()
+            .addTimelineEntry(TimelineBuilders.TimelineEntry.Builder().setLayout(layout).build())
+            .build()
+
+    val tileBuilder =
+        Tile.Builder().setResourcesVersion(RESOURCES_VERSION).setTileTimeline(timeline)
+    return tileBuilder.build()
+}
+
+@Preview
+fun testGetTerminalAndNotTerminalAnimation(): TilePreviewData = TilePreviewData {
+    tileWithAnimationDependedOnAnotherAnimation()
+}
+
+private fun tileAnimationsWithCondition(): Tile {
+    val dynamicFloat = DynamicBuilders.DynamicFloat.animate(1f, 10f)
+
+    val floatAnimation =
+        DynamicBuilders.DynamicFloat.onCondition(dynamicFloat.gt(5f))
+            .use(dynamicFloat)
+            .elseUse(100f)
+
+    val circularProgressIndicatorBuilder =
+        CircularProgressIndicator.Builder()
+            .setProgress(
+                TypeBuilders.FloatProp.Builder(0.25f).setDynamicValue(floatAnimation).build()
+            )
+    val layoutElement: LayoutElementBuilders.LayoutElement =
+        circularProgressIndicatorBuilder.build()
+
+    val layout = LayoutElementBuilders.Layout.Builder().setRoot(layoutElement).build()
+
+    val timeline =
+        TimelineBuilders.Timeline.Builder()
+            .addTimelineEntry(TimelineBuilders.TimelineEntry.Builder().setLayout(layout).build())
+            .build()
+
+    val tileBuilder =
+        Tile.Builder().setResourcesVersion(RESOURCES_VERSION).setTileTimeline(timeline)
+    return tileBuilder.build()
+}
+
+@Preview
+fun testGetAnimationsWithCondition(): TilePreviewData = TilePreviewData {
+    tileAnimationsWithCondition()
+}

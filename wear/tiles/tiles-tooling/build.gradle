@@ -33,6 +33,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.guava)
+    androidTestImplementation project(':wear:protolayout:protolayout-material')
 }
 
 android {

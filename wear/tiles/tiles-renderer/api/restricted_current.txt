@@ -46,6 +46,7 @@ package androidx.wear.tiles.renderer {
     ctor @Deprecated public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
     ctor @Deprecated public TileRenderer(android.content.Context, androidx.wear.tiles.LayoutElementBuilders.Layout, @StyleRes int, androidx.wear.tiles.ResourceBuilders.Resources, java.util.concurrent.Executor, androidx.wear.tiles.renderer.TileRenderer.LoadActionListener);
     ctor public TileRenderer(android.content.Context, java.util.concurrent.Executor, java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator!> getAnimations();
     method public java.util.concurrent.Executor getLoadActionExecutor();
     method public java.util.function.Consumer<androidx.wear.protolayout.StateBuilders.State!> getLoadActionListener();
     method public java.util.Map<androidx.wear.protolayout.expression.pipeline.PlatformDataProvider!,java.util.Set<androidx.wear.protolayout.expression.PlatformDataKey<? extends java.lang.Object!>!>!> getPlatformDataProviders();

@@ -139,6 +139,36 @@ class TileServiceViewAdapterTest(
         assertThatTileHasInflatedSuccessfully(expectedText = "180")
     }
 
+    @Test
+    fun testGetAnimations() {
+        initAndInflate("$testFile.testGetAnimations")
+        val animations = tileServiceViewAdapter.getAnimations()
+
+        assertEquals(2, animations.size)
+        assertEquals(2000L, animations[0].durationMs)
+        assertEquals(2000L, animations[1].durationMs)
+    }
+
+    @Test
+    fun testGetTerminalAndNotTerminalAnimation() {
+        initAndInflate("$testFile.testGetTerminalAndNotTerminalAnimation")
+        val animations = tileServiceViewAdapter.getAnimations()
+
+        assertEquals(2, animations.size)
+        assertEquals(false, animations[0].isTerminal)
+        assertEquals(true, animations[1].isTerminal)
+    }
+
+    @Test
+    fun testGetAnimationsWithCondition() {
+        initAndInflate("$testFile.testGetAnimationsWithCondition")
+        val animations = tileServiceViewAdapter.getAnimations()
+
+        assertEquals(2, animations.size)
+        assertEquals(false, animations[0].isTerminal)
+        assertEquals(true, animations[1].isTerminal)
+    }
+
     private fun assertThatTileHasInflatedSuccessfully(expectedText: String = "Hello world!") {
         activityTestRule.runOnUiThread {
             val textView =
