@@ -19,6 +19,8 @@ package androidx.collection
 import androidx.annotation.IntRange
 import androidx.collection.internal.Lock
 import androidx.collection.internal.LruHashMap
+import androidx.collection.internal.checkPrecondition
+import androidx.collection.internal.requirePrecondition
 import androidx.collection.internal.synchronized
 import kotlin.Long.Companion.MAX_VALUE
 
@@ -37,7 +39,7 @@ public open class LruCache<K : Any, V : Any>
 public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int) {
 
     init {
-        require(maxSize > 0) { "maxSize <= 0" }
+        requirePrecondition(maxSize > 0) { "maxSize <= 0" }
     }
 
     private val map = LruHashMap<K, V>(0, 0.75f)
@@ -58,7 +60,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      * @param maxSize The new maximum size.
      */
     public open fun resize(@IntRange(from = 1, to = MAX_VALUE) maxSize: Int) {
-        require(maxSize > 0) { "maxSize <= 0" }
+        requirePrecondition(maxSize > 0) { "maxSize <= 0" }
 
         lock.synchronized { this.maxSize = maxSize }
         trimToSize(maxSize)
@@ -145,7 +147,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
             var value: V
 
             lock.synchronized {
-                check(!(size < 0 || (map.isEmpty && size != 0))) {
+                checkPrecondition(!(size < 0 || (map.isEmpty && size != 0))) {
                     ("LruCache.sizeOf() is reporting inconsistent results!")
                 }
 
@@ -220,7 +222,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
 
     private fun safeSizeOf(key: K, value: V): Int {
         val result = sizeOf(key, value)
-        check(result >= 0) { "Negative size: $key=$value" }
+        checkPrecondition(result >= 0) { "Negative size: $key=$value" }
         return result
     }
 

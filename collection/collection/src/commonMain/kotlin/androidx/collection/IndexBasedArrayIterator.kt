@@ -15,6 +15,8 @@
  */
 package androidx.collection
 
+import androidx.collection.internal.checkPrecondition
+
 internal abstract class IndexBasedArrayIterator<T>(startingSize: Int) : MutableIterator<T> {
 
     private var size = startingSize
@@ -39,7 +41,7 @@ internal abstract class IndexBasedArrayIterator<T>(startingSize: Int) : MutableI
     }
 
     override fun remove() {
-        check(canRemove) { "Call next() before removing an element." }
+        checkPrecondition(canRemove) { "Call next() before removing an element." }
         // Attempt removal first so an UnsupportedOperationException retains a valid state.
         removeAt(--index)
         size--
