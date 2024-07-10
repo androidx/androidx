@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
+import androidx.room.compiler.codegen.asPrimitiveTypeName
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnum
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnumArray
@@ -38,7 +39,6 @@ import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
-import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import org.junit.Test
@@ -218,7 +218,9 @@ class XAnnotationBoxTest(private val preCompiled: Boolean) {
                 assertThat(annotation.getAsTypeList("typeList").map { it.asTypeName() })
                     .containsExactly(String::class.asClassName(), XTypeName.PRIMITIVE_INT)
                 assertThat(annotation.getAsType("singleType"))
-                    .isEqualTo(invocation.processingEnv.requireType(Long::class.typeName()))
+                    .isEqualTo(
+                        invocation.processingEnv.requireType(Long::class.asPrimitiveTypeName())
+                    )
 
                 assertThat(annotation.value.intMethod).isEqualTo(3)
                 assertThat(annotation.value.doubleMethodWithDefault).isEqualTo(3.0)

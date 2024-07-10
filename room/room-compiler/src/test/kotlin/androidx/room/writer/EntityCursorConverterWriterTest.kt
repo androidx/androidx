@@ -124,7 +124,7 @@ class EntityCursorConverterWriterTest : BaseEntityParserTest() {
             val writer =
                 object : TypeWriter(WriterContext(CodeLanguage.JAVA, setOf(Platform.JVM), true)) {
                     override fun createTypeSpecBuilder(): XTypeSpec.Builder {
-                        getOrCreateFunction(EntityCursorConverterWriter(entity))
+                        getOrCreateFunction(EntityCursorConverterWriter(entity, false))
                         return XTypeSpec.classBuilder(codeLanguage, className)
                             .apply(
                                 javaTypeBuilder = { addModifiers(Modifier.PUBLIC) },

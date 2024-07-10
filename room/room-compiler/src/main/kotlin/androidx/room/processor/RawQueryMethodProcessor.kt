@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.isEntityElement
 import androidx.room.parser.SqlParser
@@ -50,13 +51,6 @@ class RawQueryMethodProcessor(
             returnType,
             executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
-        )
-
-        // TODO(b/330586815): Support @RawQuery in KMP
-        context.checker.check(
-            context.isAndroidOnlyTarget(),
-            executableElement,
-            ProcessorErrors.RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID
         )
 
         val returnsDeferredType = delegate.returnsDeferredType()
@@ -170,19 +164,26 @@ class RawQueryMethodProcessor(
                         )
                 )
             }
-            // use nullable type to catch bad nullability. Because it is non-null by default in
-            // KSP, assignability will fail and we'll print a generic error instead of a specific
-            // one
-            val supportQueryType = processingEnv.requireType(SupportDbTypeNames.QUERY)
-            val isSupportSql = supportQueryType.isAssignableFrom(param)
-            if (isSupportSql) {
-                return RawQueryMethod.RuntimeQueryParameter(
-                    paramName = extractParams[0].name,
-                    typeName = supportQueryType.asTypeName()
-                )
+
+            processingEnv.findType(RoomTypeNames.RAW_QUERY)?.let { rawQueryType ->
+                if (rawQueryType.isAssignableFrom(param)) {
+                    return RawQueryMethod.RuntimeQueryParameter(
+                        paramName = extractParams[0].name,
+                        typeName = rawQueryType.asTypeName()
+                    )
+                }
             }
-            val stringType = processingEnv.requireType("java.lang.String")
-            val isString = stringType.isAssignableFrom(param)
+
+            processingEnv.findType(SupportDbTypeNames.QUERY)?.let { supportQueryType ->
+                if (supportQueryType.isAssignableFrom(param)) {
+                    return RawQueryMethod.RuntimeQueryParameter(
+                        paramName = extractParams[0].name,
+                        typeName = supportQueryType.asTypeName()
+                    )
+                }
+            }
+
+            val isString = processingEnv.requireType(String::class).isAssignableFrom(param)
             if (isString) {
                 // special error since this was initially allowed but removed in 1.1 beta1
                 context.logger.e(executableElement, RAW_QUERY_STRING_PARAMETER_REMOVED)

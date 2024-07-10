@@ -327,6 +327,14 @@ package androidx.room {
     field @Deprecated public final boolean isValid;
   }
 
+  public final class RoomRawQuery {
+    ctor public RoomRawQuery(String sql);
+    ctor public RoomRawQuery(String sql, optional kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteStatement,kotlin.Unit> onBindStatement);
+    method public kotlin.jvm.functions.Function1<androidx.sqlite.SQLiteStatement,kotlin.Unit> getBindingFunction();
+    method public String getSql();
+    property public final String sql;
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class RoomSQLiteQuery implements androidx.sqlite.db.SupportSQLiteProgram androidx.sqlite.db.SupportSQLiteQuery {
     method public static androidx.room.RoomSQLiteQuery acquire(String query, int argumentCount);
     method public void bindBlob(int index, byte[] value);
@@ -502,6 +510,7 @@ package androidx.room.util {
   public final class SQLiteStatementUtil {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndex(androidx.sqlite.SQLiteStatement stmt, String name);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int getColumnIndexOrThrow(androidx.sqlite.SQLiteStatement stmt, String name);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.sqlite.SQLiteStatement wrapMappedColumns(androidx.sqlite.SQLiteStatement statement, String[] columnNames, int[] mapping);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {

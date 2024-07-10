@@ -60,17 +60,18 @@ class XProcessingEnvTest {
             val type = element.type
 
             assertThat(it.processingEnv.findTypeElement(qName)).isEqualTo(element)
-            assertThat(it.processingEnv.findTypeElement(jClassName)).isEqualTo(element)
+            assertThat(it.processingEnv.findTypeElement(jClassName.toString())).isEqualTo(element)
             assertThat(it.processingEnv.findTypeElement(klass)).isEqualTo(element)
 
-            assertThat(it.processingEnv.requireTypeElement(jClassName)).isEqualTo(element)
+            assertThat(it.processingEnv.requireTypeElement(jClassName.toString()))
+                .isEqualTo(element)
             assertThat(it.processingEnv.requireTypeElement(klass)).isEqualTo(element)
 
             assertThat(it.processingEnv.findType(qName)).isEqualTo(type)
-            assertThat(it.processingEnv.findType(jClassName)).isEqualTo(type)
+            assertThat(it.processingEnv.findType(jClassName.toString())).isEqualTo(type)
             assertThat(it.processingEnv.findType(klass)).isEqualTo(type)
 
-            assertThat(it.processingEnv.requireType(jClassName)).isEqualTo(type)
+            assertThat(it.processingEnv.requireType(jClassName.toString())).isEqualTo(type)
             assertThat(it.processingEnv.requireType(klass)).isEqualTo(type)
             assertThat(it.processingEnv.requireType(qName)).isEqualTo(type)
         }
@@ -190,7 +191,7 @@ class XProcessingEnvTest {
         listOf(javaSrc, kotlinSrc).forEach { src ->
             runProcessorTest(sources = listOf(src)) { invocation ->
                 val className = ClassName.get("foo.bar", "ToBeGenerated")
-                if (invocation.processingEnv.findTypeElement(className) == null) {
+                if (invocation.processingEnv.findTypeElement(className.toString()) == null) {
                     // generate only if it doesn't exist to handle multi-round
                     val spec =
                         TypeSpec.classBuilder(className).addModifiers(Modifier.PUBLIC).build()

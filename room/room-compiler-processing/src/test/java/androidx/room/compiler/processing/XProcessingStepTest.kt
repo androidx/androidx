@@ -917,6 +917,7 @@ class XProcessingStepTest {
                                     .getAsType("singleType")
                                     .asTypeName()
                                     .java
+                                    .toString()
                             )
                         val generatedType =
                             otherElement
@@ -1687,7 +1688,7 @@ class XProcessingStepTest {
                 ): Set<XElement> {
                     invocations[env.backend] = invocations.getOrDefault(env.backend, 0) + 1
                     val className = ClassName.get("foo", "Bar")
-                    val typeElement = env.findTypeElement(className)
+                    val typeElement = env.findTypeElement(className.toString())
                     if (typeElement == null) {
                         val spec =
                             TypeSpec.classBuilder(className)

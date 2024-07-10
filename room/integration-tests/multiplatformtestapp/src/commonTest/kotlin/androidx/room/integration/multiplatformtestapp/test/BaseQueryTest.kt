@@ -18,6 +18,7 @@ package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room.RoomRawQuery
 import androidx.room.execSQL
 import androidx.room.immediateTransaction
 import androidx.room.useReaderConnection
@@ -59,6 +60,18 @@ abstract class BaseQueryTest {
         val dao = db.dao()
         assertThat(dao.insertItem(1)).isEqualTo(1)
         assertThat(dao.getSingleItem().pk).isEqualTo(1)
+        assertThat(dao.getSingleItemSkipVerification().pk).isEqualTo(1)
+        assertThat(dao.getSingleItemRaw(RoomRawQuery("SELECT * FROM SampleEntity")).pk).isEqualTo(1)
+        assertThat(
+                dao.getSingleItemRaw(
+                        RoomRawQuery(
+                            sql = "SELECT * FROM SampleEntity WHERE pk = ?",
+                            onBindStatement = { it.bindLong(1, 1) }
+                        )
+                    )
+                    .pk
+            )
+            .isEqualTo(1)
         assertThat(dao.deleteItem(1)).isEqualTo(1)
         assertThat(dao.deleteItem(1)).isEqualTo(0) // Nothing deleted
         assertThrows<IllegalStateException> { dao.getSingleItem() }
@@ -235,6 +248,9 @@ abstract class BaseQueryTest {
 
         val map = dao.getMapWithDupeColumns()
         assertThat(map[sampleEntity1]).isEqualTo(sampleEntity2)
+
+        val map2 = dao.getMapWithDupeColumnsSkipVerification()
+        assertThat(map2[sampleEntity1]).isEqualTo(sampleEntity2)
     }
 
     @Test
@@ -477,5 +493,14 @@ abstract class BaseQueryTest {
 
         assertThat(db.dao().getSampleManyToMany())
             .isEqualTo(SampleDao.SampleManyAndMany(sample1 = sampleEntity1, sample2s = listOf()))
+    }
+
+    @Test
+    fun invalidRawQueryOnBindStatement() = runTest {
+        val query =
+            RoomRawQuery(sql = "SELECT * FROM SampleEntity", onBindStatement = { it.step() })
+        assertThrows<IllegalStateException> { db.dao().getSingleItemRaw(query) }
+            .hasMessageThat()
+            .contains("Only bind*() calls are allowed")
     }
 }

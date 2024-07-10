@@ -671,7 +671,7 @@ class XElementTest {
             )
         runProcessorTest(sources = listOf(subject)) {
             val inner = JClassName.get("foo.bar", "Baz.Inner")
-            assertThat(it.processingEnv.requireTypeElement(inner).isInterface()).isTrue()
+            assertThat(it.processingEnv.requireTypeElement(inner.toString()).isInterface()).isTrue()
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.isInterface()).isFalse()
             assertThat(element.isAbstract()).isFalse()

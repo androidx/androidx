@@ -187,10 +187,12 @@ class XTypeElementTest(
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AbstractClass").let {
                 assertThat(it.superClass!!.asTypeName())
-                    .isEqualTo(invocation.processingEnv.requireType(JTypeName.OBJECT).asTypeName())
+                    .isEqualTo(
+                        invocation.processingEnv.requireType(XTypeName.ANY_OBJECT).asTypeName()
+                    )
                 assertThat(it.type.superTypes.map(XType::asTypeName))
                     .containsExactly(
-                        invocation.processingEnv.requireType(JTypeName.OBJECT).asTypeName()
+                        invocation.processingEnv.requireType(XTypeName.ANY_OBJECT).asTypeName()
                     )
                 assertThat(it.isAbstract()).isTrue()
                 assertThat(it.isInterface()).isFalse()
@@ -203,7 +205,7 @@ class XTypeElementTest(
                 assertThat(it.superClass).isNull()
                 assertThat(it.type.superTypes.map(XType::asTypeName))
                     .containsExactly(
-                        invocation.processingEnv.requireType(JTypeName.OBJECT).asTypeName()
+                        invocation.processingEnv.requireType(XTypeName.ANY_OBJECT).asTypeName()
                     )
                 assertThat(it.isInterface()).isTrue()
                 assertThat(it.type.asTypeName())
