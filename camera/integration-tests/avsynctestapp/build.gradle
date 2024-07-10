@@ -41,6 +41,7 @@ dependencies {
 
     // Internal library
     implementation(project(":camera:camera-camera2"))
+    implementation(project(":camera:camera-camera2-pipe-integration"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-video"))
 
@@ -68,6 +69,8 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    androidTestImplementation(project(":concurrent:concurrent-futures"))
+    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testExtJunit)
