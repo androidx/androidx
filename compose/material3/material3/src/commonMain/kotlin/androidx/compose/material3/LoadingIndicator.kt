@@ -165,7 +165,7 @@ fun LoadingIndicator(
 fun ContainedLoadingIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
-    containerColor: Color = LoadingIndicatorDefaults.ContainerColor,
+    containerColor: Color = LoadingIndicatorDefaults.ContainedContainerColor,
     indicatorColor: Color = LoadingIndicatorDefaults.ContainedIndicatorColor,
     containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
@@ -202,7 +202,7 @@ fun ContainedLoadingIndicator(
 @Composable
 fun ContainedLoadingIndicator(
     modifier: Modifier = Modifier,
-    containerColor: Color = LoadingIndicatorDefaults.ContainerColor,
+    containerColor: Color = LoadingIndicatorDefaults.ContainedContainerColor,
     indicatorColor: Color = LoadingIndicatorDefaults.ContainedIndicatorColor,
     containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
@@ -474,14 +474,12 @@ object LoadingIndicatorDefaults {
      * A [LoadingIndicator] default active indicator [Color] when using a
      * [ContainedLoadingIndicator].
      */
-    // TODO Read this value from the tokens when available.
     val ContainedIndicatorColor: Color
-        @Composable get() = MaterialTheme.colorScheme.onPrimaryContainer
+        @Composable get() = LoadingIndicatorTokens.ContainedActiveColor.value
 
     /** A [LoadingIndicator] default container [Color] when using a [ContainedLoadingIndicator]. */
-    // TODO Read this value from the tokens when available.
-    val ContainerColor: Color
-        @Composable get() = MaterialTheme.colorScheme.primaryContainer
+    val ContainedContainerColor: Color
+        @Composable get() = LoadingIndicatorTokens.ContainedContainerColor.value
 
     /**
      * The sequence of [RoundedPolygon]s that the indeterminate [LoadingIndicator] will morph
