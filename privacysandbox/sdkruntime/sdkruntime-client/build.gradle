@@ -126,6 +126,7 @@ dependencies {
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:current"))
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v4"))
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v5"))
+    androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v6"))
 }
 
 android {
