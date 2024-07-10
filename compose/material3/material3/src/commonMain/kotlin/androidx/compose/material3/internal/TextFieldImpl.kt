@@ -54,9 +54,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.layout.IntrinsicMeasurable
-import androidx.compose.ui.layout.LayoutIdParentData
-import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
@@ -324,10 +321,6 @@ internal fun Modifier.textFieldBackground(
         onDrawBehind { drawOutline(outline, color = color()) }
     }
 
-internal fun widthOrZero(placeable: Placeable?) = placeable?.width ?: 0
-
-internal fun heightOrZero(placeable: Placeable?) = placeable?.height ?: 0
-
 @Composable
 private inline fun TextFieldTransitionScope(
     inputState: InputPhase,
@@ -471,9 +464,6 @@ private enum class InputPhase {
     // Text field is not focused but input text is not empty
     UnfocusedNotEmpty
 }
-
-internal val IntrinsicMeasurable.layoutId: Any?
-    get() = (parentData as? LayoutIdParentData)?.layoutId
 
 internal const val TextFieldId = "TextField"
 internal const val PlaceholderId = "Hint"
