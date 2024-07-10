@@ -47,6 +47,15 @@ abstract class BaseTypeConverterTest {
     }
 
     @Test
+    fun entityWithSubclassedConverter() = runTest {
+        val database = getDatabaseBuilder().addTypeConverter(SubBarConverter()).build()
+        val entity = TestEntity(1, Foo(2018), Bar("Estamos Bien"))
+        database.getDao().insertItem(entity)
+        assertThat(database.getDao().getItem(1)).isEqualTo(entity)
+        database.close()
+    }
+
+    @Test
     fun missingTypeConverter() {
         assertThrows<IllegalArgumentException> { getDatabaseBuilder().build() }
             .hasMessageThat()
@@ -84,11 +93,13 @@ abstract class BaseTypeConverterTest {
     }
 
     @ProvidedTypeConverter
-    class BarConverter {
+    open class BarConverter {
         @TypeConverter fun toBar(text: String): Bar = Bar(text)
 
         @TypeConverter fun fromBar(bar: Bar): String = bar.text
     }
+
+    class SubBarConverter : BarConverter()
 }
 
 expect object BaseTypeConverterTest_TestDatabaseConstructor : RoomDatabaseConstructor<TestDatabase>
