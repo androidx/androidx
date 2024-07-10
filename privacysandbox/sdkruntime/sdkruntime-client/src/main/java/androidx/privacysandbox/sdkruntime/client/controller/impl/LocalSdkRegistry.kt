@@ -118,7 +118,7 @@ internal class LocalSdkRegistry(
             localSdkRegistry.sdkLoader =
                 SdkLoader.create(
                     context,
-                    LocalControllerFactory(localSdkRegistry, appOwnedSdkRegistry)
+                    LocalControllerFactory(context, localSdkRegistry, appOwnedSdkRegistry)
                 )
 
             return localSdkRegistry

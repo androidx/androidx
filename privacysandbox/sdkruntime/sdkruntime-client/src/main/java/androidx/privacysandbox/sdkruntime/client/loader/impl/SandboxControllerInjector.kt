@@ -120,6 +120,12 @@ internal object SandboxControllerInjector {
             }
         }
 
+        if (ClientFeature.GET_CLIENT_PACKAGE_NAME.isAvailable(sdkVersion)) {
+            handlerBuilder.addHandlerFor("getClientPackageName") {
+                controller.getClientPackageName()
+            }
+        }
+
         return handlerBuilder.build()
     }
 

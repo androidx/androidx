@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.client.controller
 
+import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
@@ -30,6 +31,7 @@ import java.util.concurrent.Executor
 /** Local implementation that will be injected to locally loaded SDKs. */
 internal class LocalController(
     private val sdkPackageName: String,
+    private val applicationContext: Context,
     private val localSdkRegistry: SdkRegistry,
     private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
@@ -67,7 +69,5 @@ internal class LocalController(
         LocalSdkActivityHandlerRegistry.unregister(handlerCompat)
     }
 
-    override fun getClientPackageName(): String {
-        throw UnsupportedOperationException("Not supported yet")
-    }
+    override fun getClientPackageName(): String = applicationContext.getPackageName()
 }

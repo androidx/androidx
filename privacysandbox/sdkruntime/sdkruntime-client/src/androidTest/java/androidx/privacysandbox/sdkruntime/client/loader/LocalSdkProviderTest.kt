@@ -271,6 +271,18 @@ internal class LocalSdkProviderTest(
         assertThat(result.extraInformation).isSameInstanceAs(expectedError.extraInformation)
     }
 
+    @Test
+    fun getClientPackageName_returnsResultFromSdkController() {
+        assumeFeatureAvailable(ClientFeature.GET_CLIENT_PACKAGE_NAME)
+
+        val clientPackageName = "client.package.name"
+        controller.clientPackageNameResult = clientPackageName
+
+        val result = loadedSdk.loadTestSdk().getClientPackageName()
+
+        assertThat(result).isEqualTo(clientPackageName)
+    }
+
     internal class TestClassLoaderFactory(private val testStorage: TestLocalSdkStorage) :
         SdkLoader.ClassLoaderFactory {
         override fun createClassLoaderFor(
@@ -306,7 +318,7 @@ internal class LocalSdkProviderTest(
          * Create test params for each supported [ClientApiVersion] + current and future. Each
          * released version must have test-sdk named as "vX" (where X is version to test). These
          * TestSDKs should be registered in RuntimeEnabledSdkTable.xml and be compatible with
-         * [TestSdkWrapper].
+         * [SdkControllerWrapper].
          */
         @Parameterized.Parameters(name = "{0}")
         @JvmStatic
@@ -375,6 +387,7 @@ internal class LocalSdkProviderTest(
         var lastLoadSdkParams: Bundle? = null
         var loadSdkResult: SandboxedSdkCompat? = null
         var loadSdkError: LoadSdkCompatException? = null
+        var clientPackageNameResult: String? = null
 
         override fun loadSdk(
             sdkName: String,
@@ -421,8 +434,6 @@ internal class LocalSdkProviderTest(
             sdkActivityHandlers.values.remove(handlerCompat)
         }
 
-        override fun getClientPackageName(): String {
-            throw UnsupportedOperationException("Not supported yet")
-        }
+        override fun getClientPackageName(): String = clientPackageNameResult!!
     }
 }
