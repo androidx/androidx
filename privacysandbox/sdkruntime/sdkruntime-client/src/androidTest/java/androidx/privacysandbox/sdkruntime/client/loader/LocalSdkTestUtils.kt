@@ -110,6 +110,8 @@ internal class SdkControllerWrapper(private val controller: Any) {
         controller.callMethod("unregisterSdkSandboxActivityHandler", handler.proxy)
         handler.proxy = null
     }
+
+    fun getClientPackageName(): String = controller.callMethod("getClientPackageName") as String
 }
 
 /** Reflection wrapper for [SandboxedSdkCompat] */

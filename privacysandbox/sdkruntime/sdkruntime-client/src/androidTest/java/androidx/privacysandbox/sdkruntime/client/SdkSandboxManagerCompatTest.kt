@@ -284,6 +284,17 @@ class SdkSandboxManagerCompatTest {
             )
     }
 
+    @Test
+    fun sdkController_getClientPackageName_returnsAppPackageName() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val localSdk = managerCompat.loadSdkWithFeature(ClientFeature.GET_CLIENT_PACKAGE_NAME)
+
+        val result = localSdk.asTestSdk().getClientPackageName()
+        assertThat(result).isEqualTo(context.getPackageName())
+    }
+
     private fun SdkSandboxManagerCompat.loadSdkWithFeature(
         clientFeature: ClientFeature
     ): SandboxedSdkCompat {
