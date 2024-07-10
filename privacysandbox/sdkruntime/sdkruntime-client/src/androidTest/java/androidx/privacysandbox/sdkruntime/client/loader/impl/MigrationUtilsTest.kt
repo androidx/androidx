@@ -17,11 +17,9 @@
 package androidx.privacysandbox.sdkruntime.client.loader.impl
 
 import android.content.Context
-import android.os.Build
 import android.system.Os
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.io.DataInputStream
@@ -33,7 +31,6 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 class MigrationUtilsTest {
 
     private lateinit var context: Context
