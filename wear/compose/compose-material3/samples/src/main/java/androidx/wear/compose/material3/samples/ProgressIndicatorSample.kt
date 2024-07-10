@@ -36,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.CircularProgressIndicator
 import androidx.wear.compose.material3.Icon
@@ -72,6 +74,7 @@ fun FullScreenProgressIndicatorSample() {
 fun MediaButtonProgressIndicatorSample() {
     var isPlaying by remember { mutableStateOf(false) }
     val progressPadding = 4.dp
+    val progress = 0.75f
 
     Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
         Box(
@@ -79,10 +82,18 @@ fun MediaButtonProgressIndicatorSample() {
                 Modifier.align(Alignment.Center)
                     .size(IconButtonDefaults.DefaultButtonSize + progressPadding)
         ) {
-            CircularProgressIndicator(progress = { 0.75f }, strokeWidth = progressPadding)
+            CircularProgressIndicator(progress = { progress }, strokeWidth = progressPadding)
             IconButton(
                 modifier =
                     Modifier.align(Alignment.Center)
+                        .semantics {
+                            // Set custom progress semantics for accessibility.
+                            contentDescription =
+                                String.format(
+                                    "Play/pause button, track progress: %.0f%%",
+                                    progress * 100
+                                )
+                        }
                         .padding(progressPadding)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceContainerLow),
@@ -90,7 +101,7 @@ fun MediaButtonProgressIndicatorSample() {
             ) {
                 Icon(
                     imageVector = if (isPlaying) Icons.Filled.Close else Icons.Filled.PlayArrow,
-                    contentDescription = "Play/pause button icon"
+                    contentDescription = null,
                 )
             }
         }

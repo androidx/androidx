@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.CircularProgressIndicator
 import androidx.wear.compose.material.CompactChip
@@ -70,7 +71,7 @@ public fun CircularProgressIndicatorWithAnimation() {
 @Composable
 public fun CircularProgressIndicatorFullscreenWithGap() {
     CircularProgressIndicator(
-        modifier = Modifier.fillMaxSize().padding(all = 1.dp),
+        modifier = Modifier.fillMaxSize().padding(all = 1.dp).clearAndSetSemantics {},
         startAngle = 295.5f,
         endAngle = 245.5f,
         progress = 0.3f,
