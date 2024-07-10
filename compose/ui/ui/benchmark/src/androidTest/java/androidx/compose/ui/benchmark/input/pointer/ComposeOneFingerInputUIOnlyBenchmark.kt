@@ -94,7 +94,28 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         clickOnItem(lastItem, "$lastItem", 6)
     }
 
-    private fun clickOnItem(item: Int, expectedLabel: String, numberOfMoves: Int) {
+    @Test
+    fun clickWithMoveAndFlingHistoryOnLateItem() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at 0 will be hit tested late.
+        clickOnItem(0, "0", 6, true)
+    }
+
+    // This test requires less hit testing so changes to dispatch will be tracked more by this test.
+    @Test
+    fun clickWithMoveAndFlingHistoryOnEarlyItemFyi() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at NumItems - 1 will be hit tested early.
+        val lastItem = NumItems - 1
+        clickOnItem(lastItem, "$lastItem", 6, true)
+    }
+
+    private fun clickOnItem(
+        item: Int,
+        expectedLabel: String,
+        numberOfMoves: Int,
+        enableHistory: Boolean = false
+    ) {
         // half height of an item + top of the chosen item = middle of the chosen item
         val y = (ItemHeightPx / 2) + (item * ItemHeightPx)
         val xDown = 0f
@@ -131,7 +152,8 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                     initialTime = 100,
                     y = y,
                     rootView = rootView,
-                    numberOfMoveEvents = numberOfMoves
+                    numberOfMoveEvents = numberOfMoves,
+                    enableFlingStyleHistory = enableHistory
                 )
 
             val up =
@@ -155,6 +177,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                     case.expectedMoveCount++
                     assertThat(case.actualMoveCount).isEqualTo(case.expectedMoveCount)
                 }
+
                 // Double checks move count again (in case there weren't any moves).
                 assertThat(case.actualMoveCount).isEqualTo(case.expectedMoveCount)
 
@@ -173,6 +196,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         y: Float, // Same Y used for all moves
         rootView: View,
         numberOfMoveEvents: Int,
+        enableFlingStyleHistory: Boolean = false,
         timeDelta: Int = 100,
         moveDelta: Float = MOVE_AMOUNT_PX
     ): Triple<Int, Float, Array<MotionEvent>> {
@@ -180,22 +204,101 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         var x = initialX
 
         val moveMotionEvents =
-            Array(numberOfMoveEvents) {
+            Array(numberOfMoveEvents) { index ->
                 val move =
-                    MotionEvent(
-                        time,
-                        MotionEvent.ACTION_MOVE,
-                        1,
-                        0,
-                        arrayOf(PointerProperties(0)),
-                        arrayOf(PointerCoords(x, y)),
-                        rootView
-                    )
+                    if (enableFlingStyleHistory) {
+                        val historicalEventCount =
+                            numberOfHistoricalEventsBasedOnArrayLocation(index)
+
+                        // Move the time and x to the last known time (to start the historical time)
+                        // and offset them so they do not conflict with the last Down or Move event.
+                        var historicalTime: Int = time - timeDelta + 10
+
+                        var accountForMoveOffset = -1
+                        var historicalX =
+                            if (moveDelta > 0) {
+                                // accountForMoveOffset stays -1 (to account for +1 offset [below])
+                                x - moveDelta + 1
+                            } else {
+                                // accountForMoveOffset changes to 1 (to account for -1 offset
+                                // [below])
+                                accountForMoveOffset = 1
+                                x - moveDelta - 1
+                            }
+
+                        val historicalTimeDelta: Int = (timeDelta - 10) / historicalEventCount
+                        val historicalXDelta: Float =
+                            (moveDelta + accountForMoveOffset) / historicalEventCount
+
+                        // First "historical" event (it will be pushed into history once another is
+                        // added via `addBatch()`).
+                        val moveWithHistory =
+                            MotionEvent(
+                                historicalTime,
+                                MotionEvent.ACTION_MOVE,
+                                1,
+                                0,
+                                arrayOf(PointerProperties(0)),
+                                arrayOf(PointerCoords(historicalX, y)),
+                                rootView
+                            )
+
+                        // Start on the second historical event (1), since the event added when we
+                        // created the [MotionEvent] above will be pushed into the history and will
+                        // then become the first historical event.
+                        for (historyIndex in 1 until historicalEventCount) {
+                            historicalTime += historicalTimeDelta
+                            historicalX += historicalXDelta
+
+                            moveWithHistory.addBatch(
+                                historicalTime.toLong(),
+                                arrayOf(PointerCoords(historicalX, y)),
+                                0
+                            )
+                        }
+
+                        // Since The event's current location, position and size are updated to
+                        // the last values added via `addBatch()`, we need to add the main
+                        // [MotionEvent] time, x, and y values last.
+                        moveWithHistory.addBatch(time.toLong(), arrayOf(PointerCoords(x, y)), 0)
+                        // return move event with history added
+                        moveWithHistory
+                    } else {
+                        MotionEvent(
+                            time,
+                            MotionEvent.ACTION_MOVE,
+                            1,
+                            0,
+                            arrayOf(PointerProperties(0)),
+                            arrayOf(PointerCoords(x, y)),
+                            rootView
+                        )
+                    }
+
                 time += timeDelta
                 x += moveDelta
                 move
             }
         return Triple(time, x, moveMotionEvents)
+    }
+
+    /*
+     * Based on traces of fling events, the first events in a series of "MOVES" have more
+     * historical [MotionEvent]s than the subsequent events.
+     *
+     * Remember, historical events within a [MotionEvent] represent extra [MotionEvent]s
+     * that occurred faster than the refresh rate of the phone. A fling will have many more events
+     * in the beginning (and between the refresh rate since they are happening so quick) than in
+     * the end.
+     */
+    private fun numberOfHistoricalEventsBasedOnArrayLocation(index: Int): Int {
+        return when (index) {
+            0 -> 12
+            1 -> 9
+            2,
+            3 -> 4
+            else -> 2
+        }
     }
 
     private class ComposeTapTestCase : ComposeTestCase {
