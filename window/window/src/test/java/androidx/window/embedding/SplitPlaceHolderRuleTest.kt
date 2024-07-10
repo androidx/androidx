@@ -98,6 +98,7 @@ internal class SplitPlaceHolderRuleTest {
                         .setAnimationBackground(
                             EmbeddingAnimationBackground.createColorBackground(Color.GREEN)
                         )
+                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
                         .build()
                 )
                 .build()
