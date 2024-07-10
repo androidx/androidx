@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
@@ -29,7 +30,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import java.util.WeakHashMap
 
-/** Create PlayerView with Player and controlling playback based on player viewability. */
+/** Create PlayerView with Player and controlling playback based on player visibility. */
 class PlayerViewProvider {
 
     private val handler = Handler(Looper.getMainLooper())
@@ -42,14 +43,48 @@ class PlayerViewProvider {
         view.id = viewId
 
         val playerWithState = PlayerWithState(windowContext, videoUrl)
-
-        handler.post {
-            createdViews[view] = playerWithState
-            val player = playerWithState.initializePlayer()
-            view.setPlayer(player)
-        }
+        createdViews[view] = playerWithState
 
         return view
+    }
+
+    fun onPlayerVisible(id: Int) {
+        Log.i(TAG, "onPlayerVisible: $id")
+        handler.post {
+            for ((view: PlayerView, state: PlayerWithState) in createdViews) {
+                if (view.player == null) {
+                    val player = state.initializePlayer()
+                    view.setPlayer(player)
+                }
+                if (view.id == id && view.player?.isPlaying == false) {
+                    Log.i(TAG, "onPlayerVisible: resuming $id")
+                    view.player?.play()
+                }
+            }
+        }
+    }
+
+    fun onPlayerInvisible(id: Int) {
+        Log.i(TAG, "onPlayerInVisible: $id")
+        handler.post {
+            for ((view: PlayerView, _: PlayerWithState) in createdViews) {
+                if (view.id == id) {
+                    Log.i(TAG, "onPlayerInVisible: pausing $id")
+                    view.player?.pause()
+                }
+            }
+        }
+    }
+
+    fun onSessionClosed() {
+        Log.i(TAG, "onSessionClosed, releasing player resources")
+        handler.post {
+            for ((view: PlayerView, state: PlayerWithState) in createdViews) {
+                state.releasePlayer()
+                view.setPlayer(null)
+            }
+        }
+        createdViews.clear()
     }
 
     inner class PlayerWithState(private val context: Context, private val videoUrl: String) {

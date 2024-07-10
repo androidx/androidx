@@ -126,8 +126,7 @@ class TestAdapters(private val sdkContext: Context) {
         }
     }
 
-    inner class VideoBannerAd : BannerAd() {
-        private val playerViewProvider = PlayerViewProvider()
+    inner class VideoBannerAd(private val playerViewProvider: PlayerViewProvider) : BannerAd() {
 
         override fun buildAdView(sessionContext: Context): View {
             return playerViewProvider.createPlayerView(

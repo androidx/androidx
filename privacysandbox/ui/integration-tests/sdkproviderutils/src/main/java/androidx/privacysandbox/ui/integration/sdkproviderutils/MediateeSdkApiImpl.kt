@@ -58,7 +58,10 @@ class MediateeSdkApiImpl(private val sdkContext: Context) : IMediateeSdkApi.Stub
     }
 
     private fun loadVideoAd(): SandboxedUiAdapter {
-        return testAdapters.VideoBannerAd()
+        val playerViewProvider = PlayerViewProvider()
+        val adapter = testAdapters.VideoBannerAd(playerViewProvider)
+        PlayerViewabilityHandler.addObserverFactoryToAdapter(adapter, playerViewProvider)
+        return adapter
     }
 
     private fun loadNonWebViewBannerAd(
