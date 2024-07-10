@@ -23,6 +23,7 @@ import android.os.Build;
 
 import androidx.camera.testing.impl.mocks.MockConsumer;
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
+import androidx.camera.testing.impl.mocks.helpers.ArgumentMatcher;
 import androidx.camera.testing.impl.mocks.helpers.CallTimes;
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
 
@@ -93,6 +94,42 @@ public class MockConsumerTest {
         mMockConsumer.verifyAcceptCall(String.class, false, new CallTimes(2), captor);
 
         assertThat(DUMMY_STRING_2).isEqualTo(captor.getValue());
+    }
+
+    @Test
+    public void verifiedWithArgumentMatcher() {
+        // Arrange.
+        Integer[] integers = {0, 1, 0, 2, 0};
+        MockConsumer<Integer> mockConsumer = new MockConsumer<>();
+        ArgumentMatcher<Integer> matcher = argument -> argument > 0;
+
+        // Act.
+        for (int b : integers) {
+            mockConsumer.accept(b);
+        }
+
+        // Verify.
+        mockConsumer.verifyAcceptCall(Integer.class, false, 0, new CallTimes(2), matcher);
+    }
+
+    @Test
+    public void verifiedWithArgumentMatcherAndArgumentCaptor() {
+        // Arrange.
+        Integer[] integers = {0, 1, 2, 0, 4};
+        MockConsumer<Integer> mockConsumer = new MockConsumer<>();
+        ArgumentMatcher<Integer> matcher = argument -> argument > 0;
+
+        // Act.
+        for (int b : integers) {
+            mockConsumer.accept(b);
+        }
+
+        // Verify.
+        ArgumentCaptor<Integer> captor = new ArgumentCaptor<>(argument -> argument >= 2);
+        mockConsumer.verifyAcceptCall(Integer.class, false, 0, new CallTimes(3), captor, matcher);
+        assertThat(captor.getAllValues()).hasSize(2);
+        assertThat(captor.getAllValues().get(0)).isEqualTo(2);
+        assertThat(captor.getAllValues().get(1)).isEqualTo(4);
     }
 
     @Test
