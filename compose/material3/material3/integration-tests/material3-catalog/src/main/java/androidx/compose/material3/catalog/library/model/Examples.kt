@@ -66,6 +66,10 @@ import androidx.compose.material3.samples.ElevatedSplitButtonSample
 import androidx.compose.material3.samples.ElevatedSuggestionChipSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixed
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedAround
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedBetween
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedEvenly
 import androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedLargeTopAppBarWithSubtitle
 import androidx.compose.material3.samples.ExitUntilCollapsedCenterAlignedMediumTopAppBarWithSubtitle
 import androidx.compose.material3.samples.ExitUntilCollapsedLargeTopAppBar
@@ -601,6 +605,34 @@ val BottomAppBarsExamples =
             sourceUrl = BottomAppBarsExampleSourceUrl,
         ) {
             ExitAlwaysBottomAppBar()
+        },
+        Example(
+            name = "ExitAlwaysBottomAppBarSpacedAround",
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            ExitAlwaysBottomAppBarSpacedAround()
+        },
+        Example(
+            name = "ExitAlwaysBottomAppBarSpacedBetween",
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            ExitAlwaysBottomAppBarSpacedBetween()
+        },
+        Example(
+            name = "ExitAlwaysBottomAppBarSpacedEvenly",
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            ExitAlwaysBottomAppBarSpacedEvenly()
+        },
+        Example(
+            name = "ExitAlwaysBottomAppBarFixed",
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            ExitAlwaysBottomAppBarFixed()
         }
     )
 

@@ -1153,6 +1153,99 @@ fun BottomAppBar(
     scrollBehavior: BottomAppBarScrollBehavior? = null,
     content: @Composable RowScope.() -> Unit
 ) {
+    BottomAppBarLayout(
+        containerHeight = BottomAppBarTokens.ContainerHeight,
+        horizontalArrangement = Arrangement.Start,
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        tonalElevation = tonalElevation,
+        contentPadding = contentPadding,
+        windowInsets = windowInsets,
+        scrollBehavior = scrollBehavior,
+        content = content
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/bottom-app-bar/overview" class="external"
+ * target="_blank">Material Design bottom app bar</a>.
+ *
+ * A bottom app bar displays navigation and key actions at the bottom of mobile screens.
+ *
+ * ![Bottom app bar
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/bottom-app-bar.png)
+ *
+ * If you are interested in displaying a [FloatingActionButton], consider using another overload
+ * that takes a [FloatingActionButton] parameter.
+ *
+ * Also see [NavigationBar].
+ *
+ * A bottom app bar that specifies an [horizontalArrangement] and uses a [scrollBehavior] to
+ * customize its nested scrolling behavior when working in conjunction with a scrolling content
+ * looks like:
+ *
+ * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedAround
+ * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedBetween
+ * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedEvenly
+ * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixed
+ * @param horizontalArrangement the horizontal arrangement of the content.
+ * @param modifier the [Modifier] to be applied to this BottomAppBar
+ * @param containerColor the color used for the background of this BottomAppBar. Use
+ *   [Color.Transparent] to have no color.
+ * @param contentColor the preferred color for content inside this BottomAppBar. Defaults to either
+ *   the matching content color for [containerColor], or to the current [LocalContentColor] if
+ *   [containerColor] is not a color from the theme.
+ * @param contentPadding the padding applied to the content of this BottomAppBar
+ * @param windowInsets a window insets that app bar will respect.
+ * @param scrollBehavior a [BottomAppBarScrollBehavior] which holds various offset values that will
+ *   be applied by this bottom app bar to set up its height. A scroll behavior is designed to work
+ *   in conjunction with a scrolled content to change the bottom app bar appearance as the content
+ *   scrolls. See [BottomAppBarScrollBehavior.nestedScrollConnection].
+ * @param content the content of this BottomAppBar. The default layout here is a [Row], so content
+ *   inside will be placed horizontally.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun BottomAppBar(
+    horizontalArrangement: Arrangement.Horizontal,
+    modifier: Modifier = Modifier,
+    containerColor: Color = BottomAppBarDefaults.containerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 16.dp), // TODO tokens
+    windowInsets: WindowInsets = BottomAppBarDefaults.windowInsets,
+    scrollBehavior: BottomAppBarScrollBehavior? = null,
+    content: @Composable RowScope.() -> Unit
+) {
+    BottomAppBarLayout(
+        containerHeight = 64.dp, // TODO tokens
+        horizontalArrangement = horizontalArrangement,
+        modifier = modifier,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        tonalElevation = BottomAppBarDefaults.ContainerElevation,
+        contentPadding = contentPadding,
+        windowInsets = windowInsets,
+        scrollBehavior = scrollBehavior,
+        content = content
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BottomAppBarLayout(
+    containerHeight: Dp,
+    horizontalArrangement: Arrangement.Horizontal,
+    modifier: Modifier = Modifier,
+    containerColor: Color,
+    contentColor: Color,
+    tonalElevation: Dp,
+    contentPadding: PaddingValues,
+    windowInsets: WindowInsets,
+    scrollBehavior: BottomAppBarScrollBehavior?,
+    content: @Composable RowScope.() -> Unit
+) {
     // Set up support for resizing the bottom app bar when vertically dragging the bar itself.
     val appBarDragModifier =
         if (scrollBehavior != null && !scrollBehavior.isPinned) {
@@ -1186,10 +1279,8 @@ fun BottomAppBar(
             modifier
                 .layout { measurable, constraints ->
                     // Sets the app bar's height offset to collapse the entire bar's height when
-                    // content
-                    // is scrolled.
-                    scrollBehavior?.state?.heightOffsetLimit =
-                        -BottomAppBarTokens.ContainerHeight.toPx()
+                    // content is scrolled.
+                    scrollBehavior?.state?.heightOffsetLimit = -containerHeight.toPx()
 
                     val placeable = measurable.measure(constraints)
                     val height = placeable.height + (scrollBehavior?.state?.heightOffset ?: 0f)
@@ -1200,9 +1291,9 @@ fun BottomAppBar(
         Row(
             Modifier.fillMaxWidth()
                 .windowInsetsPadding(windowInsets)
-                .height(BottomAppBarTokens.ContainerHeight)
+                .height(containerHeight)
                 .padding(contentPadding),
-            horizontalArrangement = Arrangement.Start,
+            horizontalArrangement = horizontalArrangement,
             verticalAlignment = Alignment.CenterVertically,
             content = content
         )
@@ -1877,6 +1968,9 @@ object BottomAppBarDefaults {
     /** The color of a [BottomAppBar]'s [FloatingActionButton] */
     val bottomAppBarFabColor: Color
         @Composable get() = FabSecondaryTokens.ContainerColor.value
+
+    val HorizontalArrangement =
+        Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // TODO tokens
 
     /**
      * Returns a [BottomAppBarScrollBehavior]. A bottom app bar that is set up with this
