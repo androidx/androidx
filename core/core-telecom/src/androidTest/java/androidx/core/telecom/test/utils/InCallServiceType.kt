@@ -17,6 +17,7 @@
 package androidx.core.telecom.test.utils
 
 enum class InCallServiceType {
-    ICS_WITH_EXTENSIONS,
+    ICS_WITH_EXTENSIONS_OLD, // TODO: Remove this
+    ICS_WITH_EXTENSIONS_NEW,
     ICS_WITHOUT_EXTENSIONS
 }

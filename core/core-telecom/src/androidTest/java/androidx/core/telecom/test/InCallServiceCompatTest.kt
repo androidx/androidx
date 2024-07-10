@@ -75,7 +75,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     @Before
     fun setUp() {
         Utils.resetUtils()
-        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS, emptySet())
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS_OLD, emptySet())
     }
 
     @After
@@ -227,7 +227,7 @@ class InCallServiceCompatTest : BaseTelecomTest() {
     private fun configureCapabilityExchangeTypeTest(): Pair<String, Boolean>? {
         if (Utils.hasPlatformV2Apis()) {
             Log.w(CallCompatTest.TAG, "Setting up v2 tests for U+ device")
-            setUpV2TestWithExtensions()
+            setUpV2TestWithExtensionsOld()
         } else {
             Log.w(CallCompatTest.TAG, "Setting up backwards compatibility tests for pre-U device")
             setUpBackwardsCompatTest()

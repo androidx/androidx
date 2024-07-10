@@ -69,8 +69,31 @@ internal class MockInCallServiceDelegate : Service() {
         }
     }
 
+    @OptIn(ExperimentalAppActions::class)
+    class InCallServiceWExtensionsNew(context: Context) : InCallServiceCompat() {
+        init {
+            // Icky hack, but since we are using a delegate, we need to attach the Context manually.
+            if (baseContext == null) {
+                attachBaseContext(context)
+            }
+        }
+
+        override fun onCallAdded(call: Call) {
+            val callCompat = call.let { c -> CallCompat.toCallCompat(c) {} }
+            if (!mCalls.contains(callCompat)) {
+                Log.i(LOG_TAG, "ICSCN.onCallAdded: added the new call to static call list")
+                mCalls.add(callCompat)
+            }
+        }
+
+        override fun onCallRemoved(call: Call?) {
+            Log.i(LOG_TAG, String.format("ICSCN.onCallRemoved: call=[%s]", call))
+            mCalls.removeIf { c -> c.toCall() == call }
+        }
+    }
+
     @ExperimentalAppActions
-    class InCallServiceWExtensions(context: Context, val capabilities: Set<Capability>) :
+    class InCallServiceWExtensionsOld(context: Context, val capabilities: Set<Capability>) :
         InCallServiceCompat() {
         init {
             // Icky hack, but since we are using a delegate, we need to attach the Context manually.
@@ -187,8 +210,11 @@ internal class MockInCallServiceDelegate : Service() {
         Log.i(LOG_TAG, "Delegate service onCreate")
         mServiceFlow.tryEmit(
             when (mInCallServiceType) {
-                InCallServiceType.ICS_WITH_EXTENSIONS -> {
-                    InCallServiceWExtensions(applicationContext, mExtensions)
+                InCallServiceType.ICS_WITH_EXTENSIONS_OLD -> {
+                    InCallServiceWExtensionsOld(applicationContext, mExtensions)
+                }
+                InCallServiceType.ICS_WITH_EXTENSIONS_NEW -> {
+                    InCallServiceWExtensionsNew(applicationContext)
                 }
                 InCallServiceType.ICS_WITHOUT_EXTENSIONS -> {
                     InCallServiceWoExtensions(applicationContext)

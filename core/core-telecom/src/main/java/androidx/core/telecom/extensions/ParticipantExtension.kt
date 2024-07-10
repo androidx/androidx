@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
  * @param initialActiveParticipant The initial participant that is active in the call
  * @return The interface used to update the participant state to remote InCallServices
  */
+// TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
@@ -112,6 +113,7 @@ internal class ParticipantActionCallbackRepository {
  * @param initialParticipants The initial set of Participants that are associated with this call.
  * @param initialActiveParticipant The initial active Participant that is associated with this call.
  */
+// TODO: Refactor to Public API
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 @RequiresApi(VERSION_CODES.O)
@@ -264,6 +266,7 @@ class ParticipantExtension(
 }
 
 /** Action interface implemented by the listener of the RaiseHandAction */
+// TODO: Refactor to Public API
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 fun interface RaiseHandAction {
@@ -280,6 +283,7 @@ fun interface RaiseHandAction {
  * Interface used to communicate with remote InCallServices in order to update the current raised
  * hand state of all Participants
  */
+// TODO: Refactor to Public API
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 fun interface RaiseHandActionState {
@@ -300,6 +304,7 @@ fun interface RaiseHandActionState {
  * @return The interface used to update the current raised hand state of all participants in the
  *   call.
  */
+// TODO: Refactor to Public API
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 @RequiresApi(VERSION_CODES.O)
@@ -370,6 +375,7 @@ internal class RaiseHandActionRemote(
  * Interface used to notify callers when the remote InCallService has requested to kick a
  * participant.
  */
+// TODO: Refactor to Public API
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 fun interface KickParticipantAction {
@@ -386,6 +392,7 @@ fun interface KickParticipantAction {
  *
  * @param action The action to perform when the user requests to kick a participant
  */
+// TODO: Refactor to Public API
 @ExperimentalAppActions
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 @RequiresApi(VERSION_CODES.O)

@@ -102,11 +102,20 @@ abstract class BaseTelecomTest {
     }
 
     @ExperimentalAppActions
-    fun setUpV2TestWithExtensions(capabilities: Set<Capability> = emptySet()) {
-        Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs + Extension support")
+    fun setUpV2TestWithExtensionsNew() {
+        Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs + NEW Extension support")
         Utils.setUtils(TestUtils.mV2Build)
         mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
-        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS, capabilities)
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS_NEW)
+        logTelecomState()
+    }
+
+    @ExperimentalAppActions
+    fun setUpV2TestWithExtensionsOld(capabilities: Set<Capability> = emptySet()) {
+        Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs + OLD Extension support")
+        Utils.setUtils(TestUtils.mV2Build)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
+        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS_OLD, capabilities)
         logTelecomState()
     }
 

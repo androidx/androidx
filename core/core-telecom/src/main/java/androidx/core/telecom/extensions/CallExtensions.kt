@@ -43,6 +43,8 @@ import java.util.Collections
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
@@ -52,55 +54,24 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
- * Connects extensions to the provided [Call], allowing the call to support additional optional
- * behaviors beyond the traditional call state management.
- *
- * For example, an extension may allow the participants of a meeting to be surfaced to this
- * application so that the user can view and manage the participants in the meeting on different
- * surfaces:
- * ```
- * class InCallServiceImpl : InCallServiceCompat() {
- * ...
- *   override fun onCallAdded(call: Call) {
- *     lifecycleScope.launch {
- *       connectExtensions(context, call) {
- *         // Initialize extensions
- *         onConnected { call ->
- *           // change call states & listen/update extensions
- *         }
- *       }
- *       // Once the call is destroyed, control flow will resume again
- *     }
- *   }
- *  ...
- * }
- * ```
- */
-@ExperimentalAppActions
-@RequiresApi(Build.VERSION_CODES.O)
-internal suspend fun connectExtensions(
-    applicationContext: Context,
-    call: Call,
-    init: CallExtensionsScope.() -> Unit
-) {
-    val scope = CallExtensionsScope(applicationContext, call)
-    scope.init()
-    when (val type = scope.resolveCallExtensionsType()) {
-        CallExtensionsScope.CAPABILITY_EXCHANGE -> scope.performCapabilityExchange()
-        else -> Log.w(CallExtensionsScope.TAG, "connectExtensions: unexpected type: $type")
-    }
-    scope.invokeDelegate()
-    scope.waitForDestroy()
-}
-
-/**
  * Extensions registering to handle Extension must implement this receiver in order to create and
  * maintain the connection to the extension that they support.
  *
  * @see [CallExtensionsScope.registerExtension]
  */
 @OptIn(ExperimentalAppActions::class)
-internal typealias ExtensionReceiver = (Capability?, CapabilityExchangeListenerRemote?) -> Unit
+internal typealias ExtensionCreationReceiver =
+    suspend (Capability?, CapabilityExchangeListenerRemote?) -> Unit
+
+/**
+ * Encapsulates the [capability] associated with a call extension and its [receiver] to call when
+ * capability exchange has completed and the extension should be initialized.
+ */
+@ExperimentalAppActions
+internal data class CallExtensionCreationDelegate(
+    val capability: Capability,
+    val receiver: ExtensionCreationReceiver
+)
 
 /**
  * Represents the result of performing capability exchange with the underlying VOIP application.
@@ -128,10 +99,12 @@ internal data class CapabilityExchangeResult(
  * }
  * ```
  */
+// TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
 internal class CallExtensionsScope(
     private val applicationContext: Context,
+    internal val callScope: CoroutineScope,
     private val call: Call
 ) {
 
@@ -155,7 +128,9 @@ internal class CallExtensionsScope(
     private var delegate: (suspend (Call) -> Unit)? = null
     // Maps a Capability that has been registered to the Receiver that will be used to create and
     // maintain the extension connection with the remote VOIP application.
-    private val callExtensions = HashMap<Capability, ExtensionReceiver>()
+    // This has to be done this way because actions are set AFTER the extension is registered, so we
+    // need to query the Capability after CallExtensionScope initialization has completed.
+    private val callExtensions = HashSet<() -> CallExtensionCreationDelegate>()
 
     /**
      * Called when the [Call] extensions have been successfully set up and are ready to be used.
@@ -167,28 +142,26 @@ internal class CallExtensionsScope(
     }
 
     /**
-     * Register an extension with this call, whose [capability] will be negotiated with the VOIP
+     * Register an extension with this call, whose capability will be negotiated with the VOIP
      * application.
      *
      * Once capability exchange completes, the shared [Capability.featureId] will be used to map the
      * negotiated capability with this extension and [receiver] will be called with a valid
      * negotiated [Capability] and interface to use to create/manage this extension with the remote.
      *
-     * @param capability The [Capability] that will be registered to this extension and used during
-     *   feature negotiation.
      * @param receiver The receiver that will be called once capability exchange completes and we
      *   either have a valid negotiated capability or a `null` Capability if the remote side does
      *   not support this capability.
      */
-    internal fun registerExtension(capability: Capability, receiver: ExtensionReceiver) {
-        callExtensions[capability] = receiver
+    internal fun registerExtension(receiver: () -> CallExtensionCreationDelegate) {
+        callExtensions.add(receiver)
     }
 
     /**
      * Invoke the stored [onConnected] block once capability exchange has completed and the
      * associated extensions have been set up.
      */
-    internal suspend fun invokeDelegate() {
+    private suspend fun invokeDelegate() {
         Log.i(TAG, "invokeDelegate")
         delegate?.invoke(call)
     }
@@ -219,7 +192,7 @@ internal class CallExtensionsScope(
      *
      * @return the extension type [CapabilityExchangeType] resolved for the call.
      */
-    internal suspend fun resolveCallExtensionsType(): Int {
+    private suspend fun resolveCallExtensionsType(): Int {
         var details = call.details
         var type = NONE
         // Android CallsManager V+ check
@@ -278,39 +251,70 @@ internal class CallExtensionsScope(
         return type
     }
 
+    /** Perform the operation to connect the extensions to the call. */
+    internal suspend fun connectExtensionSession() {
+        val type = resolveCallExtensionsType()
+        Log.d(TAG, "connectExtensionsSession: type=$type")
+        // When we support EXTRAs, extensions should wrap this detail into a generic interface
+        val extensions = performExchangeWithRemote()
+        try {
+            when (type) {
+                CAPABILITY_EXCHANGE -> initializeExtensions(extensions)
+                else -> Log.w(TAG, "connectExtensions: unexpected type: $type")
+            }
+            invokeDelegate()
+            waitForDestroy()
+        } finally {
+            Log.i(TAG, "setupExtensionSession: scope closing, calling onRemoveExtensions")
+            callScope.cancel()
+            extensions?.extensionInitializationBinder?.onRemoveExtensions()
+        }
+    }
+
     /**
-     * Perform the capability exchange procedure with the calling application and negotiate
-     * capabilities. When complete, call all extension that were registered with [registerExtension]
-     * and provide the negotiated capability or null.
+     * Register the extensions interface with the remote application and get the result.
      *
      * If negotiation takes longer than [CAPABILITY_EXCHANGE_TIMEOUT_MS], we will assume the remote
      * does not support extensions at all.
      */
-    internal suspend fun performCapabilityExchange() {
-        Log.i(TAG, "performCapabilityExchange: Starting capability negotiation with VOIP app...")
+    private suspend fun performExchangeWithRemote(): CapabilityExchangeResult? {
+        Log.d(TAG, "requestExtensions: requesting extensions from remote")
         val extensions =
             withTimeoutOrNull(CAPABILITY_EXCHANGE_TIMEOUT_MS) { registerWithRemoteService() }
         if (extensions == null) {
-            Log.w(TAG, "performCapabilityExchange: never received response")
-            for (initializer in callExtensions.entries) {
-                initializer.value.invoke(null, null)
+            Log.w(TAG, "startCapabilityExchange: never received response")
+        }
+        return extensions
+    }
+
+    /**
+     * Initialize all extensions that were registered with [registerExtension] and provide the
+     * negotiated capability or null if the remote doesn't support this extension.
+     */
+    private suspend fun initializeExtensions(extensions: CapabilityExchangeResult?) {
+        Log.i(TAG, "initializeExtensions: Initializing extensions...")
+        val delegates = callExtensions.map { it() }
+        if (extensions == null) {
+            for (initializer in delegates) {
+                initializer.receiver(null, null)
             }
             return
         }
 
-        for (initializer in callExtensions.entries) {
+        for (initializer in delegates) {
+            Log.d(TAG, "initializeExtensions: capability=${initializer.capability}")
             val remoteCap =
                 extensions.voipCapabilities.firstOrNull {
-                    it.featureId == initializer.key.featureId
+                    it.featureId == initializer.capability.featureId
                 }
             if (remoteCap == null) {
-                initializer.value.invoke(null, null)
+                Log.d(TAG, "initializeExtensions: no VOIP capability, skipping...")
+                initializer.receiver.invoke(null, null)
                 continue
             }
-            initializer.value.invoke(
-                calculateNegotiatedCapability(initializer.key, remoteCap),
-                extensions.extensionInitializationBinder
-            )
+            val negotiatedCap = calculateNegotiatedCapability(initializer.capability, remoteCap)
+            Log.d(TAG, "initializeExtensions: negotiated cap=$negotiatedCap")
+            initializer.receiver.invoke(negotiatedCap, extensions.extensionInitializationBinder)
         }
     }
 
@@ -328,6 +332,11 @@ internal class CallExtensionsScope(
                         capabilities: MutableList<Capability>?,
                         l: ICapabilityExchangeListener?
                     ) {
+                        Log.v(
+                            TAG,
+                            "registerWithRemoteService: received remote result," +
+                                " caps=$capabilities, listener is null=${l == null}"
+                        )
                         continuation.resume(
                             l?.let {
                                 CapabilityExchangeResult(
@@ -338,6 +347,7 @@ internal class CallExtensionsScope(
                         )
                     }
                 }
+            Log.v(TAG, "registerWithRemoteService: sending event")
             val extras = setExtras(binder)
             call.sendCallEvent(CallsManager.EVENT_JETPACK_CAPABILITY_EXCHANGE, extras)
         }
@@ -392,7 +402,7 @@ internal class CallExtensionsScope(
     }
 
     /** Wait for the call to be destroyed. */
-    internal suspend fun waitForDestroy() = suspendCancellableCoroutine { continuation ->
+    private suspend fun waitForDestroy() = suspendCancellableCoroutine { continuation ->
         val callback =
             object : Callback() {
                 override fun onCallDestroyed(targetCall: Call?) {

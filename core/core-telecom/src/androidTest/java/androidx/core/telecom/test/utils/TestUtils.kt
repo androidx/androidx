@@ -431,9 +431,10 @@ object TestUtils {
 
 @ExperimentalAppActions
 class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppControlCallback.Stub() {
-    private val raisedHandFlow: MutableSharedFlow<Pair<String, Boolean>> = MutableSharedFlow()
+    private val raisedHandFlow: MutableSharedFlow<Pair<String, Boolean>> =
+        MutableSharedFlow(replay = 1)
     private val kickParticipantFlow: MutableSharedFlow<Pair<String, Participant?>> =
-        MutableSharedFlow()
+        MutableSharedFlow(replay = 1)
 
     override fun raiseHandStateAction(callId: String?, isHandRaised: Boolean) {
         if (callId == null) return

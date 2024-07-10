@@ -38,6 +38,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.CallExtensionsScope
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -119,14 +120,16 @@ internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
         super.onDestroy()
     }
 
+    // TODO: Refactor away onAddCallCompat
     @RequiresApi(Build.VERSION_CODES.O)
-    final override fun onCallAdded(@NonNull call: Call) {
+    override fun onCallAdded(@NonNull call: Call) {
         super.onCallAdded(call)
         processCallAdded(call)
     }
 
+    // TODO: Refactor away onRemoveCallCompat
     @RequiresApi(Build.VERSION_CODES.O)
-    final override fun onCallRemoved(call: Call?) {
+    override fun onCallRemoved(call: Call?) {
         if (call == null) return
         mCallCompats
             .find { Objects.equals(it.toCall(), call) }
@@ -134,6 +137,51 @@ internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
                 mCallCompats.remove(it)
                 onRemoveCallCompat(it)
             }
+    }
+
+    /**
+     * Connects extensions to the provided [Call], allowing the call to support additional optional
+     * behaviors beyond the traditional call state management.
+     *
+     * For example, an extension may allow the participants of a meeting to be surfaced to this
+     * application so that the user can view and manage the participants in the meeting on different
+     * surfaces:
+     * ```
+     * class InCallServiceImpl : InCallServiceCompat() {
+     * ...
+     *   override fun onCallAdded(call: Call) {
+     *     lifecycleScope.launch {
+     *       connectExtensions(context, call) {
+     *         // Initialize extensions
+     *         onConnected { call ->
+     *           // change call states & listen/update extensions
+     *         }
+     *       }
+     *       // Once the call is destroyed, control flow will resume again
+     *     }
+     *   }
+     *  ...
+     * }
+     * ```
+     *
+     * @param call The Call to connect extensions on.
+     * @param init The scope used to initialize and manage extensions in the scope of the Call.
+     */
+    // TODO: Refactor to Public API
+    @ExperimentalAppActions
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun connectExtensions(call: Call, init: CallExtensionsScope.() -> Unit) {
+        // Attach this to the scope of the InCallService so it does not outlive its lifecycle
+        lifecycleScope
+            .launch {
+                val scope = CallExtensionsScope(applicationContext, this, call)
+                Log.v(TAG, "connectExtensions: calling init")
+                scope.init()
+                Log.v(TAG, "connectExtensions: connecting extensions")
+                scope.connectExtensionSession()
+            }
+            .join()
+        Log.d(TAG, "connectExtensions: complete")
     }
 
     /** Create a flow that reports changes to [Call.Details] provided by the [Call.Callback]. */
