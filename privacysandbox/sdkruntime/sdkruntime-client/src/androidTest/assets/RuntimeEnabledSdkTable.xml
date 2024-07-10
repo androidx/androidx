@@ -28,14 +28,6 @@
         <package-name>androidx.privacysandbox.sdkruntime.testsdk.invalidEntryPoint</package-name>
     </runtime-enabled-sdk>
     <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/v1.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v1</package-name>
-    </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/v2.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v2</package-name>
-    </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
         <compat-config-path>RuntimeEnabledSdks/v4.xml</compat-config-path>
         <package-name>androidx.privacysandbox.sdkruntime.testsdk.v4</package-name>
     </runtime-enabled-sdk>

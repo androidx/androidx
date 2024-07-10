@@ -22,6 +22,7 @@ import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
+import androidx.privacysandbox.sdkruntime.core.internal.ClientApiVersion
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -70,6 +71,18 @@ class SdkLoaderTest {
         val loadedSdk = sdkLoader.loadSdk(testSdkConfig, customVersionHandshake)
 
         assertThat(loadedSdk.extractClientVersion()).isEqualTo(Int.MAX_VALUE)
+    }
+
+    @Test
+    fun loadSdk_forUnsupportedApiVersion_throwsLoadSdkCompatException() {
+        val customVersionHandshake =
+            VersionHandshake(overrideApiVersion = ClientApiVersion.MIN_SUPPORTED.apiLevel - 1)
+
+        assertThrows(LoadSdkCompatException::class.java) {
+                sdkLoader.loadSdk(testSdkConfig, customVersionHandshake)
+            }
+            .hasMessageThat()
+            .startsWith("SDK built with unsupported version of sdkruntime-provider library")
     }
 
     @Test
