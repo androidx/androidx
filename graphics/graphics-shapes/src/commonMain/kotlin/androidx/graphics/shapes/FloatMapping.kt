@@ -18,6 +18,7 @@ package androidx.graphics.shapes
 
 import androidx.collection.FloatList
 import androidx.collection.MutableFloatList
+import kotlin.jvm.JvmField
 
 /**
  * Checks if the given progress is in the given progress range, since progress is in the [0..1)
