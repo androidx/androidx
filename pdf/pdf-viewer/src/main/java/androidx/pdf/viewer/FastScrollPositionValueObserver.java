@@ -16,15 +16,19 @@
 
 package androidx.pdf.viewer;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.widget.FastScrollView;
 
-class FastScrollPositionValueObserver implements ObservableValue.ValueObserver<Integer> {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class FastScrollPositionValueObserver implements ObservableValue.ValueObserver<Integer> {
     private final FastScrollView mFastScrollView;
     private final PageIndicator mPageIndicator;
 
-    FastScrollPositionValueObserver(FastScrollView fastScrollView, PageIndicator pageIndicator) {
+    public FastScrollPositionValueObserver(@NonNull FastScrollView fastScrollView,
+            @NonNull PageIndicator pageIndicator) {
         mFastScrollView = fastScrollView;
         mPageIndicator = pageIndicator;
     }

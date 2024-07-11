@@ -18,6 +18,9 @@ package androidx.pdf.viewer;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
@@ -27,7 +30,8 @@ import androidx.pdf.widget.ZoomView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-class ZoomScrollValueObserver implements ObservableValue.ValueObserver<ZoomView.ZoomScroll> {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<ZoomView.ZoomScroll> {
     private final PaginatedView mPaginatedView;
     private final ZoomView mZoomView;
     private final LayoutHandler mLayoutHandler;
@@ -38,12 +42,13 @@ class ZoomScrollValueObserver implements ObservableValue.ValueObserver<ZoomView.
     private final boolean mIsAnnotationIntentResolvable;
     private final ObservableValue<ViewState> mViewState;
 
-    ZoomScrollValueObserver(ZoomView zoomView, PaginatedView paginatedView,
-            LayoutHandler layoutHandler,
-            FloatingActionButton annotationButton, FindInFileView findInFileView,
-            PageIndicator pageIndicator, FastScrollView fastScrollView,
+    public ZoomScrollValueObserver(@NonNull ZoomView zoomView, @NonNull PaginatedView paginatedView,
+            @NonNull LayoutHandler layoutHandler,
+            @Nullable FloatingActionButton annotationButton,
+            @Nullable FindInFileView findInFileView,
+            @NonNull PageIndicator pageIndicator, @NonNull FastScrollView fastScrollView,
             boolean isAnnotationIntentResolvable,
-            ObservableValue<ViewState> viewState) {
+            @NonNull ObservableValue<ViewState> viewState) {
         mZoomView = zoomView;
         mPaginatedView = paginatedView;
         mLayoutHandler = layoutHandler;
@@ -56,7 +61,8 @@ class ZoomScrollValueObserver implements ObservableValue.ValueObserver<ZoomView.
     }
 
     @Override
-    public void onChange(ZoomView.ZoomScroll oldPosition, ZoomView.ZoomScroll position) {
+    public void onChange(@Nullable ZoomView.ZoomScroll oldPosition,
+            @Nullable ZoomView.ZoomScroll position) {
         loadPageAssets(position);
         Range visiblePageRange = mPaginatedView.getPageRangeHandler()
                 .computeVisibleRange(position.scrollY, position.zoom,

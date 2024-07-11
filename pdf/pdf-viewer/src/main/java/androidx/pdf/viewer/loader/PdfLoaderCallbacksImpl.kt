@@ -71,9 +71,9 @@ class PdfLoaderCallbacksImpl(
     private val fragmentActivity: FragmentActivity? = pdfViewerFragment.activity
     private val pageElevationInPixels: Int =
         PaginationUtils.getPageElevationInPixels(pdfViewerFragment.requireContext())
-    private val paginationModel: PaginationModel = paginatedView.paginationModel
-    private val selectionModel: PdfSelectionModel? = zoomView.pdfSelectionModel
+    private var paginationModel: PaginationModel = paginatedView.paginationModel
 
+    var selectionModel: PdfSelectionModel? = zoomView.pdfSelectionModel
     var searchModel: SearchModel? = null
     var layoutHandler: LayoutHandler? = null
     var fileName: String? = null
@@ -129,7 +129,7 @@ class PdfLoaderCallbacksImpl(
             .setOverlay(selection.overlay)
     }
 
-    private fun loadPageAssets(position: ZoomScroll) {
+    fun loadPageAssets(position: ZoomScroll) {
         // Change the resolution of the bitmaps only when a gesture is not in progress.
         if (position.stable || zoomView.stableZoom == 0f) {
             zoomView.stableZoom = position.zoom
