@@ -117,6 +117,10 @@ object TextFieldDefaults {
      *   [MutableInteractionSource] instance to the [BasicTextField] for it to dispatch events. And
      *   then pass the same instance to this decorator to observe [Interaction]s and customize the
      *   appearance/behavior of the text field in different states.
+     * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults
+     *   to `false`, so the label will expand to occupy the input area when the text field is
+     *   unfocused and empty. When `true`, this allows displaying the [placeholder], [prefix], and
+     *   [suffix] alongside the [label] when the text field is unfocused and empty.
      * @param label the optional label to be displayed with this text field. The default text style
      *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the input text is empty. The
@@ -148,6 +152,7 @@ object TextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
+        alwaysMinimizeLabel: Boolean = false,
         label: @Composable (() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -192,6 +197,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = alwaysMinimizeLabel,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -418,6 +424,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = false,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -921,6 +928,10 @@ object OutlinedTextFieldDefaults {
      *   [MutableInteractionSource] instance to the [BasicTextField] for it to dispatch events. And
      *   then pass the same instance to this decorator to observe [Interaction]s and customize the
      *   appearance/behavior of the text field in different states.
+     * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults
+     *   to `false`, so the label will expand to occupy the input area when the text field is
+     *   unfocused and empty. When `true`, this allows displaying the [placeholder], [prefix], and
+     *   [suffix] alongside the [label] when the text field is unfocused and empty.
      * @param label the optional label to be displayed with this text field. The default text style
      *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the input text is empty. The
@@ -953,6 +964,7 @@ object OutlinedTextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
+        alwaysMinimizeLabel: Boolean = false,
         label: @Composable (() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -992,6 +1004,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = alwaysMinimizeLabel,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1160,6 +1173,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = false,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
