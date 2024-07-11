@@ -136,3 +136,23 @@ fun OverflowProgressIndicatorSample() {
         )
     }
 }
+
+@Sampled
+@Composable
+fun SmallValuesProgressIndicatorSample() {
+    Box {
+        CircularProgressIndicator(
+            // Small progress values like 2% will be rounded up to at least the stroke width.
+            progress = { 0.02f },
+            modifier = Modifier.fillMaxSize().padding(FullScreenPadding),
+            startAngle = 120f,
+            endAngle = 60f,
+            strokeWidth = 10.dp,
+            colors =
+                ProgressIndicatorDefaults.colors(
+                    indicatorColor = Color.Green,
+                    trackColor = Color.White
+                ),
+        )
+    }
+}

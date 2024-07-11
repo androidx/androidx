@@ -37,6 +37,7 @@ import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
+import androidx.wear.compose.material3.samples.SmallValuesProgressIndicatorSample
 
 val ProgressIndicatorDemos =
     listOf(
@@ -64,5 +65,8 @@ val ProgressIndicatorDemos =
                     )
                 }
             }
-        }
+        },
+        ComposableDemo("Small progress values") {
+            Centralize { SmallValuesProgressIndicatorSample() }
+        },
     )
