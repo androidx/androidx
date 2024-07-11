@@ -28,6 +28,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.LocaleList;
+import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -494,13 +495,29 @@ class AppCompatTextHelper {
                     textView.post(new Runnable() {
                         @Override
                         public void run() {
-                            textView.setTypeface(typeface, style);
+                            applyNewTypefacePreservingVariationSettings(textView, typeface, style);
                         }
                     });
                 } else {
-                    textView.setTypeface(typeface, mStyle);
+                    applyNewTypefacePreservingVariationSettings(textView, typeface, mStyle);
                 }
             }
+        }
+    }
+
+    private static void applyNewTypefacePreservingVariationSettings(TextView textView,
+            Typeface typeface, int style) {
+        String fontVariationSettings = null;
+        if (Build.VERSION.SDK_INT >= 26) {
+            fontVariationSettings = Api26Impl.getFontVariationSettings(textView);
+            if (!TextUtils.isEmpty(fontVariationSettings)) {
+                Api26Impl.setFontVariationSettings(textView, null);
+            }
+        }
+
+        textView.setTypeface(typeface, style);
+        if (Build.VERSION.SDK_INT >= 26 && !TextUtils.isEmpty(fontVariationSettings)) {
+            Api26Impl.setFontVariationSettings(textView, fontVariationSettings);
         }
     }
 
@@ -757,6 +774,10 @@ class AppCompatTextHelper {
     static class Api26Impl {
         private Api26Impl() {
             // This class is not instantiable.
+        }
+
+        static String getFontVariationSettings(TextView textView) {
+            return textView.getFontVariationSettings();
         }
 
         static boolean setFontVariationSettings(TextView textView, String fontVariationSettings) {
