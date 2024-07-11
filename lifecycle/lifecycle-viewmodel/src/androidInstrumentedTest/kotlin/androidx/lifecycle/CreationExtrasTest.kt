@@ -16,26 +16,115 @@
 
 package androidx.lifecycle
 
-import android.os.Bundle
-import androidx.core.os.bundleOf
 import androidx.kruth.assertThat
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.contains
+import androidx.lifecycle.viewmodel.plus
+import androidx.lifecycle.viewmodel.plusAssign
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
+private val STRING_KEY_1 = CreationExtras.Key<String>()
+private val STRING_KEY_2 = CreationExtras.Key<String>()
+
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class CreationExtrasTest {
+
     @Test
-    fun testInitialCreationExtras() {
-        val initial = MutableCreationExtras()
-        val key = object : CreationExtras.Key<Bundle> {}
-        initial[key] = bundleOf("value" to "initial")
-        val mutable = MutableCreationExtras(initial)
-        initial[key] = bundleOf("value" to "overridden")
-        assertThat(mutable[key]?.getString("value")).isEqualTo("initial")
+    fun keyFactory_returnsDistinctInstances() {
+        val key1 = CreationExtras.Key<String>()
+        val key2 = CreationExtras.Key<String>()
+
+        assertThat(key1).isNotEqualTo(key2)
+    }
+
+    @Test
+    fun initialExtras_originalModifiedAfterCopy_copyRemainsUnchanged() {
+        val otherExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val underTest = MutableCreationExtras(initialExtras = otherExtras)
+        otherExtras[STRING_KEY_1] = "value2"
+
+        assertThat(otherExtras[STRING_KEY_1]).isEqualTo("value2")
+        assertThat(underTest[STRING_KEY_1]).isEqualTo("value1")
+    }
+
+    @Test
+    fun equals_sameValues_isEqual() {
+        val underTest = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val otherExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+
+        assertThat(underTest).isEqualTo(otherExtras)
+    }
+
+    @Test
+    fun equals_differentValues_isNotEqual() {
+        val underTest = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val otherExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "value2" }
+
+        assertThat(underTest).isNotEqualTo(otherExtras)
+    }
+
+    @Test
+    fun contains_returnsTrueForExistingKey() {
+        val underTest = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+
+        val result = STRING_KEY_1 in underTest
+
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun contains_returnsFalseForNonExistingKey() {
+        val underTest = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+
+        val result = STRING_KEY_2 in underTest
+
+        assertThat(result).isFalse()
+    }
+
+    @Test
+    fun plus_addedTogetherWithUniqueKeys_combinesValues() {
+        val extras1 = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val extras2 = MutableCreationExtras().apply { this[STRING_KEY_2] = "value2" }
+
+        val underTest = extras1 + extras2
+
+        assertThat(underTest[STRING_KEY_1]).isEqualTo(extras1[STRING_KEY_1])
+        assertThat(underTest[STRING_KEY_2]).isEqualTo(extras2[STRING_KEY_2])
+    }
+
+    @Test
+    fun plus_addedTogetherWithConflictingKeys_overridesFirstValue() {
+        val extras1 = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val extras2 = MutableCreationExtras().apply { this[STRING_KEY_1] = "value2" }
+
+        val underTest = extras1 + extras2
+
+        assertThat(underTest[STRING_KEY_1]).isEqualTo(extras2[STRING_KEY_1])
+    }
+
+    @Test
+    fun plusAssign_addedTogetherWithUniqueKeys_combinesValues() {
+        val underTest = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val otherExtras = MutableCreationExtras().apply { this[STRING_KEY_2] = "value2" }
+
+        underTest += otherExtras
+
+        assertThat(underTest[STRING_KEY_1]).isEqualTo(underTest[STRING_KEY_1])
+        assertThat(underTest[STRING_KEY_2]).isEqualTo(otherExtras[STRING_KEY_2])
+    }
+
+    @Test
+    fun plusAssign_addedTogetherWithConflictingKeys_overridesFirstValue() {
+        val underTest = MutableCreationExtras().apply { this[STRING_KEY_1] = "value1" }
+        val otherExtras = MutableCreationExtras().apply { this[STRING_KEY_1] = "value2" }
+
+        underTest += otherExtras
+
+        assertThat(underTest[STRING_KEY_1]).isEqualTo(otherExtras[STRING_KEY_1])
     }
 }
