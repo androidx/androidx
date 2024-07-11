@@ -255,8 +255,9 @@ private fun AnimatedScrollIndicator(
                     }
             }
         }
-        Box(modifier = Modifier.fillMaxSize().graphicsLayer { alpha = alphaValue.floatValue }) {
-            scrollIndicator()
-        }
+        Box(
+            modifier = Modifier.fillMaxSize().graphicsLayer { alpha = alphaValue.floatValue },
+            content = scrollIndicator
+        )
     }
 }
