@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Binder
 import android.util.LayoutDirection
 import android.util.Log
@@ -50,6 +51,7 @@ import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
+import androidx.window.extensions.embedding.AnimationParams as OEMEmbeddingAnimationParams
 import androidx.window.extensions.embedding.DividerAttributes as OEMDividerAttributes
 import androidx.window.extensions.embedding.DividerAttributes.RATIO_SYSTEM_DEFAULT
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
@@ -144,15 +146,40 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                             )
                     }
                 )
-        if (extensionVersion >= 5) {
-            val animationBackground = splitAttributes.animationBackground
-            builder.setAnimationBackground(
-                if (animationBackground is OEMEmbeddingAnimationBackground.ColorBackground) {
-                    EmbeddingAnimationBackground.createColorBackground(animationBackground.color)
-                } else {
-                    EmbeddingAnimationBackground.DEFAULT
-                }
-            )
+        if (extensionVersion in 5..6) {
+            val animationParams =
+                EmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        translateToJetpackAnimationBackground(splitAttributes.animationBackground)
+                    )
+                    .build()
+            builder.setAnimationParams(animationParams)
+        }
+        if (extensionVersion >= 7) {
+            val animationParams =
+                EmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        translateToJetpackAnimationBackground(
+                            splitAttributes.animationParams.animationBackground
+                        )
+                    )
+                    .setOpenAnimation(
+                        translateToJetpackAnimationSpec(
+                            splitAttributes.animationParams.openAnimationResId
+                        )
+                    )
+                    .setCloseAnimation(
+                        translateToJetpackAnimationSpec(
+                            splitAttributes.animationParams.closeAnimationResId
+                        )
+                    )
+                    .setChangeAnimation(
+                        translateToJetpackAnimationSpec(
+                            splitAttributes.animationParams.changeAnimationResId
+                        )
+                    )
+                    .build()
+            builder.setAnimationParams(animationParams)
         }
         if (extensionVersion >= 6) {
             builder.setDividerAttributes(
@@ -316,11 +343,36 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                     }
                 )
         if (extensionVersion >= 5) {
-            builder
-                .setWindowAttributes(translateWindowAttributes())
-                .setAnimationBackground(
-                    translateAnimationBackground(splitAttributes.animationBackground)
+            builder.setWindowAttributes(translateWindowAttributes())
+        }
+        if (extensionVersion in 5..6) {
+            builder.setAnimationBackground(
+                translateToOemAnimationBackground(
+                    splitAttributes.animationParams.animationBackground
                 )
+            )
+        }
+        if (extensionVersion >= 7) {
+            val animationParams =
+                OEMEmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        translateToOemAnimationBackground(
+                            splitAttributes.animationParams.animationBackground
+                        )
+                    )
+                    .setOpenAnimationResId(
+                        translateToOemAnimationResId(splitAttributes.animationParams.openAnimation)
+                    )
+                    .setCloseAnimationResId(
+                        translateToOemAnimationResId(splitAttributes.animationParams.closeAnimation)
+                    )
+                    .setChangeAnimationResId(
+                        translateToOemAnimationResId(
+                            splitAttributes.animationParams.changeAnimation
+                        )
+                    )
+                    .build()
+            builder.setAnimationParams(animationParams)
         }
         if (extensionVersion >= 6) {
             builder.setDividerAttributes(
@@ -452,7 +504,8 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
             .toSet()
     }
 
-    private fun translateAnimationBackground(
+    @RequiresWindowSdkExtension(5)
+    private fun translateToOemAnimationBackground(
         animationBackground: EmbeddingAnimationBackground
     ): OEMEmbeddingAnimationBackground {
         WindowSdkExtensions.getInstance().requireExtensionVersion(5)
@@ -460,6 +513,42 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
             OEMEmbeddingAnimationBackground.createColorBackground(animationBackground.color)
         } else {
             OEMEmbeddingAnimationBackground.ANIMATION_BACKGROUND_DEFAULT
+        }
+    }
+
+    @RequiresWindowSdkExtension(5)
+    private fun translateToJetpackAnimationBackground(
+        animationBackground: OEMEmbeddingAnimationBackground
+    ): EmbeddingAnimationBackground {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        return if (animationBackground is OEMEmbeddingAnimationBackground.ColorBackground) {
+            EmbeddingAnimationBackground.createColorBackground(animationBackground.color)
+        } else {
+            EmbeddingAnimationBackground.DEFAULT
+        }
+    }
+
+    @RequiresWindowSdkExtension(7)
+    private fun translateToOemAnimationResId(
+        animationSpec: EmbeddingAnimationParams.AnimationSpec
+    ): Int {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(7)
+        return if (animationSpec == EmbeddingAnimationParams.AnimationSpec.JUMP_CUT) {
+            Resources.ID_NULL
+        } else {
+            OEMEmbeddingAnimationParams.DEFAULT_ANIMATION_RESOURCES_ID
+        }
+    }
+
+    @RequiresWindowSdkExtension(7)
+    private fun translateToJetpackAnimationSpec(
+        animationResId: Int
+    ): EmbeddingAnimationParams.AnimationSpec {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(7)
+        return if (animationResId == Resources.ID_NULL) {
+            EmbeddingAnimationParams.AnimationSpec.JUMP_CUT
+        } else {
+            EmbeddingAnimationParams.AnimationSpec.DEFAULT
         }
     }
 
