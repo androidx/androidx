@@ -108,6 +108,7 @@ import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
 import androidx.compose.material3.samples.LoadingIndicatorSample
+import androidx.compose.material3.samples.MediumFloatingActionButtonSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
@@ -779,6 +780,13 @@ val FloatingActionButtonsExamples =
             sourceUrl = FloatingActionButtonsExampleSourceUrl,
         ) {
             LargeFloatingActionButtonSample()
+        },
+        Example(
+            name = "MediumFloatingActionButtonSample",
+            description = FloatingActionButtonsExampleDescription,
+            sourceUrl = FloatingActionButtonsExampleSourceUrl,
+        ) {
+            MediumFloatingActionButtonSample()
         },
         Example(
             name = "SmallFloatingActionButtonSample",
