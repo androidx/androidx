@@ -110,17 +110,25 @@ class CameraCoordinatorAdapter(
         return activeConcurrentCameraInfosList
     }
 
+    @OptIn(ExperimentalCamera2Interop::class)
     override fun setActiveConcurrentCameraInfos(cameraInfos: MutableList<CameraInfo>) {
         activeConcurrentCameraInfosList = cameraInfos
         val graphConfigs =
-            cameraInternalMap.values.map {
-                checkNotNull(it.getDeferredCameraGraphConfig()) {
-                    "Every CameraInternal instance is expected to have a deferred CameraGraph config " +
-                        "when the active concurrent CameraInfos are set!"
+            cameraInternalMap.values
+                .filter { cameraInternal ->
+                    cameraInfos.any {
+                        Camera2CameraInfo.from(it).getCameraId() ==
+                            cameraInternal.cameraInfoInternal.cameraId
+                    }
                 }
-            }
+                .map {
+                    checkNotNull(it.getDeferredCameraGraphConfig()) {
+                        "Every CameraInternal instance is expected to have a deferred CameraGraph " +
+                            "config when the active concurrent CameraInfos are set!"
+                    }
+                }
         val cameraGraphs = checkNotNull(cameraPipe).createCameraGraphs(graphConfigs)
-        check(cameraGraphs.size == cameraInternalMap.size)
+        check(cameraGraphs.size == graphConfigs.size)
         for ((cameraInternalAdapter, cameraGraph) in cameraInternalMap.values.zip(cameraGraphs)) {
             cameraInternalAdapter.resumeDeferredCameraGraphCreation(cameraGraph)
         }

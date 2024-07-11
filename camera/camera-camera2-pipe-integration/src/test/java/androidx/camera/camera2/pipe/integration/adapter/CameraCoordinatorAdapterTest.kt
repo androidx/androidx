@@ -32,6 +32,7 @@ import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_C
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_SINGLE
 import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -128,6 +129,13 @@ class CameraCoordinatorAdapterTest {
         // REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE will be filtered.
         ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", "fake-fingerprint")
         cameraCoordinatorAdapter = CameraCoordinatorAdapter(cameraPipe, cameraDevices)
+
+        whenever(mockCameraInternalAdapter0.cameraInfoInternal)
+            .thenReturn(FakeCameraInfoInternal("0"))
+        whenever(mockCameraInternalAdapter1.cameraInfoInternal)
+            .thenReturn(FakeCameraInfoInternal("1"))
+        whenever(mockCameraInternalAdapter2.cameraInfoInternal)
+            .thenReturn(FakeCameraInfoInternal("2"))
         cameraCoordinatorAdapter.registerCamera("0", mockCameraInternalAdapter0)
         cameraCoordinatorAdapter.registerCamera("1", mockCameraInternalAdapter1)
         cameraCoordinatorAdapter.registerCamera("2", mockCameraInternalAdapter2)
