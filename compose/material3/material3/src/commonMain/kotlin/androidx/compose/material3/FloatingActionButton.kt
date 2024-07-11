@@ -191,6 +191,60 @@ fun SmallFloatingActionButton(
 
 /**
  * <a href="https://m3.material.io/components/floating-action-button/overview" class="external"
+ * target="_blank">Material Design medium floating action button</a>.
+ *
+ * The FAB represents the most important action on a screen. It puts key actions within reach.
+ *
+ * @sample androidx.compose.material3.samples.MediumFloatingActionButtonSample
+ * @param onClick called when this FAB is clicked
+ * @param modifier the [Modifier] to be applied to this FAB
+ * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
+ * @param containerColor the color used for the background of this FAB. Use [Color.Transparent] to
+ *   have no color.
+ * @param contentColor the preferred color for content inside this FAB. Defaults to either the
+ *   matching content color for [containerColor], or to the current [LocalContentColor] if
+ *   [containerColor] is not a color from the theme.
+ * @param elevation [FloatingActionButtonElevation] used to resolve the elevation for this FAB in
+ *   different states. This controls the size of the shadow below the FAB. Additionally, when the
+ *   container color is [ColorScheme.surface], this controls the amount of primary color applied as
+ *   an overlay. See also: [Surface].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this FAB. You can use this to change the FAB's appearance or
+ *   preview the FAB in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ * @param content the content of this FAB, typically an [Icon]
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun MediumFloatingActionButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    shape: Shape = FloatingActionButtonDefaults.mediumShape,
+    containerColor: Color = FloatingActionButtonDefaults.containerColor,
+    contentColor: Color = contentColorFor(containerColor),
+    elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit,
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        modifier =
+            // TODO: update sizes to use tokens
+            modifier.sizeIn(
+                minWidth = 80.dp,
+                minHeight = 80.dp,
+            ),
+        shape = shape,
+        containerColor = containerColor,
+        contentColor = contentColor,
+        elevation = elevation,
+        interactionSource = interactionSource,
+        content = content,
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/floating-action-button/overview" class="external"
  * target="_blank">Material Design large floating action button</a>.
  *
  * The FAB represents the most important action on a screen. It puts key actions within reach.
@@ -397,6 +451,12 @@ fun ExtendedFloatingActionButton(
 
 /** Contains the default values used by [FloatingActionButton] */
 object FloatingActionButtonDefaults {
+    /** The recommended size of the icon inside a [MediumFloatingActionButton]. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val MediumIconSize = 28.dp // TODO: update to use token
+
     /** The recommended size of the icon inside a [LargeFloatingActionButton]. */
     val LargeIconSize = FabPrimaryLargeTokens.IconSize
 
@@ -407,6 +467,13 @@ object FloatingActionButtonDefaults {
     /** Default shape for a small floating action button. */
     val smallShape: Shape
         @Composable get() = FabPrimarySmallTokens.ContainerShape.value
+
+    /** Default shape for a medium floating action button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val mediumShape: Shape
+        @Composable get() = ShapeDefaults.LargeIncreased // TODO: update to use token
 
     /** Default shape for a large floating action button. */
     val largeShape: Shape

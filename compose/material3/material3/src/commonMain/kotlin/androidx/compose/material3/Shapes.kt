@@ -276,7 +276,7 @@ object ShapeDefaults {
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     /** Large sized corner shape, slightly larger than [Large] */
-    val LargeIncreased: CornerBasedShape = RoundedCornerShape(16.dp)
+    val LargeIncreased: CornerBasedShape = RoundedCornerShape(20.dp)
 
     /** Extra large sized corner shape */
     val ExtraLarge: CornerBasedShape = ShapeTokens.CornerExtraLarge
