@@ -55,6 +55,7 @@ import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -2386,6 +2387,42 @@ class GLFrontBufferedRendererTest {
         // the error is confusing.
         assertTrue(beforeStallEndsFrontDraws!!.isEmpty())
         assertEquals(listOf("FIRST", "SECOND"), frontBufferDraws.toList())
+    }
+
+    @Test
+    fun multiBufferedLayerDrawDoesNotAllocateEmptySegment() {
+        val callbacks =
+            object : GLFrontBufferedRenderer.Callback<String> {
+
+                override fun onDrawFrontBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    param: String
+                ) {}
+
+                override fun onDrawMultiBufferedLayer(
+                    eglManager: EGLManager,
+                    width: Int,
+                    height: Int,
+                    bufferInfo: BufferInfo,
+                    transform: FloatArray,
+                    params: Collection<String>
+                ) {
+                    // emptyList always returns the same singleton instance, which we use both for
+                    // empty commits and any time a multi-layer draw is implcitly requested with no
+                    // active segment in the queue (e.g. on surface creation).
+                    assertSame(emptyList<String>(), params)
+                }
+            }
+        verifyGLFrontBufferedRenderer(
+            callbacks,
+        ) { _, renderer, _ ->
+            // commit with the current segment empty (no front draws).
+            renderer.commit()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
