@@ -322,10 +322,9 @@ actual fun Popup(
                                 updatePosition()
                             }
                             // Hide the popup while we can't position it correctly
-                            .alpha(if (canCalculatePosition) 1f else 0f)
-                    ) {
-                        currentContent()
-                    }
+                            .alpha(if (canCalculatePosition) 1f else 0f),
+                        currentContent
+                    )
                 }
             }
     }
