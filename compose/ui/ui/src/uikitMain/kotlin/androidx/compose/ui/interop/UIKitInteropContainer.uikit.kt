@@ -167,6 +167,12 @@ internal class UIKitInteropContainer(
         }
     }
 
+    override fun unplaceInteropView(nativeView: UIView) {
+        deferAction {
+            nativeView.removeFromSuperview()
+        }
+    }
+
     fun startTrackingInteropView(nativeView: UIView) {
         if (interopViews.isEmpty()) {
             transaction.state = UIKitInteropState.BEGAN

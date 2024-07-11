@@ -439,12 +439,10 @@ private class InteropViewHandler<T : UIView>(
     onRelease: (T) -> Unit
 ) : InteropComponentHandler<T>(createView, interopContainer, onResize, onRelease) {
     override fun setupViewHierarchy() {
-        interopContainer.containerView.addSubview(wrappingView)
         wrappingView.addSubview(component)
     }
 
     override fun destroyViewHierarchy() {
-        wrappingView.removeFromSuperview()
     }
 }
 
@@ -457,14 +455,12 @@ private class InteropViewControllerHandler<T : UIViewController>(
 ) : InteropComponentHandler<T>(createViewController, interopContainer, onResize, onRelease) {
     override fun setupViewHierarchy() {
         rootViewController.addChildViewController(component)
-        interopContainer.containerView.addSubview(wrappingView)
         wrappingView.addSubview(component.view)
         component.didMoveToParentViewController(rootViewController)
     }
 
     override fun destroyViewHierarchy() {
         component.willMoveToParentViewController(null)
-        wrappingView.removeFromSuperview()
         component.removeFromParentViewController()
     }
 }
