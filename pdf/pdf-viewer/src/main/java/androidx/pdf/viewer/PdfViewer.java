@@ -16,7 +16,6 @@
 
 package androidx.pdf.viewer;
 
-import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 import android.annotation.SuppressLint;
@@ -34,9 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnScrollChangedListener;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,17 +51,13 @@ import androidx.pdf.data.Openable;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.data.Range;
 import androidx.pdf.fetcher.Fetcher;
-import androidx.pdf.find.FindInFileListener;
 import androidx.pdf.find.FindInFileView;
-import androidx.pdf.find.MatchCount;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
 import androidx.pdf.util.AnnotationUtils;
-import androidx.pdf.util.CycleRange;
-import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.Screen;
@@ -364,6 +357,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         mZoomView, mLayoutHandler, requireContext());
         mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
 
+        mFindInFileView.setPaginatedView(mPaginatedView);
+        mFindInFileView.setFileUri(mLocalUri);
+
         if (savedState != null) {
             int layoutReach = savedState.getInt(KEY_LAYOUT_REACH);
             mLayoutHandler.setInitialPageLayoutReachWithMax(layoutReach);
@@ -396,8 +392,9 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
     private void createContentModel(PdfLoader pdfLoader) {
         this.mPdfLoader = pdfLoader;
+        mFindInFileView.setPdfLoader(pdfLoader);
 
-        mSearchModel = new SearchModel(pdfLoader);
+        mSearchModel = mFindInFileView.getSearchModel();
 
         mSelectionModel = new PdfSelectionModel(pdfLoader);
 
@@ -655,44 +652,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mLoadingSpinner != null) {
             mLoadingSpinner.post(() -> mLoadingSpinner.setVisibility(View.GONE));
         }
-    }
-
-    private FindInFileListener makeFindInFileListener() {
-        return new FindInFileListener() {
-            @Override
-            public boolean onQueryTextChange(@Nullable String query) {
-                if (mSearchModel != null) {
-                    mSearchModel.setQuery(query,
-                            mPaginatedView.getPageRangeHandler().getVisiblePage());
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public boolean onFindNextMatch(String query, boolean backwards) {
-                if (mSearchModel != null) {
-                    CycleRange.Direction direction;
-                    if (backwards) {
-                        direction = CycleRange.Direction.BACKWARDS;
-                        // TODO: Track "find previous" action event.
-                    } else {
-                        direction = CycleRange.Direction.FORWARDS;
-                        // TODO: Track "find next" action event.
-                    }
-                    mSearchModel.selectNextMatch(direction,
-                            mPaginatedView.getPageRangeHandler().getVisiblePage());
-                    return true;
-                }
-                return false;
-            }
-
-            @Nullable
-            @Override
-            public ObservableValue<MatchCount> matchCount() {
-                return mSearchModel != null ? mSearchModel.matchCount() : null;
-            }
-        };
     }
 
     // TODO: Revisit this method for its usage. Currently redundant
@@ -1036,35 +995,6 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         if (mFastScrollView != null) {
             mFastScrollView.setVisible();
         }
-    }
-
-    /**
-     * Set up the find in file menu.
-     */
-    public void setFindInFileView(boolean visibility) {
-        if (visibility) {
-            mFindInFileView.setVisibility(VISIBLE);
-            setupFindInFileBtn();
-        } else {
-            mFindInFileView.setVisibility(GONE);
-        }
-    }
-
-    private void setupFindInFileBtn() {
-        mFindInFileView.setFindInFileListener(this.makeFindInFileListener());
-        mFindInFileView.queryBoxRequestFocus();
-
-        TextView queryBox = mFindInFileView.findViewById(R.id.find_query_box);
-        ImageView close_button = mFindInFileView.findViewById(R.id.close_btn);
-        close_button.setOnClickListener(view -> {
-            View parentLayout = (View) close_button.getParent();
-            queryBox.clearFocus();
-            queryBox.setText("");
-            parentLayout.setVisibility(GONE);
-            if (mIsAnnotationIntentResolvable) {
-                mAnnotationButton.setVisibility(VISIBLE);
-            }
-        });
     }
 
     private void setUpEditFab() {

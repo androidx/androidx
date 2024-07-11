@@ -17,6 +17,7 @@
 package androidx.pdf.find;
 
 import android.content.Context;
+import android.net.Uri;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -34,8 +35,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.util.Accessibility;
+import androidx.pdf.util.AnnotationUtils;
+import androidx.pdf.util.CycleRange;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
+import androidx.pdf.viewer.PaginatedView;
+import androidx.pdf.viewer.SearchModel;
+import androidx.pdf.viewer.loader.PdfLoader;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import javax.annotation.Nullable;
 
@@ -52,8 +60,13 @@ public class FindInFileView extends LinearLayout {
     private ImageView mNextButton;
     private TextView mMatchStatus;
     private View mCloseButton;
+    private FloatingActionButton mAnnotationButton;
     private FindInFileListener mFindInFileListener;
     private ObservableValue<MatchCount> mMatchCount;
+    private SearchModel mSearchModel;
+    private Uri mFileUri;
+    private PaginatedView mPaginatedView;
+    private PdfLoader mPdfLoader;
     private static final char MATCH_STATUS_COUNTING = '\u2026';
 
     private final OnClickListener mOnClickListener = new OnClickListener() {
@@ -154,10 +167,100 @@ public class FindInFileView extends LinearLayout {
     }
 
     /**
-     * registers the {@link FindInFileListener}
-     * @param findInFileListener
+     * Sets the pdfLoader and create a new {@link SearchModel} instance with the given pdfLoader.
      */
-    public void setFindInFileListener(@Nullable FindInFileListener findInFileListener) {
+    public void setPdfLoader(@NonNull PdfLoader pdfLoader) {
+        mPdfLoader = pdfLoader;
+        mSearchModel = new SearchModel(pdfLoader);
+    }
+
+    public void setPaginatedView(@NonNull PaginatedView paginatedView) {
+        mPaginatedView = paginatedView;
+    }
+
+    public void setFileUri(@NonNull Uri fileUri) {
+        mFileUri = fileUri;
+    }
+
+    @NonNull
+    public SearchModel getSearchModel() {
+        return mSearchModel;
+    }
+
+    public void setAnnotationButton(
+            @NonNull FloatingActionButton annotationButton) {
+        mAnnotationButton = annotationButton;
+    }
+
+    /**
+     * Sets the visibility of the find-in-file view and configures its behavior.
+     *
+     * @param visibility true to show the find-in-file view, false to hide it.
+     */
+    public void setFindInFileView(boolean visibility) {
+        if (visibility) {
+            this.setVisibility(VISIBLE);
+            setupFindInFileBtn();
+        } else {
+            this.setVisibility(GONE);
+        }
+    }
+
+    private void setupFindInFileBtn() {
+        setFindInFileListener(this.makeFindInFileListener());
+        queryBoxRequestFocus();
+
+        mCloseButton.setOnClickListener(view -> {
+            View parentLayout = (View) mCloseButton.getParent();
+            mQueryBox.clearFocus();
+            mQueryBox.setText("");
+            parentLayout.setVisibility(GONE);
+            if (AnnotationUtils.resolveAnnotationIntent(getContext(), mFileUri)) {
+                mAnnotationButton.setVisibility(VISIBLE);
+            }
+        });
+    }
+
+    private FindInFileListener makeFindInFileListener() {
+        return new FindInFileListener() {
+            @Override
+            public boolean onQueryTextChange(@androidx.annotation.Nullable String query) {
+                if (mSearchModel != null && mPaginatedView != null) {
+                    mSearchModel.setQuery(query,
+                            mPaginatedView.getPageRangeHandler().getVisiblePage());
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public boolean onFindNextMatch(String query, boolean backwards) {
+                if (mSearchModel != null) {
+                    CycleRange.Direction direction;
+                    if (backwards) {
+                        direction = CycleRange.Direction.BACKWARDS;
+                    } else {
+                        direction = CycleRange.Direction.FORWARDS;
+                    }
+                    mSearchModel.selectNextMatch(direction,
+                            mPaginatedView.getPageRangeHandler().getVisiblePage());
+                    return true;
+                }
+                return false;
+            }
+
+            @androidx.annotation.Nullable
+            @Override
+            public ObservableValue<MatchCount> matchCount() {
+                return mSearchModel != null ? mSearchModel.matchCount() : null;
+            }
+        };
+    }
+
+    /**
+     * registers the {@link FindInFileListener}
+     */
+    private void setFindInFileListener(@Nullable FindInFileListener findInFileListener) {
         this.mFindInFileListener = findInFileListener;
         setObservableMatchCount(
                 (findInFileListener != null) ? findInFileListener.matchCount() : null);
@@ -176,7 +279,7 @@ public class FindInFileView extends LinearLayout {
     /**
      * Shows the keyboard when find in file view is inflated.
      */
-    public void queryBoxRequestFocus() {
+    private void queryBoxRequestFocus() {
         mQueryBox.requestFocus();
     }
 }
