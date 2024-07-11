@@ -125,7 +125,10 @@ class StreamSharingActivity : AppCompatActivity() {
             if (activeRecording == null) startRecording() else stopRecording()
         }
 
-        configureCameraProvider()
+        if (!isCameraXConfigured) {
+            isCameraXConfigured = true
+            configureCameraProvider()
+        }
         startCamera()
     }
 
@@ -313,5 +316,9 @@ class StreamSharingActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    companion object {
+        private var isCameraXConfigured: Boolean = false
     }
 }
