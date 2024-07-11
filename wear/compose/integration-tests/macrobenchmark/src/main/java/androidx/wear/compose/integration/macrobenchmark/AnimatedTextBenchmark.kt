@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.macrobenchmark
 
 import android.content.Intent
+import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingGfxInfoMetric
@@ -24,6 +25,7 @@ import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.uiautomator.By
 import androidx.wear.compose.integration.macrobenchmark.test.disableChargingExperience
 import androidx.wear.compose.integration.macrobenchmark.test.enableChargingExperience
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
 class AnimatedTextBenchmark {
 
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
