@@ -15,13 +15,16 @@
  */
 package androidx.compose.ui.window
 
-import android.os.Build
+import android.content.res.Configuration
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
@@ -29,28 +32,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyChild
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isRoot
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.test.espresso.Espresso
+import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
-import com.google.common.truth.Truth
-import kotlin.math.roundToInt
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,224 +61,118 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DialogTest {
-    @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+    @get:Rule val rule = createComposeRule()
 
     private val defaultText = "dialogText"
+    private val testTag = "tag"
+    private lateinit var dispatcher: OnBackPressedDispatcher
 
     @Test
     fun dialogTest_isShowingContent() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
-
-            if (showDialog.value) {
-                Dialog(onDismissRequest = {}) { BasicText(defaultText) }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        setupDialogTest(closeDialogOnDismiss = false)
+        rule.onNodeWithTag(testTag).assertIsDisplayed()
     }
 
     @Test
-    @Ignore("100% failing b/179359518")
     fun dialogTest_isNotDismissed_whenClicked() {
-        val textBeforeClick = "textBeforeClick"
-        val textAfterClick = "textAfterClick"
+        var clickCount = 0
+        setupDialogTest { DefaultDialogContent(Modifier.clickable { clickCount++ }) }
 
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
-            val text = remember { mutableStateOf(textBeforeClick) }
+        assertThat(clickCount).isEqualTo(0)
+        val interaction = rule.onNodeWithTag(testTag)
+        interaction.assertIsDisplayed()
 
-            if (showDialog.value) {
-                Dialog(onDismissRequest = { showDialog.value = false }) {
-                    BasicText(
-                        text = text.value,
-                        modifier = Modifier.clickable { text.value = textAfterClick }
-                    )
-                }
-            }
-        }
+        // Click inside the dialog
+        interaction.performClick()
 
-        rule
-            .onNodeWithText(textBeforeClick)
-            .assertIsDisplayed()
-            // Click inside the dialog
-            .performClick()
-
-        // Check that the Clickable was pressed and that the Dialog is still visible, but with
-        // the new text
-        rule.onNodeWithText(textBeforeClick).assertDoesNotExist()
-        rule.onNodeWithText(textAfterClick).assertIsDisplayed()
+        // Check that the Clickable was pressed and the Dialog is still visible.
+        interaction.assertIsDisplayed()
+        assertThat(clickCount).isEqualTo(1)
     }
 
-    @FlakyTest(bugId = 179359518)
     @Test
     fun dialogTest_isDismissed_whenSpecified() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
+        setupDialogTest()
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
 
-            if (showDialog.value) {
-                Dialog(onDismissRequest = { showDialog.value = false }) { BasicText(defaultText) }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-
-        // Click outside the dialog to dismiss it
-        val outsideX = 0
-        val outsideY =
-            with(rule.density) {
-                rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() /
-                    2
-            }
-        UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
-
-        rule.onNodeWithText(defaultText).assertDoesNotExist()
+        clickOutsideDialog()
+        textInteraction.assertDoesNotExist()
     }
 
     @Test
     fun dialogTest_isNotDismissed_whenNotSpecified() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
+        setupDialogTest(closeDialogOnDismiss = false)
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
 
-            if (showDialog.value) {
-                Dialog(onDismissRequest = {}) { BasicText(defaultText) }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-
-        // Click outside the dialog to try to dismiss it
-        val outsideX = 0
-        val outsideY =
-            with(rule.density) {
-                rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() /
-                    2
-            }
-        UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
-
+        clickOutsideDialog()
         // The Dialog should still be visible
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        textInteraction.assertIsDisplayed()
     }
 
     @Test
     fun dialogTest_isNotDismissed_whenDismissOnClickOutsideIsFalse() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
+        setupDialogTest(dialogProperties = DialogProperties(dismissOnClickOutside = false))
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
 
-            if (showDialog.value) {
-                Dialog(
-                    onDismissRequest = { showDialog.value = false },
-                    properties = DialogProperties(dismissOnClickOutside = false)
-                ) {
-                    BasicText(defaultText)
-                }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-
-        // Click outside the dialog to try to dismiss it
-        val outsideX = 0
-        val outsideY =
-            with(rule.density) {
-                rule.onAllNodes(isRoot()).onFirst().getUnclippedBoundsInRoot().height.roundToPx() /
-                    2
-            }
-        UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
-
+        clickOutsideDialog()
         // The Dialog should still be visible
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        textInteraction.assertIsDisplayed()
     }
 
-    @FlakyTest(bugId = 159364185)
+    @Test
     fun dialogTest_isDismissed_whenSpecified_backButtonPressed() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
-
-            if (showDialog.value) {
-                Dialog(onDismissRequest = { showDialog.value = false }) { BasicText(defaultText) }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
+        setupDialogTest()
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
 
         // Click the back button to dismiss the Dialog
-        Espresso.pressBack()
-
-        rule.onNodeWithText(defaultText).assertDoesNotExist()
+        pressBack()
+        textInteraction.assertDoesNotExist()
     }
 
-    @FlakyTest(bugId = 159364185)
-    fun dialogTest_isNotDismissed_whenNotSpecified_backButtonPressed() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
-
-            if (showDialog.value) {
-                Dialog(onDismissRequest = {}) { BasicText(defaultText) }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-
-        // Click the back button to try to dismiss the dialog
-        Espresso.pressBack()
-
-        // The Dialog should still be visible
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-    }
-
-    @FlakyTest(bugId = 159364185)
-    fun dialogTest_isNotDismissed_whenDismissOnBackPressIsFalse() {
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
-
-            if (showDialog.value) {
-                Dialog(
-                    onDismissRequest = { showDialog.value = false },
-                    properties = DialogProperties(dismissOnBackPress = false)
-                ) {
-                    BasicText(defaultText)
-                }
-            }
-        }
-
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-
-        // Click the back button to try to dismiss the dialog
-        Espresso.pressBack()
-
-        // The Dialog should still be visible
-        rule.onNodeWithText(defaultText).assertIsDisplayed()
-    }
-
-    @Ignore // b/266613263
     @Test
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    fun dialogTest_isNotDismissed_whenNotSpecified_backButtonPressed() {
+        setupDialogTest(closeDialogOnDismiss = false)
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        // Click the back button to try to dismiss the dialog
+        pressBack()
+        // The Dialog should still be visible
+        textInteraction.assertIsDisplayed()
+    }
+
+    @Test
+    fun dialogTest_isNotDismissed_whenDismissOnBackPressIsFalse() {
+        setupDialogTest(dialogProperties = DialogProperties(dismissOnBackPress = false))
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        // Click the back button to try to dismiss the dialog
+        pressBack()
+        // The Dialog should still be visible
+        textInteraction.assertIsDisplayed()
+    }
+
+    @Test
     fun dialogTest_backHandler_isCalled_backButtonPressed() {
-        if (Build.VERSION.SDK_INT == 33 && Build.VERSION.CODENAME != "REL") {
-            return // b/262909049: Do not run this test on pre-release Android U.
+        var clickCount = 0
+        setupDialogTest(closeDialogOnDismiss = false) {
+            BackHandler { clickCount++ }
+            DefaultDialogContent()
         }
 
-        val clickCountPrefix = "Click: "
-
-        rule.setContent {
-            val showDialog = remember { mutableStateOf(true) }
-
-            if (showDialog.value) {
-                Dialog(onDismissRequest = {}) {
-                    val clickCount = remember { mutableStateOf(0) }
-                    BasicText(clickCountPrefix + clickCount.value)
-                    BackHandler { clickCount.value++ }
-                }
-            }
-        }
-
-        rule.onNodeWithText(clickCountPrefix + "0").assertIsDisplayed()
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+        assertThat(clickCount).isEqualTo(0)
 
         // Click the back button to trigger the BackHandler
-        Espresso.pressBack()
-
-        rule.onNodeWithText(clickCountPrefix + "1").assertIsDisplayed()
+        pressBack()
+        textInteraction.assertIsDisplayed()
+        assertThat(clickCount).isEqualTo(1)
     }
 
     @Test
@@ -294,7 +191,9 @@ class DialogTest {
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
         var box2Width = 0
+        lateinit var configuration: Configuration
         rule.setContent {
+            configuration = LocalConfiguration.current
             Dialog(
                 onDismissRequest = {},
                 properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -305,14 +204,9 @@ class DialogTest {
                 Box(Modifier.fillMaxSize().onSizeChanged { box2Width = it.width })
             }
         }
-        rule.runOnIdle {
-            Truth.assertThat(box1Width)
-                .isEqualTo(
-                    (rule.activity.resources.configuration.screenWidthDp * rule.density.density)
-                        .roundToInt()
-                )
-            Truth.assertThat(box2Width).isLessThan(box1Width)
-        }
+        val expectedWidth = with(rule.density) { configuration.screenWidthDp.dp.roundToPx() }
+        assertThat(box1Width).isEqualTo(expectedWidth)
+        assertThat(box2Width).isLessThan(box1Width)
     }
 
     @Test
@@ -329,23 +223,68 @@ class DialogTest {
                 Box(Modifier.size(width, 150.dp).onSizeChanged { actualWidth = it.width })
             }
         }
+
         rule.runOnIdle {
-            Truth.assertThat(actualWidth).isEqualTo((10 * rule.density.density).roundToInt())
+            with(rule.density) { assertThat(actualWidth).isEqualTo(10.dp.roundToPx()) }
         }
+
         width = 20.dp
         rule.runOnIdle {
-            Truth.assertThat(actualWidth).isEqualTo((20 * rule.density.density).roundToInt())
+            with(rule.density) { assertThat(actualWidth).isEqualTo(20.dp.roundToPx()) }
         }
 
         usePlatformDefaultWidth = true
-
         width = 30.dp
         rule.runOnIdle {
-            Truth.assertThat(actualWidth).isEqualTo((30 * rule.density.density).roundToInt())
+            with(rule.density) { assertThat(actualWidth).isEqualTo(30.dp.roundToPx()) }
         }
+
         width = 40.dp
         rule.runOnIdle {
-            Truth.assertThat(actualWidth).isEqualTo((40 * rule.density.density).roundToInt())
+            with(rule.density) { assertThat(actualWidth).isEqualTo(40.dp.roundToPx()) }
         }
+    }
+
+    private fun setupDialogTest(
+        closeDialogOnDismiss: Boolean = true,
+        dialogProperties: DialogProperties = DialogProperties(),
+        dialogContent: @Composable () -> Unit = { DefaultDialogContent() },
+    ) {
+        rule.setContent {
+            var showDialog by remember { mutableStateOf(true) }
+            val onDismiss: () -> Unit =
+                if (closeDialogOnDismiss) {
+                    { showDialog = false }
+                } else {
+                    {}
+                }
+            if (showDialog) {
+                Dialog(onDismiss, dialogProperties, dialogContent)
+            }
+        }
+    }
+
+    @Composable
+    private fun DefaultDialogContent(modifier: Modifier = Modifier) {
+        BasicText(defaultText, modifier = modifier.testTag(testTag))
+        dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+    }
+
+    private fun pressBack() {
+        rule.runOnUiThread { dispatcher.onBackPressed() }
+    }
+
+    /** Try to dismiss the dialog by clicking between the topLefts of the dialog and the root. */
+    private fun clickOutsideDialog() {
+        val dialogBounds = rule.onNode(isRoot().and(hasAnyChild(isDialog()))).boundsOnScreen()
+        val rootBounds = rule.onNode(isRoot().and(hasAnyChild(isDialog()).not())).boundsOnScreen()
+        val clickPosition = lerp(dialogBounds.topLeft, rootBounds.topLeft, 0.5f).round()
+        UiDevice.getInstance(getInstrumentation()).click(clickPosition.x, clickPosition.y)
+    }
+
+    private fun SemanticsNodeInteraction.boundsOnScreen(): Rect {
+        val bounds = with(rule.density) { getUnclippedBoundsInRoot().toRect() }
+        val positionOnScreen = fetchSemanticsNode().positionOnScreen
+        return bounds.translate(positionOnScreen)
     }
 }
