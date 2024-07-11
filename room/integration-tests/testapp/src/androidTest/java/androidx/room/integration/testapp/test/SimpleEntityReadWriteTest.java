@@ -102,7 +102,7 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
-    public void insertNull() throws Exception {
+    public void insertNullColumn() throws Exception {
         @SuppressWarnings("ConstantConditions")
         Product product = new Product(1, null);
         Throwable throwable = null;
@@ -113,6 +113,20 @@ public class SimpleEntityReadWriteTest {
         }
         assertNotNull("Was expecting an exception", throwable);
         assertThat(throwable, instanceOf(SQLiteConstraintException.class));
+    }
+
+    @Test
+    public void insertNullEntity() throws Exception {
+        @SuppressWarnings("ConstantConditions")
+        Throwable throwable = null;
+        try {
+            //noinspection DataFlowIssue - testing insert of null arg on @NonNull param
+            mProductDao.insert((Product) null);
+        } catch (Throwable t) {
+            throwable = t;
+        }
+        assertNotNull("Was expecting an exception", throwable);
+        assertThat(throwable, instanceOf(NullPointerException.class));
     }
 
     @Test
