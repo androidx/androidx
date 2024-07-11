@@ -1022,26 +1022,6 @@ cp -a <path-to-sdk>/extras/m2repository/androidx/recyclerview/recyclerview/1.1.0
 Make sure the library versions are the same before and after replacement. Then
 you can build the Android platform code with the new `androidx` code.
 
-### How do I measure library size? {#library-size}
-
-Method count and bytecode size are tracked in CI
-[alongside benchmarks](/docs/benchmarking.md#monitoring) to
-detect regressions.
-
-For local measurements, use the `:reportLibraryMetrics` task. For example:
-
-```shell
-./gradlew benchmark:benchmark-macro:reportLibraryMetrics
-cat ../../out/dist/librarymetrics/androidx.benchmark_benchmark-macro.json
-```
-
-Will output something like: `{"method_count":1256,"bytecode_size":178822}`
-
-Note: this only counts the weight of your library's jar/aar, including
-resources. It does not count library dependencies. It does not account for a
-minification step (e.g. with R8), as that is dynamic, and done at app build time
-(and depend on which entrypoints the app uses).
-
 ### How do I add content to a library's Overview reference doc page?
 
 Put content in a markdown file that ends with `-documentation.md` in the
