@@ -18,6 +18,7 @@ package androidx.exifinterface.media;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -193,33 +194,88 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * Returns the number of times {@code pattern} appears in {@code source}.
+     * {@link R.raw#jpeg_with_xmp_in_exif_first_then_separate_app1} contains an Exif APP1 segment
+     * with the same XMP as {@link R.raw#jpeg_with_exif_with_xmp}, a separate XMP APP1 segment
+     * containing {@link #TEST_XMP}.
      *
-     * <p>Overlapping occurrences are counted multiple times, e.g. {@code countOccurrences([0, 1, 0,
-     * 1, 0], [0, 1, 0])} will return 2.
+     * <p>This test asserts that the Exif XMP is returned, but that the separate XMP APP1 segment is
+     * preserved when saving.
      */
-    private static int countOccurrences(byte[] source, byte[] pattern) {
-        int count = 0;
-        for (int i = 0; i < source.length - pattern.length; i++) {
-            if (containsAtIndex(source, i, pattern)) {
-                count++;
-            }
-        }
-        return count;
+    @Test
+    @LargeTest
+    public void testJpegWithXmpInTwoSegments_exifFirst_exifXmpReturned_separateXmpPreserved()
+            throws Throwable {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_xmp_in_exif_first_then_separate_app1,
+                        "jpeg_with_xmp_in_exif_first_then_separate_app1.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+
+        String xmp =
+                new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP), Charsets.UTF_8);
+
+        String expectedXmp =
+                ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.getXmp(
+                        getApplicationContext().getResources());
+        assertThat(xmp).isEqualTo(expectedXmp);
+
+        exifInterface.saveAttributes();
+
+        xmp =
+                new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP), Charsets.UTF_8);
+        assertThat(xmp).isEqualTo(expectedXmp);
+        byte[] imageBytes = Files.toByteArray(imageFile);
+        assertThat(countOccurrences(imageBytes, TEST_XMP.getBytes(Charsets.UTF_8))).isEqualTo(1);
     }
 
     /**
-     * Returns {@code true} if {@code source} contains {@code pattern} starting at {@code index}.
-     *
-     * @throws IndexOutOfBoundsException if {@code source.length < index + pattern.length}.
+     * Same as {@link
+     * #testJpegWithXmpInTwoSegments_exifFirst_exifXmpReturned_separateXmpPreserved()} but with the
+     * standalone XMP APP1 segment before the Exif one.
      */
-    private static boolean containsAtIndex(byte[] source, int index, byte[] pattern) {
-        for (int i = 0; i < pattern.length; i++) {
-            if (pattern[i] != source[index + i]) {
-                return false;
-            }
-        }
-        return true;
+    @Test
+    @LargeTest
+    public void
+            testJpegWithXmpInTwoSegmentsWithSeparateApp1First_exifXmpReturnedSeparateXmpPreserved()
+                    throws Throwable {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_xmp_in_separate_app1_first_then_exif,
+                        "jpeg_with_xmp_in_separate_app1_first_then_exif.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+
+        String xmp =
+                new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP), Charsets.UTF_8);
+
+        String expectedXmp =
+                ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.getXmp(
+                        getApplicationContext().getResources());
+        assertThat(xmp).isEqualTo(expectedXmp);
+
+        exifInterface.saveAttributes();
+
+        xmp =
+                new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP), Charsets.UTF_8);
+        assertThat(xmp).isEqualTo(expectedXmp);
+        byte[] imageBytes = Files.toByteArray(imageFile);
+        assertThat(countOccurrences(imageBytes, TEST_XMP.getBytes(Charsets.UTF_8))).isEqualTo(1);
+    }
+
+    @Test
+    @LargeTest
+    public void testJpeg_noXmp_addXmp_writtenInSeparateSegment() throws Throwable {
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+
+        checkState(!exifInterface.hasAttribute(ExifInterface.TAG_XMP));
+        exifInterface.setAttribute(ExifInterface.TAG_XMP, TEST_XMP);
+        exifInterface.saveAttributes();
+
+        byte[] imageBytes = Files.toByteArray(imageFile);
+        byte[] xmpApp1SegmentMarker = "http://ns.adobe.com/xap/1.0/\0".getBytes(Charsets.US_ASCII);
+        assertThat(countOccurrences(imageBytes, xmpApp1SegmentMarker)).isEqualTo(1);
     }
 
     // https://issuetracker.google.com/264729367
@@ -2126,6 +2182,36 @@ public class ExifInterfaceTest {
             ByteStreams.copy(inputStream, outputStream);
         }
         return file;
+    }
+
+    /**
+     * Returns the number of times {@code pattern} appears in {@code source}.
+     *
+     * <p>Overlapping occurrences are counted multiple times, e.g. {@code countOccurrences([0, 1, 0,
+     * 1, 0], [0, 1, 0])} will return 2.
+     */
+    private static int countOccurrences(byte[] source, byte[] pattern) {
+        int count = 0;
+        for (int i = 0; i < source.length - pattern.length; i++) {
+            if (containsAtIndex(source, i, pattern)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns {@code true} if {@code source} contains {@code pattern} starting at {@code index}.
+     *
+     * @throws IndexOutOfBoundsException if {@code source.length < index + pattern.length}.
+     */
+    private static boolean containsAtIndex(byte[] source, int index, byte[] pattern) {
+        for (int i = 0; i < pattern.length; i++) {
+            if (pattern[i] != source[index + i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
