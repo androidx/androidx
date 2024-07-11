@@ -64,13 +64,25 @@ data class SampleEntityCopy(
     @ColumnInfo(defaultValue = "0") val dataCopy: Long
 )
 
+@Entity
+data class StringSampleEntity1(
+    @PrimaryKey val stringPk1: String,
+    @ColumnInfo(defaultValue = "0") val data1: String
+)
+
+@Entity
+data class StringSampleEntity2(
+    @PrimaryKey val stringPk2: String,
+    @ColumnInfo(defaultValue = "0") val data2: String
+)
+
 @Entity(
     primaryKeys = ["sample1Key", "sample2Key"],
     indices = [Index("sample1Key"), Index("sample2Key")]
 )
 data class Sample1Sample2XRef(
-    val sample1Key: Long,
-    val sample2Key: Long,
+    val sample1Key: String,
+    val sample2Key: String,
 )
 
 @Dao
@@ -142,6 +154,10 @@ interface SampleDao {
 
     @Insert suspend fun insertSampleEntityList(entities: List<SampleEntity>)
 
+    @Insert suspend fun insertSampleEntity1WithString(entities: List<StringSampleEntity1>)
+
+    @Insert suspend fun insertSampleEntity2WithString(entities: List<StringSampleEntity2>)
+
     @Insert suspend fun insertSampleEntity2List(entities: List<SampleEntity2>)
 
     @Insert suspend fun insert(entity: SampleEntity2)
@@ -167,7 +183,7 @@ interface SampleDao {
     @Transaction @Query("SELECT * FROM SampleEntity") suspend fun getSample1ToMany(): Sample1AndMany
 
     @Transaction
-    @Query("SELECT * FROM SampleEntity")
+    @Query("SELECT * FROM StringSampleEntity1")
     suspend fun getSampleManyToMany(): SampleManyAndMany
 
     data class Sample1And2(
@@ -181,10 +197,10 @@ interface SampleDao {
     )
 
     data class SampleManyAndMany(
-        @Embedded val sample1: SampleEntity,
+        @Embedded val sample1: StringSampleEntity1,
         @Relation(
-            parentColumn = "pk",
-            entityColumn = "pk2",
+            parentColumn = "stringPk1",
+            entityColumn = "stringPk2",
             associateBy =
                 Junction(
                     value = Sample1Sample2XRef::class,
@@ -192,7 +208,7 @@ interface SampleDao {
                     entityColumn = "sample2Key"
                 )
         )
-        val sample2s: List<SampleEntity2>
+        val sample2s: List<StringSampleEntity2>
     )
 }
 
@@ -203,6 +219,8 @@ interface SampleDao {
             SampleEntity2::class,
             SampleEntity3::class,
             SampleEntityCopy::class,
+            StringSampleEntity1::class,
+            StringSampleEntity2::class,
             Sample1Sample2XRef::class
         ],
     version = 1,

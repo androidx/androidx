@@ -610,7 +610,8 @@ data class RelationCollector(
             val canUseLongSparseArray =
                 context.processingEnv.findTypeElement(LONG_SPARSE_ARRAY.canonicalName) != null
             val canUseArrayMap =
-                context.processingEnv.findTypeElement(ARRAY_MAP.canonicalName) != null
+                context.processingEnv.findTypeElement(ARRAY_MAP.canonicalName) != null &&
+                    context.isAndroidOnlyTarget()
             return when {
                 canUseLongSparseArray && affinity == SQLTypeAffinity.INTEGER ->
                     LONG_SPARSE_ARRAY.parametrizedBy(valueTypeName)
