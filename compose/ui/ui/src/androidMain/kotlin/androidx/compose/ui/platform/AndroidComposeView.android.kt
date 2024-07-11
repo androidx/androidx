@@ -1230,9 +1230,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     fun removeAndroidView(view: AndroidViewHolder) {
         registerOnEndApplyChangesListener {
             androidViewsHandler.removeViewInLayout(view)
-            androidViewsHandler.layoutNodeToHolder.remove(
-                androidViewsHandler.holderToLayoutNode.remove(view)
-            )
+            val layoutNode = androidViewsHandler.holderToLayoutNode.remove(view)
+            if (layoutNode != null) {
+                androidViewsHandler.layoutNodeToHolder.remove(layoutNode)
+            }
             view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO)
         }
     }
@@ -1296,6 +1297,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                     requestLayout()
                 }
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                _androidViewsHandler?.layoutChildViewsIfNeeded()
                 dispatchPendingInteropLayoutCallbacks()
             }
         }
@@ -1309,6 +1311,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // it allows us to not traverse the hierarchy twice.
             if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                _androidViewsHandler?.layoutChildViewsIfNeeded()
                 dispatchPendingInteropLayoutCallbacks()
             }
         }
@@ -1434,6 +1437,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // View is not yet laid out.
         updatePositionCacheAndDispatch()
         if (_androidViewsHandler != null) {
+            androidViewsHandler.layoutChildViewsIfNeeded()
             // Even if we laid out during onMeasure, we want to set the bounds of the
             // AndroidViewsHandler for accessibility and for Views making assumptions based on
             // the size of their ancestors. Usually the Views in the hierarchy will not
