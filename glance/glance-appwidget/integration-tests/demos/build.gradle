@@ -42,4 +42,6 @@ dependencies {
 
 android {
     namespace "androidx.glance.appwidget.demos"
+    // TODO(b/313699418): need to update compose.runtime version to 1.6.0+ in glance-appwidget
+    experimentalProperties["android.lint.useK2Uast"] = false
 }

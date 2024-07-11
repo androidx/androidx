@@ -55,4 +55,6 @@ androidx {
 
 android {
     namespace "androidx.compose.material.samples"
+    // TODO(b/328001575)
+    experimentalProperties["android.lint.useK2Uast"] = false
 }

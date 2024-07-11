@@ -64,6 +64,8 @@ android {
         }
     }
     namespace "androidx.room"
+    // TODO(b/345531033)
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidXMultiplatform {
