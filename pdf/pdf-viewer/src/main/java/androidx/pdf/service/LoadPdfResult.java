@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.pdflib;
+package androidx.pdf.service;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf.pdflib;
+package androidx.pdf.service;
 
 import android.graphics.Bitmap;
 import android.os.ParcelFileDescriptor;

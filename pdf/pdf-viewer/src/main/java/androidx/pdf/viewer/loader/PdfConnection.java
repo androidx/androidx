@@ -26,7 +26,7 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.models.PdfDocumentRemote;
-import androidx.pdf.pdflib.PdfDocumentService;
+import androidx.pdf.service.PdfDocumentService;
 import androidx.pdf.util.Preconditions;
 
 import java.util.concurrent.locks.Condition;

@@ -23,7 +23,7 @@
     android:layout_gravity="center"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".LegacyMainActivity">
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/launch_button"
