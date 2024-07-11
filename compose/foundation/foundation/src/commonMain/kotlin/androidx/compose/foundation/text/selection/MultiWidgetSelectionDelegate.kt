@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import androidx.compose.foundation.internal.JvmSynchronized
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.isUnspecified
@@ -44,7 +45,7 @@ internal class MultiWidgetSelectionDelegate(
      * instance check is enough to accomplish whether a text layout has changed in a meaningful way.
      */
     private val TextLayoutResult.lastVisibleOffset: Int
-        @Synchronized
+        @JvmSynchronized
         get() {
             if (_previousTextLayoutResult !== this) {
                 val lastVisibleLine =

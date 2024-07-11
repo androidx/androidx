@@ -32,7 +32,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -174,8 +173,8 @@ fun Chip(
  *   color for this chip in different states. See [ChipDefaults.filterChipColors].
  * @param leadingIcon Optional icon at the start of the chip, preceding the content text.
  * @param selectedIcon Icon used to indicate a chip's selected state, it is commonly a
- *   [Icons.Filled.Done]. By default, if a leading icon is also provided, the leading icon will be
- *   obscured by a circle overlay and then the selected icon.
+ *   [androidx.compose.material.icons.Icons.Filled.Done]. By default, if a leading icon is also
+ *   provided, the leading icon will be obscured by a circle overlay and then the selected icon.
  * @param trailingIcon Optional icon at the end of the chip, following the content text. Filter
  *   chips commonly do not display any trailing icon.
  * @param content the content of this chip

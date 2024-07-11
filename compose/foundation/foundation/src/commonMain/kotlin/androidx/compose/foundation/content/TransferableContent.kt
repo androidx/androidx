@@ -19,6 +19,7 @@ package androidx.compose.foundation.content
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipMetadata
+import kotlin.jvm.JvmInline
 
 /**
  * Represents content that can be transferred between applications or processes.
