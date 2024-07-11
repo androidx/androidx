@@ -36,6 +36,7 @@ import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
+import androidx.camera.integration.avsync.model.CameraHelper.Companion.CameraImplementation
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -127,7 +128,7 @@ class SignalGeneratorViewModelTest {
     fun initialRecorder_canMakeRecorderReady(): Unit = runBlocking {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
 
-        viewModel.initialRecorder(context, lifecycleOwner)
+        viewModel.initialRecorder(context, lifecycleOwner, CameraImplementation.CAMERA2)
 
         assertThat(viewModel.isRecorderReady).isTrue()
     }
@@ -176,7 +177,7 @@ class SignalGeneratorViewModelTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
 
         // Arrange.
-        viewModel.initialRecorder(context, lifecycleOwner)
+        viewModel.initialRecorder(context, lifecycleOwner, CameraImplementation.CAMERA2)
 
         assertThat(viewModel.isRecorderReady).isTrue()
 
