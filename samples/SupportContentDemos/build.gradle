@@ -31,5 +31,6 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     namespace "com.example.android.support.content.demos"
 }

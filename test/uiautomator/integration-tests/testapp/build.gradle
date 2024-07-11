@@ -50,5 +50,6 @@ dependencies {
 }
 
 android {
+    compileSdkVersion 35
     namespace "androidx.test.uiautomator.testapp"
 }

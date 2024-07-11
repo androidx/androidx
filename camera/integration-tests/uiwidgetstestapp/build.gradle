@@ -21,6 +21,8 @@ plugins {
 }
 
 android {
+    compileSdk 35
+
     defaultConfig {
         applicationId "androidx.camera.integration.uiwidgets"
         versionCode 1

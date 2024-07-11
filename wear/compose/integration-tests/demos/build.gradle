@@ -22,6 +22,7 @@ plugins {
 }
 
 android {
+    compileSdkVersion 35
     defaultConfig {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25

@@ -23,6 +23,7 @@ plugins {
 }
 
 android {
+    compileSdkVersion 35
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.integration.viewmodelapp.TestRunner"
     }

@@ -28,6 +28,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
+    compileSdkVersion 35
     namespace "androidx.benchmark.integration.macrobenchmark.target"
 }
 

@@ -28,6 +28,7 @@ dependencies {
 }
 
 android {
+    compileSdkVersion 35
     defaultConfig {
         applicationId "androidx.core.haptics.demos"
     }
