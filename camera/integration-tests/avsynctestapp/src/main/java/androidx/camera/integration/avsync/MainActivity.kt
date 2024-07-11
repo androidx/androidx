@@ -55,7 +55,10 @@ class MainActivity : ComponentActivity() {
 
         // Config CameraX.
         val cameraImplementation = getCameraImplementation()
-        configureCameraProvider(cameraImplementation)
+        if (!isCameraXConfigured) {
+            isCameraXConfigured = true
+            configureCameraProvider(cameraImplementation)
+        }
 
         setContent { App(getBeepFrequency(), getBeepEnabled(), cameraImplementation) }
     }
@@ -130,6 +133,10 @@ class MainActivity : ComponentActivity() {
 
         fun setTurnScreenOn(activity: ComponentActivity, turnScreenOn: Boolean) =
             activity.setTurnScreenOn(turnScreenOn)
+    }
+
+    companion object {
+        private var isCameraXConfigured: Boolean = false
     }
 }
 
