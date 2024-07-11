@@ -16,6 +16,7 @@
 
 package androidx.pdf
 
+import android.content.ContentResolver
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.net.Uri
@@ -27,6 +28,8 @@ import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.pdf.data.DisplayData
+import androidx.pdf.data.FutureValue
+import androidx.pdf.data.Openable
 import androidx.pdf.fetcher.Fetcher
 import androidx.pdf.find.FindInFileView
 import androidx.pdf.util.ObservableValue.ValueObserver
@@ -34,6 +37,7 @@ import androidx.pdf.util.Observables
 import androidx.pdf.util.Observables.ExposedValue
 import androidx.pdf.util.Preconditions
 import androidx.pdf.util.TileBoard
+import androidx.pdf.util.Uris
 import androidx.pdf.viewer.FastScrollPositionValueObserver
 import androidx.pdf.viewer.LayoutHandler
 import androidx.pdf.viewer.LoadingView
@@ -142,6 +146,12 @@ open class PdfViewerFragment : Fragment() {
      * [onLoadDocumentError].
      */
     var documentUri: Uri? = null
+        set(value) {
+            field = value
+            if (value != null) {
+                loadFile(value)
+            }
+        }
 
     /**
      * Controls the visibility of the "find in file" menu. Defaults to `false`.
@@ -408,7 +418,7 @@ open class PdfViewerFragment : Fragment() {
 
     /** Restores the contents of this Viewer when it is automatically restored by android. */
     private fun restoreContents(savedState: Bundle?) {
-        val dataBundle = arguments?.getBundle(KEY_DATA)
+        val dataBundle = savedState?.getBundle(KEY_DATA)
         if (dataBundle != null) {
             try {
                 val restoredData = DisplayData.fromBundle(dataBundle)
@@ -491,12 +501,89 @@ open class PdfViewerFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
+        outState.putBundle(KEY_DATA, fileData.asBundle())
         outState.putInt(KEY_LAYOUT_REACH, layoutHandler.pageLayoutReach)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         zoomView?.adjustZoomViewMargins()
+    }
+
+    private fun loadFile(fileUri: Uri) {
+        Preconditions.checkNotNull(fileUri)
+        try {
+            validateFileUri(fileUri)
+            fetchFile(fileUri)
+        } catch (e: SecurityException) {
+            onLoadDocumentError(e)
+        }
+    }
+
+    private fun validateFileUri(fileUri: Uri) {
+        if (!Uris.isContentUri(fileUri) && !Uris.isFileUri(fileUri)) {
+            throw IllegalArgumentException("Only content and file uri is supported")
+        }
+    }
+
+    private fun fetchFile(fileUri: Uri) {
+        Preconditions.checkNotNull(fileUri)
+        val fileName: String = getFileName(fileUri)
+        val openable: FutureValue<Openable> = fetcher.loadLocal(fileUri)
+
+        openable[
+            object : FutureValue.Callback<Openable> {
+                override fun available(value: Openable) {
+                    viewerAvailable(fileUri, fileName, value)
+                }
+
+                override fun failed(thrown: Throwable) {
+                    finishActivity()
+                }
+
+                override fun progress(progress: Float) {}
+            }]
+    }
+
+    private fun finishActivity() {
+        if (activity != null) {
+            requireActivity().finish()
+        }
+    }
+
+    private fun getFileName(fileUri: Uri): String {
+        val resolver: ContentResolver? = getResolver()
+        return if (resolver != null) Uris.extractName(fileUri, resolver)
+        else Uris.extractFileName(fileUri)
+    }
+
+    private fun getResolver(): ContentResolver? {
+        if (activity != null) {
+            return requireActivity().contentResolver
+        }
+        return null
+    }
+
+    private fun viewerAvailable(fileUri: Uri, fileName: String, openable: Openable) {
+        val contents = DisplayData(fileUri, fileName, openable)
+
+        // TODO loadingScreen.setVisibility(View.GONE);
+        startViewer(contents)
+    }
+
+    private fun startViewer(contents: DisplayData) {
+        Preconditions.checkNotNull(contents)
+
+        feed(contents)
+        postEnter()
+    }
+
+    /** Feed this Viewer with contents to be displayed. */
+    private fun feed(contents: DisplayData?): PdfViewerFragment {
+        if (contents != null) {
+            postContentsAvailable(contents, null)
+        }
+        return this
     }
 
     /** Makes the views of this Viewer visible to TalkBack (in the swipe gesture circus) or not. */

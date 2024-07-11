@@ -374,6 +374,7 @@ class PdfLoaderCallbacksImpl(
 
     override fun setSearchResults(query: String, pageNum: Int, matches: MatchRects) {
         if (viewState.get() != ViewState.NO_VIEW && query == searchModel!!.query().get()) {
+
             searchModel!!.updateMatches(query, pageNum, matches)
             if (isPageCreated(pageNum)) {
                 getPage(pageNum)
