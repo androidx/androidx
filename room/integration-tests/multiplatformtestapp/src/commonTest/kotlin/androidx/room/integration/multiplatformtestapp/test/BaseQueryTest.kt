@@ -482,14 +482,14 @@ abstract class BaseQueryTest {
 
     @Test
     fun relationManytoMany() = runTest {
-        val sampleEntity1 = SampleEntity(1, 1)
-        val sampleEntity1s = listOf(sampleEntity1, SampleEntity(2, 2))
+        val sampleEntity1 = StringSampleEntity1("1", "1")
+        val sampleEntity1s = listOf(sampleEntity1, StringSampleEntity1("2", "2"))
 
-        val sampleEntity2 = SampleEntity2(1, 1)
-        val sampleEntity2s = listOf(sampleEntity2, SampleEntity2(2, 2))
+        val sampleEntity2 = StringSampleEntity2("1", "1")
+        val sampleEntity2s = listOf(sampleEntity2, StringSampleEntity2("2", "2"))
 
-        db.dao().insertSampleEntityList(sampleEntity1s)
-        db.dao().insertSampleEntity2List(sampleEntity2s)
+        db.dao().insertSampleEntity1WithString(sampleEntity1s)
+        db.dao().insertSampleEntity2WithString(sampleEntity2s)
 
         assertThat(db.dao().getSampleManyToMany())
             .isEqualTo(SampleDao.SampleManyAndMany(sample1 = sampleEntity1, sample2s = listOf()))
