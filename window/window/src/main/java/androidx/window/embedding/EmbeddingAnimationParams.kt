@@ -27,7 +27,7 @@ import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec.Companio
  *   default is to use the current theme window background color.
  * @property openAnimation the animation spec to use for open transitions (when starting/entering an
  *   activity or when an activity moves to front).
- * @property closeAnimation the animation spec to use for close transitions (when finishing/closing
+ * @property closeAnimation the animation spec to use for close transitions (when finishing/exiting
  *   an activity or when an activity moves to back).
  * @property changeAnimation the animation spec to use for change transitions (when an activity
  *   resizes or moves).
