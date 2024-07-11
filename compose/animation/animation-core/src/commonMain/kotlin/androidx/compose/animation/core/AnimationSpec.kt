@@ -530,15 +530,19 @@ sealed class KeyframeBaseEntity<T>(internal val value: T, internal var easing: E
  *
  * @sample androidx.compose.animation.core.samples.FloatKeyframesBuilder
  *
- * You can also provide a custom [Easing] for the interval with use of [with] function applied for
- * the interval starting keyframe.
+ * For each interval, you may provide a custom [Easing] by use of the [KeyframesSpecConfig.using]
+ * function.
  *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
  *
- * Values can be animated using arcs of quarter of an Ellipse with [KeyframesSpecConfig.using] and
- * [ArcMode]:
+ * By default, values are animated linearly from one interval to the next (similar to [tween]),
+ * however for 2-dimensional values you may animate them using arcs of quarter of an Ellipse with
+ * [KeyframesSpecConfig.using] and [ArcMode]:
  *
  * @sample androidx.compose.animation.core.samples.OffsetKeyframesWithArcsBuilder
+ *
+ * If instead, you wish to have a smooth curvy animation across all intervals, consider using
+ * [KeyframesWithSplineSpec].
  */
 @Immutable
 class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimationSpec<T> {
@@ -689,11 +693,12 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
  * [KeyframesWithSplineSpec] creates a keyframe based [DurationBasedAnimationSpec] using the
  * Monotone cubic Hermite spline to interpolate between the values in [config].
  *
- * [KeyframesWithSplineSpec] is best used with 2D values such as [Offset]. For example:
+ * [KeyframesWithSplineSpec] may be used to animate any n-dimensional values, but you'll likely use
+ * it most to animate positional 2D values such as [Offset]. For example:
  *
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForOffsetWithSplines
  *
- * You may however, provide a [periodicBias] value (between 0f and 1f) to make a periodic spline.
+ * You may also provide a [periodicBias] value (between 0f and 1f) to make a periodic spline.
  * Periodic splines adjust the initial and final velocity to be the same. This is useful to create
  * smooth repeatable animations. Such as an infinite pulsating animation:
  *
@@ -731,6 +736,13 @@ class KeyframesWithSplineSpec<T>(
         this.periodicBias = periodicBias
     }
 
+    /**
+     * Keyframe configuration class for [KeyframesWithSplineSpec].
+     *
+     * Since [keyframesWithSpline] uses the values across all the given intervals to calculate the
+     * shape of the animation, [KeyframesWithSplineSpecConfig] does not allow setting a specific
+     * [ArcMode] between intervals (compared to [KeyframesSpecConfig] used for [keyframes]).
+     */
     class KeyframesWithSplineSpecConfig<T> :
         KeyframesSpecBaseConfig<T, KeyframesSpec.KeyframeEntity<T>>() {
 
@@ -808,6 +820,10 @@ fun <T> spring(
  * [ArcMode]:
  *
  * @sample androidx.compose.animation.core.samples.OffsetKeyframesWithArcsBuilder
+ *
+ * For a smooth, curvy animation across all the intervals in the keyframes, consider using
+ * [keyframesWithSpline] instead.
+ *
  * @param init Initialization function for the [KeyframesSpec] animation
  * @see KeyframesSpec.KeyframesSpecConfig
  */
