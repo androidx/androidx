@@ -114,7 +114,7 @@ internal fun createMoveMotionEvents(
     enableFlingStyleHistory: Boolean = false,
     timeDelta: Int = 100,
     moveDelta: Float = DefaultPointerInputMoveAmountPx
-): Triple<Int, Float, Array<MotionEvent>> {
+): Array<MotionEvent> {
     var time = initialTime
     var x = initialX
 
@@ -193,7 +193,7 @@ internal fun createMoveMotionEvents(
             x += moveDelta
             move
         }
-    return Triple(time, x, moveMotionEvents)
+    return moveMotionEvents
 }
 
 /*
