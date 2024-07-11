@@ -57,9 +57,7 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -71,40 +69,31 @@ internal enum class TextFieldType {
     Outlined
 }
 
-/** Implementation of the [TextField] and [OutlinedTextField] */
 @Composable
 internal fun CommonDecorationBox(
     type: TextFieldType,
-    value: String,
+    visualText: CharSequence,
     innerTextField: @Composable () -> Unit,
-    visualTransformation: VisualTransformation,
     label: @Composable (() -> Unit)?,
-    placeholder: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    prefix: @Composable (() -> Unit)? = null,
-    suffix: @Composable (() -> Unit)? = null,
-    supportingText: @Composable (() -> Unit)? = null,
-    singleLine: Boolean = false,
-    enabled: Boolean = true,
-    isError: Boolean = false,
+    placeholder: @Composable (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
+    prefix: @Composable (() -> Unit)?,
+    suffix: @Composable (() -> Unit)?,
+    supportingText: @Composable (() -> Unit)?,
+    singleLine: Boolean,
+    enabled: Boolean,
+    isError: Boolean,
     interactionSource: InteractionSource,
     contentPadding: PaddingValues,
     colors: TextFieldColors,
     container: @Composable () -> Unit,
 ) {
-    val transformedText =
-        remember(value, visualTransformation) {
-                visualTransformation.filter(AnnotatedString(value))
-            }
-            .text
-            .text
-
     val isFocused = interactionSource.collectIsFocusedAsState().value
     val inputState =
         when {
             isFocused -> InputPhase.Focused
-            transformedText.isEmpty() -> InputPhase.UnfocusedEmpty
+            visualText.isEmpty() -> InputPhase.UnfocusedEmpty
             else -> InputPhase.UnfocusedNotEmpty
         }
 
@@ -155,7 +144,7 @@ internal fun CommonDecorationBox(
             derivedStateOf(structuralEqualityPolicy()) { placeholderAlpha.value > 0f }
         }
         val decoratedPlaceholder: @Composable ((Modifier) -> Unit)? =
-            if (placeholder != null && transformedText.isEmpty() && showPlaceholder) {
+            if (placeholder != null && visualText.isEmpty() && showPlaceholder) {
                 @Composable { modifier ->
                     Box(modifier.graphicsLayer { alpha = placeholderAlpha.value }) {
                         Decoration(

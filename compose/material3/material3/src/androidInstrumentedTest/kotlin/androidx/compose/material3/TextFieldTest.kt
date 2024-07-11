@@ -38,6 +38,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.delete
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.placeCursorAtEnd
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.HorizontalIconPadding
@@ -97,13 +102,8 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TransformedText
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -138,7 +138,10 @@ class TextFieldTest {
     fun testTextField_setSmallHeight() {
         rule
             .setMaterialContentForSizeAssertions {
-                TextField(value = "input", onValueChange = {}, modifier = Modifier.height(20.dp))
+                TextField(
+                    state = rememberTextFieldState("input"),
+                    modifier = Modifier.height(20.dp)
+                )
             }
             .assertHeightIsEqualTo(20.dp)
     }
@@ -148,8 +151,7 @@ class TextFieldTest {
         rule
             .setMaterialContentForSizeAssertions {
                 TextField(
-                    value = "input",
-                    onValueChange = {},
+                    state = rememberTextFieldState("input"),
                     modifier = Modifier.requiredWidth(40.dp)
                 )
             }
@@ -161,8 +163,7 @@ class TextFieldTest {
         rule
             .setMaterialContentForSizeAssertions {
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    state = rememberTextFieldState(),
                     textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
                 )
             }
@@ -172,7 +173,7 @@ class TextFieldTest {
     @Test
     fun testTextField_defaultWidth() {
         rule
-            .setMaterialContentForSizeAssertions { TextField(value = "input", onValueChange = {}) }
+            .setMaterialContentForSizeAssertions { TextField(rememberTextFieldState("input")) }
             .assertWidthIsEqualTo(ExpectedDefaultTextFieldWidth)
     }
 
@@ -185,8 +186,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = { Text("Label") },
             )
         }
@@ -214,8 +214,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = { Text("Label") },
                 supportingText = { Text("Supporting") }
             )
@@ -253,14 +252,12 @@ class TextFieldTest {
             Column {
                 TextField(
                     modifier = Modifier.testTag(textField1Tag),
-                    value = "input1",
-                    onValueChange = {},
-                    interactionSource = interactionSource1
+                    state = rememberTextFieldState("input1"),
+                    interactionSource = interactionSource1,
                 )
                 TextField(
                     modifier = Modifier.testTag(textField2Tag),
-                    value = "input2",
-                    onValueChange = {},
+                    state = rememberTextFieldState("input2"),
                     interactionSource = interactionSource2
                 )
             }
@@ -305,8 +302,7 @@ class TextFieldTest {
             scope = rememberCoroutineScope()
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "input",
-                onValueChange = {},
+                state = rememberTextFieldState("input"),
                 interactionSource = interactionSource
             )
         }
@@ -339,8 +335,7 @@ class TextFieldTest {
                             .focusTarget()
                             .focusRequester(focusRequester)
                             .testTag(TextFieldTag),
-                    value = "input",
-                    onValueChange = {}
+                    state = rememberTextFieldState("input"),
                 )
             }
         }
@@ -370,8 +365,7 @@ class TextFieldTest {
                             .focusTarget()
                             .focusRequester(focusRequester)
                             .testTag(TextFieldTag),
-                    value = "input",
-                    onValueChange = {}
+                    state = rememberTextFieldState("input"),
                 )
             }
         }
@@ -393,9 +387,8 @@ class TextFieldTest {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
-                singleLine = true,
+                state = rememberTextFieldState(),
+                lineLimits = TextFieldLineLimits.SingleLine,
                 label = {
                     Box(
                         Modifier.size(MinTextLineHeight).onGloballyPositioned {
@@ -421,8 +414,7 @@ class TextFieldTest {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = {
                     Box(
                         Modifier.size(MinTextLineHeight).onGloballyPositioned {
@@ -447,8 +439,7 @@ class TextFieldTest {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 modifier = Modifier.height(height),
                 label = {
                     Box(
@@ -474,8 +465,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = {
                     Box(
                         Modifier.size(MinFocusedLabelLineHeight).onGloballyPositioned {
@@ -504,8 +494,7 @@ class TextFieldTest {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "input",
-                onValueChange = {},
+                state = rememberTextFieldState("input"),
                 label = {
                     Box(
                         Modifier.size(MinFocusedLabelLineHeight).onGloballyPositioned {
@@ -532,8 +521,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                 placeholder = {
                     Box(
@@ -564,8 +552,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 placeholder = {
                     Box(
                         Modifier.size(MinTextLineHeight).onGloballyPositioned {
@@ -594,8 +581,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "input",
-                onValueChange = {},
+                state = rememberTextFieldState("input"),
                 placeholder = {
                     Text(
                         text = "placeholder",
@@ -623,8 +609,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 placeholder = {
                     Text("placeholder")
                     assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodyLarge)
@@ -640,11 +625,9 @@ class TextFieldTest {
     fun testTextField_placeholderColor_whenInputEmptyAndFocused() {
         var focused = false
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = text.value,
-                onValueChange = { text.value = it },
+                state = rememberTextFieldState(),
                 colors =
                     TextFieldDefaults.colors(
                         focusedPlaceholderColor = Color.Red,
@@ -680,8 +663,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = {
                     Box(
                         Modifier.size(labelSize).onGloballyPositioned {
@@ -745,8 +727,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
                 TextField(
-                    value = "text",
-                    onValueChange = {},
+                    state = rememberTextFieldState("text"),
                     modifier = Modifier.size(TextFieldWidth, textFieldHeight),
                     leadingIcon = {
                         Icon(
@@ -817,8 +798,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
                 TextField(
-                    value = "text",
-                    onValueChange = {},
+                    state = rememberTextFieldState("text"),
                     modifier = Modifier.size(TextFieldWidth, textFieldHeight),
                     leadingIcon = {
                         IconButton(
@@ -889,8 +869,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
                 TextField(
-                    value = "text",
-                    onValueChange = {},
+                    state = rememberTextFieldState("text"),
                     modifier = Modifier.size(TextFieldWidth, textFieldHeight),
                     leadingIcon = {
                         Box(
@@ -948,8 +927,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
                 TextField(
-                    value = "text",
-                    onValueChange = {},
+                    state = rememberTextFieldState("text"),
                     modifier = Modifier.width(TextFieldWidth),
                     label = { Box(Modifier.size(MinFocusedLabelLineHeight)) },
                     prefix = {
@@ -1000,8 +978,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
                 TextField(
-                    value = "text",
-                    onValueChange = {},
+                    state = rememberTextFieldState("text"),
                     modifier = Modifier.width(TextFieldWidth),
                     prefix = {
                         Box(
@@ -1047,8 +1024,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalDensity provides density) {
                 TextField(
-                    value = "text",
-                    onValueChange = {},
+                    state = rememberTextFieldState("text"),
                     modifier = Modifier.width(TextFieldWidth),
                     prefix = {
                         Box(
@@ -1097,8 +1073,7 @@ class TextFieldTest {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = {
                     Text(
                         text = "label",
@@ -1126,8 +1101,7 @@ class TextFieldTest {
         val labelPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = {
                     Text(
                         text = "label",
@@ -1151,8 +1125,7 @@ class TextFieldTest {
     fun testTextField_colorInLeadingTrailing_whenValidInput() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 isError = false,
                 leadingIcon = {
                     assertThat(LocalContentColor.current)
@@ -1170,8 +1143,7 @@ class TextFieldTest {
     fun testTextField_colorInLeadingTrailing_whenInvalidInput() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 isError = true,
                 leadingIcon = {
                     assertThat(LocalContentColor.current)
@@ -1189,8 +1161,7 @@ class TextFieldTest {
         val supportingPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 textStyle = TextStyle(fontSize = 1.sp), // ensure text size is minimum
                 supportingText = {
                     Box(
@@ -1216,8 +1187,7 @@ class TextFieldTest {
         val supportingSize = Ref<IntSize>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 modifier = Modifier.onGloballyPositioned { tfSize.value = it.size },
                 supportingText = {
                     Text(
@@ -1240,8 +1210,7 @@ class TextFieldTest {
         val tfSize = Ref<IntSize>()
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 modifier = Modifier.onGloballyPositioned { tfSize.value = it.size },
                 supportingText = { Text("Supporting") }
             )
@@ -1257,8 +1226,8 @@ class TextFieldTest {
     fun testTextField_supportingText_remainsVisibleWithTallInput() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = buildString { repeat(200) { append("line $it\n") } },
-                onValueChange = {},
+                state =
+                    rememberTextFieldState(buildString { repeat(200) { append("line $it\n") } }),
                 modifier = Modifier.size(width = ExpectedDefaultTextFieldWidth, height = 150.dp),
                 supportingText = { Text("Supporting", modifier = Modifier.testTag("Supporting")) }
             )
@@ -1273,8 +1242,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.onFocusChanged { focused = it.isFocused },
-                value = "input",
-                onValueChange = {},
+                state = rememberTextFieldState("input"),
                 supportingText = { Text("Supporting") }
             )
         }
@@ -1287,8 +1255,7 @@ class TextFieldTest {
     fun testTextField_supportingText_colorAndStyle() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 supportingText = {
                     assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodySmall)
                     assertThat(LocalContentColor.current)
@@ -1302,8 +1269,7 @@ class TextFieldTest {
     fun testTextField_supportingText_error_colorAndStyle() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 isError = true,
                 supportingText = {
                     assertThat(LocalTextStyle.current).isEqualTo(MaterialTheme.typography.bodySmall)
@@ -1326,12 +1292,10 @@ class TextFieldTest {
             awaitCancellation()
         }
         rule.setContent {
-            val text = remember { mutableStateOf("") }
             InterceptPlatformTextInput(interceptor) {
-                OutlinedTextField(
+                TextField(
                     modifier = Modifier.testTag(TextFieldTag),
-                    value = text.value,
-                    onValueChange = { text.value = it },
+                    state = rememberTextFieldState(),
                     keyboardOptions =
                         KeyboardOptions(imeAction = ImeAction.Go, keyboardType = KeyboardType.Email)
                 )
@@ -1354,13 +1318,18 @@ class TextFieldTest {
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    fun testTextField_visualTransformationPropagated() {
+    fun testTextField_outputTransformationPropagated() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "qwerty",
-                onValueChange = {},
-                visualTransformation = PasswordVisualTransformation('\u0020'),
+                state = rememberTextFieldState("qwerty"),
+                outputTransformation = {
+                    // transform all chars to blank spaces
+                    val size = length
+                    delete(0, length)
+                    insert(0, " ".repeat(size))
+                    placeCursorAtEnd()
+                },
                 shape = RectangleShape,
                 colors = TextFieldDefaults.colors(unfocusedContainerColor = Color.White)
             )
@@ -1388,8 +1357,7 @@ class TextFieldTest {
             Box(Modifier.background(color = Color.White)) {
                 TextField(
                     modifier = Modifier.testTag(TextFieldTag),
-                    value = "test",
-                    onValueChange = {},
+                    state = rememberTextFieldState("test"),
                     label = { Text("label") },
                     shape = RectangleShape,
                     leadingIcon = { Icon(Icons.Default.Favorite, null, tint = Color.Transparent) },
@@ -1441,28 +1409,12 @@ class TextFieldTest {
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTextField_transformedTextIsUsed_toDefineLabelPosition() {
-        // if non-transformed value were used to check if the text input is empty, the label
-        // wouldn't be aligned to the top, as a result it would be obscured by text
-        val prefixTransformation = VisualTransformation { text ->
-            val prefix = "prefix"
-            val transformed = buildAnnotatedString {
-                append(prefix)
-                append(text)
-            }
-            val mapping =
-                object : OffsetMapping {
-                    override fun originalToTransformed(offset: Int) = offset + prefix.length
-
-                    override fun transformedToOriginal(offset: Int) =
-                        (offset - prefix.length).coerceAtLeast(0)
-                }
-            TransformedText(transformed, mapping)
-        }
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
-                visualTransformation = prefixTransformation,
+                state = rememberTextFieldState(),
+                // if non-transformed value were used to check if the text input is empty, the label
+                // wouldn't be aligned to the top, as a result it would be obscured by text
+                outputTransformation = { insert(0, "prefix") },
                 label = {
                     Text("label", color = Color.Red, modifier = Modifier.background(Color.Red))
                 },
@@ -1480,31 +1432,15 @@ class TextFieldTest {
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testTextField_transformedTextIsUsed_toDefineIfPlaceholderNeeded() {
-        // if original value were used to check if the text input is empty, the placeholder would be
-        // displayed on top of the text
-        val prefixTransformation = VisualTransformation { text ->
-            val prefix = "prefix"
-            val transformed = buildAnnotatedString {
-                append(prefix)
-                append(text)
-            }
-            val mapping =
-                object : OffsetMapping {
-                    override fun originalToTransformed(offset: Int) = offset + prefix.length
-
-                    override fun transformedToOriginal(offset: Int) =
-                        (offset - prefix.length).coerceAtLeast(0)
-                }
-            TransformedText(transformed, mapping)
-        }
         // While surface is not used in TextField, setMaterialContent wraps content in a Surface
         // component which is checked during assertPixels.
         rule.setMaterialContent(lightColorScheme(surface = Color.White)) {
             TextField(
                 modifier = Modifier.testTag(TextFieldTag),
-                value = "",
-                onValueChange = {},
-                visualTransformation = prefixTransformation,
+                state = rememberTextFieldState(),
+                // if original value were used to check if the text input is empty, the placeholder
+                // would be displayed on top of the text
+                outputTransformation = { insert(0, "prefix") },
                 placeholder = {
                     Text(
                         text = "placeholder",
@@ -1527,7 +1463,7 @@ class TextFieldTest {
     fun testTextField_errorSemantics_defaultMessage() {
         lateinit var errorMessage: String
         rule.setMaterialContent(lightColorScheme()) {
-            TextField(value = "test", onValueChange = {}, isError = true)
+            TextField(state = rememberTextFieldState("test"), isError = true)
             errorMessage = getString(DefaultErrorMessage)
         }
 
@@ -1544,8 +1480,7 @@ class TextFieldTest {
         rule.setMaterialContent(lightColorScheme()) {
             val isError = remember { mutableStateOf(true) }
             TextField(
-                value = "test",
-                onValueChange = {},
+                state = rememberTextFieldState("test"),
                 modifier =
                     Modifier.testTag(TextFieldTag).semantics {
                         if (isError.value) error(errorMessage)
@@ -1582,7 +1517,10 @@ class TextFieldTest {
                         thickness = 10.dp,
                         modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
-                    TextField(value = "", label = { Text(text = "Label") }, onValueChange = {})
+                    TextField(
+                        state = rememberTextFieldState(),
+                        label = { Text(text = "Label") },
+                    )
                 }
             }
         }
@@ -1599,7 +1537,6 @@ class TextFieldTest {
         var textFieldSize: IntSize? = null
         var dividerSize: IntSize? = null
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
             Box {
                 Column(Modifier.width(IntrinsicSize.Min)) {
                     HorizontalDivider(
@@ -1607,9 +1544,8 @@ class TextFieldTest {
                         modifier = Modifier.onGloballyPositioned { dividerSize = it.size }
                     )
                     TextField(
-                        value = text.value,
+                        state = rememberTextFieldState(),
                         label = { Text(text = "Label") },
-                        onValueChange = { text.value = it },
                         modifier = Modifier.onGloballyPositioned { textFieldSize = it.size }
                     )
                 }
@@ -1634,8 +1570,7 @@ class TextFieldTest {
 
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
-                value = "",
-                onValueChange = {},
+                state = rememberTextFieldState(),
                 label = {
                     textStyle = LocalTextStyle.current
                     contentColor = LocalContentColor.current
@@ -1676,8 +1611,7 @@ class TextFieldTest {
             val bodySmall = MaterialTheme.typography.bodySmall.copy(color = bodySmallColor)
             MaterialTheme(typography = Typography(bodySmall = bodySmall)) {
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    state = rememberTextFieldState(),
                     label = {
                         textStyle = LocalTextStyle.current
                         contentColor = LocalContentColor.current
@@ -1718,8 +1652,7 @@ class TextFieldTest {
             val bodySmall = MaterialTheme.typography.bodySmall.copy(color = expectedLabelColor)
             MaterialTheme(typography = Typography(bodySmall = bodySmall)) {
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    state = rememberTextFieldState(),
                     label = {
                         textStyle = LocalTextStyle.current
                         contentColor = LocalContentColor.current
@@ -1763,8 +1696,7 @@ class TextFieldTest {
             val bodyLarge = MaterialTheme.typography.bodyLarge.copy(color = bodyLargeColor)
             MaterialTheme(typography = Typography(bodySmall = bodySmall, bodyLarge = bodyLarge)) {
                 TextField(
-                    value = "",
-                    onValueChange = {},
+                    state = rememberTextFieldState(),
                     label = {
                         textStyle = LocalTextStyle.current
                         contentColor = LocalContentColor.current
@@ -1796,13 +1728,9 @@ class TextFieldTest {
     fun testTextField_intrinsicHeight_withOnlyEmptyInput() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
             Box(Modifier.onGloballyPositioned { height = it.size.height }) {
                 Row(Modifier.height(IntrinsicSize.Min)) {
-                    TextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
-                    )
+                    TextField(rememberTextFieldState())
                     VerticalDivider()
                 }
             }
@@ -1817,12 +1745,10 @@ class TextFieldTest {
     fun testTextField_intrinsicHeight_withEmptyInput_andDecorations() {
         var height = 0
         rule.setMaterialContent(lightColorScheme()) {
-            val text = remember { mutableStateOf("") }
             Box(Modifier.onGloballyPositioned { height = it.size.height }) {
                 Row(Modifier.height(IntrinsicSize.Min)) {
                     TextField(
-                        value = text.value,
-                        onValueChange = { text.value = it },
+                        state = rememberTextFieldState(),
                         leadingIcon = { Icon(Icons.Default.Favorite, null) },
                         trailingIcon = { Icon(Icons.Default.Favorite, null) },
                         prefix = { Text("P") },
@@ -1847,8 +1773,7 @@ class TextFieldTest {
             Row {
                 Box(Modifier.width(150.dp).height(IntrinsicSize.Min)) {
                     TextField(
-                        value = text,
-                        onValueChange = {},
+                        state = rememberTextFieldState(text),
                         modifier =
                             Modifier.onGloballyPositioned { tfHeightIntrinsic = it.size.height },
                         leadingIcon = { Icon(Icons.Default.Favorite, null) },
@@ -1860,8 +1785,7 @@ class TextFieldTest {
 
                 Box(Modifier.width(150.dp)) {
                     TextField(
-                        value = text,
-                        onValueChange = {},
+                        state = rememberTextFieldState(text),
                         modifier =
                             Modifier.onGloballyPositioned { tfHeightNoIntrinsic = it.size.height },
                         leadingIcon = { Icon(Icons.Default.Favorite, null) },
@@ -1909,14 +1833,13 @@ class TextFieldTest {
     }
 
     @Test
-    fun testTextFields_noCrashConstraintsInfinity() {
-
+    fun testTextField_noCrashConstraintsInfinity() {
         rule.setMaterialContent(lightColorScheme()) {
             Column(
                 modifier =
                     Modifier.height(IntrinsicSize.Min).horizontalScroll(rememberScrollState())
             ) {
-                TextField(value = "Cat", onValueChange = {}, leadingIcon = { Text("Icon") })
+                TextField(state = rememberTextFieldState(), leadingIcon = { Text("Icon") })
             }
         }
     }
