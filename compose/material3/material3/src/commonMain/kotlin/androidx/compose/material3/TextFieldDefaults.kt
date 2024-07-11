@@ -92,8 +92,8 @@ object TextFieldDefaults {
      * href="https://m3.material.io/components/text-fields/overview" class="external"
      * target="_blank">Material Design filled text field</a>.
      *
-     * If your text field requires customising elements that aren't exposed by [TextField], consider
-     * using this decorator to achieve the desired design.
+     * If your text field requires customising elements that aren't exposed by [TextField], such as
+     * the indicator line thickness, consider using this decorator to achieve the desired design.
      *
      * For example, if you wish to customise the bottom indicator line, you can pass a custom
      * [Container] to this decorator's [container].
@@ -102,6 +102,9 @@ object TextFieldDefaults {
      * accepts a [TextFieldDecorator] parameter. For other overloads of [BasicTextField] that use a
      * `decorationBox`, see [DecorationBox].
      *
+     * An example of building a custom text field using [decorator]:
+     *
+     * @sample androidx.compose.material3.samples.CustomTextFieldUsingDecorator
      * @param state [TextFieldState] object that holds the internal editing state of the text field.
      * @param enabled the enabled state of the text field. When `false`, this decorator will appear
      *   visually disabled. This must be the same value that is passed to [BasicTextField].
@@ -896,7 +899,7 @@ object OutlinedTextFieldDefaults {
      * target="_blank">Material Design outlined text field</a>.
      *
      * If your text field requires customising elements that aren't exposed by [OutlinedTextField],
-     * consider using this decorator to achieve the desired design.
+     * such as the border thickness, consider using this decorator to achieve the desired design.
      *
      * For example, if you wish to customize the thickness of the border, you can pass a custom
      * [Container] to this decoration box's [container].
@@ -905,6 +908,9 @@ object OutlinedTextFieldDefaults {
      * accepts a [TextFieldDecorator] parameter. For other overloads of [BasicTextField] that use a
      * `decorationBox`, see [DecorationBox].
      *
+     * An example of building a custom text field using [decorator]:
+     *
+     * @sample androidx.compose.material3.samples.CustomOutlinedTextFieldUsingDecorator
      * @param state [TextFieldState] object that holds the internal editing state of the text field.
      * @param enabled the enabled state of the text field. When `false`, this decorator will appear
      *   visually disabled. This must be the same value that is passed to [BasicTextField].

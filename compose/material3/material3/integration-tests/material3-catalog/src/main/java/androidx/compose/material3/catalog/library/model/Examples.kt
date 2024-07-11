@@ -194,6 +194,7 @@ import androidx.compose.material3.samples.TextFieldWithInitialValueAndSelection
 import androidx.compose.material3.samples.TextFieldWithPlaceholder
 import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
+import androidx.compose.material3.samples.TextFieldWithTransformations
 import androidx.compose.material3.samples.ThreeLineListItemWithExtendedSupporting
 import androidx.compose.material3.samples.ThreeLineListItemWithOverlineAndSupporting
 import androidx.compose.material3.samples.TimeInputSample
@@ -1582,6 +1583,13 @@ val TextFieldsExamples =
                 sourceUrl = TextFieldsExampleSourceUrl
             ) {
                 OutlinedTextFieldWithInitialValueAndSelection()
+            },
+            Example(
+                name = "TextFieldWithTransformations",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                TextFieldWithTransformations()
             },
             Example(
                 name = "TextFieldWithIcons",
