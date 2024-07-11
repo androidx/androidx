@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
@@ -38,7 +39,9 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CenteredText
+import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
+import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
@@ -84,9 +87,104 @@ class ButtonScreenshotTest {
         ImageBackgroundButton(enabled = false)
     }
 
+    @Test
+    fun button_label_only_center_aligned() = verifyScreenshot {
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) }
+        )
+    }
+
+    @Test
+    fun button_icon_and_label_start_aligned() = verifyScreenshot {
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
+            icon = { TestIcon() },
+        )
+    }
+
+    @Test
+    fun filled_tonal_button_label_only_center_aligned() = verifyScreenshot {
+        FilledTonalButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) }
+        )
+    }
+
+    @Test
+    fun filled_tonal_button_icon_and_label_start_aligned() = verifyScreenshot {
+        FilledTonalButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
+            icon = { TestIcon() },
+        )
+    }
+
+    @Test
+    fun outlined_tonal_button_label_only_center_aligned() = verifyScreenshot {
+        OutlinedButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) }
+        )
+    }
+
+    @Test
+    fun outlined_tonal_button_icon_and_label_start_aligned() = verifyScreenshot {
+        OutlinedButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
+            icon = { TestIcon() },
+        )
+    }
+
+    @Test
+    fun child_button_label_only_center_aligned() = verifyScreenshot {
+        ChildButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) }
+        )
+    }
+
+    @Test
+    fun child_button_icon_and_label_start_aligned() = verifyScreenshot {
+        ChildButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
+            icon = { TestIcon() },
+        )
+    }
+
     @Test fun compact_button_enabled() = verifyScreenshot { CompactButton() }
 
     @Test fun compact_button_disabled() = verifyScreenshot { CompactButton(enabled = false) }
+
+    @Test
+    fun compact_button_label_only_center_aligned() = verifyScreenshot {
+        CompactButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) }
+        )
+    }
+
+    @Test
+    fun compact_button_icon_and_label_start_aligned() = verifyScreenshot {
+        CompactButton(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
+            icon = { TestIcon() },
+        )
+    }
 
     @Composable
     private fun BaseButton(enabled: Boolean = true) {

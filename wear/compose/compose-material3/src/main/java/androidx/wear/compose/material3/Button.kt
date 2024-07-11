@@ -55,6 +55,8 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.ChildButtonTokens
@@ -472,17 +474,34 @@ fun Button(
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
-        secondaryLabel = secondaryLabel,
+        secondaryLabelContent =
+            provideNullableScopeContent(
+                contentColor = colors.secondaryContentColor(enabled),
+                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
+                content = secondaryLabel
+            ),
         icon = icon,
         enabled = enabled,
         shape = shape,
         labelFont = FilledButtonTokens.LabelFont.value,
-        secondaryLabelFont = FilledButtonTokens.SecondaryLabelFont.value,
         colors = colors,
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        label = label
+        labelContent =
+            provideScopeContent(
+                contentColor = colors.contentColor(enabled),
+                textStyle = FilledButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign =
+                    if (icon != null || secondaryLabel != null) TextAlign.Start
+                    else TextAlign.Center,
+                content = label
+            )
     )
 
 /**
@@ -570,17 +589,34 @@ fun FilledTonalButton(
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
-        secondaryLabel = secondaryLabel,
+        secondaryLabelContent =
+            provideNullableScopeContent(
+                contentColor = colors.secondaryContentColor(enabled),
+                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
+                content = secondaryLabel
+            ),
         icon = icon,
         enabled = enabled,
         shape = shape,
         labelFont = FilledTonalButtonTokens.LabelFont.value,
-        secondaryLabelFont = FilledTonalButtonTokens.SecondaryLabelFont.value,
         colors = colors,
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        label = label
+        labelContent =
+            provideScopeContent(
+                contentColor = colors.contentColor(enabled),
+                textStyle = FilledButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign =
+                    if (icon != null || secondaryLabel != null) TextAlign.Start
+                    else TextAlign.Center,
+                content = label
+            )
     )
 
 /**
@@ -663,17 +699,34 @@ fun OutlinedButton(
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
-        secondaryLabel = secondaryLabel,
+        secondaryLabelContent =
+            provideNullableScopeContent(
+                contentColor = colors.secondaryContentColor(enabled),
+                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
+                content = secondaryLabel
+            ),
         icon = icon,
         enabled = enabled,
         shape = shape,
         labelFont = OutlinedButtonTokens.LabelFont.value,
-        secondaryLabelFont = OutlinedButtonTokens.SecondaryLabelFont.value,
         colors = colors,
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        label = label
+        labelContent =
+            provideScopeContent(
+                contentColor = colors.contentColor(enabled),
+                textStyle = FilledButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign =
+                    if (icon != null || secondaryLabel != null) TextAlign.Start
+                    else TextAlign.Center,
+                content = label
+            )
     )
 
 /**
@@ -756,17 +809,34 @@ fun ChildButton(
         modifier = modifier.buttonSizeModifier(),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
-        secondaryLabel = secondaryLabel,
+        secondaryLabelContent =
+            provideNullableScopeContent(
+                contentColor = colors.secondaryContentColor(enabled),
+                textStyle = FilledButtonTokens.SecondaryLabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Start,
+                content = secondaryLabel
+            ),
         icon = icon,
         enabled = enabled,
         shape = shape,
         labelFont = ChildButtonTokens.LabelFont.value,
-        secondaryLabelFont = ChildButtonTokens.SecondaryLabelFont.value,
         colors = colors,
         border = border,
         contentPadding = contentPadding,
         interactionSource = interactionSource,
-        label = label
+        labelContent =
+            provideScopeContent(
+                contentColor = colors.contentColor(enabled),
+                textStyle = FilledButtonTokens.LabelFont.value,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 3,
+                textAlign =
+                    if (icon != null || secondaryLabel != null) TextAlign.Start
+                    else TextAlign.Center,
+                content = label
+            )
     )
 
 /**
@@ -826,8 +896,9 @@ fun ChildButton(
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
  *   set, [onLongClickLabel] should be set as well.
  * @param onLongClickLabel Semantic / accessibility label for the [onLongClick] action.
- * @param label A slot for providing the button's main label. The contents are expected to be text
- *   which is "start" aligned if there is an icon preset and "center" aligned if not.
+ * @param label A slot for providing the button's main label. The contents are expected to be a
+ *   single line of text which is "start" aligned if there is an icon preset and "center" aligned if
+ *   not.
  * @param icon A slot for providing the button's icon. The contents are expected to be a
  *   horizontally and vertically aligned icon of size [ButtonDefaults.SmallIconSize] when used with
  *   a label or [ButtonDefaults.IconSize] when used as the only content in the button.
@@ -872,17 +943,24 @@ fun CompactButton(
                     .padding(ButtonDefaults.CompactButtonTapTargetPadding),
             onLongClick = onLongClick,
             onLongClickLabel = onLongClickLabel,
-            secondaryLabel = null,
+            secondaryLabelContent = null,
             icon = icon,
             enabled = enabled,
             shape = shape,
             labelFont = CompactButtonTokens.LabelFont.value,
-            secondaryLabelFont = null,
             colors = colors,
             border = border,
             contentPadding = contentPadding,
             interactionSource = interactionSource,
-            label = label
+            labelContent =
+                provideScopeContent(
+                    contentColor = colors.contentColor(enabled),
+                    textStyle = CompactButtonTokens.LabelFont.value,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
+                    label
+                )
         )
     } else {
         // Icon only compact buttons have their own layout with a specific width and center aligned
@@ -1662,17 +1740,16 @@ private fun ButtonImpl(
     modifier: Modifier,
     onLongClick: (() -> Unit)?,
     onLongClickLabel: String?,
-    secondaryLabel: (@Composable RowScope.() -> Unit)?,
+    secondaryLabelContent: (@Composable RowScope.() -> Unit)?,
     icon: (@Composable BoxScope.() -> Unit)?,
     enabled: Boolean,
     shape: Shape,
     labelFont: TextStyle,
-    secondaryLabelFont: TextStyle?,
     colors: ButtonColors,
     border: BorderStroke?,
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource?,
-    label: @Composable RowScope.() -> Unit
+    labelContent: @Composable RowScope.() -> Unit
 ) {
     ButtonImpl(
         onClick = onClick,
@@ -1701,17 +1778,10 @@ private fun ButtonImpl(
                 Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
             }
             Column {
-                Row(content = provideScopeContent(colors.contentColor(enabled), labelFont, label))
-                if (secondaryLabel != null && secondaryLabelFont != null) {
+                Row(content = labelContent)
+                if (secondaryLabelContent != null) {
                     Spacer(modifier = Modifier.size(2.dp))
-                    Row(
-                        content =
-                            provideScopeContent(
-                                colors.secondaryContentColor(enabled),
-                                secondaryLabelFont,
-                                secondaryLabel
-                            )
-                    )
+                    Row(content = secondaryLabelContent)
                 }
             }
         }
