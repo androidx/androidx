@@ -143,6 +143,46 @@ open class SplitDeviceStateActivityBase :
             animationBackgroundDropdown.onItemSelectedListener = this
         }
 
+        // Animation transitions
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 7 && componentName == activityA) {
+            // Show on only the primary activity.
+            val openAnimationDropdown = viewBinding.openAnimationDropdown
+            openAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.openAnimationDivider.visibility = View.VISIBLE
+            viewBinding.openAnimationTextView.visibility = View.VISIBLE
+            openAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            openAnimationDropdown.onItemSelectedListener = this
+
+            val closeAnimationDropdown = viewBinding.closeAnimationDropdown
+            closeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.closeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.closeAnimationTextView.visibility = View.VISIBLE
+            closeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            closeAnimationDropdown.onItemSelectedListener = this
+
+            val changeAnimationDropdown = viewBinding.changeAnimationDropdown
+            changeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.changeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.changeAnimationTextView.visibility = View.VISIBLE
+            changeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            changeAnimationDropdown.onItemSelectedListener = this
+        }
+
         lifecycleScope.launch {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
             // is at least STARTED and is cancelled when the lifecycle is STOPPED.
@@ -196,8 +236,20 @@ open class SplitDeviceStateActivityBase :
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        demoActivityEmbeddingController.animationBackground =
-            DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
+        when (parent?.id) {
+            R.id.animation_background_dropdown ->
+                demoActivityEmbeddingController.animationBackground =
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
+            R.id.open_animation_dropdown ->
+                demoActivityEmbeddingController.openAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.close_animation_dropdown ->
+                demoActivityEmbeddingController.closeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.change_animation_dropdown ->
+                demoActivityEmbeddingController.changeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+        }
         updateSplitPairRuleWithRadioButtonId(lastCheckedRuleId)
     }
 
@@ -269,8 +321,6 @@ open class SplitDeviceStateActivityBase :
         val splitPairFilter =
             SplitPairFilter(activityA, activityB, secondaryActivityIntentAction = null)
         splitPairFilters.add(splitPairFilter)
-        // TODO(b/293658614): Update the demo app to allow specifying custom animation transitions
-        // via AnimationParams.
         val defaultSplitAttributes =
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_EQUAL)
@@ -278,6 +328,9 @@ open class SplitDeviceStateActivityBase :
                 .setAnimationParams(
                     EmbeddingAnimationParams.Builder()
                         .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
+                        .setOpenAnimation(demoActivityEmbeddingController.openAnimation)
+                        .setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
+                        .setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
                         .build()
                 )
                 .build()
@@ -331,6 +384,9 @@ open class SplitDeviceStateActivityBase :
                 .setAnimationParams(
                     EmbeddingAnimationParams.Builder()
                         .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
+                        .setOpenAnimation(demoActivityEmbeddingController.openAnimation)
+                        .setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
+                        .setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
                         .build()
                 )
                 .build()

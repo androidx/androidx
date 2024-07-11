@@ -20,6 +20,7 @@ import android.graphics.Color
 import androidx.annotation.GuardedBy
 import androidx.window.demo.embedding.OverlayActivityBase.Companion.DEFAULT_OVERLAY_ATTRIBUTES
 import androidx.window.embedding.EmbeddingAnimationBackground
+import androidx.window.embedding.EmbeddingAnimationParams
 import androidx.window.embedding.OverlayAttributes
 import androidx.window.embedding.SplitAttributes
 import java.util.concurrent.atomic.AtomicBoolean
@@ -62,6 +63,15 @@ class DemoActivityEmbeddingController private constructor() {
 
     @GuardedBy("lock") private var animationBackgroundLocked = EmbeddingAnimationBackground.DEFAULT
 
+    @GuardedBy("lock")
+    private var openAnimationLocked = EmbeddingAnimationParams.AnimationSpec.DEFAULT
+
+    @GuardedBy("lock")
+    private var closeAnimationLocked = EmbeddingAnimationParams.AnimationSpec.DEFAULT
+
+    @GuardedBy("lock")
+    private var changeAnimationLocked = EmbeddingAnimationParams.AnimationSpec.DEFAULT
+
     internal var animationBackground: EmbeddingAnimationBackground
         get() {
             lock.withLock {
@@ -70,6 +80,36 @@ class DemoActivityEmbeddingController private constructor() {
         }
         set(value) {
             lock.withLock { animationBackgroundLocked = value }
+        }
+
+    internal var openAnimation: EmbeddingAnimationParams.AnimationSpec
+        get() {
+            lock.withLock {
+                return openAnimationLocked
+            }
+        }
+        set(value) {
+            lock.withLock { openAnimationLocked = value }
+        }
+
+    internal var closeAnimation: EmbeddingAnimationParams.AnimationSpec
+        get() {
+            lock.withLock {
+                return closeAnimationLocked
+            }
+        }
+        set(value) {
+            lock.withLock { closeAnimationLocked = value }
+        }
+
+    internal var changeAnimation: EmbeddingAnimationParams.AnimationSpec
+        get() {
+            lock.withLock {
+                return changeAnimationLocked
+            }
+        }
+        set(value) {
+            lock.withLock { changeAnimationLocked = value }
         }
 
     internal var overlayAttributes: OverlayAttributes
@@ -103,7 +143,7 @@ class DemoActivityEmbeddingController private constructor() {
             return globalInstance!!
         }
 
-        /** Anmiation background constants. */
+        /** Animation background constants. */
         val ANIMATION_BACKGROUND_TEXTS = arrayOf("DEFAULT", "BLUE", "GREEN", "YELLOW")
         val ANIMATION_BACKGROUND_VALUES =
             arrayOf(
@@ -111,6 +151,14 @@ class DemoActivityEmbeddingController private constructor() {
                 EmbeddingAnimationBackground.createColorBackground(Color.BLUE),
                 EmbeddingAnimationBackground.createColorBackground(Color.GREEN),
                 EmbeddingAnimationBackground.createColorBackground(Color.YELLOW)
+            )
+
+        /** Animation spec constants. */
+        val ANIMATION_SPEC_TEXTS = arrayOf("DEFAULT", "JUMP_CUT")
+        val ANIMATION_SPEC_VALUES =
+            arrayOf(
+                EmbeddingAnimationParams.AnimationSpec.DEFAULT,
+                EmbeddingAnimationParams.AnimationSpec.JUMP_CUT
             )
     }
 }
