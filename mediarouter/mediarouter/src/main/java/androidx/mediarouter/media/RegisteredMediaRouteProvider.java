@@ -127,7 +127,10 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
-            @NonNull String initialMemberRouteId) {
+            @NonNull String initialMemberRouteId, @Nullable Bundle controlHints) {
+        // The parent implementation of onCreateDynamicGroupRouteController(String, Bundle) calls
+        // onCreateDynamicGroupRouteController(String). We only need to override either one of
+        // the onCreateDynamicGroupRouteController methods.
         if (initialMemberRouteId == null) {
             throw new IllegalArgumentException("initialMemberRouteId cannot be null.");
         }

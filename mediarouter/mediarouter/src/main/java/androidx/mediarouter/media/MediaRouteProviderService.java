@@ -16,7 +16,6 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_ID;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_MEMBER_ROUTE_IDS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.CLIENT_DATA_ROUTE_ID;
@@ -55,6 +54,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
+import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
 
 import android.app.Service;
 import android.content.Context;
@@ -1086,7 +1086,8 @@ public abstract class MediaRouteProviderService extends Service {
                 if (mControllers.indexOfKey(controllerId) < 0) {
                     MediaRouteProvider.DynamicGroupRouteController controller =
                             mService.getMediaRouteProvider()
-                                    .onCreateDynamicGroupRouteController(initialMemberRouteId);
+                                    .onCreateDynamicGroupRouteController(
+                                            initialMemberRouteId, /* controlHints= */ null);
                     if (controller != null) {
                         controller.setOnDynamicRoutesChangedListener(
                                 ContextCompat.getMainExecutor(mService.getApplicationContext()),

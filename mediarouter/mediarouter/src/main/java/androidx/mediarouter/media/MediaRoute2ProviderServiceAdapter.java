@@ -135,7 +135,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         int sessionFlags = SessionRecord.SESSION_FLAG_MR2;
         DynamicGroupRouteController controller;
         if (mProviderDescriptor.supportsDynamicGroupRoute()) {
-            controller = provider.onCreateDynamicGroupRouteController(routeId);
+            controller = provider.onCreateDynamicGroupRouteController(routeId, sessionHints);
             sessionFlags |= SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC;
             if (controller == null) {
                 Log.w(TAG, "onCreateSession: Couldn't create a dynamic controller");
