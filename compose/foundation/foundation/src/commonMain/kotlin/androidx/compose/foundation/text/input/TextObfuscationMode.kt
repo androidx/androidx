@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input
 
+import kotlin.jvm.JvmInline
+
 /**
  * Defines how the text will be obscured in secure text fields.
  *

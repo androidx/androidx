@@ -22,6 +22,7 @@ import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
 import androidx.compose.foundation.text.input.internal.PartialGapBuffer
 import androidx.compose.ui.text.TextRange
+import kotlin.jvm.JvmName
 
 /**
  * A text buffer that can be edited, similar to [StringBuilder].
@@ -179,6 +180,7 @@ internal constructor(
 
     // Doc inherited from Appendable.
     // This append overload should be first so it ends up being the target of links to this method.
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun append(text: CharSequence?): Appendable = apply {
         if (text != null) {
             onTextWillChange(length, length, text.length)
@@ -187,6 +189,7 @@ internal constructor(
     }
 
     // Doc inherited from Appendable.
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun append(text: CharSequence?, start: Int, end: Int): Appendable = apply {
         if (text != null) {
             onTextWillChange(length, length, end - start)
@@ -195,6 +198,7 @@ internal constructor(
     }
 
     // Doc inherited from Appendable.
+    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
     override fun append(char: Char): Appendable = apply {
         onTextWillChange(length, length, 1)
         buffer.replace(buffer.length, buffer.length, char.toString())
