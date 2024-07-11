@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter.Companion.getSessionConfig
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_HINT_OPTION
 import androidx.camera.camera2.pipe.integration.internal.StreamUseCaseUtil
@@ -44,26 +45,27 @@ import kotlinx.coroutines.launch
 class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
     private val sessionProcessorConfig: SessionConfig? = null,
+    private val isPrimary: Boolean = true,
 ) {
     val isSessionProcessorEnabled = sessionProcessorConfig != null
     val surfaceToStreamUseCaseMap: Map<DeferrableSurface, Long> by lazy {
         val sessionConfigs = mutableListOf<SessionConfig>()
         val useCaseConfigs = mutableListOf<UseCaseConfig<*>>()
         for (useCase in useCases) {
-            sessionConfigs.add(useCase.sessionConfig)
+            sessionConfigs.add(useCase.getSessionConfig(isPrimary))
             useCaseConfigs.add(useCase.currentConfig)
         }
         getSurfaceToStreamUseCaseMapping(sessionConfigs, useCaseConfigs)
     }
     val surfaceToStreamUseHintMap: Map<DeferrableSurface, Long> by lazy {
-        val sessionConfigs = useCases.map { it.sessionConfig }
+        val sessionConfigs = useCases.map { it.getSessionConfig(isPrimary) }
         getSurfaceToStreamUseHintMapping(sessionConfigs)
     }
     private val validatingBuilder: SessionConfig.ValidatingBuilder by lazy {
         val validatingBuilder = SessionConfig.ValidatingBuilder()
 
         for (useCase in useCases) {
-            validatingBuilder.add(useCase.sessionConfig)
+            validatingBuilder.add(useCase.getSessionConfig(isPrimary))
         }
 
         if (sessionProcessorConfig != null) {
@@ -102,7 +104,8 @@ class SessionConfigAdapter(
         val sessionConfig =
             useCases
                 .firstOrNull { useCase ->
-                    useCase.sessionConfig.surfaces.contains(deferrableSurface)
+                    val sessionConfig = useCase.getSessionConfig(isPrimary)
+                    sessionConfig.surfaces.contains(deferrableSurface)
                 }
                 ?.sessionConfig
 
@@ -194,6 +197,10 @@ class SessionConfigAdapter(
     companion object {
         fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
             return Camera2ImplConfig(implementationOptions)
+        }
+
+        fun UseCase.getSessionConfig(isPrimary: Boolean): SessionConfig {
+            return if (isPrimary) sessionConfig else secondarySessionConfig
         }
     }
 }

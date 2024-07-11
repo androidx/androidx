@@ -154,7 +154,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     private boolean mIsFrontPrimary = true;
     private boolean mIsDualSelfieEnabled = false;
     private boolean mIsDualRecordEnabled = false;
-    private boolean mIsCameraPipeEnabled = false;
+    private boolean mIsCameraPipeEnabled = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

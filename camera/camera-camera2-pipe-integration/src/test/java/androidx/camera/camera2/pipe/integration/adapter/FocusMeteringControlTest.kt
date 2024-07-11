@@ -1552,6 +1552,11 @@ class FocusMeteringControlTest {
             override val requestControl: UseCaseCameraRequestControl
                 get() = fakeRequestControl
 
+            override var isPrimary: Boolean = true
+                set(value) {
+                    field = value
+                }
+
             override fun <T> setParameterAsync(
                 key: CaptureRequest.Key<T>,
                 value: T,
