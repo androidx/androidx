@@ -471,6 +471,7 @@ class DaoWriter(
         }
         val useDriverApi = method.methodBinder.isMigratedToDriver()
         val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
+        ShortcutQueryParameterWriter.addNullCheckValidation(scope, method.parameters)
         if (useDriverApi) {
             method.methodBinder.convertAndReturn(
                 parameters = method.parameters,
@@ -557,6 +558,7 @@ class DaoWriter(
         }
         val useDriverApi = method.methodBinder.isMigratedToDriver()
         val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
+        ShortcutQueryParameterWriter.addNullCheckValidation(scope, method.parameters)
         if (useDriverApi) {
             method.methodBinder.convertAndReturn(
                 parameters = method.parameters,
@@ -608,7 +610,7 @@ class DaoWriter(
         }
         val useDriverApi = method.methodBinder.isMigratedToDriver()
         val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
-
+        ShortcutQueryParameterWriter.addNullCheckValidation(scope, method.parameters)
         if (useDriverApi) {
             method.methodBinder.convertAndReturn(
                 parameters = method.parameters,
