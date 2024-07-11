@@ -27,10 +27,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.insert
+import androidx.compose.foundation.text.input.maxLength
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.then
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
@@ -67,6 +70,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.text.isDigitsOnly
 
 @Preview
 @Sampled
@@ -87,6 +91,31 @@ fun SimpleOutlinedTextFieldSample() {
         state = rememberTextFieldState(),
         lineLimits = TextFieldLineLimits.SingleLine,
         label = { Text("Label") },
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun TextFieldWithTransformations() {
+    TextField(
+        state = rememberTextFieldState(),
+        lineLimits = TextFieldLineLimits.SingleLine,
+        label = { Text("Phone number") },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        // Input transformation to limit user input to 10 digits
+        inputTransformation =
+            InputTransformation.maxLength(10).then {
+                if (!this.asCharSequence().isDigitsOnly()) {
+                    revertAllChanges()
+                }
+            },
+        outputTransformation = {
+            // Output transformation to format as a phone number: (XXX) XXX-XXXX
+            if (length > 0) insert(0, "(")
+            if (length > 4) insert(4, ") ")
+            if (length > 9) insert(9, "-")
+        },
     )
 }
 
@@ -282,84 +311,163 @@ fun TextArea() {
 @Preview
 @Sampled
 @Composable
-fun CustomTextFieldBasedOnDecorationBox() {
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun CustomFilledTextField(state: TextFieldState, modifier: Modifier = Modifier) {
-        val interactionSource = remember { MutableInteractionSource() }
-        val enabled = true
-        val isError = false
-        val lineLimits = TextFieldLineLimits.SingleLine
+fun CustomTextFieldUsingDecorator() {
+    val state = rememberTextFieldState()
+    val interactionSource = remember { MutableInteractionSource() }
+    val enabled = true
+    val isError = false
+    val lineLimits = TextFieldLineLimits.SingleLine
 
-        BasicTextField(
-            state = state,
-            modifier = modifier,
-            interactionSource = interactionSource,
-            enabled = enabled,
-            lineLimits = lineLimits,
-            textStyle = LocalTextStyle.current,
-            decorator =
-                TextFieldDefaults.decorator(
-                    state = state,
-                    outputTransformation = null,
-                    lineLimits = lineLimits,
-                    enabled = enabled,
-                    isError = isError,
-                    interactionSource = interactionSource,
-                    container = {
-                        TextFieldDefaults.Container(
-                            enabled = enabled,
-                            isError = isError,
-                            interactionSource = interactionSource,
-                            // Update indicator line thickness
-                            unfocusedIndicatorLineThickness = 2.dp,
-                            focusedIndicatorLineThickness = 4.dp,
-                        )
-                    }
-                )
-        )
-    }
+    BasicTextField(
+        state = state,
+        modifier = Modifier,
+        interactionSource = interactionSource,
+        enabled = enabled,
+        lineLimits = lineLimits,
+        textStyle = LocalTextStyle.current,
+        decorator =
+            TextFieldDefaults.decorator(
+                state = state,
+                outputTransformation = null,
+                lineLimits = lineLimits,
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                container = {
+                    TextFieldDefaults.Container(
+                        enabled = enabled,
+                        isError = isError,
+                        interactionSource = interactionSource,
+                        // Update indicator line thickness
+                        unfocusedIndicatorLineThickness = 2.dp,
+                        focusedIndicatorLineThickness = 4.dp,
+                    )
+                }
+            )
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun CustomOutlinedTextFieldUsingDecorator() {
+    val state = rememberTextFieldState()
+    val interactionSource = remember { MutableInteractionSource() }
+    val enabled = true
+    val isError = false
+    val lineLimits = TextFieldLineLimits.SingleLine
+
+    BasicTextField(
+        state = state,
+        modifier = Modifier,
+        interactionSource = interactionSource,
+        enabled = enabled,
+        lineLimits = lineLimits,
+        textStyle = LocalTextStyle.current,
+        decorator =
+            OutlinedTextFieldDefaults.decorator(
+                state = state,
+                outputTransformation = null,
+                lineLimits = lineLimits,
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                container = {
+                    OutlinedTextFieldDefaults.Container(
+                        enabled = enabled,
+                        isError = isError,
+                        interactionSource = interactionSource,
+                        // Update border thickness and shape
+                        shape = RectangleShape,
+                        unfocusedBorderThickness = 2.dp,
+                        focusedBorderThickness = 4.dp
+                    )
+                },
+            )
+    )
+}
+
+@Preview
+@Sampled
+@Composable
+fun CustomTextFieldBasedOnDecorationBox() {
+    var text by remember { mutableStateOf("") }
+    val interactionSource = remember { MutableInteractionSource() }
+    val enabled = true
+    val isError = false
+    val singleLine = true
+
+    BasicTextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = Modifier,
+        interactionSource = interactionSource,
+        enabled = enabled,
+        singleLine = singleLine,
+        textStyle = LocalTextStyle.current,
+        decorationBox = { innerTextField ->
+            TextFieldDefaults.DecorationBox(
+                value = text,
+                innerTextField = innerTextField,
+                visualTransformation = VisualTransformation.None,
+                singleLine = singleLine,
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                container = {
+                    TextFieldDefaults.Container(
+                        enabled = enabled,
+                        isError = isError,
+                        interactionSource = interactionSource,
+                        // Update indicator line thickness
+                        unfocusedIndicatorLineThickness = 2.dp,
+                        focusedIndicatorLineThickness = 4.dp,
+                    )
+                }
+            )
+        }
+    )
 }
 
 @Preview
 @Sampled
 @Composable
 fun CustomOutlinedTextFieldBasedOnDecorationBox() {
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun CustomOutlinedTextField(state: TextFieldState, modifier: Modifier = Modifier) {
-        val interactionSource = remember { MutableInteractionSource() }
-        val enabled = true
-        val isError = false
-        val lineLimits = TextFieldLineLimits.SingleLine
+    var text by remember { mutableStateOf("") }
+    val interactionSource = remember { MutableInteractionSource() }
+    val enabled = true
+    val isError = false
+    val singleLine = true
 
-        BasicTextField(
-            state = state,
-            modifier = modifier,
-            interactionSource = interactionSource,
-            enabled = enabled,
-            lineLimits = lineLimits,
-            textStyle = LocalTextStyle.current,
-            decorator =
-                OutlinedTextFieldDefaults.decorator(
-                    state = state,
-                    outputTransformation = null,
-                    lineLimits = lineLimits,
-                    enabled = enabled,
-                    isError = isError,
-                    interactionSource = interactionSource,
-                    container = {
-                        OutlinedTextFieldDefaults.Container(
-                            enabled = enabled,
-                            isError = isError,
-                            interactionSource = interactionSource,
-                            // Update border thickness and shape
-                            shape = RectangleShape,
-                            unfocusedBorderThickness = 2.dp,
-                            focusedBorderThickness = 4.dp
-                        )
-                    },
-                )
-        )
-    }
+    BasicTextField(
+        value = text,
+        onValueChange = { text = it },
+        modifier = Modifier,
+        interactionSource = interactionSource,
+        enabled = enabled,
+        singleLine = singleLine,
+        textStyle = LocalTextStyle.current,
+        decorationBox = { innerTextField ->
+            OutlinedTextFieldDefaults.DecorationBox(
+                value = text,
+                innerTextField = innerTextField,
+                visualTransformation = VisualTransformation.None,
+                singleLine = singleLine,
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                container = {
+                    OutlinedTextFieldDefaults.Container(
+                        enabled = enabled,
+                        isError = isError,
+                        interactionSource = interactionSource,
+                        // Update border thickness and shape
+                        shape = RectangleShape,
+                        unfocusedBorderThickness = 2.dp,
+                        focusedBorderThickness = 4.dp
+                    )
+                },
+            )
+        }
+    )
 }

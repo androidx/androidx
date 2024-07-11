@@ -128,6 +128,10 @@ import kotlin.math.roundToInt
  *
  * @sample androidx.compose.material3.samples.TextFieldWithInitialValueAndSelection
  *
+ * Use input and output transformations to control user input and the displayed text:
+ *
+ * @sample androidx.compose.material3.samples.TextFieldWithTransformations
+ *
  * You may provide a placeholder:
  *
  * @sample androidx.compose.material3.samples.TextFieldWithPlaceholder
