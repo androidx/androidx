@@ -53,6 +53,7 @@ import androidx.compose.material3.samples.DatePickerDialogSample
 import androidx.compose.material3.samples.DatePickerSample
 import androidx.compose.material3.samples.DatePickerWithDateSelectableDatesSample
 import androidx.compose.material3.samples.DateRangePickerSample
+import androidx.compose.material3.samples.DenseTextFieldContentPadding
 import androidx.compose.material3.samples.DeterminateContainedLoadingIndicatorSample
 import androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
@@ -123,7 +124,7 @@ import androidx.compose.material3.samples.OutlinedCardSample
 import androidx.compose.material3.samples.OutlinedIconButtonSample
 import androidx.compose.material3.samples.OutlinedIconToggleButtonSample
 import androidx.compose.material3.samples.OutlinedSplitButtonSample
-import androidx.compose.material3.samples.OutlinedTextFieldSample
+import androidx.compose.material3.samples.OutlinedTextFieldWithInitialValueAndSelection
 import androidx.compose.material3.samples.PasswordTextField
 import androidx.compose.material3.samples.PermanentNavigationDrawerSample
 import androidx.compose.material3.samples.PinnedTopAppBar
@@ -185,10 +186,10 @@ import androidx.compose.material3.samples.SwitchWithThumbIconSample
 import androidx.compose.material3.samples.TextAndIconTabs
 import androidx.compose.material3.samples.TextArea
 import androidx.compose.material3.samples.TextButtonSample
-import androidx.compose.material3.samples.TextFieldSample
 import androidx.compose.material3.samples.TextFieldWithErrorState
 import androidx.compose.material3.samples.TextFieldWithHideKeyboardOnImeAction
 import androidx.compose.material3.samples.TextFieldWithIcons
+import androidx.compose.material3.samples.TextFieldWithInitialValueAndSelection
 import androidx.compose.material3.samples.TextFieldWithPlaceholder
 import androidx.compose.material3.samples.TextFieldWithPrefixAndSuffix
 import androidx.compose.material3.samples.TextFieldWithSupportingText
@@ -1554,11 +1555,11 @@ val TextFieldsExamples =
                 SimpleTextFieldSample()
             },
             Example(
-                name = "TextFieldSample",
+                name = "TextFieldWithInitialValueAndSelection",
                 description = TextFieldsExampleDescription,
                 sourceUrl = TextFieldsExampleSourceUrl
             ) {
-                TextFieldSample()
+                TextFieldWithInitialValueAndSelection()
             },
             Example(
                 name = "SimpleOutlinedTextFieldSample",
@@ -1568,11 +1569,11 @@ val TextFieldsExamples =
                 SimpleOutlinedTextFieldSample()
             },
             Example(
-                name = "OutlinedTextFieldSample",
+                name = "OutlinedTextFieldWithInitialValueAndSelection",
                 description = TextFieldsExampleDescription,
                 sourceUrl = TextFieldsExampleSourceUrl
             ) {
-                OutlinedTextFieldSample()
+                OutlinedTextFieldWithInitialValueAndSelection()
             },
             Example(
                 name = "TextFieldWithIcons",
@@ -1610,6 +1611,13 @@ val TextFieldsExamples =
                 TextFieldWithSupportingText()
             },
             Example(
+                name = "DenseTextFieldContentPadding",
+                description = TextFieldsExampleDescription,
+                sourceUrl = TextFieldsExampleSourceUrl
+            ) {
+                DenseTextFieldContentPadding()
+            },
+            Example(
                 name = "PasswordTextField",
                 description = TextFieldsExampleDescription,
                 sourceUrl = TextFieldsExampleSourceUrl
@@ -1633,10 +1641,9 @@ val TextFieldsExamples =
         )
         .map {
             // By default text field samples are minimal and don't have a `width` modifier to
-            // restrict the
-            // width. As a result, they grow horizontally if enough text is typed. To prevent this
-            // behavior
-            // in Catalog app the code below restricts the width of every text field sample
+            // restrict the width. As a result, they grow horizontally if enough text is typed. To
+            // prevent this behavior in Catalog app, the code below restricts the width of every
+            // text field sample
             it.copy(content = { Box(Modifier.wrapContentWidth().width(280.dp)) { it.content() } })
         }
 
