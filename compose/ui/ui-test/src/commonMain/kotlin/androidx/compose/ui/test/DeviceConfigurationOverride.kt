@@ -74,7 +74,7 @@ fun interface DeviceConfigurationOverride {
 infix fun DeviceConfigurationOverride.then(
     other: DeviceConfigurationOverride
 ): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
-    this.Override { other.Override { contentUnderTest() } }
+    this.Override { other.Override(contentUnderTest) }
 }
 
 /**
