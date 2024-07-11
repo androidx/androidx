@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.core.os.HandlerCompat;
 import androidx.wear.protolayout.expression.pipeline.AnimationsHelper.RepeatDelays;
@@ -42,14 +43,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * quota manager allows. If not, non infinite animation will jump to an end. Any existing listeners
  * on wrapped {@link Animator} will be replaced.
  */
-class QuotaAwareAnimator {
+class QuotaAwareAnimator implements DynamicTypeAnimator {
     @NonNull protected final ValueAnimator mAnimator;
     @NonNull protected final QuotaManager mQuotaManager;
     @NonNull protected final QuotaReleasingAnimatorListener mListener;
     @NonNull protected final Handler mUiHandler;
-    private long mStartDelay = 0;
+    private final long mStartDelay;
     protected Runnable mAcquireQuotaAndAnimateRunnable = this::acquireQuotaAndAnimate;
     @NonNull protected final TypeEvaluator<?> mEvaluator;
+    @Nullable protected Object mLastAnimatedValue;
+
+    @Nullable private Object mStartValue = null; // To cache the start value
+    @Nullable private Object mEndValue = null; // To cache the end value
 
     interface UpdateCallback {
         void onUpdate(@NonNull Object animatedValue);
@@ -96,6 +101,12 @@ class QuotaAwareAnimator {
         mEvaluator = evaluator;
     }
 
+    @NonNull
+    @Override
+    public TypeEvaluator<?> getTypeEvaluator() {
+        return mEvaluator;
+    }
+
     /**
      * Adds a listener that is sent update events through the life of the animation. This method is
      * called on every frame of the animation after the values of the animation have been
@@ -103,7 +114,10 @@ class QuotaAwareAnimator {
      */
     void addUpdateCallback(@NonNull UpdateCallback updateCallback) {
         mAnimator.addUpdateListener(
-                animation -> updateCallback.onUpdate(animation.getAnimatedValue()));
+                animation -> {
+                    mLastAnimatedValue = animation.getAnimatedValue();
+                    updateCallback.onUpdate(mLastAnimatedValue);
+                });
     }
 
     /**
@@ -111,8 +125,11 @@ class QuotaAwareAnimator {
      *
      * @param values A set of values that the animation will animate between over time.
      */
-    void setFloatValues(float... values) {
+    @Override
+    public void setFloatValues(@NonNull float... values) {
         setFloatValues(mAnimator, mEvaluator, values);
+        mStartValue = values[0];
+        mEndValue = values[values.length - 1];
     }
 
     protected static void setFloatValues(
@@ -134,8 +151,33 @@ class QuotaAwareAnimator {
      *
      * @param values A set of values that the animation will animate between over time.
      */
-    void setIntValues(int... values) {
+    @Override
+    public void setIntValues(@NonNull int... values) {
         setIntValues(mAnimator, mEvaluator, values);
+        mStartValue = values[0];
+        mEndValue = values[values.length - 1];
+    }
+
+    /**
+     * Gets the start value of the animation.
+     *
+     * @return The start value of the animation or null if value wasn't set.
+     */
+    @Override
+    @Nullable
+    public Object getStartValue() {
+        return mStartValue;
+    }
+
+    /**
+     * Gets the end value of the animation.
+     *
+     * @return The end value of the animation.
+     */
+    @Override
+    @Nullable
+    public Object getEndValue() {
+        return mEndValue;
     }
 
     protected static void setIntValues(
@@ -251,6 +293,28 @@ class QuotaAwareAnimator {
         mAnimator.end();
     }
 
+    @Override
+    public void advanceToAnimationTime(long newTime) {
+        long adjustedTime = newTime - mStartDelay;
+        mAnimator.setCurrentPlayTime(adjustedTime);
+    }
+
+    @Nullable
+    @Override
+    public Object getCurrentValue() {
+        return mLastAnimatedValue;
+    }
+
+    @Override
+    public long getDurationMs() {
+        return mAnimator.getDuration();
+    }
+
+    @Override
+    public long getStartDelayMs() {
+        return mStartDelay;
+    }
+
     /** Returns whether the animator in this class has an infinite duration. */
     protected boolean isInfiniteAnimator() {
         return mAnimator.getTotalDuration() == Animator.DURATION_INFINITE;
@@ -276,23 +340,20 @@ class QuotaAwareAnimator {
      * animation.
      */
     protected static final class QuotaReleasingAnimatorListener extends AnimatorListenerAdapter {
-        @NonNull
-        private final QuotaManager mQuotaManager;
+        @NonNull private final QuotaManager mQuotaManager;
 
         // We need to keep track of whether the animation has started because pipeline has initiated
         // and it has received quota, or it is skipped by calling {@link android.animation
         // .Animator#end()} because no quota is available.
-        @NonNull
-        final AtomicBoolean mIsUsingQuota = new AtomicBoolean(false);
+        @NonNull final AtomicBoolean mIsUsingQuota = new AtomicBoolean(false);
 
         private final int mRepeatMode;
         private final long mForwardRepeatDelay;
         private final long mReverseRepeatDelay;
-        @NonNull
-        private final Handler mHandler;
-        @NonNull
-        Runnable mResumeRepeatRunnable;
+        @NonNull private final Handler mHandler;
+        @NonNull Runnable mResumeRepeatRunnable;
         private boolean mIsReverse;
+
         /**
          * Only intended to be true with {@link QuotaAwareAnimatorWithAux} to play main and aux
          * animators alternately, the pause and resume is still required to swap animators even
