@@ -38,6 +38,25 @@ internal fun <T> provideScopeContent(
 }
 
 internal fun <T> provideScopeContent(
+    contentColor: Color,
+    textStyle: TextStyle,
+    overflow: TextOverflow,
+    maxLines: Int,
+    textAlign: TextAlign,
+    content: (@Composable T.() -> Unit)
+): (@Composable T.() -> Unit) = {
+    CompositionLocalProvider(
+        LocalContentColor provides contentColor,
+        LocalTextStyle provides textStyle,
+        LocalTextOverflow provides overflow,
+        LocalTextMaxLines provides maxLines,
+        LocalTextAlign provides textAlign
+    ) {
+        content()
+    }
+}
+
+internal fun <T> provideScopeContent(
     contentColor: State<Color>,
     textStyle: TextStyle,
     content: (@Composable T.() -> Unit)
@@ -142,6 +161,28 @@ internal fun <T> provideNullableScopeContent(
             val color = contentColor.value
             CompositionLocalProvider(
                 LocalContentColor provides color,
+            ) {
+                content()
+            }
+        }
+    }
+
+internal fun <T> provideNullableScopeContent(
+    contentColor: Color,
+    textStyle: TextStyle,
+    overflow: TextOverflow,
+    maxLines: Int,
+    textAlign: TextAlign,
+    content: (@Composable T.() -> Unit)?
+): (@Composable T.() -> Unit)? =
+    content?.let {
+        {
+            CompositionLocalProvider(
+                LocalContentColor provides contentColor,
+                LocalTextStyle provides textStyle,
+                LocalTextOverflow provides overflow,
+                LocalTextMaxLines provides maxLines,
+                LocalTextAlign provides textAlign,
             ) {
                 content()
             }
