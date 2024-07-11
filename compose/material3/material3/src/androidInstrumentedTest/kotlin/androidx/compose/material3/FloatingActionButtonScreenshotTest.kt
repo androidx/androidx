@@ -19,6 +19,7 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -221,6 +222,48 @@ class FloatingActionButtonScreenshotTest {
         }
 
         assertClickableAgainstGolden("fab_large")
+    }
+
+    @Test
+    fun smallFab() {
+        rule.setMaterialContent(lightColorScheme()) {
+            SmallFloatingActionButton(onClick = {}) {
+                Icon(Icons.Filled.Favorite, contentDescription = null)
+            }
+        }
+
+        assertClickableAgainstGolden("fab_small_size")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun mediumFab() {
+        rule.setMaterialContent(lightColorScheme()) {
+            MediumFloatingActionButton(onClick = {}) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                )
+            }
+        }
+
+        assertClickableAgainstGolden("fab_medium_size")
+    }
+
+    @Test
+    fun largeFab() {
+        rule.setMaterialContent(lightColorScheme()) {
+            LargeFloatingActionButton(onClick = {}) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+                )
+            }
+        }
+
+        assertClickableAgainstGolden("fab_large_size")
     }
 
     @Test
