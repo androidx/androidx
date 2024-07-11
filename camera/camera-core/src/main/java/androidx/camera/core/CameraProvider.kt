@@ -13,67 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.camera.core;
-
-import androidx.annotation.NonNull;
-
-import java.util.List;
+package androidx.camera.core
 
 /**
- * A {@link CameraProvider} provides basic access to a set of cameras such as querying for camera
+ * A [CameraProvider] provides basic access to a set of cameras such as querying for camera
  * existence or information.
  *
- * <p>A device might have multiple cameras. According to the applications' design, they might
- * need to search for a suitable camera which supports their functions. A {@link CameraProvider}
- * allows the applications to check whether any camera exists to fulfill the requirements or to
- * get {@link CameraInfo} instances of all cameras to retrieve the camera information.
+ * A device might have multiple cameras. According to the applications' design, they might need to
+ * search for a suitable camera which supports their functions. A [CameraProvider] allows the
+ * applications to check whether any camera exists to fulfill the requirements or to get
+ * [CameraInfo] instances of all cameras to retrieve the camera information.
  */
 public interface CameraProvider {
+    /**
+     * The [CameraInfo] instances of the available cameras.
+     *
+     * While iterating through all the available [CameraInfo], if one of them meets some predefined
+     * requirements, a [CameraSelector] that uniquely identifies its camera can be retrieved using
+     * [CameraInfo.getCameraSelector], which can then be used to bind [use cases][UseCase] to that
+     * camera.
+     */
+    public val availableCameraInfos: List<CameraInfo>
 
     /**
      * Checks whether this provider supports at least one camera that meets the requirements from a
-     * {@link CameraSelector}.
+     * [CameraSelector].
      *
-     * <p>If this method returns {@code true}, then the camera selector can be used to bind
-     * use cases and retrieve a {@link Camera} instance.
+     * If this method returns `true`, then the camera selector can be used to bind use cases and
+     * retrieve a [Camera] instance.
      *
-     * @param cameraSelector the {@link CameraSelector} that filters available cameras.
-     * @return true if the device has at least one available camera, otherwise false.
+     * @param cameraSelector the [CameraSelector] that filters available cameras.
+     * @return `true` if the device has at least one available camera, otherwise `false`.
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
-     *                                        insufficient permissions.
+     *   insufficient permissions.
      */
-    boolean hasCamera(@NonNull CameraSelector cameraSelector) throws CameraInfoUnavailableException;
+    @Throws(CameraInfoUnavailableException::class)
+    public fun hasCamera(cameraSelector: CameraSelector): Boolean
 
     /**
-     * Returns {@link CameraInfo} instances of the available cameras.
+     * Returns the [CameraInfo] instance of the camera resulted from the specified [CameraSelector].
      *
-     * <p>While iterating through all the available {@link CameraInfo}, if one of them meets some
-     * predefined requirements, a {@link CameraSelector} that uniquely identifies its camera
-     * can be retrieved using {@link CameraInfo#getCameraSelector()}, which can then be used to bind
-     * {@linkplain UseCase use cases} to that camera.
+     * The returned [CameraInfo] corresponds to the camera that will be bound when calling
+     * `bindToLifecycle` with the specified [CameraSelector].
      *
-     * @return A list of {@link CameraInfo} instances for the available cameras.
-     */
-    @NonNull
-    List<CameraInfo> getAvailableCameraInfos();
-
-    /**
-     * Returns the {@link CameraInfo} instance of the camera resulted from the specified
-     * {@link CameraSelector}.
-     *
-     * <p>The returned {@link CameraInfo} corresponds to the camera that will be bound when calling
-     * {@code bindToLifecycle} with the specified {@link CameraSelector}.
-     *
-     * @param cameraSelector the {@link CameraSelector} to use for selecting the camera to receive
-     * information about.
-     * @return the corresponding {@link CameraInfo}.
-     * @throws IllegalArgumentException if the given {@link CameraSelector} can't result in a
-     * valid camera to provide the {@link CameraInfo}.
+     * @param cameraSelector the [CameraSelector] to use for selecting the camera to receive
+     *   information about.
+     * @return the corresponding [CameraInfo].
+     * @throws IllegalArgumentException if the given [CameraSelector] can't result in a valid camera
+     *   to provide the [CameraInfo].
      */
     @ExperimentalCameraInfo
-    @NonNull
-    default CameraInfo getCameraInfo(@NonNull CameraSelector cameraSelector) {
-        throw new UnsupportedOperationException("The camera provider is not implemented properly.");
+    public fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
+        throw UnsupportedOperationException("The camera provider is not implemented properly.")
     }
 }

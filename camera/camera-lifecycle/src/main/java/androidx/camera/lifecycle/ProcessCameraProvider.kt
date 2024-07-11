@@ -694,28 +694,16 @@ public class ProcessCameraProvider private constructor() : LifecycleCameraProvid
             return@trace true
         }
 
-    /**
-     * Returns [CameraInfo] instances of the available cameras.
-     *
-     * The available cameras include all the available cameras on the device, or only those selected
-     * through [androidx.camera.core.CameraXConfig.Builder.setAvailableCamerasLimiter].
-     *
-     * While iterating through all the available [CameraInfo], if one of them meets some predefined
-     * requirements, a [CameraSelector] that uniquely identifies its camera can be retrieved using
-     * [CameraInfo.getCameraSelector], which can then be used to bind [use cases][UseCase] to that
-     * camera.
-     *
-     * @return A list of [CameraInfo] instances for the available cameras.
-     */
-    override fun getAvailableCameraInfos(): List<CameraInfo> =
-        trace("CX:getAvailableCameraInfos") {
-            val availableCameraInfos: MutableList<CameraInfo> = ArrayList()
-            val cameras: Set<CameraInternal> = mCameraX!!.cameraRepository.cameras
-            for (camera: CameraInternal in cameras) {
-                availableCameraInfos.add(camera.cameraInfo)
+    override val availableCameraInfos: List<CameraInfo>
+        get() =
+            trace("CX:getAvailableCameraInfos") {
+                val availableCameraInfos: MutableList<CameraInfo> = ArrayList()
+                val cameras: Set<CameraInternal> = mCameraX!!.cameraRepository.cameras
+                for (camera: CameraInternal in cameras) {
+                    availableCameraInfos.add(camera.cameraInfo)
+                }
+                return@trace availableCameraInfos
             }
-            return@trace availableCameraInfos
-        }
 
     public val availableConcurrentCameraInfos: List<List<CameraInfo>>
         /**

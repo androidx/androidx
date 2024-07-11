@@ -18,6 +18,7 @@ package androidx.camera.lifecycle {
     method @VisibleForTesting public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> shutdownAsync();
     method @MainThread public void unbind(androidx.camera.core.UseCase?... useCases);
     method @MainThread public void unbindAll();
+    property public java.util.List<androidx.camera.core.CameraInfo> availableCameraInfos;
     property public final java.util.List<java.util.List<androidx.camera.core.CameraInfo>> availableConcurrentCameraInfos;
     property @MainThread public final boolean isConcurrentCameraModeOn;
     field public static final androidx.camera.lifecycle.ProcessCameraProvider.Companion Companion;
