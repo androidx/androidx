@@ -20,11 +20,14 @@ package androidx.build.binarycompatibilityvalidator
 
 import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.Version
+import androidx.build.addToBuildOnServer
+import androidx.build.addToCheckTask
 import androidx.build.checkapi.ApiType
 import androidx.build.checkapi.getBcvFileDirectory
 import androidx.build.checkapi.getBuiltBcvFileDirectory
 import androidx.build.checkapi.getRequiredCompatibilityApiFileFromDir
 import androidx.build.checkapi.shouldWriteVersionedApiFile
+import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
 import java.io.File
@@ -79,6 +82,8 @@ class BinaryCompatibilityValidation(
             val updateAll: TaskProvider<Task> = project.tasks.register(UPDATE_NAME)
             configureKlibTasks(project, checkAll, updateAll)
             project.tasks.named("check").configure { it.dependsOn(checkAll) }
+            project.addToCheckTask(checkAll)
+            project.addToBuildOnServer(checkAll)
         }
 
     private fun configureKlibTasks(
@@ -138,14 +143,16 @@ class BinaryCompatibilityValidation(
 
     /* Check that the current ABI definition is up to date. */
     private fun Project.checkKlibAbiTask(projectApiFile: File, generatedApiFile: File) =
-        project.tasks.register(
-            CHECK_NAME.appendCapitalized(NATIVE_SUFFIX),
-            KotlinApiCompareTask::class.java
-        ) {
-            it.projectApiFile = projectApiFile
-            it.generatedApiFile = generatedApiFile
-            it.group = ABI_GROUP_NAME
-        }
+        project.tasks
+            .register(
+                CHECK_NAME.appendCapitalized(NATIVE_SUFFIX),
+                KotlinApiCompareTask::class.java
+            ) {
+                it.projectApiFile = projectApiFile
+                it.generatedApiFile = generatedApiFile
+                it.group = ABI_GROUP_NAME
+            }
+            .also { task -> task.configure { it.cacheEvenIfNoOutputs() } }
 
     /* Check that the current ABI definition is compatible with most recently released version */
     private fun Project.checkKlibAbiReleaseTask(
@@ -205,7 +212,7 @@ class BinaryCompatibilityValidation(
      */
     private fun Project.extractKlibAbiTask(klibApiDir: File, extractDir: File) =
         project.tasks.register(EXTRACT_NAME, KotlinKlibExtractSupportedTargetsAbiTask::class.java) {
-            it.strictValidation = true
+            it.strictValidation = HostManager.hostIsMac
             it.supportedTargets = project.provider { supportedNativeTargetNames() }
             it.inputAbiFile = klibApiDir.resolve(CURRENT_API_FILE_NAME)
             it.outputAbiFile = extractDir.resolve(CURRENT_API_FILE_NAME)
