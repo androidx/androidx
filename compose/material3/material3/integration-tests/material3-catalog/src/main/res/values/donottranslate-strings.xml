@@ -25,6 +25,7 @@
     <string name="more_menu_button">External links</string>
 
     <string name="description">Description</string>
+    <string name="experimental">Experimental</string>
     <string name="examples">Examples</string>
     <string name="no_examples">No examples</string>
 
@@ -37,6 +38,7 @@
     <string name="open_source_licenses">Open source licenses</string>
 
     <string name="theme" description="Theme. [CHAR_LIMIT=NONE]">Theme</string>
+    <string name="expressive_theme_mode" description="Theme. [CHAR_LIMIT=NONE]">Expressive theme mode</string>
     <string name="color_mode" description=" Material 3 Color Mode. [CHAR_LIMIT=NONE]">Color mode</string>
     <string name="font_scale" description="Font scale. [CHAR_LIMIT=NONE]">Font scale</string>
     <string name="text_direction" description="Text direction. [CHAR_LIMIT=NONE]">Text direction</string>
