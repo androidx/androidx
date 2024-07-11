@@ -111,6 +111,7 @@ class CallsManagerTest : BaseTelecomTest() {
             mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
             val account = mCallsManager.getBuiltPhoneAccount()!!
             assertNotNull(account.extras)
+            assertTrue(account.extras.getBoolean(CallsManager.PLACEHOLDER_VALUE_ACCOUNT_BUNDLE))
             if (Utils.hasPlatformV2Apis()) {
                 assertTrue(
                     Utils.hasCapability(

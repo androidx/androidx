@@ -183,6 +183,7 @@ class CallsManager constructor(context: Context) {
         internal const val PACKAGE_LABEL: String = "Telecom-Jetpack"
         internal const val CONNECTION_SERVICE_CLASS =
             "androidx.core.telecom.internal.JetpackConnectionService"
+        internal const val PLACEHOLDER_VALUE_ACCOUNT_BUNDLE = "isCoreTelecomAccount"
 
         // fail messages specific to addCall
         internal const val CALL_CREATION_FAILURE_MSG = "The call failed to be added."
@@ -213,7 +214,11 @@ class CallsManager constructor(context: Context) {
         // remap and set capabilities
         phoneAccountBuilder.setCapabilities(remapJetpackCapsToPlatformCaps(capabilities))
         // see b/343674176. Some OEMs expect the PhoneAccount.getExtras() to be non-null
-        phoneAccountBuilder.setExtras(Bundle())
+        // see b/352526256. The bundle must contain a placeholder value. otherwise, the bundle
+        // empty bundle will be nulled out on reboot.
+        val defaultBundle = Bundle()
+        defaultBundle.putBoolean(PLACEHOLDER_VALUE_ACCOUNT_BUNDLE, true)
+        phoneAccountBuilder.setExtras(defaultBundle)
 
         // build and register the PhoneAccount via the Platform API
         mPhoneAccount = phoneAccountBuilder.build()
