@@ -69,7 +69,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.8.0")
+                api(project(":annotation:annotation"))
                 api(project(":sqlite:sqlite"))
             }
         }

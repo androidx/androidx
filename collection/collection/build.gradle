@@ -37,7 +37,6 @@ androidXMultiplatform {
     }
     mac()
     linux()
-    linuxArm64()
     ios()
     watchos()
     tvos()
