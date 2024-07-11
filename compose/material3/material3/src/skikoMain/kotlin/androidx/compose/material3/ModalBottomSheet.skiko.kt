@@ -63,6 +63,7 @@ internal actual fun ModalBottomSheetDialog(
         properties = DialogProperties(
             dismissOnBackPress = properties.shouldDismissOnBackPress,
             usePlatformDefaultWidth = false,
+            usePlatformInsets = false,
             scrimColor = Color.Transparent,
         ),
         content = content
