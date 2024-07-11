@@ -16,6 +16,7 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 
@@ -34,4 +35,6 @@ data class ShortcutQueryParameter(
         } else {
             "handle"
         }
+
+    val isNonNull = type.nullability == XNullability.NONNULL
 }
