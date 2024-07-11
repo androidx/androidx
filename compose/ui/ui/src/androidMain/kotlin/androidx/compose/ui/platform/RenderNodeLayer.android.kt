@@ -340,22 +340,17 @@ internal class RenderNodeLayer(
 
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
         return if (inverse) {
-            matrixCache.calculateInverseMatrix(renderNode)?.map(point) ?: Offset.Infinite
+            matrixCache.mapInverse(renderNode, point)
         } else {
-            matrixCache.calculateMatrix(renderNode).map(point)
+            matrixCache.map(renderNode, point)
         }
     }
 
     override fun mapBounds(rect: MutableRect, inverse: Boolean) {
         if (inverse) {
-            val matrix = matrixCache.calculateInverseMatrix(renderNode)
-            if (matrix == null) {
-                rect.set(0f, 0f, 0f, 0f)
-            } else {
-                matrix.map(rect)
-            }
+            matrixCache.mapInverse(renderNode, rect)
         } else {
-            matrixCache.calculateMatrix(renderNode).map(rect)
+            matrixCache.map(renderNode, rect)
         }
     }
 
