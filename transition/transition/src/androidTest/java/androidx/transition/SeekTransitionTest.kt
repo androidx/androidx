@@ -1179,4 +1179,45 @@ class SeekTransitionTest : BaseTest() {
                 )
         }
     }
+
+    // The animateToEnd() should run after the transition is ready, even if called before
+    // the transition is ready.
+    @Test
+    fun animateToEndAfterReady() {
+        val latch = CountDownLatch(1)
+
+        transition.addListener(
+            object : TransitionListenerAdapter() {
+                override fun onTransitionEnd(transition: Transition, isReverse: Boolean) {
+                    super.onTransitionEnd(transition, isReverse)
+                    latch.countDown()
+                }
+            }
+        )
+
+        rule.runOnUiThread {
+            val controller = TransitionManager.controlDelayedTransition(root, transition)
+            assertThat(controller).isNotNull()
+            view.visibility = View.GONE
+            controller!!.animateToEnd()
+        }
+
+        assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue()
+    }
+
+    // The animateToStart() should run after the transition is ready, even if called before
+    // the transition is ready.
+    @Test
+    fun animateToStartAfterReady() {
+        val latch = CountDownLatch(1)
+
+        rule.runOnUiThread {
+            val controller = TransitionManager.controlDelayedTransition(root, transition)
+            assertThat(controller).isNotNull()
+            view.visibility = View.GONE
+            controller!!.animateToStart(latch::countDown)
+        }
+
+        assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue()
+    }
 }
