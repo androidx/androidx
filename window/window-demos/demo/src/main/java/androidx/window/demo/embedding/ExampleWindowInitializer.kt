@@ -118,10 +118,14 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val config = params.parentConfiguration
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
         // Make a copy of the default splitAttributes, but replace the animation background
-        // to what is configured in the Demo app.
-        val animationBackground = demoActivityEmbeddingController.animationBackground
+        // and transition animations to what is configured in the Demo app.
         val animationParams =
-            EmbeddingAnimationParams.Builder().setAnimationBackground(animationBackground).build()
+            EmbeddingAnimationParams.Builder()
+                .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
+                .setOpenAnimation(demoActivityEmbeddingController.openAnimation)
+                .setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
+                .setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
+                .build()
         val defaultSplitAttributes =
             SplitAttributes.Builder()
                 .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
