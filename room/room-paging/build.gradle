@@ -36,7 +36,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api("androidx.paging:paging-common:3.3.0")
+                api(project(":paging:paging-common"))
                 api(project(":room:room-runtime"))
             }
         }
