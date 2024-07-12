@@ -186,11 +186,7 @@ private class Pool(val capacity: Int, val connectionFactory: () -> SQLiteConnect
     private val size = atomic(0)
     private val connections = arrayOfNulls<ConnectionWithLock>(capacity)
     private val channel =
-        Channel<ConnectionWithLock>(
-            capacity = capacity,
-            // Only trySend() is used, but due to high paranoia add an undelivered callback
-            onUndeliveredElement = { unusedConnection -> unusedConnection.close() }
-        )
+        Channel<ConnectionWithLock>(capacity = capacity, onUndeliveredElement = { recycle(it) })
 
     suspend fun acquire(): ConnectionWithLock {
         val receiveResult = channel.tryReceive()
