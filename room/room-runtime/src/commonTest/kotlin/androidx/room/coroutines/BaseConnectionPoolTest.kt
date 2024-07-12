@@ -30,6 +30,7 @@ import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
 import androidx.sqlite.use
 import kotlin.coroutines.CoroutineContext
+import kotlin.random.Random
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
@@ -548,6 +549,43 @@ abstract class BaseConnectionPoolTest {
         pool.close()
         multiThreadContext.close()
         assertThat(acquiredSecondConnection).isFalse()
+    }
+
+    @Test
+    fun stressCancelCoroutineAcquiringConnection() = runBlocking {
+        val multiThreadContext = newFixedThreadPoolContext(3, "Test-Threads")
+        val driver = setupDriver()
+        val pool =
+            newConnectionPool(
+                driver = driver,
+                fileName = fileName,
+                maxNumOfReaders = 1,
+                maxNumOfWriters = 1
+            )
+        // This stress test is very non-deterministic, on purpose. It launches three coroutines, two
+        // of them attempt to use the connection, but one of the coroutines is canceled shortly
+        // after by the third coroutines. The goal of this test is to validate the
+        // onUndeliveredElement callback of the Pool's Channel. If this test fails it will likely be
+        // due to a 'Timed out attempting to acquire a connection'.
+        val jobsToWaitFor = mutableListOf<Job>()
+        repeat(1000) {
+            val jobToCancel =
+                launch(multiThreadContext) {
+                    pool.useWriterConnection { delay(Random.nextLong(5)) }
+                }
+            jobsToWaitFor.add(
+                launch(multiThreadContext) {
+                    pool.useWriterConnection { delay(Random.nextLong(5)) }
+                }
+            )
+            jobsToWaitFor.add(
+                launch(multiThreadContext) {
+                    delay(Random.nextLong(5))
+                    jobToCancel.cancel()
+                }
+            )
+        }
+        jobsToWaitFor.joinAll()
     }
 
     @Test
