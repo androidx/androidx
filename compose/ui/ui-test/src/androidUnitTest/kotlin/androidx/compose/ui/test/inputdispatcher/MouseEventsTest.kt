@@ -45,6 +45,7 @@ import androidx.compose.ui.test.util.verifyTouchPointer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.collections.removeFirst as removeFirstKt
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -815,6 +816,6 @@ class MouseEventsTest : InputDispatcherTest() {
     }
 
     private fun <E> MutableList<E>.removeFirst(n: Int): List<E> {
-        return mutableListOf<E>().also { result -> repeat(n) { result.add(removeFirst()) } }
+        return mutableListOf<E>().also { result -> repeat(n) { result.add(removeFirstKt()) } }
     }
 }

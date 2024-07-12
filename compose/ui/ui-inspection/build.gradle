@@ -80,6 +80,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         // layout inspection supported starting on Android Q
         minSdkVersion 29

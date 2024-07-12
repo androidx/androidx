@@ -51,6 +51,7 @@ import org.junit.runner.RunWith
 class BasicTextHoverTest {
     @get:Rule val rule = createComposeRule()
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenSelectableText_andDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runSelectableTest(
@@ -60,6 +61,7 @@ class BasicTextHoverTest {
             expectedTextIcon = TYPE_TEXT
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenSelectableText_andSetIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runSelectableTest(
@@ -69,6 +71,7 @@ class BasicTextHoverTest {
             expectedTextIcon = TYPE_TEXT
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenSelectableText_andSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
         runSelectableTest(
@@ -135,6 +138,7 @@ class BasicTextHoverTest {
             }
         }
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenNonSelectableText_andDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runNonSelectableTest(
@@ -144,6 +148,7 @@ class BasicTextHoverTest {
             expectedTextIcon = TYPE_DEFAULT
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenNonSelectableText_andSetIcon_inBoxWithDefaultIcon_setIconIsUsed() =
         runNonSelectableTest(
@@ -153,6 +158,7 @@ class BasicTextHoverTest {
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenNonSelectableText_andSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
         runNonSelectableTest(
@@ -217,6 +223,7 @@ class BasicTextHoverTest {
             }
         }
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenDisabledSelectionText_andDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runDisabledSelectionText(
@@ -226,6 +233,7 @@ class BasicTextHoverTest {
             expectedTextIcon = TYPE_DEFAULT
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenDisabledSelectionText_andSetIcon_inBoxWithDefaultIcon_setIconIsUsed() =
         runDisabledSelectionText(
@@ -235,6 +243,7 @@ class BasicTextHoverTest {
             expectedTextIcon = TYPE_CROSSHAIR
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenDisabledSelectionText_andSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
         runDisabledSelectionText(
@@ -337,6 +346,6 @@ class BasicTextHoverTest {
 
             // Exit hovering over element
             rule.onNodeWithTag(selectionContainerTag).performMouseInput { exit() }
-            assertIcon(TYPE_DEFAULT)
+            @Suppress("DEPRECATION") assertIcon(TYPE_DEFAULT)
         }
 }

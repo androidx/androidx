@@ -101,10 +101,6 @@ androidXMultiplatform {
     }
 }
 
-android {
-    namespace "androidx.compose.material3.adaptive.layout"
-}
-
 androidx {
     name = "Material Adaptive"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
@@ -120,6 +116,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 // Screenshot tests related setup
 android {
+    compileSdk 35
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/compose/material3/adaptive"
     namespace "androidx.compose.material3.adaptive.layout"

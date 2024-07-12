@@ -35,5 +35,6 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.startup.first_library"
 }
