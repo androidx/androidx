@@ -42,7 +42,8 @@ internal enum class AgpFeature(internal val version: AndroidPluginVersion) {
     TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES(AndroidPluginVersion(8, 1, 0).alpha(7)),
     TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS(AndroidPluginVersion(8, 2, 0).alpha(3)),
     LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS(AndroidPluginVersion(8, 3, 0).alpha(15)),
-    TEST_VARIANT_TESTED_APKS(AndroidPluginVersion(8, 3, 0))
+    TEST_VARIANT_TESTED_APKS(AndroidPluginVersion(8, 3, 0)),
+    CONFIGURATION_CACHE_FIX_B348136774(AndroidPluginVersion(8, 4, 0)),
 }
 
 /**

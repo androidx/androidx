@@ -21,6 +21,7 @@ import androidx.baselineprofile.gradle.utils.TestAgpVersion
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_2_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_1
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_4_2
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
@@ -370,31 +371,6 @@ class BaselineProfileProducerPluginTestWithAgp83AndAbove(agpVersion: TestAgpVers
         VariantProfile(flavor = null, buildType = "release", profileFileLines = mapOf())
 
     @Test
-    fun verifyTargetPackageNamePassedAsInstrumentationRunnerArgument() {
-        projectSetup.appTarget.setup()
-        projectSetup.producer.setup(
-            variantProfiles = listOf(emptyReleaseVariantProfile),
-            targetProject = projectSetup.appTarget,
-            additionalGradleCodeBlock = GRADLE_PRINT_ARGS_TASK
-        )
-        arrayOf(
-                Pair(
-                    "benchmarkReleaseArguments",
-                    "androidx.benchmark.targetPackageName=com.example.namespace"
-                ),
-                Pair(
-                    "nonMinifiedReleaseArguments",
-                    "androidx.benchmark.targetPackageName=com.example.namespace"
-                ),
-            )
-            .forEach {
-                projectSetup.producer.gradleRunner.buildAndAssertThatOutput(it.first) {
-                    contains(it.second)
-                }
-            }
-    }
-
-    @Test
     fun verifyTargetPackageNamePassedAsInstrumentationRunnerArgumentWithOverride() {
         projectSetup.appTarget.setup()
         projectSetup.producer.setup(
@@ -423,6 +399,47 @@ class BaselineProfileProducerPluginTestWithAgp83AndAbove(agpVersion: TestAgpVers
                     // then it shouldn't be in the runner arguments map at this stage, as it's
                     // added later by the test plugin.
                     doesNotContain(it[2])
+                }
+            }
+    }
+}
+
+@RunWith(Parameterized::class)
+class BaselineProfileProducerPluginTestWithAgp84AndAbove(agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_4_2)
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
+
+    private val emptyReleaseVariantProfile =
+        VariantProfile(flavor = null, buildType = "release", profileFileLines = mapOf())
+
+    @Test
+    fun verifyTargetPackageNamePassedAsInstrumentationRunnerArgument() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            additionalGradleCodeBlock = GRADLE_PRINT_ARGS_TASK
+        )
+        arrayOf(
+                Pair(
+                    "benchmarkReleaseArguments",
+                    "androidx.benchmark.targetPackageName=com.example.namespace"
+                ),
+                Pair(
+                    "nonMinifiedReleaseArguments",
+                    "androidx.benchmark.targetPackageName=com.example.namespace"
+                ),
+            )
+            .forEach {
+                projectSetup.producer.gradleRunner.buildAndAssertThatOutput(it.first) {
+                    contains(it.second)
                 }
             }
     }
