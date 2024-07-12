@@ -392,7 +392,7 @@ object PullToRefreshDefaults {
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorContainerColor: Color
-        @Composable get() = LoadingIndicatorDefaults.ContainerColor
+        @Composable get() = LoadingIndicatorDefaults.ContainedContainerColor
 
     /** The default indicator color for [Indicator] */
     @Deprecated("Use loadingIndicatorColor instead", ReplaceWith("loadingIndicatorColor"))
