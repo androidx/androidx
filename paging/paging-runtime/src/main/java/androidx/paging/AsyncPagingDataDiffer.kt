@@ -146,6 +146,7 @@ constructor(
 
     /** True if we're currently executing [getItem] */
     internal val inGetItem = MutableStateFlow(false)
+    private var lastAccessedIndex = 0
 
     /**
      * When presenter presents a new Refresh load, temporarily stores the previous generation of
@@ -183,6 +184,22 @@ constructor(
                                         }
                                     previousPresenter.set(null)
                                     previousList.dispatchDiff(updateCallback, newList, diffResult)
+                                    val transformedIndex =
+                                        previousList.transformAnchorIndex(
+                                            diffResult = diffResult,
+                                            newList = newList,
+                                            oldPosition = lastAccessedIndex
+                                        )
+                                    // Transform the last loadAround index from the old list to the
+                                    // new list by passing it through the DiffResult, and pass
+                                    // it forward as a ViewportHint within the new list to the
+                                    // next generation of Pager.
+                                    // This ensures prefetch distance for the last ViewportHint from
+                                    // the old list is respected in the new list, even if
+                                    // invalidation interrupts the prepend / append load that
+                                    // would have fulfilled it in the old list.
+                                    lastAccessedIndex = transformedIndex
+                                    get(transformedIndex)
                                 }
                             }
                         }
@@ -439,6 +456,7 @@ constructor(
     fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
             inGetItem.update { true }
+            lastAccessedIndex = index
             val tempList = previousPresenter.get()
             return if (tempList != null) tempList.get(index) else presenter[index]
         } finally {
