@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -24,9 +25,18 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
+import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -79,9 +89,174 @@ import kotlin.math.roundToInt
  * ![Outlined text field
  * image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
  *
+ * This overload of [OutlinedTextField] uses [TextFieldState] to keep track of its text content and
+ * position of the cursor or selection.
+ *
  * See example usage:
  *
  * @sample androidx.compose.material.samples.SimpleOutlinedTextFieldSample
+ * @sample androidx.compose.material.samples.OutlinedTextFieldWithInitialValueAndSelection
+ * @param state [TextFieldState] object that holds the internal editing state of this text field.
+ * @param modifier a [Modifier] for this text field
+ * @param enabled controls the enabled state of the [OutlinedTextField]. When `false`, the text
+ *   field will be neither editable nor focusable, the input of the text field will not be
+ *   selectable, visually text field will appear in the disabled UI state
+ * @param readOnly controls the editable state of the [OutlinedTextField]. When `true`, the text
+ *   field can not be modified, however, a user can focus it and copy text from it. Read-only text
+ *   fields are usually used to display pre-filled forms that user can not edit
+ * @param textStyle the style to be applied to the input text. The default [textStyle] uses the
+ *   [LocalTextStyle] defined by the theme
+ * @param label the optional label to be displayed inside the text field container. The default text
+ *   style for internal [Text] is [Typography.caption] when the text field is in focus and
+ *   [Typography.subtitle1] when the text field is not in focus
+ * @param placeholder the optional placeholder to be displayed when the text field is in focus and
+ *   the input text is empty. The default text style for internal [Text] is [Typography.subtitle1]
+ * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
+ *   container
+ * @param trailingIcon the optional trailing icon to be displayed at the end of the text field
+ *   container
+ * @param isError indicates if the text field's current value is in error. If set to true, the
+ *   label, bottom indicator and trailing icon by default will be displayed in error color
+ * @param inputTransformation Optional [InputTransformation] that will be used to transform changes
+ *   to the [TextFieldState] made by the user. The transformation will be applied to changes made by
+ *   hardware and software keyboard events, pasting or dropping text, accessibility services, and
+ *   tests. The transformation will _not_ be applied when changing the [state] programmatically, or
+ *   when the transformation is changed. If the transformation is changed on an existing text field,
+ *   it will be applied to the next user edit. the transformation will not immediately affect the
+ *   current [state].
+ * @param outputTransformation An [OutputTransformation] that transforms how the contents of the
+ *   text field are presented.
+ * @param keyboardOptions software keyboard options that contains configuration such as
+ *   [KeyboardType] and [ImeAction]
+ * @param onKeyboardAction Called when the user presses the action button in the input method editor
+ *   (IME), or by pressing the enter key on a hardware keyboard. By default this parameter is null,
+ *   and would execute the default behavior for a received IME Action e.g., [ImeAction.Done] would
+ *   close the keyboard, [ImeAction.Next] would switch the focus to the next focusable item on the
+ *   screen.
+ * @param lineLimits Whether the text field should be [SingleLine], scroll horizontally, and ignore
+ *   newlines; or [MultiLine] and grow and scroll vertically. If [SingleLine] is passed, all newline
+ *   characters ('\n') within the text will be replaced with regular whitespace (' '), ensuring that
+ *   the contents of the text field are presented in a single line.
+ * @param scrollState Scroll state that manages either horizontal or vertical scroll of the text
+ *   field. If [lineLimits] is [SingleLine], this text field is treated as single line with
+ *   horizontal scroll behavior. In other cases the text field becomes vertically scrollable.
+ * @param shape the shape of the text field's border
+ * @param colors [TextFieldColors] that will be used to resolve color of the text and content
+ *   (including label, placeholder, leading and trailing icons, border) for this text field in
+ *   different states. See [TextFieldDefaults.outlinedTextFieldColors]
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this text field. You can use this to change the text field's
+ *   appearance or preview the text field in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ */
+@Composable
+fun OutlinedTextField(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    readOnly: Boolean = false,
+    textStyle: TextStyle = LocalTextStyle.current,
+    label: @Composable (() -> Unit)? = null,
+    placeholder: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    inputTransformation: InputTransformation? = null,
+    outputTransformation: OutputTransformation? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    onKeyboardAction: KeyboardActionHandler? = null,
+    lineLimits: TextFieldLineLimits = TextFieldLineLimits.Default,
+    scrollState: ScrollState = rememberScrollState(),
+    shape: Shape = TextFieldDefaults.OutlinedTextFieldShape,
+    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
+    interactionSource: MutableInteractionSource? = null,
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // If color is not provided via the text style, use content color as a default
+    val textColor = textStyle.color.takeOrElse { colors.textColor(enabled).value }
+    val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+    val density = LocalDensity.current
+
+    @OptIn(ExperimentalMaterialApi::class)
+    BasicTextField(
+        state = state,
+        modifier =
+            modifier
+                .then(
+                    if (label != null) {
+                        Modifier
+                            // Merge semantics at the beginning of the modifier chain to ensure
+                            // padding is considered part of the text field.
+                            .semantics(mergeDescendants = true) {}
+                            .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
+                    } else {
+                        Modifier
+                    }
+                )
+                .defaultErrorSemantics(isError, getString(Strings.DefaultErrorMessage))
+                .defaultMinSize(
+                    minWidth = TextFieldDefaults.MinWidth,
+                    minHeight = TextFieldDefaults.MinHeight
+                ),
+        enabled = enabled,
+        readOnly = readOnly,
+        textStyle = mergedTextStyle,
+        cursorBrush = SolidColor(colors.cursorColor(isError).value),
+        inputTransformation = inputTransformation,
+        outputTransformation = outputTransformation,
+        keyboardOptions = keyboardOptions,
+        onKeyboardAction = onKeyboardAction,
+        interactionSource = interactionSource,
+        scrollState = scrollState,
+        lineLimits = lineLimits,
+        decorator = { innerTextField ->
+            val textPostTransformation =
+                if (outputTransformation == null) {
+                    state.text.toString()
+                } else {
+                    // TODO: use constructor to create TextFieldBuffer from TextFieldState when
+                    // available
+                    lateinit var buffer: TextFieldBuffer
+                    state.edit { buffer = this }
+                    // after edit completes, mutations on buffer are ineffective
+                    with(outputTransformation) { buffer.transformOutput() }
+                    buffer.asCharSequence().toString()
+                }
+
+            TextFieldDefaults.OutlinedTextFieldDecorationBox(
+                value = textPostTransformation,
+                visualTransformation = VisualTransformation.None,
+                innerTextField = innerTextField,
+                placeholder = placeholder,
+                label = label,
+                leadingIcon = leadingIcon,
+                trailingIcon = trailingIcon,
+                singleLine = lineLimits == SingleLine,
+                enabled = enabled,
+                isError = isError,
+                interactionSource = interactionSource,
+                shape = shape,
+                colors = colors,
+                border = {
+                    TextFieldDefaults.BorderBox(enabled, isError, interactionSource, colors, shape)
+                }
+            )
+        }
+    )
+}
+
+/**
+ * <a href="https://material.io/components/text-fields#outlined-text-field" class="external"
+ * target="_blank">Material Design outlined text field</a>.
+ *
+ * Outlined text fields have less visual emphasis than filled text fields. When they appear in
+ * places like forms, where many text fields are placed together, their reduced emphasis helps
+ * simplify the layout.
+ *
+ * ![Outlined text field
+ * image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
  *
  * If apart from input text change you also want to observe the cursor location, selection range, or
  * IME composition use the OutlinedTextField overload with the [TextFieldValue] parameter instead.
@@ -289,10 +464,6 @@ fun OutlinedTextField(
  *
  * ![Outlined text field
  * image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
- *
- * See example usage:
- *
- * @sample androidx.compose.material.samples.OutlinedTextFieldSample
  *
  * This overload provides access to the input text, cursor position and selection range and IME
  * composition. If you only want to observe an input text change, use the OutlinedTextField overload
