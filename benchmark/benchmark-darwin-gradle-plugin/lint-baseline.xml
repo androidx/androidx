@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="GradleProjectIsolation"
         message="Use providers.gradleProperty instead of findProperty"
-        errorLine1="        val xcodeGenUri = when (val uri = project.findProperty(XCODEGEN_DOWNLOAD_URI)) {"
-        errorLine2="                                                  ~~~~~~~~~~~~">
+        errorLine1="            when (val uri = project.findProperty(XCODEGEN_DOWNLOAD_URI)) {"
+        errorLine2="                                    ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/benchmark/darwin/gradle/DarwinBenchmarkPlugin.kt"/>
     </issue>

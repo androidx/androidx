@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="                    Thread.sleep(50)"
-        errorLine2="                           ~~~~~">
+        errorLine1="                        Thread.sleep(50)"
+        errorLine2="                               ~~~~~">
         <location
             file="src/androidTest/java/androidx/benchmark/macro/perfetto/AndroidxTracingTraceTest.kt"/>
     </issue>
@@ -13,8 +13,8 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="                trace(label) { Thread.sleep(50) }"
-        errorLine2="                                      ~~~~~">
+        errorLine1="                    trace(label) { Thread.sleep(50) }"
+        errorLine2="                                          ~~~~~">
         <location
             file="src/androidTest/java/androidx/benchmark/macro/perfetto/AndroidxTracingTraceTest.kt"/>
     </issue>
@@ -26,48 +26,6 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidTest/java/androidx/benchmark/macro/ConfigurableActivity.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi` or `@OptIn(markerClass = androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi.class)`">
-        <location
-            file="src/main/java/androidx/benchmark/macro/perfetto/MemoryCountersQuery.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.macro.ExperimentalMetricApi` or `@OptIn(markerClass = androidx.benchmark.macro.ExperimentalMetricApi.class)`">
-        <location
-            file="src/main/java/androidx/benchmark/macro/perfetto/MemoryUsageQuery.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.macro.ExperimentalMetricApi` or `@OptIn(markerClass = androidx.benchmark.macro.ExperimentalMetricApi.class)`">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MetricResultExtensions.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.macro.ExperimentalMetricApi` or `@OptIn(markerClass = androidx.benchmark.macro.ExperimentalMetricApi.class)`">
-        <location
-            file="src/main/java/androidx/benchmark/macro/MetricResultExtensions.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi` or `@OptIn(markerClass = androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi.class)`">
-        <location
-            file="src/main/java/androidx/benchmark/macro/perfetto/PowerQuery.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi` or `@OptIn(markerClass = androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi.class)`">
-        <location
-            file="src/main/java/androidx/benchmark/perfetto/Slice.kt"/>
     </issue>
 
 </issues>

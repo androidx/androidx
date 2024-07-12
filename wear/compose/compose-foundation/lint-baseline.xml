@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="ReturnFromAwaitPointerEventScope"
@@ -13,7 +13,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable weights with type List&lt;? extends Float>: replace with FloatList"
-        errorLine1="        val weights = childrenInLayoutOrder.fastMap { node ->"
+        errorLine1="        val weights ="
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/wear/compose/foundation/CurvedColumn.kt"/>
@@ -49,7 +49,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable weights with type List&lt;? extends Float>: replace with FloatList"
-        errorLine1="        val weights = childrenInLayoutOrder.fastMap { node ->"
+        errorLine1="        val weights ="
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/wear/compose/foundation/CurvedRow.kt"/>
@@ -112,8 +112,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable previousAnchors with type Map&lt;T, ? extends Float>: replace with ObjectFloatMap"
-        errorLine1="        val previousAnchors = state.anchors"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                val previousAnchors = state.anchors"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
     </issue>
@@ -121,8 +121,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable newAnchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="        val newAnchors = mutableMapOf&lt;T, Float>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                val newAnchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>
     </issue>
@@ -184,7 +184,7 @@
     <issue
         id="PrimitiveInCollection"
         message="method closestAnchor has parameter $this$closestAnchor with type Map&lt;T, Float>: replace with ObjectFloatMap"
-        errorLine1="private fun &lt;T> Map&lt;T, Float>.closestAnchor("
+        errorLine1="private fun &lt;T> Map&lt;T, Float>.closestAnchor(offset: Float = 0f, searchUpwards: Boolean = false): T {"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/compose/foundation/SwipeableV2.kt"/>

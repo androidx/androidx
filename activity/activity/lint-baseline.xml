@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="ObsoleteSdkInt"
@@ -22,8 +22,8 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is never &lt; 21"
-        errorLine1="            } else if (Build.VERSION.SDK_INT == 19 &amp;&amp; ContextCompat.checkSelfPermission("
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                Build.VERSION.SDK_INT == 19 &amp;&amp;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/ComponentActivity.kt"/>
     </issue>
@@ -31,8 +31,8 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/EdgeToEdge.kt"/>
     </issue>
@@ -40,8 +40,8 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/EdgeToEdge.kt"/>
     </issue>
@@ -49,8 +49,8 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    } else if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                if (Build.VERSION.SDK_INT >= 21) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/activity/EdgeToEdge.kt"/>
     </issue>

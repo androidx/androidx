@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="ExperimentalPropertyAnnotation"
@@ -22,8 +22,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable useDefault with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="            val useDefault ="
-        errorLine2="            ^">
+        errorLine1="                val useDefault ="
+        errorLine2="                ^">
         <location
             file="src/jvmMain/kotlin/androidx/compose/runtime/reflect/ComposableMethod.jvm.kt"/>
     </issue>
@@ -67,8 +67,8 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of keys: replace with IntList"
-        errorLine1="    private fun keys() = groups.keys(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~">
+        errorLine1="    @Suppress(&quot;unused&quot;) private fun keys() = groups.keys(groupsSize * Group_Fields_Size)"
+        errorLine2="                                    ~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
     </issue>
@@ -76,8 +76,8 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of nodes: replace with IntList"
-        errorLine1="    private fun nodes() = groups.nodeCounts(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~~">
+        errorLine1="    @Suppress(&quot;unused&quot;) private fun nodes() = groups.nodeCounts(groupsSize * Group_Fields_Size)"
+        errorLine2="                                    ~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
     </issue>
@@ -103,8 +103,8 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of groupSizes: replace with IntList"
-        errorLine1="    private fun groupSizes() = groups.groupSizes(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~~~~~~~">
+        errorLine1="    @Suppress(&quot;unused&quot;) private fun groupSizes() = groups.groupSizes(groupsSize * Group_Fields_Size)"
+        errorLine2="                                    ~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
     </issue>
@@ -112,7 +112,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of dataIndexes: replace with IntList"
-        errorLine1="    private fun IntArray.dataIndexes() = groups.dataAnchors().let {"
+        errorLine1="    private fun IntArray.dataIndexes() ="
         errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
@@ -121,7 +121,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of keys: replace with IntList"
-        errorLine1="    private fun keys() = groups.keys().fastFilterIndexed { index, _ ->"
+        errorLine1="    private fun keys() ="
         errorLine2="                ~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
@@ -130,7 +130,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Integer> of keys: replace with IntList"
-        errorLine1="private fun IntArray.keys(len: Int = size) ="
+        errorLine1="private fun IntArray.keys(len: Int = size) = slice(Key_Offset until len step Group_Fields_Size)"
         errorLine2="                     ~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>

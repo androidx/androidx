@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="UnspecifiedRegisterReceiverFlag"
@@ -13,8 +13,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Resources.toProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                    res.toProto()"
-        errorLine2="                        ~~~~~~~">
+        errorLine1="                    androidx.wear.tiles.ResourceBuilders.Resources.fromProto(res.toProto())"
+        errorLine2="                                                                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/connection/DefaultTileClient.kt"/>
     </issue>
@@ -40,8 +40,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="Resources.fromProto can only be called from within the same library group (referenced groupId=`androidx.wear.protolayout` from groupId=`androidx.wear.tiles`)"
-        errorLine1="                            ResourceBuilders.Resources.fromProto(resources))"
-        errorLine2="                                                       ~~~~~~~~~">
+        errorLine1="                        continuation.resume(ResourceBuilders.Resources.fromProto(resources))"
+        errorLine2="                                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/tiles/connection/DefaultTileClient.kt"/>
     </issue>

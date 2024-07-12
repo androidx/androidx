@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="PrimitiveInCollection"
         message="constructor Theme has parameter map with type Map&lt;String, Float>: replace with ObjectFloatMap"
-        errorLine1="    constructor(map: Map&lt;String, Float>) : this("
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        errorLine1="        map: Map&lt;String, Float>"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/material3/catalog/library/model/Themes.kt"/>
     </issue>
@@ -13,7 +13,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type Map&lt;String, Float> of toMap: replace with ObjectFloatMap"
-        errorLine1="    fun toMap() = mapOf("
+        errorLine1="    fun toMap() ="
         errorLine2="        ~~~~~">
         <location
             file="src/main/java/androidx/compose/material3/catalog/library/model/Themes.kt"/>
@@ -22,7 +22,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable themeMap with type Map&lt;String, ? extends Float>: replace with ObjectFloatMap"
-        errorLine1="        val themeMap = themeString.substring(1, themeString.length - 1)"
+        errorLine1="        val themeMap ="
         errorLine2="        ^">
         <location
             file="src/main/java/androidx/compose/material3/catalog/library/data/UserPreferencesRepository.kt"/>

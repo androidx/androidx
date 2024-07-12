@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -155,73 +155,6 @@
     </issue>
 
     <issue
-        id="ComposableNaming"
-        message="Composable functions with a return type should start with a lowercase letter"
-        errorLine1="    fun Url("
-        errorLine2="        ~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
-    </issue>
-
-    <issue
-        id="ComposableNaming"
-        message="Composable functions with a return type should start with a lowercase letter"
-        errorLine1="    fun Clickable("
-        errorLine2="        ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/Text.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.compose.material3.ExperimentalMaterial3Api` or `@OptIn(markerClass = androidx.compose.material3.ExperimentalMaterial3Api.class)`">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/ColorScheme.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="variable crossAxisSizes with type List&lt;Integer>: replace with IntList"
         errorLine1="        val crossAxisSizes = mutableListOf&lt;Int>()"
@@ -246,42 +179,6 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of getValues$lint_module: replace with IntList"
-        errorLine1="    internal val values get() = if (selection == Selection.Minute) Minutes else Hours"
-        errorLine2="                 ~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field Minutes with type List&lt;Integer>: replace with IntList"
-        errorLine1="private val Minutes = listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field Hours with type List&lt;Integer>: replace with IntList"
-        errorLine1="private val Hours = listOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field ExtraHours with type List&lt;Integer>: replace with IntList"
-        errorLine1="private val ExtraHours = Hours.fastMap { (it % 12 + 12) }"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
     </issue>
 
 </issues>
