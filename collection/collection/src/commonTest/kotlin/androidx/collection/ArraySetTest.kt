@@ -17,6 +17,7 @@ package androidx.collection
 
 import androidx.collection.internal.Lock
 import androidx.collection.internal.synchronized
+import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,15 +25,12 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 
 internal class ArraySetTest {
     private val set = ArraySet<String>()
@@ -45,19 +43,14 @@ internal class ArraySetTest {
      * catch this and throw ConcurrentModificationException instead of crashing somewhere in its
      * internals.
      */
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(
-        ExperimentalCoroutinesApi::class, // newFixedThreadPoolContext is experimental in common
-        DelicateCoroutinesApi::class, // newFixedThreadPoolContext is delicate in jvm
-    )
     @Test
-    fun testConcurrentModificationException() {
+    fun testConcurrentModificationException() = runTest {
         var error: Throwable? = null
         val nThreads = 20
         var nActiveThreads = 0
         val lock = Lock()
-        val dispatcher = newFixedThreadPoolContext(nThreads = nThreads, name = "ArraySetTest")
-        val scope = CoroutineScope(dispatcher)
+        val context: CoroutineContext = Dispatchers.Default
+        val scope = CoroutineScope(context)
 
         repeat(nThreads) {
             scope.launch {
@@ -86,22 +79,19 @@ internal class ArraySetTest {
             }
         }
 
-        runBlocking(Dispatchers.Default) {
-            // Wait until all worker threads are started
-            for (i in 0 until 100) {
-                if (lock.synchronized { nActiveThreads == nThreads }) {
-                    break
-                } else {
-                    delay(timeMillis = 10L)
-                }
+        // Wait until all worker threads are started
+        for (i in 0 until 100) {
+            if (lock.synchronized { nActiveThreads == nThreads }) {
+                break
+            } else {
+                delay(timeMillis = 10L)
             }
-
-            // Allow the worker threads to run concurrently for some time
-            delay(timeMillis = 100L)
         }
 
+        // Allow the worker threads to run concurrently for some time
+        delay(timeMillis = 100L)
+
         scope.cancel()
-        dispatcher.close()
 
         error?.also { throw it }
     }
