@@ -18,6 +18,7 @@
 
 package androidx.collection
 
+import androidx.annotation.IntRange
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
@@ -55,17 +56,17 @@ public sealed class LongList(initialCapacity: Int) {
     @Suppress("PropertyName") @JvmField @PublishedApi internal var _size: Int = 0
 
     /** The number of elements in the [LongList]. */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public val size: Int
         get() = _size
 
     /** Returns the last valid index in the [LongList]. This can be `-1` when the list is empty. */
-    @get:androidx.annotation.IntRange(from = -1)
+    @get:IntRange(from = -1)
     public inline val lastIndex: Int
         get() = _size - 1
 
     /** Returns an [IntRange] of the valid indices for this [LongList]. */
-    public inline val indices: IntRange
+    public inline val indices: kotlin.ranges.IntRange
         get() = 0 until _size
 
     /** Returns `true` if the collection has no elements in it. */
@@ -282,7 +283,7 @@ public sealed class LongList(initialCapacity: Int) {
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
      * is out of bounds of this collection.
      */
-    public operator fun get(@androidx.annotation.IntRange(from = 0) index: Int): Long {
+    public operator fun get(@IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
             throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
@@ -293,7 +294,7 @@ public sealed class LongList(initialCapacity: Int) {
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if the [index]
      * is out of bounds of this collection.
      */
-    public fun elementAt(@androidx.annotation.IntRange(from = 0) index: Int): Long {
+    public fun elementAt(@IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
             throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
@@ -309,7 +310,7 @@ public sealed class LongList(initialCapacity: Int) {
      *   index not in the list.
      */
     public inline fun elementAtOrElse(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         defaultValue: (index: Int) -> Long
     ): Long {
         if (index !in 0 until _size) {
@@ -528,7 +529,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public fun add(@androidx.annotation.IntRange(from = 0) index: Int, element: Long) {
+    public fun add(@IntRange(from = 0) index: Int, element: Long) {
         if (index !in 0.._size) {
             throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
@@ -553,10 +554,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      * @return `true` if the [MutableLongList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive.
      */
-    public fun addAll(
-        @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: LongArray
-    ): Boolean {
+    public fun addAll(@IntRange(from = 0) index: Int, elements: LongArray): Boolean {
         if (index !in 0.._size) {
             throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
@@ -583,10 +581,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      * @return `true` if the [MutableLongList] was changed or `false` if [elements] was empty
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
-    public fun addAll(
-        @androidx.annotation.IntRange(from = 0) index: Int,
-        elements: LongList
-    ): Boolean {
+    public fun addAll(@IntRange(from = 0) index: Int, elements: LongList): Boolean {
         if (index !in 0.._size) {
             throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
@@ -733,7 +728,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      *
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public fun removeAt(@androidx.annotation.IntRange(from = 0) index: Int): Long {
+    public fun removeAt(@IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
             throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
@@ -757,10 +752,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      * @throws IndexOutOfBoundsException if [start] or [end] isn't between 0 and [size], inclusive
      * @throws IllegalArgumentException if [start] is greater than [end]
      */
-    public fun removeRange(
-        @androidx.annotation.IntRange(from = 0) start: Int,
-        @androidx.annotation.IntRange(from = 0) end: Int
-    ) {
+    public fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) {
         if (start !in 0.._size || end !in 0.._size) {
             throw IndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
         }
@@ -820,10 +812,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      * @return the previous value set at [index]
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public operator fun set(
-        @androidx.annotation.IntRange(from = 0) index: Int,
-        element: Long
-    ): Long {
+    public operator fun set(@IntRange(from = 0) index: Int, element: Long): Long {
         if (index !in 0 until _size) {
             throw IndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
         }
