@@ -24,6 +24,7 @@ val Material3Demos =
         "Material 3",
         listOf(
             ComposableDemo("Color Scheme") { ColorSchemeDemo() },
+            ComposableDemo("FAB Menu") { FloatingActionButtonMenuDemo() },
             ComposableDemo("Pull To Refresh") { PullToRefreshDemo() },
             ComposableDemo("Shape") { ShapeDemo() },
             ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },

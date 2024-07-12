@@ -90,6 +90,7 @@ import androidx.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
+import androidx.compose.material3.samples.FloatingActionButtonMenuSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
 import androidx.compose.material3.samples.HorizontalFloatingAppBar
 import androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
@@ -796,6 +797,20 @@ val FloatingActionButtonsExamples =
         ) {
             SmallFloatingActionButtonSample()
         }
+    )
+
+private const val FloatingActionButtonMenuExampleDescription = "FAB Menu examples"
+private const val FloatingActionButtonMenuExampleSourceUrl =
+    "$SampleSourceUrl/FloatingActionButtonMenuSamples.kt"
+val FloatingActionButtonMenuExamples =
+    listOf(
+        Example(
+            name = "FloatingActionButtonMenuSample",
+            description = FloatingActionButtonMenuExampleDescription,
+            sourceUrl = FloatingActionButtonMenuExampleSourceUrl,
+        ) {
+            FloatingActionButtonMenuSample()
+        },
     )
 
 private const val ListsExampleDescription = "List examples"

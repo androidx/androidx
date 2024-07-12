@@ -225,6 +225,18 @@ private val FloatingActionButtons =
         examples = FloatingActionButtonsExamples,
     )
 
+private val FloatingActionButtonMenu =
+    Component(
+        id = nextId(),
+        name = "FAB Menu",
+        description = "The FAB Menu displays additional key actions on click of a FAB.",
+        // No FAB Menu icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/fab-menu",
+        docsUrl = "$PackageSummaryUrl#floatingactionbuttonmenu",
+        sourceUrl = "$Material3SourceUrl/FloatingActionButtonMenu.kt",
+        examples = FloatingActionButtonMenuExamples,
+    )
+
 private val FloatingAppBars =
     Component(
         id = nextId(),
@@ -541,6 +553,7 @@ val Components =
         Dialogs,
         ExtendedFloatingActionButton,
         FloatingActionButtons,
+        FloatingActionButtonMenu,
         FloatingAppBars,
         IconButtons,
         Lists,
