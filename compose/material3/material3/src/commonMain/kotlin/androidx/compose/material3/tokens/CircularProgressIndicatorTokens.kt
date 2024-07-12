@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_4_0
+// VERSION: v0_7_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 
 internal object CircularProgressIndicatorTokens {
     val ActiveThickness = 4.0.dp
-    val ActiveWaveAmplitude = 2.0.dp
+    val ActiveWaveAmplitude = 1.6.dp
     val ActiveWaveWavelength = 15.0.dp
     val Size = 40.0.dp
     val TrackActiveSpace = 4.0.dp

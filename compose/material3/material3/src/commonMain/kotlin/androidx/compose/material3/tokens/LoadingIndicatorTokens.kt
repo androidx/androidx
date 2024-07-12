@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_4_0
+// VERSION: v0_7_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -23,7 +23,8 @@ import androidx.compose.ui.unit.dp
 internal object LoadingIndicatorTokens {
     val ActiveIndicatorColor = ColorSchemeKeyTokens.Primary
     val ActiveSize = 38.0.dp
-    val ContainerColor = ColorSchemeKeyTokens.SecondaryContainer
+    val ContainedActiveColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val ContainedContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val ContainerHeight = 48.0.dp
     val ContainerShape = ShapeKeyTokens.CornerFull
     val ContainerWidth = 48.0.dp

@@ -1000,7 +1000,8 @@ object WavyProgressIndicatorDefaults {
     val LinearDeterminateWavelength: Dp = LinearProgressIndicatorTokens.ActiveWaveWavelength
 
     /** A default wavelength of a linear progress indicator when it's in a wavy form. */
-    val LinearIndeterminateWavelength: Dp = 20.dp // TODO Read from tokens when available
+    val LinearIndeterminateWavelength: Dp =
+        LinearProgressIndicatorTokens.IndeterminateActiveWaveWavelength
 
     /** A default linear progress indicator container height. */
     val LinearContainerHeight: Dp = LinearProgressIndicatorTokens.WaveHeight
