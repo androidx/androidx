@@ -104,6 +104,36 @@ class PredictiveBackHandlerTestApi {
     }
 
     @Test
+    fun testHandleOnCompleteWithDispatcher() {
+        var counter = 0
+        lateinit var dispatcher: OnBackPressedDispatcher
+
+        rule.setContent {
+            PredictiveBackHandler { progress ->
+                progress.collect()
+                counter++
+            }
+            dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            Button(
+                onClick = {
+                    dispatcher.startGestureBack()
+                    dispatcher.api34Complete()
+                }
+            ) {
+                Text(text = "backPress")
+            }
+        }
+
+        rule.onNodeWithText("backPress").performClick()
+
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
+
+        dispatcher.onBackPressed()
+
+        rule.runOnIdle { assertThat(counter).isEqualTo(2) }
+    }
+
+    @Test
     fun testDisabledBackHandler() {
         val result = mutableListOf<String>()
         var enabled by mutableStateOf(true)
