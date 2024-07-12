@@ -78,7 +78,11 @@ public fun ActiveFocusListener(onFocusChanged: CoroutineScope.(Boolean) -> Unit)
     FocusComposableImpl(focusEnabled = { true }, onFocusChanged = onFocusChanged, content = {})
 }
 
-@Deprecated("Renamed ActiveFocusListener, use that instead", level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    "Renamed ActiveFocusListener, use that instead",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith("ActiveFocusListener(onFocusChanged)")
+)
 @Composable
 @ExperimentalWearFoundationApi
 public fun OnFocusChange(onFocusChanged: CoroutineScope.(Boolean) -> Unit) =
@@ -97,7 +101,11 @@ public fun ActiveFocusRequester(focusRequester: FocusRequester) {
     ActiveFocusListener { if (it) focusRequester.requestFocus() }
 }
 
-@Deprecated("Renamed ActiveFocusRequester, use that instead", level = DeprecationLevel.HIDDEN)
+@Deprecated(
+    "Renamed ActiveFocusRequester, use that instead",
+    level = DeprecationLevel.HIDDEN,
+    replaceWith = ReplaceWith("ActiveFocusRequester(focusRequester)")
+)
 @Composable
 @ExperimentalWearFoundationApi
 public fun RequestFocusWhenActive(focusRequester: FocusRequester) =
