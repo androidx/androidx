@@ -29,10 +29,6 @@ plugins {
 
 androidXMultiplatform {
     ios()
-    js {
-        nodejs()
-        binaries.executable()
-    }
     jvm()
     linux()
     mac()
