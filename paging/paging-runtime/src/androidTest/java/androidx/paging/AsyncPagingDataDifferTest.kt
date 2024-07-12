@@ -29,6 +29,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.MainDispatcherRule
+import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -1468,6 +1469,238 @@ class AsyncPagingDataDifferTest {
             collectInGetItem.cancel()
             collectPager.cancel()
         }
+    }
+
+    @Test
+    fun useTempPresenterOnDiffCalculation() = runTest {
+        val workerDispatcher = TestDispatcher()
+        val pager =
+            Pager(
+                config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5),
+            ) {
+                TestPagingSource(loadDelay = 0)
+            }
+
+        val differ =
+            AsyncPagingDataDiffer(
+                diffCallback =
+                    object : DiffUtil.ItemCallback<Int>() {
+                        override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+
+                        override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+                    },
+                updateCallback = listUpdateCapture,
+                workerDispatcher = workerDispatcher
+            )
+        val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
+
+        // wait refresh
+        advanceUntilIdle()
+        assertThat(differ.snapshot().items.size).isEqualTo(5)
+
+        // append
+        differ.getItem(4)
+        advanceUntilIdle()
+        assertThat(differ.snapshot().items.size).isEqualTo(8)
+
+        // refresh with 5 items loaded
+        differ.refresh()
+
+        // present new list
+        advanceUntilIdle()
+        // check that presenter has been updated
+        assertThat(differ.presenter.snapshot().items.size).isEqualTo(5)
+        // but then differ should have switched to old presenter
+        assertThat(differ.snapshot().items.size).isEqualTo(8)
+
+        // run compute diff and dispatch
+        workerDispatcher.executeAll()
+        advanceUntilIdle()
+
+        // diff should switch back to new presenter
+        assertThat(differ.snapshot().items.size).isEqualTo(5)
+        collectPager.cancelAndJoin()
+    }
+
+    @Test
+    fun tempPresenterSnapshotPlaceholders() = runTest {
+        val workerDispatcher = TestDispatcher()
+        val pager =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 3,
+                        prefetchDistance = 1,
+                        initialLoadSize = 5,
+                        enablePlaceholders = true
+                    ),
+                initialKey = 20
+            ) {
+                TestPagingSource(loadDelay = 0)
+            }
+
+        val differ =
+            AsyncPagingDataDiffer(
+                diffCallback =
+                    object : DiffUtil.ItemCallback<Int>() {
+                        override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+
+                        override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+                    },
+                updateCallback = listUpdateCapture,
+                workerDispatcher = workerDispatcher
+            )
+        val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
+
+        advanceUntilIdle()
+
+        differ.getItem(25)
+        advanceUntilIdle()
+
+        val snapshot1 = differ.snapshot()
+        assertThat(snapshot1.size).isEqualTo(100)
+        assertThat(snapshot1.placeholdersBefore).isEqualTo(20)
+        assertThat(snapshot1.placeholdersAfter).isEqualTo(72)
+
+        // refresh with 5 items loaded
+        differ.refresh()
+        advanceUntilIdle()
+
+        // assert old presenter snapshot()
+        val snapshot2 = differ.snapshot()
+        assertThat(snapshot2.size).isEqualTo(100)
+        assertThat(snapshot2.placeholdersBefore).isEqualTo(20)
+        assertThat(snapshot2.placeholdersAfter).isEqualTo(72)
+
+        // run compute diff and dispatch
+        workerDispatcher.executeAll()
+        advanceUntilIdle()
+
+        // assert new presenter snapshot()
+        val snapshot3 = differ.snapshot()
+        assertThat(snapshot3.size).isEqualTo(100)
+        assertThat(snapshot3.placeholdersBefore).isEqualTo(25)
+        assertThat(snapshot3.placeholdersAfter).isEqualTo(70)
+        collectPager.cancelAndJoin()
+    }
+
+    @Test
+    fun tempPresenterGetOutOfBounds() = runTest {
+        val workerDispatcher = TestDispatcher()
+        val pager =
+            Pager(
+                config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5),
+            ) {
+                TestPagingSource(loadDelay = 0)
+            }
+
+        val differ =
+            AsyncPagingDataDiffer(
+                diffCallback =
+                    object : DiffUtil.ItemCallback<Int>() {
+                        override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+
+                        override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+                    },
+                updateCallback = listUpdateCapture,
+                workerDispatcher = workerDispatcher
+            )
+        val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
+
+        // wait refresh
+        advanceUntilIdle()
+        assertThat(differ.snapshot().items.size).isEqualTo(5)
+
+        // append
+        differ.getItem(4)
+        advanceUntilIdle()
+
+        // refresh with 5 items loaded
+        differ.refresh()
+        advanceUntilIdle()
+
+        // make sure differ is on old list
+        assertThat(differ.snapshot().items.size).isEqualTo(8)
+
+        var exception: IndexOutOfBoundsException? = null
+        try {
+            differ.getItem(200)
+        } catch (e: IndexOutOfBoundsException) {
+            exception = e
+        }
+        assertThat(exception).isNotNull()
+
+        workerDispatcher.executeAll()
+        advanceUntilIdle()
+        collectPager.cancelAndJoin()
+    }
+
+    @Test
+    fun tempPresenterGetPlaceholder() = runTest {
+        val workerDispatcher = TestDispatcher()
+        val pager =
+            Pager(
+                config =
+                    PagingConfig(
+                        pageSize = 3,
+                        prefetchDistance = 1,
+                        initialLoadSize = 5,
+                        enablePlaceholders = true
+                    ),
+            ) {
+                TestPagingSource(loadDelay = 0)
+            }
+
+        val differ =
+            AsyncPagingDataDiffer(
+                diffCallback =
+                    object : DiffUtil.ItemCallback<Int>() {
+                        override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+
+                        override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                            return oldItem == newItem
+                        }
+                    },
+                updateCallback = listUpdateCapture,
+                workerDispatcher = workerDispatcher
+            )
+        val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
+
+        // wait refresh
+        advanceUntilIdle()
+        assertThat(differ.snapshot().items.size).isEqualTo(5)
+
+        // append
+        differ.getItem(4)
+        advanceUntilIdle()
+
+        // refresh with 5 items loaded
+        differ.refresh()
+        advanceUntilIdle()
+
+        // make sure differ is on old list
+        assertThat(differ.snapshot().placeholdersAfter).isEqualTo(92)
+
+        val placeholder = differ.getItem(70)
+        assertThat(placeholder).isNull()
+
+        workerDispatcher.executeAll()
+        advanceUntilIdle()
+        collectPager.cancelAndJoin()
     }
 
     @Test
