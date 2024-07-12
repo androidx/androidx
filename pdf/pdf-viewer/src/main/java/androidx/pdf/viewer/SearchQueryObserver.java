@@ -16,19 +16,21 @@
 
 package androidx.pdf.viewer;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.util.ObservableValue;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class SearchQueryObserver implements ObservableValue.ValueObserver<String> {
+public class SearchQueryObserver implements ObservableValue.ValueObserver<String> {
     private final PaginatedView mPaginatedView;
 
-    SearchQueryObserver(PaginatedView paginatedView) {
+    public SearchQueryObserver(@NonNull PaginatedView paginatedView) {
         mPaginatedView = paginatedView;
     }
 
     @Override
-    public void onChange(String oldQuery, String newQuery) {
+    public void onChange(@Nullable String oldQuery, @Nullable String newQuery) {
         mPaginatedView.clearAllOverlays();
     }
 }

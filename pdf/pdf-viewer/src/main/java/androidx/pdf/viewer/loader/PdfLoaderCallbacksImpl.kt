@@ -312,7 +312,8 @@ class PdfLoaderCallbacksImpl(
             if (
                 searchModel!!.query().get() != null &&
                     searchModel!!.selectedMatch().get() != null &&
-                    searchModel!!.selectedMatch().get()!!.page == pageNum
+                    searchModel!!.selectedMatch().get()!!.page == pageNum &&
+                    pageViewFactory != null
             ) {
                 // lookAtSelection is posted to run once layout has finished:
                 ThreadUtils.postOnUiThread {

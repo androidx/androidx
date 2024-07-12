@@ -17,7 +17,6 @@
 package androidx.pdf.find;
 
 import android.content.Context;
-import android.net.Uri;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -35,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.util.Accessibility;
-import androidx.pdf.util.AnnotationUtils;
 import androidx.pdf.util.CycleRange;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
@@ -64,11 +62,10 @@ public class FindInFileView extends LinearLayout {
     private FindInFileListener mFindInFileListener;
     private ObservableValue<MatchCount> mMatchCount;
     private SearchModel mSearchModel;
-    private Uri mFileUri;
     private PaginatedView mPaginatedView;
-    private PdfLoader mPdfLoader;
+    private boolean mIsAnnotationIntentResolvable;
     private static final char MATCH_STATUS_COUNTING = '\u2026';
-
+    private static final String TAG = FindInFileView.class.getSimpleName();
     private final OnClickListener mOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -170,16 +167,11 @@ public class FindInFileView extends LinearLayout {
      * Sets the pdfLoader and create a new {@link SearchModel} instance with the given pdfLoader.
      */
     public void setPdfLoader(@NonNull PdfLoader pdfLoader) {
-        mPdfLoader = pdfLoader;
         mSearchModel = new SearchModel(pdfLoader);
     }
 
     public void setPaginatedView(@NonNull PaginatedView paginatedView) {
         mPaginatedView = paginatedView;
-    }
-
-    public void setFileUri(@NonNull Uri fileUri) {
-        mFileUri = fileUri;
     }
 
     @NonNull
@@ -192,14 +184,25 @@ public class FindInFileView extends LinearLayout {
         mAnnotationButton = annotationButton;
     }
 
+    public void setAnnotationIntentResolvable(
+            boolean isAnnotationIntentResolvable) {
+        mIsAnnotationIntentResolvable = isAnnotationIntentResolvable;
+    }
+
     /**
      * Sets the visibility of the find-in-file view and configures its behavior.
      *
      * @param visibility true to show the find-in-file view, false to hide it.
      */
     public void setFindInFileView(boolean visibility) {
+        if (mSearchModel == null) {
+            return; // Ignore call. Models not initialized yet
+        }
         if (visibility) {
             this.setVisibility(VISIBLE);
+            if (mAnnotationButton != null && mAnnotationButton.getVisibility() == VISIBLE) {
+                mAnnotationButton.setVisibility(GONE);
+            }
             setupFindInFileBtn();
         } else {
             this.setVisibility(GONE);
@@ -215,7 +218,7 @@ public class FindInFileView extends LinearLayout {
             mQueryBox.clearFocus();
             mQueryBox.setText("");
             parentLayout.setVisibility(GONE);
-            if (AnnotationUtils.resolveAnnotationIntent(getContext(), mFileUri)) {
+            if (mIsAnnotationIntentResolvable) {
                 mAnnotationButton.setVisibility(VISIBLE);
             }
         });
@@ -264,6 +267,12 @@ public class FindInFileView extends LinearLayout {
         this.mFindInFileListener = findInFileListener;
         setObservableMatchCount(
                 (findInFileListener != null) ? findInFileListener.matchCount() : null);
+        if (!mQueryBox.getText().toString().isEmpty()) {
+            if (mFindInFileListener != null) {
+                mFindInFileListener.onQueryTextChange(mQueryBox.getText().toString());
+            }
+            mMatchStatus.setVisibility(VISIBLE);
+        }
     }
 
     private void setObservableMatchCount(@Nullable ObservableValue<MatchCount> matchCount) {

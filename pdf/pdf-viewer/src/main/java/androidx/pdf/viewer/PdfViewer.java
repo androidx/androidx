@@ -358,7 +358,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
         mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
 
         mFindInFileView.setPaginatedView(mPaginatedView);
-        mFindInFileView.setFileUri(mLocalUri);
+        mFindInFileView.setAnnotationIntentResolvable(mIsAnnotationIntentResolvable);
 
         if (savedState != null) {
             int layoutReach = savedState.getInt(KEY_LAYOUT_REACH);

@@ -21,20 +21,24 @@ import static android.view.View.VISIBLE;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.net.Uri;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
 
 import androidx.pdf.viewer.PaginatedView;
-import androidx.pdf.viewer.PaginationModel;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import junit.framework.TestCase;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 
 /**
@@ -46,23 +50,29 @@ public class FindInFileViewTest extends TestCase {
     @Mock
     private PdfLoader mPdfLoader;
     @Mock
-    private Uri mUri;
-    @Mock
     private PaginatedView mPaginatedView;
     @Mock
-    private PaginationModel mPaginationModel;
+    private FloatingActionButton mAnnotationButton;
     private FindInFileView mFindInFileView;
+    private AutoCloseable mOpenMocks;
 
     @Before
     public void setUp() throws Exception {
+        mOpenMocks = MockitoAnnotations.openMocks(this);
         mFindInFileView = new FindInFileView(ApplicationProvider.getApplicationContext());
         mFindInFileView.setPdfLoader(mPdfLoader);
         mFindInFileView.setPaginatedView(mPaginatedView);
-        mFindInFileView.setFileUri(mUri);
+        mFindInFileView.setAnnotationButton(mAnnotationButton);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        mOpenMocks.close();
     }
 
     @Test
     public void testSetFindInFileView_visibilityTrue() {
+        doNothing().when(mAnnotationButton).setVisibility(anyInt());
         mFindInFileView.setFindInFileView(true);
         assertThat(mFindInFileView.getVisibility()).isEqualTo(VISIBLE);
     }

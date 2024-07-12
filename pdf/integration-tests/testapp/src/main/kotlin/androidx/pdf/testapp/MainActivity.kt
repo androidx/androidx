@@ -32,6 +32,7 @@ import com.google.android.material.button.MaterialButton
 class MainActivity : AppCompatActivity() {
 
     private var pdfViewerFragment: PdfViewerFragment? = null
+    private var PDFVIEWERFRAGMENT_TAG = "pdfviewerfragment_tag"
 
     companion object {
         private const val MIME_TYPE_PDF = "application/pdf"
@@ -46,9 +47,17 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (pdfViewerFragment == null) {
+            pdfViewerFragment =
+                supportFragmentManager.findFragmentByTag(PDFVIEWERFRAGMENT_TAG)
+                    as PdfViewerFragment?
+        }
+
         val getContentButton: MaterialButton = findViewById(R.id.launch_button)
+        val searchButton: MaterialButton = findViewById(R.id.search_button)
 
         getContentButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
+        searchButton.setOnClickListener { setFindInFileViewVisible() }
         if (savedInstanceState == null) {
             setPdfView()
         }
@@ -62,8 +71,18 @@ class MainActivity : AppCompatActivity() {
         val transaction: FragmentTransaction = fragmentManager.beginTransaction()
 
         // Replace an existing fragment in a container with an instance of a new fragment
-        transaction.replace(R.id.fragment_container_view, pdfViewerFragment!!, null)
+        transaction.replace(
+            R.id.fragment_container_view,
+            pdfViewerFragment!!,
+            PDFVIEWERFRAGMENT_TAG
+        )
         transaction.commitAllowingStateLoss()
         fragmentManager.executePendingTransactions()
+    }
+
+    private fun setFindInFileViewVisible() {
+        if (pdfViewerFragment != null) {
+            pdfViewerFragment!!.isTextSearchActive = true
+        }
     }
 }

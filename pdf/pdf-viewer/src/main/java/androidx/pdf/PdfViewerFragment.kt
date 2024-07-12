@@ -51,7 +51,9 @@ import androidx.pdf.viewer.PaginatedView
 import androidx.pdf.viewer.PaginationModel
 import androidx.pdf.viewer.PdfSelectionHandles
 import androidx.pdf.viewer.PdfSelectionModel
-import androidx.pdf.viewer.SearchModel
+import androidx.pdf.viewer.SearchQueryObserver
+import androidx.pdf.viewer.SelectedMatch
+import androidx.pdf.viewer.SelectedMatchValueObserver
 import androidx.pdf.viewer.SingleTapHandler
 import androidx.pdf.viewer.ZoomScrollValueObserver
 import androidx.pdf.viewer.loader.PdfLoader
@@ -121,6 +123,8 @@ open class PdfViewerFragment : Fragment() {
     private var zoomScrollObserver: ValueObserver<ZoomScroll>? = null
     private var fastscrollerPositionObserver: ValueObserver<Int>? = null
     private var fastscrollerPositionObserverKey: Any? = null
+    private var searchQueryObserver: ValueObserver<String>? = null
+    private var selectedMatchObserver: ValueObserver<SelectedMatch>? = null
     private var pdfViewer: FrameLayout? = null
     private var findInFileView: FindInFileView? = null
     private var singleTapHandler: SingleTapHandler? = null
@@ -164,6 +168,10 @@ open class PdfViewerFragment : Fragment() {
      * Set to `true` to display the menu, or `false` to hide it.
      */
     var isTextSearchActive: Boolean = false
+        set(value) {
+            field = value
+            findInFileView!!.setFindInFileView(value)
+        }
 
     /**
      * Callback invoked when an error occurs while loading the PDF document.
@@ -354,8 +362,9 @@ open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks!!.layoutHandler = layoutHandler
         zoomView?.setPdfSelectionModel(pdfLoaderCallbacks?.selectionModel!!)
         paginatedView?.selectionModel = pdfLoaderCallbacks?.selectionModel!!
-        paginatedView?.searchModel = pdfLoaderCallbacks?.searchModel!!
+        paginatedView?.searchModel = findInFileView!!.searchModel
         paginatedView?.setPdfLoader(pdfLoader!!)
+        findInFileView!!.setPaginatedView(paginatedView!!)
 
         fastscrollerPositionObserver =
             FastScrollPositionValueObserver(fastScrollView!!, pageIndicator!!)
@@ -413,7 +422,7 @@ open class PdfViewerFragment : Fragment() {
                 layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
             }
 
-            isAnnotationIntentResolvable = state.getBoolean(KEY_SHOW_ANNOTATION)
+            val showAnnotationButton = state.getBoolean(KEY_SHOW_ANNOTATION)
 
             // Restore page selection from saved state if it exists
             val savedSelection =
@@ -423,13 +432,40 @@ open class PdfViewerFragment : Fragment() {
                     @Suppress("DEPRECATION") state.getParcelable(KEY_PAGE_SELECTION)
                 }
             savedSelection?.let { pdfLoaderCallbacks?.selectionModel?.setSelection(it) }
+
+            savedState.containsKey(KEY_TEXT_SEARCH_ACTIVE).let {
+                val textSearchActive = savedState.getBoolean(KEY_TEXT_SEARCH_ACTIVE)
+                if (textSearchActive) {
+                    findInFileView!!.setFindInFileView(true)
+                }
+            }
+
+            isAnnotationIntentResolvable =
+                showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
         }
+
+        searchQueryObserver = SearchQueryObserver(paginatedView!!)
+        findInFileView!!.searchModel.query().addObserver(searchQueryObserver)
+
+        selectedMatchObserver =
+            SelectedMatchValueObserver(
+                paginatedView!!,
+                paginationModel!!,
+                pageViewFactory!!,
+                zoomView!!,
+                layoutHandler!!,
+                requireContext()
+            )
+        findInFileView!!.searchModel.selectedMatch().addObserver(selectedMatchObserver)
     }
 
     private fun createContentModel(pdfLoader: PdfLoader) {
         this.pdfLoader = pdfLoader
         pdfLoaderCallbacks?.pdfLoader = pdfLoader
 
+        findInFileView!!.setPdfLoader(pdfLoader)
+        annotationButton?.let { findInFileView!!.setAnnotationButton(it) }
+        pdfLoaderCallbacks?.searchModel = findInFileView!!.searchModel
         paginationModel = paginatedView!!.initPaginationModelAndPageRangeHandler(requireContext())
         fastScrollContentModel = FastScrollContentModelImpl(paginationModel!!, zoomView!!)
 
@@ -437,7 +473,6 @@ open class PdfViewerFragment : Fragment() {
             fastScrollView?.setScrollable(fastScrollContentModel!!)
             fastScrollView?.id = id * 10
         }
-        pdfLoaderCallbacks?.searchModel = SearchModel(pdfLoader)
         pdfLoaderCallbacks?.selectionModel = PdfSelectionModel(pdfLoader)
         selectionHandles =
             PdfSelectionHandles(pdfLoaderCallbacks?.selectionModel!!, zoomView!!, paginatedView!!)
@@ -471,6 +506,9 @@ open class PdfViewerFragment : Fragment() {
         selectionHandles = null
 
         pdfLoaderCallbacks?.selectionModel = null
+
+        findInFileView!!.searchModel.selectedMatch().removeObserver(selectedMatchObserver!!)
+        findInFileView!!.searchModel.query().removeObserver(searchQueryObserver!!)
 
         pdfLoaderCallbacks?.searchModel = null
 
@@ -541,6 +579,7 @@ open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel?.let {
             outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
         }
+        outState.putBoolean(KEY_TEXT_SEARCH_ACTIVE, findInFileView!!.visibility == View.VISIBLE)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -566,6 +605,7 @@ open class PdfViewerFragment : Fragment() {
         isAnnotationIntentResolvable =
             AnnotationUtils.resolveAnnotationIntent(requireContext(), localUri!!)
         singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+        findInFileView!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
     }
 
     private fun validateFileUri(fileUri: Uri) {
@@ -643,6 +683,7 @@ open class PdfViewerFragment : Fragment() {
     companion object {
         private const val KEY_LAYOUT_REACH: String = "plr"
         private const val KEY_DATA: String = "data"
+        private const val KEY_TEXT_SEARCH_ACTIVE: String = "isTextSearchActive"
         private const val KEY_SHOW_ANNOTATION: String = "showEditFab"
         private const val KEY_PAGE_SELECTION: String = "currentPageSelection"
     }
