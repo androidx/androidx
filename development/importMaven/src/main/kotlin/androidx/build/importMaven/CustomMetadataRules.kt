@@ -35,6 +35,8 @@ class CustomMetadataRules : ComponentMetadataRule {
                 it.addFile("${id.name}-${id.version}-sources.jar")
                 // if it does not have gradle metadata, we might miss aar; add it
                 it.addFile("${id.name}-${id.version}.aar")
+                // if it does not have gradle metadata, we might miss klib; add it
+                it.addFile("${id.name}-${id.version}.klib")
                 // pom.asc files are not always resolved when .module files are present
                 it.addFile("${id.name}-${id.version}.pom.asc")
             }
