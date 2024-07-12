@@ -40,6 +40,7 @@ import org.gradle.util.GradleVersion
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
+import org.jetbrains.kotlin.gradle.targets.js.KotlinWasmTargetAttribute
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 /**
@@ -411,6 +412,22 @@ ${verificationException.message?.prependIndent("    ")}
                     }
                 }
             }
+
+            val wasmJs = KOTlIN_USAGES.map { kotlinUsage ->
+                createConfiguration(*dependencies) {
+                    attributes.apply {
+                        attribute(KotlinPlatformType.attribute, KotlinPlatformType.wasm)
+                        attribute(Usage.USAGE_ATTRIBUTE, kotlinUsage)
+                        attribute(
+                            KotlinWasmTargetAttribute.wasmTargetAttribute,
+                            KotlinWasmTargetAttribute.js
+                        )
+                        attribute(Category.CATEGORY_ATTRIBUTE, Category.LIBRARY)
+                        attribute(TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE, "non-jvm")
+                    }
+                }
+            }
+
             val commonArtifacts = KOTlIN_USAGES.map { kotlinUsage ->
                 createConfiguration(*dependencies) {
                     attributes.apply {
@@ -420,7 +437,7 @@ ${verificationException.message?.prependIndent("    ")}
                     }
                 }
             }
-            return jvmAndAndroid + konanTargetConfigurations + commonArtifacts
+            return jvmAndAndroid + wasmJs + konanTargetConfigurations + commonArtifacts
         }
 
         private fun createKonanTargetConfiguration(
