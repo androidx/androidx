@@ -69,11 +69,11 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
+        jvmCommonMain {
             dependsOn(commonMain)
         }
 
-        jvmTest {
+        jvmCommonTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
@@ -81,14 +81,14 @@ androidXMultiplatform {
         }
 
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(jvmCommonMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
             }
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(jvmCommonTest)
             dependencies {
                 implementation(libs.mockitoCore4)
             }
@@ -104,9 +104,9 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain.dependsOn(jvmMain)
-        nonJvmMain.dependsOn(commonMain)
-        nativeMain.dependsOn(nonJvmMain)
+        desktopMain.dependsOn(jvmCommonMain)
+        nonJvmCommonMain.dependsOn(commonMain)
+        nativeMain.dependsOn(nonJvmCommonMain)
         darwinMain.dependsOn(nativeMain)
         linuxMain.dependsOn(nativeMain)
 

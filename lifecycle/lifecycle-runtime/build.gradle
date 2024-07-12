@@ -50,7 +50,7 @@ androidXMultiplatform {
             }
         }
 
-        jvmMain {
+        jvmCommonMain {
             dependsOn(commonMain)
             dependencies {
                 api("androidx.arch.core:core-common:2.2.0")
@@ -58,7 +58,7 @@ androidXMultiplatform {
         }
 
         desktopMain {
-            dependsOn(jvmMain)
+            dependsOn(jvmCommonMain)
         }
 
         desktopTest {
@@ -69,7 +69,7 @@ androidXMultiplatform {
         }
 
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(jvmCommonMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
                 implementation("androidx.arch.core:core-runtime:2.2.0")
@@ -97,12 +97,12 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmMain {
+        nonJvmCommonMain {
             dependsOn(commonMain)
         }
 
         nativeMain {
-            dependsOn(nonJvmMain)
+            dependsOn(nonJvmCommonMain)
 
             // Required for WeakReference usage
             languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
