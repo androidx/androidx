@@ -138,7 +138,7 @@ internal constructor(private val backend: EmbeddingBackend) {
 
     companion object {
 
-        internal const val OVERLAY_FEATURE_VERSION = 6
+        internal const val OVERLAY_FEATURE_VERSION = 8
 
         /**
          * Obtains an instance of [OverlayController].
