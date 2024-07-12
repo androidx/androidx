@@ -218,17 +218,6 @@ internal fun BoxScope.ModalBottomSheetContent(
                 .align(Alignment.TopCenter)
                 .widthIn(max = sheetMaxWidth)
                 .fillMaxWidth()
-                .graphicsLayer {
-                    val sheetOffset = sheetState.anchoredDraggableState.offset
-                    val sheetHeight = size.height
-                    if (!sheetOffset.isNaN() && !sheetHeight.isNaN() && sheetHeight != 0f) {
-                        val progress = predictiveBackProgress.value
-                        scaleX = calculatePredictiveBackScaleX(progress)
-                        scaleY = calculatePredictiveBackScaleY(progress)
-                        transformOrigin =
-                            TransformOrigin(0.5f, (sheetOffset + sheetHeight) / sheetHeight)
-                    }
-                }
                 .nestedScroll(
                     remember(sheetState) {
                         ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
@@ -275,7 +264,18 @@ internal fun BoxScope.ModalBottomSheetContent(
                     startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
                     onDragStopped = { settleToDismiss(it) }
                 )
-                .semantics { paneTitle = bottomSheetPaneTitle },
+                .semantics { paneTitle = bottomSheetPaneTitle }
+                .graphicsLayer {
+                    val sheetOffset = sheetState.anchoredDraggableState.offset
+                    val sheetHeight = size.height
+                    if (!sheetOffset.isNaN() && !sheetHeight.isNaN() && sheetHeight != 0f) {
+                        val progress = predictiveBackProgress.value
+                        scaleX = calculatePredictiveBackScaleX(progress)
+                        scaleY = calculatePredictiveBackScaleY(progress)
+                        transformOrigin =
+                            TransformOrigin(0.5f, (sheetOffset + sheetHeight) / sheetHeight)
+                    }
+                },
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
