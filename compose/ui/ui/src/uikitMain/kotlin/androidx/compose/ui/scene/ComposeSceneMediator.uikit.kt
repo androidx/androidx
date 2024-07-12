@@ -38,6 +38,7 @@ import androidx.compose.ui.interop.UIKitInteropContainer
 import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.AccessibilitySyncOptions
+import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.LocalLayoutMargins
@@ -87,6 +88,7 @@ import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSize
+import platform.QuartzCore.CACurrentMediaTime
 import platform.QuartzCore.CATransaction
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIEvent
@@ -229,7 +231,7 @@ internal class ComposeSceneMediator(
             override val touchSlop: Float
                 get() = with(density) {
                     // this value is originating from iOS 16 drag behavior reverse engineering
-                    10.dp.toPx()
+                    CUPERTINO_TOUCH_SLOP.dp.toPx()
                 }
         }
 
@@ -367,7 +369,7 @@ internal class ComposeSceneMediator(
      * @param event the [UIEvent] associated with the touches
      * @param phase the [CupertinoTouchesPhase] of the touches
      */
-    private fun onTouchesEvent(view: UIView, touches: Set<*>, event: UIEvent, phase: CupertinoTouchesPhase) {
+    private fun onTouchesEvent(view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) {
         val pointers = touches.map {
             val touch = it as UITouch
             val id = touch.hashCode().toLong()
@@ -375,21 +377,33 @@ internal class ComposeSceneMediator(
             ComposeScenePointer(
                 id = PointerId(id),
                 position = position,
-                pressed = touch.isPressed,
+                pressed = when (phase) {
+                    // When CMPGestureRecognizer is failed, all tracked touches are sent immediately
+                    // as CANCELLED. In this case, we should not consider the touch as pressed
+                    // despite them being on the screen. This is the last event for Compose in a
+                    // given gesture sequence and should be treated as such.
+                    CupertinoTouchesPhase.CANCELLED -> false
+                    else -> touch.isPressed
+                },
                 type = PointerType.Touch,
                 pressure = touch.force.toFloat(),
-                historical = event.historicalChangesForTouch(
+                historical = event?.historicalChangesForTouch(
                     touch,
                     view,
                     density.density
-                )
+                ) ?: emptyList()
             )
-        } ?: emptyList()
+        }
+
+        // If the touches were cancelled due to gesture failure, the timestamp is not available,
+        // because no actual event with touch updates happened. We just use the current time in
+        // this case.
+        val timestamp = event?.timestamp ?: CACurrentMediaTime()
 
         scene.sendPointerEvent(
             eventType = phase.toPointerEventType(),
             pointers = pointers,
-            timeMillis = (event.timestamp * 1e3).toLong(),
+            timeMillis = (timestamp * 1e3).toLong(),
             nativeEvent = event
         )
     }
