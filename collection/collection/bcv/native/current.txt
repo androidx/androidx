@@ -650,7 +650,7 @@ final class androidx.collection/MutableLongSet : androidx.collection/LongSet { /
     final fun removeAll(kotlin/LongArray): kotlin/Boolean // androidx.collection/MutableLongSet.removeAll|removeAll(kotlin.LongArray){}[0]
     final fun trim(): kotlin/Int // androidx.collection/MutableLongSet.trim|trim(){}[0]
 }
-final const val androidx.collection/BitmaskLsb // androidx.collection/BitmaskLsb|{}BitmaskLsb[0]
+final const val androidx.collection/BitmaskLsb // androidx.collection/BitmaskLsb|<get-BitmaskLsb>(){}[0]
     final fun <get-BitmaskLsb>(): kotlin/Long // androidx.collection/BitmaskLsb.<get-BitmaskLsb>|<get-BitmaskLsb>(){}[0]
 final const val androidx.collection/BitmaskMsb // androidx.collection/BitmaskMsb|<get-BitmaskMsb>(){}[0]
     final fun <get-BitmaskMsb>(): kotlin/Long // androidx.collection/BitmaskMsb.<get-BitmaskMsb>|<get-BitmaskMsb>(){}[0]
