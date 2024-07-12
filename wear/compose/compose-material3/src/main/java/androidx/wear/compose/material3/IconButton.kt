@@ -20,6 +20,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -94,7 +95,7 @@ fun IconButton(
 ) =
     RoundButton(
         onClick = onClick,
-        modifier.minimumInteractiveComponentSize(),
+        modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -102,7 +103,6 @@ fun IconButton(
         interactionSource = interactionSource,
         shape = shape,
         border = { border },
-        buttonSize = IconButtonDefaults.DefaultButtonSize,
         ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
@@ -163,7 +163,8 @@ fun FilledIconButton(
 ) =
     RoundButton(
         onClick = onClick,
-        modifier = modifier.minimumInteractiveComponentSize(),
+        modifier =
+            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -171,7 +172,6 @@ fun FilledIconButton(
         interactionSource = interactionSource,
         shape = shape,
         border = { border },
-        buttonSize = IconButtonDefaults.DefaultButtonSize,
         ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
@@ -232,7 +232,8 @@ fun FilledTonalIconButton(
 ) =
     RoundButton(
         onClick = onClick,
-        modifier = modifier.minimumInteractiveComponentSize(),
+        modifier =
+            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -240,7 +241,6 @@ fun FilledTonalIconButton(
         interactionSource = interactionSource,
         shape = shape,
         border = { border },
-        buttonSize = IconButtonDefaults.DefaultButtonSize,
         ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
@@ -305,7 +305,8 @@ fun OutlinedIconButton(
 ) =
     RoundButton(
         onClick = onClick,
-        modifier = modifier.minimumInteractiveComponentSize(),
+        modifier =
+            modifier.minimumInteractiveComponentSize().size(IconButtonDefaults.DefaultButtonSize),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -313,7 +314,6 @@ fun OutlinedIconButton(
         interactionSource = interactionSource,
         shape = shape,
         border = { border },
-        buttonSize = IconButtonDefaults.DefaultButtonSize,
         ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )

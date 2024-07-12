@@ -20,6 +20,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -100,7 +101,7 @@ fun TextButton(
 ) {
     RoundButton(
         onClick = onClick,
-        modifier.minimumInteractiveComponentSize(),
+        modifier.minimumInteractiveComponentSize().size(TextButtonDefaults.DefaultButtonSize),
         onLongClick = onLongClick,
         onLongClickLabel = onLongClickLabel,
         enabled = enabled,
@@ -108,7 +109,6 @@ fun TextButton(
         interactionSource = interactionSource,
         shape = shape,
         border = { border },
-        buttonSize = TextButtonDefaults.DefaultButtonSize,
         ripple = ripple(),
         content =
             provideScopeContent(
