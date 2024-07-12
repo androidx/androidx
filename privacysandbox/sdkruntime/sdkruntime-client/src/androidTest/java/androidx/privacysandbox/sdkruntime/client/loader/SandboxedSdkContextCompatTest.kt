@@ -65,7 +65,6 @@ internal class SandboxedSdkContextCompatTest(
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     fun getCodeCacheDir_returnSdkCodeCacheDirInAppCodeCacheDir() {
         val expectedSdksCodeCacheRoot = File(appStorageContext.codeCacheDir, SDK_ROOT_FOLDER)
         val expectedSdkCodeCache = File(expectedSdksCodeCacheRoot, SDK_PACKAGE_NAME)
@@ -76,7 +75,6 @@ internal class SandboxedSdkContextCompatTest(
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
     fun getNoBackupFilesDir_returnSdkNoBackupDirInAppNoBackupDir() {
         val expectedSdksNoBackupRoot = File(appStorageContext.noBackupFilesDir, SDK_ROOT_FOLDER)
         val expectedSdkNoBackupDir = File(expectedSdksNoBackupRoot, SDK_PACKAGE_NAME)

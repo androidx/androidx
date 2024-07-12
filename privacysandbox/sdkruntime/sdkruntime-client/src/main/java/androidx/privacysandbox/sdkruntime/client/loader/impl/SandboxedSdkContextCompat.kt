@@ -72,16 +72,14 @@ internal class SandboxedSdkContextCompat(
     }
 
     /** Points to <app_data_dir>/code_cache/RuntimeEnabledSdksData/<sdk_package_name> */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun getCodeCacheDir(): File {
-        val sdksCodeCacheRoot = ensureDirExists(Api21.codeCacheDir(baseContext), SDK_ROOT_FOLDER)
+        val sdksCodeCacheRoot = ensureDirExists(baseContext.codeCacheDir, SDK_ROOT_FOLDER)
         return ensureDirExists(sdksCodeCacheRoot, sdkPackageName)
     }
 
     /** Points to <app_data_dir>/no_backup/RuntimeEnabledSdksData/<sdk_package_name> */
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun getNoBackupFilesDir(): File {
-        val sdksNoBackupRoot = ensureDirExists(Api21.noBackupFilesDir(baseContext), SDK_ROOT_FOLDER)
+        val sdksNoBackupRoot = ensureDirExists(baseContext.noBackupFilesDir, SDK_ROOT_FOLDER)
         return ensureDirExists(sdksNoBackupRoot, sdkPackageName)
     }
 
@@ -249,13 +247,6 @@ internal class SandboxedSdkContextCompat(
             dir.mkdir()
         }
         return dir
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private object Api21 {
-        fun codeCacheDir(context: Context): File = context.codeCacheDir
-
-        fun noBackupFilesDir(context: Context): File = context.noBackupFilesDir
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
