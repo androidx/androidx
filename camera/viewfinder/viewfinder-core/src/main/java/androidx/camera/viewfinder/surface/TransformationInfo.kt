@@ -19,13 +19,42 @@ package androidx.camera.viewfinder.surface
 /**
  * Transformation information associated with the preview output.
  *
- * This information can be used to transform the Surface of a ViewFinder to be suitable to be
+ * This information can be used to transform the Surface of a Viewfinder to be suitable to be
  * displayed.
  */
 class TransformationInfo(
 
     /** Rotation of the source, relative to the device's natural rotation. */
     val sourceRotation: Int,
+
+    /**
+     * Indicates whether the source has been mirrored horizontally.
+     *
+     * This is common if the source comes from a camera that is front-facing.
+     *
+     * It is not common for both [isSourceMirroredHorizontally] and [isSourceMirroredVertically] to
+     * be set to `true`. This is equivalent to [sourceRotation] being rotated by an additional 180
+     * degrees.
+     *
+     * @see android.hardware.camera2.params.OutputConfiguration.MIRROR_MODE_AUTO
+     * @see android.hardware.camera2.params.OutputConfiguration.MIRROR_MODE_H
+     * @see androidx.camera.core.SurfaceRequest.TransformationInfo.isMirroring
+     */
+    val isSourceMirroredHorizontally: Boolean,
+
+    /**
+     * Indicates whether the source has been mirrored vertically.
+     *
+     * It is not common for a camera source to be mirror vertically, and typically
+     * [isSourceMirroredHorizontally] will be the appropriate property.
+     *
+     * It is not common for both [isSourceMirroredHorizontally] and [isSourceMirroredVertically] to
+     * be set to `true`. This is equivalent to [sourceRotation] being rotated by an additional 180
+     * degrees.
+     *
+     * @see android.hardware.camera2.params.OutputConfiguration.MIRROR_MODE_V
+     */
+    val isSourceMirroredVertically: Boolean,
 
     /** Left offset of the cropRect in pixels */
     val cropRectLeft: Int,
@@ -38,29 +67,30 @@ class TransformationInfo(
 
     /** Bottom offset of the cropRect in pixels */
     val cropRectBottom: Int,
-    @get:JvmName("shouldMirror") val shouldMirror: Boolean,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is TransformationInfo) return false
 
         if (sourceRotation != other.sourceRotation) return false
+        if (isSourceMirroredHorizontally != other.isSourceMirroredHorizontally) return false
+        if (isSourceMirroredVertically != other.isSourceMirroredVertically) return false
         if (cropRectLeft != other.cropRectLeft) return false
         if (cropRectTop != other.cropRectTop) return false
         if (cropRectRight != other.cropRectRight) return false
         if (cropRectBottom != other.cropRectBottom) return false
-        if (shouldMirror != other.shouldMirror) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = sourceRotation
+        result = 31 * result + isSourceMirroredHorizontally.hashCode()
+        result = 31 * result + isSourceMirroredVertically.hashCode()
         result = 31 * result + cropRectLeft
         result = 31 * result + cropRectTop
         result = 31 * result + cropRectRight
         result = 31 * result + cropRectBottom
-        result = 31 * result + shouldMirror.hashCode()
         return result
     }
 }

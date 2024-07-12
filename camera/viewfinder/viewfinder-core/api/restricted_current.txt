@@ -63,18 +63,20 @@ package androidx.camera.viewfinder.surface {
   }
 
   public final class TransformationInfo {
-    ctor public TransformationInfo(int sourceRotation, int cropRectLeft, int cropRectTop, int cropRectRight, int cropRectBottom, boolean shouldMirror);
+    ctor public TransformationInfo(int sourceRotation, boolean isSourceMirroredHorizontally, boolean isSourceMirroredVertically, int cropRectLeft, int cropRectTop, int cropRectRight, int cropRectBottom);
     method public int getCropRectBottom();
     method public int getCropRectLeft();
     method public int getCropRectRight();
     method public int getCropRectTop();
     method public int getSourceRotation();
-    method public boolean shouldMirror();
+    method public boolean isSourceMirroredHorizontally();
+    method public boolean isSourceMirroredVertically();
     property public final int cropRectBottom;
     property public final int cropRectLeft;
     property public final int cropRectRight;
     property public final int cropRectTop;
-    property public final boolean shouldMirror;
+    property public final boolean isSourceMirroredHorizontally;
+    property public final boolean isSourceMirroredVertically;
     property public final int sourceRotation;
   }
 

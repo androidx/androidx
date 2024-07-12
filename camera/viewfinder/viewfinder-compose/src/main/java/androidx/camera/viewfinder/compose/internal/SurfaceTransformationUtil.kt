@@ -124,20 +124,12 @@ object SurfaceTransformationUtil {
                 transformationInfo.sourceRotation
             )
 
-        if (transformationInfo.shouldMirror) {
-            if (TransformUtil.is90or270(transformationInfo.sourceRotation)) {
-                // If the rotation is 90/270, the Surface should be flipped vertically.
-                //   +---+     90 +---+  270 +---+
-                //   | ^ | -->    | < |      | > |
-                //   +---+        +---+      +---+
-                matrix.preScale(1f, -1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
-            } else {
-                // If the rotation is 0/180, the Surface should be flipped horizontally.
-                //   +---+      0 +---+  180 +---+
-                //   | ^ | -->    | ^ |      | v |
-                //   +---+        +---+      +---+
-                matrix.preScale(-1f, 1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
-            }
+        if (transformationInfo.isSourceMirroredHorizontally) {
+            matrix.preScale(-1f, 1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
+        }
+
+        if (transformationInfo.isSourceMirroredVertically) {
+            matrix.preScale(1f, -1f, surfaceCropRect.centerX(), surfaceCropRect.centerY())
         }
         return matrix
     }
