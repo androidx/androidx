@@ -65,7 +65,7 @@ import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
  */
 open class AndroidXMultiplatformExtension(val project: Project) {
 
-    var enableBinaryCompatibilityValidator = false
+    var enableBinaryCompatibilityValidator = true
 
     // Kotlin multiplatform plugin is only applied if at least one target / sourceset is added.
     private val kotlinExtensionDelegate = lazy {
@@ -616,6 +616,8 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 
     @JvmOverloads
     fun linuxX64Stubs(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
+        // don't enable binary compatibility validator for stubs
+        enableBinaryCompatibilityValidator = false
         supportedPlatforms.add(PlatformIdentifier.LINUX_X_64_STUBS)
         return if (project.enableLinux()) {
             kotlinExtension.linuxX64("linuxx64Stubs") {
