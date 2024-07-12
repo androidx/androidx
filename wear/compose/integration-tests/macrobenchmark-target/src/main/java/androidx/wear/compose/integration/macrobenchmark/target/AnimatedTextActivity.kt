@@ -50,17 +50,16 @@ import kotlinx.coroutines.launch
 
 class AnimatedTextActivity : ComponentActivity() {
 
-    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent { AnimatedTextScreen() }
+        setContent { if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) AnimatedTextScreen() }
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
 @Composable
-private fun AnimatedTextScreen() {
+internal fun AnimatedTextScreen() {
     val scope = rememberCoroutineScope()
     val animatable = remember { Animatable(0.5f) }
     val textStyle = remember {
