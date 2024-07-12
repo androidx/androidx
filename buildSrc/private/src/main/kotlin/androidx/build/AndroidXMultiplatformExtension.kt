@@ -589,7 +589,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun linux(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
         return listOfNotNull(
-            // TODO linuxArm64(block),
+            linuxArm64(block),
             linuxX64(block),
         )
     }
