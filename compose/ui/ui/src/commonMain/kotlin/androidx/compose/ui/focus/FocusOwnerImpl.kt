@@ -40,6 +40,7 @@ import androidx.compose.ui.node.NodeKind
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ancestors
 import androidx.compose.ui.node.dispatchForKind
+import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitLocalDescendants
 import androidx.compose.ui.platform.InspectorInfo
@@ -270,6 +271,7 @@ internal class FocusOwnerImpl(
         val focusedKeyInputNode =
             activeFocusTarget?.lastLocalKeyInputNode()
                 ?: activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.KeyInput)?.node
+                ?: rootFocusNode.nearestAncestor(Nodes.KeyInput)?.node
 
         focusedKeyInputNode?.traverseAncestorsIncludingSelf(
             type = Nodes.KeyInput,
