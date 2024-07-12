@@ -465,7 +465,15 @@ private val AndroidXExtension.publishPlatforms: List<String>
                 ?.asMap
                 ?.filterValues { it.publishable }
                 ?.keys
-                ?.map { it.lowercase() } ?: emptySet()
+                ?.map {
+                    it.lowercase()
+                        // Remove when https://youtrack.jetbrains.com/issue/KT-70072 is fixed.
+                        // MultiplatformExtension.targets includes `wasmjs` in its list, however,
+                        // the publication folder for this target is named `wasm-js`. Not having
+                        // this replace causes the verifyInputscreateProjectZip task to fail
+                        // as it is looking for a file named wasmjs
+                        .replace("wasmjs", "wasm-js")
+                } ?: emptySet()
         val declaredTargets = potentialTargets.filter { it != "metadata" }
         return declaredTargets.toList()
     }
