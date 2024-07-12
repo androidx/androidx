@@ -380,10 +380,10 @@ will **not** be able to use reflection to access hidden APIs on devices with
 In cases where a hidden API is a constant value, **do not** inline the value.
 Hidden APIs cannot be tested by CTS and carry no stability guarantees.
 
-On earlier devices or in cases where an API is marked with
-`@UnsupportedAppUsage`, reflection on hidden platform APIs is allowed **only**
-when an alternative public platform API exists in a later revision of the
-Android SDK. For example, the following implementation is allowed:
+Per go/platform-parity, on earlier devices or in cases where an API is marked
+with `@UnsupportedAppUsage`, reflection on hidden platform APIs is allowed
+**only** when an alternative public platform API exists in a later revision of
+the Android SDK. For example, the following implementation is allowed:
 
 ```java
 public AccessibilityDelegate getAccessibilityDelegate(View v) {
