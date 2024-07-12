@@ -165,7 +165,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;Integer, InputDispatcherState> of getStates$lint_module: replace with IntObjectMap"
+        message="return type Map&lt;Integer, InputDispatcherState> of getStates$ui_test: replace with IntObjectMap"
         errorLine1="    internal val states = mutableMapOf&lt;Int, InputDispatcherState>()"
         errorLine2="                 ~~~~~~">
         <location

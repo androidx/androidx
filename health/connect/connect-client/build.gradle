@@ -79,6 +79,8 @@ android {
     namespace "androidx.health.connect.client"
     compileSdk = 34
     compileSdkExtension = 10
+    // TODO(b/352609562): Typedef with `toLong()`
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {

@@ -298,6 +298,9 @@ docs-public:docs starting
 docs-public:docs completing
 docs-tip-of-tree:docs starting
 docs-tip-of-tree:docs completing
+# > Configure project :androidx-demos
+WARNING: The option setting 'android\.lint\.useK2Uast=true' is experimental\.
+The current default is 'false'\.
 # Investigate more b/325465332
 # > Task :room:integration-tests:room-testapp-multiplatform:ksp.*
 i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]

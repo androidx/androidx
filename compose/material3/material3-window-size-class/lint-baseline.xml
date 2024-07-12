@@ -21,7 +21,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method fromWidth$lint_module has parameter supportedSizeClasses with type Set&lt;WindowWidthSizeClass>: replace with IntSet"
+        message="method fromWidth has parameter supportedSizeClasses with type Set&lt;WindowWidthSizeClass>: replace with IntSet"
         errorLine1="            supportedSizeClasses: Set&lt;WindowWidthSizeClass>"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,7 +30,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method fromHeight$lint_module has parameter supportedSizeClasses with type Set&lt;WindowHeightSizeClass>: replace with IntSet"
+        message="method fromHeight has parameter supportedSizeClasses with type Set&lt;WindowHeightSizeClass>: replace with IntSet"
         errorLine1="            supportedSizeClasses: Set&lt;WindowHeightSizeClass>"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
