@@ -49,4 +49,6 @@ androidx {
 
 android {
     namespace "androidx.compose.material.navigation"
+    // TODO(b/349411310)?
+    experimentalProperties["android.lint.useK2Uast"] = false
 }

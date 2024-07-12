@@ -47,4 +47,6 @@ android {
         viewBinding true
     }
     namespace "androidx.compose.ui.demos"
+    // TODO(b/349411310)?
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
