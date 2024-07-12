@@ -29,7 +29,6 @@ import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 internal object MigrationUtils {
 
     private const val LOG_TAG = "LocalSdkMigrationUtils"
