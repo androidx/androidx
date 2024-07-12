@@ -54,6 +54,22 @@ class ListDelegateTest {
         assertInvalidIndices(2, 1) // end before start
     }
 
+    @Test
+    fun equalsAndHashCode_sameInstance_areEqual() =
+        ListDelegateImpl(testList).let { assertEqual(it, it) }
+
+    @Test
+    fun equalsAndHashCode_equivalentItems_areEqual() =
+        testList.let { assertEqual(ListDelegateImpl(it), ListDelegateImpl(it)) }
+
+    @Test
+    fun equalsAndHashCode_marshalledItem_areEqual() =
+        ListDelegateImpl(testList).let { assertEqual(it, marshallUnmarshall(it)) }
+
+    @Test
+    fun equalsAndHashCode_differentItems_areNotEqual() =
+        assertNotEqual(ListDelegateImpl((10..19).toList()), ListDelegateImpl((20..29).toList()))
+
     private fun assertInvalidIndices(startIndex: Int, endIndex: Int) {
         assertThrows(AssertionError::class.java) { requestItemRange(startIndex, endIndex) }
     }
@@ -70,4 +86,20 @@ class ListDelegateTest {
 
         @Suppress("UNCHECKED_CAST") return resultCaptor.lastValue.get() as List<Int>
     }
+
+    private fun <T : Any> assertEqual(a: T, b: T) {
+        assertThat(a).isEqualTo(b)
+        assertThat(b).isEqualTo(a)
+        assertThat(a.hashCode()).isEqualTo(b.hashCode())
+    }
+
+    private fun <T : Any> assertNotEqual(a: T, b: T) {
+        assertThat(a).isNotEqualTo(b)
+        assertThat(b).isNotEqualTo(a)
+        assertThat(a.hashCode()).isNotEqualTo(b.hashCode())
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun <T : Any> marshallUnmarshall(obj: T): T =
+        Bundler.fromBundle(Bundler.toBundle(obj)) as T
 }

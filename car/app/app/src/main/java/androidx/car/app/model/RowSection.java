@@ -51,7 +51,8 @@ public final class RowSection extends Section<Row> {
     }
 
     /**
-     * When set to a value that correlates to an index in {@link #getItems()}, this entire row
+     * When set to a value that correlates to an index in {@link #getItemsDelegate()}, this
+     * entire row
      * section should be treated as a selection group (eg. radio group). Otherwise this will be a
      * negative value to denote that this row section should not be transformed into a selection
      * group.
@@ -117,12 +118,6 @@ public final class RowSection extends Section<Row> {
         /** Create a new {@link RowSection} builder. */
         public Builder() {
             super();
-        }
-
-        /** Create a new {@link RowSection} builder, copying values from an existing instance. */
-        public Builder(@NonNull RowSection rowSection) {
-            super(rowSection);
-            mInitialSelectedIndex = rowSection.mInitialSelectedIndex;
         }
 
         /**

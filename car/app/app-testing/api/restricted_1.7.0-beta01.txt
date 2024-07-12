@@ -42,6 +42,12 @@ package androidx.car.app.testing {
     method public java.util.List<java.lang.String!> getPermissionsRequested();
   }
 
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public final class TestDelegateInvoker {
+    method public <T> java.util.List<T> requestAllItemsForTest(androidx.car.app.serialization.ListDelegate<? extends T>);
+    method public <T> java.util.List<T> requestItemRangeForTest(androidx.car.app.serialization.ListDelegate<? extends T>, int startIndex, int endIndex);
+    field public static final androidx.car.app.testing.TestDelegateInvoker INSTANCE;
+  }
+
   public class TestScreenManager extends androidx.car.app.ScreenManager {
     method public java.util.List<androidx.car.app.Screen!> getScreensPushed();
     method public java.util.List<androidx.car.app.Screen!> getScreensRemoved();

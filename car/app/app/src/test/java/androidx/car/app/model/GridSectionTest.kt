@@ -46,26 +46,6 @@ class GridSectionTest {
     }
 
     @Test
-    fun builderFromObject() {
-        val section =
-            GridSection.Builder()
-                .setItemSize(GridSection.ITEM_SIZE_LARGE)
-                .setItemImageShape(GridSection.ITEM_IMAGE_SHAPE_CIRCLE)
-                .setItems(testItemList)
-                .setTitle(testHeader)
-                .setNoItemsMessage("Test no items message")
-                .build()
-
-        val result = GridSection.Builder(section).build()
-
-        assertThat(result.itemSize).isEqualTo(GridSection.ITEM_SIZE_LARGE)
-        assertThat(result.itemImageShape).isEqualTo(GridSection.ITEM_IMAGE_SHAPE_CIRCLE)
-        assertThat(result.items).containsExactlyElementsIn(testItemList)
-        assertThat(result.title).isEqualTo(testHeader)
-        assertThat(result.noItemsMessage).isEqualTo(CarText.create("Test no items message"))
-    }
-
-    @Test
     fun equals_returnsFalse_whenPassedNull() {
         val section = GridSection.Builder().build()
 
