@@ -74,11 +74,11 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         project.multiplatformExtension!!
     }
     private val kotlinExtension: KotlinMultiplatformExtension by kotlinExtensionDelegate
-    val agpKmpExtensionDelegate = lazy {
+    private val agpKmpExtensionDelegate = lazy {
+        // make sure to initialize the kotlin extension by accessing the property
+        val extension = (kotlinExtension as ExtensionAware)
         project.plugins.apply(KotlinMultiplatformAndroidPlugin::class.java)
-        (kotlinExtension as ExtensionAware)
-            .extensions
-            .getByType(KotlinMultiplatformAndroidTarget::class.java)
+        extension.extensions.getByType(KotlinMultiplatformAndroidTarget::class.java)
     }
 
     val agpKmpExtension: KotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
