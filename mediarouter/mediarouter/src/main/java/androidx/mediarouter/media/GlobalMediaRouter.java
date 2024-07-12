@@ -97,8 +97,8 @@ import java.util.Set;
             new RemoteControlClientCompat.PlaybackInfo();
     private final ProviderCallback mProviderCallback = new ProviderCallback();
     private final boolean mLowRam;
+    private final boolean mTransferReceiverDeclared;
 
-    private boolean mTransferReceiverDeclared;
     private boolean mUseMediaRouter2ForSystemRouting;
     private MediaRoute2Provider mMr2Provider;
     private PlatformMediaRouter1RouteProvider mPlatformMediaRouter1RouteProvider;
