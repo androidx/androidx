@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -277,10 +278,6 @@ class AsyncPagingDataDifferTest {
                 currentPagedSource!!.invalidate()
                 advanceUntilIdle()
 
-                // UI access refreshed items. Load PREPEND [50] to fulfill prefetch distance
-                differ.getItem(51)
-                advanceUntilIdle()
-
                 assertEvents(
                     // TODO(b/182510751): Every change event here should have payload.
                     listOf(
@@ -481,7 +478,10 @@ class AsyncPagingDataDifferTest {
             // Connect pager2, which should override pager1
             val job2 = launch { pager2.flow.collectLatest(differ::submitData) }
             advanceUntilIdle()
-            assertEquals(19, differ.itemCount)
+            // This prepends an extra page due to transformedAnchorPosition re-sending an Access at
+            // the
+            // first position, we therefore load 19 + 7 items.
+            assertEquals(26, differ.itemCount)
 
             // now if pager1 gets an invalidation, it overrides pager2
             source1.invalidate()
@@ -1472,13 +1472,48 @@ class AsyncPagingDataDifferTest {
     }
 
     @Test
+    fun recoverFromInterruptedPrefetch() =
+        testScope.runTest {
+            val pagingSources = mutableListOf<TestPagingSource>()
+            val pager =
+                Pager(
+                    config =
+                        PagingConfig(pageSize = 10, prefetchDistance = 3, initialLoadSize = 10),
+                ) {
+                    TestPagingSource().also {
+                        it.getRefreshKeyResult = 0
+                        pagingSources.add(it)
+                    }
+                }
+
+            val collectPager = launch { pager.flow.collectLatest { differ.submitData(it) } }
+
+            // wait refresh
+            advanceUntilIdle()
+            assertThat(differ.snapshot().items.size).isEqualTo(10)
+
+            // sent hint to the first gen hint receiver and trigger a prefetch load
+            differ.getItem(9)
+            // Interrupt prefetch. We set getRefreshKeyResult = 0 so that after refresh, the last
+            // loaded item matches the lastAccessedIndex
+            differ.refresh()
+            advanceUntilIdle()
+
+            assertThat(pagingSources.size).isEqualTo(2)
+            // even though the prefetching hint had been discarded, make sure that after refresh,
+            // the prefetch is still respected even if it was interrupted by an invalidation
+            assertThat(differ.snapshot().items.size).isEqualTo(20)
+            collectPager.cancelAndJoin()
+        }
+
+    @Test
     fun useTempPresenterOnDiffCalculation() = runTest {
         val workerDispatcher = TestDispatcher()
         val pager =
             Pager(
                 config = PagingConfig(pageSize = 3, prefetchDistance = 1, initialLoadSize = 5),
             ) {
-                TestPagingSource(loadDelay = 0)
+                TestPagingSource(loadDelay = 500)
             }
 
         val differ =
@@ -1519,7 +1554,8 @@ class AsyncPagingDataDifferTest {
 
         // run compute diff and dispatch
         workerDispatcher.executeAll()
-        advanceUntilIdle()
+        // let initial refresh complete
+        advanceTimeBy(1)
 
         // diff should switch back to new presenter
         assertThat(differ.snapshot().items.size).isEqualTo(5)
@@ -1587,7 +1623,8 @@ class AsyncPagingDataDifferTest {
         // assert new presenter snapshot()
         val snapshot3 = differ.snapshot()
         assertThat(snapshot3.size).isEqualTo(100)
-        assertThat(snapshot3.placeholdersBefore).isEqualTo(25)
+        // load refresh + prefetch from transformedIndex = 8 items loaded
+        assertThat(snapshot3.placeholdersBefore).isEqualTo(22)
         assertThat(snapshot3.placeholdersAfter).isEqualTo(70)
         collectPager.cancelAndJoin()
     }
