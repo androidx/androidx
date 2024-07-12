@@ -27,6 +27,7 @@
 
 package PACKAGE
 
+import androidx.annotation.IntRange
 import androidx.collection.PRIMITIVEList
 import androidx.collection.MutablePRIMITIVEList
 import androidx.collection.emptyPRIMITIVEList
@@ -62,19 +63,19 @@ VISIBILITY value class VALUE_CLASSList(val list: PRIMITIVEList) {
     /**
      * The number of elements in the [VALUE_CLASSList].
      */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val size: Int get() = list.size
 
     /**
      * Returns the last valid index in the [VALUE_CLASSList]. This can be `-1` when the list is empty.
      */
-    @get:androidx.annotation.IntRange(from = -1)
+    @get:IntRange(from = -1)
     public inline val lastIndex: Int get() = list.lastIndex
 
     /**
      * Returns an [IntRange] of the valid indices for this [VALUE_CLASSList].
      */
-    public inline val indices: IntRange get() = list.indices
+    public inline val indices: kotlin.ranges.IntRange get() = list.indices
 
     /**
      * Returns `true` if the collection has no elements in it.
@@ -261,14 +262,14 @@ VISIBILITY value class VALUE_CLASSList(val list: PRIMITIVEList) {
      * the [index] is out of bounds of this collection.
      */
     public inline operator fun get(
-        @androidx.annotation.IntRange(from = 0) index: Int
+        @IntRange(from = 0) index: Int
     ): VALUE_CLASS = VALUE_CLASS(list[index]TO_PARAM)
 
     /**
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if
      * the [index] is out of bounds of this collection.
      */
-    public inline fun elementAt(@androidx.annotation.IntRange(from = 0) index: Int): VALUE_CLASS =
+    public inline fun elementAt(@IntRange(from = 0) index: Int): VALUE_CLASS =
         VALUE_CLASS(list[index]TO_PARAM)
 
     /**
@@ -279,7 +280,7 @@ VISIBILITY value class VALUE_CLASSList(val list: PRIMITIVEList) {
      * an index not in the list.
      */
     public inline fun elementAtOrElse(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         defaultValue: (index: Int) -> VALUE_CLASS
     ): VALUE_CLASS =
         VALUE_CLASS(list.elementAtOrElse(index) { defaultValue(it).BACKING_PROPERTY }TO_PARAM)
@@ -384,19 +385,19 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
     /**
      * The number of elements in the [VALUE_CLASSList].
      */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val size: Int get() = list.size
 
     /**
      * Returns the last valid index in the [VALUE_CLASSList]. This can be `-1` when the list is empty.
      */
-    @get:androidx.annotation.IntRange(from = -1)
+    @get:IntRange(from = -1)
     public inline val lastIndex: Int get() = list.lastIndex
 
     /**
      * Returns an [IntRange] of the valid indices for this [VALUE_CLASSList].
      */
-    public inline val indices: IntRange get() = list.indices
+    public inline val indices: kotlin.ranges.IntRange get() = list.indices
 
     /**
      * Returns `true` if the collection has no elements in it.
@@ -583,14 +584,14 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * the [index] is out of bounds of this collection.
      */
     public inline operator fun get(
-        @androidx.annotation.IntRange(from = 0) index: Int
+        @IntRange(from = 0) index: Int
     ): VALUE_CLASS = VALUE_CLASS(list[index]TO_PARAM)
 
     /**
      * Returns the element at the given [index] or throws [IndexOutOfBoundsException] if
      * the [index] is out of bounds of this collection.
      */
-    public inline fun elementAt(@androidx.annotation.IntRange(from = 0) index: Int): VALUE_CLASS =
+    public inline fun elementAt(@IntRange(from = 0) index: Int): VALUE_CLASS =
         VALUE_CLASS(list[index]TO_PARAM)
 
     /**
@@ -601,7 +602,7 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * an index not in the list.
      */
     public inline fun elementAtOrElse(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         defaultValue: (index: Int) -> VALUE_CLASS
     ): VALUE_CLASS =
         VALUE_CLASS(list.elementAtOrElse(index) { defaultValue(it).BACKING_PROPERTY }TO_PARAM)
@@ -695,7 +696,7 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
     public inline fun add(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         element: VALUE_CLASS
     ) = list.add(index, element.BACKING_PROPERTY)
 
@@ -706,7 +707,7 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
     public inline fun addAll(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         elements: VALUE_CLASSList
     ): Boolean = list.addAll(index, elements.list)
 
@@ -717,7 +718,7 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [size], inclusive
      */
     public inline fun addAll(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         elements: MutableVALUE_CLASSList
     ): Boolean = list.addAll(index, elements.list)
 
@@ -812,7 +813,7 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * Removes the element at the given [index] and returns it.
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
-    public inline fun removeAt(@androidx.annotation.IntRange(from = 0) index: Int): VALUE_CLASS =
+    public inline fun removeAt(@IntRange(from = 0) index: Int): VALUE_CLASS =
         VALUE_CLASS(list.removeAt(index)TO_PARAM)
 
     /**
@@ -821,8 +822,8 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * @throws IllegalArgumentException if [start] is greater than [end]
      */
     public inline fun removeRange(
-        @androidx.annotation.IntRange(from = 0) start: Int,
-        @androidx.annotation.IntRange(from = 0) end: Int
+        @IntRange(from = 0) start: Int,
+        @IntRange(from = 0) end: Int
     ) = list.removeRange(start, end)
 
     /**
@@ -845,7 +846,7 @@ VISIBILITY value class MutableVALUE_CLASSList(val list: MutablePRIMITIVEList) {
      * @throws IndexOutOfBoundsException if [index] isn't between 0 and [lastIndex], inclusive
      */
     public inline operator fun set(
-        @androidx.annotation.IntRange(from = 0) index: Int,
+        @IntRange(from = 0) index: Int,
         element: VALUE_CLASS
     ): VALUE_CLASS = VALUE_CLASS(list.set(index, element.BACKING_PROPERTY)TO_PARAM)
 }

@@ -22,13 +22,34 @@ import androidx.collection.internal.LruHashMap
 import androidx.collection.internal.checkPrecondition
 import androidx.collection.internal.requirePrecondition
 import androidx.collection.internal.synchronized
-import kotlin.Long.Companion.MAX_VALUE
+
+private const val MAX_SIZE = Int.MAX_VALUE.toLong()
 
 /**
- * Static library version of `android.util.LruCache`. Used to write apps that run on API levels
- * prior to 12. When running on API level 12 or above, this implementation is still used; it does
- * not try to switch to the framework's implementation. See the framework SDK documentation for a
- * class overview.
+ * A cache that holds strong references to a limited number of values. Each time a value is
+ * accessed, it is moved to the head of a queue. When a value is added to a full cache, the value at
+ * the end of that queue is evicted and may become eligible for garbage collection.
+ *
+ * If your cached values hold resources that need to be explicitly released, override
+ * [entryRemoved].
+ *
+ * If a cache miss should be computed on demand for the corresponding keys, override [create]. This
+ * simplifies the calling code, allowing it to assume a value will always be returned, even when
+ * there's a cache miss.
+ *
+ * By default, the cache size is measured in the number of entries. Override [sizeOf] to size the
+ * cache in different units. For example, this cache is limited to 4MiB of bitmaps:
+ * ```
+ * val cacheSize = 4 * 1024 * 1024; // 4MiB
+ * val bitmapCache = LruCache<String, Bitmap>(cacheSize) {
+ *     override fun sizeOf(key: String, value: Bitmap) = value.byteCount
+ * }
+ * ```
+ *
+ * This class is thread-safe.
+ *
+ * This class does not allow null to be used as a key or value. A return value of null from [get],
+ * [put] or [remove] is unambiguous: the key was not in the cache.
  *
  * @param maxSize for caches that do not override [sizeOf], this is the maximum number of entries in
  *   the cache. For all other caches, this is the maximum sum of the sizes of the entries in this
@@ -36,8 +57,7 @@ import kotlin.Long.Companion.MAX_VALUE
  * @constructor Creates a new [LruCache]
  */
 public open class LruCache<K : Any, V : Any>
-public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int) {
-
+public constructor(@IntRange(from = 1, to = MAX_SIZE) private var maxSize: Int) {
     init {
         requirePrecondition(maxSize > 0) { "maxSize <= 0" }
     }
@@ -59,7 +79,7 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      *
      * @param maxSize The new maximum size.
      */
-    public open fun resize(@IntRange(from = 1, to = MAX_VALUE) maxSize: Int) {
+    public open fun resize(@IntRange(from = 1, to = MAX_SIZE) maxSize: Int) {
         requirePrecondition(maxSize > 0) { "maxSize <= 0" }
 
         lock.synchronized { this.maxSize = maxSize }
@@ -275,9 +295,11 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
     public fun snapshot(): MutableMap<K, V> {
         // order and mutability is important for backwards compatibility so we intentionally use
         // a LinkedHashMap here.
-        val copy = LinkedHashMap<K, V>()
-        lock.synchronized { map.entries.forEach { (key, value) -> copy[key] = value } }
-        return copy
+        lock.synchronized {
+            val copy = LinkedHashMap<K, V>(map.entries.size)
+            map.entries.forEach { (key, value) -> copy[key] = value }
+            return copy
+        }
     }
 
     override fun toString(): String {
