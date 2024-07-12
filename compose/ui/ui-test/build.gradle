@@ -144,6 +144,8 @@ android {
         disable("InvalidPackage")
     }
     namespace "androidx.compose.ui.test"
+    // TODO(b/345531033)
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {

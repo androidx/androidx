@@ -119,4 +119,6 @@ androidx {
 
 android {
     namespace "androidx.compose.ui.tooling"
+    // TODO(b/345531033)
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
