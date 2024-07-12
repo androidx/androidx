@@ -1,7 +1,7 @@
 # Module root
 
-CameraX ViewFinder Core
+Camera Viewfinder Core
 
 # Package androidx.camera.viewfinder
 
-Library providing core dependencies for ViewFinder
+Core dependencies for Viewfinder

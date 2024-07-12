@@ -52,6 +52,8 @@ dependencies {
     docs(project(":bluetooth:bluetooth-testing"))
     docs(project(":browser:browser"))
     docs(project(":camera:camera-camera2"))
+    docs(project(":camera:camera-compose"))
+    samples(project(":camera:camera-compose:camera-compose-samples"))
     docs(project(":camera:camera-core"))
     docs(project(":camera:camera-effects"))
     docs(project(":camera:camera-effects-still-portrait"))

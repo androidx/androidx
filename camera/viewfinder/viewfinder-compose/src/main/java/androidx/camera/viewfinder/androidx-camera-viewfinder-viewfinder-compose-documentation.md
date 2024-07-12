@@ -1,7 +1,7 @@
 # Module root
 
-CameraX ViewFinder Compose
+Camera Viewfinder Compose
 
 # Package androidx.camera.viewfinder.compose
 
-Library providing a composable ViewFinder
+Standalone Composable Viewfinder for Camera
