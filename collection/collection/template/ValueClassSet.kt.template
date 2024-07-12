@@ -27,6 +27,7 @@
 
 package PACKAGE
 
+import androidx.annotation.IntRange
 import androidx.collection.PRIMITIVESet
 import androidx.collection.MutablePRIMITIVESet
 import androidx.collection.emptyPRIMITIVESet
@@ -157,14 +158,14 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
      */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val capacity: Int
         get() = set.capacity
 
     /**
      * Returns the number of elements in this set.
      */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val size: Int
         get() = set.size
 
@@ -243,7 +244,7 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
     /**
      * Returns the number of elements in this set.
      */
-    @androidx.annotation.IntRange(from = 0)
+    @IntRange(from = 0)
     public inline fun count(): Int = set.count()
 
     /**
@@ -251,7 +252,7 @@ VISIBILITY value class VALUE_CLASSSet(val set: PRIMITIVESet) {
      * @param predicate Called for all elements in the set to count the number for which it returns
      * `true`.
      */
-    @androidx.annotation.IntRange(from = 0)
+    @IntRange(from = 0)
     public inline fun count(predicate: (element: VALUE_CLASS) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         return set.count { predicate(VALUE_CLASS(itTO_PARAM)) }
@@ -308,14 +309,14 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * Returns the number of elements that can be stored in this set
      * without requiring internal storage reallocation.
      */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val capacity: Int
         get() = set.capacity
 
     /**
      * Returns the number of elements in this set.
      */
-    @get:androidx.annotation.IntRange(from = 0)
+    @get:IntRange(from = 0)
     public inline val size: Int
         get() = set.size
 
@@ -394,7 +395,7 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
     /**
      * Returns the number of elements in this set.
      */
-    @androidx.annotation.IntRange(from = 0)
+    @IntRange(from = 0)
     public inline fun count(): Int = set.count()
 
     /**
@@ -402,7 +403,7 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * @param predicate Called for all elements in the set to count the number for which it returns
      * `true`.
      */
-    @androidx.annotation.IntRange(from = 0)
+    @IntRange(from = 0)
     public inline fun count(predicate: (element: VALUE_CLASS) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         return set.count { predicate(VALUE_CLASS(itTO_PARAM)) }
@@ -537,6 +538,6 @@ VISIBILITY value class MutableVALUE_CLASSSet(val set: MutablePRIMITIVESet) {
      * Returns the number of empty elements removed from this set's storage.
      * Returns 0 if no trimming is necessary or possible.
      */
-    @androidx.annotation.IntRange(from = 0)
+    @IntRange(from = 0)
     public inline fun trim(): Int = set.trim()
 }
