@@ -47,7 +47,7 @@ public interface ActivityEmbeddingComponent {
      * The vendor API level of the overlay feature APIs.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    int OVERLAY_FEATURE_API_LEVEL = 6;
+    int OVERLAY_FEATURE_API_LEVEL = 8;
 
     /**
      * Updates the rules of embedding activities that are started in the client process.
