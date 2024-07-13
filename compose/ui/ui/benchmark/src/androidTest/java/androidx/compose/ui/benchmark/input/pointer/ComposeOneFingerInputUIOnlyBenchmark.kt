@@ -119,7 +119,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         // half height of an item + top of the chosen item = middle of the chosen item
         val y = (ItemHeightPx / 2) + (item * ItemHeightPx)
         val xDown = 0f
-        val xMoveInitial = xDown + POINTER_INPUT_MOVE_AMOUNT_PX
+        val xMoveInitial = xDown + DefaultPointerInputMoveAmountPx
 
         benchmarkRule.runBenchmarkFor({ ComposeTapTestCase() }) {
             lateinit var case: ComposeTapTestCase
