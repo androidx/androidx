@@ -17,9 +17,12 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.text.input.internal.toCharArray
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 import kotlin.jvm.JvmInline
+
+internal typealias PlacedAnnotation = AnnotatedString.Range<AnnotatedString.Annotation>
 
 /**
  * An immutable snapshot of the contents of a [TextFieldState].
@@ -40,7 +43,8 @@ internal class TextFieldCharSequence(
     text: CharSequence = "",
     selection: TextRange = TextRange.Zero,
     composition: TextRange? = null,
-    highlight: Pair<TextHighlightType, TextRange>? = null
+    highlight: Pair<TextHighlightType, TextRange>? = null,
+    val composingAnnotations: List<PlacedAnnotation>? = null
 ) : CharSequence {
 
     override val length: Int
@@ -115,6 +119,7 @@ internal class TextFieldCharSequence(
         if (selection != other.selection) return false
         if (composition != other.composition) return false
         if (highlight != other.highlight) return false
+        if (composingAnnotations != other.composingAnnotations) return false
         if (!contentEquals(other.text)) return false
 
         return true
@@ -125,6 +130,7 @@ internal class TextFieldCharSequence(
         result = 31 * result + selection.hashCode()
         result = 31 * result + (composition?.hashCode() ?: 0)
         result = 31 * result + highlight.hashCode()
+        result = 31 * result + composingAnnotations.hashCode()
         return result
     }
 }

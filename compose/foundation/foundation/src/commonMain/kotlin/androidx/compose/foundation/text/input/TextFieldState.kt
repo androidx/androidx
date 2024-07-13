@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.input.internal.EditingBuffer
 import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,9 +33,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
 
 internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
     return TextFieldState(
@@ -314,7 +318,8 @@ internal constructor(
         ) {
             if (
                 beforeEditValue.composition != mainBuffer.composition ||
-                    beforeEditValue.highlight != mainBuffer.highlight
+                    beforeEditValue.highlight != mainBuffer.highlight ||
+                    beforeEditValue.composingAnnotations != mainBuffer.composingAnnotations
             ) {
                 // edit operation caused no change to text content or selection
                 // No need to run an existing InputTransformation, or record an undo. Only update
@@ -326,7 +331,12 @@ internal constructor(
                             text = mainBuffer.toString(),
                             selection = mainBuffer.selection,
                             composition = mainBuffer.composition,
-                            highlight = mainBuffer.highlight
+                            highlight = mainBuffer.highlight,
+                            composingAnnotations =
+                                finalizeComposingAnnotations(
+                                    composition = mainBuffer.composition,
+                                    annotationList = mainBuffer.composingAnnotations
+                                )
                         ),
                     restartImeIfContentChanges = restartImeIfContentChanges
                 )
@@ -341,7 +351,12 @@ internal constructor(
                 text = mainBuffer.toString(),
                 selection = mainBuffer.selection,
                 composition = mainBuffer.composition,
-                highlight = mainBuffer.highlight
+                highlight = mainBuffer.highlight,
+                composingAnnotations =
+                    finalizeComposingAnnotations(
+                        composition = mainBuffer.composition,
+                        annotationList = mainBuffer.composingAnnotations
+                    )
             )
 
         // if there's no filter; just record the undo, update the snapshot value, end.
@@ -691,3 +706,32 @@ fun TextFieldState.clearText() {
         placeCursorAtEnd()
     }
 }
+
+/**
+ * Final deciding property for which annotations would be rendered for the composing region. If the
+ * IME has not set any composing annotations and the composing region is not collapsed, we need to
+ * add the specific underline styling.
+ */
+@Suppress("ListIterator")
+private fun finalizeComposingAnnotations(
+    composition: TextRange?,
+    annotationList: MutableVector<PlacedAnnotation>?
+): List<PlacedAnnotation> =
+    when {
+        annotationList != null && annotationList.isNotEmpty() -> {
+            // it is important to freeze the mutable list into an immutable list because
+            // mutable list is sustained inside the EditingBuffer and TextFieldCharSequence
+            // must be read-only.
+            annotationList.asMutableList().toList()
+        }
+        composition != null && !composition.collapsed -> {
+            listOf(
+                AnnotatedString.Range(
+                    SpanStyle(textDecoration = TextDecoration.Underline),
+                    start = composition.min,
+                    end = composition.max
+                )
+            )
+        }
+        else -> emptyList()
+    }
