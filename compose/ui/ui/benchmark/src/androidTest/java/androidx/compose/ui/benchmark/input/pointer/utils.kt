@@ -20,7 +20,8 @@ import android.view.InputDevice.SOURCE_TOUCHSCREEN
 import android.view.MotionEvent
 import android.view.View
 
-internal const val POINTER_INPUT_MOVE_AMOUNT_PX = 10f
+internal const val DefaultPointerInputMoveTimeDelta = 100
+internal const val DefaultPointerInputMoveAmountPx = 10f
 
 /**
  * Creates a simple [MotionEvent].
@@ -112,7 +113,7 @@ internal fun createMoveMotionEvents(
     numberOfMoveEvents: Int,
     enableFlingStyleHistory: Boolean = false,
     timeDelta: Int = 100,
-    moveDelta: Float = POINTER_INPUT_MOVE_AMOUNT_PX
+    moveDelta: Float = DefaultPointerInputMoveAmountPx
 ): Triple<Int, Float, Array<MotionEvent>> {
     var time = initialTime
     var x = initialX
