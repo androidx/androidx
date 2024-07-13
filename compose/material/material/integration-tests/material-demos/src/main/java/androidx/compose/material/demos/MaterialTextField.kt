@@ -51,7 +51,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.samples.PasswordTextField
 import androidx.compose.material.samples.SimpleOutlinedTextFieldSample
 import androidx.compose.material.samples.TextArea
-import androidx.compose.material.samples.TextFieldSample
 import androidx.compose.material.samples.TextFieldWithErrorState
 import androidx.compose.material.samples.TextFieldWithHelperMessage
 import androidx.compose.material.samples.TextFieldWithHideKeyboardOnImeAction
@@ -102,10 +101,6 @@ fun TextFieldsDemo() {
         item {
             Text("Hide keyboard on IME action")
             TextFieldWithHideKeyboardOnImeAction()
-        }
-        item {
-            Text("TextFieldValue overload")
-            TextFieldSample()
         }
         item {
             Text("Outlined text field with custom shape")
