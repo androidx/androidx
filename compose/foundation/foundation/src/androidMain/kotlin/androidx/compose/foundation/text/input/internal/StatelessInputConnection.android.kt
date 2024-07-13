@@ -17,12 +17,20 @@
 package androidx.compose.foundation.text.input.internal
 
 import android.content.ClipData
+import android.graphics.Typeface
 import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Parcelable
+import android.text.Spanned
 import android.text.TextUtils
+import android.text.style.BackgroundColorSpan
+import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.StyleSpan
+import android.text.style.TypefaceSpan
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.view.KeyEvent
 import android.view.inputmethod.CompletionInfo
@@ -40,14 +48,22 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.PlatformTransferableContent
 import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.getSelectedText
 import androidx.compose.foundation.text.input.getTextAfterSelection
 import androidx.compose.foundation.text.input.getTextBeforeSelection
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.platform.toClipMetadata
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import androidx.core.view.inputmethod.InputConnectionCompat.INPUT_CONTENT_GRANT_READ_URI_PERMISSION
@@ -242,6 +258,7 @@ internal class StatelessInputConnection(
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("commitText(\"$text\", $newCursorPosition)")
+        if (text == null) return true
         addEditCommandWithBatch { commitText(text.toString(), newCursorPosition) }
         return true
     }
@@ -254,7 +271,14 @@ internal class StatelessInputConnection(
 
     override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
         logDebug("setComposingText(\"$text\", $newCursorPosition)")
-        addEditCommandWithBatch { setComposingText(text.toString(), newCursorPosition) }
+        if (text == null) return true
+        addEditCommandWithBatch {
+            this@addEditCommandWithBatch.setComposingText(
+                text = text.toString(),
+                newCursorPosition = newCursorPosition,
+                annotations = (text as? Spanned)?.toAnnotationList()
+            )
+        }
         return true
     }
 
@@ -567,4 +591,99 @@ internal fun InputContentInfoCompat.toTransferableContent(extras: Bundle?): Tran
         platformTransferableContent =
             PlatformTransferableContent(linkUri = linkUri, extras = extras ?: Bundle.EMPTY)
     )
+}
+
+@VisibleForTesting
+internal fun Spanned.toAnnotationList(): List<PlacedAnnotation>? {
+    var mutableAnnotationList: MutableList<PlacedAnnotation>? = null
+    val spans = getSpans(0, length, Any::class.java)
+    spans.forEach { span ->
+        span.toAnnotation()?.let { annotation ->
+            if (mutableAnnotationList == null) {
+                mutableAnnotationList = mutableListOf()
+            }
+            mutableAnnotationList?.add(
+                AnnotatedString.Range(
+                    item = annotation,
+                    start = getSpanStart(span),
+                    end = getSpanEnd(span)
+                )
+            )
+        }
+    }
+    return mutableAnnotationList
+}
+
+// The following functions were borrowed from ui-text module where they are currently private.
+private fun Any.toAnnotation(): AnnotatedString.Annotation? {
+    return when (this) {
+        is BackgroundColorSpan -> {
+            SpanStyle(background = Color(this.backgroundColor))
+        }
+        is ForegroundColorSpan -> {
+            SpanStyle(color = Color(this.foregroundColor))
+        }
+        is StrikethroughSpan -> {
+            SpanStyle(textDecoration = TextDecoration.LineThrough)
+        }
+        is StyleSpan -> {
+            this.toSpanStyle()
+        }
+        is TypefaceSpan -> {
+            this.toSpanStyle()
+        }
+        is UnderlineSpan -> {
+            SpanStyle(textDecoration = TextDecoration.Underline)
+        }
+        else -> null
+    }
+}
+
+private fun StyleSpan.toSpanStyle(): SpanStyle? {
+    /**
+     * StyleSpan doc: styles are cumulative -- if both bold and italic are set in separate spans, or
+     * if the base style is bold and a span calls for italic, you get bold italic. You can't turn
+     * off a style from the base style.
+     */
+    return when (style) {
+        Typeface.BOLD -> {
+            SpanStyle(fontWeight = FontWeight.Bold)
+        }
+        Typeface.ITALIC -> {
+            SpanStyle(fontStyle = FontStyle.Italic)
+        }
+        Typeface.BOLD_ITALIC -> {
+            SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic)
+        }
+        else -> null
+    }
+}
+
+private fun TypefaceSpan.toSpanStyle(): SpanStyle {
+    val fontFamily =
+        when (family) {
+            FontFamily.Cursive.name -> FontFamily.Cursive
+            FontFamily.Monospace.name -> FontFamily.Monospace
+            FontFamily.SansSerif.name -> FontFamily.SansSerif
+            FontFamily.Serif.name -> FontFamily.Serif
+            else -> {
+                optionalFontFamilyFromName(family)
+            }
+        }
+    return SpanStyle(fontFamily = fontFamily)
+}
+
+/**
+ * Mirrors [androidx.compose.ui.text.font.PlatformTypefaces.optionalOnDeviceFontFamilyByName]
+ * behavior with both font weight and font style being Normal in this case
+ */
+private fun optionalFontFamilyFromName(familyName: String?): FontFamily? {
+    if (familyName.isNullOrEmpty()) return null
+    val typeface = Typeface.create(familyName, Typeface.NORMAL)
+    return typeface
+        .takeIf {
+            typeface != Typeface.DEFAULT &&
+                typeface != Typeface.create(Typeface.DEFAULT, Typeface.NORMAL)
+        }
+        ?.let { FontFamily(it) }
 }
