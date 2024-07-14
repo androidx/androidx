@@ -207,7 +207,9 @@ package androidx.window.embedding {
 
   public static final class DividerAttributes.DraggableDividerAttributes extends androidx.window.embedding.DividerAttributes {
     method public androidx.window.embedding.DividerAttributes.DragRange getDragRange();
+    method public boolean isDraggingToFullscreenAllowed();
     property public final androidx.window.embedding.DividerAttributes.DragRange dragRange;
+    property public final boolean isDraggingToFullscreenAllowed;
   }
 
   @androidx.window.RequiresWindowSdkExtension(version=6) public static final class DividerAttributes.DraggableDividerAttributes.Builder {
@@ -216,6 +218,7 @@ package androidx.window.embedding {
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes build();
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setColor(@ColorInt int color);
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDragRange(androidx.window.embedding.DividerAttributes.DragRange dragRange);
+    method @androidx.window.RequiresWindowSdkExtension(version=7) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDraggingToFullscreenAllowed(boolean allowed);
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setWidthDp(@IntRange(from=androidx.window.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT.toLong()) int widthDp);
   }
 

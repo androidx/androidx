@@ -559,8 +559,65 @@ class EmbeddingAdapterTest {
                 .setDividerColor(Color.GRAY)
                 .build()
 
-        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
-        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+        assertEquals(
+            oemDividerAttributes,
+            adapter.translateToOemDividerAttributes(dividerAttributes)
+        )
+        assertEquals(
+            dividerAttributes,
+            adapter.translateToJetpackDividerAttributes(oemDividerAttributes)
+        )
+    }
+
+    @Test
+    fun testTranslateDividerAttributes_dragToFullscreen() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(7)
+        val dividerAttributes =
+            DraggableDividerAttributes.Builder()
+                .setWidthDp(20)
+                .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
+                .setColor(Color.GRAY)
+                .setDraggingToFullscreenAllowed(true)
+                .build()
+        val oemDividerAttributes =
+            OEMDividerAttributes.Builder(OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE)
+                .setWidthDp(20)
+                .setPrimaryMinRatio(0.3f)
+                .setPrimaryMaxRatio(0.7f)
+                .setDividerColor(Color.GRAY)
+                .setDraggingToFullscreenAllowed(true)
+                .build()
+
+        val dividerAttributes2 =
+            DraggableDividerAttributes.Builder()
+                .setWidthDp(20)
+                .setDragRange(SplitRatioDragRange(0.3f, 0.7f))
+                .setColor(Color.GRAY)
+                .build()
+        val oemDividerAttributes2 =
+            OEMDividerAttributes.Builder(OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE)
+                .setWidthDp(20)
+                .setPrimaryMinRatio(0.3f)
+                .setPrimaryMaxRatio(0.7f)
+                .setDividerColor(Color.GRAY)
+                .build()
+
+        assertEquals(
+            oemDividerAttributes,
+            adapter.translateToOemDividerAttributes(dividerAttributes)
+        )
+        assertEquals(
+            dividerAttributes,
+            adapter.translateToJetpackDividerAttributes(oemDividerAttributes)
+        )
+        assertEquals(
+            oemDividerAttributes2,
+            adapter.translateToOemDividerAttributes(dividerAttributes2)
+        )
+        assertEquals(
+            dividerAttributes2,
+            adapter.translateToJetpackDividerAttributes(oemDividerAttributes2)
+        )
     }
 
     @Test
@@ -574,8 +631,14 @@ class EmbeddingAdapterTest {
                 .setDividerColor(Color.GRAY)
                 .build()
 
-        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
-        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+        assertEquals(
+            oemDividerAttributes,
+            adapter.translateToOemDividerAttributes(dividerAttributes)
+        )
+        assertEquals(
+            dividerAttributes,
+            adapter.translateToJetpackDividerAttributes(oemDividerAttributes)
+        )
     }
 
     @Test
@@ -584,8 +647,14 @@ class EmbeddingAdapterTest {
         val dividerAttributes = DividerAttributes.NO_DIVIDER
         val oemDividerAttributes = null
 
-        assertEquals(oemDividerAttributes, adapter.translateDividerAttributes(dividerAttributes))
-        assertEquals(dividerAttributes, adapter.translateDividerAttributes(oemDividerAttributes))
+        assertEquals(
+            oemDividerAttributes,
+            adapter.translateToOemDividerAttributes(dividerAttributes)
+        )
+        assertEquals(
+            dividerAttributes,
+            adapter.translateToJetpackDividerAttributes(oemDividerAttributes)
+        )
     }
 
     private fun createTestOEMSplitInfo(

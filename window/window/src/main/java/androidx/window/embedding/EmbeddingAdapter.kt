@@ -183,7 +183,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         }
         if (extensionVersion >= 6) {
             builder.setDividerAttributes(
-                translateDividerAttributes(splitAttributes.dividerAttributes)
+                translateToJetpackDividerAttributes(splitAttributes.dividerAttributes)
             )
         }
         return builder.build()
@@ -376,7 +376,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         }
         if (extensionVersion >= 6) {
             builder.setDividerAttributes(
-                translateDividerAttributes(splitAttributes.dividerAttributes)
+                translateToOemDividerAttributes(splitAttributes.dividerAttributes)
             )
         }
         return builder.build()
@@ -553,7 +553,9 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
     }
 
     @RequiresWindowSdkExtension(6)
-    fun translateDividerAttributes(dividerAttributes: DividerAttributes): OEMDividerAttributes? {
+    fun translateToOemDividerAttributes(
+        dividerAttributes: DividerAttributes
+    ): OEMDividerAttributes? {
         WindowSdkExtensions.getInstance().requireExtensionVersion(6)
         if (dividerAttributes === DividerAttributes.NO_DIVIDER) {
             return null
@@ -571,20 +573,25 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                 )
                 .setDividerColor(dividerAttributes.color)
                 .setWidthDp(dividerAttributes.widthDp)
-
-        if (
-            dividerAttributes is DraggableDividerAttributes &&
-                dividerAttributes.dragRange is SplitRatioDragRange
-        ) {
-            builder
-                .setPrimaryMinRatio(dividerAttributes.dragRange.minRatio)
-                .setPrimaryMaxRatio(dividerAttributes.dragRange.maxRatio)
+        if (dividerAttributes is DraggableDividerAttributes) {
+            if (dividerAttributes.dragRange is SplitRatioDragRange) {
+                builder
+                    .setPrimaryMinRatio(dividerAttributes.dragRange.minRatio)
+                    .setPrimaryMaxRatio(dividerAttributes.dragRange.maxRatio)
+            }
+            if (extensionVersion >= 7) {
+                builder.setDraggingToFullscreenAllowed(
+                    dividerAttributes.isDraggingToFullscreenAllowed
+                )
+            }
         }
         return builder.build()
     }
 
     @RequiresWindowSdkExtension(6)
-    fun translateDividerAttributes(oemDividerAttributes: OEMDividerAttributes?): DividerAttributes {
+    fun translateToJetpackDividerAttributes(
+        oemDividerAttributes: OEMDividerAttributes?
+    ): DividerAttributes {
         WindowSdkExtensions.getInstance().requireExtensionVersion(6)
         if (oemDividerAttributes == null) {
             return DividerAttributes.NO_DIVIDER
@@ -610,6 +617,9 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                                 oemDividerAttributes.primaryMinRatio,
                                 oemDividerAttributes.primaryMaxRatio,
                             )
+                    )
+                    .setDraggingToFullscreenAllowed(
+                        extensionVersion >= 7 && oemDividerAttributes.isDraggingToFullscreenAllowed
                     )
                     .build()
             // Default to DividerType.FIXED
