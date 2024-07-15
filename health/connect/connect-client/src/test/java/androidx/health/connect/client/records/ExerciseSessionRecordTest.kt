@@ -555,4 +555,21 @@ class ExerciseSessionRecordTest {
                 "ExerciseSessionRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, exerciseType=8, title=title, notes=notes, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0), segments=[ExerciseSegment(startTime=1970-01-01T00:00:01.234Z, endTime=1970-01-01T00:00:01.235Z, segmentType=7, repetitions=0)], laps=[ExerciseLap(startTime=1970-01-01T00:00:01.235Z, endTime=1970-01-01T00:00:01.236Z, length=10.0 meters)], exerciseRouteResult=Data(exerciseRoute=ExerciseRoute(route=[Location(time=1970-01-01T00:00:01.234Z, latitude=34.5, longitude=-34.5, horizontalAccuracy=0.4 meters, verticalAccuracy=1.3 meters, altitude=23.4 meters)])))"
             )
     }
+
+    @Test
+    fun plannedExercise_fieldCanBeOptionallySet() {
+        assertThat(
+                ExerciseSessionRecord(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(1236L),
+                        endZoneOffset = null,
+                        exerciseType = EXERCISE_TYPE_BIKING,
+                        exerciseRoute = null,
+                        plannedExerciseSessionId = "some_id"
+                    )
+                    .plannedExerciseSessionId
+            )
+            .isEqualTo("some_id")
+    }
 }
