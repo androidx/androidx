@@ -135,6 +135,11 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private static final boolean UNSTABLE = false;
     private static final String KEY_SUPER = "s";
     private static final String KEY_POSITION = "p";
+    private static final String KEY_VIEWPORT_INITIALIZED = "vi";
+    private static final String KEY_VIEWPORT = "v";
+    private static final String KEY_CONTENT_ZOOM = "z";
+    private static final String KEY_RAW_BOUNDS = "b";
+    private static final String KEY_PADDING = "pa";
     private static final int OVERSCROLL_THRESHOLD = 25;
     /** Fallback duration for the zoom animation, when material attributes are unavailable. */
     private static final int FALLBACK_ZOOM_ANIMATION_DURATION_MS = 250;
@@ -465,6 +470,8 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         super.onLayout(changed, left, top, right, bottom);
         boolean hasContents = mContentView != null && mContentView.getWidth() > 0;
 
+        boolean zoomChanged = false;
+
         // Need to flip this to true if we think onLayout changed the position of anything.
         boolean shouldConstrainPosition = false;
 
@@ -549,13 +556,18 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
                     // Nothing required: keep same zoom as before.
                 }
 
+                zoomChanged = true;
                 centerAt(lookAtPoint.x, lookAtPoint.y);
                 shouldConstrainPosition = true;
+
+
+                mPositionToRestore = new ZoomScroll(getZoom(), getScrollX(), getScrollY(),
+                        true);
             }
         }
 
         // 3) Apply the initial position: restore or fit-to-screen.
-        if (hasContents) {
+        if (hasContents && !zoomChanged) {
             if (mPositionToRestore == null) {
                 // Initially fit the content to width and/or height.
                 if (!mInitialZoomDone) {
@@ -967,6 +979,11 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         bundle.putParcelable(KEY_SUPER, super.onSaveInstanceState());
         if (mSaveState) {
             bundle.putBundle(KEY_POSITION, mPosition.get().asBundle());
+            bundle.putBoolean(KEY_VIEWPORT_INITIALIZED, mViewportInitialized);
+            bundle.putParcelable(KEY_VIEWPORT, mViewport);
+            bundle.putFloat(KEY_CONTENT_ZOOM, mContentView.getScaleX());
+            bundle.putParcelable(KEY_RAW_BOUNDS, mContentRawBounds);
+            bundle.putParcelable(KEY_PADDING, mPaddingOnLastViewportUpdate);
         }
         return bundle;
     }
@@ -977,7 +994,13 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         super.onRestoreInstanceState(bundle.getParcelable(KEY_SUPER));
         if (mSaveState) {
             Bundle positionBundle = bundle.getBundle(KEY_POSITION);
+            assert positionBundle != null;
             mPositionToRestore = ZoomScroll.fromBundle(positionBundle);
+            mViewportInitialized = bundle.getBoolean(KEY_VIEWPORT_INITIALIZED);
+            mViewport.set(Objects.requireNonNull(bundle.getParcelable(KEY_VIEWPORT)));
+            mContentView.setScaleX(bundle.getFloat(KEY_CONTENT_ZOOM));
+            mContentRawBounds.set(Objects.requireNonNull(bundle.getParcelable(KEY_RAW_BOUNDS)));
+            mPaddingOnLastViewportUpdate = bundle.getParcelable(KEY_PADDING);
         }
     }
 
@@ -1562,6 +1585,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             zoomScrollAnimated(newScrollX, newScrollY, newZoom, null /* updateListener */);
             return true;
         }
+
 
         private float totalScrollLength() {
             // Do not need accuracy of correct hypotenuse calculation.
