@@ -461,7 +461,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     @Suppress("UnstableApiUsage")
                     project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
             val defaultJavaTargetVersion =
-                getDefaultTargetJavaVersion(androidXExtension.type).toString()
+                getDefaultTargetJavaVersion(androidXExtension.type, project.name).toString()
             if (plugin is KotlinMultiplatformPluginWrapper) {
                 project.extensions.getByType<KotlinMultiplatformExtension>().apply {
                     targets.withType<KotlinAndroidTarget> {
@@ -919,6 +919,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         targetName: String? = null
     ): JavaVersion {
         return when {
+            // TODO(b/353328300): Move room-compiler-processing to Java 17 once Dagger is ready.
+            projectName != null && projectName.contains("room-compiler-processing") -> VERSION_11
             projectName != null && projectName.contains("desktop") -> VERSION_11
             targetName != null && (targetName == "desktop" || targetName == "jvmStubs") ->
                 VERSION_11
@@ -935,7 +937,8 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         val javaExtension = project.extensions.getByType<JavaPluginExtension>()
         project.afterEvaluate {
             javaExtension.apply {
-                val defaultTargetJavaVersion = getDefaultTargetJavaVersion(androidXExtension.type)
+                val defaultTargetJavaVersion =
+                    getDefaultTargetJavaVersion(androidXExtension.type, project.name)
                 sourceCompatibility = defaultTargetJavaVersion
                 targetCompatibility = defaultTargetJavaVersion
                 project.disableJava8TargetObsoleteWarnings()

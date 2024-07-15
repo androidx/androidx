@@ -272,9 +272,10 @@ internal sealed class KspTypeElement(
     }
 
     override fun isRecordClass(): Boolean {
+        val recordType = env.findType("java.lang.Record") ?: return false
         // Need to also check super type since @JvmRecord is @Retention(SOURCE)
         return hasAnnotation(JvmRecord::class) ||
-            superClass?.isTypeOf(java.lang.Record::class) == true
+            superClass?.let { recordType.isAssignableFrom(it) } == true
     }
 
     override fun getDeclaredFields(): List<XFieldElement> {
