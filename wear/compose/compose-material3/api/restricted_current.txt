@@ -90,6 +90,24 @@ package androidx.wear.compose.material3 {
     field public static final androidx.wear.compose.material3.ButtonDefaults INSTANCE;
   }
 
+  public final class ButtonGroupDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues fullWidthPaddings();
+    method public float getExpansionWidth();
+    method public float getSpacing();
+    property public final float ExpansionWidth;
+    property public final float Spacing;
+    field public static final androidx.wear.compose.material3.ButtonGroupDefaults INSTANCE;
+  }
+
+  public final class ButtonGroupKt {
+    method @androidx.compose.runtime.Composable public static void ButtonGroup(optional androidx.compose.ui.Modifier modifier, optional float spacing, optional float expansionWidth, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.ButtonGroupScope,kotlin.Unit> content);
+  }
+
+  public final class ButtonGroupScope {
+    ctor public ButtonGroupScope();
+    method public boolean buttonGroupItem(androidx.compose.foundation.interaction.InteractionSource interactionSource, optional float minWidth, optional float weight, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
   public final class ButtonKt {
     method @androidx.compose.runtime.Composable public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional String? onLongClickLabel, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, optional String? onLongClickLabel, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? icon, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label);

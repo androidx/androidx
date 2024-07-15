@@ -39,6 +39,7 @@ dependencies {
     api(project(":wear:compose:compose-foundation"))
 
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesCore)
     implementation("androidx.compose.animation:animation:1.6.0")
     implementation("androidx.compose.material:material-icons-core:1.6.0")
     implementation("androidx.compose.material:material-ripple:1.7.0-beta02")

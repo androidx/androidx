@@ -28,7 +28,6 @@ import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -80,13 +79,13 @@ internal class MinimumInteractiveModifierNode :
         // Be at least as big as the minimum dimension in both dimensions
         val width =
             if (enforcement) {
-                maxOf(placeable.width, size.width.roundToPx())
+                maxOf(placeable.width, size.roundToPx())
             } else {
                 placeable.width
             }
         val height =
             if (enforcement) {
-                maxOf(placeable.height, size.height.roundToPx())
+                maxOf(placeable.height, size.roundToPx())
             } else {
                 placeable.height
             }
@@ -115,4 +114,4 @@ val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Bool
         true
     }
 
-private val minimumInteractiveComponentSize: DpSize = DpSize(48.dp, 48.dp)
+internal val minimumInteractiveComponentSize = 48.dp
