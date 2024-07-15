@@ -32,6 +32,7 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getSpeakerEndpoint
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isBluetoothAvailable
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isEarpieceEndpoint
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.isWiredHeadsetOrBtEndpoint
 import java.util.function.Consumer
@@ -39,6 +40,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -71,7 +73,8 @@ internal class CallSession(
 
     companion object {
         private val TAG: String = CallSession::class.java.simpleName
-        private const val SWITCH_TO_SPEAKER_TIMEOUT: Long = 1000L
+        private const val WAIT_FOR_BT_TO_CONNECT_TIMEOUT: Long = 1000L
+        private const val SWITCH_TO_SPEAKER_TIMEOUT: Long = WAIT_FOR_BT_TO_CONNECT_TIMEOUT + 1000L
     }
 
     fun getIsCurrentEndpointSet(): CompletableDeferred<Unit> {
@@ -80,6 +83,16 @@ internal class CallSession(
 
     fun getIsAvailableEndpointsSet(): CompletableDeferred<Unit> {
         return mIsAvailableEndpointsSet
+    }
+
+    @VisibleForTesting
+    fun setCurrentCallEndpoint(endpoint: CallEndpointCompat) {
+        mCurrentCallEndpoint = endpoint
+    }
+
+    @VisibleForTesting
+    fun setAvailableCallEndpoints(endpoints: List<CallEndpointCompat>) {
+        mAvailableEndpoints = endpoints
     }
 
     override fun onCallEndpointChanged(endpoint: CallEndpoint) {
@@ -141,16 +154,50 @@ internal class CallSession(
                         "maybeSwitchToSpeaker: detected a video call that started" +
                             " with the earpiece audio route. requesting switch to speaker."
                     )
-                    mPlatformInterface?.requestCallEndpointChange(
-                        EndpointUtils.Api34PlusImpl.toCallEndpoint(speakerCompat),
-                        Runnable::run,
-                        {}
-                    )
+                    maybeDelaySwitchToSpeaker(speakerCompat)
                 }
             }
         } catch (e: Exception) {
             Log.e(TAG, "maybeSwitchToSpeaker: hit exception=[$e]")
         }
+    }
+
+    // Users reported in b/345309071 that the call started on speakerphone instead
+    // of bluetooth.  Upon inspection, the platform was echoing the earpiece audio
+    // route first while BT was still connecting. Avoid overriding the BT route by
+    // waiting a second. TODO:: b/351899854
+    suspend fun maybeDelaySwitchToSpeaker(speakerCompat: CallEndpointCompat): Boolean {
+        if (isBluetoothAvailable(mAvailableEndpoints)) {
+            // The platform could potentially be connecting to BT. wait...
+            delay(WAIT_FOR_BT_TO_CONNECT_TIMEOUT)
+            // only switch to speaker if BT did not connect
+            if (!isBluetoothConnected()) {
+                Log.i(TAG, "maybeDelaySwitchToSpeaker: BT did not connect in time!")
+                switchToEndpoint(speakerCompat)
+                return true
+            }
+            Log.i(TAG, "maybeDelaySwitchToSpeaker: BT connected! voiding speaker switch.")
+            return false
+        } else {
+            // otherwise, immediately change from earpiece to speaker because the platform is
+            // not in the process of connecting a BT device.
+            Log.i(TAG, "maybeDelaySwitchToSpeaker: no BT route available.")
+            switchToEndpoint(speakerCompat)
+            return true
+        }
+    }
+
+    private fun isBluetoothConnected(): Boolean {
+        return mCurrentCallEndpoint != null &&
+            mCurrentCallEndpoint!!.type == CallEndpoint.TYPE_BLUETOOTH
+    }
+
+    private fun switchToEndpoint(endpoint: CallEndpointCompat) {
+        mPlatformInterface?.requestCallEndpointChange(
+            EndpointUtils.Api34PlusImpl.toCallEndpoint(endpoint),
+            Runnable::run,
+            {}
+        )
     }
 
     /**
