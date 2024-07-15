@@ -16,36 +16,37 @@
 
 package androidx.room.support
 
-import android.annotation.SuppressLint
-import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.assertThrows
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-public class AutoCloserTest {
+class AutoCloserTest {
 
-    @get:Rule
-    public val countingTaskExecutorRule: CountingTaskExecutorRule = CountingTaskExecutorRule()
+    companion object {
+        private const val DB_NAME = "test.db"
+        private const val TIMEOUT_AMOUNT = 1L
+    }
+
+    private val testDispatcher = TestCoroutineScheduler()
 
     private lateinit var autoCloser: AutoCloser
-
+    private lateinit var testWatch: AutoCloserTestWatch
     private lateinit var callback: Callback
 
     private class Callback(var throwOnOpen: Boolean = false) : SupportSQLiteOpenHelper.Callback(1) {
@@ -61,7 +62,8 @@ public class AutoCloserTest {
     }
 
     @Before
-    public fun setUp() {
+    fun setUp() {
+        testWatch = AutoCloserTestWatch(TIMEOUT_AMOUNT, testDispatcher)
         callback = Callback()
 
         val delegateOpenHelper =
@@ -71,28 +73,27 @@ public class AutoCloserTest {
                             ApplicationProvider.getApplicationContext()
                         )
                         .callback(callback)
-                        .name("name")
+                        .name(DB_NAME)
                         .build()
                 )
 
-        val autoCloseExecutor = ArchTaskExecutor.getIOThreadExecutor()
-
         autoCloser =
-            AutoCloser(1, TimeUnit.MILLISECONDS, autoCloseExecutor).also {
-                it.init(delegateOpenHelper)
-                it.setAutoCloseCallback {}
+            AutoCloser(TIMEOUT_AMOUNT, TimeUnit.MILLISECONDS, testWatch).apply {
+                initOpenHelper(delegateOpenHelper)
+                initCoroutineScope(TestScope(testDispatcher))
+                setAutoCloseCallback {}
             }
     }
 
     @After
-    public fun cleanUp() {
-        assertThat(countingTaskExecutorRule.isIdle).isTrue()
+    fun cleanUp() {
+        testWatch.step()
+        // At the end of all tests we always expect to auto-close the database
+        assertWithMessage("Database was not closed").that(autoCloser.delegateDatabase).isNull()
     }
 
-    @SuppressLint("BanThreadSleep")
-    @Ignore("b/283959848")
     @Test
-    public fun refCountsCounted() {
+    fun refCountsCounted() {
         autoCloser.incrementCountAndEnsureDbIsOpen()
         assertThat(autoCloser.refCountForTest).isEqualTo(1)
 
@@ -109,51 +110,28 @@ public class AutoCloserTest {
 
         autoCloser.decrementCountAndScheduleClose()
         assertThat(autoCloser.refCountForTest).isEqualTo(0)
-
-        // TODO(rohitsat): remove these sleeps and add a hook in AutoCloser to confirm that the
-        // scheduled tasks are done.
-        Thread.sleep(5)
-        countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
-    @SuppressLint("BanThreadSleep")
-    @Ignore // b/271325600
     @Test
-    public fun executeRefCountingFunctionPropagatesFailure() {
-        assertThrows<IOException> {
-            autoCloser.executeRefCountingFunction<Nothing> { throw IOException() }
-        }
+    fun executeRefCountingFunctionPropagatesFailure() {
+        assertThrows<IOException> { autoCloser.executeRefCountingFunction { throw IOException() } }
 
         assertThat(autoCloser.refCountForTest).isEqualTo(0)
-
-        // TODO(rohitsat): remove these sleeps and add a hook in AutoCloser to confirm that the
-        // scheduled tasks are done.
-        Thread.sleep(5)
-        countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
-    @SuppressLint("BanThreadSleep")
     @Test
-    @FlakyTest(bugId = 182343970)
-    public fun dbNotClosedWithRefCountIncremented() {
+    fun dbNotClosedWithRefCountIncremented() {
         autoCloser.incrementCountAndEnsureDbIsOpen()
 
-        Thread.sleep(10)
+        testWatch.step()
 
         assertThat(autoCloser.delegateDatabase!!.isOpen).isTrue()
 
         autoCloser.decrementCountAndScheduleClose()
-
-        // TODO(rohitsat): remove these sleeps and add a hook in AutoCloser to confirm that the
-        // scheduled tasks are done.
-        Thread.sleep(10)
-        assertThat(autoCloser.delegateDatabase).isNull()
     }
 
-    @SuppressLint("BanThreadSleep")
-    @FlakyTest(bugId = 189775887)
     @Test
-    public fun getDelegatedDatabaseReturnsUnwrappedDatabase() {
+    fun getDelegatedDatabaseReturnsUnwrappedDatabase() {
         assertThat(autoCloser.delegateDatabase).isNull()
 
         val db = autoCloser.incrementCountAndEnsureDbIsOpen()
@@ -170,16 +148,10 @@ public class AutoCloserTest {
         autoCloser.executeRefCountingFunction {
             assertThat(autoCloser.refCountForTest).isEqualTo(1)
         }
-
-        // TODO(rohitsat): remove these sleeps and add a hook in AutoCloser to confirm that the
-        // scheduled tasks are done.
-        Thread.sleep(5)
-        countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
-    @SuppressLint("BanThreadSleep")
     @Test
-    public fun refCountStaysIncrementedWhenErrorIsEncountered() {
+    fun refCountStaysIncrementedWhenErrorIsEncountered() {
         callback.throwOnOpen = true
         assertThrows<IOException> { autoCloser.incrementCountAndEnsureDbIsOpen() }
 
@@ -187,15 +159,10 @@ public class AutoCloserTest {
 
         autoCloser.decrementCountAndScheduleClose()
         callback.throwOnOpen = false
-
-        // TODO(rohitsat): remove these sleeps and add a hook in AutoCloser to confirm that the
-        // scheduled tasks are done.
-        Thread.sleep(5)
-        countingTaskExecutorRule.drainTasks(10, TimeUnit.MILLISECONDS)
     }
 
     @Test
-    public fun testDbCanBeManuallyClosed() {
+    fun testDbCanBeManuallyClosed() {
         val db = autoCloser.incrementCountAndEnsureDbIsOpen()
 
         assertThat(db.isOpen).isTrue()
