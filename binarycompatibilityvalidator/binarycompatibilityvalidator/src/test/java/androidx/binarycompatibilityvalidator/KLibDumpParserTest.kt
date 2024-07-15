@@ -170,6 +170,21 @@ class KlibDumpParserTest {
     }
 
     @Test
+    fun parseAComplexFunctionWithK2Formatting() {
+        val input =
+            "final inline fun <#A: kotlin/Any, #B: kotlin/Any> androidx.collection/" +
+                "lruCache(kotlin/Int, crossinline kotlin/Function2<#A, #B, kotlin/Int> = ..., " +
+                "crossinline kotlin/Function1<#A, #B?> = ..., " +
+                "crossinline kotlin/Function4<kotlin/Boolean, #A, #B, #B?, kotlin/Unit> = ...): " +
+                "androidx.collection/LruCache<#A, #B>"
+        val parsed = KlibDumpParser(input).parseFunction()
+        assertThat(parsed.modality).isEqualTo(AbiModality.FINAL)
+        assertThat(parsed.typeParameters).hasSize(2)
+        assertThat(parsed.qualifiedName.toString()).isEqualTo("androidx.collection/lruCache")
+        assertThat(parsed.valueParameters).hasSize(4)
+    }
+
+    @Test
     fun parseANestedValProperty() {
         val input = "final val size\n        final fun <get-size>(): kotlin/Int"
         val parsed =
