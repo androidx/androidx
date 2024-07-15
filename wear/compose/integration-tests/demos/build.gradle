@@ -25,8 +25,8 @@ android {
     defaultConfig {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25
-        versionCode 32
-        versionName "1.32"
+        versionCode 33
+        versionName "1.33"
     }
 
     buildTypes {
