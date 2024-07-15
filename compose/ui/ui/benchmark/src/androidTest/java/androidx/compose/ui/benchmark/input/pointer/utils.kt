@@ -18,9 +18,11 @@ package androidx.compose.ui.benchmark.input.pointer
 
 import android.view.InputDevice.SOURCE_TOUCHSCREEN
 import android.view.MotionEvent
+import android.view.MotionEvent.PointerCoords
+import android.view.MotionEvent.PointerProperties
 import android.view.View
 
-internal const val DefaultPointerInputMoveTimeDelta = 100
+internal const val DefaultPointerInputTimeDelta = 100
 internal const val DefaultPointerInputMoveAmountPx = 10f
 
 /**
@@ -89,6 +91,120 @@ internal fun PointerCoords(x: Float, y: Float) =
         this.x = x
         this.y = y
     }
+
+/**
+ * Creates an array of down [MotionEvent]s meaning the first event is a [MotionEvent.ACTION_DOWN]
+ * and all following events (if there are any) are [MotionEvent.ACTION_POINTER_DOWN]s. These will
+ * usually be paired with a a [MotionEvent] up events.
+ *
+ * @param initialX Starting x coordinate for the first [MotionEvent]
+ * @param initialTime Starting time for the first [MotionEvent]
+ * @param y - Y used for all [MotionEvent]s (only x is updated for each moves).
+ * @param rootView - [View] that the [MotionEvent] is dispatched to.
+ * @param numberOfEvents Number of [MotionEvent]s to create.
+ * @param timeDelta - Time between each [MotionEvent] in milliseconds.
+ * @param moveDelta - Amount to move in pixels for each [MotionEvent]
+ */
+internal fun createDowns(
+    initialX: Float,
+    initialTime: Int,
+    y: Float, // Same Y used for all moves
+    rootView: View,
+    numberOfEvents: Int = 1,
+    timeDelta: Int = DefaultPointerInputTimeDelta,
+    moveDelta: Float = DefaultPointerInputMoveAmountPx
+) =
+    createDownsOrUps(
+        initialX = initialX,
+        initialTime = initialTime,
+        y = y,
+        rootView = rootView,
+        numberOfEvents = numberOfEvents,
+        downEvents = true,
+        timeDelta = timeDelta,
+        moveDelta = moveDelta
+    )
+
+/**
+ * Creates an array of up [MotionEvent]s meaning the first event is a [MotionEvent.ACTION_UP] and
+ * all following events (if there are any) are [MotionEvent.ACTION_POINTER_UP]s. These will usually
+ * be paired with a a [MotionEvent] down events.
+ *
+ * @param initialX Starting x coordinate for the first [MotionEvent]
+ * @param initialTime Starting time for the first [MotionEvent]
+ * @param y - Y used for all [MotionEvent]s (only x is updated for each moves).
+ * @param rootView - [View] that the [MotionEvent] is dispatched to.
+ * @param numberOfEvents Number of [MotionEvent]s to create.
+ * @param timeDelta - Time between each [MotionEvent] in milliseconds.
+ * @param moveDelta - Amount to move in pixels for each [MotionEvent]
+ */
+internal fun createUps(
+    initialX: Float,
+    initialTime: Int,
+    y: Float, // Same Y used for all moves
+    rootView: View,
+    numberOfEvents: Int = 1,
+    timeDelta: Int = DefaultPointerInputTimeDelta,
+    moveDelta: Float = DefaultPointerInputMoveAmountPx
+) =
+    createDownsOrUps(
+        initialX = initialX,
+        initialTime = initialTime,
+        y = y,
+        rootView = rootView,
+        numberOfEvents = numberOfEvents,
+        downEvents = false,
+        timeDelta = timeDelta,
+        moveDelta = moveDelta
+    )
+
+private fun createDownsOrUps(
+    initialX: Float,
+    initialTime: Int,
+    y: Float, // Same Y used for all moves
+    rootView: View,
+    numberOfEvents: Int = 1,
+    downEvents: Boolean = true,
+    timeDelta: Int = DefaultPointerInputTimeDelta,
+    moveDelta: Float = DefaultPointerInputMoveAmountPx
+): Array<MotionEvent> {
+    var time = initialTime
+    var x = initialX
+
+    if (numberOfEvents < 1) {
+        return emptyArray()
+    }
+
+    val pointerProperties = mutableListOf<PointerProperties>()
+    val pointerCoords = mutableListOf<PointerCoords>()
+
+    val downMotionEvents =
+        Array(numberOfEvents) { index ->
+            pointerProperties.add(index, PointerProperties(index))
+            pointerCoords.add(index, PointerCoords(x, y))
+
+            val down =
+                MotionEvent(
+                    time,
+                    if (index == 0) {
+                        if (downEvents) MotionEvent.ACTION_DOWN else MotionEvent.ACTION_UP
+                    } else {
+                        if (downEvents) MotionEvent.ACTION_POINTER_DOWN
+                        else MotionEvent.ACTION_POINTER_UP
+                    },
+                    index + 1,
+                    index,
+                    pointerProperties.toTypedArray(),
+                    pointerCoords.toTypedArray(),
+                    rootView
+                )
+            time += timeDelta
+            x += moveDelta
+
+            down
+        }
+    return downMotionEvents
+}
 
 /**
  * Creates an array of subsequent [MotionEvent.ACTION_MOVE]s to pair with a
