@@ -9,15 +9,9 @@
 abstract class androidx.lifecycle.viewmodel/CreationExtras { // androidx.lifecycle.viewmodel/CreationExtras|null[0]
     abstract fun <#A1: kotlin/Any?> get(androidx.lifecycle.viewmodel/CreationExtras.Key<#A1>): #A1? // androidx.lifecycle.viewmodel/CreationExtras.get|get(androidx.lifecycle.viewmodel.CreationExtras.Key<0:0>){0§<kotlin.Any?>}[0]
     abstract interface <#A1: kotlin/Any?> Key // androidx.lifecycle.viewmodel/CreationExtras.Key|null[0]
-    final object Companion { // androidx.lifecycle.viewmodel/CreationExtras.Companion|null[0]
-        final inline fun <#A2: reified kotlin/Any?> Key(): androidx.lifecycle.viewmodel/CreationExtras.Key<#A2> // androidx.lifecycle.viewmodel/CreationExtras.Companion.Key|Key(){0§<kotlin.Any?>}[0]
-    }
     final object Empty : androidx.lifecycle.viewmodel/CreationExtras { // androidx.lifecycle.viewmodel/CreationExtras.Empty|null[0]
         final fun <#A2: kotlin/Any?> get(androidx.lifecycle.viewmodel/CreationExtras.Key<#A2>): #A2? // androidx.lifecycle.viewmodel/CreationExtras.Empty.get|get(androidx.lifecycle.viewmodel.CreationExtras.Key<0:0>){0§<kotlin.Any?>}[0]
     }
-    open fun equals(kotlin/Any?): kotlin/Boolean // androidx.lifecycle.viewmodel/CreationExtras.equals|equals(kotlin.Any?){}[0]
-    open fun hashCode(): kotlin/Int // androidx.lifecycle.viewmodel/CreationExtras.hashCode|hashCode(){}[0]
-    open fun toString(): kotlin/String // androidx.lifecycle.viewmodel/CreationExtras.toString|toString(){}[0]
 }
 abstract class androidx.lifecycle/ViewModel { // androidx.lifecycle/ViewModel|null[0]
     constructor <init>() // androidx.lifecycle/ViewModel.<init>|<init>(){}[0]
@@ -75,9 +69,6 @@ final class androidx.lifecycle/ViewModelProvider { // androidx.lifecycle/ViewMod
         open fun onRequery(androidx.lifecycle/ViewModel) // androidx.lifecycle/ViewModelProvider.OnRequeryFactory.onRequery|onRequery(androidx.lifecycle.ViewModel){}[0]
     }
 }
-final fun (androidx.lifecycle.viewmodel/CreationExtras).androidx.lifecycle.viewmodel/contains(androidx.lifecycle.viewmodel/CreationExtras.Key<*>): kotlin/Boolean // androidx.lifecycle.viewmodel/contains|contains@androidx.lifecycle.viewmodel.CreationExtras(androidx.lifecycle.viewmodel.CreationExtras.Key<*>){}[0]
-final fun (androidx.lifecycle.viewmodel/CreationExtras).androidx.lifecycle.viewmodel/plus(androidx.lifecycle.viewmodel/CreationExtras): androidx.lifecycle.viewmodel/MutableCreationExtras // androidx.lifecycle.viewmodel/plus|plus@androidx.lifecycle.viewmodel.CreationExtras(androidx.lifecycle.viewmodel.CreationExtras){}[0]
-final fun (androidx.lifecycle.viewmodel/MutableCreationExtras).androidx.lifecycle.viewmodel/plusAssign(androidx.lifecycle.viewmodel/CreationExtras) // androidx.lifecycle.viewmodel/plusAssign|plusAssign@androidx.lifecycle.viewmodel.MutableCreationExtras(androidx.lifecycle.viewmodel.CreationExtras){}[0]
 final inline fun <#A: reified androidx.lifecycle/ViewModel> (androidx.lifecycle.viewmodel/InitializerViewModelFactoryBuilder).androidx.lifecycle.viewmodel/initializer(noinline kotlin/Function1<androidx.lifecycle.viewmodel/CreationExtras, #A>) // androidx.lifecycle.viewmodel/initializer|initializer@androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder(kotlin.Function1<androidx.lifecycle.viewmodel.CreationExtras,0:0>){0§<androidx.lifecycle.ViewModel>}[0]
 final inline fun <#A: reified androidx.lifecycle/ViewModel> (androidx.lifecycle/ViewModelProvider).androidx.lifecycle/get(): #A // androidx.lifecycle/get|get@androidx.lifecycle.ViewModelProvider(){0§<androidx.lifecycle.ViewModel>}[0]
 final inline fun androidx.lifecycle.viewmodel/viewModelFactory(kotlin/Function1<androidx.lifecycle.viewmodel/InitializerViewModelFactoryBuilder, kotlin/Unit>): androidx.lifecycle/ViewModelProvider.Factory // androidx.lifecycle.viewmodel/viewModelFactory|viewModelFactory(kotlin.Function1<androidx.lifecycle.viewmodel.InitializerViewModelFactoryBuilder,kotlin.Unit>){}[0]
