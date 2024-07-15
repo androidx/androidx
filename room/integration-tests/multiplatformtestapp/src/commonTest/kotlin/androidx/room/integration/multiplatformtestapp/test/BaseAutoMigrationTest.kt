@@ -118,6 +118,12 @@ abstract class BaseAutoMigrationTest {
             .contains("Unexpected auto migration specs found.")
     }
 
+    @Test
+    fun subclassedProvidedAutoMigrationSpec() {
+        val db = getDatabaseBuilder().addAutoMigrationSpec(SubProvidedSpecFrom2To3()).build()
+        db.close()
+    }
+
     @Entity
     data class AutoMigrationEntity(
         @PrimaryKey val pk: Long,
@@ -153,6 +159,8 @@ abstract class BaseAutoMigrationTest {
             connection.execSQL("UPDATE AutoMigrationEntity SET moreData = '5'")
         }
     }
+
+    class SubProvidedSpecFrom2To3 : ProvidedSpecFrom2To3()
 
     class ExtraProvidedSpec : AutoMigrationSpec
 }

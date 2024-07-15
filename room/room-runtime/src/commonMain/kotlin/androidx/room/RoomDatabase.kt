@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo
 import androidx.room.concurrent.CloseBarrier
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
-import androidx.room.util.isAssignableFrom
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteException
@@ -522,8 +521,7 @@ internal fun RoomDatabase.validateAutoMigrations(configuration: DatabaseConfigur
         var foundIndex = -1
         for (providedIndex in configuration.autoMigrationSpecs.indices.reversed()) {
             val provided: Any = configuration.autoMigrationSpecs[providedIndex]
-            // TODO(b/317210564): For native only FQN is compared
-            if (spec.isAssignableFrom(provided::class)) {
+            if (spec.isInstance(provided)) {
                 foundIndex = providedIndex
                 usedSpecs[foundIndex] = true
                 break
@@ -568,7 +566,7 @@ internal fun RoomDatabase.validateTypeConverters(configuration: DatabaseConfigur
             // traverse provided converters in reverse so that newer one overrides
             for (providedIndex in configuration.typeConverters.indices.reversed()) {
                 val provided = configuration.typeConverters[providedIndex]
-                if (converter.isAssignableFrom(provided::class)) {
+                if (converter.isInstance(provided)) {
                     foundIndex = providedIndex
                     used[foundIndex] = true
                     break
