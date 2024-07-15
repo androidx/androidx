@@ -33,6 +33,7 @@ import androidx.pdf.data.Openable
 import androidx.pdf.fetcher.Fetcher
 import androidx.pdf.find.FindInFileView
 import androidx.pdf.models.PageSelection
+import androidx.pdf.util.AnnotationUtils
 import androidx.pdf.util.ObservableValue.ValueObserver
 import androidx.pdf.util.Observables
 import androidx.pdf.util.Observables.ExposedValue
@@ -113,6 +114,7 @@ open class PdfViewerFragment : Fragment() {
     private var fastScrollView: FastScrollView? = null
     private var fastScrollContentModel: FastScrollContentModel? = null
     private var selectionObserver: ValueObserver<PageSelection>? = null
+    private var localUri: Uri? = null
 
     private var fetcher: Fetcher? = null
     private var zoomScrollObserver: ValueObserver<ZoomScroll>? = null
@@ -241,6 +243,8 @@ open class PdfViewerFragment : Fragment() {
                 pageIndicator!!,
                 viewState
             )
+
+        setUpEditFab()
 
         return pdfViewer
     }
@@ -544,6 +548,10 @@ open class PdfViewerFragment : Fragment() {
         } catch (e: SecurityException) {
             onLoadDocumentError(e)
         }
+        localUri = fileUri
+        isAnnotationIntentResolvable =
+            AnnotationUtils.resolveAnnotationIntent(requireContext(), localUri!!)
+        singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
     }
 
     private fun validateFileUri(fileUri: Uri) {
@@ -621,5 +629,15 @@ open class PdfViewerFragment : Fragment() {
     companion object {
         private const val KEY_LAYOUT_REACH: String = "plr"
         private const val KEY_DATA: String = "data"
+    }
+
+    private fun setUpEditFab() {
+        annotationButton?.setOnClickListener(View.OnClickListener { performEdit() })
+    }
+
+    private fun performEdit() {
+        val intent = AnnotationUtils.getAnnotationIntent(localUri!!)
+        intent.setData(localUri)
+        startActivity(intent)
     }
 }
