@@ -32,7 +32,6 @@ import androidx.window.WindowProperties
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
@@ -88,10 +87,10 @@ constructor(
             applicationContext: Context
         ): EmbeddingInterfaceCompat? {
             var impl: EmbeddingInterfaceCompat? = null
+            val version = WindowSdkExtensions.getInstance().extensionVersion
             try {
                 if (
-                    isExtensionVersionSupported(ExtensionsUtil.safeVendorApiLevel) &&
-                        EmbeddingCompat.isEmbeddingAvailable()
+                    isExtensionVersionSupported(version) && EmbeddingCompat.isEmbeddingAvailable()
                 ) {
                     impl =
                         EmbeddingBackend::class.java.classLoader?.let { loader ->
@@ -102,12 +101,12 @@ constructor(
                                 adapter,
                                 ConsumerAdapter(loader),
                                 applicationContext,
-                                if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+                                if (version >= OVERLAY_FEATURE_VERSION) {
                                     OverlayControllerImpl(embeddingExtension, adapter)
                                 } else {
                                     null
                                 },
-                                if (WindowSdkExtensions.getInstance().extensionVersion >= 6) {
+                                if (version >= 6) {
                                     ActivityWindowInfoCallbackController(embeddingExtension)
                                 } else {
                                     null

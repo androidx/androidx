@@ -33,7 +33,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivityOverlayActivityLayoutBinding
@@ -86,7 +85,10 @@ open class OverlayActivityBase :
         splitController = SplitController.getInstance(this)
         overlayController = OverlayController.getInstance(this)
 
-        if (splitController.splitSupportStatus != SPLIT_AVAILABLE || extensionVersion < 6) {
+        if (
+            splitController.splitSupportStatus != SPLIT_AVAILABLE ||
+                extensionVersion < OVERLAY_FEATURE_MINIMUM_REQUIRED_VERSION
+        ) {
             Toast.makeText(this, R.string.toast_show_overlay_warning, Toast.LENGTH_SHORT).show()
             finish()
             return
@@ -178,7 +180,6 @@ open class OverlayActivityBase :
                 overlayInfo.currentOverlayAttributes?.bounds.toString()
     }
 
-    @OptIn(ExperimentalWindowApi::class)
     override fun onClick(button: View) {
         val overlayAttributes = buildOverlayAttributesFromUi()
         val isCustomizationMode =
@@ -407,6 +408,8 @@ open class OverlayActivityBase :
     }
 
     companion object {
+        internal const val OVERLAY_FEATURE_MINIMUM_REQUIRED_VERSION = 8
+
         internal val DEFAULT_OVERLAY_ATTRIBUTES =
             OverlayAttributes(
                 EmbeddingBounds(

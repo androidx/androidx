@@ -19,8 +19,8 @@ package androidx.window.demo.embedding
 import android.content.Context
 import androidx.startup.Initializer
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
+import androidx.window.demo.embedding.OverlayActivityBase.Companion.OVERLAY_FEATURE_MINIMUM_REQUIRED_VERSION
 import androidx.window.demo.embedding.OverlayActivityBase.OverlayMode.Companion.OVERLAY_MODE_CHANGE_WITH_ORIENTATION
 import androidx.window.demo.embedding.OverlayActivityBase.OverlayMode.Companion.OVERLAY_MODE_CUSTOMIZATION
 import androidx.window.demo.embedding.OverlayActivityBase.OverlayMode.Companion.OVERLAY_MODE_SIMPLE
@@ -68,14 +68,13 @@ class ExampleWindowInitializer : Initializer<RuleController> {
 
     private val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
 
-    @OptIn(ExperimentalWindowApi::class)
     override fun create(context: Context): RuleController {
         splitController = SplitController.getInstance(context)
 
         if (extensionVersion >= 2) {
             splitController.setSplitAttributesCalculator(::sampleSplitAttributesCalculator)
         }
-        if (extensionVersion >= 6) {
+        if (extensionVersion >= OVERLAY_FEATURE_MINIMUM_REQUIRED_VERSION) {
             OverlayController.getInstance(context)
                 .setOverlayAttributesCalculator(::sampleOverlayAttributesCalculator)
         }
