@@ -41,5 +41,5 @@ fun DemoTheme(
             )
         }
 
-    MaterialTheme(colorScheme) { content() }
+    MaterialTheme(colorScheme = colorScheme, content = content)
 }
