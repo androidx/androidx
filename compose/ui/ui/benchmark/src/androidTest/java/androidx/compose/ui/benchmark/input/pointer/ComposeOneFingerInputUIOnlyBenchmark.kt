@@ -116,10 +116,10 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         numberOfMoves: Int,
         enableHistory: Boolean = false
     ) {
+        val initialTimeForFirstEvent = 0
+        val initialXForFirstEvent = 0f
         // half height of an item + top of the chosen item = middle of the chosen item
         val y = (ItemHeightPx / 2) + (item * ItemHeightPx)
-        val xDown = 0f
-        val xMoveInitial = xDown + DefaultPointerInputMoveAmountPx
 
         benchmarkRule.runBenchmarkFor({ ComposeTapTestCase() }) {
             lateinit var case: ComposeTapTestCase
@@ -134,22 +134,27 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                 rootView = getHostView()
             }
 
-            // Simple Events
-            val down =
-                MotionEvent(
-                    0,
-                    MotionEvent.ACTION_DOWN,
-                    1,
-                    0,
-                    arrayOf(PointerProperties(0)),
-                    arrayOf(PointerCoords(xDown, y)),
-                    rootView
+            // Create Events
+            val downs =
+                createDowns(
+                    initialX = initialXForFirstEvent,
+                    initialTime = initialTimeForFirstEvent,
+                    y = y,
+                    rootView = rootView,
+                    numberOfEvents = 1,
                 )
+
+            assertThat(downs.size).isEqualTo(1)
+
+            val down = downs.last()
+
+            val initialMoveX = down.x + DefaultPointerInputMoveAmountPx
+            val initialMoveTime = down.eventTime.toInt() + DefaultPointerInputTimeDelta
 
             val moves =
                 createMoveMotionEvents(
-                    initialX = xMoveInitial,
-                    initialTime = 100,
+                    initialX = initialMoveX,
+                    initialTime = initialMoveTime,
                     y = y,
                     rootView = rootView,
                     numberOfMoveEvents = numberOfMoves,
@@ -162,19 +167,21 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                 } else {
                     down
                 }
-            val upEventTime = lastMotionEvent.eventTime.toInt() + DefaultPointerInputMoveTimeDelta
+            val upEventTime = lastMotionEvent.eventTime.toInt() + DefaultPointerInputTimeDelta
             val upEventX = lastMotionEvent.x + DefaultPointerInputMoveAmountPx
 
-            val up =
-                MotionEvent(
-                    upEventTime,
-                    MotionEvent.ACTION_UP,
-                    1,
-                    0,
-                    arrayOf(PointerProperties(0)),
-                    arrayOf(PointerCoords(upEventX, y)),
-                    rootView
+            val ups =
+                createUps(
+                    initialX = upEventX,
+                    initialTime = upEventTime,
+                    y = y,
+                    rootView = rootView,
+                    numberOfEvents = 1,
                 )
+
+            assertThat(ups.size).isEqualTo(1)
+
+            val up = ups.last()
 
             benchmarkRule.measureRepeatedOnUiThread {
                 rootView.dispatchTouchEvent(down)
