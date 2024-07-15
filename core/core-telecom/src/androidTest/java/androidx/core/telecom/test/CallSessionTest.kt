@@ -20,6 +20,7 @@ import android.os.Build.VERSION_CODES
 import android.os.ParcelUuid
 import android.telecom.CallEndpoint
 import androidx.annotation.RequiresApi
+import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.test.utils.BaseTelecomTest
@@ -49,6 +50,60 @@ import org.junit.runner.RunWith
 @RequiresApi(VERSION_CODES.UPSIDE_DOWN_CAKE)
 @RunWith(AndroidJUnit4::class)
 class CallSessionTest : BaseTelecomTest() {
+    val mEarpieceEndpoint = CallEndpointCompat("EARPIECE", CallEndpoint.TYPE_EARPIECE)
+    val mSpeakerEndpoint = CallEndpointCompat("SPEAKER", CallEndpoint.TYPE_SPEAKER)
+    val mBluetoothEndpoint = CallEndpointCompat("BLUETOOTH", CallEndpoint.TYPE_BLUETOOTH)
+    val mEarAndSpeakerEndpoints = listOf(mEarpieceEndpoint, mSpeakerEndpoint)
+    val mEarAndSpeakerAndBtEndpoints =
+        listOf(mEarpieceEndpoint, mSpeakerEndpoint, mBluetoothEndpoint)
+
+    /**
+     * verify maybeDelaySwitchToSpeaker does NOT switch to speakerphone if the bluetooth device
+     * connects after 1 second
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testDelayedSwitchToSpeakerBluetoothConnects() {
+        setUpV2Test()
+        runBlocking {
+            val callSession = initCallSession(coroutineContext, CallChannels())
+            callSession.setCurrentCallEndpoint(mBluetoothEndpoint)
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerAndBtEndpoints)
+            assertFalse(callSession.maybeDelaySwitchToSpeaker(mSpeakerEndpoint))
+        }
+    }
+
+    /**
+     * verify maybeDelaySwitchToSpeaker switches to speaker if a BT device is not in the available
+     * list of call endpoints
+     */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testDelayedSwitchToSpeakerNoBluetoothAvailable() {
+        setUpV2Test()
+        runBlocking {
+            val callSession = initCallSession(coroutineContext, CallChannels())
+            callSession.setCurrentCallEndpoint(mEarpieceEndpoint)
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerEndpoints)
+            assertTrue(callSession.maybeDelaySwitchToSpeaker(mSpeakerEndpoint))
+        }
+    }
+
+    /** verify maybeDelaySwitchToSpeaker switches to speaker if a BT failed to connect in time */
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testDelayedSwitchToSpeakerBluetoothDidNotConnectInTime() {
+        setUpV2Test()
+        runBlocking {
+            val callSession = initCallSession(coroutineContext, CallChannels())
+            callSession.setCurrentCallEndpoint(mEarpieceEndpoint)
+            callSession.setAvailableCallEndpoints(mEarAndSpeakerAndBtEndpoints)
+            assertTrue(callSession.maybeDelaySwitchToSpeaker(mSpeakerEndpoint))
+        }
+    }
 
     /** verify the CallEvent CompletableDeferred objects complete after endpoints are echoed. */
     @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -58,16 +113,16 @@ class CallSessionTest : BaseTelecomTest() {
         setUpV2Test()
         runBlocking {
             val callChannels = CallChannels()
-            val callEvents = initCallEvents(coroutineContext, callChannels)
+            val callSession = initCallSession(coroutineContext, callChannels)
 
-            assertFalse(callEvents.getIsAvailableEndpointsSet().isCompleted)
-            assertFalse(callEvents.getIsCurrentEndpointSet().isCompleted)
+            assertFalse(callSession.getIsAvailableEndpointsSet().isCompleted)
+            assertFalse(callSession.getIsCurrentEndpointSet().isCompleted)
 
-            callEvents.onCallEndpointChanged(getCurrentEndpoint())
-            callEvents.onAvailableCallEndpointsChanged(getAvailableEndpoint())
+            callSession.onCallEndpointChanged(getCurrentEndpoint())
+            callSession.onAvailableCallEndpointsChanged(getAvailableEndpoint())
 
-            assertTrue(callEvents.getIsAvailableEndpointsSet().isCompleted)
-            assertTrue(callEvents.getIsCurrentEndpointSet().isCompleted)
+            assertTrue(callSession.getIsAvailableEndpointsSet().isCompleted)
+            assertTrue(callSession.getIsCurrentEndpointSet().isCompleted)
             callChannels.closeAllChannels()
         }
     }
@@ -83,10 +138,10 @@ class CallSessionTest : BaseTelecomTest() {
         setUpV2Test()
         runBlocking {
             val callChannels = CallChannels()
-            val callEvents = initCallEvents(coroutineContext, callChannels)
+            val callSession = initCallSession(coroutineContext, callChannels)
 
-            callEvents.onCallEndpointChanged(getCurrentEndpoint())
-            callEvents.onAvailableCallEndpointsChanged(getAvailableEndpoint())
+            callSession.onCallEndpointChanged(getCurrentEndpoint())
+            callSession.onAvailableCallEndpointsChanged(getAvailableEndpoint())
 
             assertEquals(
                 getAvailableEndpoint().size,
@@ -97,7 +152,7 @@ class CallSessionTest : BaseTelecomTest() {
         }
     }
 
-    private fun initCallEvents(
+    private fun initCallSession(
         coroutineContext: CoroutineContext,
         callChannels: CallChannels
     ): CallSession {
