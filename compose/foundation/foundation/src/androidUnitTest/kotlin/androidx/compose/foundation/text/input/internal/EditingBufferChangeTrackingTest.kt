@@ -81,6 +81,30 @@ class EditingBufferChangeTrackingTest {
     }
 
     @Test
+    fun tailInsertionAtTheEnd_reportedAsFullReplace_coercesToInsertion() {
+        val eb = EditingBuffer("abc", TextRange.Zero)
+
+        eb.replace(0, 3, "abcd")
+
+        assertThat(eb.toString()).isEqualTo("abcd")
+        assertThat(eb.changeTracker.changeCount).isEqualTo(1)
+        assertThat(eb.changeTracker.getRange(0)).isEqualTo(TextRange(3, 4))
+        assertThat(eb.changeTracker.getOriginalRange(0)).isEqualTo(TextRange(3))
+    }
+
+    @Test
+    fun tailInsertionAtTheEnd_reportedAsFullReplace_sameLastCharacter_coercesToInsertion() {
+        val eb = EditingBuffer("abc", TextRange.Zero)
+
+        eb.replace(0, 3, "abcc")
+
+        assertThat(eb.toString()).isEqualTo("abcc")
+        assertThat(eb.changeTracker.changeCount).isEqualTo(1)
+        assertThat(eb.changeTracker.getRange(0)).isEqualTo(TextRange(3, 4))
+        assertThat(eb.changeTracker.getOriginalRange(0)).isEqualTo(TextRange(3))
+    }
+
+    @Test
     fun tailDeletionReportedAsReplace_coercesToDeletion() {
         val eb = EditingBuffer("abcde", TextRange.Zero)
 

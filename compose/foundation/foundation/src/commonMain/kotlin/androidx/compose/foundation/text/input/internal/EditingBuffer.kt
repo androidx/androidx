@@ -147,6 +147,16 @@ internal class EditingBuffer(
         // composition based typing when each keystroke may trigger a replace function that looks
         // like "abcd" => "abcde".
 
+        // b(351165334)
+        // Since we are starting from the left hand side to compare the strings, when "abc" is
+        // replaced with "aabc", it will be reported as an `a` is inserted at `TextRange(1)` instead
+        // of the more logical possibility; `TextRange(0)`. This replace call cannot differentiate
+        // between the two possible cases because we have no way of really knowing what was the
+        // intention of the user beyond this replace call. We prefer to choose the more logical
+        // explanation for right hand side since it's the more common direction of typing. This is
+        // guaranteed by the fact that we start our coercion from left hand side, and finally apply
+        // the right hand side.
+
         // coerce min
         var i = 0
         var cMin = min
@@ -157,7 +167,7 @@ internal class EditingBuffer(
         // coerce max
         var j = text.length
         var cMax = max
-        while (cMax > min && j > i && text[j - 1] == gapBuffer[cMax - 1]) {
+        while (cMax > cMin && j > i && text[j - 1] == gapBuffer[cMax - 1]) {
             j--
             cMax--
         }
