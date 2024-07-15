@@ -32,6 +32,7 @@ import androidx.pdf.data.FutureValue
 import androidx.pdf.data.Openable
 import androidx.pdf.fetcher.Fetcher
 import androidx.pdf.find.FindInFileView
+import androidx.pdf.models.PageSelection
 import androidx.pdf.util.ObservableValue.ValueObserver
 import androidx.pdf.util.Observables
 import androidx.pdf.util.Observables.ExposedValue
@@ -42,6 +43,7 @@ import androidx.pdf.viewer.FastScrollPositionValueObserver
 import androidx.pdf.viewer.LayoutHandler
 import androidx.pdf.viewer.LoadingView
 import androidx.pdf.viewer.PageIndicator
+import androidx.pdf.viewer.PageSelectionValueObserver
 import androidx.pdf.viewer.PageViewFactory
 import androidx.pdf.viewer.PaginatedView
 import androidx.pdf.viewer.PaginationModel
@@ -110,6 +112,7 @@ open class PdfViewerFragment : Fragment() {
     private var pageIndicator: PageIndicator? = null
     private var fastScrollView: FastScrollView? = null
     private var fastScrollContentModel: FastScrollContentModel? = null
+    private var selectionObserver: ValueObserver<PageSelection>? = null
 
     private lateinit var fetcher: Fetcher
     private lateinit var zoomScrollObserver: ValueObserver<ZoomScroll>
@@ -400,6 +403,15 @@ open class PdfViewerFragment : Fragment() {
             )
         pdfLoaderCallbacks?.pageViewFactory = pageViewFactory!!
         paginatedView?.pageViewFactory = pageViewFactory!!
+
+        selectionObserver =
+            PageSelectionValueObserver(
+                paginatedView!!,
+                paginationModel,
+                pageViewFactory!!,
+                requireContext()
+            )
+        pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
 
         if (savedState != null) {
             val layoutReach = savedState.getInt(KEY_LAYOUT_REACH)
