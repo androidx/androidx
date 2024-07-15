@@ -139,6 +139,8 @@ android {
     sourceSets["main"].java.srcDir("src/androidMain/java")
     sourceSets["test"].java.srcDir("src/androidUnitTest/kotlin")
     namespace "androidx.lifecycle.runtime"
+    // TODO(b/345531033)
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
