@@ -470,56 +470,8 @@ public inline fun NavHost.createGraph(
     startDestination: Any,
     route: KClass<*>? = null,
 ): NavGraph { return NavGraph() }
-
-val classInstanceRef = TestClass()
-
-val classInstanceWithArgRef = TestClassWithArg(15)
-
-val innerClassInstanceRef = Outer.InnerClass(15)
-
-object TestGraph
-
-object TestObject
-
-class TestClass
-
-class TestClassWithArg(val arg: Int)
-
-object Outer {
-    data object InnerObject
-
-    data class InnerClass (
-        val innerArg: Int,
-    )
-}
-
-interface TestInterface
-class InterfaceChildClass(val arg: Boolean): TestInterface
-object InterfaceChildObject: TestInterface
-
-abstract class TestAbstract
-class AbstractChildClass(val arg: Boolean): TestAbstract()
-object AbstractChildObject: TestAbstract()
-
-// classes with companion object to simulate classes marked with @Serializable
-class TestClassComp { companion object }
-
-class TestClassWithArgComp(val arg: Int) { companion object }
-
-object OuterComp {
-    data object InnerObject
-
-    data class InnerClassComp (
-        val innerArg: Int,
-    ) { companion object }
-}
-
-class InterfaceChildClassComp(val arg: Boolean): TestInterface { companion object }
-
-abstract class TestAbstractComp { companion object }
-class AbstractChildClassComp(val arg: Boolean): TestAbstractComp() { companion object }
-object AbstractChildObjectComp: TestAbstractComp()
-"""
+""" +
+                TEST_CLASS
         )
         .indented()
 
