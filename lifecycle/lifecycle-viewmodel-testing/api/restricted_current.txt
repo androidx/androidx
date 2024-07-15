@@ -1,6 +1,11 @@
 // Signature format: 4.0
 package androidx.lifecycle.viewmodel.testing {
 
+  public final class DefaultCreationExtrasKt {
+    method public static androidx.lifecycle.viewmodel.CreationExtras DefaultCreationExtras();
+    method public static androidx.lifecycle.viewmodel.CreationExtras DefaultCreationExtras(android.os.Bundle defaultArgs);
+  }
+
   public final class ViewModelScenario<VM extends androidx.lifecycle.ViewModel> implements java.lang.AutoCloseable {
     ctor @kotlin.PublishedApi internal ViewModelScenario(kotlin.reflect.KClass<VM> modelClass, androidx.lifecycle.ViewModelStore modelStore, androidx.lifecycle.ViewModelProvider.Factory modelFactory, optional androidx.lifecycle.viewmodel.CreationExtras modelExtras);
     method public void close();
