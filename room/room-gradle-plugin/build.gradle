@@ -78,6 +78,7 @@ tasks.withType(Test).configureEach { test ->
     test.dependsOn(
             ":annotation:annotation:publish",
             ":annotation:annotation-experimental:publish",
+            ":collection:collection:publish",
             ":room:room-common:publish",
             ":room:room-runtime:publish",
             ":room:room-migration:publish",
