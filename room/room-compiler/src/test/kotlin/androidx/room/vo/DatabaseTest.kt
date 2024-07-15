@@ -71,7 +71,8 @@ class DatabaseTest {
                 version = 1,
                 exportSchema = false,
                 enableForeignKeys = false,
-                overrideClearAllTables = true
+                overrideClearAllTables = true,
+                constructorObjectElement = null,
             )
 
         val expectedLegacyHash =

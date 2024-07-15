@@ -17,6 +17,7 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.room.ColumnInfo
+import androidx.room.ConstructedBy
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
@@ -33,6 +34,7 @@ import androidx.room.RawQuery
 import androidx.room.Relation
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import androidx.room.RoomRawQuery
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
@@ -241,6 +243,9 @@ interface SampleDao {
     version = 1,
     exportSchema = false
 )
+@ConstructedBy(SampleDatabaseConstructor::class)
 abstract class SampleDatabase : RoomDatabase() {
     abstract fun dao(): SampleDao
 }
+
+expect object SampleDatabaseConstructor : RoomDatabaseConstructor<SampleDatabase>

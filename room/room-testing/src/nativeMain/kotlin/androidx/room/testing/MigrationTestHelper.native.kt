@@ -21,6 +21,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.room.migration.bundle.SchemaBundle
+import androidx.room.util.findDatabaseConstructorAndInitDatabaseImpl
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import kotlin.reflect.KClass
@@ -93,7 +94,9 @@ actual class MigrationTestHelper(
     private val fileName: String,
     private val driver: SQLiteDriver,
     private val databaseClass: KClass<out RoomDatabase>,
-    databaseFactory: () -> RoomDatabase,
+    databaseFactory: () -> RoomDatabase = {
+        findDatabaseConstructorAndInitDatabaseImpl(databaseClass)
+    },
     private val autoMigrationSpecs: List<AutoMigrationSpec> = emptyList()
 ) {
     private val databaseInstance = databaseClass.cast(databaseFactory.invoke())

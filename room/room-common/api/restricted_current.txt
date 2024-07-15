@@ -80,6 +80,11 @@ package androidx.room {
   @IntDef({androidx.room.ColumnInfo.UNDEFINED, androidx.room.ColumnInfo.TEXT, androidx.room.ColumnInfo.INTEGER, androidx.room.ColumnInfo.REAL, androidx.room.ColumnInfo.BLOB}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public static @interface ColumnInfo.SQLiteTypeAffinity {
   }
 
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface ConstructedBy {
+    method public abstract kotlin.reflect.KClass<? extends java.lang.Object?> value();
+    property public abstract kotlin.reflect.KClass<? extends java.lang.Object?> value;
+  }
+
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Dao {
   }
 

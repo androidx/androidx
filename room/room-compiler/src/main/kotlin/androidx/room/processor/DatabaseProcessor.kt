@@ -135,6 +135,8 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             errorMsg = ProcessorErrors.INVALID_DATABASE_VERSION
         )
 
+        val constructorObjectElement = processConstructorObject(element)
+
         val database =
             Database(
                 version = dbAnnotation.value.version,
@@ -146,6 +148,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 exportSchema = dbAnnotation.value.exportSchema,
                 enableForeignKeys = hasForeignKeys,
                 overrideClearAllTables = hasClearAllTables,
+                constructorObjectElement = constructorObjectElement
             )
         database.autoMigrations = processAutoMigrations(element, database.bundle)
         return database
@@ -538,5 +541,66 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             // We are done if we have resolved tables for all the views.
         } while (unresolvedViews.isNotEmpty())
         return result
+    }
+
+    private fun processConstructorObject(element: XTypeElement): XTypeElement? {
+        val annotation = element.getAnnotation(androidx.room.ConstructedBy::class)
+        if (annotation == null) {
+            context.checker.check(
+                predicate = context.isAndroidOnlyTarget(),
+                element = element,
+                errorMsg = ProcessorErrors.MISSING_CONSTRUCTED_BY_ANNOTATION
+            )
+            return null
+        }
+        val type = annotation.getAsType("value") ?: return null
+        val typeElement = type.typeElement
+        if (typeElement == null) {
+            context.logger.e(element, ProcessorErrors.INVALID_CONSTRUCTED_BY_CLASS)
+            return null
+        }
+
+        context.checker.check(
+            predicate = typeElement.isKotlinObject(),
+            element = typeElement,
+            errorMsg = ProcessorErrors.INVALID_CONSTRUCTED_BY_NOT_OBJECT
+        )
+
+        context.checker.check(
+            predicate = typeElement.isExpect(),
+            element = typeElement,
+            errorMsg = ProcessorErrors.INVALID_CONSTRUCTED_BY_NOT_EXPECT
+        )
+
+        val expectedSuperInterfaceTypeName =
+            RoomTypeNames.ROOM_DB_CONSTRUCTOR.parametrizedBy(element.asClassName())
+        val superInterface = typeElement.superInterfaces.singleOrNull()
+        if (
+            superInterface == null ||
+                superInterface.asTypeName().rawTypeName != RoomTypeNames.ROOM_DB_CONSTRUCTOR
+        ) {
+            context.logger.e(
+                element = typeElement,
+                msg =
+                    ProcessorErrors.invalidConstructedBySuperInterface(
+                        expectedSuperInterfaceTypeName.toString(context.codeLanguage)
+                    )
+            )
+            return null
+        }
+
+        val typeArg = superInterface.typeArguments.singleOrNull()
+        if (typeArg == null || typeArg.asTypeName().rawTypeName != element.asClassName()) {
+            context.logger.e(
+                element = typeElement,
+                msg =
+                    ProcessorErrors.invalidConstructedBySuperInterface(
+                        expectedSuperInterfaceTypeName.toString(context.codeLanguage)
+                    )
+            )
+            return null
+        }
+
+        return typeElement
     }
 }

@@ -23,7 +23,6 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 class TypeConverterTest : BaseTypeConverterTest() {
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<TestDatabase> {
-        return Room.inMemoryDatabaseBuilder<TestDatabase> { TestDatabase::class.instantiateImpl() }
-            .setDriver(BundledSQLiteDriver())
+        return Room.inMemoryDatabaseBuilder<TestDatabase>().setDriver(BundledSQLiteDriver())
     }
 }

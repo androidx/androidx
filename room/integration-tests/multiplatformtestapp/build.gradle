@@ -93,7 +93,8 @@ androidXMultiplatform {
 // TODO(b/325111583): Create a helper function to configure KSP with KMP targets
 dependencies {
     def roomCompilerDependency = project(":room:room-compiler")
-    add("kspAndroidAndroidTest", roomCompilerDependency)
+    add("kspAndroidAndroidTest", roomCompilerDependency) // Android instrumentation test
+    add("kspAndroidTest", roomCompilerDependency) // Android unit test
     add("kspJvmTest", roomCompilerDependency)
     add("kspLinuxX64Test", roomCompilerDependency)
     if (KmpPlatformsKt.enableMac(project)) {

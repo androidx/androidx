@@ -1257,4 +1257,19 @@ object ProcessorErrors {
     val RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID =
         "@RawQuery annotated DAO functions are currently not supported in source sets targeting " +
             "non-Android platforms."
+
+    val MISSING_CONSTRUCTED_BY_ANNOTATION =
+        "The @Database class must be annotated with @ConstructedBy since the source is targeting " +
+            "non-Android platforms."
+
+    val INVALID_CONSTRUCTED_BY_CLASS = "The @ConstructedBy 'value' must be a valid class."
+
+    val INVALID_CONSTRUCTED_BY_NOT_OBJECT =
+        "The @ConstructedBy definition must be an 'object' declaration."
+
+    val INVALID_CONSTRUCTED_BY_NOT_EXPECT =
+        "The @ConstructedBy definition must be an 'expect' declaration."
+
+    fun invalidConstructedBySuperInterface(expected: String) =
+        "The @ConstructedBy definition must implement a single interface of type '$expected'."
 }

@@ -19,7 +19,7 @@ package androidx.room
 import kotlin.reflect.KClass
 
 /**
- * Marks a class as a RoomDatabase.
+ * Marks a class as a [androidx.room.RoomDatabase].
  *
  * The class should be an abstract class and extend [androidx.room.RoomDatabase].
  *
@@ -62,6 +62,7 @@ import kotlin.reflect.KClass
  * @see [Entity]
  * @see [AutoMigration]
  * @see [androidx.room.RoomDatabase]
+ * @see [ConstructedBy]
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
