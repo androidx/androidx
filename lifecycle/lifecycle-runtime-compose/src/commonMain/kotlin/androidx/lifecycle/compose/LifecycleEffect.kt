@@ -344,7 +344,10 @@ private fun LifecycleStartEffectImpl(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> with(scope) { effectResult = effects() }
-                Lifecycle.Event.ON_STOP -> effectResult?.runStopOrDisposeEffect()
+                Lifecycle.Event.ON_STOP -> {
+                    effectResult?.runStopOrDisposeEffect()
+                    effectResult = null
+                }
                 else -> {}
             }
         }
@@ -664,7 +667,10 @@ private fun LifecycleResumeEffectImpl(
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> with(scope) { effectResult = effects() }
-                Lifecycle.Event.ON_PAUSE -> effectResult?.runPauseOrOnDisposeEffect()
+                Lifecycle.Event.ON_PAUSE -> {
+                    effectResult?.runPauseOrOnDisposeEffect()
+                    effectResult = null
+                }
                 else -> {}
             }
         }
