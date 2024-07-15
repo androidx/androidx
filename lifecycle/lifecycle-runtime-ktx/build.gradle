@@ -31,8 +31,6 @@ plugins {
 }
 
 androidXMultiplatform {
-    enableBinaryCompatibilityValidator = true
-
     android()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
