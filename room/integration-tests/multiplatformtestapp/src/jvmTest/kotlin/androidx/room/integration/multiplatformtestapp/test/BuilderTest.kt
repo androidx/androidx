@@ -24,7 +24,10 @@ import kotlin.io.path.createTempFile
 class BuilderTest : BaseBuilderTest() {
     override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
         val tempFile = createTempFile("test.db").also { it.toFile().deleteOnExit() }
-        return Room.databaseBuilder(tempFile.toString()) { SampleDatabase::class.instantiateImpl() }
+        return Room.databaseBuilder<SampleDatabase>(
+                name = tempFile.toString(),
+                factory = SampleDatabaseConstructor::initialize
+            )
             .setDriver(BundledSQLiteDriver())
     }
 }

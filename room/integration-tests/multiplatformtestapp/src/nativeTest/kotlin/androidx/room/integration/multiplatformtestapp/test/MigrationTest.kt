@@ -30,21 +30,18 @@ class MigrationTest : BaseMigrationTest() {
     private val filename = "/tmp/test-${Random.nextInt()}.db"
     private val driver: SQLiteDriver = BundledSQLiteDriver()
 
-    private val dbFactory = { MigrationDatabase::class.instantiateImpl() }
-
     private val migrationTestHelper =
         MigrationTestHelper(
             schemaDirectoryPath = getSchemaDirectoryPath(),
             fileName = filename,
             driver = driver,
             databaseClass = MigrationDatabase::class,
-            databaseFactory = dbFactory
         )
 
     override fun getTestHelper() = migrationTestHelper
 
     override fun getDatabaseBuilder(): RoomDatabase.Builder<MigrationDatabase> {
-        return Room.databaseBuilder<MigrationDatabase>(filename, dbFactory).setDriver(driver)
+        return Room.databaseBuilder<MigrationDatabase>(filename).setDriver(driver)
     }
 
     @BeforeTest

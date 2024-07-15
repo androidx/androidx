@@ -287,6 +287,10 @@ package androidx.room {
     method public void onQuery(String sqlQuery, java.util.List<? extends java.lang.Object?> bindArgs);
   }
 
+  public interface RoomDatabaseConstructor<T extends androidx.room.RoomDatabase> {
+    method public T initialize();
+  }
+
   public final class RoomDatabaseKt {
     method public static kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> invalidationTrackerFlow(androidx.room.RoomDatabase, String[] tables, optional boolean emitInitialState);
     method public static suspend <R> Object? useReaderConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);

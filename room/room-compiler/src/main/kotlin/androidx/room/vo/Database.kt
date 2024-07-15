@@ -39,7 +39,8 @@ data class Database(
     val version: Int,
     val exportSchema: Boolean,
     val enableForeignKeys: Boolean,
-    val overrideClearAllTables: Boolean
+    val overrideClearAllTables: Boolean,
+    val constructorObjectElement: XTypeElement?
 ) {
     // This variable will be set once auto-migrations are processed given the DatabaseBundle from
     // this object. This is necessary for tracking the versions involved in the auto-migration.

@@ -18,6 +18,7 @@ package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room.ConstructedBy
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -26,8 +27,10 @@ import androidx.room.PrimaryKey
 import androidx.room.ProvidedTypeConverter
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.integration.multiplatformtestapp.test.BaseTypeConverterTest.TestDatabase
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 
@@ -56,6 +59,7 @@ abstract class BaseTypeConverterTest {
 
     @Database(entities = [TestEntity::class], version = 1, exportSchema = false)
     @TypeConverters(FooConverter::class, BarConverter::class)
+    @ConstructedBy(BaseTypeConverterTest_TestDatabaseConstructor::class)
     abstract class TestDatabase : RoomDatabase() {
         abstract fun getDao(): TestDao
     }
@@ -86,3 +90,5 @@ abstract class BaseTypeConverterTest {
         @TypeConverter fun fromBar(bar: Bar): String = bar.text
     }
 }
+
+expect object BaseTypeConverterTest_TestDatabaseConstructor : RoomDatabaseConstructor<TestDatabase>

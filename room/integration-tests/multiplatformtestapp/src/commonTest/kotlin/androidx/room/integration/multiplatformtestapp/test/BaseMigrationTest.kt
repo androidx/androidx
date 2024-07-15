@@ -18,6 +18,7 @@ package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
+import androidx.room.ConstructedBy
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -25,6 +26,8 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
+import androidx.room.integration.multiplatformtestapp.test.BaseMigrationTest.MigrationDatabase
 import androidx.room.migration.Migration
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.SQLiteConnection
@@ -248,7 +251,11 @@ abstract class BaseMigrationTest {
         version = 2,
         exportSchema = true,
     )
+    @ConstructedBy(BaseMigrationTest_MigrationDatabaseConstructor::class)
     abstract class MigrationDatabase : RoomDatabase() {
         abstract fun dao(): MigrationDao
     }
 }
+
+expect object BaseMigrationTest_MigrationDatabaseConstructor :
+    RoomDatabaseConstructor<MigrationDatabase>

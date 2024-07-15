@@ -24,9 +24,7 @@ import kotlinx.coroutines.IO
 class QueryTest : BaseQueryTest() {
 
     override fun getRoomDatabase(): SampleDatabase {
-        return Room.inMemoryDatabaseBuilder<SampleDatabase> {
-                SampleDatabase::class.instantiateImpl()
-            }
+        return Room.inMemoryDatabaseBuilder<SampleDatabase>()
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()

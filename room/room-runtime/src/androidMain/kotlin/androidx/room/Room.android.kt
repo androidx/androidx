@@ -51,9 +51,9 @@ actual object Room {
      * reference to it and re-use it.
      *
      * @param context The context for the database. This is usually the Application context.
-     * @param factory An optional lambda calling `initializeImpl()` on the database class which
-     *   returns the generated database implementation. If not provided then reflection is used to
-     *   find and instantiate the database implementation class.
+     * @param factory An optional lambda calling [RoomDatabaseConstructor.initialize] corresponding
+     *   to the database class of this builder. If not provided then reflection is used to find and
+     *   instantiate the database implementation class.
      * @param T The type of the database class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
@@ -100,9 +100,9 @@ actual object Room {
      *
      * @param context The context for the database. This is usually the Application context.
      * @param name The name of the database file.
-     * @param factory An optional lambda calling `initializeImpl()` on the database class which
-     *   returns the generated database implementation. If not provided then reflection is used to
-     *   find and instantiate the database implementation class.
+     * @param factory An optional lambda calling [RoomDatabaseConstructor.initialize] corresponding
+     *   to the database class of this builder. If not provided then reflection is used to find and
+     *   instantiate the database implementation class.
      * @param T The type of the database class.
      * @return A `RoomDatabaseBuilder<T>` which you can use to create the database.
      */
