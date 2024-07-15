@@ -196,7 +196,8 @@ internal class Camera2CaptureSequenceProcessor(
 
             // Create high speed capture requests if session is a high speed session
             if (session is CameraConstrainedHighSpeedCaptureSessionWrapper) {
-                val highSpeedRequestList = session.createHighSpeedRequestList(captureRequest)
+                val highSpeedRequestList =
+                    session.createHighSpeedRequestList(captureRequest) ?: return null
 
                 // Check if video stream use case or hint is present
                 val containsVideoStream =
