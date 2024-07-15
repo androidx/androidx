@@ -58,6 +58,8 @@ public class PaginatedView extends AbstractPaginatedView {
 
     private PdfSelectionModel mSelectionModel;
 
+    private PdfSelectionHandles mSelectionHandles;
+
     private SearchModel mSearchModel;
 
     private PdfLoader mPdfLoader;
@@ -112,6 +114,15 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public void setSearchModel(@NonNull SearchModel searchModel) {
         mSearchModel = searchModel;
+    }
+
+    @NonNull
+    public PdfSelectionHandles getSelectionHandles() {
+        return  mSelectionHandles;
+    }
+
+    public void setSelectionHandles(@NonNull PdfSelectionHandles selectionHandles) {
+        mSelectionHandles = selectionHandles;
     }
 
     public void setPdfLoader(@NonNull PdfLoader pdfLoader) {

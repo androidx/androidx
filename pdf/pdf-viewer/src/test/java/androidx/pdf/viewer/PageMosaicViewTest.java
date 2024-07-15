@@ -67,6 +67,8 @@ public class PageMosaicViewTest {
     @Mock
     private SearchModel mSearchModel;
 
+    PdfSelectionHandles mSelectionHandles = mock(PdfSelectionHandles.class);
+
     @Before
     public void setup() {
 
@@ -78,7 +80,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
-                mSearchModel);
+                mSearchModel, mSelectionHandles);
 
         assertThat(pageMosaicView.getPageText() == null).isTrue();
     }
@@ -89,7 +91,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
-                mSearchModel);
+                mSearchModel, mSelectionHandles);
 
         pageMosaicView.setOverlay(new MockDrawable());
         assertThat(pageMosaicView.hasOverlay()).isTrue();
@@ -101,7 +103,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
-                mSearchModel);
+                mSearchModel, mSelectionHandles);
 
         pageMosaicView.setOverlay(new MockDrawable());
         assertThat(pageMosaicView.hasOverlay()).isTrue();
@@ -116,7 +118,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
-                mSearchModel) {
+                mSearchModel, mSelectionHandles) {
             @Override
             @NonNull
             protected String buildContentDescription(@Nullable String pageText, int pageNum) {
@@ -137,7 +139,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
-                mSearchModel) {
+                mSearchModel, mSelectionHandles) {
             @Override
             @NonNull
             protected String buildContentDescription(@Nullable String pageText, int pageNum) {
@@ -179,7 +181,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, dummyPdfLoader, dummyPdfSelectionModel,
-                dummySearchModel) {
+                dummySearchModel, mSelectionHandles) {
             @Override
             public boolean needsPageText() {
                 return true;
@@ -226,7 +228,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, dummyPdfLoader, dummyPdfSelectionModel,
-                dummySearchModel) {
+                dummySearchModel, mSelectionHandles) {
             @Override
             public boolean needsPageText() {
                 return false;
@@ -267,7 +269,7 @@ public class PageMosaicViewTest {
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
                 mMockBitmapSource, mMockBitmapRecycler, dummyPdfLoader, dummyPdfSelectionModel,
-                dummySearchModel) {
+                dummySearchModel, mSelectionHandles) {
             @Override
             public boolean needsPageText() {
                 return false;

@@ -53,6 +53,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     private final PdfLoader mPdfLoader;
     private final PdfSelectionModel mSelectionModel;
     private final SearchModel mSearchModel;
+    private final PdfSelectionHandles mSelectionHandles;
 
     public PageMosaicView(
             @NonNull Context context,
@@ -62,7 +63,8 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
             @Nullable BitmapRecycler bitmapRecycler,
             @NonNull PdfLoader pdfLoader,
             @NonNull PdfSelectionModel selectionModel,
-            @NonNull SearchModel searchModel) {
+            @NonNull SearchModel searchModel,
+            @NonNull PdfSelectionHandles selectionHandles) {
         super(context);
         this.mPageNum = pageNum;
         init(pageSize, bitmapRecycler, bitmapSource);
@@ -72,6 +74,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
         this.mPdfLoader = pdfLoader;
         this.mSelectionModel = selectionModel;
         this.mSearchModel = searchModel;
+        this.mSelectionHandles = selectionHandles;
     }
 
     /** Set the given overlay. */
@@ -204,6 +207,7 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
     private void resetOverlays() {
         if (getPageNum() == mSelectionModel.getPage()) {
             setOverlay(new PdfHighlightOverlay(mSelectionModel.selection().get()));
+            mSelectionHandles.updateHandles();
         } else if (mSearchModel.query().get() != null) {
             if (!hasOverlay()) {
                 mPdfLoader.searchPageText(getPageNum(), mSearchModel.query().get());

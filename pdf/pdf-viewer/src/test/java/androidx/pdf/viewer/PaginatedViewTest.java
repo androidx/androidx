@@ -59,6 +59,8 @@ public class PaginatedViewTest {
     PdfSelectionModel mPdfSelectionModel;
     @Mock
     SearchModel mSearchModel;
+    @Mock
+    PdfSelectionHandles mSelectionHandles;
 
     PageView mTestPageView0;
     PageView mTestPageView1;
@@ -78,9 +80,11 @@ public class PaginatedViewTest {
 
         mPaginatedView.setModel(mPaginationModel);
         mTestPageView0 = new PageMosaicView(mContext, 0, mDimensions, mMockBitmapSource,
-                mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel, mSearchModel);
+                mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel, mSearchModel,
+                mSelectionHandles);
         mTestPageView1 = new PageMosaicView(mContext, 1, mDimensions, mMockBitmapSource,
-                mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel, mSearchModel);
+                mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel, mSearchModel,
+                mSelectionHandles);
     }
 
     @After
@@ -105,7 +109,8 @@ public class PaginatedViewTest {
 
         mPaginationModel.addPage(2, mDimensions);
         PageView testPageView3 = new PageMosaicView(mContext, 2, mDimensions, mMockBitmapSource,
-                mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel, mSearchModel);
+                mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel, mSearchModel,
+                mSelectionHandles);
         mPaginatedView.addView(testPageView3);
 
         mPaginatedView.removeViewAt(1);

@@ -20,6 +20,7 @@ import android.content.ContentResolver
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -412,9 +413,22 @@ open class PdfViewerFragment : Fragment() {
             )
         pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
 
-        savedState?.containsKey(KEY_LAYOUT_REACH)?.let {
-            val layoutReach = savedState.getInt(KEY_LAYOUT_REACH)
-            layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
+        savedState?.let { state ->
+            state.containsKey(KEY_LAYOUT_REACH).let {
+                val layoutReach = state.getInt(KEY_LAYOUT_REACH)
+                layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
+            }
+
+            isAnnotationIntentResolvable = state.getBoolean(KEY_SHOW_ANNOTATION)
+
+            // Restore page selection from saved state if it exists
+            val savedSelection =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    state.getParcelable(KEY_PAGE_SELECTION, PageSelection::class.java)
+                } else {
+                    @Suppress("DEPRECATION") state.getParcelable(KEY_PAGE_SELECTION)
+                }
+            savedSelection?.let { pdfLoaderCallbacks?.selectionModel?.setSelection(it) }
         }
     }
 
@@ -432,6 +446,7 @@ open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel = PdfSelectionModel(pdfLoader)
         selectionHandles =
             PdfSelectionHandles(pdfLoaderCallbacks?.selectionModel!!, zoomView!!, paginatedView!!)
+        paginatedView?.selectionHandles = selectionHandles!!
     }
 
     /** Restores the contents of this Viewer when it is automatically restored by android. */
@@ -527,6 +542,10 @@ open class PdfViewerFragment : Fragment() {
         super.onSaveInstanceState(outState)
         outState.putBundle(KEY_DATA, fileData?.asBundle())
         layoutHandler?.let { outState.putInt(KEY_LAYOUT_REACH, it.pageLayoutReach) }
+        outState.putBoolean(KEY_SHOW_ANNOTATION, isAnnotationIntentResolvable)
+        pdfLoaderCallbacks?.selectionModel?.let {
+            outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -629,6 +648,8 @@ open class PdfViewerFragment : Fragment() {
     companion object {
         private const val KEY_LAYOUT_REACH: String = "plr"
         private const val KEY_DATA: String = "data"
+        private const val KEY_SHOW_ANNOTATION: String = "showEditFab"
+        private const val KEY_PAGE_SELECTION: String = "currentPageSelection"
     }
 
     private fun setUpEditFab() {
