@@ -146,7 +146,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                     rootView
                 )
 
-            val (time, x, moves) =
+            val moves =
                 createMoveMotionEvents(
                     initialX = xMoveInitial,
                     initialTime = 100,
@@ -156,14 +156,23 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                     enableFlingStyleHistory = enableHistory
                 )
 
+            val lastMotionEvent =
+                if (moves.isNotEmpty()) {
+                    moves.last()
+                } else {
+                    down
+                }
+            val upEventTime = lastMotionEvent.eventTime.toInt() + DefaultPointerInputMoveTimeDelta
+            val upEventX = lastMotionEvent.x + DefaultPointerInputMoveAmountPx
+
             val up =
                 MotionEvent(
-                    time,
+                    upEventTime,
                     MotionEvent.ACTION_UP,
                     1,
                     0,
                     arrayOf(PointerProperties(0)),
-                    arrayOf(PointerCoords(x, y)),
+                    arrayOf(PointerCoords(upEventX, y)),
                     rootView
                 )
 

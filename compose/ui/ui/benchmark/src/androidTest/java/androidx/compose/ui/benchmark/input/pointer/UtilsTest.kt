@@ -41,7 +41,7 @@ class UtilsTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
-        val (time, x, moves) =
+        val moves =
             createMoveMotionEvents(
                 initialX = xMoveInitial,
                 initialTime = initialTime,
@@ -52,12 +52,6 @@ class UtilsTest {
                 timeDelta = 100,
                 moveDelta = -DefaultPointerInputMoveAmountPx
             )
-
-        val expectedOutputTime = initialTime + (numberOfEvents * DefaultPointerInputMoveTimeDelta)
-        assertThat(time).isEqualTo(expectedOutputTime)
-
-        val expectedOutputX = xMoveInitial - (abs(numberOfEvents * DefaultPointerInputMoveAmountPx))
-        assertThat(x).isEqualTo(expectedOutputX)
 
         assertThat(moves.size).isEqualTo(numberOfEvents)
 
@@ -84,7 +78,7 @@ class UtilsTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
-        val (time, x, moves) =
+        val moves =
             createMoveMotionEvents(
                 initialX = xMoveInitial,
                 initialTime = initialTime,
@@ -93,12 +87,6 @@ class UtilsTest {
                 numberOfMoveEvents = numberOfEvents,
                 enableFlingStyleHistory = enableFlingStyleHistory
             )
-
-        val expectedOutputTime = initialTime + (numberOfEvents * DefaultPointerInputMoveTimeDelta)
-        assertThat(time).isEqualTo(expectedOutputTime)
-
-        val expectedOutputX = xMoveInitial + (numberOfEvents * DefaultPointerInputMoveAmountPx)
-        assertThat(x).isEqualTo(expectedOutputX)
 
         assertThat(moves.size).isEqualTo(numberOfEvents)
 
@@ -125,7 +113,7 @@ class UtilsTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
-        val (time, x, moves) =
+        val moves =
             createMoveMotionEvents(
                 initialX = xMoveInitial,
                 initialTime = initialTime,
@@ -134,12 +122,6 @@ class UtilsTest {
                 numberOfMoveEvents = numberOfEvents,
                 enableFlingStyleHistory = enableFlingStyleHistory
             )
-
-        val expectedOutputTime = initialTime + (numberOfEvents * DefaultPointerInputMoveTimeDelta)
-        assertThat(time).isEqualTo(expectedOutputTime)
-
-        val expectedOutputX = xMoveInitial + (numberOfEvents * DefaultPointerInputMoveAmountPx)
-        assertThat(x).isEqualTo(expectedOutputX)
 
         assertThat(moves.size).isEqualTo(numberOfEvents)
 
@@ -167,7 +149,7 @@ class UtilsTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
-        val (time, x, moves) =
+        val moves =
             createMoveMotionEvents(
                 initialX = xMoveInitial,
                 initialTime = initialTime,
@@ -178,13 +160,6 @@ class UtilsTest {
                 timeDelta = 100,
                 moveDelta = -DefaultPointerInputMoveAmountPx
             )
-
-        val expectedOutputTime = initialTime + (numberOfEvents * DefaultPointerInputMoveTimeDelta)
-        assertThat(time).isEqualTo(expectedOutputTime)
-
-        val expectedOutputX = xMoveInitial - (abs(numberOfEvents * DefaultPointerInputMoveAmountPx))
-        assertThat(x).isEqualTo(expectedOutputX)
-
         assertThat(moves.size).isEqualTo(numberOfEvents)
 
         for ((moveIndex, move) in moves.withIndex()) {
