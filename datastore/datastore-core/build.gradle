@@ -63,8 +63,6 @@ tasks.named("extractAndroidTestProto").configure {
 }
 
 androidXMultiplatform {
-    enableBinaryCompatibilityValidator = true
-
     jvm()
     mac()
     linux()

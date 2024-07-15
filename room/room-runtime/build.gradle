@@ -69,8 +69,6 @@ android {
 }
 
 androidXMultiplatform {
-    enableBinaryCompatibilityValidator = true
-
     android()
     ios() {
         // Link to sqlite3 available in iOS
