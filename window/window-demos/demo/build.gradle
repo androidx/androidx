@@ -26,6 +26,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
@@ -38,7 +39,6 @@ android {
         targetSdkVersion 35
     }
     buildFeatures {
-        compose true
         viewBinding true
     }
     namespace "androidx.window.demo"
@@ -64,9 +64,6 @@ android {
     }
     compileOptions {
         coreLibraryDesugaringEnabled = true
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompilerPlugin.get()
     }
 }
 
