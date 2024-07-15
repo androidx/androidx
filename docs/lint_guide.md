@@ -64,7 +64,7 @@ androidx {
 
 Your new module will need to have a registry that contains a list of all of the
 checks to be performed on the library. There is an
-[`IssueRegistry`](https://cs.android.com/android/platform/superproject/+/master:tools/base/lint/libs/lint-api/src/main/java/com/android/tools/lint/client/api/IssueRegistry.java;l=47)
+[`IssueRegistry`](https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:lint/libs/lint-api/src/main/java/com/android/tools/lint/client/api/IssueRegistry.kt;l=37;drc=46191decba312bef3eb3972ae596a25e17c1a965)
 class provided by the tools team. Extend this class into your own
 `IssueRegistry` class, and provide it with the issues in the module.
 
