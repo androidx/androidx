@@ -51,6 +51,7 @@ import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.job
 import kotlinx.coroutines.withTimeout
 
@@ -291,7 +292,7 @@ class CallsManager constructor(context: Context) {
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
         block: CallControlScope.() -> Unit
-    ) {
+    ) = coroutineScope {
         // Provide a default empty handler for onEvent
         addCall(
             callAttributes,
