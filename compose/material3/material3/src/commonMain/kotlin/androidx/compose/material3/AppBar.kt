@@ -1972,6 +1972,9 @@ object BottomAppBarDefaults {
     val HorizontalArrangement =
         Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // TODO tokens
 
+    // TODO: note that this scroll behavior may impact assistive technologies making the component
+    //  inaccessible. See @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBar on how
+    //  to disable scrolling when touch exploration is enabled.
     /**
      * Returns a [BottomAppBarScrollBehavior]. A bottom app bar that is set up with this
      * [BottomAppBarScrollBehavior] will immediately collapse when the content is pulled up, and
