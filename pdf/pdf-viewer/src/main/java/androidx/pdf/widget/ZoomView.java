@@ -140,6 +140,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private static final String KEY_CONTENT_ZOOM = "z";
     private static final String KEY_RAW_BOUNDS = "b";
     private static final String KEY_PADDING = "pa";
+    private static final String KEY_LOOKAT_POINT = "l";
     private static final int OVERSCROLL_THRESHOLD = 25;
     /** Fallback duration for the zoom animation, when material attributes are unavailable. */
     private static final int FALLBACK_ZOOM_ANIMATION_DURATION_MS = 250;
@@ -225,6 +226,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private Rect mZoomViewBasePadding = new Rect();
     private boolean mZoomViewBasePaddingSaved;
     private PdfSelectionModel mPdfSelectionModel;
+    private PointF mRestoreLookAtPoint;
 
     {
         mScroller = new RelativeScroller(getContext());
@@ -557,7 +559,11 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
                 }
 
                 zoomChanged = true;
-                centerAt(lookAtPoint.x, lookAtPoint.y);
+                if (mSaveState && mRestoreLookAtPoint != null) {
+                    centerAt(mRestoreLookAtPoint.x, mRestoreLookAtPoint.y);
+                } else {
+                    centerAt(lookAtPoint.x, lookAtPoint.y);
+                }
                 shouldConstrainPosition = true;
 
 
@@ -984,6 +990,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             bundle.putFloat(KEY_CONTENT_ZOOM, mContentView.getScaleX());
             bundle.putParcelable(KEY_RAW_BOUNDS, mContentRawBounds);
             bundle.putParcelable(KEY_PADDING, mPaddingOnLastViewportUpdate);
+            bundle.putParcelable(KEY_LOOKAT_POINT, computeLookAtPoint());
         }
         return bundle;
     }
@@ -1001,6 +1008,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             mContentView.setScaleX(bundle.getFloat(KEY_CONTENT_ZOOM));
             mContentRawBounds.set(Objects.requireNonNull(bundle.getParcelable(KEY_RAW_BOUNDS)));
             mPaddingOnLastViewportUpdate = bundle.getParcelable(KEY_PADDING);
+            mRestoreLookAtPoint = bundle.getParcelable(KEY_LOOKAT_POINT);
         }
     }
 
