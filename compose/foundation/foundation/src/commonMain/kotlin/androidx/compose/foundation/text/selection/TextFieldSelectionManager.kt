@@ -27,6 +27,7 @@ import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.UndoManager
 import androidx.compose.foundation.text.ValidatingEmptyOffsetMappingIdentity
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
+import androidx.compose.foundation.text.isPositionInsideSelection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -779,20 +780,27 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         }
     }
 
-    fun contextMenuOpenAdjustment(position: Offset) {
-        state?.layoutResult?.let { layoutResult ->
-            val offset = layoutResult.getOffsetForPosition(position)
-            if (!value.selection.contains(offset)) {
-                previousRawDragOffset = -1
-                updateSelection(
-                    value = value,
-                    currentPosition = position,
-                    isStartOfSelection = true,
-                    isStartHandle = false,
-                    adjustment = SelectionAdjustment.Word,
-                    isTouchBasedSelection = false // context menu implies non-touch
-                )
-            }
+    /**
+     * Implements the macOS select-word-on-right-click behavior.
+     *
+     * If the current selection does not already include [position], select the word at [position].
+     */
+    fun selectWordAtPositionIfNotAlreadySelected(position: Offset) {
+        val layoutResult = state?.layoutResult ?: return
+        val isClickedPositionInsideSelection =
+            layoutResult.value.isPositionInsideSelection(
+                position = layoutResult.translateDecorationToInnerCoordinates(position),
+                selectionRange = value.selection,
+            )
+        if (!isClickedPositionInsideSelection) {
+            updateSelection(
+                value = value,
+                currentPosition = position,
+                isStartOfSelection = true,
+                isStartHandle = false,
+                adjustment = SelectionAdjustment.Word,
+                isTouchBasedSelection = false,
+            )
         }
     }
 
