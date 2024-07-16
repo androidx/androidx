@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -23,15 +23,6 @@
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
         errorLine1="        Thread.sleep(3 * TEST_EPOCH_JOB_PERIOD_MS);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/privacysandbox/ads/adservices/java/endtoend/topics/TopicsManagerTest.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(TEST_EPOCH_JOB_PERIOD_MS);"
         errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/privacysandbox/ads/adservices/java/endtoend/topics/TopicsManagerTest.java"/>

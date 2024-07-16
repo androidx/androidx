@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanInlineOptIn"
@@ -75,18 +75,18 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="method processNewAnchors$constraintlayout_compose has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
-        errorLine1="        oldAnchors: Map&lt;Float, T>,"
-        errorLine2="                    ~~~~~~~~~~~~~">
+        message="method processNewAnchors$constraintlayout_compose has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal suspend fun processNewAnchors(oldAnchors: Map&lt;Float, T>, newAnchors: Map&lt;Float, T>) {"
+        errorLine2="                                                                                  ~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
-        message="method processNewAnchors$constraintlayout_compose has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
-        errorLine1="        newAnchors: Map&lt;Float, T>"
-        errorLine2="                    ~~~~~~~~~~~~~">
+        message="method processNewAnchors$constraintlayout_compose has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal suspend fun processNewAnchors(oldAnchors: Map&lt;Float, T>, newAnchors: Map&lt;Float, T>) {"
+        errorLine2="                                                       ~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
     </issue>
@@ -112,8 +112,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
-        errorLine1="        val oldAnchors = state.anchors"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            val oldAnchors = state.anchors"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
     </issue>
@@ -121,8 +121,8 @@
     <issue
         id="PrimitiveInCollection"
         message="method findBounds has parameter anchors with type Set&lt;Float>: replace with FloatSet"
-        errorLine1="    anchors: Set&lt;Float>"
-        errorLine2="             ~~~~~~~~~~">
+        errorLine1="private fun findBounds(offset: Float, anchors: Set&lt;Float>): List&lt;Float> {"
+        errorLine2="                                               ~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
     </issue>
@@ -130,8 +130,8 @@
     <issue
         id="PrimitiveInCollection"
         message="return type List&lt;Float> of findBounds: replace with FloatList"
-        errorLine1="): List&lt;Float> {"
-        errorLine2="   ~~~~~~~~~~~">
+        errorLine1="private fun findBounds(offset: Float, anchors: Set&lt;Float>): List&lt;Float> {"
+        errorLine2="                                                            ~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/carousel/CarouselSwipeable.kt"/>
     </issue>
@@ -184,7 +184,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable anchors with type Map&lt;Float, ? extends String>: replace with FloatObjectMap"
-        errorLine1="    val anchors = if (currentIndex == 0) {"
+        errorLine1="    val anchors ="
         errorLine2="    ^">
         <location
             file="src/androidMain/kotlin/androidx/constraintlayout/compose/MotionCarousel.kt"/>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -8,24 +8,6 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/dynamicanimation/tests/SpringTests.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 33; however, the containing class androidx.dynamicanimation.animation.AnimationHandler is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mDurationScale = ValueAnimator.getDurationScale();"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/AnimationHandler.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                property.setValue(object, value);"
-        errorLine2="                         ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"/>
     </issue>
 
     <issue

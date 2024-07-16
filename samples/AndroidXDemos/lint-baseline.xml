@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="OnClick"
@@ -155,24 +155,6 @@
         errorLine2="                                       ~~~~~">
         <location
             file="src/main/java/com/example/androidx/widget/AsyncListUtilActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 29; however, the containing class com.example.androidx.app.AppCompatDefaultNightModeBootAwareActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        .detectImplicitDirectBoot()"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatDefaultNightModeBootAwareActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class com.example.androidx.widget.selection.fancy.FancySelectionDemoActivity.OnContextClickListener is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (view.showContextMenu(x, y)) {"
-        errorLine2="                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/widget/selection/fancy/FancySelectionDemoActivity.java"/>
     </issue>
 
     <issue

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.5.0-alpha03" type="baseline" client="gradle" dependencies="false" name="AGP (8.5.0-alpha03)" variant="all" version="8.5.0-alpha03">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="NewApi"
@@ -85,8 +85,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                        &quot;&apos;$key&apos; must be unique. Actual [ [${value.joinToString()}]&quot;"
-        errorLine2="                                                                  ~~~~~~~~~~~~">
+        errorLine1="                                &quot;&apos;$key&apos; must be unique. Actual [ [${value.joinToString()}]&quot;"
+        errorLine2="                                                                          ~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontVariation.kt"/>
     </issue>
@@ -121,8 +121,8 @@
     <issue
         id="PrimitiveInCollection"
         message="method collectRangeTransitions has parameter target with type SortedSet&lt;Integer>: replace with IntSet"
-        errorLine1="    target: SortedSet&lt;Int>"
-        errorLine2="            ~~~~~~~~~~~~~~">
+        errorLine1="private fun collectRangeTransitions(ranges: List&lt;Range&lt;*>>?, target: SortedSet&lt;Int>) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
     </issue>
@@ -148,8 +148,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable list with type List&lt;? extends Float>: replace with FloatList"
-        errorLine1="        @Suppress(&quot;UNCHECKED_CAST&quot;)"
-        errorLine2="        ^">
+        errorLine1="            @Suppress(&quot;UNCHECKED_CAST&quot;) val list = it as List&lt;Float>"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
     </issue>
@@ -175,8 +175,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable set with type TreeSet&lt;Integer>: replace with IntSet"
-        errorLine1="        val set = TreeSet&lt;Int>().apply {"
-        errorLine2="        ^">
+        errorLine1="        val set = TreeSet&lt;Int>().apply { words.fastForEach { add(it) } }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
     </issue>
