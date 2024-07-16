@@ -64,7 +64,7 @@ android {
 
 dependencies {
     ksp("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.core:core:1.12.0")
+    api("androidx.core:core:1.12.0")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     api("androidx.annotation:annotation-experimental:1.4.1")
