@@ -218,7 +218,7 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
-@OptIn(InternalTestApi::class, ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     private val effectContext: CoroutineContext = EmptyCoroutineContext
 ) {
@@ -314,7 +314,7 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
 
     internal val testReceiverScope = AndroidComposeUiTestImpl()
     private val testOwner = AndroidTestOwner()
-    private val testContext = createTestContext(testOwner)
+    private val testContext = TestContext(testOwner)
 
     /**
      * Returns the current host activity of type [A]. If no such activity is available, for example
@@ -562,7 +562,7 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         }
     }
 
-    internal inner class AndroidTestOwner : TestOwner {
+    private inner class AndroidTestOwner : TestOwner {
         override val mainClock: MainTestClock
             get() = mainClockImpl
 

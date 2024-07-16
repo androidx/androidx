@@ -531,17 +531,6 @@ package androidx.compose.ui.test {
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static long getFrameDelayMillis(androidx.compose.ui.test.TestMonotonicFrameClock);
   }
 
-  @SuppressCompatibility @androidx.compose.ui.test.InternalTestApi public interface TestOwner {
-    method public androidx.compose.ui.test.MainTestClock getMainClock();
-    method public java.util.Set<androidx.compose.ui.node.RootForTest> getRoots(boolean atLeastOneRootExpected);
-    method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
-    property public abstract androidx.compose.ui.test.MainTestClock mainClock;
-  }
-
-  public final class TestOwnerKt {
-    method @SuppressCompatibility @androidx.compose.ui.test.InternalTestApi public static androidx.compose.ui.test.TestContext createTestContext(androidx.compose.ui.test.TestOwner owner);
-  }
-
   public final class TextActionsKt {
     method public static void performImeAction(androidx.compose.ui.test.SemanticsNodeInteraction);
     method public static void performTextClearance(androidx.compose.ui.test.SemanticsNodeInteraction);
