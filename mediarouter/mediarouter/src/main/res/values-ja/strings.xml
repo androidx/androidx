@@ -51,4 +51,8 @@
     <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"他のデバイスがこのデバイスと同じ Wi-Fi ネットワークに接続していることを確認してください"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"詳細"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"キャスト方法"</string>
+    <string name="mr_route_name_unknown" msgid="5538521943939635302">"不明"</string>
+    <string name="mr_route_name_bluetooth" msgid="5056346328175584455">"Bluetooth"</string>
+    <string name="mr_route_name_tv" msgid="8041420425123528188">"テレビ"</string>
+    <string name="mr_route_name_speaker" msgid="708574147123374685">"スピーカー"</string>
 </resources>
