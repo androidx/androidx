@@ -35,12 +35,16 @@ dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
     bundleInside(projectOrArtifact(":compose:lint:common"))
+    compileOnly(libs.intellijCore)
+    compileOnly(libs.uast)
+    compileOnly(libs.intellijKotlinCompiler)
+
 
     testImplementation(projectOrArtifact(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.kotlinReflect)
+    testRuntimeOnly(libs.kotlinReflect)
     testImplementation(libs.kotlinStdlibJdk8)
-    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintApi)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

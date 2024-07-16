@@ -333,7 +333,6 @@ def includeOptionalProject(String name, File filePath, List<BuildType> filter = 
 includeProject(":activity:activity", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-compose", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose:activity-compose-samples", "activity/activity-compose/samples", [BuildType.COMPOSE])
-includeProject(":activity:activity-compose:integration-tests:activity-demos", [BuildType.COMPOSE])
 includeProject(":activity:activity-compose-lint", [BuildType.COMPOSE])
 includeProject(":activity:activity-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":activity:activity-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
