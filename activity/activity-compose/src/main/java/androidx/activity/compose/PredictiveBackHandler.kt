@@ -120,7 +120,6 @@ public fun PredictiveBackHandler(
                 super.handleOnBackCancelled()
                 // cancel will purge the channel of any sent events that are yet to be received
                 onBackInstance?.cancel()
-                onBackInstance = null
                 onBackInstance?.isPredictiveBack = false
             }
         }
