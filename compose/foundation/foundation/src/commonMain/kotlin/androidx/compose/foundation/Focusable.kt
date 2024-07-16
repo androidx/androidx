@@ -211,7 +211,7 @@ internal class FocusableNode(
         if (isFocused == wasFocused) return
         if (isFocused) {
             onFocus?.invoke()
-            coroutineScope.launch { scrollIntoView() }
+            coroutineScope.launch { if (isAttached) scrollIntoView() }
             val pinnableContainer = retrievePinnableContainer()
             pinnedHandle = pinnableContainer?.pin()
             notifyObserverWhenAttached()
