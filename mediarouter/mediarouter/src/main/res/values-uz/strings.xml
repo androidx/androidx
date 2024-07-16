@@ -51,4 +51,8 @@
     <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Boshqa qurilma bu qurilma bilan bir xil Wi-Fi tarmoqda ekaniga ishonch hosil qiling"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Batafsil"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Qanday translatsiya qilinadi"</string>
+    <string name="mr_route_name_unknown" msgid="5538521943939635302">"Noaniq"</string>
+    <string name="mr_route_name_bluetooth" msgid="5056346328175584455">"Bluetooth"</string>
+    <string name="mr_route_name_tv" msgid="8041420425123528188">"TV"</string>
+    <string name="mr_route_name_speaker" msgid="708574147123374685">"Karnay"</string>
 </resources>
