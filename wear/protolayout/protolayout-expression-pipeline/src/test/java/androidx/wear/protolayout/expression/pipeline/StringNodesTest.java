@@ -46,6 +46,7 @@ import java.util.Random;
 @RunWith(AndroidJUnit4.class)
 public class StringNodesTest {
     private static final AppDataKey<DynamicString> KEY_FOO = new AppDataKey<>("foo");
+
     @Test
     public void fixedStringNodeTest() {
         List<String> results = new ArrayList<>();
@@ -188,11 +189,11 @@ public class StringNodesTest {
         FixedStringNode lhsNode =
                 new FixedStringNode(
                         FixedString.newBuilder().setValue(string300chars).build(),
-                        node.getLhsUpstreamCallback());
+                        node.getLhsIncomingCallback());
         FixedStringNode rhsNode =
                 new FixedStringNode(
                         FixedString.newBuilder().setValue(string300chars).build(),
-                        node.getRhsUpstreamCallback());
+                        node.getRhsIncomingCallback());
         lhsNode.preInit();
         lhsNode.init();
         rhsNode.preInit();

@@ -313,7 +313,7 @@ public class FloatNodeTest {
 
         float lhsValue = 6.6f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhsValue).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
         lhsNode.init();
 
         float oldRhsValue = 6.5f;
@@ -326,7 +326,7 @@ public class FloatNodeTest {
                                         .build()));
         StateFloatSource rhsProtoNode = StateFloatSource.newBuilder().setSourceKey("foo").build();
         StateFloatSourceNode rhsNode =
-                new StateFloatSourceNode(oss, rhsProtoNode, node.getRhsUpstreamCallback());
+                new StateFloatSourceNode(oss, rhsProtoNode, node.getRhsIncomingCallback());
 
         rhsNode.preInit();
         rhsNode.init();
@@ -442,8 +442,7 @@ public class FloatNodeTest {
                         .build();
         AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(
-                        protoNode, addToListCallback, quotaManager);
+                new AnimatableFixedFloatNode(protoNode, addToListCallback, quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -469,8 +468,7 @@ public class FloatNodeTest {
                         .build();
         AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedFloatNode node =
-                new AnimatableFixedFloatNode(
-                        protoNode, addToListCallback, quotaManager);
+                new AnimatableFixedFloatNode(protoNode, addToListCallback, quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -524,9 +522,7 @@ public class FloatNodeTest {
         AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         DynamicAnimatedFloatNode floatNode =
                 new DynamicAnimatedFloatNode(
-                        addToListCallback,
-                        AnimationSpec.getDefaultInstance(),
-                        quotaManager);
+                        addToListCallback, AnimationSpec.getDefaultInstance(), quotaManager);
         floatNode.setVisibility(false);
         StateFloatSourceNode stateNode =
                 new StateFloatSourceNode(
@@ -584,10 +580,10 @@ public class FloatNodeTest {
         ArithmeticFloatNode node = new ArithmeticFloatNode(protoNode, receiver);
 
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhs).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
 
         FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(rhs).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
+        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsIncomingCallback());
         lhsNode.preInit();
         rhsNode.preInit();
 

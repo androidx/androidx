@@ -62,8 +62,8 @@ public class DurationNodesTest {
         Instant secondInstant = Instant.ofEpochSecond(12345L);
 
         BetweenInstancesNode node = new BetweenInstancesNode(new AddToListCallback<>(results));
-        node.getLhsUpstreamCallback().onData(firstInstant);
-        node.getRhsUpstreamCallback().onData(secondInstant);
+        node.getLhsIncomingCallback().onData(firstInstant);
+        node.getRhsIncomingCallback().onData(secondInstant);
 
         assertThat(results).containsExactly(Duration.between(firstInstant, secondInstant));
     }
