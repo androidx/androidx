@@ -651,9 +651,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param elements [LayoutReference]s to be laid out by the Grid-based Row helper.
      * @param spacing Defines the horizontal spacing between each item in the Row.
      * @param weights Defines the weight for each element in the Row. Note that the number of
-     *   weights provided are expected to match the number of [elements] given. Otherwise, weights
-     *   will be automatically appended (with a value of `1`), or trimmed to match the number of
-     *   given [elements].
+     *   weights provided are expected to match the number of [elements] given.
+     * @throws IllegalArgumentException When non empty [weights] don't match the number of elements.
      * @see createGrid
      */
     @SuppressLint("Range") // Enables internal grid mode for row and column
@@ -662,6 +661,11 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         spacing: Dp = 0.dp,
         weights: FloatArray = floatArrayOf(),
     ): ConstrainedLayoutReference {
+        if (weights.isNotEmpty() && elements.size != weights.size) {
+            throw IllegalArgumentException(
+                "Number of weights (${weights.size}) should match number of elements (${elements.size})."
+            )
+        }
         return createGrid(
             elements = elements,
             rows = 1,
@@ -680,9 +684,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param elements [LayoutReference]s to be laid out by the Grid-based Column helper
      * @param spacing Defines the vertical spacing between each item in the Column.
      * @param weights Defines the weight for each element in the Column. Note that the number of
-     *   weights provided are expected to match the number of [elements] given. Otherwise, weights
-     *   will be automatically appended (with a value of `1`), or trimmed to match the number of
-     *   given [elements].
+     *   weights provided are expected to match the number of [elements] given.
+     * @throws IllegalArgumentException When non empty [weights] don't match the number of elements.
      * @see createGrid
      */
     @SuppressLint("Range") // Enables internal grid mode for row and column
@@ -691,6 +694,11 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         spacing: Dp = 0.dp,
         weights: FloatArray = floatArrayOf(),
     ): ConstrainedLayoutReference {
+        if (weights.isNotEmpty() && elements.size != weights.size) {
+            throw IllegalArgumentException(
+                "Number of weights (${weights.size}) should match number of elements (${elements.size})."
+            )
+        }
         return createGrid(
             elements = elements,
             rows = 0,
@@ -733,12 +741,10 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * @param horizontalSpacing Defines the gap between each column.
      * @param rowWeights Defines the weight for each row. The weight specifies how much space each
      *   row takes relative to each other. Should be either an empty array (all rows are the same
-     *   size), or have a value corresponding for each row. Otherwise, these weights will be trimmed
-     *   or padded (with trailing 1f) to match the given [rows].
+     *   size), or have a value corresponding for each row.
      * @param columnWeights Defines the weight for each column. The weight specifies how much space
      *   each column takes relative to each other. Should be either an empty array (all columns are
-     *   the same size), or have a value corresponding for each column. Otherwise, these weights
-     *   will be trimmed or padded (with trailing 1f) to match the given [columns].
+     *   the same size), or have a value corresponding for each column.
      * @param skips A [Skip] defines an area within the Grid where Layouts may **not** be placed.
      *   So, as the [elements] are being placed, they will skip any cell covered by the given skips.
      * @param spans A [Span] defines how much area should each cell occupy when placing an item on
@@ -748,6 +754,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *   spans, meaning that defining a [Span] that overlaps a [Skip] is a no-op.
      * @param flags A [GridFlags] definition that may change certain behaviors of the Grid helper.
      *   [GridFlags.None] by default.
+     * @throws IllegalArgumentException When non empty weights don't match the number of columns or
+     *   rows respectively.
      * @see createColumn
      * @see createRow
      */
@@ -764,6 +772,17 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         spans: Array<Span> = arrayOf(),
         flags: GridFlags = GridFlags.None,
     ): ConstrainedLayoutReference {
+        if (rowWeights.isNotEmpty() && rows > 0 && rows != rowWeights.size) {
+            throw IllegalArgumentException(
+                "Number of weights (${rowWeights.size}) should match number of rows ($rows)."
+            )
+        }
+        if (columnWeights.isNotEmpty() && columns > 0 && columns != columnWeights.size) {
+            throw IllegalArgumentException(
+                "Number of weights (${columnWeights.size}) should match number of columns ($columns)."
+            )
+        }
+
         val ref = ConstrainedLayoutReference(createHelperId())
         val elementArray = CLArray(charArrayOf())
         elements.forEach { elementArray.add(CLString.from(it.id.toString())) }
