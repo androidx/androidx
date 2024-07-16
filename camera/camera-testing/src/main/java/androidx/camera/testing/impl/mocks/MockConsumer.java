@@ -23,6 +23,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
+import androidx.camera.testing.impl.mocks.helpers.ArgumentMatcher;
 import androidx.camera.testing.impl.mocks.helpers.CallTimes;
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
 import androidx.core.util.Consumer;
@@ -55,9 +56,9 @@ public class MockConsumer<T> implements Consumer<T> {
     private final Map<Integer, Boolean> mIsEventVerifiedByIndex = new HashMap<>();
     private int mIndexLastVerifiedInOrder = -1;
 
-    private Class<?> mClassTypeToVerify;
     private CallTimes mCallTimes;
     private boolean mInOrder = false;
+    private ArgumentMatcher<T> mMatcher;
 
     private int getMatchingEventCount() {
         return getMatchingEventCount(mVerifyingEventList);
@@ -67,7 +68,7 @@ public class MockConsumer<T> implements Consumer<T> {
         int count = 0;
         int startIndex = mInOrder ? mIndexLastVerifiedInOrder + 1 : 0;
         for (int i = startIndex; i < eventList.size(); i++) {
-            if (mClassTypeToVerify.isInstance(eventList.get(i))) {
+            if (mMatcher.matches(eventList.get(i))) {
                 count++;
             }
         }
@@ -77,7 +78,7 @@ public class MockConsumer<T> implements Consumer<T> {
     private int getLastVerifiedEventInOrder() {
         int count = 0;
         for (int i = mIndexLastVerifiedInOrder + 1; i < mVerifyingEventList.size(); i++) {
-            if (mClassTypeToVerify.isInstance(mVerifyingEventList.get(i))) {
+            if (mMatcher.matches(mVerifyingEventList.get(i))) {
                 count++;
             }
 
@@ -95,7 +96,7 @@ public class MockConsumer<T> implements Consumer<T> {
         }
 
         for (int i = 0; i < mVerifyingEventList.size(); i++) {
-            if (mClassTypeToVerify.isInstance(mVerifyingEventList.get(i))) {
+            if (mMatcher.matches(mVerifyingEventList.get(i))) {
                 mIsEventVerifiedByIndex.put(i, true);
             }
         }
@@ -151,7 +152,7 @@ public class MockConsumer<T> implements Consumer<T> {
      */
     public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
             @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes) {
-        verifyAcceptCall(classType, inOrder, timeoutInMillis, callTimes, null);
+        verifyAcceptCall(classType, inOrder, timeoutInMillis, callTimes, (ArgumentCaptor<T>) null);
     }
 
     /**
@@ -173,14 +174,37 @@ public class MockConsumer<T> implements Consumer<T> {
     public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
             @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes,
             @Nullable ArgumentCaptor<T> captor) {
+        verifyAcceptCallInternal(classType, null, inOrder, timeoutInMillis, callTimes, captor);
+    }
+
+    /** Verifies if {@link #accept} method was invoked properly during test. */
+    public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
+            @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes,
+            @NonNull ArgumentMatcher<T> matcher) {
+        verifyAcceptCall(classType, inOrder, timeoutInMillis, callTimes, null, matcher);
+    }
+
+    /** Verifies if {@link #accept} method was invoked properly during test. */
+    public void verifyAcceptCall(@NonNull Class<?> classType, boolean inOrder,
+            @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes,
+            @Nullable ArgumentCaptor<T> captor, @NonNull ArgumentMatcher<T> matcher
+    ) {
+        verifyAcceptCallInternal(classType, matcher, inOrder, timeoutInMillis, callTimes, captor);
+    }
+
+    private void verifyAcceptCallInternal(@NonNull Class<?> classType,
+            @Nullable ArgumentMatcher<T> matcher, boolean inOrder,
+            @IntRange(from = 0) long timeoutInMillis, @NonNull CallTimes callTimes,
+            @Nullable ArgumentCaptor<T> captor) {
         Preconditions.checkNotNull(classType, "The class type can not be null.");
         Preconditions.checkState(timeoutInMillis >= 0,
                 "Timeout can not be negative: " + timeoutInMillis);
         Preconditions.checkNotNull(callTimes, "The call times criteria can not be null.");
 
-        mClassTypeToVerify = classType;
         mCallTimes = callTimes;
         mInOrder = inOrder;
+        mMatcher = argument -> classType.isInstance(argument)
+                && (matcher == null || matcher.matches(argument));
 
         CountDownLatch latch = null;
         boolean isVerified;
