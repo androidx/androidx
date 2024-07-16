@@ -71,7 +71,8 @@ androidXMultiplatform {
 }
 
 android {
-  namespace = "androidx.ink.brush"
+    compileSdk 35
+    namespace = "androidx.ink.brush"
 }
 
 androidx {

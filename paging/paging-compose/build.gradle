@@ -86,6 +86,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.paging.compose"
     // TODO(b/313699418): need to update compose.runtime version to 1.6.0+
     experimentalProperties["android.lint.useK2Uast"] = false

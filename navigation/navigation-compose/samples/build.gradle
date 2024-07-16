@@ -59,5 +59,6 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.navigation.compose.samples"
 }

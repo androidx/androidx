@@ -52,6 +52,7 @@ import androidx.inspection.InspectorEnvironment
 import androidx.inspection.InspectorFactory
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
+import kotlin.collections.removeLast as removeLastKt
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersResponse
@@ -97,7 +98,7 @@ class ComposeLayoutInspector(connection: Connection, environment: InspectorEnvir
             val stack = mutableListOf<InspectorNode>()
             trees.forEach { stack.addAll(it.nodes) }
             while (stack.isNotEmpty()) {
-                val node = stack.removeLast()
+                val node = stack.removeLastKt()
                 stack.addAll(node.children)
                 result.put(node.id, node)
             }

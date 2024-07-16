@@ -142,6 +142,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.compose.ui.text"
     // TODO(b/328001575)
     experimentalProperties["android.lint.useK2Uast"] = false

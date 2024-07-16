@@ -58,6 +58,7 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import kotlin.collections.removeLast as removeLastKt
 
 private val modifierKeys =
     setOf(
@@ -100,7 +101,7 @@ fun TextFieldFocusDemo() {
         if (keys.none { it.keyEvent.keyCode == event.keyCode && !it.isUp }) {
             keys.add(0, KeyState(event))
             if (keys.size > 10) {
-                keys.removeLast()
+                keys.removeLastKt()
             }
         }
     }
