@@ -35,6 +35,7 @@ import android.widget.ImageView
 import android.window.SplashScreenView
 import androidx.annotation.MainThread
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
 
@@ -253,7 +254,7 @@ class SplashScreen private constructor(activity: Activity) {
                     true
                 )
             ) {
-                icon = currentTheme.getDrawable(typedValue.resourceId)
+                icon = AppCompatResources.getDrawable(activity, typedValue.resourceId)
             }
 
             if (currentTheme.resolveAttribute(R.attr.splashScreenIconSize, typedValue, true)) {
@@ -346,7 +347,8 @@ class SplashScreen private constructor(activity: Activity) {
                 if (hasBackground) {
                     // If the splash screen has an icon background we need to mask both the
                     // background and foreground.
-                    val iconBackgroundDrawable = context.getDrawable(R.drawable.icon_background)
+                    val iconBackgroundDrawable =
+                        AppCompatResources.getDrawable(context, R.drawable.icon_background)
 
                     val iconSize =
                         resources.getDimension(R.dimen.splashscreen_icon_size_with_background)
