@@ -752,8 +752,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *   spanned area. In that sense, a [Span] works similarly to a [Skip], except that an item will
      *   be placed at the original spanned cell position. Also note, [skips] take priority over
      *   spans, meaning that defining a [Span] that overlaps a [Skip] is a no-op.
-     * @param flags A [GridFlags] definition that may change certain behaviors of the Grid helper.
-     *   [GridFlags.None] by default.
+     * @param flags A [GridFlag] definition that may change certain behaviors of the Grid helper.
+     *   [GridFlag.None] by default.
      * @throws IllegalArgumentException When non empty weights don't match the number of columns or
      *   rows respectively.
      * @see createColumn
@@ -770,7 +770,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         columnWeights: FloatArray = floatArrayOf(),
         skips: Array<Skip> = arrayOf(),
         spans: Array<Span> = arrayOf(),
-        flags: GridFlags = GridFlags.None,
+        flags: GridFlag = GridFlag.None,
     ): ConstrainedLayoutReference {
         if (rowWeights.isNotEmpty() && rows > 0 && rows != rowWeights.size) {
             throw IllegalArgumentException(
@@ -1286,7 +1286,8 @@ class Visibility internal constructor(internal val name: String) {
 }
 
 /**
- * Set of individual options that may change the Grid helper behavior.
+ * Set of individual options that may change the Grid helper behavior, each flag can be combined
+ * with the [GridFlag.or] operator.
  *
  * By default, the Grid helper places its [LayoutReference]s as given in the `elements` parameter.
  * Following arrangement rules (skips, spans and orientation).
@@ -1306,46 +1307,63 @@ class Visibility internal constructor(internal val name: String) {
  * @see ConstraintLayoutBaseScope.createGrid
  */
 @JvmInline
-value class GridFlags private constructor(internal val value: Int) {
-    /**
-     * @param isPlaceLayoutsOnSpansFirst Whether to make it so that Layouts are first placed on
-     *   cells occupied by spans.
-     */
-    constructor(
-        isPlaceLayoutsOnSpansFirst: Boolean = false
-    ) : this((if (isPlaceLayoutsOnSpansFirst) 0 else GridCore.SPANS_RESPECT_WIDGET_ORDER))
+value class GridFlag private constructor(internal val value: Int) {
 
-    @TestOnly // Only for tests, the additional flag is not needed when using the DSL
-    internal constructor(
+    /**
+     * Handles the conversion of compose flags to :constraintlayout-core flags, handled like this
+     * since we invert the meaning of one the flags for API ergonomics in Compose.
+     */
+    private constructor(
         isPlaceLayoutsOnSpansFirst: Boolean = false,
+        // isSubGridByColRow is only expected to be used on tests
         isSubGridByColRow: Boolean = false
     ) : this(
         (if (isPlaceLayoutsOnSpansFirst) 0 else GridCore.SPANS_RESPECT_WIDGET_ORDER) or
             (if (isSubGridByColRow) GridCore.SUB_GRID_BY_COL_ROW else 0)
     )
 
+    /** `or` operator override to allow combining flags */
+    infix fun or(other: GridFlag): GridFlag =
+        // Again, implemented like this as the flag handling is non-standard. It differs from the
+        // :constraintlayout-core flag behaviors.
+        GridFlag(
+            isPlaceLayoutsOnSpansFirst or other.isPlaceLayoutsOnSpansFirst,
+            isSubGridByColRow or other.isSubGridByColRow
+        )
+
     /**
      * When true, the Grid helper will first place Layouts on cells occupied by spans, then fill the
      * remaining cells following the typical arrangement rules.
      */
     val isPlaceLayoutsOnSpansFirst: Boolean
-        get() = value and (GridCore.SPANS_RESPECT_WIDGET_ORDER) == 0
+        get() = value and GridCore.SPANS_RESPECT_WIDGET_ORDER == 0
+
+    /**
+     * Whether area definitions in Spans and Skips are treated as "columns by rows".
+     *
+     * Note that this property is only relevant for testing.
+     */
+    internal val isSubGridByColRow: Boolean
+        get() = value and GridCore.SUB_GRID_BY_COL_ROW > 0
 
     override fun toString(): String =
         "GridFlag(isPlaceLayoutsOnSpansFirst = $isPlaceLayoutsOnSpansFirst)"
 
     companion object {
         /** All default behaviors apply. */
-        val None = GridFlags(isPlaceLayoutsOnSpansFirst = false)
+        val None = GridFlag()
 
         /**
-         * Creates a [GridFlags] instance with `isPlaceLayoutsOnSpansFirst` as `true`.
+         * Creates a [GridFlag] instance with `isPlaceLayoutsOnSpansFirst` as `true`.
          *
          * Making it so that when placing the layouts, they are first placed on cells occupied by
          * spans, then, any remaining layouts are placed on the remaining cells following the
          * typical arrangement rules.
          */
-        val PlaceLayoutsOnSpansFirst = GridFlags(isPlaceLayoutsOnSpansFirst = true)
+        val PlaceLayoutsOnSpansFirst = GridFlag(isPlaceLayoutsOnSpansFirst = true)
+
+        /** Not relevant for the public API, only used now to test "internal" features. */
+        @TestOnly internal val SubGridByColRow = GridFlag(isSubGridByColRow = true)
     }
 }
 

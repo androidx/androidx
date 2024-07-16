@@ -425,14 +425,14 @@ package androidx.constraintlayout.compose {
     property public final androidx.constraintlayout.compose.FlowStyle SpreadInside;
   }
 
-  @kotlin.jvm.JvmInline public final value class GridFlags {
-    ctor public GridFlags(optional boolean isPlaceLayoutsOnSpansFirst);
+  @kotlin.jvm.JvmInline public final value class GridFlag {
     method public boolean isPlaceLayoutsOnSpansFirst();
+    method public infix int or(int other);
     property public final boolean isPlaceLayoutsOnSpansFirst;
-    field public static final androidx.constraintlayout.compose.GridFlags.Companion Companion;
+    field public static final androidx.constraintlayout.compose.GridFlag.Companion Companion;
   }
 
-  public static final class GridFlags.Companion {
+  public static final class GridFlag.Companion {
     method public int getNone();
     method public int getPlaceLayoutsOnSpansFirst();
     property public final int None;
