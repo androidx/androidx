@@ -22,6 +22,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.TextLayoutInput
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Constraints
 
@@ -72,6 +73,14 @@ internal interface Selectable {
      * composing.
      */
     fun getLayoutCoordinates(): LayoutCoordinates?
+
+    /**
+     * Return the [TextLayoutResult] of the selectable.
+     *
+     * @return [TextLayoutResult] of the [Selectable]. This could be null if called before
+     *   composing.
+     */
+    fun textLayoutResult(): TextLayoutResult?
 
     /**
      * Return the [AnnotatedString] of the [Selectable].

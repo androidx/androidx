@@ -279,6 +279,7 @@ internal class FakeSelectable : Selectable {
     var endYHandleDirection = Direction.ON
     var rawPreviousHandleOffset = -1 // -1 = no previous offset
     var layoutCoordinatesToReturn: LayoutCoordinates? = null
+    var textLayoutResultToReturn: TextLayoutResult? = null
     var boundingBoxes: Map<Int, Rect> = emptyMap()
 
     private val selectableKey = 1L
@@ -320,6 +321,10 @@ internal class FakeSelectable : Selectable {
 
     override fun getLayoutCoordinates(): LayoutCoordinates? {
         return layoutCoordinatesToReturn
+    }
+
+    override fun textLayoutResult(): TextLayoutResult? {
+        return textLayoutResultToReturn
     }
 
     override fun getHandlePosition(selection: Selection, isStartHandle: Boolean): Offset {

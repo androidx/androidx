@@ -27,6 +27,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -93,16 +94,17 @@ open class SelectionLayout2DTest {
     ): SelectionLayout {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         return SelectionLayoutBuilder(
-            currentPosition = currentPosition,
-            previousHandlePosition = previousHandlePosition,
-            containerCoordinates = containerCoordinates,
-            isStartHandle = isStartHandle,
-            previousSelection = previousSelection,
-            selectableIdOrderingComparator = selectableIdOrderingComparator,
-        ).run {
-            block()
-            build()
-        }
+                currentPosition = currentPosition,
+                previousHandlePosition = previousHandlePosition,
+                containerCoordinates = containerCoordinates,
+                isStartHandle = isStartHandle,
+                previousSelection = previousSelection,
+                selectableIdOrderingComparator = selectableIdOrderingComparator,
+            )
+            .run {
+                block()
+                assertNotNull(build())
+            }
     }
 
     internal fun SelectionLayoutBuilder.appendInfoForTest(

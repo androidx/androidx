@@ -28,7 +28,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
-import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -38,9 +38,7 @@ import org.junit.runners.JUnit4
 class SelectionLayoutTest {
     @Test
     fun layoutBuilderSizeZero_throws() {
-        assertFailsWith(IllegalStateException::class) {
-            buildSelectionLayoutForTest { }
-        }
+        assertThat(buildSelectionLayoutForTestOrNull {}).isNull()
     }
 
     @Test
@@ -1532,6 +1530,30 @@ class SelectionLayoutTest {
         selectableIdOrderingComparator: Comparator<Long> = naturalOrder(),
         block: SelectionLayoutBuilder.() -> Unit,
     ): SelectionLayout {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+        return buildSelectionLayoutForTestOrNull(
+                currentPosition = currentPosition,
+                previousHandlePosition = previousHandlePosition,
+                containerCoordinates = containerCoordinates,
+                isStartHandle = isStartHandle,
+                previousSelection = previousSelection,
+                selectableIdOrderingComparator = selectableIdOrderingComparator,
+                block = block
+            )
+            .let { assertNotNull(it) }
+    }
+
+    /** Calls [getTextFieldSelectionLayout] to get a [SelectionLayout]. */
+    @OptIn(ExperimentalContracts::class)
+    private fun buildSelectionLayoutForTestOrNull(
+        currentPosition: Offset = Offset(25f, 5f),
+        previousHandlePosition: Offset = Offset.Unspecified,
+        containerCoordinates: LayoutCoordinates = MockCoordinates(),
+        isStartHandle: Boolean = false,
+        previousSelection: Selection? = null,
+        selectableIdOrderingComparator: Comparator<Long> = naturalOrder(),
+        block: SelectionLayoutBuilder.() -> Unit,
+    ): SelectionLayout? {
         contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         return SelectionLayoutBuilder(
             currentPosition = currentPosition,

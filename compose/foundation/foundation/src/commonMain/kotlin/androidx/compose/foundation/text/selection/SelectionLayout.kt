@@ -461,11 +461,11 @@ internal class SelectionLayoutBuilder(
      *
      * @return the [SelectionLayout] or null if no [SelectableInfo]s were added.
      */
-    fun build(): SelectionLayout {
+    fun build(): SelectionLayout? {
         val lastSlot = currentSlot + 1
         return when (infoList.size) {
             0 -> {
-                throw IllegalStateException("SelectionLayout must not be empty.")
+                return null
             }
 
             1 -> {
