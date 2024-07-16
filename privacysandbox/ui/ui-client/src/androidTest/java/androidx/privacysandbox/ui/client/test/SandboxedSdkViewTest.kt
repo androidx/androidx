@@ -518,6 +518,7 @@ class SandboxedSdkViewTest {
         surfaceView.addOnAttachStateChangeListener(
             object : View.OnAttachStateChangeListener {
                 override fun onViewAttachedToWindow(p0: View) {
+                    @Suppress("DEPRECATION")
                     token = surfaceView.hostToken
                     surfaceViewLatch.countDown()
                 }

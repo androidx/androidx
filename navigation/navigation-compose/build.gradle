@@ -72,6 +72,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/navigation/navigation-compose"
 

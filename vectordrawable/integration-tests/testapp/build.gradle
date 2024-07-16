@@ -28,6 +28,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }

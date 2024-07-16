@@ -57,6 +57,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         // studio pipeline works only starting with Android O
         minSdkVersion 26

@@ -32,6 +32,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     sourceSets {
         main.assets.srcDirs = [new File(fontDir, "supported-emojis").getAbsolutePath()]
     }

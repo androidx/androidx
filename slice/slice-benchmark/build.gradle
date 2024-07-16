@@ -59,5 +59,6 @@ androidx {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.slice.benchmark"
 }
