@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 import android.graphics.RectF;
+import android.os.Build;
 import android.view.View;
 
 import androidx.annotation.IdRes;
@@ -50,9 +51,12 @@ import androidx.wear.widget.util.ArcSwipe;
 import androidx.wear.widget.util.FrameLocationAvoidingEdges;
 import androidx.wear.widget.util.WakeLockRule;
 
+import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.regex.Pattern;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -61,6 +65,9 @@ public class SwipeDismissFrameLayoutTest {
     private static final long MAX_WAIT_TIME = 4000; //ms
 
     private final SwipeDismissFrameLayout.Callback mDismissCallback = new DismissCallback();
+    private final Pattern mCuttleFishWearPattern = Pattern.compile(
+            Pattern.quote("Cuttlefish x86 Wear"), Pattern.CASE_INSENSITIVE
+    );
 
     @Rule
     public final WakeLockRule wakeLock = new WakeLockRule();
@@ -184,6 +191,7 @@ public class SwipeDismissFrameLayoutTest {
 
     @Test
     public void testSwipeDoesNotDismissViewIfDisabled() {
+        assumeNotCuttlefishWear();
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         try (ActivityScenario<DismissibleFrameLayoutTestActivity> scenario =
                      ActivityScenario.launch(createSimpleLayoutLaunchIntent())) {
@@ -339,6 +347,13 @@ public class SwipeDismissFrameLayoutTest {
             setDismissCallback(testLayout);
             testLayout.setSwipeable(swipeable);
         });
+    }
+
+    private void assumeNotCuttlefishWear() {
+        Assume.assumeFalse(
+                "Unable to test: Cuttlefish Wear devices do not work with these tests",
+                mCuttleFishWearPattern.matcher(Build.MODEL).find()
+        );
     }
 
     private static void assertHidden(@IdRes int layoutId) {
