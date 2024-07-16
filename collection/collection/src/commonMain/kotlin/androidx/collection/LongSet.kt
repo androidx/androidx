@@ -721,7 +721,7 @@ public class MutableLongSet(initialCapacity: Int = DefaultScatterCapacity) : Lon
      * place" occurs when the current size is <= 25/32 of the set capacity. The choice of 25/32 is
      * detailed in the implementation of abseil's `raw_hash_map`.
      */
-    private fun adjustStorage() {
+    internal fun adjustStorage() { // Internal to prevent inlining
         if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
             dropDeletes()
         } else {
@@ -729,7 +729,8 @@ public class MutableLongSet(initialCapacity: Int = DefaultScatterCapacity) : Lon
         }
     }
 
-    private fun dropDeletes() {
+    // Internal to prevent inlining
+    internal fun dropDeletes() {
         val metadata = metadata
         val capacity = _capacity
         val elements = elements
@@ -819,7 +820,8 @@ public class MutableLongSet(initialCapacity: Int = DefaultScatterCapacity) : Lon
         initializeGrowth()
     }
 
-    private fun resizeStorage(newCapacity: Int) {
+    // Internal to prevent inlining
+    internal fun resizeStorage(newCapacity: Int) {
         val previousMetadata = metadata
         val previousElements = elements
         val previousCapacity = _capacity

@@ -2213,6 +2213,64 @@ package androidx.collection {
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E... elements);
   }
 
+  public final class SieveCache<K, V> {
+    ctor public SieveCache(@IntRange(from=1L, to=androidx.collection.SieveCacheKt.MaxSize) int maxSize, optional @IntRange(from=0L, to=androidx.collection.SieveCacheKt.MaxSize) int initialCapacity, optional kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf, optional kotlin.jvm.functions.Function1<? super K,? extends V?> createValueFromKey, optional kotlin.jvm.functions.Function4<? super K,? super V,? super V?,? super java.lang.Boolean,kotlin.Unit> onEntryRemoved);
+    method public inline boolean all(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public boolean any();
+    method public inline boolean any(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public operator boolean contains(K key);
+    method public boolean containsKey(K key);
+    method public boolean containsValue(V value);
+    method public int count();
+    method public inline int count(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public void evictAll();
+    method public inline void forEach(kotlin.jvm.functions.Function2<? super K,? super V,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal inline void forEachIndexed(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    method public inline void forEachKey(kotlin.jvm.functions.Function1<? super K,kotlin.Unit> block);
+    method public inline void forEachValue(kotlin.jvm.functions.Function1<? super V,kotlin.Unit> block);
+    method public operator V? get(K key);
+    method public int getCapacity();
+    method public int getCount();
+    method public int getMaxSize();
+    method public int getSize();
+    method public boolean isEmpty();
+    method public boolean isNotEmpty();
+    method public inline operator void minusAssign(androidx.collection.ObjectList<K> keys);
+    method public inline operator void minusAssign(androidx.collection.ScatterSet<K> keys);
+    method public inline operator void minusAssign(Iterable<? extends K> keys);
+    method public inline operator void minusAssign(K key);
+    method public inline operator void minusAssign(K[] keys);
+    method public inline operator void minusAssign(kotlin.sequences.Sequence<? extends K> keys);
+    method public boolean none();
+    method public inline operator void plusAssign(androidx.collection.ScatterMap<K,V> from);
+    method public inline operator void plusAssign(androidx.collection.SieveCache<K,V> from);
+    method public inline operator void plusAssign(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public inline operator void plusAssign(java.util.Map<K,? extends V> from);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V> pair);
+    method public inline operator void plusAssign(kotlin.Pair<? extends K,? extends V>[] pairs);
+    method public inline operator void plusAssign(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public V? put(K key, V value);
+    method public void putAll(androidx.collection.ScatterMap<K,V> from);
+    method public void putAll(androidx.collection.SieveCache<K,V> from);
+    method public void putAll(Iterable<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public void putAll(java.util.Map<K,? extends V> from);
+    method public void putAll(kotlin.Pair<? extends K,? extends V>[] pairs);
+    method public void putAll(kotlin.sequences.Sequence<? extends kotlin.Pair<? extends K,? extends V>> pairs);
+    method public V? remove(K key);
+    method public boolean remove(K key, V value);
+    method public void removeIf(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
+    method public void resize(@IntRange(from=1L, to=androidx.collection.SieveCacheKt.MaxSize) int maxSize);
+    method public inline operator void set(K key, V value);
+    method public void trimToSize(int maxSize);
+    property public final int capacity;
+    property public final int count;
+    property public final int maxSize;
+    property public final int size;
+    field @kotlin.PublishedApi internal Object?[] keys;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal Object?[] values;
+  }
+
   public class SimpleArrayMap<K, V> {
     ctor public SimpleArrayMap();
     ctor public SimpleArrayMap(androidx.collection.SimpleArrayMap<? extends K,? extends V>? map);
