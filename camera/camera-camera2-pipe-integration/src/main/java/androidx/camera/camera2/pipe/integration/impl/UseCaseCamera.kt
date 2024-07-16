@@ -51,6 +51,8 @@ interface UseCaseCamera {
     // UseCases
     var runningUseCases: Set<UseCase>
 
+    var isPrimary: Boolean
+
     interface RunningUseCasesChangeListener {
         /** Invoked when value of [UseCaseCamera.runningUseCases] has been changed. */
         fun onRunningUseCasesChanged()
@@ -101,7 +103,7 @@ constructor(
 
             // Note: This may be called with the same set of values that was previously set. This
             // is used as a signal to indicate the properties of the UseCase may have changed.
-            SessionConfigAdapter(value).getValidSessionConfigOrNull()?.let {
+            SessionConfigAdapter(value, isPrimary = isPrimary).getValidSessionConfigOrNull()?.let {
                 requestControl.setSessionConfigAsync(it)
             }
                 ?: run {
@@ -116,6 +118,11 @@ constructor(
                     control.onRunningUseCasesChanged()
                 }
             }
+        }
+
+    override var isPrimary: Boolean = true
+        set(value) {
+            field = value
         }
 
     init {

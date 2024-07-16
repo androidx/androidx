@@ -153,6 +153,8 @@ constructor(
 
     @GuardedBy("lock") private var pendingSessionProcessorInitialization = false
 
+    @GuardedBy("lock") private var isPrimary = true
+
     @GuardedBy("lock")
     private val pendingUseCasesToNotifyCameraControlReady = mutableSetOf<UseCase>()
 
@@ -314,6 +316,10 @@ constructor(
             }
         }
 
+    fun setPrimary(isPrimary: Boolean) {
+        synchronized(lock) { this.isPrimary = isPrimary }
+    }
+
     fun setActiveResumeMode(enabled: Boolean) =
         synchronized(lock) {
             activeResumeEnabled = enabled
@@ -347,7 +353,10 @@ constructor(
         when {
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
-            else -> camera?.runningUseCases = runningUseCases
+            else -> {
+                camera?.isPrimary = isPrimary
+                camera?.runningUseCases = runningUseCases
+            }
         }
     }
 
@@ -436,7 +445,7 @@ constructor(
                     }
             return
         } else {
-            val sessionConfigAdapter = SessionConfigAdapter(useCases)
+            val sessionConfigAdapter = SessionConfigAdapter(useCases, isPrimary = isPrimary)
             val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
             val graphConfig = createCameraGraphConfig(sessionConfigAdapter, streamConfigMap)
 

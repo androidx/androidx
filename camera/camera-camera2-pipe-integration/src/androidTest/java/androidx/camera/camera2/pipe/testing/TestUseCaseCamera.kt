@@ -174,6 +174,11 @@ class TestUseCaseCamera(
 
     override var runningUseCases = useCases.toSet()
 
+    override var isPrimary: Boolean = true
+        set(value) {
+            field = value
+        }
+
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,

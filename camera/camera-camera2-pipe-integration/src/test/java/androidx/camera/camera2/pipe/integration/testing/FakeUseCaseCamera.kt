@@ -237,6 +237,11 @@ class FakeUseCaseCamera(
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
 
+    override var isPrimary: Boolean = true
+        set(value) {
+            field = value
+        }
+
     override fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,
