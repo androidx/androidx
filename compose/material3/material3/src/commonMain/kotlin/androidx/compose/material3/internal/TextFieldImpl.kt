@@ -59,7 +59,6 @@ import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -463,7 +462,6 @@ internal const val PrefixId = "Prefix"
 internal const val SuffixId = "Suffix"
 internal const val SupportingId = "Supporting"
 internal const val ContainerId = "Container"
-internal val ZeroConstraints = Constraints(0, 0, 0, 0)
 
 internal const val TextFieldAnimationDuration = 150
 private const val PlaceholderAnimationDuration = 83
