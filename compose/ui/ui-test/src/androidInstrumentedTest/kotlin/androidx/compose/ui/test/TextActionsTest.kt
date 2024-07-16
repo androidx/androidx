@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -104,6 +105,7 @@ class TextActionsTest {
                 Modifier.semantics {
                     isEditable = true
                     insertTextAtCursor { true }
+                    requestFocus { true }
                 }
             )
         }
@@ -184,7 +186,7 @@ class TextActionsTest {
         var lastSeenText = ""
         rule.setContent { TextFieldUi(readOnly = true) }
 
-        rule.onNodeWithTag(fieldTag).performTextInput("hi")
+        expectError<AssertionError> { rule.onNodeWithTag(fieldTag).performTextInput("hi") }
         rule.runOnIdle { assertThat(lastSeenText).isEqualTo("") }
     }
 

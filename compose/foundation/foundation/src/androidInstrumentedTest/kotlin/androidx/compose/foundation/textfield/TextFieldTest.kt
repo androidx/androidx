@@ -58,6 +58,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.testutils.assertShape
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -449,7 +450,7 @@ class TextFieldTest : FocusedWindowTest {
     }
 
     @Test
-    fun semantics_setTextAction_doesNothingWhenReadOnly() {
+    fun semantics_setTextAction_throwsAssertionErrorWhenReadOnly() {
         rule.setContent {
             var value by remember { mutableStateOf("") }
             BasicTextField(
@@ -460,7 +461,9 @@ class TextFieldTest : FocusedWindowTest {
             )
         }
 
-        rule.onNodeWithTag(Tag).performTextReplacement("hello")
+        expectError<AssertionError>(expectedMessage = "Failed to perform text input.*") {
+            rule.onNodeWithTag(Tag).performTextReplacement("hello")
+        }
         rule.onNodeWithTag(Tag).assertEditableTextEquals("")
     }
 
@@ -480,7 +483,7 @@ class TextFieldTest : FocusedWindowTest {
     }
 
     @Test
-    fun semantics_insertTextAction_doesNothingWhenReadOnly() {
+    fun semantics_insertTextAction_throwsAssertionErrorWhenReadOnly() {
         rule.setContent {
             var value by remember { mutableStateOf("") }
             BasicTextField(
@@ -491,7 +494,10 @@ class TextFieldTest : FocusedWindowTest {
             )
         }
 
-        rule.onNodeWithTag(Tag).performTextInput("hello")
+        expectError<AssertionError>(expectedMessage = "Failed to perform text input.*") {
+            rule.onNodeWithTag(Tag).performTextInput("hello")
+        }
+
         rule.onNodeWithTag(Tag).assertEditableTextEquals("")
     }
 
