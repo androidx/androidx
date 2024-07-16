@@ -124,6 +124,11 @@ package androidx.lifecycle.viewmodel {
 
   public abstract class CreationExtras {
     method public abstract operator <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
+    field public static final androidx.lifecycle.viewmodel.CreationExtras.Companion Companion;
+  }
+
+  public static final class CreationExtras.Companion {
+    method public inline <reified T> androidx.lifecycle.viewmodel.CreationExtras.Key<T> key();
   }
 
   public static final class CreationExtras.Empty extends androidx.lifecycle.viewmodel.CreationExtras {
@@ -132,6 +137,12 @@ package androidx.lifecycle.viewmodel {
   }
 
   public static interface CreationExtras.Key<T> {
+  }
+
+  public final class CreationExtrasKt {
+    method public static operator boolean contains(androidx.lifecycle.viewmodel.CreationExtras, androidx.lifecycle.viewmodel.CreationExtras.Key<? extends java.lang.Object?> key);
+    method public static operator androidx.lifecycle.viewmodel.MutableCreationExtras plus(androidx.lifecycle.viewmodel.CreationExtras, androidx.lifecycle.viewmodel.CreationExtras creationExtras);
+    method public static operator void plusAssign(androidx.lifecycle.viewmodel.MutableCreationExtras, androidx.lifecycle.viewmodel.CreationExtras creationExtras);
   }
 
   @androidx.lifecycle.viewmodel.ViewModelFactoryDsl public final class InitializerViewModelFactoryBuilder {
@@ -146,6 +157,7 @@ package androidx.lifecycle.viewmodel {
   }
 
   public final class MutableCreationExtras extends androidx.lifecycle.viewmodel.CreationExtras {
+    ctor public MutableCreationExtras();
     ctor public MutableCreationExtras(optional androidx.lifecycle.viewmodel.CreationExtras initialExtras);
     method public <T> T? get(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key);
     method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T t);

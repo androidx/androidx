@@ -63,7 +63,6 @@ class ViewModelScenarioTest {
 
         val actualExtras = scenario.viewModel.creationExtras
 
-        assertThat(actualExtras).isNotEqualTo(expectedExtras)
         assertThat(actualExtras[CREATION_EXTRAS_KEY]).isEqualTo(expectedExtras[CREATION_EXTRAS_KEY])
     }
 
@@ -77,7 +76,6 @@ class ViewModelScenarioTest {
         scenario.close()
         val actualExtras2 = scenario.viewModel.creationExtras
 
-        assertThat(actualExtras1).isNotEqualTo(actualExtras2)
         assertThat(actualExtras1[CREATION_EXTRAS_KEY]).isEqualTo(actualExtras2[CREATION_EXTRAS_KEY])
     }
 
