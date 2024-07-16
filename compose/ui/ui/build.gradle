@@ -107,12 +107,16 @@ androidXMultiplatform {
             }
         }
 
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
+
         jvmStubsMain {
-            dependsOn(jvmMain)
+            dependsOn(commonStubsMain)
         }
 
         linuxx64StubsMain {
-            dependsOn(commonMain)
+            dependsOn(commonStubsMain)
         }
 
         androidInstrumentedTest {
