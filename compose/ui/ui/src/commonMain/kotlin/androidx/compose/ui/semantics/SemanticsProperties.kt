@@ -17,7 +17,6 @@
 package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.geometry.Offset
@@ -96,12 +95,20 @@ object SemanticsProperties {
     val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
     /** @see SemanticsPropertyReceiver.invisibleToUser */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
-    @ExperimentalComposeUiApi
+    @Deprecated(
+        "Use `hideFromAccessibility` instead.",
+        replaceWith = ReplaceWith("HideFromAccessibility")
+    )
     val InvisibleToUser =
         SemanticsPropertyKey<Unit>(
             name = "InvisibleToUser",
+            mergePolicy = { parentValue, _ -> parentValue }
+        )
+
+    /** @see SemanticsPropertyReceiver.hideFromAccessibility */
+    val HideFromAccessibility =
+        SemanticsPropertyKey<Unit>(
+            name = "HideFromAccessibility",
             mergePolicy = { parentValue, _ -> parentValue }
         )
 
@@ -872,9 +879,29 @@ var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversa
  * redundant with semantics of their parent, consider [SemanticsModifier.clearAndSetSemantics]
  * instead.
  */
-@ExperimentalComposeUiApi
+@Deprecated(
+    "Use `hideFromAccessibility()` instead.",
+    replaceWith = ReplaceWith("hideFromAccessibility()"),
+)
+@Suppress("DEPRECATION")
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
+}
+
+/**
+ * If present, this node is considered hidden from accessibility services.
+ *
+ * For example, if the node is currently occluded by a dark semitransparent pane above it, then for
+ * all practical purposes the node should not be announced to the user. Since the system cannot
+ * automatically determine that, this property can be set to make the screen reader linear
+ * navigation skip over this type of node.
+ *
+ * If looking for a way to clear semantics of small items from the UI tree completely because they
+ * are redundant with semantics of their parent, consider [SemanticsModifier.clearAndSetSemantics]
+ * instead.
+ */
+fun SemanticsPropertyReceiver.hideFromAccessibility() {
+    this[SemanticsProperties.HideFromAccessibility] = Unit
 }
 
 /**
