@@ -76,6 +76,8 @@ class PdfLoaderCallbacksImpl(
     var layoutHandler: LayoutHandler? = null
     var fileName: String? = null
     var pageViewFactory: PageViewFactory? = null
+    var pdfLoader: PdfLoader? = null
+    var onScreen = false
 
     private fun currentPasswordDialog(fm: FragmentManager?): PdfPasswordDialog? {
         if (fm != null) {
@@ -173,20 +175,19 @@ class PdfLoaderCallbacksImpl(
     }
 
     override fun requestPassword(incorrect: Boolean) {
-        // TODO: Implement isShowing method
-        //        if (!isShowing()) {
-        //            // This would happen if the service decides to start while we're in
-        //            // the background.
-        //            // The dialog code below would then crash. We can't just bypass it
-        //            // because then we'd
-        //            // have
-        //            // a started service with no loaded PDF and no means to load it. The
-        //            // best way is to
-        //            // just
-        //            // kill the service which will restart on the next onStart.
-        //            mPdfLoader?.disconnect()
-        //            return
-        //        }
+        if (!(pdfViewerFragment.isResumed && onScreen)) {
+            // This would happen if the service decides to start while we're in
+            // the background.
+            // The dialog code below would then crash. We can't just bypass it
+            // because then we'd
+            // have
+            // a started service with no loaded PDF and no means to load it. The
+            // best way is to
+            // just
+            // kill the service which will restart on the next onStart.
+            pdfLoader?.disconnect()
+            return
+        }
 
         if (viewState.get() != ViewState.NO_VIEW) {
             val fm: FragmentManager? = fragmentActivity?.supportFragmentManager
@@ -197,7 +198,7 @@ class PdfLoaderCallbacksImpl(
                 passwordDialog.setListener(
                     object : PdfPasswordDialog.PasswordDialogEventsListener {
                         override fun onPasswordTextChange(password: String) {
-                            // pdfLoader?.applyPassword(password)
+                            pdfLoader?.applyPassword(password)
                         }
 
                         override fun onDialogCancelled() {

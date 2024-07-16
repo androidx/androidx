@@ -199,6 +199,7 @@ open class PdfViewerFragment : Fragment() {
         fastScrollView = pdfViewer?.findViewById(R.id.fast_scroll_view)
         loadingView = pdfViewer?.findViewById(R.id.loadingView)
         paginatedView = fastScrollView?.findViewById(R.id.pdf_view)
+        paginationModel = paginatedView!!.paginationModel
 
         zoomView = fastScrollView?.findViewById(R.id.zoom_view)
 
@@ -299,20 +300,13 @@ open class PdfViewerFragment : Fragment() {
      * the Viewer is started.
      */
     private fun postEnter() {
+        pdfLoaderCallbacks?.onScreen = true
         onScreen = true
         if (started) {
             onEnter()
         } else {
             delayedEnter = true
         }
-    }
-
-    /**
-     * Returns true when this Viewer is on-screen (= entered but not exited) and active (i.e. the
-     * Activity is resumed).
-     */
-    private fun isShowing(): Boolean {
-        return isResumed && onScreen
     }
 
     private fun isStarted(): Boolean {
@@ -434,6 +428,7 @@ open class PdfViewerFragment : Fragment() {
 
     private fun createContentModel(pdfLoader: PdfLoader) {
         this.pdfLoader = pdfLoader
+        pdfLoaderCallbacks?.pdfLoader = pdfLoader
 
         paginationModel = paginatedView!!.initPaginationModelAndPageRangeHandler(requireContext())
         fastScrollContentModel = FastScrollContentModelImpl(paginationModel!!, zoomView!!)
