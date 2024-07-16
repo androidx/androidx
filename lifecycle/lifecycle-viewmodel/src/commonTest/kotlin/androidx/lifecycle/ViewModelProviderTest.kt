@@ -19,7 +19,6 @@ package androidx.lifecycle
 import androidx.kruth.assertThat
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
-import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
 import kotlin.test.Test
 import kotlin.test.fail
@@ -92,7 +91,7 @@ class ViewModelProviderTest {
                     modelClass: KClass<T>,
                     extras: CreationExtras
                 ): T {
-                    val key = extras[ViewModelProviders.ViewModelKey]
+                    val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isEqualTo("customKey")
                     @Suppress("UNCHECKED_CAST") return TestViewModel1() as T
                 }
@@ -105,7 +104,7 @@ class ViewModelProviderTest {
                     modelClass: KClass<T>,
                     extras: CreationExtras
                 ): T {
-                    val key = extras[ViewModelProviders.ViewModelKey]
+                    val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isNotNull()
                     @Suppress("UNCHECKED_CAST") return TestViewModel1() as T
                 }
@@ -123,11 +122,11 @@ class ViewModelProviderTest {
                     modelClass: KClass<T>,
                     extras: CreationExtras
                 ): T {
-                    val mutableKey = object : CreationExtras.Key<String> {}
+                    val mutableKey = CreationExtras.Key<String>()
                     val mutableValue = "value"
                     val mutableExtras = MutableCreationExtras(extras)
                     mutableExtras[mutableKey] = mutableValue
-                    val key = mutableExtras[ViewModelProviders.ViewModelKey]
+                    val key = mutableExtras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isEqualTo("customKey")
                     assertThat(mutableExtras[TEST_KEY]).isEqualTo(TEST_VALUE)
                     assertThat(mutableExtras[mutableKey]).isEqualTo(mutableValue)
@@ -156,7 +155,7 @@ class ViewModelProviderTest {
                     modelClass: KClass<T>,
                     extras: CreationExtras
                 ): T {
-                    val key = extras[ViewModelProviders.ViewModelKey]
+                    val key = extras[ViewModelProvider.VIEW_MODEL_KEY]
                     assertThat(key).isEqualTo("customKey")
                     assertThat(extras[TEST_KEY]).isEqualTo(TEST_VALUE)
                     wasCalled[0] = true
@@ -233,5 +232,5 @@ class ViewModelProviderTest {
     }
 }
 
-private val TEST_KEY = object : CreationExtras.Key<String> {}
+private val TEST_KEY = CreationExtras.Key<String>()
 private const val TEST_VALUE = "test_value"

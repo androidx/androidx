@@ -19,6 +19,7 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.ViewModelProviderImpl
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
@@ -64,7 +65,6 @@ private constructor(
             extras: CreationExtras
         ): ViewModelProvider = ViewModelProvider(ViewModelProviderImpl(store, factory, extras))
 
-        public actual val VIEW_MODEL_KEY: CreationExtras.Key<String> =
-            ViewModelProviders.ViewModelKey
+        public actual val VIEW_MODEL_KEY: Key<String> = CreationExtras.Companion.Key()
     }
 }

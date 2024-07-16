@@ -92,7 +92,7 @@ class ViewModelScenarioTest {
     }
 }
 
-private val CREATION_EXTRAS_KEY = object : CreationExtras.Key<String> {}
+private val CREATION_EXTRAS_KEY = CreationExtras.Key<String>()
 
 private class TestViewModel(
     val creationExtras: CreationExtras = CreationExtras.Empty,

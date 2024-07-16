@@ -221,7 +221,7 @@ private constructor(
              *
              * @see ViewModelProvider.VIEW_MODEL_KEY
              */
-            @JvmField public val VIEW_MODEL_KEY: Key<String> = ViewModelProviders.ViewModelKey
+            @JvmField public val VIEW_MODEL_KEY: Key<String> = ViewModelProvider.VIEW_MODEL_KEY
         }
     }
 
@@ -326,7 +326,7 @@ private constructor(
             /**
              * A [CreationExtras.Key] to query an application in which ViewModel is being created.
              */
-            @JvmField public val APPLICATION_KEY: Key<Application> = object : Key<Application> {}
+            @JvmField public val APPLICATION_KEY: Key<Application> = CreationExtras.Companion.Key()
         }
     }
 
@@ -347,6 +347,6 @@ private constructor(
             extras: CreationExtras
         ): ViewModelProvider = ViewModelProvider(store, factory, extras)
 
-        @JvmField public actual val VIEW_MODEL_KEY: Key<String> = ViewModelProviders.ViewModelKey
+        @JvmField public actual val VIEW_MODEL_KEY: Key<String> = CreationExtras.Companion.Key()
     }
 }
