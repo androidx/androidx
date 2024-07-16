@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -85,7 +85,7 @@
     <issue
         id="RestrictedApiAndroidX"
         message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="        val copyLock = ProcessLock("
+        errorLine1="        val copyLock = ProcessLock(name, context.filesDir, processLevelLock)"
         errorLine2="                       ~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
@@ -94,8 +94,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="            name,"
-        errorLine2="            ~~~~">
+        errorLine1="        val copyLock = ProcessLock(name, context.filesDir, processLevelLock)"
+        errorLine2="                                   ~~~~">
         <location
             file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
@@ -103,8 +103,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
-        errorLine1="            context.filesDir,"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
+        errorLine1="        val copyLock = ProcessLock(name, context.filesDir, processLevelLock)"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/room/support/PrePackagedCopyOpenHelper.android.kt"/>
     </issue>
@@ -130,8 +130,8 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                val supportsDeferForeignKeys = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/room/RoomDatabase.android.kt"/>
     </issue>

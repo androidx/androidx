@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -17,33 +17,6 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/ComposeView.android.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/semantics/SemanticsProperties.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @get:ExperimentalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @get:ExperimentalComposeUiApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/platform/WindowInfo.kt"/>
     </issue>
 
     <issue
@@ -67,7 +40,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable deltas with type List&lt;? extends Offset>: replace with LongList"
-        errorLine1="    val deltas = items.fastZipWithNext { el1, el2 ->"
+        errorLine1="    val deltas ="
         errorLine2="    ^">
         <location
             file="src/androidMain/kotlin/androidx/compose/ui/platform/accessibility/CollectionInfo.android.kt"/>
@@ -76,7 +49,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type Map&lt;LayoutNode, Integer> of getMapOfOriginalDepth: replace with ObjectIntMap"
-        errorLine1="    private val mapOfOriginalDepth by lazy(LazyThreadSafetyMode.NONE) {"
+        errorLine1="    private val mapOfOriginalDepth by"
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet.kt"/>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="PrimitiveInCollection"
         message="field elevations with type List&lt;Dp>: replace with FloatList"
-        errorLine1="private val elevations = listOf("
-        errorLine2="^">
+        errorLine1="private val elevations = listOf(0.dp, 1.dp, 2.dp, 3.dp, 4.dp, 6.dp, 8.dp, 12.dp, 16.dp, 24.dp)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/material/demos/ElevationDemo.kt"/>
     </issue>

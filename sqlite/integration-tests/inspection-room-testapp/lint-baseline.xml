@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
-        errorLine1="    fun invalidationHook() = runBlocking&lt;Unit>(testJob) {"
+        errorLine1="    fun invalidationHook() ="
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/sqlite/inspection/RoomInvalidationHookTest.kt"/>

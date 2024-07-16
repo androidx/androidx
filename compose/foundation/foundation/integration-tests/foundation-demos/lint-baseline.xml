@@ -1,46 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.Map#getOrDefault`"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Map#getOrDefault`"
         errorLine1="                val selected = selectedIndexes.getOrDefault(item, false)"
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.compose.foundation.demos.ListDemosKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                val selected = selectedIndexes.getOrDefault(item, false)"
-        errorLine2="                                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field RainbowColors with type List&lt;Color>: replace with LongList"
-        errorLine1="private val RainbowColors = listOf("
-        errorLine2="^">
-        <location
-            file="src/main/java/androidx/compose/foundation/demos/text/BrushDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field RainbowStops with type List&lt;Float>: replace with FloatList"
-        errorLine1="private val RainbowStops = listOf(0f, 0.2f, 0.4f, 0.6f, 0.8f, 1f)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/foundation/demos/text/BrushDemo.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
         message="variable options with type List&lt;? extends Alignment>: replace with FloatList"
-        errorLine1="    val options = listOf("
+        errorLine1="    val options ="
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/ComposeLineHeight.kt"/>
@@ -49,8 +22,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable options with type List&lt;? extends Trim>: replace with IntList"
-        errorLine1="    val options = listOf("
-        errorLine2="    ^">
+        errorLine1="    val options = listOf(Trim.Both, Trim.None, Trim.FirstLineTop, Trim.LastLineBottom)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/ComposeLineHeight.kt"/>
     </issue>
@@ -67,7 +40,7 @@
     <issue
         id="PrimitiveInCollection"
         message="variable colorList with type List&lt;? extends Color>: replace with LongList"
-        errorLine1="    val colorList = listOf("
+        errorLine1="    val colorList ="
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/ComposeTextSelection.kt"/>
@@ -76,7 +49,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field blendModes with type List&lt;BlendMode>: replace with IntList"
-        errorLine1="private val blendModes = listOf("
+        errorLine1="private val blendModes ="
         errorLine2="^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/DrawTextDemo.kt"/>
@@ -87,15 +60,6 @@
         message="field values with type SnapshotStateList&lt;Long>: replace with LongList"
         errorLine1="    private val values = mutableStateListOf&lt;Long>()"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/foundation/demos/text/DrawTextDemo.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field RainbowColors with type List&lt;Color>: replace with LongList"
-        errorLine1="private val RainbowColors = listOf("
-        errorLine2="^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/DrawTextDemo.kt"/>
     </issue>
@@ -139,7 +103,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field colors with type List&lt;Color>: replace with LongList"
-        errorLine1="private val colors = listOf("
+        errorLine1="private val colors ="
         errorLine2="^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
@@ -157,8 +121,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable heights with type List&lt;? extends Dp>: replace with FloatList"
-        errorLine1="    val heights = remember {"
-        errorLine2="    ^">
+        errorLine1="    val heights = remember { List(100) { (Random.nextInt(100) + 100).dp } }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
     </issue>
@@ -166,8 +130,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable colors with type List&lt;? extends Color>: replace with LongList"
-        errorLine1="    val colors = remember {"
-        errorLine2="    ^">
+        errorLine1="    val colors = remember { List(100) { Color.hsl(Random.nextFloat() * 360, .5f, .65f) } }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
     </issue>
@@ -175,8 +139,8 @@
     <issue
         id="PrimitiveInCollection"
         message="variable items with type SnapshotStateList&lt;Integer>: replace with IntList"
-        errorLine1="    val items = remember {"
-        errorLine2="    ^">
+        errorLine1="    val items = remember { mutableStateListOf&lt;Int>().apply { repeat(20) { add(it) } } }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/foundation/demos/ListDemos.kt"/>
     </issue>
@@ -220,7 +184,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field modifierKeys with type Set&lt;Integer>: replace with IntSet"
-        errorLine1="private val modifierKeys = setOf("
+        errorLine1="private val modifierKeys ="
         errorLine2="^">
         <location
             file="src/main/java/androidx/compose/foundation/demos/text/TextFieldFocusDemo.kt"/>
