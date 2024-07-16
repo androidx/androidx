@@ -704,10 +704,10 @@ public class Int32NodesTest {
         ArithmeticInt32Node node = new ArithmeticInt32Node(protoNode, receiver);
 
         FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(lhs).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsIncomingCallback());
 
         FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(rhs).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsIncomingCallback());
         lhsNode.preInit();
         rhsNode.preInit();
 

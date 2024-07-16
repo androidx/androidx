@@ -289,10 +289,10 @@ public class BoolNodesTest {
                 new BoolNodes.LogicalBoolOp(protoNode, new AddToListCallback<>(results));
 
         FixedBool lhsProtoNode = FixedBool.newBuilder().setValue(lhs).build();
-        FixedBoolNode lhsNode = new FixedBoolNode(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedBoolNode lhsNode = new FixedBoolNode(lhsProtoNode, node.getLhsIncomingCallback());
 
         FixedBool rhsProtoNode = FixedBool.newBuilder().setValue(rhs).build();
-        FixedBoolNode rhsNode = new FixedBoolNode(rhsProtoNode, node.getRhsUpstreamCallback());
+        FixedBoolNode rhsNode = new FixedBoolNode(rhsProtoNode, node.getRhsIncomingCallback());
 
         lhsNode.preInit();
         rhsNode.preInit();
@@ -317,11 +317,11 @@ public class BoolNodesTest {
                 new BoolNodes.ComparisonInt32Node(protoNode, new AddToListCallback<>(results));
 
         FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(lhs).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsIncomingCallback());
         lhsNode.preInit();
 
         FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(rhs).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsIncomingCallback());
         rhsNode.preInit();
 
         lhsNode.init();
@@ -344,11 +344,11 @@ public class BoolNodesTest {
                 new BoolNodes.ComparisonFloatNode(protoNode, new AddToListCallback<>(results));
 
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhs).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
         lhsNode.preInit();
 
         FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(rhs).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
+        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsIncomingCallback());
         rhsNode.preInit();
 
         lhsNode.init();
