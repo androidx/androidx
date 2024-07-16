@@ -25,6 +25,7 @@ import androidx.camera.testing.impl.hasAudio
 import androidx.camera.testing.impl.hasVideo
 import androidx.camera.testing.impl.mocks.MockConsumer
 import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor
+import androidx.camera.testing.impl.mocks.helpers.ArgumentMatcher
 import androidx.camera.testing.impl.mocks.helpers.CallTimes
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.testing.impl.useAndRelease
@@ -226,8 +227,8 @@ internal constructor(
         try {
             val expectedAudioState =
                 if (muted) AudioStats.AUDIO_STATE_MUTED else AudioStats.AUDIO_STATE_ACTIVE
-            val captor =
-                ArgumentCaptor<VideoRecordEvent> {
+            val matcher =
+                ArgumentMatcher<VideoRecordEvent> {
                     it.recordingStats.audioStats.audioState == expectedAudioState
                 }
             listener.verifyAcceptCall(
@@ -235,7 +236,7 @@ internal constructor(
                 /*inOrder=*/ true,
                 defaultVerifyStatusTimeoutMs,
                 CallTimesAtLeast(1),
-                captor
+                matcher
             )
         } catch (t: Throwable) {
             throw AssertionError("Failed on #verifyMute", t)
