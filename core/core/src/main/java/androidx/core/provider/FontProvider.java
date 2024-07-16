@@ -54,21 +54,28 @@ class FontProvider {
 
     @NonNull
     static FontFamilyResult getFontFamilyResult(@NonNull Context context,
-            @NonNull FontRequest request, @Nullable CancellationSignal cancellationSignal)
+            @NonNull List<FontRequest> requests, @Nullable CancellationSignal cancellationSignal)
             throws PackageManager.NameNotFoundException {
         if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
             Trace.beginSection("FontProvider.getFontFamilyResult");
         }
         try {
-            ProviderInfo providerInfo = getProvider(
-                    context.getPackageManager(), request, context.getResources());
-            if (providerInfo == null) {
-                return FontFamilyResult.create(FontFamilyResult.STATUS_WRONG_CERTIFICATES, null);
+            ArrayList<FontInfo[]> queryResults = new ArrayList<>();
+            for (int i = 0; i < requests.size(); i++) {
+                FontRequest request = requests.get(i);
+                ProviderInfo providerInfo = getProvider(
+                        context.getPackageManager(), request, context.getResources());
+                if (providerInfo == null) {
+                    return FontFamilyResult.create(FontFamilyResult.STATUS_WRONG_CERTIFICATES,
+                            (FontInfo[]) null);
 
+                }
+                FontInfo[] fonts = query(
+                        context, request, providerInfo.authority, cancellationSignal);
+                queryResults.add(fonts);
             }
-            FontInfo[] fonts = query(
-                    context, request, providerInfo.authority, cancellationSignal);
-            return FontFamilyResult.create(FontFamilyResult.STATUS_OK, fonts);
+
+            return FontFamilyResult.create(FontFamilyResult.STATUS_OK, queryResults);
         } finally {
             if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
                 Trace.endSection();

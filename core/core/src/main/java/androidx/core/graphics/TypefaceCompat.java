@@ -29,6 +29,7 @@ import android.os.Handler;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.LruCache;
@@ -37,15 +38,21 @@ import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.ProviderResourceEntry;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 import androidx.core.util.Preconditions;
 import androidx.tracing.Trace;
 
+import java.util.List;
+
 /**
  * Helper for accessing features in {@link Typeface}.
  */
 public class TypefaceCompat {
+    @RestrictTo(LIBRARY)
+    public static final boolean DOWNLOADABLE_FALLBACK_DEBUG = false;
+
     @RestrictTo(LIBRARY)
     public static final boolean DOWNLOADABLE_FONT_TRACING = true;
 
@@ -169,7 +176,14 @@ public class TypefaceCompat {
 
             Handler newHandler = ResourcesCompat.FontCallback.getHandler(handler);
             ResourcesCallbackAdapter newCallback = new ResourcesCallbackAdapter(fontCallback);
-            typeface = FontsContractCompat.requestFont(context, providerEntry.getRequest(),
+            List<FontRequest> requests;
+            if (providerEntry.getFallbackRequest() != null) {
+                requests = List.of(providerEntry.getRequest(),
+                        providerEntry.getFallbackRequest());
+            } else {
+                requests = List.of(providerEntry.getRequest());
+            }
+            typeface = FontsContractCompat.requestFont(context, requests,
                     style, isBlocking, timeout, newHandler, newCallback);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
@@ -252,6 +266,31 @@ public class TypefaceCompat {
         }
         try {
             return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts,
+                    style);
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
+            }
+        }
+    }
+
+    /**
+     * Create a Typeface from a given list of FontInfo lists.
+     * <p>
+     * This currently throws an exception if used below API 29.
+     */
+    @Nullable
+    @RestrictTo(LIBRARY)
+    @RequiresApi(29)
+    public static Typeface createFromFontInfoWithFallback(@NonNull Context context,
+            @Nullable CancellationSignal cancellationSignal, @NonNull List<FontInfo[]> fonts,
+            int style) {
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("TypefaceCompat.createFromFontInfoWithFallback");
+        }
+        try {
+            return sTypefaceCompatImpl.createFromFontInfoWithFallback(
+                    context, cancellationSignal, fonts,
                     style);
         } finally {
             if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {

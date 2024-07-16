@@ -27,6 +27,7 @@ import android.graphics.fonts.FontFamily;
 import android.graphics.fonts.FontStyle;
 import android.os.CancellationSignal;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,10 +38,12 @@ import androidx.core.provider.FontsContractCompat;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(29)
 public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
+    private static final String TAG = "TypefaceCompatApi29Impl";
 
     private static int getMatchScore(@NonNull FontStyle o1, @NonNull FontStyle o2) {
         // Logic from FontStyle.java#getMatchScore introduced in API 29
@@ -85,38 +88,77 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
     public Typeface createFromFontInfo(Context context,
             @Nullable CancellationSignal cancellationSignal,
             @NonNull FontsContractCompat.FontInfo[] fonts, int style) {
-        FontFamily.Builder familyBuilder = null;
         final ContentResolver resolver = context.getContentResolver();
         try {
-            for (FontsContractCompat.FontInfo font : fonts) {
-                try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(font.getUri(), "r",
-                        cancellationSignal)) {
-                    if (pfd == null) {
-                        continue;  // keep adding succeeded fonts.
-                    }
-                    final Font platformFont = new Font.Builder(pfd)
-                            .setWeight(font.getWeight())
-                            .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
-                                    : FontStyle.FONT_SLANT_UPRIGHT)
-                            .setTtcIndex(font.getTtcIndex())
-                            .build();  // TODO: font variation settings?
-                    if (familyBuilder == null) {
-                        familyBuilder = new FontFamily.Builder(platformFont);
-                    } else {
-                        familyBuilder.addFont(platformFont);
-                    }
-                } catch (IOException e) {
-                    // keep adding succeeded fonts.
-                }
-            }
-            if (familyBuilder == null) {
-                return null;  // No font is added. Give up.
-            }
-            final FontFamily family = familyBuilder.build();
+            final FontFamily family = getFontFamily(cancellationSignal, fonts, resolver);
+            if (family == null) return null;  // No font is added. Give up.
             return new Typeface.CustomFallbackBuilder(family)
                     .setStyle(findBaseFont(family, style).getStyle())
                     .build();
         } catch (Exception e) {
+            Log.w(TAG, "Font load failed", e);
+            return null;
+        }
+    }
+
+    private static @Nullable FontFamily getFontFamily(
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull FontsContractCompat.FontInfo[] fonts, ContentResolver resolver) {
+        FontFamily.Builder familyBuilder = null;
+        for (FontsContractCompat.FontInfo font : fonts) {
+            try (ParcelFileDescriptor pfd = resolver.openFileDescriptor(font.getUri(), "r",
+                    cancellationSignal)) {
+                if (pfd == null) {
+                    continue;  // keep adding succeeded fonts.
+                }
+                final Font platformFont = new Font.Builder(pfd)
+                        .setWeight(font.getWeight())
+                        .setSlant(font.isItalic() ? FontStyle.FONT_SLANT_ITALIC
+                                : FontStyle.FONT_SLANT_UPRIGHT)
+                        .setTtcIndex(font.getTtcIndex())
+                        .build();  // TODO: font variation settings?
+                if (familyBuilder == null) {
+                    familyBuilder = new FontFamily.Builder(platformFont);
+                } else {
+                    familyBuilder.addFont(platformFont);
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "Font load failed", e);
+                // keep adding succeeded fonts.
+            }
+        }
+        if (familyBuilder == null) {
+            return null;
+        }
+        final FontFamily family = familyBuilder.build();
+        return family;
+    }
+
+    @Nullable
+    @Override
+    public Typeface createFromFontInfoWithFallback(@NonNull Context context,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull List<FontsContractCompat.FontInfo[]> fonts, int style) {
+        final ContentResolver resolver = context.getContentResolver();
+        try {
+            final FontFamily family = getFontFamily(cancellationSignal, fonts.get(0), resolver);
+            if (family == null) return null;  // No font is added. Give up.
+            Typeface.CustomFallbackBuilder builder = new Typeface.CustomFallbackBuilder(family);
+            for (int i = 1 /* because 0 is handled above */; i < fonts.size(); i++) {
+                final FontFamily fallbackFamily = getFontFamily(cancellationSignal, fonts.get(i),
+                        resolver);
+                if (fallbackFamily != null) {
+                    builder.addCustomFallback(fallbackFamily);
+                } else {
+                    if (TypefaceCompat.DOWNLOADABLE_FALLBACK_DEBUG) {
+                        // TODO(b/352510076): Do we need to handle this somehow?
+                        throw new IllegalStateException("Font load failed");
+                    }
+                }
+            }
+            return builder.setStyle(findBaseFont(family, style).getStyle()).build();
+        } catch (Exception e) {
+            Log.w(TAG, "Font load failed", e);
             return null;
         }
     }
@@ -154,6 +196,7 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
                     .setStyle(findBaseFont(family, style).getStyle())
                     .build();
         } catch (Exception e) {
+            Log.w(TAG, "Font load failed", e);
             return null;
         }
     }
@@ -175,6 +218,7 @@ public class TypefaceCompatApi29Impl extends TypefaceCompatBaseImpl {
                     .setStyle(font.getStyle())
                     .build();
         } catch (Exception e) {
+            Log.w(TAG, "Font load failed", e);
             return null;
         }
     }

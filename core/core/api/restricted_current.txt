@@ -1593,6 +1593,7 @@ package androidx.core.content.res {
 
   public static final class FontResourcesParserCompat.ProviderResourceEntry implements androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry {
     ctor public FontResourcesParserCompat.ProviderResourceEntry(androidx.core.provider.FontRequest, @androidx.core.content.res.FontResourcesParserCompat.FetchStrategy int, int);
+    method public androidx.core.provider.FontRequest? getFallbackRequest();
     method @androidx.core.content.res.FontResourcesParserCompat.FetchStrategy public int getFetchStrategy();
     method public androidx.core.provider.FontRequest getRequest();
     method public int getTimeout();
@@ -1808,6 +1809,7 @@ package androidx.core.graphics {
     method protected android.graphics.Typeface? createFromFamiliesWithDefault(Object!);
     method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method @RequiresApi(29) public android.graphics.Typeface? createFromFontInfoWithFallback(android.content.Context, android.os.CancellationSignal?, java.util.List<androidx.core.provider.FontsContractCompat.FontInfo![]!>, int);
     method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
     method protected java.lang.reflect.Method! obtainAbortCreationMethod(Class<? extends java.lang.Object!>!) throws java.lang.NoSuchMethodException;
     method protected java.lang.reflect.Method! obtainAddFontFromAssetManagerMethod(Class<? extends java.lang.Object!>!) throws java.lang.NoSuchMethodException;
@@ -1833,6 +1835,7 @@ package androidx.core.graphics {
     ctor public TypefaceCompatApi29Impl();
     method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method public android.graphics.Typeface? createFromFontInfoWithFallback(android.content.Context, android.os.CancellationSignal?, java.util.List<androidx.core.provider.FontsContractCompat.FontInfo![]!>, int);
     method protected android.graphics.Typeface! createFromInputStream(android.content.Context!, java.io.InputStream!);
     method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
     method protected androidx.core.provider.FontsContractCompat.FontInfo! findBestInfo(androidx.core.provider.FontsContractCompat.FontInfo![]!, int);
@@ -2425,6 +2428,7 @@ package androidx.core.provider {
     method @Deprecated public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? requestFont(android.content.Context, androidx.core.provider.FontRequest, int, boolean, @IntRange(from=0) int, android.os.Handler, androidx.core.provider.FontsContractCompat.FontRequestCallback);
     method public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, int, java.util.concurrent.Executor?, java.util.concurrent.Executor, androidx.core.provider.FontsContractCompat.FontRequestCallback);
+    method public static void requestFontWithFallbackChain(android.content.Context, java.util.List<androidx.core.provider.FontRequest!>, int, java.util.concurrent.Executor?, java.util.concurrent.Executor, androidx.core.provider.FontsContractCompat.FontRequestCallback);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void resetCache();
     field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String PARCEL_FONT_RESULTS = "font_results";
   }
@@ -2446,6 +2450,7 @@ package androidx.core.provider {
   public static class FontsContractCompat.FontFamilyResult {
     ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public FontsContractCompat.FontFamilyResult(int, androidx.core.provider.FontsContractCompat.FontInfo![]?);
     method public androidx.core.provider.FontsContractCompat.FontInfo![]! getFonts();
+    method public java.util.List<androidx.core.provider.FontsContractCompat.FontInfo![]!> getFontsWithFallbacks();
     method public int getStatusCode();
     field public static final int STATUS_OK = 0; // 0x0
     field public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2; // 0x2
