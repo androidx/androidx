@@ -324,10 +324,21 @@ package androidx.mediarouter.media {
 
   public abstract class MediaRouteProviderService extends android.app.Service {
     ctor public MediaRouteProviderService();
+    method public void addClientInfoListener(java.util.concurrent.Executor, androidx.core.util.Consumer<java.util.List<androidx.mediarouter.media.MediaRouteProviderService.ClientInfo!>!>);
     method public androidx.mediarouter.media.MediaRouteProvider? getMediaRouteProvider();
     method public android.os.IBinder? onBind(android.content.Intent);
     method public abstract androidx.mediarouter.media.MediaRouteProvider? onCreateMediaRouteProvider();
+    method public void removeClientInfoListener(androidx.core.util.Consumer<java.util.List<androidx.mediarouter.media.MediaRouteProviderService.ClientInfo!>!>);
     field public static final String SERVICE_INTERFACE = "android.media.MediaRouteProviderService";
+  }
+
+  public static final class MediaRouteProviderService.ClientInfo {
+    method public String getPackageName();
+  }
+
+  public static final class MediaRouteProviderService.ClientInfo.Builder {
+    ctor public MediaRouteProviderService.ClientInfo.Builder(String);
+    method public androidx.mediarouter.media.MediaRouteProviderService.ClientInfo build();
   }
 
   public final class MediaRouteSelector {
