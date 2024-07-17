@@ -117,7 +117,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         callback: CredentialManagerCallback<GetCredentialResponse, GetCredentialException>,
     ) {
         val provider: CredentialProvider? =
-            CredentialProviderFactory(context).getBestAvailableProvider()
+            CredentialProviderFactory(context).getBestAvailableProvider(request)
         if (provider == null) {
             callback.onError(
                 GetCredentialProviderConfigurationException(
@@ -236,7 +236,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         callback: CredentialManagerCallback<CreateCredentialResponse, CreateCredentialException>,
     ) {
         val provider: CredentialProvider? =
-            CredentialProviderFactory(this.context).getBestAvailableProvider()
+            CredentialProviderFactory(this.context).getBestAvailableProvider(request)
         if (provider == null) {
             callback.onError(
                 CreateCredentialProviderConfigurationException(
@@ -263,6 +263,9 @@ internal class CredentialManagerImpl internal constructor(private val context: C
      * app and in order to get the holistic sign-in options the next time, you should call this API
      * to let the provider clear any stored credential session.
      *
+     * If the API is called with [ClearCredentialRequestTypes.CLEAR_RESTORE_CREDENTIAL] then any
+     * restore credential stored on device will be cleared.
+     *
      * @param request the request for clearing the app user's credential state
      * @param cancellationSignal an optional signal that allows for cancelling this call
      * @param executor the callback will take place on this executor
@@ -275,7 +278,7 @@ internal class CredentialManagerImpl internal constructor(private val context: C
         callback: CredentialManagerCallback<Void?, ClearCredentialException>,
     ) {
         val provider: CredentialProvider? =
-            CredentialProviderFactory(context).getBestAvailableProvider()
+            CredentialProviderFactory(context).getBestAvailableProvider(request.requestType)
         if (provider == null) {
             callback.onError(
                 ClearCredentialProviderConfigurationException(
