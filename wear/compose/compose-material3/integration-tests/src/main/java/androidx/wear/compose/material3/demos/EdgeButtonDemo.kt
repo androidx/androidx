@@ -16,79 +16,76 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyListItemInfo
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rememberActiveFocusRequester
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
+import androidx.wear.compose.foundation.rotary.rotaryScrollable
 import androidx.wear.compose.integration.demos.common.AdaptiveScreen
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
 import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.EdgeButton
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun EdgeButtonBelowListDemo() {
-    // NOTE: This demo recomposes the Edge Button when it's appearing / disappearing.
+fun EdgeButtonBelowLazyColumnDemo() {
+    val labels =
+        listOf(
+            "Hi",
+            "Hello World",
+            "Hello world again?",
+            "More content as we add stuff",
+            "I don't know if this will fit now, testing",
+            "Really long text that it's going to take multiple lines",
+            "And now we are really pushing it because the screen is really small",
+        )
+    val selectedLabel = remember { mutableIntStateOf(0) }
     AdaptiveScreen {
-        val state = rememberScalingLazyListState()
-        val screenHeightPx =
-            with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
-        val heightPx = remember {
-            derivedStateOf {
-                val marginPx = 5f // !?
-                var lastItemInfo: ScalingLazyListItemInfo? = null
-                state.layoutInfo.visibleItemsInfo.fastForEach { ii ->
-                    if (ii.index == state.layoutInfo.totalItemsCount - 1) lastItemInfo = ii
+        val state = rememberLazyListState()
+        ScreenScaffold(
+            scrollState = state,
+            bottomButton = {
+                EdgeButton(
+                    onClick = {},
+                    buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                    colors = buttonColors(containerColor = Color.DarkGray)
+                ) {
+                    Text(labels[selectedLabel.intValue], color = Color.White)
                 }
-                lastItemInfo?.let {
-                    val bottomEdge = it.offset + screenHeightPx / 2 + it.size / 2
-                    (screenHeightPx - bottomEdge - marginPx).coerceAtLeast(0f)
-                } ?: 0f
             }
-        }
-
-        val labels =
-            listOf(
-                "Hi",
-                "Hello World",
-                "Hello world again?",
-                "More content as we add stuff",
-                "I don't know if this will fit now, testing",
-                "Really long text that it's going to take multiple lines",
-                "And now we are really pushing it because the screen is really small",
-            )
-        val selectedLabel = remember { mutableIntStateOf(0) }
-
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-            ScalingLazyColumn(
+        ) {
+            LazyColumn(
                 state = state,
                 modifier = Modifier.fillMaxSize(),
-                autoCentering = null,
-                contentPadding = PaddingValues(10.dp, 20.dp, 10.dp, 100.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                contentPadding = PaddingValues(10.dp, 20.dp, 10.dp, 80.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 items(labels.size) {
                     Card(
@@ -99,30 +96,116 @@ fun EdgeButtonBelowListDemo() {
                     }
                 }
             }
-            // We isolate the call to EdgeButton to a function so only that is recomposed when the
-            // height changes.
-            EdgeButtonCall(heightPx) {
-                Text(
-                    labels[selectedLabel.intValue],
-                    color = Color.White,
-                    textAlign = TextAlign.Center,
-                    maxLines = 3,
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun EdgeButtonCall(heightPx: State<Float>, content: @Composable RowScope.() -> Unit) {
-    val heightDp = with(LocalDensity.current) { heightPx.value.toDp() }
-    EdgeButton(
-        onClick = {},
-        buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
-        colors = buttonColors(containerColor = Color.DarkGray),
-        modifier = Modifier.height(heightDp),
-        content = content
-    )
+fun EdgeButtonBelowScalingLazyColumnDemo() {
+    val labels =
+        listOf(
+            "Hi",
+            "Hello World",
+            "Hello world again?",
+            "More content as we add stuff",
+            "I don't know if this will fit now, testing",
+            "Really long text that it's going to take multiple lines",
+            "And now we are really pushing it because the screen is really small",
+        )
+    val selectedLabel = remember { mutableIntStateOf(0) }
+
+    AdaptiveScreen {
+        val state = rememberScalingLazyListState()
+        ScreenScaffold(
+            scrollState = state,
+            bottomButton = {
+                EdgeButton(
+                    onClick = {},
+                    buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                    colors = buttonColors(containerColor = Color.DarkGray)
+                ) {
+                    Text(labels[selectedLabel.intValue], color = Color.White)
+                }
+            }
+        ) {
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier.fillMaxSize(),
+                autoCentering = null,
+                contentPadding = PaddingValues(10.dp, 20.dp, 10.dp, 100.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                items(labels.size) {
+                    Card(
+                        onClick = { selectedLabel.intValue = it },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        Text(labels[it])
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalWearFoundationApi::class)
+@Composable
+fun EdgeButtonBelowColumnDemo() {
+    val labels =
+        listOf(
+            "Hi",
+            "Hello World",
+            "Hello world again?",
+            "More content as we add stuff",
+            "I don't know if this will fit now, testing",
+            "Really long text that it's going to take multiple lines",
+            "And now we are really pushing it because the screen is really small",
+        )
+    val selectedLabel = remember { mutableIntStateOf(0) }
+    val bottomButtonHeight = ButtonDefaults.EdgeButtonHeightLarge
+
+    AdaptiveScreen {
+        val scrollState = rememberScrollState()
+        val focusRequester = rememberActiveFocusRequester()
+
+        ScreenScaffold(
+            scrollState = scrollState,
+            bottomButton = {
+                EdgeButton(
+                    onClick = {},
+                    buttonHeight = bottomButtonHeight,
+                    colors = buttonColors(containerColor = Color.DarkGray)
+                ) {
+                    Text(labels[selectedLabel.intValue], color = Color.White)
+                }
+            },
+            bottomButtonHeight = bottomButtonHeight
+        ) {
+            Column(
+                modifier =
+                    Modifier.verticalScroll(scrollState)
+                        .rotaryScrollable(
+                            RotaryScrollableDefaults.behavior(
+                                scrollableState = scrollState,
+                                flingBehavior = ScrollableDefaults.flingBehavior()
+                            ),
+                            focusRequester = focusRequester
+                        ),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                repeat(labels.size) {
+                    Card(
+                        onClick = { selectedLabel.intValue = it },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        Text(labels[it])
+                    }
+                }
+                Spacer(Modifier.height(bottomButtonHeight))
+            }
+        }
+    }
 }
 
 @Suppress("PrimitiveInCollection")

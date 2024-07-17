@@ -301,6 +301,7 @@ package androidx.wear.compose.foundation {
 
   public interface ScrollInfoProvider {
     method public float getAnchorItemOffset();
+    method public float getLastItemOffset();
     method public boolean isScrollAwayValid();
     method public boolean isScrollInProgress();
     method public boolean isScrollable();
@@ -308,12 +309,13 @@ package androidx.wear.compose.foundation {
     property public abstract boolean isScrollAwayValid;
     property public abstract boolean isScrollInProgress;
     property public abstract boolean isScrollable;
+    property public abstract float lastItemOffset;
   }
 
   public final class ScrollInfoProviderKt {
-    method public static androidx.wear.compose.foundation.ScrollInfoProvider toScrollAwayInfoProvider(androidx.compose.foundation.lazy.LazyListState);
-    method public static androidx.wear.compose.foundation.ScrollInfoProvider toScrollAwayInfoProvider(androidx.compose.foundation.ScrollState);
-    method public static androidx.wear.compose.foundation.ScrollInfoProvider toScrollAwayInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.lazy.LazyListState state);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.ScrollState state, optional float bottomButtonHeight);
+    method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState state);
   }
 
   public final class SwipeToDismissBoxDefaults {
