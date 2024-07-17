@@ -2896,6 +2896,8 @@ private constructor(
             override fun write(dos: DataOutputStream) {
                 dos.write(id.value)
             }
+
+            override fun toString(): String = "[binary data, length: ${customValue.size}]"
         }
 
         override fun getOptionForId(optionId: Option.Id): Option =

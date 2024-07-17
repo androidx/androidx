@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
+import androidx.wear.watchface.style.UserStyleSetting.LargeCustomValueUserStyleSetting.Companion.CUSTOM_VALUE_USER_STYLE_SETTING_ID
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -379,10 +380,20 @@ public class UserStyleData(public val userStyleMap: Map<String, ByteArray>) {
         "{" +
             userStyleMap.entries.joinToString(
                 transform = {
-                    try {
-                        it.key + "=" + it.value.decodeToString()
-                    } catch (e: Exception) {
-                        it.key + "=" + it.value
+                    when (it.key) {
+                        /**
+                         * For CustomValueUserStyleSetting and LargeCustomValueUserStyleSetting, we
+                         * display only the length of the value. These style settings is always use
+                         * the same key (CustomValue).
+                         */
+                        CUSTOM_VALUE_USER_STYLE_SETTING_ID ->
+                            it.key + "=[binary data, length: ${it.value.size}]"
+                        else ->
+                            try {
+                                it.key + "=" + it.value.decodeToString()
+                            } catch (e: Exception) {
+                                it.key + "=" + it.value
+                            }
                     }
                 }
             ) +
