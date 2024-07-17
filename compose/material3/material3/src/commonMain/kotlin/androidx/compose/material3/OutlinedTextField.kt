@@ -879,10 +879,7 @@ private class OutlinedTextFieldMeasurePolicy(
                 textFieldPlaceableWidth = textFieldPlaceable.width,
                 labelPlaceableWidth = labelPlaceable.widthOrZero,
                 placeholderPlaceableWidth = placeholderPlaceable.widthOrZero,
-                labelProgress = labelProgress,
                 constraints = constraints,
-                density = density,
-                paddingValues = paddingValues,
             )
 
         // measure supporting text
@@ -903,10 +900,7 @@ private class OutlinedTextFieldMeasurePolicy(
                 labelHeight = labelPlaceable.heightOrZero,
                 placeholderHeight = placeholderPlaceable.heightOrZero,
                 supportingHeight = supportingPlaceable.heightOrZero,
-                labelProgress = labelProgress,
                 constraints = constraints,
-                density = density,
-                paddingValues = paddingValues,
             )
         val height = totalHeight - supportingHeight
 
@@ -934,11 +928,8 @@ private class OutlinedTextFieldMeasurePolicy(
                 placeholderPlaceable = placeholderPlaceable,
                 containerPlaceable = containerPlaceable,
                 supportingPlaceable = supportingPlaceable,
-                labelProgress = labelProgress,
-                singleLine = singleLine,
                 density = density,
                 layoutDirection = layoutDirection,
-                paddingValues = paddingValues,
             )
         }
     }
@@ -1018,10 +1009,7 @@ private class OutlinedTextFieldMeasurePolicy(
             textFieldPlaceableWidth = textFieldWidth,
             labelPlaceableWidth = labelWidth,
             placeholderPlaceableWidth = placeholderWidth,
-            labelProgress = labelProgress,
             constraints = Constraints(),
-            density = density,
-            paddingValues = paddingValues,
         )
     }
 
@@ -1102,191 +1090,182 @@ private class OutlinedTextFieldMeasurePolicy(
             labelHeight = labelHeight,
             placeholderHeight = placeholderHeight,
             supportingHeight = supportingHeight,
-            labelProgress = labelProgress,
             constraints = Constraints(),
-            density = density,
-            paddingValues = paddingValues
         )
     }
-}
 
-/**
- * Calculate the width of the [OutlinedTextField] given all elements that should be placed inside.
- */
-private fun calculateWidth(
-    leadingPlaceableWidth: Int,
-    trailingPlaceableWidth: Int,
-    prefixPlaceableWidth: Int,
-    suffixPlaceableWidth: Int,
-    textFieldPlaceableWidth: Int,
-    labelPlaceableWidth: Int,
-    placeholderPlaceableWidth: Int,
-    labelProgress: Float,
-    constraints: Constraints,
-    density: Float,
-    paddingValues: PaddingValues,
-): Int {
-    val affixTotalWidth = prefixPlaceableWidth + suffixPlaceableWidth
-    val middleSection =
-        maxOf(
-            textFieldPlaceableWidth + affixTotalWidth,
-            placeholderPlaceableWidth + affixTotalWidth,
-            // Prefix/suffix does not get applied to label
-            lerp(labelPlaceableWidth, 0, labelProgress),
+    /**
+     * Calculate the width of the [OutlinedTextField] given all elements that should be placed
+     * inside.
+     */
+    private fun Density.calculateWidth(
+        leadingPlaceableWidth: Int,
+        trailingPlaceableWidth: Int,
+        prefixPlaceableWidth: Int,
+        suffixPlaceableWidth: Int,
+        textFieldPlaceableWidth: Int,
+        labelPlaceableWidth: Int,
+        placeholderPlaceableWidth: Int,
+        constraints: Constraints,
+    ): Int {
+        val affixTotalWidth = prefixPlaceableWidth + suffixPlaceableWidth
+        val middleSection =
+            maxOf(
+                textFieldPlaceableWidth + affixTotalWidth,
+                placeholderPlaceableWidth + affixTotalWidth,
+                // Prefix/suffix does not get applied to label
+                lerp(labelPlaceableWidth, 0, labelProgress),
+            )
+        val wrappedWidth = leadingPlaceableWidth + middleSection + trailingPlaceableWidth
+
+        // Actual LayoutDirection doesn't matter; we only need the sum
+        val labelHorizontalPadding =
+            (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
+                    paddingValues.calculateRightPadding(LayoutDirection.Ltr))
+                .toPx()
+        val focusedLabelWidth =
+            ((labelPlaceableWidth + labelHorizontalPadding) * labelProgress).roundToInt()
+        return maxOf(wrappedWidth, focusedLabelWidth, constraints.minWidth)
+    }
+
+    /**
+     * Calculate the height of the [OutlinedTextField] given all elements that should be placed
+     * inside. This includes the supporting text, if it exists, even though this element is not
+     * "visually" inside the text field.
+     */
+    private fun Density.calculateHeight(
+        leadingHeight: Int,
+        trailingHeight: Int,
+        prefixHeight: Int,
+        suffixHeight: Int,
+        textFieldHeight: Int,
+        labelHeight: Int,
+        placeholderHeight: Int,
+        supportingHeight: Int,
+        constraints: Constraints,
+    ): Int {
+        val inputFieldHeight =
+            maxOf(
+                textFieldHeight,
+                placeholderHeight,
+                prefixHeight,
+                suffixHeight,
+                lerp(labelHeight, 0, labelProgress)
+            )
+        val topPadding = paddingValues.calculateTopPadding().toPx()
+        val actualTopPadding = lerp(topPadding, max(topPadding, labelHeight / 2f), labelProgress)
+        val bottomPadding = paddingValues.calculateBottomPadding().toPx()
+        val middleSectionHeight = actualTopPadding + inputFieldHeight + bottomPadding
+
+        return max(
+            constraints.minHeight,
+            maxOf(leadingHeight, trailingHeight, middleSectionHeight.roundToInt()) +
+                supportingHeight
         )
-    val wrappedWidth = leadingPlaceableWidth + middleSection + trailingPlaceableWidth
+    }
 
-    // Actual LayoutDirection doesn't matter; we only need the sum
-    val labelHorizontalPadding =
-        (paddingValues.calculateLeftPadding(LayoutDirection.Ltr) +
-                paddingValues.calculateRightPadding(LayoutDirection.Ltr))
-            .value * density
-    val focusedLabelWidth =
-        ((labelPlaceableWidth + labelHorizontalPadding) * labelProgress).roundToInt()
-    return maxOf(wrappedWidth, focusedLabelWidth, constraints.minWidth)
-}
+    /**
+     * Places the provided text field, placeholder, label, optional leading and trailing icons
+     * inside the [OutlinedTextField]
+     */
+    private fun Placeable.PlacementScope.place(
+        totalHeight: Int,
+        width: Int,
+        leadingPlaceable: Placeable?,
+        trailingPlaceable: Placeable?,
+        prefixPlaceable: Placeable?,
+        suffixPlaceable: Placeable?,
+        textFieldPlaceable: Placeable,
+        labelPlaceable: Placeable?,
+        placeholderPlaceable: Placeable?,
+        containerPlaceable: Placeable,
+        supportingPlaceable: Placeable?,
+        density: Float,
+        layoutDirection: LayoutDirection,
+    ) {
+        // place container
+        containerPlaceable.place(IntOffset.Zero)
 
-/**
- * Calculate the height of the [OutlinedTextField] given all elements that should be placed inside.
- * This includes the supporting text, if it exists, even though this element is not "visually"
- * inside the text field.
- */
-private fun calculateHeight(
-    leadingHeight: Int,
-    trailingHeight: Int,
-    prefixHeight: Int,
-    suffixHeight: Int,
-    textFieldHeight: Int,
-    labelHeight: Int,
-    placeholderHeight: Int,
-    supportingHeight: Int,
-    labelProgress: Float,
-    constraints: Constraints,
-    density: Float,
-    paddingValues: PaddingValues
-): Int {
-    val inputFieldHeight =
-        maxOf(
-            textFieldHeight,
-            placeholderHeight,
-            prefixHeight,
-            suffixHeight,
-            lerp(labelHeight, 0, labelProgress)
+        // Most elements should be positioned w.r.t the text field's "visual" height, i.e.,
+        // excluding
+        // the supporting text on bottom
+        val height = totalHeight - supportingPlaceable.heightOrZero
+        val topPadding = (paddingValues.calculateTopPadding().value * density).roundToInt()
+        val startPadding =
+            (paddingValues.calculateStartPadding(layoutDirection).value * density).roundToInt()
+
+        val iconPadding = HorizontalIconPadding.value * density
+
+        // placed center vertically and to the start edge horizontally
+        leadingPlaceable?.placeRelative(
+            0,
+            Alignment.CenterVertically.align(leadingPlaceable.height, height)
         )
-    val topPadding = paddingValues.calculateTopPadding().value * density
-    val actualTopPadding = lerp(topPadding, max(topPadding, labelHeight / 2f), labelProgress)
-    val bottomPadding = paddingValues.calculateBottomPadding().value * density
-    val middleSectionHeight = actualTopPadding + inputFieldHeight + bottomPadding
 
-    return max(
-        constraints.minHeight,
-        maxOf(leadingHeight, trailingHeight, middleSectionHeight.roundToInt()) + supportingHeight
-    )
-}
-
-/**
- * Places the provided text field, placeholder, label, optional leading and trailing icons inside
- * the [OutlinedTextField]
- */
-private fun Placeable.PlacementScope.place(
-    totalHeight: Int,
-    width: Int,
-    leadingPlaceable: Placeable?,
-    trailingPlaceable: Placeable?,
-    prefixPlaceable: Placeable?,
-    suffixPlaceable: Placeable?,
-    textFieldPlaceable: Placeable,
-    labelPlaceable: Placeable?,
-    placeholderPlaceable: Placeable?,
-    containerPlaceable: Placeable,
-    supportingPlaceable: Placeable?,
-    labelProgress: Float,
-    singleLine: Boolean,
-    density: Float,
-    layoutDirection: LayoutDirection,
-    paddingValues: PaddingValues
-) {
-    // place container
-    containerPlaceable.place(IntOffset.Zero)
-
-    // Most elements should be positioned w.r.t the text field's "visual" height, i.e., excluding
-    // the supporting text on bottom
-    val height = totalHeight - supportingPlaceable.heightOrZero
-    val topPadding = (paddingValues.calculateTopPadding().value * density).roundToInt()
-    val startPadding =
-        (paddingValues.calculateStartPadding(layoutDirection).value * density).roundToInt()
-
-    val iconPadding = HorizontalIconPadding.value * density
-
-    // placed center vertically and to the start edge horizontally
-    leadingPlaceable?.placeRelative(
-        0,
-        Alignment.CenterVertically.align(leadingPlaceable.height, height)
-    )
-
-    // label position is animated
-    // in single line text field, label is centered vertically before animation starts
-    labelPlaceable?.let {
-        val startPositionY =
-            if (singleLine) {
-                Alignment.CenterVertically.align(it.height, height)
-            } else {
-                topPadding
-            }
-        val positionY = lerp(startPositionY, -(it.height / 2), labelProgress)
-        val positionX =
-            (if (leadingPlaceable == null) {
-                    0f
+        // label position is animated
+        // in single line text field, label is centered vertically before animation starts
+        labelPlaceable?.let {
+            val startPositionY =
+                if (singleLine) {
+                    Alignment.CenterVertically.align(it.height, height)
                 } else {
-                    (leadingPlaceable.widthOrZero - iconPadding) * (1 - labelProgress)
-                })
-                .roundToInt() + startPadding
-        it.placeRelative(positionX, positionY)
-    }
+                    topPadding
+                }
+            val positionY = lerp(startPositionY, -(it.height / 2), labelProgress)
+            val positionX =
+                (if (leadingPlaceable == null) {
+                        0f
+                    } else {
+                        (leadingPlaceable.widthOrZero - iconPadding) * (1 - labelProgress)
+                    })
+                    .roundToInt() + startPadding
+            it.placeRelative(positionX, positionY)
+        }
 
-    // Single line text fields have text components centered vertically.
-    // Multiline text fields have text components aligned to top with padding.
-    fun calculateVerticalPosition(placeable: Placeable): Int =
-        max(
-            if (singleLine) {
-                Alignment.CenterVertically.align(placeable.height, height)
-            } else {
-                topPadding
-            },
-            labelPlaceable.heightOrZero / 2
+        // Single line text fields have text components centered vertically.
+        // Multiline text fields have text components aligned to top with padding.
+        fun calculateVerticalPosition(placeable: Placeable): Int =
+            max(
+                if (singleLine) {
+                    Alignment.CenterVertically.align(placeable.height, height)
+                } else {
+                    topPadding
+                },
+                labelPlaceable.heightOrZero / 2
+            )
+
+        prefixPlaceable?.placeRelative(
+            leadingPlaceable.widthOrZero,
+            calculateVerticalPosition(prefixPlaceable)
         )
 
-    prefixPlaceable?.placeRelative(
-        leadingPlaceable.widthOrZero,
-        calculateVerticalPosition(prefixPlaceable)
-    )
+        val textHorizontalPosition = leadingPlaceable.widthOrZero + prefixPlaceable.widthOrZero
 
-    val textHorizontalPosition = leadingPlaceable.widthOrZero + prefixPlaceable.widthOrZero
+        textFieldPlaceable.placeRelative(
+            textHorizontalPosition,
+            calculateVerticalPosition(textFieldPlaceable)
+        )
 
-    textFieldPlaceable.placeRelative(
-        textHorizontalPosition,
-        calculateVerticalPosition(textFieldPlaceable)
-    )
+        // placed similar to the input text above
+        placeholderPlaceable?.placeRelative(
+            textHorizontalPosition,
+            calculateVerticalPosition(placeholderPlaceable)
+        )
 
-    // placed similar to the input text above
-    placeholderPlaceable?.placeRelative(
-        textHorizontalPosition,
-        calculateVerticalPosition(placeholderPlaceable)
-    )
+        suffixPlaceable?.placeRelative(
+            width - trailingPlaceable.widthOrZero - suffixPlaceable.width,
+            calculateVerticalPosition(suffixPlaceable)
+        )
 
-    suffixPlaceable?.placeRelative(
-        width - trailingPlaceable.widthOrZero - suffixPlaceable.width,
-        calculateVerticalPosition(suffixPlaceable)
-    )
+        // placed center vertically and to the end edge horizontally
+        trailingPlaceable?.placeRelative(
+            width - trailingPlaceable.width,
+            Alignment.CenterVertically.align(trailingPlaceable.height, height)
+        )
 
-    // placed center vertically and to the end edge horizontally
-    trailingPlaceable?.placeRelative(
-        width - trailingPlaceable.width,
-        Alignment.CenterVertically.align(trailingPlaceable.height, height)
-    )
-
-    // place supporting text
-    supportingPlaceable?.placeRelative(0, height)
+        // place supporting text
+        supportingPlaceable?.placeRelative(0, height)
+    }
 }
 
 internal fun Modifier.outlineCutout(labelSize: () -> Size, paddingValues: PaddingValues) =
