@@ -738,7 +738,10 @@ public class StyleParcelableTest {
             UserStyleSchema(listOf(styleSetting1, styleSetting2, styleSetting3, styleSetting4))
 
         assertThat(schema.toString())
-            .isEqualTo("[{id1 : 1, 2}, {id2 : 3, 4}, {id3 : true, false}, {CustomValue : default}]")
+            .isEqualTo(
+                "[{id1 : 1, 2}, {id2 : 3, 4}, {id3 : true, false}, " +
+                    "{CustomValue : [binary data, length: 7]}]"
+            )
     }
 
     @Ignore
