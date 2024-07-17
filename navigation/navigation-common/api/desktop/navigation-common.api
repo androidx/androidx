@@ -221,6 +221,7 @@ public class androidx/navigation/NavGraph : androidx/navigation/NavDestination, 
 }
 
 public final class androidx/navigation/NavGraph$Companion {
+	public final fun childHierarchy (Landroidx/navigation/NavGraph;)Lkotlin/sequences/Sequence;
 	public final fun findStartDestination (Landroidx/navigation/NavGraph;)Landroidx/navigation/NavDestination;
 }
 
@@ -437,7 +438,20 @@ public final class androidx/navigation/serialization/RouteDeserializerKt {
 	public static final fun decodeArguments (Lkotlinx/serialization/KSerializer;Landroidx/lifecycle/SavedStateHandle;Ljava/util/Map;)Ljava/lang/Object;
 }
 
+public final class androidx/navigation/serialization/RouteEncoder : kotlinx/serialization/encoding/AbstractEncoder {
+	public fun <init> (Lkotlinx/serialization/KSerializer;Ljava/util/Map;)V
+	public fun encodeElement (Lkotlinx/serialization/descriptors/SerialDescriptor;I)Z
+	public fun encodeNull ()V
+	public fun encodeSerializableValue (Lkotlinx/serialization/SerializationStrategy;Ljava/lang/Object;)V
+	public final fun encodeToArgMap (Ljava/lang/Object;)Ljava/util/Map;
+	public fun encodeValue (Ljava/lang/Object;)V
+	public fun getSerializersModule ()Lkotlinx/serialization/modules/SerializersModule;
+}
+
 public final class androidx/navigation/serialization/RouteSerializerKt {
+	public static final fun generateHashCode (Lkotlinx/serialization/KSerializer;)I
+	public static final fun generateNavArguments (Lkotlinx/serialization/KSerializer;Ljava/util/Map;)Ljava/util/List;
+	public static synthetic fun generateNavArguments$default (Lkotlinx/serialization/KSerializer;Ljava/util/Map;ILjava/lang/Object;)Ljava/util/List;
 	public static final fun generateRouteWithArgs (Ljava/lang/Object;Ljava/util/Map;)Ljava/lang/String;
 }
 
