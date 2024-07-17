@@ -18,7 +18,6 @@ package androidx.baselineprofile.gradle.utils
 
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.testkit.runner.GradleRunner
 
 internal val GRADLE_CODE_PRINT_TASK =
