@@ -32,6 +32,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -239,6 +241,42 @@ class RowColumnDslTest {
         rule.onNodeWithTag("box2").assertPositionInRootIsEqualTo(expectedX, expectedY)
         expectedX += hGapSize + hGapSize + 10.dp
         rule.onNodeWithTag("box3").assertPositionInRootIsEqualTo(expectedX, expectedY)
+    }
+
+    @Test
+    fun testInconsistentWeightsOnColumnTrows() {
+        val count = 3
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                rule.setContent {
+                    ColumnComposableTest(
+                        modifier = Modifier.size(100.dp),
+                        boxesCount = count,
+                        // Insufficient weights should throw
+                        weights = FloatArray(count - 1) { it.toFloat() },
+                        skipIndices = emptyIntSet()
+                    )
+                }
+            }
+        assertEquals("Number of weights (2) should match number of elements (3).", error.message)
+    }
+
+    @Test
+    fun testInconsistentWeightsOnRowTrows() {
+        val count = 3
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                rule.setContent {
+                    RowComposableTest(
+                        modifier = Modifier.size(100.dp),
+                        boxesCount = count,
+                        // Excessive weights should throw
+                        weights = FloatArray(count + 1) { it.toFloat() },
+                        skipIndices = emptyIntSet()
+                    )
+                }
+            }
+        assertEquals("Number of weights (4) should match number of elements (3).", error.message)
     }
 
     @Composable

@@ -30,6 +30,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -535,6 +537,54 @@ class GridDslTest {
         rule.onNodeWithTag("box0").assertPositionInRootIsEqualTo(expectedLeft, expectedTop)
         expectedLeft += 10.dp + firstGapSize + secondGapSize
         rule.onNodeWithTag("box1").assertPositionInRootIsEqualTo(expectedLeft, expectedTop)
+    }
+
+    @Test
+    fun testIconsistendRowWeightsThrows() {
+        val rowCount = 3
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                rule.setContent {
+                    gridComposableTest(
+                        modifier = Modifier.size(100.dp),
+                        numRows = rowCount,
+                        numColumns = 1,
+                        gridSpans = emptyArray(),
+                        gridSkips = emptyArray(),
+                        // Insufficient weights in array should throw
+                        gridRowWeights = FloatArray(rowCount - 1) { it.toFloat() },
+                        gridColumnWeights = floatArrayOf(),
+                        boxesCount = 1,
+                        isHorizontalArrangement = true,
+                        gridFlags = GridFlags.None
+                    )
+                }
+            }
+        assertEquals("Number of weights (2) should match number of rows (3).", error.message)
+    }
+
+    @Test
+    fun testInconsistentColumnWeightsThrows() {
+        val columnCount = 3
+        val error =
+            assertFailsWith<IllegalArgumentException> {
+                rule.setContent {
+                    gridComposableTest(
+                        modifier = Modifier.size(100.dp),
+                        numRows = 1,
+                        numColumns = columnCount,
+                        gridSpans = emptyArray(),
+                        gridSkips = emptyArray(),
+                        gridRowWeights = floatArrayOf(),
+                        // Excessive weights in array should throw
+                        gridColumnWeights = FloatArray(columnCount + 1) { it.toFloat() },
+                        boxesCount = 1,
+                        isHorizontalArrangement = true,
+                        gridFlags = GridFlags.None
+                    )
+                }
+            }
+        assertEquals("Number of weights (4) should match number of columns (3).", error.message)
     }
 
     @Test
