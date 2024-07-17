@@ -34,7 +34,6 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.R
 import androidx.credentials.provider.PasswordCredentialEntry.Api28Impl.toSlice
 import androidx.credentials.provider.PasswordCredentialEntry.Companion.toSlice
-import androidx.credentials.provider.utils.requiresSlicePropertiesWorkaround
 import java.time.Instant
 import java.util.Collections
 
@@ -320,27 +319,25 @@ internal constructor(
         fun addToSlice(entry: PasswordCredentialEntry, sliceBuilder: Slice.Builder) {
             val biometricPromptData = entry.biometricPromptData
             if (biometricPromptData != null) {
-                if (requiresSlicePropertiesWorkaround()) {
-                    sliceBuilder.addInt(
-                        biometricPromptData.allowedAuthenticators,
+                // TODO(b/353798766) : Remove non bundles once beta users have finalized testing
+                sliceBuilder.addInt(
+                    biometricPromptData.allowedAuthenticators,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                )
+                biometricPromptData.cryptoObject?.let {
+                    sliceBuilder.addLong(
+                        biometricPromptData.cryptoObject.operationHandle,
                         /*subType=*/ null,
-                        listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
-                    )
-                    biometricPromptData.cryptoObject?.let {
-                        sliceBuilder.addLong(
-                            biometricPromptData.cryptoObject.operationHandle,
-                            /*subType=*/ null,
-                            listOf(SLICE_HINT_CRYPTO_OP_ID)
-                        )
-                    }
-                } else {
-                    val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
-                    sliceBuilder.addBundle(
-                        biometricBundle,
-                        /*subType=*/ null,
-                        listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                        listOf(SLICE_HINT_CRYPTO_OP_ID)
                     )
                 }
+                val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
+                sliceBuilder.addBundle(
+                    biometricBundle,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                )
             }
         }
 

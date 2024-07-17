@@ -30,7 +30,6 @@ import androidx.credentials.GetCredentialResponse
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
-import androidx.credentials.provider.utils.requiresSlicePropertiesWorkaround
 import java.util.stream.Collectors
 
 /**
@@ -77,10 +76,10 @@ class PendingIntentHandler {
                 Log.i(TAG, "Request not found in pendingIntent")
                 return frameworkReq
             }
-            val biometricPromptResult =
-                if (requiresSlicePropertiesWorkaround())
-                    retrieveBiometricPromptResultFallback(intent)
-                else retrieveBiometricPromptResult(intent)
+            var biometricPromptResult = retrieveBiometricPromptResult(intent)
+            if (biometricPromptResult == null) {
+                biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
+            }
             return try {
                 ProviderCreateCredentialRequest(
                     callingRequest =
@@ -132,12 +131,23 @@ class PendingIntentHandler {
         }
 
         private fun retrieveBiometricPromptResultFallback(intent: Intent): BiometricPromptResult? {
-            return retrieveBiometricPromptResult(
-                intent,
-                resultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK,
-                errorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK,
-                errorMessageKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
-            )
+            // TODO(b/353798766) : Remove fallback keys once beta users have finalized testing
+            val fallbackResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK
+            val fallbackErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK
+            if (
+                intent.extras != null &&
+                    (intent.extras!!.containsKey(fallbackResultKey) ||
+                        intent.extras!!.containsKey(fallbackErrorKey))
+            ) {
+                return retrieveBiometricPromptResult(
+                    intent,
+                    resultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK,
+                    errorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK,
+                    errorMessageKey =
+                        AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
+                )
+            }
+            return null
         }
 
         /**
@@ -203,10 +213,10 @@ class PendingIntentHandler {
                 Log.i(TAG, "Get request from framework is null")
                 return null
             }
-            val biometricPromptResult =
-                if (requiresSlicePropertiesWorkaround())
-                    retrieveBiometricPromptResultFallback(intent)
-                else retrieveBiometricPromptResult(intent)
+            var biometricPromptResult = retrieveBiometricPromptResult(intent)
+            if (biometricPromptResult == null) {
+                biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
+            }
             return ProviderGetCredentialRequest.createFrom(
                 frameworkReq.credentialOptions
                     .stream()

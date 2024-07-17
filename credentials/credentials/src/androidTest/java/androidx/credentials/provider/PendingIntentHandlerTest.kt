@@ -30,7 +30,6 @@ import androidx.credentials.PasswordCredential
 import androidx.credentials.equals
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
-import androidx.credentials.provider.utils.requiresSlicePropertiesWorkaround
 import androidx.credentials.setUpCreatePasswordRequest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -400,9 +399,6 @@ class PendingIntentHandlerTest {
         if (biometricPromptResult.isSuccessful) {
             Assert.assertNotNull(biometricPromptResult.authenticationResult)
             var extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE
-            if (requiresSlicePropertiesWorkaround()) {
-                extraResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK
-            }
             intent.putExtra(
                 extraResultKey,
                 biometricPromptResult.authenticationResult!!.authenticationType
@@ -411,11 +407,6 @@ class PendingIntentHandlerTest {
             Assert.assertNotNull(biometricPromptResult.authenticationError)
             var extraErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR
             var extraErrorMessageKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
-            if (requiresSlicePropertiesWorkaround()) {
-                extraErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK
-                extraErrorMessageKey =
-                    AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
-            }
             intent.putExtra(extraErrorKey, biometricPromptResult.authenticationError!!.errorCode)
             intent.putExtra(
                 extraErrorMessageKey,
