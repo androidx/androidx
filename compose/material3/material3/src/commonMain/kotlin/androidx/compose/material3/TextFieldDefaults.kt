@@ -117,9 +117,12 @@ object TextFieldDefaults {
      *   [MutableInteractionSource] instance to the [BasicTextField] for it to dispatch events. And
      *   then pass the same instance to this decorator to observe [Interaction]s and customize the
      *   appearance/behavior of the text field in different states.
+     * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults
+     *   to `false`, so the label will expand to occupy the input area when the text field is
+     *   unfocused and empty. When `true`, this allows displaying the [placeholder], [prefix], and
+     *   [suffix] alongside the [label] when the text field is unfocused and empty.
      * @param label the optional label to be displayed with this text field. The default text style
-     *   uses [Typography.bodySmall] when the text field is in focus and [Typography.bodyLarge] when
-     *   the text field is not in focus.
+     *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the input text is empty. The
      *   default text style uses [Typography.bodyLarge].
      * @param leadingIcon the optional leading icon to be displayed at the beginning of the text
@@ -149,6 +152,7 @@ object TextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
+        alwaysMinimizeLabel: Boolean = false,
         label: @Composable (() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -193,6 +197,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = alwaysMinimizeLabel,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -346,9 +351,8 @@ object TextFieldDefaults {
      *   the appearance / behavior of this text field in different states.
      * @param isError indicates if the text field's current value is in an error state. When `true`,
      *   this decoration box will display its contents in an error color.
-     * @param label the optional label to be displayed inside the text field container. The default
-     *   text style for internal [Text] is [Typography.bodySmall] when the text field is in focus
-     *   and [Typography.bodyLarge] when the text field is not in focus.
+     * @param label the optional label to be displayed with this text field. The default text style
+     *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the text field is in focus
      *   and the input text is empty. The default text style for internal [Text] is
      *   [Typography.bodyLarge].
@@ -420,6 +424,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = false,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -923,9 +928,12 @@ object OutlinedTextFieldDefaults {
      *   [MutableInteractionSource] instance to the [BasicTextField] for it to dispatch events. And
      *   then pass the same instance to this decorator to observe [Interaction]s and customize the
      *   appearance/behavior of the text field in different states.
+     * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults
+     *   to `false`, so the label will expand to occupy the input area when the text field is
+     *   unfocused and empty. When `true`, this allows displaying the [placeholder], [prefix], and
+     *   [suffix] alongside the [label] when the text field is unfocused and empty.
      * @param label the optional label to be displayed with this text field. The default text style
-     *   uses [Typography.bodySmall] when the text field is in focus and [Typography.bodyLarge] when
-     *   the text field is not in focus.
+     *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the input text is empty. The
      *   default text style uses [Typography.bodyLarge].
      * @param leadingIcon the optional leading icon to be displayed at the beginning of the text
@@ -956,6 +964,7 @@ object OutlinedTextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
+        alwaysMinimizeLabel: Boolean = false,
         label: @Composable (() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -995,6 +1004,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = alwaysMinimizeLabel,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1096,9 +1106,8 @@ object OutlinedTextFieldDefaults {
      *   the appearance / behavior of this text field in different states.
      * @param isError indicates if the text field's current value is in an error state. When `true`,
      *   this decoration box will display its contents in an error color.
-     * @param label the optional label to be displayed inside the text field container. The default
-     *   text style for internal [Text] is [Typography.bodySmall] when the text field is in focus
-     *   and [Typography.bodyLarge] when the text field is not in focus.
+     * @param label the optional label to be displayed with this text field. The default text style
+     *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the text field is in focus
      *   and the input text is empty. The default text style for internal [Text] is
      *   [Typography.bodyLarge].
@@ -1164,6 +1173,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
+            alwaysMinimizeLabel = false,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,

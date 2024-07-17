@@ -59,7 +59,6 @@ import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -74,6 +73,7 @@ internal fun CommonDecorationBox(
     type: TextFieldType,
     visualText: CharSequence,
     innerTextField: @Composable () -> Unit,
+    alwaysMinimizeLabel: Boolean,
     label: @Composable (() -> Unit)?,
     placeholder: @Composable (() -> Unit)?,
     leadingIcon: @Composable (() -> Unit)?,
@@ -117,7 +117,7 @@ internal fun CommonDecorationBox(
                 if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
             },
         labelColor = labelColor,
-        showLabel = label != null,
+        showExpandedLabel = label != null && !alwaysMinimizeLabel,
     ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlpha, prefixSuffixAlpha
         ->
         val labelProgressValue = labelProgress.value
@@ -232,17 +232,17 @@ internal fun CommonDecorationBox(
                     supporting = decoratedSupporting,
                     singleLine = singleLine,
                     // TODO(b/271000818): progress state read should be deferred to layout phase
-                    animationProgress = labelProgressValue,
+                    labelProgress = labelProgressValue,
                     paddingValues = contentPadding
                 )
             }
             TextFieldType.Outlined -> {
                 // Outlined cutout
-                val labelSize = remember { mutableStateOf(Size.Zero) }
+                val cutoutSize = remember { mutableStateOf(Size.Zero) }
                 val borderContainerWithId: @Composable () -> Unit = {
                     Box(
                         Modifier.layoutId(ContainerId)
-                            .outlineCutout(labelSize::value, contentPadding),
+                            .outlineCutout(cutoutSize::value, contentPadding),
                         propagateMinConstraints = true
                     ) {
                         container()
@@ -264,14 +264,14 @@ internal fun CommonDecorationBox(
                         val labelWidth = it.width * labelProgressValue
                         val labelHeight = it.height * labelProgressValue
                         if (
-                            labelSize.value.width != labelWidth ||
-                                labelSize.value.height != labelHeight
+                            cutoutSize.value.width != labelWidth ||
+                                cutoutSize.value.height != labelHeight
                         ) {
-                            labelSize.value = Size(labelWidth, labelHeight)
+                            cutoutSize.value = Size(labelWidth, labelHeight)
                         }
                     },
                     // TODO(b/271000818): progress state read should be deferred to layout phase
-                    animationProgress = labelProgressValue,
+                    labelProgress = labelProgressValue,
                     container = borderContainerWithId,
                     paddingValues = contentPadding
                 )
@@ -316,7 +316,7 @@ private inline fun TextFieldTransitionScope(
     focusedLabelTextStyleColor: Color,
     unfocusedLabelTextStyleColor: Color,
     labelColor: Color,
-    showLabel: Boolean,
+    showExpandedLabel: Boolean,
     content:
         @Composable
         (
@@ -339,7 +339,7 @@ private inline fun TextFieldTransitionScope(
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> 0f
+                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
                 InputPhase.UnfocusedNotEmpty -> 1f
             }
         }
@@ -369,7 +369,7 @@ private inline fun TextFieldTransitionScope(
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showLabel) 0f else 1f
+                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
                 InputPhase.UnfocusedNotEmpty -> 0f
             }
         }
@@ -381,7 +381,7 @@ private inline fun TextFieldTransitionScope(
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showLabel) 0f else 1f
+                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
                 InputPhase.UnfocusedNotEmpty -> 1f
             }
         }
@@ -463,7 +463,6 @@ internal const val PrefixId = "Prefix"
 internal const val SuffixId = "Suffix"
 internal const val SupportingId = "Supporting"
 internal const val ContainerId = "Container"
-internal val ZeroConstraints = Constraints(0, 0, 0, 0)
 
 internal const val TextFieldAnimationDuration = 150
 private const val PlaceholderAnimationDuration = 83
