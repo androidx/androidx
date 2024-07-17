@@ -208,6 +208,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class ColorScheme {
+    ctor public ColorScheme();
     ctor public ColorScheme(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceContainerLow, optional long surfaceContainer, optional long surfaceContainerHigh, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer);
     method public androidx.wear.compose.material3.ColorScheme copy(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceContainerLow, optional long surfaceContainer, optional long surfaceContainerHigh, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer);
     method public long getBackground();
@@ -456,6 +457,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class PickerGroupState {
+    ctor public PickerGroupState();
     ctor public PickerGroupState(optional int initiallySelectedIndex);
     method public int getSelectedIndex();
     method public void setSelectedIndex(int);
@@ -680,6 +682,7 @@ package androidx.wear.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor public Shapes();
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     method public androidx.wear.compose.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();

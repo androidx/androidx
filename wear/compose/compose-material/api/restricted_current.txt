@@ -2,6 +2,7 @@
 package androidx.wear.compose.material {
 
   @Deprecated @androidx.compose.runtime.Immutable public final class AutoCenteringParams {
+    ctor @Deprecated public AutoCenteringParams();
     ctor @Deprecated public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
   }
 
@@ -137,6 +138,7 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class Colors {
+    ctor public Colors();
     ctor public Colors(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onError);
     method public androidx.wear.compose.material.Colors copy(optional long primary, optional long primaryVariant, optional long secondary, optional long secondaryVariant, optional long background, optional long surface, optional long error, optional long onPrimary, optional long onSecondary, optional long onBackground, optional long onSurface, optional long onSurfaceVariant, optional long onError);
     method public long getBackground();
@@ -313,6 +315,7 @@ package androidx.wear.compose.material {
   }
 
   public final class PickerGroupState {
+    ctor public PickerGroupState();
     ctor public PickerGroupState(optional int initiallySelectedIndex);
     method public int getSelectedIndex();
     method public void setSelectedIndex(int);
@@ -573,6 +576,7 @@ package androidx.wear.compose.material {
   }
 
   @Deprecated @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor @Deprecated public ScalingLazyListState();
     ctor @Deprecated public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
     method @Deprecated public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public float dispatchRawDelta(float delta);
@@ -653,6 +657,7 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor public Shapes();
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large);
     method public androidx.wear.compose.material.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large);
     method public androidx.compose.foundation.shape.CornerBasedShape getLarge();
@@ -727,6 +732,7 @@ package androidx.wear.compose.material {
   }
 
   @Deprecated @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {
+    ctor @Deprecated public SwipeToDismissBoxState();
     ctor @Deprecated public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
     method @Deprecated public androidx.wear.compose.material.SwipeToDismissValue getCurrentValue();
     method @Deprecated public androidx.wear.compose.material.SwipeToDismissValue getTargetValue();

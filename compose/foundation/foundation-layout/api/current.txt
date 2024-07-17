@@ -247,6 +247,7 @@ package androidx.compose.foundation.layout {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class MutableWindowInsets implements androidx.compose.foundation.layout.WindowInsets {
+    ctor public MutableWindowInsets();
     ctor public MutableWindowInsets(optional androidx.compose.foundation.layout.WindowInsets initialInsets);
     method public int getBottom(androidx.compose.ui.unit.Density density);
     method public androidx.compose.foundation.layout.WindowInsets getInsets();
@@ -285,6 +286,7 @@ package androidx.compose.foundation.layout {
   }
 
   @androidx.compose.runtime.Immutable public static final class PaddingValues.Absolute implements androidx.compose.foundation.layout.PaddingValues {
+    ctor public PaddingValues.Absolute();
     ctor public PaddingValues.Absolute(optional @androidx.compose.runtime.Stable float left, optional @androidx.compose.runtime.Stable float top, optional @androidx.compose.runtime.Stable float right, optional @androidx.compose.runtime.Stable float bottom);
     method public float calculateBottomPadding();
     method public float calculateLeftPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection);

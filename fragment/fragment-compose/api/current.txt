@@ -11,6 +11,7 @@ package androidx.fragment.compose {
   }
 
   @androidx.compose.runtime.Stable public final class FragmentState {
+    ctor public FragmentState();
     ctor public FragmentState(optional androidx.compose.runtime.MutableState<androidx.fragment.app.Fragment.SavedState?> state);
   }
 

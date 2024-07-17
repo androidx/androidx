@@ -15,6 +15,7 @@ package androidx.bluetooth {
   }
 
   public final class AdvertiseParams {
+    ctor public AdvertiseParams();
     ctor public AdvertiseParams(optional boolean shouldIncludeDeviceAddress, optional boolean shouldIncludeDeviceName, optional boolean isConnectable, optional boolean isDiscoverable, optional @IntRange(from=0L, to=180000L) long durationMillis, optional java.util.Map<java.lang.Integer,byte[]> manufacturerData, optional java.util.Map<java.util.UUID,byte[]> serviceData, optional java.util.List<java.util.UUID> serviceUuids, optional java.util.List<java.util.UUID> serviceSolicitationUuids);
     method public long getDurationMillis();
     method public java.util.Map<java.lang.Integer,byte[]> getManufacturerData();
@@ -194,6 +195,7 @@ package androidx.bluetooth {
   }
 
   public final class ScanFilter {
+    ctor public ScanFilter();
     ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional String? deviceName, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask, optional java.util.UUID? serviceSolicitationUuid, optional java.util.UUID? serviceSolicitationUuidMask);
     method public androidx.bluetooth.BluetoothAddress? getDeviceAddress();
     method public String? getDeviceName();

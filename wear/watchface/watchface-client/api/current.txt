@@ -227,6 +227,7 @@ package androidx.wear.watchface.client {
   }
 
   public static final class WatchFaceControlClient.ServiceStartFailureException extends java.lang.Exception {
+    ctor public WatchFaceControlClient.ServiceStartFailureException();
     ctor public WatchFaceControlClient.ServiceStartFailureException(optional String message);
   }
 
@@ -255,6 +256,7 @@ package androidx.wear.watchface.client {
   }
 
   public static final class WatchFaceMetadataClient.ServiceStartFailureException extends java.lang.Exception {
+    ctor public WatchFaceMetadataClient.ServiceStartFailureException();
     ctor public WatchFaceMetadataClient.ServiceStartFailureException(optional String message);
   }
 

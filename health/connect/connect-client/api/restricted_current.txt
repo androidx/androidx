@@ -127,6 +127,7 @@ package androidx.health.connect.client.contracts {
   }
 
   public final class HealthPermissionsRequestContract extends androidx.activity.result.contract.ActivityResultContract<java.util.Set<? extends java.lang.String>,java.util.Set<? extends java.lang.String>> {
+    ctor public HealthPermissionsRequestContract();
     ctor public HealthPermissionsRequestContract(optional String providerPackageName);
     method public android.content.Intent createIntent(android.content.Context context, java.util.Set<java.lang.String> input);
     method public java.util.Set<java.lang.String> parseResult(int resultCode, android.content.Intent? intent);
@@ -1359,6 +1360,7 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Device {
+    ctor public Device();
     ctor public Device(optional String? manufacturer, optional String? model, optional int type);
     method public String? getManufacturer();
     method public String? getModel();
@@ -1382,6 +1384,7 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Metadata {
+    ctor public Metadata();
     ctor public Metadata(optional String id, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientRecordId, optional long clientRecordVersion, optional androidx.health.connect.client.records.metadata.Device? device, optional int recordingMethod);
     method public String? getClientRecordId();
     method public long getClientRecordVersion();
@@ -1472,6 +1475,7 @@ package androidx.health.connect.client.response {
 package androidx.health.connect.client.time {
 
   public final class TimeRangeFilter {
+    ctor public TimeRangeFilter();
     method public static androidx.health.connect.client.time.TimeRangeFilter after(java.time.Instant startTime);
     method public static androidx.health.connect.client.time.TimeRangeFilter after(java.time.LocalDateTime startTime);
     method public static androidx.health.connect.client.time.TimeRangeFilter before(java.time.Instant endTime);

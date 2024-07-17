@@ -380,6 +380,7 @@ package androidx.paging {
   }
 
   public abstract class PagingDataPresenter<T> {
+    ctor public PagingDataPresenter();
     ctor public PagingDataPresenter(optional kotlin.coroutines.CoroutineContext mainContext, optional androidx.paging.PagingData<T>? cachedPagingData);
     method public final void addLoadStateListener(kotlin.jvm.functions.Function1<androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public final void addOnPagesUpdatedListener(kotlin.jvm.functions.Function0<kotlin.Unit> listener);

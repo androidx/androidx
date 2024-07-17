@@ -73,6 +73,7 @@ package androidx.core.i18n {
   }
 
   public static final class DateTimeFormatterSkeletonOptions.Builder {
+    ctor public DateTimeFormatterSkeletonOptions.Builder();
     ctor public DateTimeFormatterSkeletonOptions.Builder(optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Era era, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year year, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Month month, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.WeekDay weekDay, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Period period, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Hour hour, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute minute, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second second, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.FractionalSecond fractionalSecond, optional androidx.core.i18n.DateTimeFormatterSkeletonOptions.Timezone timezone);
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions build();
     method public androidx.core.i18n.DateTimeFormatterSkeletonOptions.Builder setDay(androidx.core.i18n.DateTimeFormatterSkeletonOptions.Day day);

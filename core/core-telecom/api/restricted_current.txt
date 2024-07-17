@@ -75,6 +75,7 @@ package androidx.core.telecom {
   }
 
   public final class CallException extends java.lang.RuntimeException {
+    ctor public CallException();
     ctor public CallException(optional int code);
     method public int getCode();
     property public final int code;

@@ -647,6 +647,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
+    ctor public RippleConfiguration();
     ctor public RippleConfiguration(optional long color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     method public long getColor();
     method public androidx.compose.material.ripple.RippleAlpha? getRippleAlpha();
@@ -694,6 +695,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor public Shapes();
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large);
     method public androidx.compose.material.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large);
     method public androidx.compose.foundation.shape.CornerBasedShape getLarge();

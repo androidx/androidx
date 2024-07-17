@@ -166,6 +166,7 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedTextStyle {
+    ctor public CurvedTextStyle();
     ctor public CurvedTextStyle(androidx.compose.ui.text.TextStyle style);
     ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize);
     ctor @Deprecated public CurvedTextStyle(optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis);
@@ -327,6 +328,7 @@ package androidx.wear.compose.foundation {
   }
 
   @androidx.compose.runtime.Stable public final class SwipeToDismissBoxState {
+    ctor public SwipeToDismissBoxState();
     ctor public SwipeToDismissBoxState(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.SwipeToDismissValue,java.lang.Boolean> confirmStateChange);
     method public androidx.wear.compose.foundation.SwipeToDismissValue getCurrentValue();
     method public androidx.wear.compose.foundation.SwipeToDismissValue getTargetValue();
@@ -358,6 +360,7 @@ package androidx.wear.compose.foundation {
 package androidx.wear.compose.foundation.lazy {
 
   @androidx.compose.runtime.Immutable public final class AutoCenteringParams {
+    ctor public AutoCenteringParams();
     ctor public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
   }
 
@@ -507,6 +510,7 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   @androidx.compose.runtime.Stable public final class ScalingLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor public ScalingLazyListState();
     ctor public ScalingLazyListState(optional int initialCenterItemIndex, optional int initialCenterItemScrollOffset);
     method public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);

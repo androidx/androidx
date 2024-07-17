@@ -721,6 +721,7 @@ package androidx.health.services.client.data {
   }
 
   public final class GolfExerciseTypeConfig extends androidx.health.services.client.data.ExerciseTypeConfig {
+    ctor public GolfExerciseTypeConfig();
     ctor public GolfExerciseTypeConfig(optional androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo);
     method public androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo getGolfShotTrackingPlaceInfo();
     property public final androidx.health.services.client.data.GolfExerciseTypeConfig.GolfShotTrackingPlaceInfo golfShotTrackingPlaceInfo;

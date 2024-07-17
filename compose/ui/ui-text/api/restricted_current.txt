@@ -38,6 +38,7 @@ package androidx.compose.ui.text {
   }
 
   public static final class AnnotatedString.Builder implements java.lang.Appendable {
+    ctor public AnnotatedString.Builder();
     ctor public AnnotatedString.Builder(androidx.compose.ui.text.AnnotatedString text);
     ctor public AnnotatedString.Builder(optional int capacity);
     ctor public AnnotatedString.Builder(String text);
@@ -301,6 +302,7 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public final class ParagraphStyle implements androidx.compose.ui.text.AnnotatedString.Annotation {
+    ctor public ParagraphStyle();
     ctor @Deprecated public ParagraphStyle(optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextDirection? textDirection, optional long lineHeight, optional androidx.compose.ui.text.style.TextIndent? textIndent);
     ctor @Deprecated public ParagraphStyle(optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextDirection? textDirection, optional long lineHeight, optional androidx.compose.ui.text.style.TextIndent? textIndent, optional androidx.compose.ui.text.PlatformParagraphStyle? platformStyle, optional androidx.compose.ui.text.style.LineHeightStyle? lineHeightStyle);
     ctor @Deprecated public ParagraphStyle(optional androidx.compose.ui.text.style.TextAlign? textAlign, optional androidx.compose.ui.text.style.TextDirection? textDirection, optional long lineHeight, optional androidx.compose.ui.text.style.TextIndent? textIndent, optional androidx.compose.ui.text.PlatformParagraphStyle? platformStyle, optional androidx.compose.ui.text.style.LineHeightStyle? lineHeightStyle, optional androidx.compose.ui.text.style.LineBreak? lineBreak, optional androidx.compose.ui.text.style.Hyphens? hyphens);
@@ -378,6 +380,7 @@ package androidx.compose.ui.text {
   }
 
   public final class PlatformParagraphStyle {
+    ctor public PlatformParagraphStyle();
     ctor public PlatformParagraphStyle(optional boolean includeFontPadding);
     ctor public PlatformParagraphStyle(optional int emojiSupportMatch);
     ctor public PlatformParagraphStyle(optional int emojiSupportMatch, optional boolean includeFontPadding);
@@ -582,6 +585,7 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextLinkStyles {
+    ctor public TextLinkStyles();
     ctor public TextLinkStyles(optional androidx.compose.ui.text.SpanStyle? style, optional androidx.compose.ui.text.SpanStyle? focusedStyle, optional androidx.compose.ui.text.SpanStyle? hoveredStyle, optional androidx.compose.ui.text.SpanStyle? pressedStyle);
     method public androidx.compose.ui.text.SpanStyle? getFocusedStyle();
     method public androidx.compose.ui.text.SpanStyle? getHoveredStyle();
@@ -1132,6 +1136,7 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class ImeOptions {
+    ctor public ImeOptions();
     ctor @Deprecated public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction);
     ctor @Deprecated public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions);
     ctor public ImeOptions(optional boolean singleLine, optional int capitalization, optional boolean autoCorrect, optional int keyboardType, optional int imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional androidx.compose.ui.text.intl.LocaleList hintLocales);
@@ -1228,6 +1233,7 @@ package androidx.compose.ui.text.input {
   }
 
   public final class PasswordVisualTransformation implements androidx.compose.ui.text.input.VisualTransformation {
+    ctor public PasswordVisualTransformation();
     ctor public PasswordVisualTransformation(optional char mask);
     method public androidx.compose.ui.text.input.TransformedText filter(androidx.compose.ui.text.AnnotatedString text);
     method public char getMask();
@@ -1235,6 +1241,7 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class PlatformImeOptions {
+    ctor public PlatformImeOptions();
     ctor public PlatformImeOptions(optional String? privateImeOptions);
     method public String? getPrivateImeOptions();
     property public final String? privateImeOptions;
@@ -1642,6 +1649,7 @@ package androidx.compose.ui.text.style {
   }
 
   @androidx.compose.runtime.Immutable public final class TextGeometricTransform {
+    ctor public TextGeometricTransform();
     ctor public TextGeometricTransform(optional float scaleX, optional float skewX);
     method public androidx.compose.ui.text.style.TextGeometricTransform copy(optional float scaleX, optional float skewX);
     method public float getScaleX();
@@ -1659,6 +1667,7 @@ package androidx.compose.ui.text.style {
   }
 
   @androidx.compose.runtime.Immutable public final class TextIndent {
+    ctor public TextIndent();
     ctor public TextIndent(optional long firstLine, optional long restLine);
     method public androidx.compose.ui.text.style.TextIndent copy(optional long firstLine, optional long restLine);
     method public long getFirstLine();
