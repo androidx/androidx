@@ -21,9 +21,8 @@ import androidx.lifecycle.LifecycleOwner
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
-// TODO: Deprecate in 1.7.0
-// @Deprecated(
-//    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
-//    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
-// )
+@Deprecated(
+    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
+    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+)
 actual val LocalLifecycleOwner get() = androidx.lifecycle.compose.LocalLifecycleOwner

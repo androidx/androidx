@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeScenePointer
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -153,7 +153,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
             get() = _platformContext
     }
 
-    private val scene = MultiLayerComposeScene(
+    private val scene = CanvasLayersComposeScene(
         density = density,
         layoutDirection = layoutDirection,
         size = imageSize,

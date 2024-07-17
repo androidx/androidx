@@ -164,13 +164,15 @@ internal class UIViewComposeSceneLayer(
         platformContext: PlatformContext,
         coroutineContext: CoroutineContext,
     ): ComposeScene =
-        SingleLayerComposeScene(
+        PlatformLayersComposeScene(
             density = initDensity, // We should use the local density already set for the current layer.
             layoutDirection = initLayoutDirection,
             coroutineContext = coroutineContext,
             composeSceneContext = composeContainer.createComposeSceneContext(platformContext),
             invalidate = invalidate,
         )
+
+    fun hasInvalidations() = mediator.hasInvalidations()
 
     override var density by mediator::density
     override var layoutDirection by mediator::layoutDirection

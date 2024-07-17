@@ -21,11 +21,11 @@ import androidx.compose.ui.unit.DpOffset
 
 internal interface IOSSkikoInput {
 
-    fun beginFloatingCursor(offset: DpOffset) {}
+    fun beginFloatingCursor(offset: DpOffset)
 
-    fun updateFloatingCursor(offset: DpOffset) {}
+    fun updateFloatingCursor(offset: DpOffset)
 
-    fun endFloatingCursor() {}
+    fun endFloatingCursor()
 
     /**
      * A Boolean value that indicates whether the text-entry object has any text.
@@ -118,6 +118,9 @@ internal interface IOSSkikoInput {
     fun positionFromPosition(position: Long, offset: Long): Long
 
     object Empty : IOSSkikoInput {
+        override fun beginFloatingCursor(offset: DpOffset) = Unit
+        override fun updateFloatingCursor(offset: DpOffset)  = Unit
+        override fun endFloatingCursor()  = Unit
         override fun hasText(): Boolean = false
         override fun insertText(text: String) = Unit
         override fun deleteBackward() = Unit

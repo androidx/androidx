@@ -45,13 +45,13 @@ import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.IntermediateTextInputUIView
-import androidx.compose.ui.window.KeyboardEventHandler
 import kotlin.math.absoluteValue
 import kotlin.math.min
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.BreakIterator
 import platform.UIKit.NSLayoutConstraint
+import platform.UIKit.UIPress
 import platform.UIKit.UIView
 import platform.UIKit.reloadInputViews
 
@@ -61,7 +61,11 @@ internal class UIKitTextInputService(
     private val densityProvider: () -> Density,
     private val viewConfiguration: ViewConfiguration,
     private val focusStack: FocusStack<UIView>?,
-    private val keyboardEventHandler: KeyboardEventHandler,
+    /**
+     * Callback to handle keyboard presses. The parameter is a [Set] of [UIPress] objects.
+     * Erasure happens due to K/N not supporting Obj-C lightweight generics.
+     */
+    private val onKeyboardPresses: (Set<*>) -> Unit,
 ) : PlatformTextInputService, TextToolbar {
 
     private val rootView get() = rootViewProvider()
@@ -338,7 +342,7 @@ internal class UIKitTextInputService(
         textUIView = IntermediateTextInputUIView(
             viewConfiguration = viewConfiguration
         ).also {
-            it.keyboardEventHandler = keyboardEventHandler
+            it.onKeyboardPresses = onKeyboardPresses
             rootView.addSubview(it)
             it.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activateConstraints(
@@ -349,7 +353,7 @@ internal class UIKitTextInputService(
 
     private fun detachIntermediateTextInputView() {
         textUIView?.let { view ->
-            view.keyboardEventHandler = null
+            view.resetOnKeyboardPressesCallback()
             mainScope.launch {
                 view.removeFromSuperview()
             }

@@ -115,9 +115,9 @@ private class UIKitInteropMutableTransaction : UIKitInteropTransaction {
  * driven by Compose state changes with Compose rendering.
  */
 internal class UIKitInteropContainer(
+    val containerView: UIView,
     val requestRedraw: () -> Unit
 ) : InteropContainer<UIView> {
-    val containerView: UIView = UIKitInteropContainerView()
     override var rootModifier: TrackInteropModifierNode<UIView>? = null
     override var interopViews = mutableSetOf<UIView>()
         private set
@@ -167,6 +167,12 @@ internal class UIKitInteropContainer(
         }
     }
 
+    override fun unplaceInteropView(nativeView: UIView) {
+        deferAction {
+            nativeView.removeFromSuperview()
+        }
+    }
+
     fun startTrackingInteropView(nativeView: UIView) {
         if (interopViews.isEmpty()) {
             transaction.state = UIKitInteropState.BEGAN
@@ -182,17 +188,6 @@ internal class UIKitInteropContainer(
             transaction.state = UIKitInteropState.ENDED
         }
     }
-}
-
-private class UIKitInteropContainerView : UIView(CGRectZero.readValue()) {
-    /**
-     * We used a simple solution to make only this view not touchable.
-     * Another view added to this container will be touchable.
-     */
-    override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? =
-        super.hitTest(point, withEvent).takeIf {
-            it != this
-        }
 }
 
 /**

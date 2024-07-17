@@ -29,38 +29,19 @@ val composeProperties = ComposeProperties(project)
 // TODO: Align with other modules
 val viewModelPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.WINDOWS_NATIVE
 
-val mainComponents =
-    listOf(
-        ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
-        ComposeComponent(":collection:collection", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
-        ComposeComponent(
-            path = ":lifecycle:lifecycle-common",
-            // No android target here - jvm artefact will be used for android apps as well
-            supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.ANDROID
-        ),
-        ComposeComponent(
-            path = ":lifecycle:lifecycle-runtime",
-            supportedPlatforms = ComposePlatforms.ALL_AOSP
-        ),
-        ComposeComponent(
-            path = ":lifecycle:lifecycle-viewmodel",
-            supportedPlatforms = viewModelPlatforms
-        ),
-
+val libraryToComponents = mapOf(
+    "CORE_BUNDLE" to listOf(
         ComposeComponent(
             path = ":core:core-bundle",
             supportedPlatforms = ComposePlatforms.ALL_AOSP,
             neverRedirect = true
         ),
-        ComposeComponent(":savedstate:savedstate", viewModelPlatforms),
-        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", viewModelPlatforms),
-
-        ComposeComponent(":navigation:navigation-common", viewModelPlatforms),
-        ComposeComponent(":navigation:navigation-runtime", viewModelPlatforms),
-
-        ComposeComponent(":lifecycle:lifecycle-runtime-compose", supportedPlatforms = ComposePlatforms.ALL),
-        ComposeComponent(":lifecycle:lifecycle-viewmodel-compose"),
-        ComposeComponent(":navigation:navigation-compose"),
+    ),
+    "COMPOSE" to listOf(
+        // TODO https://youtrack.jetbrains.com/issue/CMP-1604/Publish-public-collection-annotation-libraries-with-a-separate-version
+        // They are part of COMPOSE versioning
+        ComposeComponent(":annotation:annotation", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
+        ComposeComponent(":collection:collection", supportedPlatforms = ComposePlatforms.ALL - ComposePlatforms.ANDROID),
 
         ComposeComponent(":compose:animation:animation"),
         ComposeComponent(":compose:animation:animation-core"),
@@ -69,6 +50,7 @@ val mainComponents =
         ComposeComponent(":compose:foundation:foundation-layout"),
         ComposeComponent(":compose:material:material"),
         ComposeComponent(":compose:material3:material3"),
+        ComposeComponent(":compose:material:material-icons-core"),
         ComposeComponent(":compose:material:material-ripple"),
         ComposeComponent(":compose:runtime:runtime", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:runtime:runtime-saveable", supportedPlatforms = ComposePlatforms.ALL),
@@ -96,14 +78,37 @@ val mainComponents =
         ),
         ComposeComponent(":compose:ui:ui-unit"),
         ComposeComponent(":compose:ui:ui-util"),
-    )
+    ),
+    "LIFECYCLE" to listOf(
+        ComposeComponent(
+            path = ":lifecycle:lifecycle-common",
+            // No android target here - jvm artefact will be used for android apps as well
+            supportedPlatforms = ComposePlatforms.ALL_AOSP - ComposePlatforms.ANDROID
+        ),
+        ComposeComponent(
+            path = ":lifecycle:lifecycle-runtime",
+            supportedPlatforms = ComposePlatforms.ALL_AOSP
+        ),
+        ComposeComponent(
+            path = ":lifecycle:lifecycle-viewmodel",
+            supportedPlatforms = viewModelPlatforms
+        ),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-savedstate", viewModelPlatforms),
+        ComposeComponent(":lifecycle:lifecycle-runtime-compose", supportedPlatforms = ComposePlatforms.ALL),
+        ComposeComponent(":lifecycle:lifecycle-viewmodel-compose"),
+    ),
+    "NAVIGATION" to listOf(
+        ComposeComponent(":navigation:navigation-compose"),
+        ComposeComponent(":navigation:navigation-common", viewModelPlatforms),
+        ComposeComponent(":navigation:navigation-runtime", viewModelPlatforms),
+    ),
+    "SAVEDSTATE" to listOf(
+        ComposeComponent(":savedstate:savedstate", viewModelPlatforms),
+    ),
+)
 
-// TODO remove this and CI tasks after merging Jetpack Compose 1.8 to jb-main
-val iconsComponents =
-    emptyList<ComposeComponent>()
-
-fun ComposePublishingTask.mainPublications() {
-    publish(
+val libraryToTasks = mapOf(
+    "COMPOSE" to fun AbstractComposePublishingTask.() = publish(
         ":compose:desktop:desktop",
         onlyWithPlatforms = setOf(ComposePlatforms.Desktop),
         publications = listOf(
@@ -116,25 +121,39 @@ fun ComposePublishingTask.mainPublications() {
             "Jvmwindows-x64"
         )
     )
+)
 
-    mainComponents.forEach { publishMultiplatform(it) }
+tasks.register("publishComposeJb", ComposePublishingTask::class) {
+    repository = "MavenRepository"
+
+    libraries.forEach {
+        libraryToComponents[it]?.forEach(::publishMultiplatform)
+        libraryToTasks[it]?.invoke(this)
+    }
 }
+
+tasks.register("publishComposeJbToMavenLocal", ComposePublishingTask::class) {
+    repository = "MavenLocal"
+
+    libraries.forEach {
+        libraryToComponents[it]?.forEach(::publishMultiplatform)
+        libraryToTasks[it]?.invoke(this)
+    }
+}
+
+// isn't included in libraryToComponents for easy conflict resolution
+// (it is changed in integration and should be removed in 1.8)
+// TODO remove this and CI tasks after merging Jetpack Compose 1.8 to jb-main
+val iconsComponents =
+    emptyList<ComposeComponent>()
 
 fun ComposePublishingTask.iconsPublications() {
     iconsComponents.forEach { publishMultiplatform(it) }
 }
 
-// To show all projects which use `xxx` task, run:
-// ./gradlew -p frameworks/support help --task xxx
-tasks.register("publishComposeJb", ComposePublishingTask::class) {
-    repository = "MavenRepository"
-    mainPublications()
-}
-
-tasks.register("publishComposeJbToMavenLocal", ComposePublishingTask::class) {
-    repository = "MavenLocal"
-    mainPublications()
-}
+val libraries = project.findProperty("jetbrains.publication.libraries")
+    ?.toString()?.split(",")
+    ?: libraryToComponents.keys
 
 // separate task that cannot be built in parallel (because it requires too much RAM).
 // should be run with "--max-workers=1"
@@ -157,6 +176,7 @@ tasks.register("checkDesktop") {
 tasks.register("testWeb") {
     dependsOn(":compose:runtime:runtime:jsTest")
     dependsOn(":compose:runtime:runtime:wasmJsTest")
+    dependsOn(":compose:ui:ui:compileTestKotlinJs")
     // TODO: ideally we want to run all wasm tests that are possible but now we deal only with modules that have skikoTests
 
     dependsOn(":compose:foundation:foundation:wasmJsBrowserTest")
@@ -167,15 +187,16 @@ tasks.register("testWeb") {
 }
 
 tasks.register("testUIKit") {
-    val subtaskName =
-        if (System.getProperty("os.arch") == "aarch64") "uikitSimArm64Test" else "uikitX64Test"
-    dependsOn(":compose:ui:ui-text:$subtaskName")
-    dependsOn(":compose:ui:ui:$subtaskName")
-// TODO fix it properly and uncomment https://youtrack.jetbrains.com/issue/COMPOSE-950/Reenable-material3-tests-on-iOS
-//  Commented because it crashes on CI.
-//    dependsOn(":compose:material3:material3:$subtaskName")
-    dependsOn(":compose:foundation:foundation:$subtaskName")
-    dependsOn(":collection:collection:$subtaskName")
+    val suffix = if (System.getProperty("os.arch") == "aarch64") "SimArm64Test" else "X64Test"
+    val uikitTestSubtaskName = "uikit$suffix"
+    val instrumentedTestSubtaskName = "uikitInstrumented$suffix"
+
+    dependsOn(":compose:ui:ui-text:$uikitTestSubtaskName")
+    dependsOn(":compose:ui:ui:$uikitTestSubtaskName")
+    dependsOn(":compose:ui:ui:$instrumentedTestSubtaskName")
+    dependsOn(":compose:material3:material3:$uikitTestSubtaskName")
+    dependsOn(":compose:foundation:foundation:$uikitTestSubtaskName")
+    dependsOn(":collection:collection:$uikitTestSubtaskName")
 }
 
 tasks.register("testRuntimeNative") {
@@ -286,7 +307,7 @@ fun allTasksWith(name: String) =
 val printAllArtifactRedirectingVersions = tasks.register("printAllArtifactRedirectingVersions") {
     val filter = project.properties["filterProjectPath"] as? String ?: ""
     doLast {
-        val map = mainComponents.filter { it.path.contains(filter) }
+        val map = libraryToComponents.values.flatten().filter { it.path.contains(filter) }
             .joinToString("\n\n", prefix = "\n") {
             val p = rootProject.findProject(it.path)!!
             it.path + " --> \n" + p.artifactRedirecting().prettyText()

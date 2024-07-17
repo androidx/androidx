@@ -25,13 +25,14 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 
-class MultiLayerComposeSceneTest {
+class CanvasLayersComposeSceneTest {
 
     @Test
     fun sceneSizeChangeTriggersInvalidation() = runTest(StandardTestDispatcher()) {
         var invalidationCount = 0
-        val scene = MultiLayerComposeScene(
+        val scene = CanvasLayersComposeScene(
             size = IntSize(100, 100),
+            coroutineContext = coroutineContext,
             invalidate = { invalidationCount++ }
         )
         try {

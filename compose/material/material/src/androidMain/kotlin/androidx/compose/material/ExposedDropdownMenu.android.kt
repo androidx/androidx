@@ -46,26 +46,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.DpOffset
 import kotlin.math.max
 
-/**
- * [Material Design Exposed Dropdown
- * Menu](https://material.io/components/menus#exposed-dropdown-menu).
- *
- * Box for Exposed Dropdown Menu. Expected to contain [TextField] and
- * [ExposedDropdownMenuBoxScope.ExposedDropdownMenu] as a content.
- *
- * An example of read-only Exposed Dropdown Menu:
- *
- * @sample androidx.compose.material.samples.ExposedDropdownMenuSample
- *
- * An example of editable Exposed Dropdown Menu:
- *
- * @sample androidx.compose.material.samples.EditableExposedDropdownMenuSample
- *
- * @param expanded Whether Dropdown Menu should be expanded or not.
- * @param onExpandedChange Executes when the user clicks on the ExposedDropdownMenuBox.
- * @param modifier The modifier to apply to this layout
- * @param content The content to be displayed inside ExposedDropdownMenuBox.
- */
 @ExperimentalMaterialApi
 @Composable
 actual fun ExposedDropdownMenuBox(
@@ -190,12 +170,10 @@ internal actual fun ExposedDropdownMenuBoxScope.ExposedDropdownMenuDefaultImpl(
     if (expandedStates.currentState || expandedStates.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
-        val popupPositionProvider = DropdownMenuPositionProvider(
-            DpOffset.Zero,
-            density
-        ) { parentBounds, menuBounds ->
-            transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
-        }
+        val popupPositionProvider =
+            DropdownMenuPositionProvider(DpOffset.Zero, density) { parentBounds, menuBounds ->
+                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+            }
 
         ExposedDropdownMenuPopup(
             onDismissRequest = onDismissRequest,

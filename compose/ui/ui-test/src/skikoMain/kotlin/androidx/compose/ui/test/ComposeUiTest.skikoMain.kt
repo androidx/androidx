@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
@@ -218,7 +218,7 @@ class SkikoComposeUiTest @InternalTestApi constructor(
         }
     }
 
-    private fun createUi() = MultiLayerComposeScene(
+    private fun createUi() = CanvasLayersComposeScene(
         density = density,
         size = size,
         coroutineContext = coroutineContext,

@@ -27,7 +27,6 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.InteropViewCatchPointerModifier
 import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -56,6 +55,10 @@ import platform.UIKit.willMoveToParentViewController
 import androidx.compose.ui.uikit.utils.CMPInteropWrappingView
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.roundToIntRect
+import androidx.compose.ui.unit.toDpOffset
+import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.viewinterop.interopViewAnchor
+import androidx.compose.ui.viewinterop.InteropView
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectZero
 
@@ -64,8 +67,18 @@ private val DefaultViewResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.
 private val DefaultViewControllerResize: UIViewController.(CValue<CGRect>) -> Unit =
     { rect -> this.view.setFrame(rect) }
 
+/**
+ * A [UIView] that contains underlying interop element, such as an independent [UIView]
+ * or [UIViewController]'s root [UIView].
+ */
 internal class InteropWrappingView : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
     var actualAccessibilityContainer: Any? = null
+
+    init {
+        // required to properly clip the content of the wrapping view in case interop unclipped
+        // bounds are larger than clipped bounds
+        clipsToBounds = true
+    }
 
     override fun accessibilityContainer(): Any? {
         return actualAccessibilityContainer
@@ -93,7 +106,7 @@ internal val InteropViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
 private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
 
 /**
- * Chain [this] with [Modifier.semantics] that sets the [interopView] of the node if [enabled] is true.
+ * Chain [this] with [Modifier.semantics] that sets the [interopViewAnchor] of the node if [enabled] is true.
  * If [enabled] is false, [this] is returned as is.
  */
 private fun Modifier.interopSemantics(
@@ -108,9 +121,16 @@ private fun Modifier.interopSemantics(
         this
     }
 
-private fun Modifier.catchInteropPointer(isInteractive: Boolean): Modifier =
+/**
+ * Add an association with [InteropView] to the modified element.
+ * Allows hit testing and custom pointer input handling for the [InteropView].
+ *
+ * @param isInteractive If `true`, the modifier will be applied. If `false`, returns the original modifier.
+ * @param wrappingView The [InteropWrappingView] to associate with the modified element.
+ */
+private fun Modifier.interopViewAnchor(isInteractive: Boolean, wrappingView: InteropWrappingView): Modifier =
     if (isInteractive) {
-        this then InteropViewCatchPointerModifier()
+        this.interopViewAnchor(wrappingView)
     } else {
         this
     }
@@ -134,15 +154,21 @@ private fun <T : Any> UIKitInteropLayout(
         .onGloballyPositioned { coordinates ->
             val rootCoordinates = coordinates.findRootCoordinates()
 
-            // TODO: perform proper clipping of underlying view with `clipBounds` set to true
-            val bounds = rootCoordinates
+            val unclippedBounds = rootCoordinates
                 .localBoundingBoxOf(
                     sourceCoordinates = coordinates,
                     clipBounds = false
                 )
 
+            val clippedBounds = rootCoordinates
+                .localBoundingBoxOf(
+                    sourceCoordinates = coordinates,
+                    clipBounds = true
+                )
+
             componentHandler.updateRect(
-                to = bounds.roundToIntRect(),
+                unclippedRect = unclippedBounds.roundToIntRect(),
+                clippedRect = clippedBounds.roundToIntRect(),
                 density = density
             )
         }
@@ -154,7 +180,7 @@ private fun <T : Any> UIKitInteropLayout(
             )
         }
         .trackUIKitInterop(interopContainer, componentHandler.wrappingView)
-        .catchInteropPointer(interactive)
+        .interopViewAnchor(interactive, componentHandler.wrappingView)
         .interopSemantics(accessibilityEnabled, componentHandler.wrappingView)
 
     EmptyLayout(
@@ -314,7 +340,8 @@ private abstract class InteropComponentHandler<T : Any>(
     /**
      * The coordinates
      */
-    private var currentRect: IntRect? = null
+    private var currentUnclippedRect: IntRect? = null
+    private var currentClippedRect: IntRect? = null
     val wrappingView = InteropWrappingView()
     lateinit var component: T
     private lateinit var updater: Updater<T>
@@ -331,35 +358,44 @@ private abstract class InteropComponentHandler<T : Any>(
     /**
      * Set the frame of the wrapping view.
      */
-    fun updateRect(to: IntRect, density: Density) {
-        if (currentRect == to) {
+    fun updateRect(unclippedRect: IntRect, clippedRect: IntRect, density: Density) {
+        if (currentUnclippedRect == unclippedRect && currentClippedRect == clippedRect) {
             return
         }
 
-        val dpRect = to.toRect().toDpRect(density)
+        val clippedDpRect = clippedRect.toRect().toDpRect(density)
+        val unclippedDpRect = unclippedRect.toRect().toDpRect(density)
 
-        interopContainer.deferAction {
-            wrappingView.setFrame(dpRect.asCGRect())
+        // wrapping view itself is always using the clipped rect
+        if (clippedRect != currentClippedRect) {
+            interopContainer.deferAction {
+                wrappingView.setFrame(clippedDpRect.asCGRect())
+            }
         }
 
-
         // Only call onResize if the actual size changes.
-        if (currentRect?.size != to.size) {
+        if (currentUnclippedRect != unclippedRect || currentClippedRect != clippedRect) {
+            // offset to move the component to the correct position inside the wrapping view, so
+            // its global unclipped frame stays the same
+            val offset = unclippedRect.topLeft - clippedRect.topLeft
+            val dpOffset = offset.toOffset().toDpOffset(density)
+
             interopContainer.deferAction {
                 // The actual component created by the user is resized here using the provided callback.
                 onResize(
                     component,
                     CGRectMake(
-                        x = 0.0,
-                        y = 0.0,
-                        width = dpRect.width.value.toDouble(),
-                        height = dpRect.height.value.toDouble()
+                        x = dpOffset.x.value.toDouble(),
+                        y = dpOffset.y.value.toDouble(),
+                        width = unclippedDpRect.width.value.toDouble(),
+                        height = unclippedDpRect.height.value.toDouble()
                     ),
                 )
             }
         }
 
-        currentRect = to
+        currentUnclippedRect = unclippedRect
+        currentClippedRect = clippedRect
     }
 
     fun onStart(initialUpdateBlock: (T) -> Unit) {
@@ -403,12 +439,10 @@ private class InteropViewHandler<T : UIView>(
     onRelease: (T) -> Unit
 ) : InteropComponentHandler<T>(createView, interopContainer, onResize, onRelease) {
     override fun setupViewHierarchy() {
-        interopContainer.containerView.addSubview(wrappingView)
         wrappingView.addSubview(component)
     }
 
     override fun destroyViewHierarchy() {
-        wrappingView.removeFromSuperview()
     }
 }
 
@@ -421,14 +455,12 @@ private class InteropViewControllerHandler<T : UIViewController>(
 ) : InteropComponentHandler<T>(createViewController, interopContainer, onResize, onRelease) {
     override fun setupViewHierarchy() {
         rootViewController.addChildViewController(component)
-        interopContainer.containerView.addSubview(wrappingView)
         wrappingView.addSubview(component.view)
         component.didMoveToParentViewController(rootViewController)
     }
 
     override fun destroyViewHierarchy() {
         component.willMoveToParentViewController(null)
-        wrappingView.removeFromSuperview()
         component.removeFromParentViewController()
     }
 }

@@ -101,11 +101,7 @@ actual val WindowInsets.Companion.navigationBars: WindowInsets
  */
 actual val WindowInsets.Companion.statusBars: WindowInsets
     @Composable
-    @OptIn(InternalComposeUiApi::class)
-    get() = when (LocalInterfaceOrientation.current) {
-        InterfaceOrientation.Portrait -> iosSafeArea.only(WindowInsetsSides.Top)
-        else -> ZeroInsets
-    }
+    get() = iosSafeArea.only(WindowInsetsSides.Top)
 
 /**
  * These insets represent all system bars.

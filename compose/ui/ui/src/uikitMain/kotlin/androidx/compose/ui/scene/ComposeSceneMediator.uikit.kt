@@ -28,6 +28,7 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
@@ -37,6 +38,7 @@ import androidx.compose.ui.interop.UIKitInteropContainer
 import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.AccessibilitySyncOptions
+import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.LocalLayoutMargins
@@ -63,14 +65,14 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
 import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
-import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.RenderingUIView
-import androidx.compose.ui.window.UITouchesEventPhase
+import androidx.compose.ui.window.CupertinoTouchesPhase
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlinx.cinterop.CValue
@@ -86,9 +88,11 @@ import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSize
+import platform.QuartzCore.CACurrentMediaTime
 import platform.QuartzCore.CATransaction
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIEvent
+import platform.UIKit.UIPress
 import platform.UIKit.UITouch
 import platform.UIKit.UITouchPhase
 import platform.UIKit.UIView
@@ -227,7 +231,7 @@ internal class ComposeSceneMediator(
             override val touchSlop: Float
                 get() = with(density) {
                     // this value is originating from iOS 16 drag behavior reverse engineering
-                    10.dp.toPx()
+                    CUPERTINO_TOUCH_SLOP.dp.toPx()
                 }
         }
 
@@ -238,6 +242,11 @@ internal class ComposeSceneMediator(
             coroutineContext,
         )
     }
+
+    fun hasInvalidations(): Boolean {
+        return scene.hasInvalidations() || keyboardManager.isAnimating
+    }
+
     var compositionLocalContext
         get() = scene.compositionLocalContext
         set(value) {
@@ -246,7 +255,7 @@ internal class ComposeSceneMediator(
 
     val focusManager get() = scene.focusManager
 
-    private val renderingView by lazy {
+    private val renderingView: RenderingUIView by lazy {
         renderingUIViewFactory(interopContainer, renderDelegate)
     }
 
@@ -264,33 +273,31 @@ internal class ComposeSceneMediator(
      */
     private val rootView = ComposeSceneMediatorRootUIView()
 
+    private val interactionView =
+        InteractionUIView(
+            hitTestInteropView = ::hitTestInteropView,
+            onTouchesEvent = ::onTouchesEvent,
+            onTouchesCountChange = ::onTouchesCountChange,
+            inInteractionBounds = { point ->
+                val positionInContainer = point.useContents {
+                    asDpOffset().toOffset(container.systemDensity).round()
+                }
+                interactionBounds.contains(positionInContainer)
+            },
+            onKeyboardPresses = ::onKeyboardPresses
+        )
+
     /**
      * Container for managing UIKitView and UIKitViewController
      */
     private val interopContainer = UIKitInteropContainer(
+        containerView = interactionView,
         requestRedraw = ::onComposeSceneInvalidate
     )
 
     private val interactionBounds: IntRect get() {
         val boundsLayout = _layout as? SceneLayout.Bounds
         return boundsLayout?.interactionBounds ?: renderingViewBoundsInPx
-    }
-
-    private val interactionView by lazy {
-        InteractionUIView(
-            keyboardEventHandler = keyboardEventHandler,
-            touchesDelegate = touchesDelegate,
-            updateTouchesCount = { count ->
-                val needHighFrequencyPolling = count > 0
-                renderingView.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
-            },
-            inBounds = { point ->
-                val positionInContainer = point.useContents {
-                    asDpOffset().toOffset(container.systemDensity).round()
-                }
-                interactionBounds.contains(positionInContainer)
-            }
-        )
     }
 
     @OptIn(ExperimentalComposeApi::class)
@@ -328,14 +335,6 @@ internal class ComposeSceneMediator(
         )
     }
 
-    private val keyboardEventHandler: KeyboardEventHandler by lazy {
-        object : KeyboardEventHandler {
-            override fun onKeyboardEvent(event: KeyEvent) {
-                this@ComposeSceneMediator.onKeyboardEvent(event)
-            }
-        }
-    }
-
     private val uiKitTextInputService: UIKitTextInputService by lazy {
         UIKitTextInputService(
             updateView = {
@@ -346,45 +345,67 @@ internal class ComposeSceneMediator(
             densityProvider = { rootView.systemDensity },
             viewConfiguration = viewConfiguration,
             focusStack = focusStack,
-            keyboardEventHandler = keyboardEventHandler
+            onKeyboardPresses = ::onKeyboardPresses
         ).also {
             KeyboardVisibilityListener.initialize()
         }
     }
 
-    private val touchesDelegate: InteractionUIView.Delegate by lazy {
-        object : InteractionUIView.Delegate {
-            override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean =
-                point.useContents {
-                    val position = this.asDpOffset().toOffset(density)
-                    !scene.hitTestInteropView(position)
-                }
+    private fun onTouchesCountChange(count: Int) {
+        val needHighFrequencyPolling: Boolean = count > 0
+        renderingView.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
+    }
 
-            override fun onTouchesEvent(view: UIView, event: UIEvent, phase: UITouchesEventPhase) {
-                scene.sendPointerEvent(
-                    eventType = phase.toPointerEventType(),
-                    pointers = event.touchesForView(view)?.map {
-                        val touch = it as UITouch
-                        val id = touch.hashCode().toLong()
-                        val position = touch.offsetInView(view, density.density)
-                        ComposeScenePointer(
-                            id = PointerId(id),
-                            position = position,
-                            pressed = touch.isPressed,
-                            type = PointerType.Touch,
-                            pressure = touch.force.toFloat(),
-                            historical = event.historicalChangesForTouch(
-                                touch,
-                                view,
-                                density.density
-                            )
-                        )
-                    } ?: emptyList(),
-                    timeMillis = (event.timestamp * 1e3).toLong(),
-                    nativeEvent = event
-                )
-            }
+    private fun hitTestInteropView(point: CValue<CGPoint>, event: UIEvent?): InteropView? =
+        point.useContents {
+            val position = asDpOffset().toOffset(density)
+            scene.hitTestInteropView(position)
         }
+
+    /**
+     * Converts [UITouch] objects from [touches] to [ComposeScenePointer] and dispatches them to the appropriate handlers.
+     * @param view the [UIView] that received the touches
+     * @param touches a [Set] of [UITouch] objects. Erasure happens due to K/N not supporting Obj-C lightweight generics.
+     * @param event the [UIEvent] associated with the touches
+     * @param phase the [CupertinoTouchesPhase] of the touches
+     */
+    private fun onTouchesEvent(view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) {
+        val pointers = touches.map {
+            val touch = it as UITouch
+            val id = touch.hashCode().toLong()
+            val position = touch.offsetInView(view, density.density)
+            ComposeScenePointer(
+                id = PointerId(id),
+                position = position,
+                pressed = when (phase) {
+                    // When CMPGestureRecognizer is failed, all tracked touches are sent immediately
+                    // as CANCELLED. In this case, we should not consider the touch as pressed
+                    // despite them being on the screen. This is the last event for Compose in a
+                    // given gesture sequence and should be treated as such.
+                    CupertinoTouchesPhase.CANCELLED -> false
+                    else -> touch.isPressed
+                },
+                type = PointerType.Touch,
+                pressure = touch.force.toFloat(),
+                historical = event?.historicalChangesForTouch(
+                    touch,
+                    view,
+                    density.density
+                ) ?: emptyList()
+            )
+        }
+
+        // If the touches were cancelled due to gesture failure, the timestamp is not available,
+        // because no actual event with touch updates happened. We just use the current time in
+        // this case.
+        val timestamp = event?.timestamp ?: CACurrentMediaTime()
+
+        scene.sendPointerEvent(
+            eventType = phase.toPointerEventType(),
+            pointers = pointers,
+            timeMillis = (timestamp * 1e3).toLong(),
+            nativeEvent = event
+        )
     }
 
     private val renderDelegate by lazy {
@@ -424,12 +445,6 @@ internal class ComposeSceneMediator(
         container.addSubview(rootView)
         NSLayoutConstraint.activateConstraints(
             getConstraintsToFillParent(rootView, container)
-        )
-
-        interopContainer.containerView.translatesAutoresizingMaskIntoConstraints = false
-        rootView.addSubview(interopContainer.containerView)
-        NSLayoutConstraint.activateConstraints(
-            getConstraintsToFillParent(interopContainer.containerView, rootView)
         )
 
         interactionView.translatesAutoresizingMaskIntoConstraints = false
@@ -644,6 +659,17 @@ internal class ComposeSceneMediator(
         this._onKeyEvent = onKeyEvent ?: { false }
     }
 
+    /**
+     * Converts [UIPress] objects to [KeyEvent] and dispatches them to the appropriate handlers.
+     * @param presses a [Set] of [UIPress] objects. Erasure happens due to K/N not supporting Obj-C lightweight generics.
+     */
+    private fun onKeyboardPresses(presses: Set<*>) {
+        presses.forEach {
+            val press = it as UIPress
+            onKeyboardEvent(press.toComposeEvent())
+        }
+    }
+
     private fun onKeyboardEvent(keyEvent: KeyEvent): Boolean =
         uiKitTextInputService.onPreviewKeyEvent(keyEvent) // TODO: fix redundant call
             || _onPreviewKeyEvent(keyEvent)
@@ -702,12 +728,12 @@ private fun getConstraintsToCenterInParent(
     )
 }
 
-private fun UITouchesEventPhase.toPointerEventType(): PointerEventType =
+private fun CupertinoTouchesPhase.toPointerEventType(): PointerEventType =
     when (this) {
-        UITouchesEventPhase.BEGAN -> PointerEventType.Press
-        UITouchesEventPhase.MOVED -> PointerEventType.Move
-        UITouchesEventPhase.ENDED -> PointerEventType.Release
-        UITouchesEventPhase.CANCELLED -> PointerEventType.Release
+        CupertinoTouchesPhase.BEGAN -> PointerEventType.Press
+        CupertinoTouchesPhase.MOVED -> PointerEventType.Move
+        CupertinoTouchesPhase.ENDED -> PointerEventType.Release
+        CupertinoTouchesPhase.CANCELLED -> PointerEventType.Release
     }
 
 private fun UIEvent.historicalChangesForTouch(

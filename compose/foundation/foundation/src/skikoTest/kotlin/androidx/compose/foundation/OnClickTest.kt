@@ -20,7 +20,6 @@ import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ImageComposeScene
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -33,10 +32,11 @@ import androidx.compose.ui.input.pointer.isAltPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
 import kotlin.test.Test
@@ -82,9 +82,9 @@ class OnClickTest {
     @OptIn(ExperimentalFoundationApi::class, ExperimentalCoroutinesApi::class)
     @Test
     fun simpleClickWithoutMove() = runTest {
-        val scene = ComposeScene(coroutineContext = coroutineContext)
+        val scene = CanvasLayersComposeScene(coroutineContext = coroutineContext)
         try {
-            scene.constraints = Constraints.fixed(100, 100)
+            scene.size = IntSize(100, 100)
             scene.setContent {
                 Box(
                     Modifier

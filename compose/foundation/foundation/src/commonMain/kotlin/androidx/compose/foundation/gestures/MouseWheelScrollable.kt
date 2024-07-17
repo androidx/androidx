@@ -31,6 +31,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
+import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.currentValueOf
@@ -114,10 +115,14 @@ internal class MouseWheelScrollNode(
 
     private data class MouseWheelScrollDelta(
         val value: Offset,
+        val timeMillis: Long,
         val shouldApplyImmediately: Boolean
     ) {
         operator fun plus(other: MouseWheelScrollDelta) = MouseWheelScrollDelta(
             value = value + other.value,
+
+            // Pick time from last one
+            timeMillis = maxOf(timeMillis, other.timeMillis),
 
             // Ignore [other.shouldApplyImmediately] to avoid false-positive [isPreciseWheelScroll]
             // detection during animation
@@ -125,6 +130,7 @@ internal class MouseWheelScrollNode(
         )
     }
     private val channel = Channel<MouseWheelScrollDelta>(capacity = Channel.UNLIMITED)
+    private var isScrolling = false
 
     private suspend fun receiveMouseWheelEvents() {
         while (coroutineContext.isActive) {
@@ -136,11 +142,11 @@ internal class MouseWheelScrollNode(
         }
     }
 
-    private suspend fun ScrollingLogic.userScroll(
-        block: suspend NestedScrollScope.() -> Unit
-    ) = supervisorScope {
+    private suspend fun ScrollingLogic.userScroll(block: suspend NestedScrollScope.() -> Unit) {
+        isScrolling = true
         // Run it in supervisorScope to ignore cancellations from scrolls with higher MutatePriority
-        scroll(MutatePriority.UserInput, block)
+        supervisorScope { scroll(MutatePriority.UserInput, block) }
+        isScrolling = false
     }
 
     private fun PointerInputScope.onMouseWheel(pointerEvent: PointerEvent): Boolean {
@@ -150,13 +156,14 @@ internal class MouseWheelScrollNode(
         return if (scrollingLogic.canConsumeDelta(scrollDelta)) {
             channel.trySend(MouseWheelScrollDelta(
                 value = scrollDelta,
+                timeMillis = pointerEvent.changes.first().uptimeMillis,
                 shouldApplyImmediately = !mouseWheelScrollConfig.isSmoothScrollingEnabled
 
                     // In case of high-resolution wheel, such as a freely rotating wheel with
                     // no notches or trackpads, delta should apply immediately, without any delays.
                     || mouseWheelScrollConfig.isPreciseWheelScroll(pointerEvent)
             )).isSuccess
-        } else false
+        } else isScrolling
     }
 
     private fun Channel<MouseWheelScrollDelta>.sumOrNull() =
@@ -201,14 +208,21 @@ internal class MouseWheelScrollNode(
         }
     }
 
+    private val velocityTracker = MouseWheelVelocityTracker()
+    private fun trackVelocity(scrollDelta: MouseWheelScrollDelta) {
+        velocityTracker.addDelta(scrollDelta.timeMillis, scrollDelta.value)
+    }
+
     private suspend fun ScrollingLogic.dispatchMouseWheelScroll(
         scrollDelta: MouseWheelScrollDelta,
         threshold: Float, // px
         speed: Float, // px / ms
     ) {
         var targetScrollDelta = scrollDelta
+        trackVelocity(scrollDelta)
         // Sum delta from all pending events to avoid multiple animation restarts.
         channel.sumOrNull()?.let {
+            trackVelocity(it)
             targetScrollDelta += it
         }
         var targetValue = targetScrollDelta.value.reverseIfNeeded().toFloat()
@@ -238,6 +252,7 @@ internal class MouseWheelScrollNode(
                 )
                 targetValue = targetScrollDelta.value.reverseIfNeeded().toFloat()
                 animationState = AnimationState(0f) // Reset previous animation leftover
+                trackVelocity(it)
 
                 !targetValue.isLowScrollingDelta()
             } ?: false
@@ -265,6 +280,7 @@ internal class MouseWheelScrollNode(
                         // Sum delta from all pending events to avoid multiple animation restarts.
                         val nextScrollDelta = channel.sumOrNull()
                         if (nextScrollDelta != null) {
+                            trackVelocity(nextScrollDelta)
                             targetScrollDelta += nextScrollDelta
                             targetValue = targetScrollDelta.value.reverseIfNeeded().toFloat()
 
@@ -279,9 +295,14 @@ internal class MouseWheelScrollNode(
                 }
             }
         }
-        val velocityPxInMs = minOf(abs(targetValue) / MaxAnimationDuration, speed)
-        val velocity = sign(targetValue).reverseIfNeeded() * velocityPxInMs * 1000
-        onScrollStopped(velocity.toVelocity())
+
+        var velocity = velocityTracker.calculateVelocity()
+        if (velocity == Velocity.Zero) {
+            // In case of single data point use animation speed and delta direction
+            val velocityPxInMs = minOf(abs(targetValue) / MaxAnimationDuration, speed)
+            velocity = (sign(targetValue).reverseIfNeeded() * velocityPxInMs * 1000).toVelocity()
+        }
+        onScrollStopped(velocity)
     }
 
     private suspend fun NestedScrollScope.animateMouseWheelScroll(
@@ -321,6 +342,22 @@ internal class MouseWheelScrollNode(
             NestedScrollSource.UserInput,
         )
         consumed.reverseIfNeeded().toFloat()
+    }
+}
+
+private class MouseWheelVelocityTracker {
+    private val xVelocityTracker = VelocityTracker1D(isDataDifferential = true)
+    private val yVelocityTracker = VelocityTracker1D(isDataDifferential = true)
+
+    fun addDelta(timeMillis: Long, delta: Offset) {
+        xVelocityTracker.addDataPoint(timeMillis, delta.x)
+        yVelocityTracker.addDataPoint(timeMillis, delta.y)
+    }
+
+    fun calculateVelocity(): Velocity {
+        val velocityX = xVelocityTracker.calculateVelocity(Float.MAX_VALUE)
+        val velocityY = yVelocityTracker.calculateVelocity(Float.MAX_VALUE)
+        return Velocity(velocityX, velocityY)
     }
 }
 
