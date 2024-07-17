@@ -411,7 +411,7 @@ internal class CallSessionLegacy(
             } catch (e: Exception) {
                 throw e
             } finally {
-                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+                setConnectionDisconnect(DisconnectCause(DisconnectCause.REJECTED))
                 blockingSessionExecution.complete(Unit)
             }
         }
@@ -426,7 +426,7 @@ internal class CallSessionLegacy(
             } catch (e: Exception) {
                 throw e
             } finally {
-                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+                setConnectionDisconnect(DisconnectCause(DisconnectCause.REJECTED))
                 blockingSessionExecution.complete(Unit)
             }
         }
@@ -441,7 +441,7 @@ internal class CallSessionLegacy(
             } catch (e: Exception) {
                 throw e
             } finally {
-                setDisconnected(DisconnectCause(DisconnectCause.REJECTED))
+                setConnectionDisconnect(DisconnectCause(DisconnectCause.REJECTED))
                 blockingSessionExecution.complete(Unit)
             }
         }
