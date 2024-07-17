@@ -26,7 +26,6 @@ import com.google.testing.platform.proto.api.core.TestStatusProto
 import com.google.testing.platform.proto.api.core.TestSuiteResultProto
 import java.io.File
 import java.util.Properties
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.ExternalResource
 import org.junit.rules.RuleChain
