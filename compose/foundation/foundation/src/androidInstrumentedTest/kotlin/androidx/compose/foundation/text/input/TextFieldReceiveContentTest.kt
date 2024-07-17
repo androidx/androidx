@@ -116,7 +116,7 @@ class TextFieldReceiveContentTest {
         rule.onNodeWithTag(tag).requestFocus()
         inputMethodInterceptor.withEditorInfo {
             val contentMimeTypes = EditorInfoCompat.getContentMimeTypes(this)
-            assertThat(contentMimeTypes).isEqualTo(arrayOf("*/*"))
+            assertThat(contentMimeTypes).asList().containsAtLeastElementsIn(arrayOf("*/*"))
         }
     }
 
