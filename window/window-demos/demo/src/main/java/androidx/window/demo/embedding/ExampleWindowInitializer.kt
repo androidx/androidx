@@ -37,6 +37,7 @@ import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.EmbeddingAnimationParams
+import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec
 import androidx.window.embedding.EmbeddingBounds
 import androidx.window.embedding.EmbeddingConfiguration
 import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_TASK
@@ -116,14 +117,11 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val isBookMode = windowLayoutInfo.isBookMode()
         val config = params.parentConfiguration
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
-        // Make a copy of the default splitAttributes, but replace the animation background
-        // and transition animations to what is configured in the Demo app.
+        // Always use the Demo app specified animation background.
         val animationParams =
             EmbeddingAnimationParams.Builder()
                 .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
-                .setOpenAnimation(demoActivityEmbeddingController.openAnimation)
-                .setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
-                .setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
+                .setDemoAppAnimations(params.defaultSplitAttributes.animationParams)
                 .build()
         val defaultSplitAttributes =
             SplitAttributes.Builder()
@@ -273,6 +271,27 @@ class ExampleWindowInitializer : Initializer<RuleController> {
             }
         }
         return defaultSplitAttributes
+    }
+
+    private fun EmbeddingAnimationParams.Builder.setDemoAppAnimations(
+        params: EmbeddingAnimationParams
+    ): EmbeddingAnimationParams.Builder {
+        // Replace the transition animations with what is configured in the Demo app if the default
+        // splitAttributes' transition animations are applicable (all configured to default).
+        val useDemoAppAnimations =
+            params.openAnimation == AnimationSpec.DEFAULT &&
+                params.closeAnimation == AnimationSpec.DEFAULT &&
+                params.changeAnimation == AnimationSpec.DEFAULT
+        if (useDemoAppAnimations) {
+            setOpenAnimation(demoActivityEmbeddingController.openAnimation)
+            setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
+            setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
+        } else {
+            setOpenAnimation(params.openAnimation)
+            setCloseAnimation(params.closeAnimation)
+            setChangeAnimation(params.changeAnimation)
+        }
+        return this
     }
 
     private fun sampleOverlayAttributesCalculator(
