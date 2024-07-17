@@ -228,23 +228,6 @@ actual abstract class RoomDatabase {
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
 
-        // Configure SQLiteCopyOpenHelper if it is available
-        unwrapOpenHelper(
-                clazz = PrePackagedCopyOpenHelper::class.java,
-                openHelper = connectionManager.supportOpenHelper
-            )
-            ?.setDatabaseConfiguration(configuration)
-
-        // Configure AutoClosingRoomOpenHelper if it is available
-        unwrapOpenHelper(
-                clazz = AutoClosingRoomOpenHelper::class.java,
-                openHelper = connectionManager.supportOpenHelper
-            )
-            ?.let {
-                autoCloser = it.autoCloser
-                invalidationTracker.setAutoCloser(it.autoCloser)
-            }
-
         if (configuration.queryCoroutineContext != null) {
             // For backwards compatibility with internals not converted to Coroutines, use the
             // provided dispatcher as executor.
@@ -282,6 +265,24 @@ actual abstract class RoomDatabase {
         }
 
         allowMainThreadQueries = configuration.allowMainThreadQueries
+
+        // Configure SQLiteCopyOpenHelper if it is available
+        unwrapOpenHelper(
+                clazz = PrePackagedCopyOpenHelper::class.java,
+                openHelper = connectionManager.supportOpenHelper
+            )
+            ?.setDatabaseConfiguration(configuration)
+
+        // Configure AutoClosingRoomOpenHelper if it is available
+        unwrapOpenHelper(
+                clazz = AutoClosingRoomOpenHelper::class.java,
+                openHelper = connectionManager.supportOpenHelper
+            )
+            ?.let {
+                autoCloser = it.autoCloser
+                it.autoCloser.initCoroutineScope(coroutineScope)
+                invalidationTracker.setAutoCloser(it.autoCloser)
+            }
 
         // Configure multi-instance invalidation, if enabled
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
@@ -1606,11 +1607,7 @@ actual abstract class RoomDatabase {
                                 "Cannot create auto-closing database for an in-memory database."
                             }
                             val autoCloser =
-                                AutoCloser(
-                                    autoCloseTimeout,
-                                    requireNotNull(autoCloseTimeUnit),
-                                    requireNotNull(queryExecutor)
-                                )
+                                AutoCloser(autoCloseTimeout, requireNotNull(autoCloseTimeUnit))
                             AutoClosingRoomOpenHelperFactory(it, autoCloser)
                         } else {
                             it

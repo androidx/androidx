@@ -22,7 +22,6 @@ internal class AutoClosingRoomOpenHelperFactory(
     private val delegate: SupportSQLiteOpenHelper.Factory,
     private val autoCloser: AutoCloser
 ) : SupportSQLiteOpenHelper.Factory {
-    /** @return AutoClosingRoomOpenHelper instances. */
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration
     ): AutoClosingRoomOpenHelper {
