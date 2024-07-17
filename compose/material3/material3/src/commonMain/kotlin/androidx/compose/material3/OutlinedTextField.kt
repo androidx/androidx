@@ -136,8 +136,7 @@ import kotlin.math.roundToInt
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
  * @param label the optional label to be displayed with this text field. The default text style uses
- *   [Typography.bodySmall] when the text field is in focus and [Typography.bodyLarge] when the text
- *   field is not in focus.
+ *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the input text is empty. The
  *   default text style uses [Typography.bodyLarge].
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -320,9 +319,8 @@ fun OutlinedTextField(
  *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
- * @param label the optional label to be displayed inside the text field container. The default text
- *   style for internal [Text] is [Typography.bodySmall] when the text field is in focus and
- *   [Typography.bodyLarge] when the text field is not in focus
+ * @param label the optional label to be displayed with this text field. The default text style uses
+ *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
  *   the input text is empty. The default text style for internal [Text] is [Typography.bodyLarge]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -491,9 +489,8 @@ fun OutlinedTextField(
  *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
- * @param label the optional label to be displayed inside the text field container. The default text
- *   style for internal [Text] is [Typography.bodySmall] when the text field is in focus and
- *   [Typography.bodyLarge] when the text field is not in focus
+ * @param label the optional label to be displayed with this text field. The default text style uses
+ *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
  *   the input text is empty. The default text style for internal [Text] is [Typography.bodyLarge]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -651,18 +648,18 @@ internal fun OutlinedTextFieldLayout(
     prefix: @Composable (() -> Unit)?,
     suffix: @Composable (() -> Unit)?,
     singleLine: Boolean,
-    animationProgress: Float,
+    labelProgress: Float,
     onLabelMeasured: (Size) -> Unit,
     container: @Composable () -> Unit,
     supporting: @Composable (() -> Unit)?,
     paddingValues: PaddingValues
 ) {
     val measurePolicy =
-        remember(onLabelMeasured, singleLine, animationProgress, paddingValues) {
+        remember(onLabelMeasured, singleLine, labelProgress, paddingValues) {
             OutlinedTextFieldMeasurePolicy(
                 onLabelMeasured,
                 singleLine,
-                animationProgress,
+                labelProgress,
                 paddingValues
             )
         }
@@ -748,12 +745,7 @@ internal fun OutlinedTextFieldLayout(
             if (label != null) {
                 Box(
                     Modifier.heightIn(
-                            min =
-                                lerp(
-                                    MinTextLineHeight,
-                                    MinFocusedLabelLineHeight,
-                                    animationProgress
-                                )
+                            min = lerp(MinTextLineHeight, MinFocusedLabelLineHeight, labelProgress)
                         )
                         .wrapContentHeight()
                         .layoutId(LabelId)
@@ -780,7 +772,7 @@ internal fun OutlinedTextFieldLayout(
 private class OutlinedTextFieldMeasurePolicy(
     private val onLabelMeasured: (Size) -> Unit,
     private val singleLine: Boolean,
-    private val animationProgress: Float,
+    private val labelProgress: Float,
     private val paddingValues: PaddingValues
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
@@ -834,7 +826,7 @@ private class OutlinedTextFieldMeasurePolicy(
                         -occupiedSpaceHorizontally -
                             labelHorizontalPaddingOffset, // label in middle
                         -labelHorizontalPaddingOffset, // label at top
-                        animationProgress,
+                        labelProgress,
                     ),
                 vertical = -bottomPadding
             )
@@ -887,7 +879,7 @@ private class OutlinedTextFieldMeasurePolicy(
                 textFieldPlaceableWidth = textFieldPlaceable.width,
                 labelPlaceableWidth = labelPlaceable.widthOrZero,
                 placeholderPlaceableWidth = placeholderPlaceable.widthOrZero,
-                animationProgress = animationProgress,
+                labelProgress = labelProgress,
                 constraints = constraints,
                 density = density,
                 paddingValues = paddingValues,
@@ -911,7 +903,7 @@ private class OutlinedTextFieldMeasurePolicy(
                 labelHeight = labelPlaceable.heightOrZero,
                 placeholderHeight = placeholderPlaceable.heightOrZero,
                 supportingHeight = supportingPlaceable.heightOrZero,
-                animationProgress = animationProgress,
+                labelProgress = labelProgress,
                 constraints = constraints,
                 density = density,
                 paddingValues = paddingValues,
@@ -942,7 +934,7 @@ private class OutlinedTextFieldMeasurePolicy(
                 placeholderPlaceable = placeholderPlaceable,
                 containerPlaceable = containerPlaceable,
                 supportingPlaceable = supportingPlaceable,
-                animationProgress = animationProgress,
+                labelProgress = labelProgress,
                 singleLine = singleLine,
                 density = density,
                 layoutDirection = layoutDirection,
@@ -1026,7 +1018,7 @@ private class OutlinedTextFieldMeasurePolicy(
             textFieldPlaceableWidth = textFieldWidth,
             labelPlaceableWidth = labelWidth,
             placeholderPlaceableWidth = placeholderWidth,
-            animationProgress = animationProgress,
+            labelProgress = labelProgress,
             constraints = Constraints(),
             density = density,
             paddingValues = paddingValues,
@@ -1063,7 +1055,7 @@ private class OutlinedTextFieldMeasurePolicy(
         val labelHeight =
             measurables
                 .fastFirstOrNull { it.layoutId == LabelId }
-                ?.let { intrinsicMeasurer(it, lerp(remainingWidth, width, animationProgress)) } ?: 0
+                ?.let { intrinsicMeasurer(it, lerp(remainingWidth, width, labelProgress)) } ?: 0
 
         val prefixHeight =
             measurables
@@ -1110,7 +1102,7 @@ private class OutlinedTextFieldMeasurePolicy(
             labelHeight = labelHeight,
             placeholderHeight = placeholderHeight,
             supportingHeight = supportingHeight,
-            animationProgress = animationProgress,
+            labelProgress = labelProgress,
             constraints = Constraints(),
             density = density,
             paddingValues = paddingValues
@@ -1129,7 +1121,7 @@ private fun calculateWidth(
     textFieldPlaceableWidth: Int,
     labelPlaceableWidth: Int,
     placeholderPlaceableWidth: Int,
-    animationProgress: Float,
+    labelProgress: Float,
     constraints: Constraints,
     density: Float,
     paddingValues: PaddingValues,
@@ -1140,7 +1132,7 @@ private fun calculateWidth(
             textFieldPlaceableWidth + affixTotalWidth,
             placeholderPlaceableWidth + affixTotalWidth,
             // Prefix/suffix does not get applied to label
-            lerp(labelPlaceableWidth, 0, animationProgress),
+            lerp(labelPlaceableWidth, 0, labelProgress),
         )
     val wrappedWidth = leadingPlaceableWidth + middleSection + trailingPlaceableWidth
 
@@ -1150,7 +1142,7 @@ private fun calculateWidth(
                 paddingValues.calculateRightPadding(LayoutDirection.Ltr))
             .value * density
     val focusedLabelWidth =
-        ((labelPlaceableWidth + labelHorizontalPadding) * animationProgress).roundToInt()
+        ((labelPlaceableWidth + labelHorizontalPadding) * labelProgress).roundToInt()
     return maxOf(wrappedWidth, focusedLabelWidth, constraints.minWidth)
 }
 
@@ -1168,7 +1160,7 @@ private fun calculateHeight(
     labelHeight: Int,
     placeholderHeight: Int,
     supportingHeight: Int,
-    animationProgress: Float,
+    labelProgress: Float,
     constraints: Constraints,
     density: Float,
     paddingValues: PaddingValues
@@ -1179,10 +1171,10 @@ private fun calculateHeight(
             placeholderHeight,
             prefixHeight,
             suffixHeight,
-            lerp(labelHeight, 0, animationProgress)
+            lerp(labelHeight, 0, labelProgress)
         )
     val topPadding = paddingValues.calculateTopPadding().value * density
-    val actualTopPadding = lerp(topPadding, max(topPadding, labelHeight / 2f), animationProgress)
+    val actualTopPadding = lerp(topPadding, max(topPadding, labelHeight / 2f), labelProgress)
     val bottomPadding = paddingValues.calculateBottomPadding().value * density
     val middleSectionHeight = actualTopPadding + inputFieldHeight + bottomPadding
 
@@ -1208,7 +1200,7 @@ private fun Placeable.PlacementScope.place(
     placeholderPlaceable: Placeable?,
     containerPlaceable: Placeable,
     supportingPlaceable: Placeable?,
-    animationProgress: Float,
+    labelProgress: Float,
     singleLine: Boolean,
     density: Float,
     layoutDirection: LayoutDirection,
@@ -1241,12 +1233,12 @@ private fun Placeable.PlacementScope.place(
             } else {
                 topPadding
             }
-        val positionY = lerp(startPositionY, -(it.height / 2), animationProgress)
+        val positionY = lerp(startPositionY, -(it.height / 2), labelProgress)
         val positionX =
             (if (leadingPlaceable == null) {
                     0f
                 } else {
-                    (leadingPlaceable.widthOrZero - iconPadding) * (1 - animationProgress)
+                    (leadingPlaceable.widthOrZero - iconPadding) * (1 - labelProgress)
                 })
                 .roundToInt() + startPadding
         it.placeRelative(positionX, positionY)

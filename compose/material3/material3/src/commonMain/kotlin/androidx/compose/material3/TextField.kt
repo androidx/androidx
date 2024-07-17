@@ -169,8 +169,7 @@ import kotlin.math.roundToInt
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
  * @param label the optional label to be displayed with this text field. The default text style uses
- *   [Typography.bodySmall] when the text field is in focus and [Typography.bodyLarge] when the text
- *   field is not in focus.
+ *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the input text is empty. The
  *   default text style uses [Typography.bodyLarge].
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -346,9 +345,8 @@ fun TextField(
  *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
- * @param label the optional label to be displayed inside the text field container. The default text
- *   style for internal [Text] is [Typography.bodySmall] when the text field is in focus and
- *   [Typography.bodyLarge] when the text field is not in focus
+ * @param label the optional label to be displayed with this text field. The default text style uses
+ *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
  *   the input text is empty. The default text style for internal [Text] is [Typography.bodyLarge]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -498,9 +496,8 @@ fun TextField(
  *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
- * @param label the optional label to be displayed inside the text field container. The default text
- *   style for internal [Text] is [Typography.bodySmall] when the text field is in focus and
- *   [Typography.bodyLarge] when the text field is not in focus
+ * @param label the optional label to be displayed with this text field. The default text style uses
+ *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the text field is in focus and
  *   the input text is empty. The default text style for internal [Text] is [Typography.bodyLarge]
  * @param leadingIcon the optional leading icon to be displayed at the beginning of the text field
@@ -637,14 +634,14 @@ internal fun TextFieldLayout(
     prefix: @Composable (() -> Unit)?,
     suffix: @Composable (() -> Unit)?,
     singleLine: Boolean,
-    animationProgress: Float,
+    labelProgress: Float,
     container: @Composable () -> Unit,
     supporting: @Composable (() -> Unit)?,
     paddingValues: PaddingValues
 ) {
     val measurePolicy =
-        remember(singleLine, animationProgress, paddingValues) {
-            TextFieldMeasurePolicy(singleLine, animationProgress, paddingValues)
+        remember(singleLine, labelProgress, paddingValues) {
+            TextFieldMeasurePolicy(singleLine, labelProgress, paddingValues)
         }
     val layoutDirection = LocalLayoutDirection.current
     Layout(
@@ -713,12 +710,7 @@ internal fun TextFieldLayout(
                 Box(
                     Modifier.layoutId(LabelId)
                         .heightIn(
-                            min =
-                                lerp(
-                                    MinTextLineHeight,
-                                    MinFocusedLabelLineHeight,
-                                    animationProgress
-                                )
+                            min = lerp(MinTextLineHeight, MinFocusedLabelLineHeight, labelProgress)
                         )
                         .wrapContentHeight()
                         .padding(start = startPadding, end = endPadding)
@@ -763,7 +755,7 @@ internal fun TextFieldLayout(
 
 private class TextFieldMeasurePolicy(
     private val singleLine: Boolean,
-    private val animationProgress: Float,
+    private val labelProgress: Float,
     private val paddingValues: PaddingValues
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
@@ -879,7 +871,7 @@ private class TextFieldMeasurePolicy(
                 suffixHeight = suffixPlaceable.heightOrZero,
                 placeholderHeight = placeholderPlaceable.heightOrZero,
                 supportingHeight = supportingPlaceable.heightOrZero,
-                animationProgress = animationProgress,
+                labelProgress = labelProgress,
                 constraints = constraints,
                 paddingValues = paddingValues,
             )
@@ -918,7 +910,7 @@ private class TextFieldMeasurePolicy(
                     labelStartPosition = labelStartPosition,
                     labelEndPosition = topPaddingValue,
                     textPosition = topPaddingValue + labelPlaceable.height,
-                    animationProgress = animationProgress,
+                    labelProgress = labelProgress,
                 )
             } else {
                 placeWithoutLabel(
@@ -1094,7 +1086,7 @@ private class TextFieldMeasurePolicy(
             suffixHeight = suffixHeight,
             placeholderHeight = placeholderHeight,
             supportingHeight = supportingHeight,
-            animationProgress = animationProgress,
+            labelProgress = labelProgress,
             constraints = Constraints(),
             paddingValues = paddingValues
         )
@@ -1132,7 +1124,7 @@ private fun Density.calculateHeight(
     suffixHeight: Int,
     placeholderHeight: Int,
     supportingHeight: Int,
-    animationProgress: Float,
+    labelProgress: Float,
     constraints: Constraints,
     paddingValues: PaddingValues
 ): Int {
@@ -1145,7 +1137,7 @@ private fun Density.calculateHeight(
             placeholderHeight,
             prefixHeight,
             suffixHeight,
-            lerp(labelHeight, 0, animationProgress)
+            lerp(labelHeight, 0, labelProgress)
         )
 
     val hasLabel = labelHeight > 0
@@ -1154,10 +1146,7 @@ private fun Density.calculateHeight(
             // The label animates from overlapping the input field to floating above it,
             // so its contribution to the height calculation changes over time. Extra padding
             // is added in the unfocused state to keep the height consistent.
-            max(
-                (TextFieldLabelExtraPadding * 2).roundToPx(),
-                lerp(0, labelHeight, animationProgress)
-            )
+            max((TextFieldLabelExtraPadding * 2).roundToPx(), lerp(0, labelHeight, labelProgress))
         } else {
             0
         }
@@ -1190,7 +1179,7 @@ private fun Placeable.PlacementScope.placeWithLabel(
     labelStartPosition: Int,
     labelEndPosition: Int,
     textPosition: Int,
-    animationProgress: Float,
+    labelProgress: Float,
 ) {
     // place container
     containerPlaceable.place(IntOffset.Zero)
@@ -1212,7 +1201,7 @@ private fun Placeable.PlacementScope.placeWithLabel(
                 } else {
                     labelStartPosition
                 }
-            lerp(startPosition, labelEndPosition, animationProgress)
+            lerp(startPosition, labelEndPosition, labelProgress)
         }
     labelPlaceable.placeRelative(leadingPlaceable.widthOrZero, labelY)
 

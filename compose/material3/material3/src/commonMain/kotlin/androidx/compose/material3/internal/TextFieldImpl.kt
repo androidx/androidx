@@ -231,17 +231,17 @@ internal fun CommonDecorationBox(
                     supporting = decoratedSupporting,
                     singleLine = singleLine,
                     // TODO(b/271000818): progress state read should be deferred to layout phase
-                    animationProgress = labelProgressValue,
+                    labelProgress = labelProgressValue,
                     paddingValues = contentPadding
                 )
             }
             TextFieldType.Outlined -> {
                 // Outlined cutout
-                val labelSize = remember { mutableStateOf(Size.Zero) }
+                val cutoutSize = remember { mutableStateOf(Size.Zero) }
                 val borderContainerWithId: @Composable () -> Unit = {
                     Box(
                         Modifier.layoutId(ContainerId)
-                            .outlineCutout(labelSize::value, contentPadding),
+                            .outlineCutout(cutoutSize::value, contentPadding),
                         propagateMinConstraints = true
                     ) {
                         container()
@@ -263,14 +263,14 @@ internal fun CommonDecorationBox(
                         val labelWidth = it.width * labelProgressValue
                         val labelHeight = it.height * labelProgressValue
                         if (
-                            labelSize.value.width != labelWidth ||
-                                labelSize.value.height != labelHeight
+                            cutoutSize.value.width != labelWidth ||
+                                cutoutSize.value.height != labelHeight
                         ) {
-                            labelSize.value = Size(labelWidth, labelHeight)
+                            cutoutSize.value = Size(labelWidth, labelHeight)
                         }
                     },
                     // TODO(b/271000818): progress state read should be deferred to layout phase
-                    animationProgress = labelProgressValue,
+                    labelProgress = labelProgressValue,
                     container = borderContainerWithId,
                     paddingValues = contentPadding
                 )
