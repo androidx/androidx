@@ -41,7 +41,7 @@ package androidx.navigation.fragment {
   @androidx.navigation.NavDestinationDsl public final class DialogFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {
     ctor @Deprecated public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, @IdRes int id, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
     ctor public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, String route, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
-    ctor public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, kotlin.reflect.KClass<?> route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
+    ctor public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, kotlin.reflect.KClass<?> route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
     method public androidx.navigation.fragment.DialogFragmentNavigator.Destination build();
   }
 
@@ -50,8 +50,8 @@ package androidx.navigation.fragment {
     method @Deprecated public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, String route);
     method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
-    method public static inline <reified F extends androidx.fragment.app.DialogFragment, reified T> void dialog(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap);
-    method public static inline <reified F extends androidx.fragment.app.DialogFragment, reified T> void dialog(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline <reified F extends androidx.fragment.app.DialogFragment, reified T> void dialog(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap);
+    method public static inline <reified F extends androidx.fragment.app.DialogFragment, reified T> void dialog(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class FragmentKt {
@@ -91,7 +91,7 @@ package androidx.navigation.fragment {
   @androidx.navigation.NavDestinationDsl public final class FragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
     ctor @Deprecated public FragmentNavigatorDestinationBuilder(androidx.navigation.fragment.FragmentNavigator navigator, @IdRes int id, kotlin.reflect.KClass<? extends androidx.fragment.app.Fragment> fragmentClass);
     ctor public FragmentNavigatorDestinationBuilder(androidx.navigation.fragment.FragmentNavigator navigator, String route, kotlin.reflect.KClass<? extends androidx.fragment.app.Fragment> fragmentClass);
-    ctor public FragmentNavigatorDestinationBuilder(androidx.navigation.fragment.FragmentNavigator navigator, kotlin.reflect.KClass<?> route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap, kotlin.reflect.KClass<? extends androidx.fragment.app.Fragment> fragmentClass);
+    ctor public FragmentNavigatorDestinationBuilder(androidx.navigation.fragment.FragmentNavigator navigator, kotlin.reflect.KClass<?> route, java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.reflect.KClass<? extends androidx.fragment.app.Fragment> fragmentClass);
     method public androidx.navigation.fragment.FragmentNavigator.Destination build();
   }
 
@@ -100,8 +100,8 @@ package androidx.navigation.fragment {
     method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, String route);
     method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
-    method public static inline <reified F extends androidx.fragment.app.Fragment, reified T> void fragment(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap);
-    method public static inline <reified F extends androidx.fragment.app.Fragment, reified T> void fragment(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object!>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline <reified F extends androidx.fragment.app.Fragment, reified T> void fragment(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap);
+    method public static inline <reified F extends androidx.fragment.app.Fragment, reified T> void fragment(androidx.navigation.NavGraphBuilder, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class FragmentNavigatorExtrasKt {

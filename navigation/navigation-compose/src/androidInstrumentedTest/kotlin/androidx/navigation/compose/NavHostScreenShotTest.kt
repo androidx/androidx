@@ -111,6 +111,63 @@ class NavHostScreenShotTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testNavHostAnimationsZIndexPredictiveBack() {
+        lateinit var navController: NavHostController
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            NavHost(
+                navController = navController,
+                startDestination = FIRST,
+                route = "start",
+                enterTransition = { EnterTransition.None },
+                exitTransition = { slideOutHorizontally { -it / 2 } }
+            ) {
+                composable(FIRST) { BasicText(FIRST) }
+                composable(SECOND) {
+                    Box(Modifier.fillMaxSize().background(Color.Blue)) {
+                        BasicText(SECOND, Modifier.size(50.dp))
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle { navController.navigate(SECOND) }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+            assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            assertThat(navController.previousBackStackEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.STARTED)
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.5F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithText(SECOND)
+            .onParent()
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "testNavHostAnimationsZIndexPredictiveBack")
+    }
+
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun testNavHostPredictiveBackAnimations() {

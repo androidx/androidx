@@ -17,6 +17,7 @@
 package androidx.navigation
 
 import androidx.annotation.RestrictTo
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateNavArguments
 import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmName
@@ -44,7 +45,7 @@ internal constructor(
         typeMap: Map<KType, @JvmSuppressWildcards NavType<*>>,
     ) : this(
         navigator,
-        route?.serializer()?.hashCode() ?: -1,
+        route?.serializer()?.generateHashCode() ?: -1,
         route?.serializer()?.generateRoutePattern(typeMap)
     ) {
         route?.apply {
