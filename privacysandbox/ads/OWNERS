@@ -4,10 +4,15 @@ arpanah@google.com # Measurement Primary PoC
 lmohanan@google.com
 # adservices.customaudience, adservices.adselection OWNERS
 adigupt@google.com # FLEDGE Primary PoC
-galarragas@google.com
-# adservices.topics, .adid, .appsetid, .common OWNERS
-haoliuu@google.com # Primary PoC for Topics, Common
-npattan@google.com # Creator
+tudorcretu@google.com
+# adservices.topics
+akshaymiterani@google.com # Primary PoC for Topics
+saadsheikh@google.com
+# adservices.signals
+calebclark@google.com # Primary PoC for Signals
+ktjen@google.com
+# adservices.adid, .appsetid, .common OWNERS
+ramarcus@google.com # # Primary PoC for Common
+haoliuu@google.com
 jmarkoff@google.com # DevRel Jetpack Lead
 carolinewang@google.com # DevRel TPM Lead
-ramarcus@google.com # Common PoC
