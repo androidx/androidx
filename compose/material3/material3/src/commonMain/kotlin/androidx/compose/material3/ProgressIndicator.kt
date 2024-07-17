@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
@@ -26,10 +25,10 @@ import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.ProgressIndicatorDefaults.drawStopIndicator
+import androidx.compose.material3.internal.IncreaseVerticalSemanticsBounds
 import androidx.compose.material3.tokens.CircularProgressIndicatorTokens
 import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
 import androidx.compose.material3.tokens.MotionTokens
@@ -43,7 +42,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -51,7 +49,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.offset
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.max
@@ -154,7 +151,7 @@ fun LinearProgressIndicator(
     val coercedProgress = { progress().coerceIn(0f, 1f) }
     Canvas(
         modifier
-            .then(IncreaseSemanticsBounds)
+            .then(IncreaseVerticalSemanticsBounds)
             .semantics(mergeDescendants = true) {
                 progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
             }
@@ -277,7 +274,7 @@ fun LinearProgressIndicator(
         )
     Canvas(
         modifier
-            .then(IncreaseSemanticsBounds)
+            .then(IncreaseVerticalSemanticsBounds)
             .progressSemantics()
             .size(LinearIndicatorWidth, LinearIndicatorHeight)
     ) {
@@ -432,27 +429,6 @@ private fun DrawScope.drawLinearIndicator(
         }
     }
 }
-
-@VisibleForTesting internal val SemanticsBoundsPadding: Dp = 10.dp
-internal val IncreaseSemanticsBounds: Modifier =
-    Modifier.layout { measurable, constraints ->
-            val paddingPx = SemanticsBoundsPadding.roundToPx()
-            // We need to add vertical padding to the semantics bounds in order to meet
-            // screenreader green box minimum size, but we also want to
-            // preserve a visual appearance and layout size below that minimum
-            // in order to maintain backwards compatibility. This custom
-            // layout effectively implements "negative padding".
-            val newConstraint = constraints.offset(0, paddingPx * 2)
-            val placeable = measurable.measure(newConstraint)
-
-            // But when actually placing the placeable, create the layout without additional
-            // space. Place the placeable where it would've been without any extra padding.
-            val height = placeable.height - paddingPx * 2
-            val width = placeable.width
-            layout(width, height) { placeable.place(0, -paddingPx) }
-        }
-        .semantics(mergeDescendants = true) {}
-        .padding(vertical = SemanticsBoundsPadding)
 
 /**
  * <a href="https://m3.material.io/components/progress-indicators/overview" class="external"

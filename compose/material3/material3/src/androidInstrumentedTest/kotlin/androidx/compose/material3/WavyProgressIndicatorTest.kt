@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.internal.VerticalSemanticsBoundsPadding
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertPixelColor
@@ -220,7 +221,7 @@ class WavyProgressIndicatorTest {
 
     @Test
     fun indeterminateLinearWavyProgressIndicator_semanticsNodeBounds() {
-        val paddingPx = with(rule.density) { SemanticsBoundsPadding.roundToPx() }
+        val paddingPx = with(rule.density) { VerticalSemanticsBoundsPadding.roundToPx() }
 
         val expectedWidth =
             with(rule.density) { WavyProgressIndicatorDefaults.LinearContainerWidth.roundToPx() }
@@ -269,7 +270,7 @@ class WavyProgressIndicatorTest {
 
     @Test
     fun determinateLinearWavyProgressIndicator_semanticsNodeBounds() {
-        val paddingPx = with(rule.density) { SemanticsBoundsPadding.roundToPx() }
+        val paddingPx = with(rule.density) { VerticalSemanticsBoundsPadding.roundToPx() }
 
         val expectedWidth =
             with(rule.density) { WavyProgressIndicatorDefaults.LinearContainerWidth.roundToPx() }

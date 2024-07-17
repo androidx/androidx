@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
+import androidx.compose.material3.internal.IncreaseVerticalSemanticsBounds
 import androidx.compose.material3.internal.toPath
 import androidx.compose.material3.tokens.CircularProgressIndicatorTokens
 import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
@@ -181,7 +182,7 @@ fun LinearWavyProgressIndicator(
     val progressDrawingCache = remember { LinearProgressDrawingCache() }
     Spacer(
         modifier
-            .then(IncreaseSemanticsBounds)
+            .then(IncreaseVerticalSemanticsBounds)
             .semantics(mergeDescendants = true) {
                 progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
             }
@@ -344,7 +345,7 @@ fun LinearWavyProgressIndicator(
     val progressDrawingCache = remember { LinearProgressDrawingCache() }
     Spacer(
         modifier
-            .then(IncreaseSemanticsBounds)
+            .then(IncreaseVerticalSemanticsBounds)
             .progressSemantics()
             .requiredSizeIn(minWidth = LinearContainerMinWidth)
             .size(
