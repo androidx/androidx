@@ -600,7 +600,8 @@ class CurrentUserStyleRepositoryTest {
         assertThat(gothicStyleOption.toString()).isEqualTo("gothic_style")
         assertThat(DoubleRangeUserStyleSetting.DoubleRangeOption(12.3).toString()).isEqualTo("12.3")
         assertThat(LongRangeUserStyleSetting.LongRangeOption(123).toString()).isEqualTo("123")
-        assertThat(CustomValueOption("test".encodeToByteArray()).toString()).isEqualTo("test")
+        assertThat(CustomValueOption("test".encodeToByteArray()).toString())
+            .isEqualTo("[binary data, length: 4]")
     }
 
     @Test
