@@ -101,9 +101,8 @@ public fun <T> Flow<T>.asLiveData(
 public fun <T> LiveData<T>.asFlow(): Flow<T> =
     callbackFlow {
             val observer = Observer<T> { trySend(it) }
-            withContext(Dispatchers.Main.immediate) { observeForever(observer) }
-
             try {
+                withContext(Dispatchers.Main.immediate) { observeForever(observer) }
                 awaitCancellation()
             } finally {
                 withContext(Dispatchers.Main.immediate + NonCancellable) {
