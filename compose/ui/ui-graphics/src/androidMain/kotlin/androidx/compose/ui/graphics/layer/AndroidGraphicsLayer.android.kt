@@ -717,6 +717,7 @@ internal constructor(
         roundRectOutlineTopLeft = Offset.Zero
         roundRectCornerRadius = 0f
         outlineDirty = true
+        usePathForClip = false
     }
 
     /**
@@ -748,7 +749,8 @@ internal constructor(
         if (
             this.roundRectOutlineTopLeft != topLeft ||
                 this.roundRectOutlineSize != size ||
-                this.roundRectCornerRadius != cornerRadius
+                this.roundRectCornerRadius != cornerRadius ||
+                this.outlinePath != null
         ) {
             resetOutlineParams()
             this.roundRectOutlineTopLeft = topLeft

@@ -1667,6 +1667,49 @@ class AndroidGraphicsLayerTest {
         }
     }
 
+    @Test
+    fun testSwitchingFromConvexPathToRect() {
+        val bgColor = Color.Black
+        val targetColor = Color.Red
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val halfSize = size.toIntSize() / 2
+                val center = size.toIntSize().center
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        clip = true
+                        setPathOutline(
+                            // random not convex shape
+                            Path().apply {
+                                addRect(Rect(0f, 0f, 1f, 1f))
+                                addRect(Rect(2f, 2f, 3f, 3f))
+                            }
+                        )
+                        setRectOutline()
+                        record(size = halfSize) { drawRect(targetColor) }
+                        topLeft = center
+                    }
+                drawRect(bgColor)
+                drawLayer(layer)
+            },
+            verify = { pixmap ->
+                with(pixmap) {
+                    for (x in 0 until width) {
+                        for (y in 0 until height) {
+                            val expected =
+                                if (x < width / 2 || y < height / 2) {
+                                    bgColor
+                                } else {
+                                    targetColor
+                                }
+                            assertEquals(this[x, y], expected)
+                        }
+                    }
+                }
+            }
+        )
+    }
+
     private class GraphicsContextHostDrawable(
         val graphicsContext: GraphicsContext,
         val block: DrawScope.(GraphicsContext) -> Unit
