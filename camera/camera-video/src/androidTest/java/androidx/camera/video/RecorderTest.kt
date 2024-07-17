@@ -963,6 +963,23 @@ class RecorderTest(
         }
     }
 
+    @Test
+    fun canSetAudioSource() {
+        // Arrange.
+        val recorder = createRecorder(audioSource = MediaRecorder.AudioSource.VOICE_RECOGNITION)
+
+        // Assert.
+        assertThat(recorder.audioSource).isEqualTo(MediaRecorder.AudioSource.VOICE_RECOGNITION)
+
+        // Act: ensure the value is correctly propagated to the internal AudioSource instance.
+        // Start recording to create the AudioSource instance.
+        recordingSession.createRecording(recorder = recorder).startAndVerify(statusCount = 1)
+
+        // Assert.
+        assertThat(recorder.mAudioSource.mAudioSource)
+            .isEqualTo(MediaRecorder.AudioSource.VOICE_RECOGNITION)
+    }
+
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {
         // Arrange.
         val recorder = createRecorder(targetBitrate = targetBitrate)
@@ -1000,6 +1017,7 @@ class RecorderTest(
         targetBitrate: Int? = null,
         retrySetupVideoMaxCount: Int? = null,
         retrySetupVideoDelayMs: Long? = null,
+        audioSource: Int? = null,
     ): Recorder {
         val recorder =
             Recorder.Builder()
@@ -1009,7 +1027,8 @@ class RecorderTest(
                     executor?.let { setExecutor(it) }
                     videoEncoderFactory?.let { setVideoEncoderFactory(it) }
                     audioEncoderFactory?.let { setAudioEncoderFactory(it) }
-                    targetBitrate?.let { setTargetVideoEncodingBitRate(targetBitrate) }
+                    targetBitrate?.let { setTargetVideoEncodingBitRate(it) }
+                    audioSource?.let { setAudioSource(it) }
                 }
                 .build()
                 .apply {

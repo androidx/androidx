@@ -144,6 +144,8 @@ public final class AudioSource {
             double mAudioAmplitude;
     long mAmplitudeTimestamp = 0;
     private final int mAudioFormat;
+    @VisibleForTesting
+    public final int mAudioSource;
 
     /**
      * Creates an AudioSource for the given settings.
@@ -192,6 +194,7 @@ public final class AudioSource {
         mAudioStream.setCallback(new AudioStreamCallback(), mExecutor);
         mSilentAudioStream = new SilentAudioStream(settings);
         mAudioFormat = settings.getAudioFormat();
+        mAudioSource = settings.getAudioSource();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
