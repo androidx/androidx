@@ -94,7 +94,7 @@ class UtilsTest {
     }
 
     @Test
-    fun createDownMotionEvents_sixEvent() {
+    fun createDownMotionEvents_sixEventsWithSixPointers() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -162,7 +162,7 @@ class UtilsTest {
     }
 
     @Test
-    fun createUpsMotionEvents_oneEvent() {
+    fun createUpMotionEvents_oneEvent() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -201,7 +201,7 @@ class UtilsTest {
     }
 
     @Test
-    fun createUpMotionEvents_sixEvent() {
+    fun createUpMotionEvents_sixEventsWithSixPointers() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -246,7 +246,7 @@ class UtilsTest {
 
     // Tests for Move Motion Event Creation <---------------
     @Test
-    fun testCreateMoveMotionEvents_sixEventsNegativeMoveDeltaWithoutHistory() {
+    fun createMoveMotionEvents_sixEventsOnePointerNegativeMoveDeltaWithoutHistory() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -258,9 +258,11 @@ class UtilsTest {
 
         val moves =
             createMoveMotionEvents(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers =
+                    arrayOf(
+                        BenchmarkSimplifiedPointerInputPointer(id = 0, x = xMoveInitial, y = y)
+                    ),
                 rootView = view,
                 numberOfMoveEvents = numberOfEvents,
                 enableFlingStyleHistory = enableFlingStyleHistory,
@@ -283,7 +285,7 @@ class UtilsTest {
     }
 
     @Test
-    fun testCreateMoveMotionEvents_sixEventsPositiveMoveDeltaWithoutHistory() {
+    fun createMoveMotionEvents_sixEventsOnePointerPositiveMoveDeltaWithoutHistory() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -295,9 +297,11 @@ class UtilsTest {
 
         val moves =
             createMoveMotionEvents(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers =
+                    arrayOf(
+                        BenchmarkSimplifiedPointerInputPointer(id = 0, x = xMoveInitial, y = y)
+                    ),
                 rootView = view,
                 numberOfMoveEvents = numberOfEvents,
                 enableFlingStyleHistory = enableFlingStyleHistory
@@ -317,8 +321,10 @@ class UtilsTest {
         }
     }
 
+    // TODO(jjw): Add multi-pointer tests (next CL).
+
     @Test
-    fun testCreateMoveMotionEvents_sixEventsPositiveMoveDeltaWithHistory() {
+    fun createMoveMotionEvents_sixEventsOnePointerPositiveMoveDeltaWithHistory() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -330,9 +336,11 @@ class UtilsTest {
 
         val moves =
             createMoveMotionEvents(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers =
+                    arrayOf(
+                        BenchmarkSimplifiedPointerInputPointer(id = 0, x = xMoveInitial, y = y)
+                    ),
                 rootView = view,
                 numberOfMoveEvents = numberOfEvents,
                 enableFlingStyleHistory = enableFlingStyleHistory
@@ -354,7 +362,7 @@ class UtilsTest {
     }
 
     @Test
-    fun testCreateMoveMotionEvents_sixEventsNegativeMoveDeltaWithHistory() {
+    fun createMoveMotionEvents_sixEventsOnePointerNegativeMoveDeltaWithHistory() {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
@@ -366,9 +374,11 @@ class UtilsTest {
 
         val moves =
             createMoveMotionEvents(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers =
+                    arrayOf(
+                        BenchmarkSimplifiedPointerInputPointer(id = 0, x = xMoveInitial, y = y)
+                    ),
                 rootView = view,
                 numberOfMoveEvents = numberOfEvents,
                 enableFlingStyleHistory = enableFlingStyleHistory,

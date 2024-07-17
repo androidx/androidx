@@ -153,9 +153,11 @@ class ComposeOneFingerInputUIOnlyBenchmark {
 
             val moves =
                 createMoveMotionEvents(
-                    initialX = initialMoveX,
                     initialTime = initialMoveTime,
-                    y = y,
+                    initialPointers =
+                        arrayOf(
+                            BenchmarkSimplifiedPointerInputPointer(id = 0, x = initialMoveX, y = y)
+                        ),
                     rootView = rootView,
                     numberOfMoveEvents = numberOfMoves,
                     enableFlingStyleHistory = enableHistory
