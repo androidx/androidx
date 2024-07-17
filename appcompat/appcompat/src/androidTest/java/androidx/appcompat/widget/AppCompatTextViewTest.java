@@ -511,6 +511,20 @@ public class AppCompatTextViewTest
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
+    public void testFontVariation_setByBothXmlAndTextAppearance() throws InterruptedException {
+        final AppCompatTextView textView = mActivity.findViewById(
+                R.id.textview_fontVariation_textAppearance);
+
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        runCommandAndAssertBitmapChangedOrSame(textView, /* expectSame*/ true, () ->
+                instrumentation.runOnMainSync(() ->
+                        textView.setTextAppearance(R.style.TextView_FontVariation)
+                )
+        );
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
     public void testFontVariationPriority_setInXml() {
         final AppCompatTextView textView = mActivity.findViewById(
                 R.id.textview_fontVariation_textView_and_textAppearance);
@@ -576,7 +590,6 @@ public class AppCompatTextViewTest
             before.recycle();
         }
     }
-
 
     @Test
     @UiThreadTest
