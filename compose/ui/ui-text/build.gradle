@@ -59,8 +59,6 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation(libs.junit)
-                implementation(libs.truth)
             }
         }
 
