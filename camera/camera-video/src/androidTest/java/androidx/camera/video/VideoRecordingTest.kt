@@ -66,6 +66,7 @@ import androidx.camera.testing.impl.getRotatedAspectRatio
 import androidx.camera.testing.impl.getRotation
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.camera.testing.impl.useAndRelease
+import androidx.camera.testing.impl.video.Recording
 import androidx.camera.testing.impl.video.RecordingSession
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.lifecycle.LifecycleOwner
@@ -403,13 +404,16 @@ class VideoRecordingTest(
         // Act: Ensure the Recorder is initialized before start test.
         recordingSession.createRecording().startAndVerify().stop()
 
-        instrumentation.runOnMainSync { lifecycleOwner.pauseAndStop() }
-        recordingSession.createRecording().apply {
-            start()
+        lateinit var recording: Recording
+        instrumentation.runOnMainSync {
+            lifecycleOwner.pauseAndStop()
 
-            // Verify.
-            verifyFinalize(error = ERROR_SOURCE_INACTIVE)
+            // TODO(b/353578694): call start() in main thread to workaround the race condition.
+            recording = recordingSession.createRecording().start()
         }
+
+        // Verify.
+        recording.verifyFinalize(error = ERROR_SOURCE_INACTIVE)
     }
 
     @Test
