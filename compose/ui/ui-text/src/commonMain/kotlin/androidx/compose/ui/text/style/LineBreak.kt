@@ -21,6 +21,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.style.LineBreak.Companion.Heading
 import androidx.compose.ui.text.style.LineBreak.Companion.Paragraph
 import androidx.compose.ui.text.style.LineBreak.Companion.Simple
+import kotlin.jvm.JvmInline
 
 /**
  * When soft wrap is enabled and the width of the text exceeds the width of its container, line
@@ -40,6 +41,7 @@ import androidx.compose.ui.text.style.LineBreak.Companion.Simple
  *
  * @sample androidx.compose.ui.text.samples.AndroidLineBreakSample
  */
+@JvmInline
 @Immutable
 expect value class LineBreak private constructor(internal val mask: Int) {
     companion object {
