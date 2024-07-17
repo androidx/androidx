@@ -323,6 +323,7 @@ fun SplitSwitchButton(
 
         val splitBackground = colors.splitContainerColor(enabled, checked).value
         Box(
+            contentAlignment = Alignment.Center,
             modifier =
                 Modifier.toggleable(
                         enabled = enabled,
@@ -340,8 +341,7 @@ fun SplitSwitchButton(
                             drawContent()
                         }
                     }
-                    .align(Alignment.CenterVertically)
-                    .width(SPLIT_WIDTH)
+                    .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
                     .padding(contentPadding)
         ) {
@@ -1822,7 +1822,7 @@ private val TOGGLE_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
 
-private val SPLIT_WIDTH = 60.dp
+private val SPLIT_MIN_WIDTH = 48.dp
 private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =
