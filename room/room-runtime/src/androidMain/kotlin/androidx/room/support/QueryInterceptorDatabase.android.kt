@@ -23,12 +23,13 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
-import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-/** Implements [SupportSQLiteDatabase] for SQLite queries. */
+/** Implements [SupportSQLiteDatabase] for intercepting SQLite queries. */
 internal class QueryInterceptorDatabase(
     private val delegate: SupportSQLiteDatabase,
-    private val queryCallbackExecutor: Executor,
+    private val queryCallbackScope: CoroutineScope,
     private val queryCallback: RoomDatabase.QueryCallback
 ) : SupportSQLiteDatabase by delegate {
 
@@ -36,27 +37,27 @@ internal class QueryInterceptorDatabase(
         return QueryInterceptorStatement(
             delegate.compileStatement(sql),
             sql,
-            queryCallbackExecutor,
+            queryCallbackScope,
             queryCallback,
         )
     }
 
     override fun beginTransaction() {
-        queryCallbackExecutor.execute {
+        queryCallbackScope.launch {
             queryCallback.onQuery("BEGIN EXCLUSIVE TRANSACTION", emptyList())
         }
         delegate.beginTransaction()
     }
 
     override fun beginTransactionNonExclusive() {
-        queryCallbackExecutor.execute {
+        queryCallbackScope.launch {
             queryCallback.onQuery("BEGIN DEFERRED TRANSACTION", emptyList())
         }
         delegate.beginTransactionNonExclusive()
     }
 
     override fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener) {
-        queryCallbackExecutor.execute {
+        queryCallbackScope.launch {
             queryCallback.onQuery("BEGIN EXCLUSIVE TRANSACTION", emptyList())
         }
         delegate.beginTransactionWithListener(transactionListener)
@@ -65,38 +66,37 @@ internal class QueryInterceptorDatabase(
     override fun beginTransactionWithListenerNonExclusive(
         transactionListener: SQLiteTransactionListener
     ) {
-        queryCallbackExecutor.execute {
+        queryCallbackScope.launch {
             queryCallback.onQuery("BEGIN DEFERRED TRANSACTION", emptyList())
         }
         delegate.beginTransactionWithListenerNonExclusive(transactionListener)
     }
 
     override fun endTransaction() {
-        queryCallbackExecutor.execute { queryCallback.onQuery("END TRANSACTION", emptyList()) }
+        queryCallbackScope.launch { queryCallback.onQuery("END TRANSACTION", emptyList()) }
         delegate.endTransaction()
     }
 
     override fun setTransactionSuccessful() {
-        queryCallbackExecutor.execute {
-            queryCallback.onQuery("TRANSACTION SUCCESSFUL", emptyList())
-        }
+        queryCallbackScope.launch { queryCallback.onQuery("TRANSACTION SUCCESSFUL", emptyList()) }
         delegate.setTransactionSuccessful()
     }
 
     override fun query(query: String): Cursor {
-        queryCallbackExecutor.execute { queryCallback.onQuery(query, emptyList()) }
+        queryCallbackScope.launch { queryCallback.onQuery(query, emptyList()) }
         return delegate.query(query)
     }
 
     override fun query(query: String, bindArgs: Array<out Any?>): Cursor {
-        queryCallbackExecutor.execute { queryCallback.onQuery(query, bindArgs.toList()) }
+        val argsCopy = bindArgs.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(query, argsCopy) }
         return delegate.query(query, bindArgs)
     }
 
     override fun query(query: SupportSQLiteQuery): Cursor {
         val queryInterceptorProgram = QueryInterceptorProgram()
         query.bindTo(queryInterceptorProgram)
-        queryCallbackExecutor.execute {
+        queryCallbackScope.launch {
             queryCallback.onQuery(query.sql, queryInterceptorProgram.bindArgsCache)
         }
         return delegate.query(query)
@@ -105,7 +105,7 @@ internal class QueryInterceptorDatabase(
     override fun query(query: SupportSQLiteQuery, cancellationSignal: CancellationSignal?): Cursor {
         val queryInterceptorProgram = QueryInterceptorProgram()
         query.bindTo(queryInterceptorProgram)
-        queryCallbackExecutor.execute {
+        queryCallbackScope.launch {
             queryCallback.onQuery(query.sql, queryInterceptorProgram.bindArgsCache)
         }
         return delegate.query(query)
@@ -115,7 +115,7 @@ internal class QueryInterceptorDatabase(
     // and it can't be renamed.
     @Suppress("AcronymName")
     override fun execSQL(sql: String) {
-        queryCallbackExecutor.execute { queryCallback.onQuery(sql, emptyList()) }
+        queryCallbackScope.launch { queryCallback.onQuery(sql, emptyList()) }
         delegate.execSQL(sql)
     }
 
@@ -123,8 +123,8 @@ internal class QueryInterceptorDatabase(
     // and it can't be renamed.
     @Suppress("AcronymName")
     override fun execSQL(sql: String, bindArgs: Array<out Any?>) {
-        val inputArguments = buildList { addAll(bindArgs) }
-        queryCallbackExecutor.execute { queryCallback.onQuery(sql, inputArguments) }
-        delegate.execSQL(sql, inputArguments.toTypedArray())
+        val argsCopy = bindArgs.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(sql, argsCopy) }
+        delegate.execSQL(sql, bindArgs)
     }
 }

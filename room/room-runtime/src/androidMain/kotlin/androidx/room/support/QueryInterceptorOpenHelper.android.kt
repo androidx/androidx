@@ -20,26 +20,24 @@ import androidx.room.DelegatingOpenHelper
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
 
 internal class QueryInterceptorOpenHelper(
     override val delegate: SupportSQLiteOpenHelper,
-    private val queryCallbackExecutor: Executor,
     private val queryCallback: RoomDatabase.QueryCallback
 ) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
+
+    private lateinit var queryCallbackScope: CoroutineScope
+
+    internal fun initCoroutineScope(coroutineScope: CoroutineScope) {
+        this.queryCallbackScope = coroutineScope
+    }
+
     override val writableDatabase: SupportSQLiteDatabase
         get() =
-            QueryInterceptorDatabase(
-                delegate.writableDatabase,
-                queryCallbackExecutor,
-                queryCallback
-            )
+            QueryInterceptorDatabase(delegate.writableDatabase, queryCallbackScope, queryCallback)
 
     override val readableDatabase: SupportSQLiteDatabase
         get() =
-            QueryInterceptorDatabase(
-                delegate.readableDatabase,
-                queryCallbackExecutor,
-                queryCallback
-            )
+            QueryInterceptorDatabase(delegate.readableDatabase, queryCallbackScope, queryCallback)
 }

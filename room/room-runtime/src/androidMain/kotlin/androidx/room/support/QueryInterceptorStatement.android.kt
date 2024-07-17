@@ -18,40 +18,46 @@ package androidx.room.support
 
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteStatement
-import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-/** Implements an instance of [SupportSQLiteStatement] for SQLite queries. */
+/** Implements an instance of [SupportSQLiteStatement] for intercepting SQLite queries. */
 internal class QueryInterceptorStatement(
     private val delegate: SupportSQLiteStatement,
     private val sqlStatement: String,
-    private val queryCallbackExecutor: Executor,
+    private val queryCallbackScope: CoroutineScope,
     private val queryCallback: RoomDatabase.QueryCallback,
 ) : SupportSQLiteStatement by delegate {
 
     private val bindArgsCache = mutableListOf<Any?>()
 
     override fun execute() {
-        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
+        val argsCopy = bindArgsCache.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(sqlStatement, argsCopy) }
         delegate.execute()
     }
 
     override fun executeUpdateDelete(): Int {
-        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
+        val argsCopy = bindArgsCache.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(sqlStatement, argsCopy) }
         return delegate.executeUpdateDelete()
     }
 
     override fun executeInsert(): Long {
-        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
+        val argsCopy = bindArgsCache.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(sqlStatement, argsCopy) }
         return delegate.executeInsert()
     }
 
     override fun simpleQueryForLong(): Long {
-        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
+        val argsCopy = bindArgsCache.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(sqlStatement, argsCopy) }
         return delegate.simpleQueryForLong()
     }
 
     override fun simpleQueryForString(): String? {
-        queryCallbackExecutor.execute { queryCallback.onQuery(sqlStatement, bindArgsCache) }
+        val argsCopy = bindArgsCache.toList()
+        queryCallbackScope.launch { queryCallback.onQuery(sqlStatement, argsCopy) }
         return delegate.simpleQueryForString()
     }
 
