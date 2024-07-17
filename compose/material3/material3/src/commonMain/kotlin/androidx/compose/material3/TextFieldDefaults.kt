@@ -117,10 +117,7 @@ object TextFieldDefaults {
      *   [MutableInteractionSource] instance to the [BasicTextField] for it to dispatch events. And
      *   then pass the same instance to this decorator to observe [Interaction]s and customize the
      *   appearance/behavior of the text field in different states.
-     * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults
-     *   to `false`, so the label will expand to occupy the input area when the text field is
-     *   unfocused and empty. When `true`, this allows displaying the [placeholder], [prefix], and
-     *   [suffix] alongside the [label] when the text field is unfocused and empty.
+     * @param labelPosition the position of the label. See [TextFieldLabelPosition].
      * @param label the optional label to be displayed with this text field. The default text style
      *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the input text is empty. The
@@ -152,7 +149,7 @@ object TextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        alwaysMinimizeLabel: Boolean = false,
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
         label: @Composable (() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -163,7 +160,7 @@ object TextFieldDefaults {
         isError: Boolean = false,
         colors: TextFieldColors = colors(),
         contentPadding: PaddingValues =
-            if (label == null) {
+            if (label == null || labelPosition == TextFieldLabelPosition.Above) {
                 contentPaddingWithoutLabel()
             } else {
                 contentPaddingWithLabel()
@@ -197,7 +194,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            alwaysMinimizeLabel = alwaysMinimizeLabel,
+            labelPosition = labelPosition,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -210,7 +207,7 @@ object TextFieldDefaults {
             interactionSource = interactionSource,
             colors = colors,
             contentPadding = contentPadding,
-            container = container
+            container = container,
         )
     }
 
@@ -424,7 +421,7 @@ object TextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            alwaysMinimizeLabel = false,
+            labelPosition = TextFieldLabelPosition.Default(),
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -437,14 +434,14 @@ object TextFieldDefaults {
             interactionSource = interactionSource,
             colors = colors,
             contentPadding = contentPadding,
-            container = container
+            container = container,
         )
     }
 
     /**
-     * Default content padding of the input field within the [TextField] when there is a label,
-     * except for the top padding, which instead represents the padding of the label in the focused
-     * state. The input field is placed directly beneath the label.
+     * Default content padding of the input field within the [TextField] when there is an inside
+     * label. Note that the top padding represents the padding above the label in the focused state.
+     * The input field is placed directly beneath the label.
      *
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
@@ -457,7 +454,8 @@ object TextFieldDefaults {
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
     /**
-     * Default content padding of the input field within the [TextField] when the label is null.
+     * Default content padding of the input field within the [TextField] when the label is null or
+     * positioned [TextFieldLabelPosition.Above].
      *
      * Horizontal padding represents the distance between the input field and the leading/trailing
      * icons (if present) or the horizontal edges of the container if there are no icons.
@@ -928,10 +926,7 @@ object OutlinedTextFieldDefaults {
      *   [MutableInteractionSource] instance to the [BasicTextField] for it to dispatch events. And
      *   then pass the same instance to this decorator to observe [Interaction]s and customize the
      *   appearance/behavior of the text field in different states.
-     * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults
-     *   to `false`, so the label will expand to occupy the input area when the text field is
-     *   unfocused and empty. When `true`, this allows displaying the [placeholder], [prefix], and
-     *   [suffix] alongside the [label] when the text field is unfocused and empty.
+     * @param labelPosition the position of the label. See [TextFieldLabelPosition].
      * @param label the optional label to be displayed with this text field. The default text style
      *   uses [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
      * @param placeholder the optional placeholder to be displayed when the input text is empty. The
@@ -964,7 +959,7 @@ object OutlinedTextFieldDefaults {
         lineLimits: TextFieldLineLimits,
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
-        alwaysMinimizeLabel: Boolean = false,
+        labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
         label: @Composable (() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
@@ -1004,7 +999,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            alwaysMinimizeLabel = alwaysMinimizeLabel,
+            labelPosition = labelPosition,
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1017,7 +1012,7 @@ object OutlinedTextFieldDefaults {
             interactionSource = interactionSource,
             colors = colors,
             contentPadding = contentPadding,
-            container = container
+            container = container,
         )
     }
 
@@ -1173,7 +1168,7 @@ object OutlinedTextFieldDefaults {
             visualText = visualText,
             innerTextField = innerTextField,
             placeholder = placeholder,
-            alwaysMinimizeLabel = false,
+            labelPosition = TextFieldLabelPosition.Default(),
             label = label,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -1186,7 +1181,7 @@ object OutlinedTextFieldDefaults {
             interactionSource = interactionSource,
             colors = colors,
             contentPadding = contentPadding,
-            container = container
+            container = container,
         )
     }
 
@@ -1982,4 +1977,51 @@ constructor(
         result = 31 * result + errorSuffixColor.hashCode()
         return result
     }
+}
+
+/** The position of the label with respect to the text field. */
+abstract class TextFieldLabelPosition private constructor() {
+    /**
+     * The default label position.
+     *
+     * For [TextField], the label is positioned inside the text field container. For
+     * [OutlinedTextField], the label is positioned inside the text field container when expanded
+     * and cuts into the border when minimized.
+     */
+    class Default(@get:Suppress("GetterSetterNames") override val alwaysMinimize: Boolean = false) :
+        TextFieldLabelPosition() {
+        override fun toString(): String = "Default(alwaysMinimize=$alwaysMinimize)"
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Default) return false
+
+            return alwaysMinimize == other.alwaysMinimize
+        }
+
+        override fun hashCode(): Int {
+            return alwaysMinimize.hashCode()
+        }
+    }
+
+    /**
+     * The label is positioned above and outside the text field container. This results in the label
+     * always being minimized.
+     */
+    object Above : TextFieldLabelPosition() {
+        @get:Suppress("GetterSetterNames")
+        override val alwaysMinimize: Boolean
+            get() = true
+
+        override fun toString(): String = "Above"
+    }
+
+    /**
+     * Whether to always keep the label of the text field minimized.
+     *
+     * If `false`, the label will expand to occupy the input area when the text field is unfocused
+     * and empty. If `true`, this allows displaying the placeholder, prefix, and suffix alongside
+     * the label when the text field is unfocused and empty.
+     */
+    @get:Suppress("GetterSetterNames") abstract val alwaysMinimize: Boolean
 }

@@ -50,6 +50,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -155,7 +156,7 @@ fun TextFieldWithPlaceholder() {
             state = rememberTextFieldState(),
             lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text("Email") },
-            alwaysMinimizeLabel = alwaysMinimizeLabel,
+            labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = alwaysMinimizeLabel),
             placeholder = { Text("example@gmail.com") }
         )
     }
@@ -176,7 +177,7 @@ fun TextFieldWithPrefixAndSuffix() {
             state = rememberTextFieldState(),
             lineLimits = TextFieldLineLimits.SingleLine,
             label = { Text("Label") },
-            alwaysMinimizeLabel = alwaysMinimizeLabel,
+            labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = alwaysMinimizeLabel),
             prefix = { Text("www.") },
             suffix = { Text(".com") },
             placeholder = { Text("google") },

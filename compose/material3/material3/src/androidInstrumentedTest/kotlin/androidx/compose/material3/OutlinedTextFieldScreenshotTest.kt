@@ -593,13 +593,33 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Above,
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+                placeholder = { Text("Placeholder") },
+                supportingText = { Text("Supporting") },
+            )
+        }
+
+        assertAgainstGolden(
+            "outlinedTextField_labelPositionAbove_withIcons_andPlaceholder_andSupporting"
+        )
+    }
+
+    @Test
     fun outlinedTextField_alwaysMinimizeLabel_noPlaceholder() {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                alwaysMinimizeLabel = true,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
             )
         }
 
@@ -613,7 +633,7 @@ class OutlinedTextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                alwaysMinimizeLabel = true,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
                 placeholder = { Text("Placeholder") },
             )
         }

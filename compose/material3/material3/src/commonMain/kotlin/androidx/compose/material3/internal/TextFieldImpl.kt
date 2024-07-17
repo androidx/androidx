@@ -34,6 +34,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldLayout
 import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldLabelPosition
 import androidx.compose.material3.TextFieldLayout
 import androidx.compose.material3.outlineCutout
 import androidx.compose.runtime.Composable
@@ -73,7 +74,7 @@ internal fun CommonDecorationBox(
     type: TextFieldType,
     visualText: CharSequence,
     innerTextField: @Composable () -> Unit,
-    alwaysMinimizeLabel: Boolean,
+    labelPosition: TextFieldLabelPosition,
     label: @Composable (() -> Unit)?,
     placeholder: @Composable (() -> Unit)?,
     leadingIcon: @Composable (() -> Unit)?,
@@ -117,7 +118,7 @@ internal fun CommonDecorationBox(
                 if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
             },
         labelColor = labelColor,
-        showExpandedLabel = label != null && !alwaysMinimizeLabel,
+        showExpandedLabel = label != null && !labelPosition.alwaysMinimize,
     ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlpha, prefixSuffixAlpha
         ->
         val labelProgressValue = labelProgress.value
@@ -231,6 +232,7 @@ internal fun CommonDecorationBox(
                     container = containerWithId,
                     supporting = decoratedSupporting,
                     singleLine = singleLine,
+                    labelPosition = labelPosition,
                     // TODO(b/271000818): progress state read should be deferred to layout phase
                     labelProgress = labelProgressValue,
                     paddingValues = contentPadding
@@ -261,6 +263,9 @@ internal fun CommonDecorationBox(
                     supporting = decoratedSupporting,
                     singleLine = singleLine,
                     onLabelMeasured = {
+                        if (labelPosition !is TextFieldLabelPosition.Default) {
+                            return@OutlinedTextFieldLayout
+                        }
                         val labelWidth = it.width * labelProgressValue
                         val labelHeight = it.height * labelProgressValue
                         if (
@@ -270,6 +275,7 @@ internal fun CommonDecorationBox(
                             cutoutSize.value = Size(labelWidth, labelHeight)
                         }
                     },
+                    labelPosition = labelPosition,
                     // TODO(b/271000818): progress state read should be deferred to layout phase
                     labelProgress = labelProgressValue,
                     container = borderContainerWithId,
@@ -472,6 +478,8 @@ internal val TextFieldPadding = 16.dp
 // SP not DP because it should scale with font size. Value equal to bodySmall line height / 2.
 internal val TextFieldLabelExtraPadding = 8.sp
 internal val HorizontalIconPadding = 12.dp
+internal val AboveLabelHorizontalPadding = 4.dp
+internal val AboveLabelBottomPadding = 4.dp
 internal val SupportingTopPadding = 4.dp
 internal val PrefixSuffixTextPadding = 2.dp
 internal val MinTextLineHeight = 24.dp

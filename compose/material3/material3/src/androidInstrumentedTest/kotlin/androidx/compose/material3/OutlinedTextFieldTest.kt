@@ -40,6 +40,8 @@ import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.internal.AboveLabelBottomPadding
+import androidx.compose.material3.internal.AboveLabelHorizontalPadding
 import androidx.compose.material3.internal.HorizontalIconPadding
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
 import androidx.compose.material3.internal.MinSupportingTextLineHeight
@@ -76,6 +78,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
@@ -396,6 +399,35 @@ class OutlinedTextFieldTest {
             assertThat(labelPosition.value?.y)
                 .isWithin(1f)
                 .of(getLabelPosition(labelSize.value!!.height).toFloat())
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelPosition_whenPositionedAbove() {
+        val labelPosition = Ref<Offset>()
+        rule
+            .setMaterialContentForSizeAssertions {
+                OutlinedTextField(
+                    state = rememberTextFieldState(),
+                    label = {
+                        Box(
+                            Modifier.size(MinFocusedLabelLineHeight).onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
+                        )
+                    },
+                    labelPosition = TextFieldLabelPosition.Above,
+                )
+            }
+            .assertHeightIsEqualTo(
+                MinFocusedLabelLineHeight + AboveLabelBottomPadding + ExpectedMinimumTextFieldHeight
+            )
+
+        rule.runOnIdleWithDensity {
+            // x position is padding
+            assertThat(labelPosition.value?.x).isWithin(1f).of(AboveLabelHorizontalPadding.toPx())
+            // y position is 0
+            assertThat(labelPosition.value?.y).isEqualTo(0f)
         }
     }
 
@@ -910,7 +942,7 @@ class OutlinedTextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                alwaysMinimizeLabel = false,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = false),
             )
         }
 
@@ -934,7 +966,30 @@ class OutlinedTextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                alwaysMinimizeLabel = true,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+            )
+        }
+
+        rule.onNodeWithText(labelText).assertIsDisplayed()
+        rule.onNodeWithText(prefixText).assertIsDisplayed()
+        rule.onNodeWithText(suffixText).assertIsDisplayed()
+        rule.onNodeWithText(placeholderText).assertIsDisplayed()
+    }
+
+    @Test
+    fun testOutlinedTextField_prefixAndSuffixAndPlaceholder_areDisplayed_withLabel_ifLabelIsAbove() {
+        val labelText = "Label"
+        val prefixText = "Prefix"
+        val suffixText = "Suffix"
+        val placeholderText = "Placeholder"
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                label = { Text(labelText) },
+                prefix = { Text(prefixText) },
+                suffix = { Text(suffixText) },
+                placeholder = { Text(placeholderText) },
+                labelPosition = TextFieldLabelPosition.Above,
             )
         }
 
