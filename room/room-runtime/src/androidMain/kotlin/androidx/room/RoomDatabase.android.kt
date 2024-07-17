@@ -1606,8 +1606,11 @@ actual abstract class RoomDatabase {
                                 "Cannot create auto-closing database for an in-memory database."
                             }
                             val autoCloser =
-                                AutoCloser(autoCloseTimeout, requireNotNull(autoCloseTimeUnit))
-                            AutoClosingRoomOpenHelperFactory(it, autoCloser)
+                                AutoCloser(
+                                    timeoutAmount = autoCloseTimeout,
+                                    timeUnit = requireNotNull(autoCloseTimeUnit)
+                                )
+                            AutoClosingRoomOpenHelperFactory(delegate = it, autoCloser = autoCloser)
                         } else {
                             it
                         }
@@ -1638,10 +1641,10 @@ actual abstract class RoomDatabase {
                                     "three configurations."
                             }
                             PrePackagedCopyOpenHelperFactory(
-                                copyFromAssetPath,
-                                copyFromFile,
-                                copyFromInputStream,
-                                it
+                                copyFromAssetPath = copyFromAssetPath,
+                                copyFromFile = copyFromFile,
+                                copyFromInputStream = copyFromInputStream,
+                                delegate = it
                             )
                         } else {
                             it
@@ -1649,7 +1652,10 @@ actual abstract class RoomDatabase {
                     }
                     ?.let {
                         if (queryCallback != null) {
-                            QueryInterceptorOpenHelperFactory(it, requireNotNull(queryCallback))
+                            QueryInterceptorOpenHelperFactory(
+                                delegate = it,
+                                queryCallback = requireNotNull(queryCallback)
+                            )
                         } else {
                             it
                         }
