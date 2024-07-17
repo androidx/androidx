@@ -941,8 +941,7 @@ class VideoRecordingTest(
         )
 
         checkAndBindUseCases(preview, videoCapture)
-        val recording =
-            recordingSession.createRecording(asPersistentRecording = true).startAndVerify()
+        recordingSession.createRecording(asPersistentRecording = true).startAndVerify()
 
         // Act.
         instrumentation.runOnMainSync { lifecycleOwner.pauseAndStop() }
@@ -951,15 +950,6 @@ class VideoRecordingTest(
             false,
             "Lifecycle stopped but camera still in video usage"
         )
-
-        // Clean-up.
-        // TODO(b/353113961): To avoid audio codec leak, resume lifecycle then stop the recording.
-        instrumentation.runOnMainSync { lifecycleOwner.startAndResume() }
-        // Delay a bit by checking status to avoid crash as the stack in b/342977497.
-        recording.verifyStatus()
-        recording.stopAndVerify()
-
-        Unit
     }
 
     // TODO: b/341691683 - Add tests for multiple VideoCapture bound and recording concurrently
