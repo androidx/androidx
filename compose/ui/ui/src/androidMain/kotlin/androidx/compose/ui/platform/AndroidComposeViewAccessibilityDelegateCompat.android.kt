@@ -766,7 +766,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         // Set a classname for text nodes before setting a classname based on a role ensuring that
         // the latter if present wins (see b/343392125)
-        if (semanticsNode.unmergedConfig.contains(SemanticsActions.SetText)) {
+        if (semanticsNode.unmergedConfig.contains(SemanticsProperties.EditableText)) {
             info.className = TextFieldClassName
         }
         if (semanticsNode.unmergedConfig.contains(SemanticsProperties.Text)) {
@@ -1355,7 +1355,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             }
         }
 
-        if (node.unmergedConfig.contains(SemanticsActions.SetText)) {
+        if (node.unmergedConfig.contains(SemanticsProperties.EditableText)) {
             stateDescription = createStateDescriptionForTextField(node)
         }
 
@@ -2612,7 +2612,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             val newNodeIsPassword =
                                 newNode.unmergedConfig.contains(SemanticsProperties.Password)
                             val oldNodeIsTextfield =
-                                oldNode.unmergedConfig.contains(SemanticsActions.SetText)
+                                oldNode.unmergedConfig.contains(SemanticsProperties.EditableText)
 
                             // (b/247891690) We won't send a text change event when we only toggle
                             // the password visibility of the node
@@ -3148,7 +3148,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
             return node.unmergedConfig[SemanticsProperties.ContentDescription].fastJoinToString(",")
         }
 
-        if (node.unmergedConfig.contains(SemanticsActions.SetText)) {
+        if (node.unmergedConfig.contains(SemanticsProperties.EditableText)) {
             return node.unmergedConfig.getTextForTextField()?.text
         }
 
@@ -3263,7 +3263,7 @@ private val SemanticsNode.isRtl
 private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
     // text field that is not in focus
     if (
-        unmergedConfig.contains(SemanticsActions.SetText) &&
+        unmergedConfig.contains(SemanticsProperties.EditableText) &&
             unmergedConfig.getOrNull(SemanticsProperties.Focused) != true
     )
         return true
@@ -3274,7 +3274,7 @@ private fun SemanticsNode.excludeLineAndPageGranularities(): Boolean {
             // looking for text field merging node
             val ancestorSemanticsConfiguration = it.collapsedSemantics
             ancestorSemanticsConfiguration?.isMergingSemanticsOfDescendants == true &&
-                ancestorSemanticsConfiguration.contains(SemanticsActions.SetText)
+                ancestorSemanticsConfiguration.contains(SemanticsProperties.EditableText)
         }
     return ancestor != null &&
         ancestor.collapsedSemantics?.getOrNull(SemanticsProperties.Focused) != true

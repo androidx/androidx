@@ -48,7 +48,7 @@ fun SemanticsNodeInteraction.performTextInput(text: String) {
  */
 @ExperimentalTestApi
 fun SemanticsNodeInteraction.performTextInputSelection(selection: TextRange) {
-    getNodeAndFocus()
+    getNodeAndFocus(requireEditable = false)
     performSemanticsAction(SemanticsActions.SetSelection) {
         // Pass true as the last parameter since this range is relative to the text before any
         // VisualTransformation is applied.
@@ -83,7 +83,7 @@ fun SemanticsNodeInteraction.performImeAction() {
     assert(hasPerformImeAction()) { errorOnFail }
     assert(!hasImeAction(ImeAction.Default)) { errorOnFail }
     @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
-    val node = getNodeAndFocus(errorOnFail)
+    val node = getNodeAndFocus(errorOnFail, requireEditable = false)
 
     wrapAssertionErrorsWithNodeInfo(selector, node) {
         performSemanticsAction(OnImeAction) {
@@ -99,14 +99,18 @@ fun SemanticsNodeInteraction.performImeAction() {
 }
 
 private fun SemanticsNodeInteraction.getNodeAndFocus(
-    errorOnFail: String = "Failed to perform text input."
+    errorOnFail: String = "Failed to perform text input.",
+    requireEditable: Boolean = true
 ): SemanticsNode {
     @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     val node = fetchSemanticsNode(errorOnFail)
     assert(isEnabled()) { errorOnFail }
-    assert(hasSetTextAction()) { errorOnFail }
     assert(hasRequestFocusAction()) { errorOnFail }
-    assert(hasInsertTextAtCursorAction()) { errorOnFail }
+    if (requireEditable) {
+        assert(isEditable()) { errorOnFail }
+        assert(hasSetTextAction()) { errorOnFail }
+        assert(hasInsertTextAtCursorAction()) { errorOnFail }
+    }
 
     if (!isFocused().matches(node)) {
         // Get focus
