@@ -18,8 +18,6 @@ package androidx.compose.ui.draganddrop
 
 import androidx.compose.ui.geometry.Offset
 
-// TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
-
 actual class DragAndDropTransferData
 
 actual class DragAndDropEvent

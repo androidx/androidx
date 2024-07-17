@@ -554,7 +554,9 @@ public final class androidx/compose/ui/awt/SwingPanel_desktopKt {
 
 public final class androidx/compose/ui/draganddrop/DragAndDropEvent {
 	public static final field $stable I
-	public fun <init> ()V
+	public synthetic fun <init> (Landroidx/compose/ui/draganddrop/DragAndDropTransferAction;Ljava/lang/Object;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getAction ()Landroidx/compose/ui/draganddrop/DragAndDropTransferAction;
+	public final fun getNativeEvent ()Ljava/lang/Object;
 }
 
 public abstract interface class androidx/compose/ui/draganddrop/DragAndDropModifierNode : androidx/compose/ui/draganddrop/DragAndDropTarget, androidx/compose/ui/node/DelegatableNode {
@@ -577,9 +579,35 @@ public abstract interface class androidx/compose/ui/draganddrop/DragAndDropTarge
 	public fun onStarted (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
 }
 
+public final class androidx/compose/ui/draganddrop/DragAndDropTransferAction {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/ui/draganddrop/DragAndDropTransferAction$Companion;
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/ui/draganddrop/DragAndDropTransferAction$Companion {
+	public final fun getCopy ()Landroidx/compose/ui/draganddrop/DragAndDropTransferAction;
+	public final fun getLink ()Landroidx/compose/ui/draganddrop/DragAndDropTransferAction;
+	public final fun getMove ()Landroidx/compose/ui/draganddrop/DragAndDropTransferAction;
+}
+
 public final class androidx/compose/ui/draganddrop/DragAndDropTransferData {
 	public static final field $stable I
-	public fun <init> ()V
+	public synthetic fun <init> (Landroidx/compose/ui/draganddrop/DragAndDropTransferable;Ljava/lang/Iterable;JLkotlin/jvm/functions/Function1;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Landroidx/compose/ui/draganddrop/DragAndDropTransferable;Ljava/lang/Iterable;JLkotlin/jvm/functions/Function1;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getDragDecorationOffset-F1C5BW0 ()J
+	public final fun getOnTransferCompleted ()Lkotlin/jvm/functions/Function1;
+	public final fun getSupportedActions ()Ljava/lang/Iterable;
+	public final fun getTransferable ()Landroidx/compose/ui/draganddrop/DragAndDropTransferable;
+}
+
+public abstract interface class androidx/compose/ui/draganddrop/DragAndDropTransferable {
+}
+
+public final class androidx/compose/ui/draganddrop/DragAndDrop_desktopKt {
+	public static final fun DragAndDropTransferable (Ljava/awt/datatransfer/Transferable;)Landroidx/compose/ui/draganddrop/DragAndDropTransferable;
+	public static final fun dragData (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Landroidx/compose/ui/DragData;
+	public static final fun getAwtTransferable (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Ljava/awt/datatransfer/Transferable;
 }
 
 public final class androidx/compose/ui/draw/AlphaKt {
@@ -3258,6 +3286,7 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public fun convertLocalToWindowPosition-MK-Hz9U (J)J
 	public fun convertScreenToLocalPosition-MK-Hz9U (J)J
 	public fun convertWindowToLocalPosition-MK-Hz9U (J)J
+	public fun createDragAndDropManager ()Landroidx/compose/ui/platform/PlatformDragAndDropManager;
 	public abstract fun getInputModeManager ()Landroidx/compose/ui/input/InputModeManager;
 	public fun getMeasureDrawLayerBounds ()Z
 	public fun getParentFocusManager ()Landroidx/compose/ui/focus/FocusManager;
@@ -3286,6 +3315,13 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext$Sem
 	public abstract fun onSemanticsChange (Landroidx/compose/ui/semantics/SemanticsOwner;)V
 	public abstract fun onSemanticsOwnerAppended (Landroidx/compose/ui/semantics/SemanticsOwner;)V
 	public abstract fun onSemanticsOwnerRemoved (Landroidx/compose/ui/semantics/SemanticsOwner;)V
+}
+
+public abstract interface class androidx/compose/ui/platform/PlatformDragAndDropManager {
+	public abstract fun drag-12SF9DM (Landroidx/compose/ui/draganddrop/DragAndDropTransferData;JLkotlin/jvm/functions/Function1;)Z
+	public abstract fun getModifier ()Landroidx/compose/ui/Modifier;
+	public abstract fun isInterestedNode (Landroidx/compose/ui/draganddrop/DragAndDropModifierNode;)Z
+	public abstract fun registerNodeInterest (Landroidx/compose/ui/draganddrop/DragAndDropModifierNode;)V
 }
 
 public final class androidx/compose/ui/platform/PlatformInsets {
