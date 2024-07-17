@@ -463,7 +463,8 @@ internal fun CoreTextField(
             this.textSelectionRange = value.selection
             if (!enabled) this.disabled()
             if (isPassword) this.password()
-            isEditable = enabled && !readOnly
+            val editable = enabled && !readOnly
+            isEditable = editable
             getTextLayoutResult {
                 if (state.layoutResult != null) {
                     it.add(state.layoutResult!!.value)
@@ -472,62 +473,60 @@ internal fun CoreTextField(
                     false
                 }
             }
-            setText { text ->
-                if (readOnly || !enabled) return@setText false
-
-                // If the action is performed while in an active text editing session, treat this
-                // like
-                // an IME command and update the text by going through the buffer. This keeps the
-                // buffer
-                // state consistent if other IME commands are performed before the next
-                // recomposition,
-                // and is used for the testing code path.
-                state.inputSession?.let { session ->
-                    TextFieldDelegate.onEditCommand(
-                        ops = listOf(DeleteAllCommand(), CommitTextCommand(text, 1)),
-                        editProcessor = state.processor,
-                        state.onValueChange,
-                        session
-                    )
-                }
-                    ?: run {
-                        state.onValueChange(TextFieldValue(text.text, TextRange(text.text.length)))
+            if (editable) {
+                setText { text ->
+                    // If the action is performed while in an active text editing session, treat
+                    // this like an IME command and update the text by going through the buffer.
+                    // This keeps the buffer state consistent if other IME commands are performed
+                    // before the next recomposition, and is used for the testing code path.
+                    state.inputSession?.let { session ->
+                        TextFieldDelegate.onEditCommand(
+                            ops = listOf(DeleteAllCommand(), CommitTextCommand(text, 1)),
+                            editProcessor = state.processor,
+                            state.onValueChange,
+                            session
+                        )
                     }
-                true
-            }
-            insertTextAtCursor { text ->
-                if (readOnly || !enabled) return@insertTextAtCursor false
-
-                // If the action is performed while in an active text editing session, treat this
-                // like
-                // an IME command and update the text by going through the buffer. This keeps the
-                // buffer
-                // state consistent if other IME commands are performed before the next
-                // recomposition,
-                // and is used for the testing code path.
-                state.inputSession?.let { session ->
-                    TextFieldDelegate.onEditCommand(
-                        // Finish composing text first because when the field is focused the IME
-                        // might
-                        // set composition.
-                        ops = listOf(FinishComposingTextCommand(), CommitTextCommand(text, 1)),
-                        editProcessor = state.processor,
-                        state.onValueChange,
-                        session
-                    )
-                }
-                    ?: run {
-                        val newText =
-                            value.text.replaceRange(
-                                value.selection.start,
-                                value.selection.end,
-                                text
+                        ?: run {
+                            state.onValueChange(
+                                TextFieldValue(text.text, TextRange(text.text.length))
                             )
-                        val newCursor = TextRange(value.selection.start + text.length)
-                        state.onValueChange(TextFieldValue(newText, newCursor))
+                        }
+                    true
+                }
+
+                insertTextAtCursor { text ->
+                    if (readOnly || !enabled) return@insertTextAtCursor false
+
+                    // If the action is performed while in an active text editing session, treat
+                    // this like an IME command and update the text by going through the buffer.
+                    // This keeps the buffer state consistent if other IME commands are performed
+                    // before the next recomposition, and is used for the testing code path.
+                    state.inputSession?.let { session ->
+                        TextFieldDelegate.onEditCommand(
+                            // Finish composing text first because when the field is focused the IME
+                            // might
+                            // set composition.
+                            ops = listOf(FinishComposingTextCommand(), CommitTextCommand(text, 1)),
+                            editProcessor = state.processor,
+                            state.onValueChange,
+                            session
+                        )
                     }
-                true
+                        ?: run {
+                            val newText =
+                                value.text.replaceRange(
+                                    value.selection.start,
+                                    value.selection.end,
+                                    text
+                                )
+                            val newCursor = TextRange(value.selection.start + text.length)
+                            state.onValueChange(TextFieldValue(newText, newCursor))
+                        }
+                    true
+                }
             }
+
             setSelection { selectionStart, selectionEnd, relativeToOriginalText ->
                 // in traversal mode we get selection from the `textSelectionRange` semantics which
                 // is
