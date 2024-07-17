@@ -19,6 +19,7 @@ package androidx.compose.material3.pulltorefresh
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.CircularAnimationProgressDuration
 import androidx.compose.material3.CircularIndicatorDiameter
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,7 +66,7 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
                 )
             }
         }
-        rule.mainClock.advanceTimeBy(500)
+        rule.mainClock.advanceTimeBy(CircularAnimationProgressDuration / 3L * 4L)
 
         assertAgainstGolden("pullRefreshIndicator_${scheme.name}_refreshing")
     }
