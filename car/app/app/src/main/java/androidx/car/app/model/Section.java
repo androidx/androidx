@@ -22,6 +22,8 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.serialization.ListDelegate;
+import androidx.car.app.serialization.ListDelegateImpl;
 
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
@@ -41,7 +43,7 @@ import java.util.Objects;
 @ExperimentalCarApi
 public abstract class Section<T extends Item> {
     @NonNull
-    private final List<T> mItems;
+    private final ListDelegate<T> mItemsDelegate;
     @Nullable
     private final CarText mTitle;
     @Nullable
@@ -49,22 +51,22 @@ public abstract class Section<T extends Item> {
 
     // Empty constructor for serialization
     protected Section() {
-        mItems = Collections.emptyList();
+        mItemsDelegate = new ListDelegateImpl<>(Collections.emptyList());
         mTitle = null;
         mNoItemsMessage = null;
     }
 
     /** Constructor that fills out fields from any section builder. */
     protected Section(@NonNull BaseBuilder<T, ?> builder) {
-        mItems = Collections.unmodifiableList(builder.mItems);
+        mItemsDelegate = new ListDelegateImpl<>(Collections.unmodifiableList(builder.mItems));
         mTitle = builder.mHeader;
         mNoItemsMessage = builder.mNoItemsMessage;
     }
 
     /** Returns the items added to this section. */
     @NonNull
-    public List<T> getItems() {
-        return mItems;
+    public ListDelegate<T> getItemsDelegate() {
+        return mItemsDelegate;
     }
 
     /** Returns the optional text that should appear with the items in this section. */
@@ -91,20 +93,20 @@ public abstract class Section<T extends Item> {
         }
         Section<?> section = (Section<?>) other;
 
-        return Objects.equals(mItems, section.mItems) && Objects.equals(mTitle, section.mTitle)
+        return Objects.equals(mItemsDelegate, section.mItemsDelegate) && Objects.equals(mTitle,
+                section.mTitle)
                 && Objects.equals(mNoItemsMessage, section.mNoItemsMessage);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mItems, mTitle, mNoItemsMessage);
+        return Objects.hash(mItemsDelegate, mTitle, mNoItemsMessage);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "Section { items: " + mItems + ", title: " + mTitle + ", noItemsMessage: "
-                + mNoItemsMessage + " }";
+        return "Section";
     }
 
     /**
@@ -123,12 +125,6 @@ public abstract class Section<T extends Item> {
         CarText mNoItemsMessage;
 
         protected BaseBuilder() {
-        }
-
-        protected BaseBuilder(@NonNull Section<T> section) {
-            mItems = section.mItems;
-            mHeader = section.mTitle;
-            mNoItemsMessage = section.mNoItemsMessage;
         }
 
         /** Sets the items for this section, overwriting any other previously set items. */
@@ -175,7 +171,7 @@ public abstract class Section<T extends Item> {
             CarText carText = CarText.create(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(carText);
             mHeader = carText;
-            return  (B) this;
+            return (B) this;
         }
 
         /**

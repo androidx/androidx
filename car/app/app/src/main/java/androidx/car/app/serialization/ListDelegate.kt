@@ -16,8 +16,6 @@
 package androidx.car.app.serialization
 
 import android.annotation.SuppressLint
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.car.app.OnDoneCallback
 import androidx.car.app.annotations.ExperimentalCarApi
 
@@ -27,8 +25,7 @@ import androidx.car.app.annotations.ExperimentalCarApi
  * <p> Long lists are stored on the client for performance reasons.
  */
 @ExperimentalCarApi
-@RestrictTo(LIBRARY)
-interface ListDelegate<T> {
+interface ListDelegate<out T> {
     /** The size of the underlying [List] */
     val size: Int
 

@@ -31,10 +31,20 @@ import androidx.car.app.utils.RemoteUtils
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ListDelegateImpl<T> : ListDelegate<T> {
     private var _size: Int = -1
+
+    /**
+     * The hash of the underlying list.
+     *
+     * This hash is used to determine whether two [ListDelegate]s contain the same items, without
+     * needing to load every item in the list.
+     */
+    private var listHashCode: Int = -1
+
     private lateinit var mStub: IRemoteList
 
     constructor(content: List<T>) {
         _size = content.size
+        listHashCode = content.hashCode()
         mStub = RemoteListStub<T>(content)
     }
 
@@ -59,6 +69,11 @@ class ListDelegateImpl<T> : ListDelegate<T> {
             throw RuntimeException(e)
         }
     }
+
+    override fun equals(other: Any?) =
+        other is ListDelegateImpl<*> && other.listHashCode == listHashCode
+
+    override fun hashCode(): Int = listHashCode
 
     private class RemoteListStub<T>(private val mContent: List<T>) : IRemoteList.Stub() {
         @Throws(RemoteException::class)
