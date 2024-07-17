@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.heightOrZero
+import androidx.compose.material3.internal.subtractConstraintSafely
 import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.material3.tokens.ListTokens
 import androidx.compose.material3.tokens.TypographyKeyTokens
@@ -769,10 +770,3 @@ private fun verticalPadding(listItemType: ListItemType): Dp =
         ListItemType.ThreeLine -> ListItemThreeLineVerticalPadding
         else -> ListItemVerticalPadding
     }
-
-private fun Int.subtractConstraintSafely(n: Int): Int {
-    if (this == Constraints.Infinity) {
-        return this
-    }
-    return this - n
-}
