@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.camera.camera2.pipe.graph
 
 import android.os.Build
@@ -139,30 +138,19 @@ constructor(
     private val lock = Any()
     private val tryStartRepeatingExecutionLock = Any()
     private val coroutineMutex = CoroutineMutex()
-
     @GuardedBy("lock") private val submitQueue: MutableList<List<Request>> = ArrayList()
-
     @GuardedBy("lock") private val repeatingQueue: MutableList<Request> = ArrayList()
-
     @GuardedBy("lock") private var currentRepeatingRequest: Request? = null
-
     @GuardedBy("lock") private var _requestProcessor: GraphRequestProcessor? = null
-
     @GuardedBy("lock") private var submitting = false
-
     @GuardedBy("lock") private var dirty = false
-
     @GuardedBy("lock") private var closed = false
-
     @GuardedBy("lock") private var pendingParameters: Map<*, Any?>? = null
-
     @GuardedBy("lock") private var pendingParametersDeferred: CompletableDeferred<Boolean>? = null
-
     // On some devices, we need to wait for 10 frames to complete before we can guarantee the
     // success of single capture requests. This is a quirk identified as part of b/287020251 and
     // reported in b/289284907.
     private var repeatingRequestsCompleted = CountDownLatch(10)
-
     // Graph listener added to repeating requests in order to handle the aforementioned quirk.
     private val graphProcessorRepeatingListeners =
         if (!Camera2Quirks.shouldWaitForRepeatingBeforeCapture()) {
@@ -179,9 +167,7 @@ constructor(
                     }
                 }
         }
-
     private val _graphState = MutableStateFlow<GraphState>(GraphStateStopped)
-
     override val graphState: StateFlow<GraphState>
         get() = _graphState
 
@@ -199,13 +185,11 @@ constructor(
                 requestProcessor.close()
                 return
             }
-
             if (_requestProcessor != null && _requestProcessor !== requestProcessor) {
                 old = _requestProcessor
             }
             _requestProcessor = requestProcessor
         }
-
         val processorToClose = old
         if (processorToClose != null) {
             synchronized(processorToClose) { processorToClose.close() }
@@ -227,7 +211,6 @@ constructor(
             if (closed) {
                 return
             }
-
             if (requestProcessor === _requestProcessor) {
                 old = _requestProcessor
                 _requestProcessor = null
@@ -238,7 +221,6 @@ constructor(
                 }
             }
         }
-
         val processorToClose = old
         if (processorToClose != null) {
             synchronized(processorToClose) { processorToClose.close() }
@@ -272,21 +254,19 @@ constructor(
     override fun startRepeating(request: Request) {
         synchronized(lock) {
             if (closed) return
+            currentRepeatingRequest = request
             repeatingQueue.add(request)
             debug { "startRepeating with ${request.formatForLogs()}" }
-
             coroutineMutex.withLockLaunch(graphScope) { tryStartRepeating() }
         }
     }
 
     override fun stopRepeating() {
         val processor: GraphRequestProcessor?
-
         synchronized(lock) {
             processor = _requestProcessor
             repeatingQueue.clear()
             currentRepeatingRequest = null
-
             coroutineMutex.withLockLaunch(graphScope) {
                 Debug.traceStart { "$this#stopRepeating" }
                 // Start with requests that have already been submitted
@@ -321,7 +301,6 @@ constructor(
             }
             submitQueue.add(requests)
         }
-
         graphScope.launch(threads.lightweightDispatcher) { submitLoop() }
     }
 
@@ -334,39 +313,33 @@ constructor(
     override suspend fun trySubmit(parameters: Map<*, Any?>): Boolean =
         withContext(threads.lightweightDispatcher) {
             val processor: GraphRequestProcessor?
-            val request: Request?
+            val request: Request
             val requiredParameters: MutableMap<Any, Any?> = mutableMapOf()
             var deferredResult: CompletableDeferred<Boolean>? = null
-
             synchronized(lock) {
                 if (closed) return@withContext false
                 processor = _requestProcessor
-                request = currentRepeatingRequest
-
                 // If there is no current repeating request and no repeating requests are in the
                 // queue (i.e., startRepeating wasn't called before the 3A methods), we should just
                 // fail immediately.
-                if (request == null && repeatingQueue.isEmpty()) {
+                if (currentRepeatingRequest == null) {
                     return@withContext false
                 }
-
+                request = currentRepeatingRequest as Request
                 requiredParameters.putAllMetadata(parameters.toMutableMap())
                 graphState3A.writeTo(requiredParameters)
                 requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
-
-                if (processor == null || request == null) {
+                if (processor == null) {
                     // If a previous set of parameters haven't been submitted yet, consider it stale
                     pendingParametersDeferred?.complete(false)
-
                     debug { "Holding parameters to be submitted later" }
                     deferredResult = CompletableDeferred<Boolean>()
                     pendingParametersDeferred = deferredResult
                     pendingParameters = requiredParameters
                 }
             }
-
             return@withContext when {
-                processor == null || request == null -> deferredResult?.await() == true
+                processor == null -> deferredResult?.await() == true
                 else ->
                     processor.submit(
                         isRepeating = false,
@@ -378,10 +351,7 @@ constructor(
             }
         }
 
-    override fun hasRepeatingRequest() =
-        synchronized(tryStartRepeatingExecutionLock) {
-            synchronized(lock) { currentRepeatingRequest != null || repeatingQueue.isNotEmpty() }
-        }
+    override fun hasRepeatingRequest() = synchronized(lock) { currentRepeatingRequest != null }
 
     override fun invalidate() {
         // Invalidate is only used for updates to internal state (listeners, parameters, etc) and
@@ -392,20 +362,17 @@ constructor(
     override fun abort() {
         val processor: GraphRequestProcessor?
         val requests: List<List<Request>>
-
         synchronized(lock) {
             processor = _requestProcessor
             requests = submitQueue.toList()
             submitQueue.clear()
         }
-
         graphScope.launch(threads.lightweightDispatcher) {
             Debug.traceStart { "$this#abort" }
             // Start with requests that have already been submitted
             if (processor != null) {
                 synchronized(processor) { processor.abortCaptures() }
             }
-
             // Then abort requests that have not been submitted
             for (burst in requests) {
                 abortBurst(burst)
@@ -424,7 +391,6 @@ constructor(
             processor = _requestProcessor
             _requestProcessor = null
         }
-
         processor?.close()
         abort()
     }
@@ -446,7 +412,6 @@ constructor(
         for (listenerIdx in graphListeners.indices) {
             graphListeners[listenerIdx].onAborted(request)
         }
-
         for (listenerIdx in request.listeners.indices) {
             request.listeners[listenerIdx].onAborted(request)
         }
@@ -457,12 +422,9 @@ constructor(
             val processor: GraphRequestProcessor
             val requests = mutableListOf<Request>()
             var shouldRetryRequests = false
-
             synchronized(lock) {
                 if (closed || _requestProcessor == null) return
-
                 processor = _requestProcessor!!
-
                 if (repeatingQueue.isNotEmpty()) {
                     requests.addAll(repeatingQueue)
                     repeatingQueue.clear()
@@ -472,7 +434,6 @@ constructor(
                 }
             }
             if (requests.isEmpty()) return
-
             Debug.traceStart { "$this#startRepeating" }
             var succeededIndex = -1
             synchronized(processor) {
@@ -484,7 +445,6 @@ constructor(
                     val requiredParameters = mutableMapOf<Any, Any?>()
                     graphState3A.writeTo(requiredParameters)
                     requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
-
                     if (
                         processor.submit(
                             isRepeating = true,
@@ -497,7 +457,6 @@ constructor(
                         // ONLY update the current repeating request if the update succeeds
                         synchronized(lock) {
                             if (processor === _requestProcessor) {
-                                currentRepeatingRequest = request
                                 trySubmitPendingParameters(processor, request)
                             }
                         }
@@ -507,13 +466,11 @@ constructor(
                 }
             }
             Debug.traceStop()
-
             if (shouldRetryRequests) {
                 synchronized(lock) {
                     // We should only retry the requests newer than the succeeded request, since the
                     // succeeded request would prevail over the preceding requests that failed.
                     val requestsToRetry = requests.slice(succeededIndex + 1 until requests.size)
-
                     // We might have new repeating requests at this point, and these requests to
                     // retry
                     // should be placed in the front in order to preserve FIFO order.
@@ -536,7 +493,6 @@ constructor(
                     listeners = graphListeners
                 )
             deferred.complete(resubmitResult)
-
             pendingParameters = null
             pendingParametersDeferred = null
         }
@@ -551,30 +507,23 @@ constructor(
                 warn { "Failed to wait for 10 repeating requests to complete after 2 seconds" }
             }
         }
-
         var burst: List<Request>
         var processor: GraphRequestProcessor
-
         synchronized(lock) {
             if (closed) return
-
             if (submitting) {
                 dirty = true
                 return
             }
-
             val nullableProcessor = _requestProcessor
             val nullableBurst = submitQueue.firstOrNull()
             if (nullableProcessor == null || nullableBurst == null) {
                 return
             }
-
             processor = nullableProcessor
             burst = nullableBurst
-
             submitting = true
         }
-
         while (true) {
             var submitted = false
             Debug.traceStart { "$this#submit" }
@@ -596,7 +545,6 @@ constructor(
                             graphState3A.writeTo(requiredParameters)
                         }
                         requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
-
                         processor.submit(
                             isRepeating = false,
                             requests = burst,
@@ -611,14 +559,12 @@ constructor(
                     if (submitted) {
                         // submitQueue can potentially be cleared by abort() before entering here.
                         check(submitQueue.isEmpty() || submitQueue.removeAt(0) === burst)
-
                         val nullableBurst = submitQueue.firstOrNull()
                         if (nullableBurst == null) {
                             dirty = false
                             submitting = false
                             return
                         }
-
                         burst = nullableBurst
                     } else if (!dirty) {
                         debug { "Failed to submit $burst, and the queue is not dirty." }
@@ -631,7 +577,6 @@ constructor(
                                 "dirty. Clearing dirty flag and attempting retry."
                         }
                         dirty = false
-
                         // One possible situation is that the _requestProcessor was replaced or
                         // set to null. If this happens, try to update the requestProcessor we
                         // are currently using. If the current request processor is null, then
