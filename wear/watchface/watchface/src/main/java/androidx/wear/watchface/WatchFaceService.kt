@@ -1739,9 +1739,7 @@ public abstract class WatchFaceService : WallpaperService() {
             synchronized(lock) {
                 val complications = overriddenComplications ?: HashMap(complicationsFlow.value)
                 for ((frozenSlot, previewData) in editedComplicationPreviewData) {
-                    if (
-                        complicationsFlow.value[frozenSlot]!!.dataSource != previewData.dataSource
-                    ) {
+                    if (complicationsFlow.value[frozenSlot]?.dataSource != previewData.dataSource) {
                         complications[frozenSlot] = EmptyComplicationData()
                     }
                 }
