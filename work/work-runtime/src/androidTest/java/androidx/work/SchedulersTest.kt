@@ -158,7 +158,7 @@ class SchedulersTest {
         val launcher = WorkLauncherImpl(env.processor, env.taskExecutor)
         val scheduler =
             object : Scheduler {
-                val tokens = StartStopTokens()
+                val tokens = StartStopTokens.create()
 
                 override fun schedule(vararg workSpecs: WorkSpec) {
                     scheduledSpecs.addAll(workSpecs)
@@ -219,7 +219,7 @@ class SchedulersTest {
         val launcher = WorkLauncherImpl(env.processor, env.taskExecutor)
         val scheduler =
             object : Scheduler {
-                val tokens = StartStopTokens()
+                val tokens = StartStopTokens.create()
 
                 override fun schedule(vararg workSpecs: WorkSpec) {
                     scheduledSpecs.addAll(workSpecs)
