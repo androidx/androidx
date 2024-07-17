@@ -60,13 +60,13 @@ class MultiInstanceInvalidationTest {
 
         // Remember the current auto close callback, it should be the one installed by the
         // invalidation tracker
-        val trackerCallback = autoCloseHelper.autoCloser.onAutoCloseCallback!!
+        val trackerCallback = autoCloseHelper.autoCloser.autoCloseCallbackForTest!!
 
         // Set a new callback, intercepting when DB is auto-closed
         val latch = CountDownLatch(1)
         autoCloseHelper.autoCloser.setAutoCloseCallback {
             // Run the remember auto close callback
-            trackerCallback.run()
+            trackerCallback.invoke()
             // At this point in time InvalidationTracker's callback has run and unbind should have
             // been invoked.
             latch.countDown()
