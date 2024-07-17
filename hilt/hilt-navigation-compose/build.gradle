@@ -33,6 +33,7 @@ plugins {
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         testInstrumentationRunner "androidx.hilt.navigation.compose.TestRunner"
     }

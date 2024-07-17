@@ -55,6 +55,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.appsearch.playservicesstorage"
      defaultConfig {
     }

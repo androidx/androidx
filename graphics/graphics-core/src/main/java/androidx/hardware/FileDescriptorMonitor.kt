@@ -22,6 +22,7 @@ import java.io.File
 import java.lang.NumberFormatException
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.collections.removeLast as removeLastKt
 
 /**
  * Class to monitor open file descriptors and clean up those with fences that have already signalled
@@ -51,7 +52,7 @@ internal class FileDescriptorMonitor(
     private fun closePendingFileDescriptors() {
         pendingFileDescriptors.sortByDescending { fdSignalTimePair -> fdSignalTimePair.signalTime }
         while (pendingFileDescriptors.size > MAX_FD) {
-            val fdSignalPair = pendingFileDescriptors.removeLast()
+            val fdSignalPair = pendingFileDescriptors.removeLastKt()
             try {
                 val fd = fdSignalPair.fd
                 // Re-query the signal time in case the fd was re-used

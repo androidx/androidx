@@ -57,5 +57,7 @@ androidx {
 }
 
 android {
+    compileSdk 35
+
     namespace "androidx.compose.material3.adaptive.samples"
 }

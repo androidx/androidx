@@ -674,6 +674,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
                     object : OnAttachStateChangeListener {
                         override fun onViewAttachedToWindow(view: View) {
                             view.removeOnAttachStateChangeListener(this)
+                            @Suppress("DEPRECATION")
                             sandboxedSdkView.windowInputToken = surfaceView.hostToken
                             sandboxedSdkView.removeTemporarySurfaceView(surfaceView)
                             sandboxedSdkView.checkClientOpenSession()

@@ -29,6 +29,8 @@ plugins {
     id("kotlin-android")
 }
 android {
+    compileSdk 35
+
     buildTypes {
         release {
             // Minification and shrinking are disabled to avoid r8 removing unused methods and

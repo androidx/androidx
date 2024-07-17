@@ -33,6 +33,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.metrics.performance.benchmark"
     defaultConfig {
         // Enable measuring on an emulator, devices with low battery, and eng builds
