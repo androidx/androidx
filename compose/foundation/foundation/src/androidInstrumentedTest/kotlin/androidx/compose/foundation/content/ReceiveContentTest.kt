@@ -869,10 +869,8 @@ private val defaultLabel = "label"
 private val defaultIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://example.com"))
 private val defaultUri = Uri.parse("content://com.example.app/image")
 
-@OptIn(ExperimentalFoundationApi::class)
 private val MediaType.Companion.Video: MediaType
     get() = MediaType("video/*")
 
-@OptIn(ExperimentalFoundationApi::class)
 private val MediaType.Companion.Audio: MediaType
     get() = MediaType("audio/*")

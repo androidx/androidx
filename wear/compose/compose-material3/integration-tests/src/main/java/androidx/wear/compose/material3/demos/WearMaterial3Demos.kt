@@ -16,13 +16,21 @@
 
 package androidx.wear.compose.material3.demos
 
+import android.content.Context
+import android.os.Build
+import android.widget.Toast
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
-import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.integration.demos.common.Material3DemoCategory
+import androidx.wear.compose.material3.samples.AnimatedTextSample
+import androidx.wear.compose.material3.samples.AnimatedTextSampleButtonResponse
+import androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegistry
+import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
+import androidx.wear.compose.material3.samples.ScaffoldSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StepperSample
@@ -30,12 +38,22 @@ import androidx.wear.compose.material3.samples.StepperWithIntegerSample
 import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
 
 val WearMaterial3Demos =
-    DemoCategory(
+    Material3DemoCategory(
         "Material 3",
         listOf(
-            DemoCategory(
+            ComposableDemo("Scaffold") { ScaffoldSample() },
+            Material3DemoCategory("ScrollAway", ScrollAwayDemos),
+            Material3DemoCategory(
                 "Button",
                 listOf(
+                    Material3DemoCategory(
+                        "Edge Button",
+                        listOf(
+                            ComposableDemo("Simple Edge Button") { EdgeButtonSample() },
+                            ComposableDemo("Edge Button Sizes") { EdgeButtonSizeDemo() },
+                            ComposableDemo("Edge Button Below List") { EdgeButtonBelowListDemo() },
+                        )
+                    ),
                     ComposableDemo("Button") { ButtonDemo() },
                     ComposableDemo("Filled Tonal Button") { FilledTonalButtonDemo() },
                     ComposableDemo("Outlined Button") { OutlinedButtonDemo() },
@@ -46,23 +64,22 @@ val WearMaterial3Demos =
                 )
             ),
             ComposableDemo("List Header") { Centralize { ListHeaderDemo() } },
-            DemoCategory("Time Text", TimeTextDemos),
+            Material3DemoCategory("Time Text", TimeTextDemos),
             ComposableDemo("Card") { CardDemo() },
             ComposableDemo("Text Button") { TextButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },
             ComposableDemo("Text Toggle Button") { TextToggleButtonDemo() },
             ComposableDemo("Icon Toggle Button") { IconToggleButtonDemo() },
-            ComposableDemo("Checkbox") { CheckboxDemos() },
-            ComposableDemo("Switch") { SwitchDemos() },
+            ComposableDemo("Checkbox Button") { CheckboxButtonDemo() },
+            ComposableDemo("Split Checkbox Button") { SplitCheckboxButtonDemo() },
             ComposableDemo("Radio Button") { RadioButtonDemo() },
-            ComposableDemo("Selectable Button") { SelectableButtonDemo() },
-            ComposableDemo("Split Selectable Button") { SplitSelectableButtonDemo() },
-            ComposableDemo("Toggle Button") { ToggleButtonDemo() },
-            ComposableDemo("Split Toggle Button") { SplitToggleButtonDemo() },
-            DemoCategory(
+            ComposableDemo("Split Radio Button") { SplitRadioButtonDemo() },
+            ComposableDemo("Switch Button") { SwitchButtonDemo() },
+            ComposableDemo("Split Switch Button") { SplitSwitchButtonDemo() },
+            Material3DemoCategory(
                 "Stepper",
                 listOf(
-                    DemoCategory(
+                    Material3DemoCategory(
                         "Samples",
                         listOf(
                             ComposableDemo("Stepper") { Centralize { StepperSample() } },
@@ -76,10 +93,13 @@ val WearMaterial3Demos =
                     )
                 )
             ),
-            DemoCategory("Slider", SliderDemos),
-            DemoCategory("Progress Indicator", ProgressIndicatorDemos),
+            Material3DemoCategory("Slider", SliderDemos),
+            Material3DemoCategory("Picker", PickerDemos),
+            Material3DemoCategory("Progress Indicator", ProgressIndicatorDemos),
+            Material3DemoCategory("Scroll Indicator", ScrollIndicatorDemos),
+            Material3DemoCategory("Placeholder", PlaceholderDemos),
             ComposableDemo(title = "Fixed Font Size") { Centralize { FixedFontSize() } },
-            DemoCategory(
+            Material3DemoCategory(
                 title = "Swipe To Dismiss",
                 listOf(
                     ComposableDemo("Simple") { SimpleSwipeToDismissBox(it.navigateBack) },
@@ -87,7 +107,7 @@ val WearMaterial3Demos =
                     ComposableDemo("Edge swipe") { EdgeSwipeForSwipeToDismiss(it.navigateBack) },
                 )
             ),
-            DemoCategory(
+            Material3DemoCategory(
                 title = "Horizontal Page Indicator",
                 listOf(
                     ComposableDemo("Simple HorizontalPageIndicator") {
@@ -98,6 +118,31 @@ val WearMaterial3Demos =
                     },
                 )
             ),
+            Material3DemoCategory(title = "Typography", TypographyDemos),
+            Material3DemoCategory(
+                "Animated Text",
+                if (Build.VERSION.SDK_INT > 31) {
+                    listOf(
+                        ComposableDemo("Simple animation") { Centralize { AnimatedTextSample() } },
+                        ComposableDemo("Animation with button click") {
+                            Centralize { AnimatedTextSampleButtonResponse() }
+                        },
+                        ComposableDemo("Shared Font Registry") {
+                            Centralize { AnimatedTextSampleSharedFontRegistry() }
+                        },
+                    )
+                } else {
+                    emptyList()
+                }
+            ),
             ComposableDemo("Settings Demo") { SettingsDemo() }
         )
     )
+
+internal fun showOnClickToast(context: Context) {
+    Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+}
+
+internal fun showOnLongClickToast(context: Context) {
+    Toast.makeText(context, "Long clicked", Toast.LENGTH_SHORT).show()
+}

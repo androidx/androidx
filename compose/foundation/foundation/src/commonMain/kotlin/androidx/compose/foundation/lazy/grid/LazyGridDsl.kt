@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
  * Sample with custom item spans:
  *
  * @sample androidx.compose.foundation.samples.LazyVerticalGridSpanSample
- *
  * @param columns describes the count and the size of the grid's columns, see [GridCells] doc for
  *   more information
  * @param modifier the modifier to apply to this layout
@@ -99,7 +98,6 @@ fun LazyVerticalGrid(
  * Sample with custom item spans:
  *
  * @sample androidx.compose.foundation.samples.LazyHorizontalGridSpanSample
- *
  * @param rows a class describing how cells form rows, see [GridCells] doc for more information
  * @param modifier the modifier to apply to this layout
  * @param state the state object to be used to control or observe the list's state

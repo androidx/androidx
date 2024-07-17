@@ -431,6 +431,7 @@ internal class RootNodeOwner(
             drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
             invalidateParentLayer: () -> Unit,
             explicitLayer: GraphicsLayer?,
+            forceUseOldLayers: Boolean
         ) = RenderNodeLayer(
             density = Snapshot.withoutReadObservation {
                 // density is a mutable state that is observed whenever layer is created. the layer

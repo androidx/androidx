@@ -66,6 +66,7 @@ import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -148,6 +149,10 @@ public abstract class UseCase {
     @GuardedBy("mCameraLock")
     private CameraInternal mCamera;
 
+    @GuardedBy("mCameraLock")
+    @Nullable
+    private CameraInternal mSecondaryCamera;
+
     @Nullable
     private CameraEffect mEffect;
 
@@ -161,6 +166,11 @@ public abstract class UseCase {
     // The currently attached session config
     @NonNull
     private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
+
+    // The currently attached session config for secondary camera in dual camera case
+    @NonNull
+    private SessionConfig mAttachedSecondarySessionConfig =
+            SessionConfig.defaultEmptySessionConfig();
 
     /**
      * Creates a named instance of the use case.
@@ -512,11 +522,21 @@ public abstract class UseCase {
      *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected void updateSessionConfig(@NonNull SessionConfig sessionConfig) {
-        mAttachedSessionConfig = sessionConfig;
-        for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
-            if (surface.getContainerClass() == null) {
-                surface.setContainerClass(this.getClass());
+    protected void updateSessionConfig(@NonNull List<SessionConfig> sessionConfigs) {
+        if (sessionConfigs.isEmpty()) {
+            return;
+        }
+
+        mAttachedSessionConfig = sessionConfigs.get(0);
+        if (sessionConfigs.size() > 1) {
+            mAttachedSecondarySessionConfig = sessionConfigs.get(1);
+        }
+
+        for (SessionConfig sessionConfig : sessionConfigs) {
+            for (DeferrableSurface surface : sessionConfig.getSurfaces()) {
+                if (surface.getContainerClass() == null) {
+                    surface.setContainerClass(this.getClass());
+                }
             }
         }
     }
@@ -547,6 +567,16 @@ public abstract class UseCase {
     @NonNull
     public SessionConfig getSessionConfig() {
         return mAttachedSessionConfig;
+    }
+
+    /**
+     * Get the current {@link SessionConfig} of the secondary camera in dual camera case.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public SessionConfig getSecondarySessionConfig() {
+        return mAttachedSecondarySessionConfig;
     }
 
     /**
@@ -629,6 +659,18 @@ public abstract class UseCase {
     }
 
     /**
+     * Returns the camera ID for the currently attached secondary camera, or throws an exception if
+     * no camera is attached.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    protected String getSecondaryCameraId() {
+        return getSecondaryCamera() == null ? null : getSecondaryCamera()
+                .getCameraInfoInternal().getCameraId();
+    }
+
+    /**
      * Checks whether the provided camera ID is the currently attached camera ID.
      *
      */
@@ -680,6 +722,18 @@ public abstract class UseCase {
     }
 
     /**
+     * Returns the currently attached secondary {@link Camera} or {@code null} if none is attached.
+     *
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CameraInternal getSecondaryCamera() {
+        synchronized (mCameraLock) {
+            return mSecondaryCamera;
+        }
+    }
+
+    /**
      * Retrieves the currently attached surface resolution.
      *
      * @return the currently attached surface resolution for the given camera id.
@@ -706,26 +760,33 @@ public abstract class UseCase {
      *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void updateSuggestedStreamSpec(@NonNull StreamSpec suggestedStreamSpec) {
-        mAttachedStreamSpec = onSuggestedStreamSpecUpdated(suggestedStreamSpec);
+    public void updateSuggestedStreamSpec(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        mAttachedStreamSpec = onSuggestedStreamSpecUpdated(
+                primaryStreamSpec, secondaryStreamSpec);
     }
 
     /**
      * Called when binding new use cases via {@code CameraX#bindToLifecycle(LifecycleOwner,
-     * CameraSelector, UseCase...)}.
+     * CameraSelector, UseCase...)} with additional information for dual cameras.
      *
      * <p>Override to create necessary objects like {@link ImageReader} depending
      * on the stream specification.
      *
-     * @param suggestedStreamSpec The suggested stream specification that depends on camera device
+     * @param primaryStreamSpec The suggested stream specification that depends on camera device
      *                            capability and what and how many use cases will be bound.
+     * @param secondaryStreamSpec The suggested stream specification for secondary camera in
+     *                            dual camera case.
      * @return The stream specification that finally used to create the SessionConfig to
      * attach to the camera device.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        return suggestedStreamSpec;
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        return primaryStreamSpec;
     }
 
     /**
@@ -734,6 +795,8 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void updateSuggestedStreamSpecImplementationOptions(@NonNull Config config) {
+        // TODO(b/349823704): investigate whether we need mAttachedSecondaryStreamSpec for
+        //  StreamSharing
         mAttachedStreamSpec = onSuggestedStreamSpecImplementationOptionsUpdated(config);
     }
 
@@ -770,9 +833,9 @@ public abstract class UseCase {
      * <p>Before a use case can receive frame data, it needs to establish association with the
      * target camera first. An implementation of {@link CameraInternal} (e.g. a lifecycle camera
      * or lifecycle-less camera) is provided when
-     * {@link #bindToCamera(CameraInternal, UseCaseConfig, UseCaseConfig)} is invoked, so that the
-     * use case can retrieve the necessary information from the camera to calculate and set up
-     * the configs.
+     * {@link #bindToCamera(CameraInternal, CameraInternal, UseCaseConfig, UseCaseConfig)} is
+     * invoked, so that the use case can retrieve the necessary information from the camera
+     * to calculate and set up the configs.
      *
      * <p>The default, extended and camera config settings are also applied to the use case config
      * in this stage. Subclasses can override {@link #onMergeConfig} to update the use case
@@ -786,11 +849,16 @@ public abstract class UseCase {
     @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY_GROUP)
     public final void bindToCamera(@NonNull CameraInternal camera,
+            @Nullable CameraInternal secondaryCamera,
             @Nullable UseCaseConfig<?> extendedConfig,
             @Nullable UseCaseConfig<?> cameraConfig) {
         synchronized (mCameraLock) {
             mCamera = camera;
+            mSecondaryCamera = secondaryCamera;
             addStateChangeCallback(camera);
+            if (secondaryCamera != null) {
+                addStateChangeCallback(secondaryCamera);
+            }
         }
 
         mExtendedConfig = extendedConfig;
@@ -835,9 +903,15 @@ public abstract class UseCase {
         onUnbind();
 
         synchronized (mCameraLock) {
-            checkArgument(camera == mCamera);
-            removeStateChangeCallback(mCamera);
-            mCamera = null;
+            if (camera == mCamera) {
+                removeStateChangeCallback(mCamera);
+                mCamera = null;
+            }
+
+            if (camera == mSecondaryCamera) {
+                removeStateChangeCallback(mSecondaryCamera);
+                mSecondaryCamera = null;
+            }
         }
 
         mAttachedStreamSpec = null;

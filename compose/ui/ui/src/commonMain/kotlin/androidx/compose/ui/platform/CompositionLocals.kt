@@ -22,8 +22,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
@@ -62,8 +62,6 @@ val LocalAutofill = staticCompositionLocalOf<Autofill?> { null }
  * temporary data structure that will be replaced by Autofill Semantics (b/138604305).
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
 val LocalAutofillTree =
     staticCompositionLocalOf<AutofillTree> { noLocalProvidedFor("LocalAutofillTree") }
 
@@ -174,6 +172,9 @@ internal val LocalProvidableScrollCaptureInProgress = compositionLocalOf { false
  */
 val LocalScrollCaptureInProgress: CompositionLocal<Boolean>
     get() = LocalProvidableScrollCaptureInProgress
+
+/** Configure the blink timeout, after interaction, for text cursors. */
+val LocalCursorBlinkEnabled: ProvidableCompositionLocal<Boolean> = staticCompositionLocalOf { true }
 
 @ExperimentalComposeUiApi
 @Composable

@@ -19,7 +19,6 @@ package androidx.compose.foundation.demos.relocation
 import android.content.Context
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.HorizontalScrollView
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +41,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import kotlinx.coroutines.launch
 
 // TODO(b/216652644) This demo is currently broken.
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BringIntoViewAndroidInteropDemo() {
     Column {

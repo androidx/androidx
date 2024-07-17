@@ -27,7 +27,7 @@
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"انتخاب تاریخ"</string>
     <string name="m3c_date_picker_headline" msgid="7605002211875882969">"تاریخ انتخابی"</string>
     <string name="m3c_date_picker_switch_to_year_selection" msgid="791651718641787594">"رفتن به انتخاب سال"</string>
-    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"برای انتخاب سال، تند بکشید یا برای برگشتن به انتخاب روز، ضربه بزنید"</string>
+    <string name="m3c_date_picker_switch_to_day_selection" msgid="395627960681594326">"برای انتخاب سال، تند بکشید یا برای برگشتن به انتخاب روز، تک‌ضرب بزنید"</string>
     <string name="m3c_date_picker_switch_to_next_month" msgid="7142101321095356500">"تغییر به ماه بعدی"</string>
     <string name="m3c_date_picker_switch_to_previous_month" msgid="228438865139394590">"تغییر به ماه قبلی"</string>
     <string name="m3c_date_picker_navigate_to_year_description" msgid="8436650776581492840">"‏پیمایش به سال %1$s"</string>

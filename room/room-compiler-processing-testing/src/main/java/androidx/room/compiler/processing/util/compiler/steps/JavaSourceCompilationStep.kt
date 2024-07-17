@@ -86,7 +86,8 @@ internal object JavaSourceCompilationStep : KotlinCompilationStep {
                     // steps so we skip unnecessary work
                     sourceSets = arguments.sourceSets
                 ),
-            outputClasspath = generatedClasses
+            outputClasspath = generatedClasses,
+            generatedResources = emptyList()
         )
     }
 

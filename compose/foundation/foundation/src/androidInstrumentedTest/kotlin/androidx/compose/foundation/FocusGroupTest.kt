@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
@@ -262,7 +261,7 @@ class FocusGroupTest {
         }
 
         // Act.
-        @OptIn(ExperimentalComposeUiApi::class) rule.runOnIdle { focusManager.moveFocus(Enter) }
+        rule.runOnIdle { focusManager.moveFocus(Enter) }
 
         // Assert.
         rule.runOnIdle { assertThat(expectedFocus.isFocused).isTrue() }
@@ -283,7 +282,7 @@ class FocusGroupTest {
         }
 
         // Act.
-        @OptIn(ExperimentalComposeUiApi::class) rule.runOnIdle { focusManager.moveFocus(Exit) }
+        rule.runOnIdle { focusManager.moveFocus(Exit) }
 
         // Assert.
         rule.runOnIdle { assertThat(expectedFocus.isFocused).isTrue() }
@@ -422,6 +421,6 @@ class FocusGroupTest {
         modifier: Modifier = Modifier,
         noinline content: @Composable BoxScope.() -> Unit = {}
     ) {
-        @OptIn(ExperimentalFoundationApi::class) Box(modifier.focusGroup(), content)
+        Box(modifier.focusGroup(), content)
     }
 }

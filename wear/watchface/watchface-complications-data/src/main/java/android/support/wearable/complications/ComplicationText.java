@@ -586,7 +586,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText, Se
     }
 
     /** Returns true if the text has a time-dependent component. */
-    boolean isTimeDependent() {
+    public boolean isTimeDependent() {
         return mTimeDependentText != null;
     }
 

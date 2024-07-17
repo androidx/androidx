@@ -18,7 +18,6 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -29,20 +28,15 @@ import kotlin.math.abs
  * [LocalBringIntoViewSpec] has a platform defined default behavior.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalFoundationApi
-@ExperimentalFoundationApi
 expect val LocalBringIntoViewSpec: ProvidableCompositionLocal<BringIntoViewSpec>
 
 /**
  * The configuration of how a scrollable reacts to bring into view requests.
  *
- * Note: API shape and naming are still being refined, therefore API is marked as experimental.
- *
  * Check the following sample for a use case usage of this API:
  *
  * @sample androidx.compose.foundation.samples.FocusScrollingInLazyRowSample
  */
-@ExperimentalFoundationApi
 @Stable
 interface BringIntoViewSpec {
 

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatableNode
 
@@ -32,7 +31,6 @@ import androidx.compose.ui.node.DelegatableNode
  * event is still not consumed, [onInterceptKeyBeforeSoftKeyboard] is called on the focused item's
  * parents.
  */
-@ExperimentalComposeUiApi
 interface SoftKeyboardInterceptionModifierNode : DelegatableNode {
     /**
      * This function is called when a [KeyEvent] is received by this node during the upward pass.

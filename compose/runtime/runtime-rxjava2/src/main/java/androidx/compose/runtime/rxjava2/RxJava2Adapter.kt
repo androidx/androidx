@@ -41,7 +41,6 @@ import io.reactivex.plugins.RxJavaPlugins
  * or [Observable.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.ObservableSample
- *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  *   with the real one once we receive it from the stream
  */
@@ -61,7 +60,6 @@ fun <R, T : R> Observable<T>.subscribeAsState(initial: R): State<R> =
  * [Flowable.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.FlowableSample
- *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  *   with the real one once we receive it from the stream
  */
@@ -81,7 +79,6 @@ fun <R, T : R> Flowable<T>.subscribeAsState(initial: R): State<R> =
  * [Single.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.SingleSample
- *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  *   with the real one once we receive it from the stream
  */
@@ -100,7 +97,6 @@ fun <R, T : R> Single<T>.subscribeAsState(initial: R): State<R> = asState(initia
  * [Maybe.onErrorReturn] or [Maybe.onErrorResumeNext].
  *
  * @sample androidx.compose.runtime.rxjava2.samples.MaybeSample
- *
  * @param initial The initial value for the returned [State] which will be asynchronously updated
  *   with the real one once we receive it from the stream
  */

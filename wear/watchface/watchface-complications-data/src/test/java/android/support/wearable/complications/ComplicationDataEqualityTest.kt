@@ -65,166 +65,170 @@ class ComplicationDataEqualityTest {
      * from an instance built with `<variation two>`.
      */
     private enum class EqualsScenario(
-        val setterOne: ComplicationData.Builder.() -> Unit,
-        val setterTwo: ComplicationData.Builder.() -> Unit,
+        val setterOne: ComplicationData.Builder.() -> ComplicationData,
+        val setterTwo: ComplicationData.Builder.() -> ComplicationData,
     ) {
         PERSISTENCE_POLICY(
-            { setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST) },
-            { setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED) },
+            { setPersistencePolicy(ComplicationPersistencePolicies.DO_NOT_PERSIST).build() },
+            { setPersistencePolicy(ComplicationPersistencePolicies.CACHING_ALLOWED).build() },
         ),
         DISPLAY_POLICY(
-            { setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED) },
-            { setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY) },
+            {
+                setDisplayPolicy(ComplicationDisplayPolicies.DO_NOT_SHOW_WHEN_DEVICE_LOCKED).build()
+            },
+            { setDisplayPolicy(ComplicationDisplayPolicies.ALWAYS_DISPLAY).build() },
         ),
         START_DATE_TIME_MILLIS(
-            { setStartDateTimeMillis(1) },
-            { setStartDateTimeMillis(2) },
+            { setStartDateTimeMillis(1).build() },
+            { setStartDateTimeMillis(2).build() },
         ),
         END_DATE_TIME_MILLIS(
-            { setEndDateTimeMillis(1) },
-            { setEndDateTimeMillis(2) },
+            { setEndDateTimeMillis(1).build() },
+            { setEndDateTimeMillis(2).build() },
         ),
         RANGED_VALUE(
-            { setRangedValue(1f) },
-            { setRangedValue(2f) },
+            { setRangedValue(1f).build() },
+            { setRangedValue(2f).build() },
         ),
         RANGED_VALUE_EXPRESSION(
-            { setRangedDynamicValue(DynamicFloat.constant(1.2f)) },
-            { setRangedDynamicValue(DynamicFloat.constant(3.4f)) },
+            { setRangedDynamicValue(DynamicFloat.constant(1.2f)).build() },
+            { setRangedDynamicValue(DynamicFloat.constant(3.4f)).build() },
         ),
         RANGED_VALUE_TYPE(
-            { setRangedValueType(1) },
-            { setRangedValueType(2) },
+            { setRangedValueType(1).build() },
+            { setRangedValueType(2).build() },
         ),
         RANGED_MIN_VALUE(
-            { setRangedMinValue(1f) },
-            { setRangedMinValue(2f) },
+            { setRangedMinValue(1f).build() },
+            { setRangedMinValue(2f).build() },
         ),
         RANGED_MAX_VALUE(
-            { setRangedMaxValue(1f) },
-            { setRangedMaxValue(2f) },
+            { setRangedMaxValue(1f).build() },
+            { setRangedMaxValue(2f).build() },
         ),
         TARGET_VALUE(
-            { setTargetValue(1f) },
-            { setTargetValue(2f) },
+            { setTargetValue(1f).build() },
+            { setTargetValue(2f).build() },
         ),
         LONG_TITLE(
-            { setLongTitle(plainText("1")) },
-            { setLongTitle(plainText("2")) },
+            { setLongTitle(plainText("1")).build() },
+            { setLongTitle(plainText("2")).build() },
         ),
         LONG_TEXT(
-            { setLongText(plainText("1")) },
-            { setLongText(plainText("2")) },
+            { setLongText(plainText("1")).build() },
+            { setLongText(plainText("2")).build() },
         ),
         SHORT_TITLE(
-            { setShortTitle(plainText("1")) },
-            { setShortTitle(plainText("2")) },
+            { setShortTitle(plainText("1")).build() },
+            { setShortTitle(plainText("2")).build() },
         ),
         SHORT_TEXT(
-            { setShortText(plainText("1")) },
-            { setShortText(plainText("2")) },
+            { setShortText(plainText("1")).build() },
+            { setShortText(plainText("2")).build() },
         ),
         ICON(
-            { setIcon(Icon.createWithContentUri("1")) },
-            { setIcon(Icon.createWithContentUri("2")) },
+            { setIcon(Icon.createWithContentUri("1")).build() },
+            { setIcon(Icon.createWithContentUri("2")).build() },
         ),
         BURN_IN_PROTECTION_ICON(
-            { setBurnInProtectionIcon(Icon.createWithContentUri("1")) },
-            { setBurnInProtectionIcon(Icon.createWithContentUri("2")) },
+            { setBurnInProtectionIcon(Icon.createWithContentUri("1")).build() },
+            { setBurnInProtectionIcon(Icon.createWithContentUri("2")).build() },
         ),
         SMALL_IMAGE(
-            { setSmallImage(Icon.createWithContentUri("1")) },
-            { setSmallImage(Icon.createWithContentUri("2")) },
+            { setSmallImage(Icon.createWithContentUri("1")).build() },
+            { setSmallImage(Icon.createWithContentUri("2")).build() },
         ),
         BURN_IN_PROTECTION_SMALL_IMAGE(
-            { setBurnInProtectionSmallImage(Icon.createWithContentUri("1")) },
-            { setBurnInProtectionSmallImage(Icon.createWithContentUri("2")) },
+            { setBurnInProtectionSmallImage(Icon.createWithContentUri("1")).build() },
+            { setBurnInProtectionSmallImage(Icon.createWithContentUri("2")).build() },
         ),
         SMALL_IMAGE_STYLE(
-            { setSmallImageStyle(ComplicationData.IMAGE_STYLE_ICON) },
-            { setSmallImageStyle(ComplicationData.IMAGE_STYLE_PHOTO) },
+            { setSmallImageStyle(ComplicationData.IMAGE_STYLE_ICON).build() },
+            { setSmallImageStyle(ComplicationData.IMAGE_STYLE_PHOTO).build() },
         ),
         LARGE_IMAGE(
-            { setLargeImage(Icon.createWithContentUri("1")) },
-            { setLargeImage(Icon.createWithContentUri("2")) },
+            { setLargeImage(Icon.createWithContentUri("1")).build() },
+            { setLargeImage(Icon.createWithContentUri("2")).build() },
         ),
         LIST_STYLE_HINT(
-            { setListStyleHint(1) },
-            { setListStyleHint(2) },
+            { setListStyleHint(1).build() },
+            { setListStyleHint(2).build() },
         ),
         TAP_ACTION(
             {
                 setTapAction(
-                    PendingIntent.getBroadcast(
-                        ApplicationProvider.getApplicationContext(),
-                        0,
-                        Intent("1"),
-                        0
+                        PendingIntent.getBroadcast(
+                            ApplicationProvider.getApplicationContext(),
+                            0,
+                            Intent("1"),
+                            0
+                        )
                     )
-                )
+                    .build()
             },
             {
                 setTapAction(
-                    PendingIntent.getBroadcast(
-                        ApplicationProvider.getApplicationContext(),
-                        0,
-                        Intent("2"),
-                        0
+                        PendingIntent.getBroadcast(
+                            ApplicationProvider.getApplicationContext(),
+                            0,
+                            Intent("2"),
+                            0
+                        )
                     )
-                )
+                    .build()
             },
         ),
         CONTENT_DESCRIPTION(
-            { setContentDescription(plainText("1")) },
-            { setContentDescription(plainText("2")) },
+            { setContentDescription(plainText("1")).build() },
+            { setContentDescription(plainText("2")).build() },
         ),
         TAP_ACTION_LOST_DUE_TO_SERIALIZATION(
-            { setTapActionLostDueToSerialization(true) },
-            { setTapActionLostDueToSerialization(false) },
+            { setTapActionLostDueToSerialization(true).build() },
+            { setTapActionLostDueToSerialization(false).build() },
         ),
         PLACEHOLDER(
-            { setPlaceholder(staticData("1")) },
-            { setPlaceholder(staticData("2")) },
+            { setPlaceholder(staticData("1")).build() },
+            { setPlaceholder(staticData("2")).build() },
         ),
         DATA_SOURCE(
-            { setDataSource(ComponentName.createRelative("", "1")) },
-            { setDataSource(ComponentName.createRelative("", "2")) },
+            { setDataSource(ComponentName.createRelative("", "1")).build() },
+            { setDataSource(ComponentName.createRelative("", "2")).build() },
         ),
         AMBIENT_LAYOUT(
-            { setAmbientLayout(byteArrayOf(1, 2)) },
-            { setAmbientLayout(byteArrayOf(3, 4)) },
+            { setAmbientLayout(byteArrayOf(1, 2)).build() },
+            { setAmbientLayout(byteArrayOf(3, 4)).build() },
         ),
         INTERACTIVE_LAYOUT(
-            { setInteractiveLayout(byteArrayOf(1, 2)) },
-            { setInteractiveLayout(byteArrayOf(3, 4)) },
+            { setInteractiveLayout(byteArrayOf(1, 2)).build() },
+            { setInteractiveLayout(byteArrayOf(3, 4)).build() },
         ),
         LAYOUT_RESOURCES(
-            { setLayoutResources(byteArrayOf(1, 2)) },
-            { setLayoutResources(byteArrayOf(3, 4)) },
+            { setLayoutResources(byteArrayOf(1, 2)).build() },
+            { setLayoutResources(byteArrayOf(3, 4)).build() },
         ),
         COLOR_RAMP(
-            { setColorRamp(intArrayOf(1, 2)) },
-            { setColorRamp(intArrayOf(3, 4)) },
+            { setColorRamp(intArrayOf(1, 2)).build() },
+            { setColorRamp(intArrayOf(3, 4)).build() },
         ),
         COLOR_RAMP_IS_SMOOTH_SHADED(
-            { setColorRampIsSmoothShaded(true) },
-            { setColorRampIsSmoothShaded(false) },
+            { setColorRampIsSmoothShaded(true).build() },
+            { setColorRampIsSmoothShaded(false).build() },
         ),
         LIST_ENTRY_COLLECTION(
-            { setListEntryCollection(listOf(staticData("1"))) },
-            { setListEntryCollection(listOf(staticData("2"))) },
+            { setListEntryCollection(listOf(staticData("1"))).build() },
+            { setListEntryCollection(listOf(staticData("2"))).build() },
         ),
         ELEMENT_WEIGHTS(
-            { setElementWeights(floatArrayOf(1f, 2f)) },
-            { setElementWeights(floatArrayOf(3f, 4f)) },
+            { setElementWeights(floatArrayOf(1f, 2f)).build() },
+            { setElementWeights(floatArrayOf(3f, 4f)).build() },
         ),
         ELEMENT_COLORS(
-            { setElementColors(intArrayOf(1, 2)) },
-            { setElementColors(intArrayOf(3, 4)) },
+            { setElementColors(intArrayOf(1, 2)).build() },
+            { setElementColors(intArrayOf(3, 4)).build() },
         ),
         ELEMENT_BACKGROUND_COLOR(
-            { setElementBackgroundColor(1) },
-            { setElementBackgroundColor(2) },
+            { setElementBackgroundColor(1).build() },
+            { setElementBackgroundColor(2).build() },
         ),
         TIMELINE_START_TIME(
             { build().apply { timelineStartEpochSecond = 100 } },
@@ -243,10 +247,10 @@ class ComplicationDataEqualityTest {
         val base = ComplicationData.Builder(TYPE_NO_DATA).build()
 
         /** Builds a [ComplicationData] with the first variation. */
-        fun buildOne() = ComplicationData.Builder(base).apply { setterOne(this) }.build()
+        fun buildOne() = setterOne(ComplicationData.Builder(base))
 
         /** Builds a [ComplicationData] with the second variation. */
-        fun buildTwo() = ComplicationData.Builder(base).apply { setterTwo(this) }.build()
+        fun buildTwo() = setterTwo(ComplicationData.Builder(base))
     }
 
     @Test

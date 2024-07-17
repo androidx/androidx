@@ -179,6 +179,24 @@ class AndroidColorSpaceTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testBt2020HlgColorspace() {
+        colorSpaceTestHelper(
+            ColorSpaces.Bt2020Hlg, // Compose
+            ColorSpace.get(ColorSpace.Named.BT2020_HLG) // Framework
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testBt2020PqColorspace() {
+        colorSpaceTestHelper(
+            ColorSpaces.Bt2020Pq, // Compose
+            ColorSpace.get(ColorSpace.Named.BT2020_PQ) // Framework
+        )
+    }
+
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun testUnknownColorspace3WhitePointValues() {

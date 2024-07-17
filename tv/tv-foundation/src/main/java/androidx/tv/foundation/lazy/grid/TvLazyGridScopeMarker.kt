@@ -17,4 +17,6 @@
 package androidx.tv.foundation.lazy.grid
 
 /** DSL marker used to distinguish between lazy grid dsl scope and the item content scope. */
-@DslMarker annotation class TvLazyGridScopeMarker
+@Deprecated("No longer needed as TvLazyHorizontalGrid and TvLazyVerticalGrid are deprecated.")
+@DslMarker
+annotation class TvLazyGridScopeMarker

@@ -58,11 +58,11 @@ dependencies {
         exclude group: "androidx.lifecycle", module: "lifecycle-runtime-ktx"
     })
     androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":internal-testutils-lifecycle"))
     androidTestImplementation(project(":internal-testutils-appcompat"), {
         exclude group: "androidx.appcompat", module: "appcompat"
         exclude group: "androidx.core", module: "core"
     })
-    androidTestImplementation(libs.multidex)
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
@@ -76,7 +76,6 @@ android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
-        multiDexEnabled = true
     }
 
     sourceSets {

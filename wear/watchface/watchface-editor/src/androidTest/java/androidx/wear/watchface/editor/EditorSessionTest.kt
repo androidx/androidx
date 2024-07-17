@@ -676,7 +676,10 @@ public class EditorSessionTest {
                     lastOverrideComplications = slotIdToComplicationData
                 }
 
-                override fun clearComplicationSlotAfterEditing(slotId: Int) {}
+                override fun clearComplicationSlotAfterEditing(
+                    slotId: Int,
+                    previewData: ComplicationData
+                ) {}
 
                 override fun dontClearAnyComplicationSlotsAfterEditing() {}
             }

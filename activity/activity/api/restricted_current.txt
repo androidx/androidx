@@ -249,11 +249,11 @@ package androidx.activity.result {
 
   public abstract class ActivityResultLauncher<I> {
     ctor public ActivityResultLauncher();
-    method public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object!> getContract();
+    method public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object?> getContract();
     method public void launch(I input);
     method public abstract void launch(I input, androidx.core.app.ActivityOptionsCompat? options);
     method @MainThread public abstract void unregister();
-    property public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object!> contract;
+    property public abstract androidx.activity.result.contract.ActivityResultContract<I,? extends java.lang.Object?> contract;
   }
 
   public final class ActivityResultLauncherKt {
@@ -304,18 +304,22 @@ package androidx.activity.result {
   }
 
   public final class PickVisualMediaRequest {
+    method public int getMaxItems();
     method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType getMediaType();
+    property public final int maxItems;
     property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType;
   }
 
   public static final class PickVisualMediaRequest.Builder {
     ctor public PickVisualMediaRequest.Builder();
     method public androidx.activity.result.PickVisualMediaRequest build();
+    method public androidx.activity.result.PickVisualMediaRequest.Builder setMaxItems(@IntRange(from=2L) int maxItems);
     method public androidx.activity.result.PickVisualMediaRequest.Builder setMediaType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
   }
 
   public final class PickVisualMediaRequestKt {
-    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+    method @Deprecated public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems);
   }
 
 }

@@ -46,12 +46,15 @@ public final class SectionedItemTemplate implements Template {
 
     private final boolean mIsLoading;
 
+    private final boolean mIsAlphabeticalIndexingAllowed;
+
     // Empty constructor for serialization
     private SectionedItemTemplate() {
         mSections = Collections.emptyList();
         mActions = Collections.emptyList();
         mHeader = null;
         mIsLoading = false;
+        mIsAlphabeticalIndexingAllowed = false;
     }
 
     /** Creates a {@link SectionedItemTemplate} from the {@link Builder}. */
@@ -60,6 +63,7 @@ public final class SectionedItemTemplate implements Template {
         mActions = Collections.unmodifiableList(builder.mActions);
         mHeader = builder.mHeader;
         mIsLoading = builder.mIsLoading;
+        mIsAlphabeticalIndexingAllowed = builder.mIsAlphabeticalIndexingAllowed;
     }
 
     /** Returns the list of sections within this template. */
@@ -85,9 +89,30 @@ public final class SectionedItemTemplate implements Template {
         return mIsLoading;
     }
 
+    /**
+     * Returns whether this list can be indexed alphabetically, by item title.
+     *
+     * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to sort,
+     * partition, or filter a list. Indexing is generally used for features called "Accelerators",
+     * which allow a user to quickly find a particular {@link Item} in a long list.
+     *
+     * <p>To exclude a single item from indexing, see the relevant item's API.
+     *
+     * <p>To enable/disable accelerators for the entire list, see
+     * {@link SectionedItemTemplate.Builder#setAlphabeticalIndexingAllowed(boolean)}
+     */
+    public boolean isAlphabeticalIndexingAllowed() {
+        return mIsAlphabeticalIndexingAllowed;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(mSections, mActions, mHeader, mIsLoading);
+        return Objects.hash(mSections,
+                mActions,
+                mHeader,
+                mIsLoading,
+                mIsAlphabeticalIndexingAllowed
+        );
     }
 
     @Override
@@ -105,14 +130,14 @@ public final class SectionedItemTemplate implements Template {
         return Objects.equals(mSections, template.mSections)
                 && Objects.equals(mActions, template.mActions)
                 && Objects.equals(mHeader, template.mHeader)
-                && mIsLoading == template.mIsLoading;
+                && mIsLoading == template.mIsLoading
+                && mIsAlphabeticalIndexingAllowed == template.mIsAlphabeticalIndexingAllowed;
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "SectionedItemTemplate { sections: " + mSections + ", actions: " + mActions
-                + ", header: " + mHeader + ", isLoading: " + mIsLoading + " }";
+        return "SectionedItemTemplate";
     }
 
     /**
@@ -137,6 +162,7 @@ public final class SectionedItemTemplate implements Template {
         private Header mHeader = null;
 
         private boolean mIsLoading = false;
+        private boolean mIsAlphabeticalIndexingAllowed = false;
 
         /** Create a new {@link SectionedItemTemplate} builder. */
         public Builder() {
@@ -151,6 +177,7 @@ public final class SectionedItemTemplate implements Template {
             mActions = template.mActions;
             mHeader = template.mHeader;
             mIsLoading = template.mIsLoading;
+            mIsAlphabeticalIndexingAllowed = template.mIsAlphabeticalIndexingAllowed;
         }
 
         /**
@@ -241,6 +268,24 @@ public final class SectionedItemTemplate implements Template {
         @CanIgnoreReturnValue
         public Builder setLoading(boolean isLoading) {
             mIsLoading = isLoading;
+            return this;
+        }
+
+        /**
+         * Sets whether this list can be indexed alphabetically, by item title.
+         *
+         * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to
+         * sort,
+         * partition, or filter a list. Indexing is generally used for features called
+         * "Accelerators",
+         * which allow a user to quickly find a particular {@link Item} in a long list.
+         *
+         * <p>To exclude a single item from indexing, see the relevant item's API.
+         */
+        @NonNull
+        @CanIgnoreReturnValue
+        public Builder setAlphabeticalIndexingAllowed(boolean alphabeticalIndexingAllowed) {
+            mIsAlphabeticalIndexingAllowed = alphabeticalIndexingAllowed;
             return this;
         }
 

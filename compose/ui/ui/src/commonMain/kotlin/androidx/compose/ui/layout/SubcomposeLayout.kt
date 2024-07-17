@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.internal.checkPrecondition
@@ -68,7 +67,6 @@ import androidx.compose.ui.util.fastForEach
  *   visible(say 5 of them) and compose next items when the component is scrolled.
  *
  * @sample androidx.compose.ui.samples.SubcomposeLayoutSample
- *
  * @param modifier [Modifier] to apply for the layout.
  * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.
  */
@@ -99,7 +97,6 @@ fun SubcomposeLayout(
  *   visible(say 5 of them) and compose next items when the component is scrolled.
  *
  * @sample androidx.compose.ui.samples.SubcomposeLayoutSample
- *
  * @param state the state object to be used by the layout.
  * @param modifier [Modifier] to apply for the layout.
  * @param measurePolicy Measure policy which provides ability to subcompose during the measuring.
@@ -123,7 +120,7 @@ fun SubcomposeLayout(
             set(measurePolicy, state.setMeasurePolicy)
             set(localMap, SetResolvedCompositionLocals)
             set(materialized, SetModifier)
-            @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
+            set(compositeKeyHash, SetCompositeKeyHash)
         }
     )
     if (!currentComposer.skipping) {

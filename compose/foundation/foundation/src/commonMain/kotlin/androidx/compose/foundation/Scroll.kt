@@ -65,7 +65,6 @@ import androidx.compose.ui.util.fastRoundToInt
  * Learn how to control the state of [Modifier.verticalScroll] or [Modifier.horizontalScroll]:
  *
  * @sample androidx.compose.foundation.samples.ControlledScrollableRowSample
- *
  * @param initial initial scroller position to start with
  */
 @Composable
@@ -84,7 +83,6 @@ fun rememberScrollState(initial: Int = 0): ScrollState {
  * Learn how to control the state of [Modifier.verticalScroll] or [Modifier.horizontalScroll]:
  *
  * @sample androidx.compose.foundation.samples.ControlledScrollableRowSample
- *
  * @param initial value of the scroll
  */
 @Stable
@@ -255,7 +253,6 @@ fun Modifier.horizontalScroll(
         isVertical = false
     )
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.scroll(
     state: ScrollState,
     reverseScrolling: Boolean,

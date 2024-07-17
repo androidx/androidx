@@ -181,7 +181,6 @@ internal class AndroidInputDispatcher(
         enqueueMouseEvent(ACTION_CANCEL)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     override fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel) {
         enqueueMouseEvent(
             ACTION_SCROLL,

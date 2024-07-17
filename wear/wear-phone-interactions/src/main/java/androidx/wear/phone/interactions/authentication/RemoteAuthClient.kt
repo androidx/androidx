@@ -249,7 +249,6 @@ internal constructor(
      * Sdk WEAR_TIRAMISU_4.
      *
      * @sample androidx.wear.phone.interactions.samples.AuthAvailabilitySample
-     *
      * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
      *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
      */

@@ -30,9 +30,9 @@ import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensionsProvider
-import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import androidx.window.reflection.Consumer2
 import java.lang.reflect.Proxy
 
 /**
@@ -82,7 +82,7 @@ internal class EmbeddingCompat(
             }
         } else {
             val callback =
-                Consumer<List<OEMSplitInfo>> { splitInfoList ->
+                Consumer2<List<OEMSplitInfo>> { splitInfoList ->
                     embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
                 }
             embeddingExtension.setSplitInfoCallback(callback)
@@ -118,6 +118,7 @@ internal class EmbeddingCompat(
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
+    @Suppress("DEPRECATION")
     @RequiresWindowSdkExtension(3)
     override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         WindowSdkExtensions.getInstance().requireExtensionVersion(3)
@@ -128,6 +129,7 @@ internal class EmbeddingCompat(
         )
     }
 
+    @Suppress("DEPRECATION")
     @RequiresWindowSdkExtension(3)
     override fun setLaunchingActivityStack(
         options: ActivityOptions,

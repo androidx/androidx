@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.response
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 
 /**
@@ -22,4 +23,6 @@ import androidx.health.connect.client.records.Record
  *
  * @see [androidx.health.connect.client.HealthConnectClient.readRecord]
  */
-class ReadRecordResponse<T : Record> internal constructor(val record: T)
+class ReadRecordResponse<T : Record>
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+constructor(val record: T)

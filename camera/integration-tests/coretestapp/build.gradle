@@ -23,9 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.core"
-        minSdkVersion 21
-        versionCode 1
-        multiDexEnabled true
 
         externalNativeBuild {
             cmake {
@@ -120,8 +117,11 @@ dependencies {
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":internal-testutils-lifecycle"))
     androidTestImplementation(project(":internal-testutils-truth"))
+    androidTestImplementation("androidx.core:core:1.1.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    androidTestImplementation("androidx.palette:palette:1.0.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
 

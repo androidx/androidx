@@ -16,14 +16,9 @@
 
 package androidx.compose.ui.semantics
 
-import androidx.compose.ui.ExperimentalComposeUiApi
-
-@ExperimentalComposeUiApi
 object SemanticsPropertiesAndroid {
     /** @see SemanticsPropertyReceiver.testTagsAsResourceId */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
-    @ExperimentalComposeUiApi
     val TestTagsAsResourceId =
         SemanticsPropertyKey<Boolean>(
             name = "TestTagsAsResourceId",
@@ -49,8 +44,5 @@ object SemanticsPropertiesAndroid {
  * mapped.
  */
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:ExperimentalComposeUiApi
-@set:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
 var SemanticsPropertyReceiver.testTagsAsResourceId by
     SemanticsPropertiesAndroid.TestTagsAsResourceId

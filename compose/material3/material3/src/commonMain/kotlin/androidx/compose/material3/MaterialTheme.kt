@@ -42,10 +42,10 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * overriding only the parts of the theme definition that need to change.
  *
  * @sample androidx.compose.material3.samples.MaterialThemeSample
- *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param content The content inheriting this theme
  */
 @Composable
 fun MaterialTheme(
@@ -54,14 +54,11 @@ fun MaterialTheme(
     typography: Typography = MaterialTheme.typography,
     content: @Composable () -> Unit
 ) {
-    val rippleIndication = rippleOrFallbackImplementation()
+    val rippleIndication = ripple()
     val selectionColors = rememberTextSelectionColors(colorScheme)
-    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColorScheme provides colorScheme,
         LocalIndication provides rippleIndication,
-        // TODO: b/304985887 - remove after one stable release
-        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
@@ -123,10 +120,11 @@ object MaterialTheme {
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param content The content inheriting this theme
  */
-// TODO: Mark as experimental if scope is changed to public
+@ExperimentalMaterial3ExpressiveApi
 @Composable
-internal fun MaterialExpressiveTheme(
+fun MaterialExpressiveTheme(
     colorScheme: ColorScheme? = null,
     shapes: Shapes? = null,
     typography: Typography? = null,

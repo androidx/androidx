@@ -19,16 +19,12 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import kotlin.js.JsName
-import kotlin.jvm.JvmMultifileClass
-import kotlin.jvm.JvmName
 
 /**
  * Can be used to send [bringIntoView] requests. Pass it as a parameter to
@@ -37,14 +33,9 @@ import kotlin.jvm.JvmName
  * For instance, you can call [bringIntoView()][bringIntoView] to make all the scrollable parents
  * scroll so that the specified item is brought into the scroll viewport.
  *
- * Note: this API is experimental while we optimise the performance and find the right API shape for
- * it.
- *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
  */
-@ExperimentalFoundationApi
 sealed interface BringIntoViewRequester {
     /**
      * Bring this item into bounds by making all the scrollable parents scroll appropriately.
@@ -57,9 +48,7 @@ sealed interface BringIntoViewRequester {
      *   don't specify the coordinates, the coordinates of the
      *   [Modifier.bringIntoViewRequester()][bringIntoViewRequester] associated with this
      *   [BringIntoViewRequester] will be used.
-     *
      * @sample androidx.compose.foundation.samples.BringIntoViewSample
-     *
      * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
      */
     suspend fun bringIntoView(rect: Rect? = null)
@@ -78,11 +67,7 @@ sealed interface BringIntoViewRequester {
  * Here is a sample where a part of a composable is brought into view:
  *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
- *
- * Note: this API is experimental while we optimise the performance and find the right API shape for
- * it
  */
-@ExperimentalFoundationApi
 @JsName("funBringIntoViewRequester")
 fun BringIntoViewRequester(): BringIntoViewRequester {
     return BringIntoViewRequesterImpl()
@@ -97,20 +82,14 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
  * using this modifier is brought into the bounds of all its parents.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @param bringIntoViewRequester An instance of [BringIntoViewRequester]. This hoisted object can be
  *   used to send [scrollIntoView][BringIntoViewRequester.scrollIntoView] requests to parents of the
  *   current composable.
- *
- * Note: this API is experimental while we optimise the performance and find the right API shape for
- * it
  */
 @Suppress("ModifierInspectorInfo")
-@ExperimentalFoundationApi
 fun Modifier.bringIntoViewRequester(bringIntoViewRequester: BringIntoViewRequester): Modifier =
     this.then(BringIntoViewRequesterElement(bringIntoViewRequester))
 
-@ExperimentalFoundationApi
 private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     val modifiers = mutableVectorOf<BringIntoViewRequesterNode>()
 
@@ -119,7 +98,6 @@ private class BringIntoViewRequesterImpl : BringIntoViewRequester {
     }
 }
 
-@ExperimentalFoundationApi
 private class BringIntoViewRequesterElement(private val requester: BringIntoViewRequester) :
     ModifierNodeElement<BringIntoViewRequesterNode>() {
     override fun create(): BringIntoViewRequesterNode {
@@ -150,7 +128,6 @@ private class BringIntoViewRequesterElement(private val requester: BringIntoView
  * access to the next [BringIntoViewParent] via [findBringIntoViewParent], and uses that parent to
  * respond to requests to [scrollIntoView].
  */
-@ExperimentalFoundationApi
 internal class BringIntoViewRequesterNode(private var requester: BringIntoViewRequester) :
     Modifier.Node() {
     override val shouldAutoInvalidate: Boolean = false

@@ -53,7 +53,6 @@ import androidx.compose.ui.state.ToggleableState
  * information see the documentation on the other overload.
  *
  * @sample androidx.compose.foundation.samples.ToggleableSample
- *
  * @param value whether Toggleable is on or off
  * @param enabled whether or not this [toggleable] will handle input events and appear enabled for
  *   semantics purposes
@@ -117,7 +116,6 @@ fun Modifier.toggleable(
  * cannot be lazily created inside toggleable.
  *
  * @sample androidx.compose.foundation.samples.ToggleableSample
- *
  * @param value whether Toggleable is on or off
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [PressInteraction.Press] when this toggleable is pressed. If `null`, an internal
@@ -298,7 +296,6 @@ private class ToggleableNode(
  * more information see the documentation on the other overload.
  *
  * @sample androidx.compose.foundation.samples.TriStateToggleableSample
- *
  * @param state current value for the component
  * @param enabled whether or not this [triStateToggleable] will handle input events and appear
  *   enabled for semantics purposes
@@ -366,7 +363,6 @@ fun Modifier.triStateToggleable(
  * cannot be lazily created inside triStateToggleable.
  *
  * @sample androidx.compose.foundation.samples.TriStateToggleableSample
- *
  * @param state current value for the component
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [PressInteraction.Press] when this triStateToggleable is pressed. If `null`, an internal

@@ -20,9 +20,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.util.ExperimentalVelocityTrackerApi
 import androidx.compose.ui.input.pointer.util.VelocityTrackerStrategyUseImpulse
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -46,6 +46,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /** Tests if we can generate gestures that end with a specific velocity */
+@OptIn(ExperimentalVelocityTrackerApi::class)
 @MediumTest
 @RunWith(Parameterized::class)
 class SendSwipeVelocityTest(private val config: TestConfig) {
@@ -111,7 +112,6 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
 
     private val recorder = SinglePointerInputRecorder()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun swipeWithVelocity() {
         rule.setContent {

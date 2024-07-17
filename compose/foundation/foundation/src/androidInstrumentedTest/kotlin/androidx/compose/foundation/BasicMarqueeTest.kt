@@ -70,7 +70,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -125,8 +124,6 @@ class BasicMarqueeTest {
         }
     }
 
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun animates_whenAnimationsDisabledBySystem() {
         motionDurationScale.scaleFactor = 0f

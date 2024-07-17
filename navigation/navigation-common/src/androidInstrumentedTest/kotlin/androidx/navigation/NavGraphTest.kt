@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import androidx.navigation.serialization.expectedSafeArgsId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -147,7 +148,7 @@ class NavGraphTest {
 
         graph.setStartDestination<TestClass>()
         assertThat(graph.startDestinationRoute).isEqualTo("route/{arg}")
-        assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
+        assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().expectedSafeArgsId())
     }
 
     @Test
@@ -177,7 +178,7 @@ class NavGraphTest {
 
         graph.setStartDestination(TestClass(20))
         assertThat(graph.startDestinationRoute).isEqualTo("route/20?arg2=test")
-        assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().hashCode())
+        assertThat(graph.startDestinationId).isEqualTo(serializer<TestClass>().expectedSafeArgsId())
     }
 
     @Test

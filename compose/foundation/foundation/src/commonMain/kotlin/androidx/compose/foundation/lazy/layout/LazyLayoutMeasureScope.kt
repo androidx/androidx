@@ -96,7 +96,7 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
         }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyLayoutMeasureScopeImpl
 internal constructor(
     private val itemContentFactory: LazyLayoutItemContentFactory,

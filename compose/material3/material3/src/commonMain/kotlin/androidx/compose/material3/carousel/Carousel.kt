@@ -42,7 +42,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -76,7 +75,6 @@ import kotlin.jvm.JvmInline
  * Example of a multi-browse carousel:
  *
  * @sample androidx.compose.material3.samples.HorizontalMultiBrowseCarouselSample
- *
  * @param state The state object to be used to control the carousel's state
  * @param preferredItemWidth The width that large, fully visible items would like to be in the
  *   horizontal axis. This width is a target and will likely be adjusted by carousel in order to fit
@@ -156,7 +154,6 @@ fun HorizontalMultiBrowseCarousel(
  * Example of an uncontained carousel:
  *
  * @sample androidx.compose.material3.samples.HorizontalUncontainedCarouselSample
- *
  * @param state The state object to be used to control the carousel's state
  * @param itemWidth The width of items in the carousel
  * @param modifier A modifier instance to be applied to this carousel container
@@ -266,7 +263,7 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
-            val carouselItemInfo = remember { CarouselItemInfoImpl() }
+            val carouselItemInfo = remember { CarouselItemDrawInfoImpl() }
             val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
             val clipShape = remember {
                 object : Shape {
@@ -286,7 +283,7 @@ internal fun Carousel(
                         index = page,
                         state = state,
                         strategy = { pageSize.strategy },
-                        carouselItemInfo = carouselItemInfo,
+                        carouselItemDrawInfo = carouselItemInfo,
                         clipShape = clipShape
                     )
             ) {
@@ -309,7 +306,7 @@ internal fun Carousel(
             flingBehavior = flingBehavior,
             modifier = modifier
         ) { page ->
-            val carouselItemInfo = remember { CarouselItemInfoImpl() }
+            val carouselItemInfo = remember { CarouselItemDrawInfoImpl() }
             val scope = remember { CarouselItemScopeImpl(itemInfo = carouselItemInfo) }
             val clipShape = remember {
                 object : Shape {
@@ -329,7 +326,7 @@ internal fun Carousel(
                         index = page,
                         state = state,
                         strategy = { pageSize.strategy },
-                        carouselItemInfo = carouselItemInfo,
+                        carouselItemDrawInfo = carouselItemInfo,
                         clipShape = clipShape
                     )
             ) {
@@ -424,7 +421,8 @@ internal value class CarouselAlignment private constructor(internal val value: I
  * @param index the index of the item in the carousel
  * @param state the carousel state
  * @param strategy the strategy used to mask and translate items in the carousel
- * @param carouselItemInfo the item info that should be updated with the changes in this modifier
+ * @param carouselItemDrawInfo the item info that should be updated with the changes in this
+ *   modifier
  * @param clipShape the shape the item will clip itself to. This should be a rectangle with a bounds
  *   that match the carousel item info's mask rect. Corner radii and other shape customizations can
  *   be done by the client using [CarouselItemScope.maskClip] and [CarouselItemScope.maskBorder].
@@ -434,7 +432,7 @@ internal fun Modifier.carouselItem(
     index: Int,
     state: CarouselState,
     strategy: () -> Strategy,
-    carouselItemInfo: CarouselItemInfoImpl,
+    carouselItemDrawInfo: CarouselItemDrawInfoImpl,
     clipShape: Shape,
 ): Modifier {
     return layout { measurable, constraints ->
@@ -467,10 +465,25 @@ internal fun Modifier.carouselItem(
             }
 
         val placeable = measurable.measure(itemConstraints)
+        // We always want to make the current item be the one at the front
+        val itemZIndex =
+            if (index == state.pagerState.currentPage) {
+                1f
+            } else {
+                if (index == 0) {
+                    0f
+                } else {
+                    // Other items should go in reverse placement order, that is, the ones with the
+                    // higher indices should behind the ones with lower indices.
+                    1f / index.toFloat()
+                }
+            }
+
         layout(placeable.width, placeable.height) {
             placeable.placeWithLayer(
                 0,
                 0,
+                zIndex = itemZIndex,
                 layerBlock = {
                     val scrollOffset = calculateCurrentScrollOffset(state, strategyResult)
                     val maxScrollOffset = calculateMaxScrollOffset(state, strategyResult)
@@ -517,10 +530,10 @@ internal fun Modifier.carouselItem(
                         )
 
                     // Update carousel item info
-                    carouselItemInfo.sizeState = interpolatedKeyline.size
-                    carouselItemInfo.minSizeState = roundedKeylines.minBy { it.size }.size
-                    carouselItemInfo.maxSizeState = roundedKeylines.firstFocal.size
-                    carouselItemInfo.maskRectState = maskRect
+                    carouselItemDrawInfo.sizeState = interpolatedKeyline.size
+                    carouselItemDrawInfo.minSizeState = roundedKeylines.minBy { it.size }.size
+                    carouselItemDrawInfo.maxSizeState = roundedKeylines.firstFocal.size
+                    carouselItemDrawInfo.maskRectState = maskRect
 
                     // Clip the item
                     clip = maskRect != Rect(0f, 0f, size.width, size.height)
@@ -683,10 +696,10 @@ object CarouselDefaults {
     }
 
     /** The minimum size that a carousel strategy can choose its small items to be. * */
-    internal val MinSmallItemSize = 40.dp
+    val MinSmallItemSize = 40.dp
 
     /** The maximum size that a carousel strategy can choose its small items to be. * */
-    internal val MaxSmallItemSize = 56.dp
+    val MaxSmallItemSize = 56.dp
 
     internal val AnchorSize = 10.dp
     internal const val MediumLargeItemDiffThreshold = 0.85f

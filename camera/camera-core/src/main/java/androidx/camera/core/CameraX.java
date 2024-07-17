@@ -51,6 +51,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.core.util.Preconditions;
+import androidx.tracing.Trace;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -284,6 +285,7 @@ public final class CameraX {
             @NonNull Context context,
             @NonNull CallbackToFutureAdapter.Completer<Void> completer) {
         cameraExecutor.execute(() -> {
+            Trace.beginSection("CX:initAndRetryRecursively");
             Context appContext = ContextUtil.getApplicationContext(context);
             try {
                 CameraFactory.Provider cameraFactoryProvider =
@@ -336,12 +338,19 @@ public final class CameraX {
                 validateCameras(appContext, mCameraRepository, availableCamerasLimiter);
 
                 // Set completer to null if the init was successful.
+                if (attemptCount > 1) {
+                    // Reset execution trace status on success
+                    traceExecutionState(null);
+                }
                 setStateToInitialized();
                 completer.set(null);
             } catch (CameraIdListIncorrectException | InitializationException
                      | RuntimeException e) {
+                RetryPolicy.ExecutionState executionState =
+                        new CameraProviderExecutionState(startMs, attemptCount, e);
                 RetryPolicy.RetryConfig retryConfig = mRetryPolicy.onRetryDecisionRequested(
-                        new CameraProviderExecutionState(startMs, attemptCount, e));
+                        executionState);
+                traceExecutionState(executionState);
                 if (retryConfig.shouldRetry() && attemptCount < Integer.MAX_VALUE) {
                     Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
                             + SystemClock.elapsedRealtime(), e);
@@ -375,6 +384,8 @@ public final class CameraX {
                         completer.setException(new InitializationException(e));
                     }
                 }
+            } finally {
+                Trace.endSection();
             }
         });
     }
@@ -521,5 +532,12 @@ public final class CameraX {
          * <p>Once the CameraX instance has been shutdown, it can't be used or re-initialized.
          */
         SHUTDOWN
+    }
+
+    private void traceExecutionState(@Nullable RetryPolicy.ExecutionState state) {
+        if (Trace.isEnabled()) {
+            int status = state != null ? state.getStatus() : -1;
+            Trace.setCounter("CX:CameraProvider-RetryStatus", status);
+        }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.work.multiprocess
 
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -27,6 +28,7 @@ import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkRequest
+import androidx.work.buildDelegatedRemoteRequestData
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
@@ -35,6 +37,7 @@ import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.isRemoteWorkRequest
 import androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion.ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME
 import java.util.concurrent.Executor
 import org.junit.Assert.assertEquals
@@ -150,6 +153,35 @@ public class RemoteCoroutineWorkerTest {
         wrapper.launch().get()
         val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
+    }
+
+    @Test
+    @MediumTest
+    public fun testSwitchRemoteProcess() {
+        if (Build.VERSION.SDK_INT <= 27) {
+            // Exclude <= API 27, from tests because it causes a SIGSEGV.
+            return
+        }
+
+        val packageName = "PACKAGE_NAME"
+        val className = "CLASS_NAME"
+        val inputKey = "INPUT_KEY"
+        val inputValue = "InputValue"
+        val inputData = Data.Builder().putString(inputKey, inputValue).build()
+        val data =
+            buildDelegatedRemoteRequestData(
+                delegatedWorkerName = RemoteSuccessWorker::class.java.name,
+                componentName = ComponentName(packageName, className),
+                inputData
+            )
+        assertEquals(data.isRemoteWorkRequest(), true)
+        assertEquals(
+            data.getString(ARGUMENT_REMOTE_LISTENABLE_WORKER_NAME),
+            RemoteSuccessWorker::class.java.name
+        )
+        assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_PACKAGE_NAME), packageName)
+        assertEquals(data.getString(RemoteListenableWorker.ARGUMENT_CLASS_NAME), className)
+        assertEquals(data.getString(inputKey), inputValue)
     }
 
     private inline fun <reified T : ListenableWorker> buildRequest(): OneTimeWorkRequest {

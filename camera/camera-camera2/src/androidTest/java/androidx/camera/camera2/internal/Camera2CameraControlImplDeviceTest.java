@@ -91,6 +91,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.google.common.truth.BooleanSubject;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
@@ -128,6 +129,8 @@ public final class Camera2CameraControlImplDeviceTest {
             ArgumentCaptor.forClass(List.class);
     private HandlerThread mHandlerThread;
     private Handler mHandler;
+    private ScheduledExecutorService mExecutorService;
+
     private CameraCharacteristics mCameraCharacteristics;
     private CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private boolean mHasFlashUnit;
@@ -158,12 +161,12 @@ public final class Camera2CameraControlImplDeviceTest {
 
         mControlUpdateCallback = mock(CameraControlInternal.ControlUpdateCallback.class);
 
-        ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
+        mExecutorService = CameraXExecutors.newHandlerExecutor(mHandler);
         String cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing);
         mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
                 mCameraCharacteristics, cameraId);
         mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
-                executorService, executorService, mControlUpdateCallback);
+                mExecutorService, mExecutorService, mControlUpdateCallback);
         mCameraQuirks = CameraQuirks.get(cameraId, mCameraCharacteristicsCompat);
 
         mCamera2CameraControlImpl.incrementUseCount();
@@ -1039,6 +1042,53 @@ public final class Camera2CameraControlImplDeviceTest {
 
         callback.assertCallbackIsCalled(5000);
         executor.assertExecutorIsCalled(5000);
+    }
+
+    @Test
+    public void canUseVideoUsage() {
+        // No recording initially.
+        verifyIfInVideoUsage(false);
+
+        // Case 1: Single video usage.
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        verifyIfInVideoUsage(true);
+
+        mCamera2CameraControlImpl.decrementVideoUsage();
+        verifyIfInVideoUsage(false);
+
+        // Case 2: Multiple video usages.
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        mCamera2CameraControlImpl.incrementVideoUsage();
+        verifyIfInVideoUsage(true);
+
+        mCamera2CameraControlImpl.decrementVideoUsage();
+        // There should still be a video usage remaining two were set as true before
+        verifyIfInVideoUsage(true);
+
+        mCamera2CameraControlImpl.decrementVideoUsage();
+        verifyIfInVideoUsage(false);
+
+        // Case 3: video usage clearing when inactive.
+        mCamera2CameraControlImpl.incrementVideoUsage();
+
+        mExecutorService.execute(() -> mCamera2CameraControlImpl.setActive(false));
+        verifyIfInVideoUsage(false);
+    }
+
+    private void verifyIfInVideoUsage(boolean expected) {
+        try {
+            HandlerUtil.waitForLooperToIdle(mHandler);
+        } catch (InterruptedException e) {
+            throw new AssertionError("Waiting for background thread idle failed!", e);
+        }
+
+        BooleanSubject assertSubject = assertThat(mCamera2CameraControlImpl.isInVideoUsage());
+
+        if (expected) {
+            assertSubject.isTrue();
+        } else {
+            assertSubject.isFalse();
+        }
     }
 
     private static class TestCameraCaptureCallback extends CameraCaptureCallback {

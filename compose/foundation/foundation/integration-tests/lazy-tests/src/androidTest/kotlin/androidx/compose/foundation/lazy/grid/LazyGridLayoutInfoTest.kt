@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
@@ -24,17 +25,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.list.LayoutInfoTestParam
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume
 import org.junit.Before
@@ -492,6 +497,51 @@ class LazyGridLayoutInfoTest(param: LayoutInfoTestParam) :
             assertThat(state.layoutInfo.visibleItemsInfo.map { it.contentType })
                 .isEqualTo(listOf(0, 1, null))
         }
+    }
+
+    @Test
+    fun snapshotFlowIsNotifiedAboutNewOffsetOnSmallScrolls() {
+        var firstItemOffset = 0
+
+        val state = LazyGridState()
+        rule.setContent {
+            LazyGrid(
+                cells = 1,
+                modifier = Modifier.size(15.dp),
+                reverseLayout = reverseLayout,
+                state = state
+            ) {
+                items(100) { Box(Modifier.size(10.dp)) }
+            }
+            LaunchedEffect(state) {
+                snapshotFlow { state.layoutInfo }
+                    .collectLatest {
+                        val offset = it.visibleItemsInfo.firstOrNull()?.offset ?: IntOffset.Zero
+                        firstItemOffset = if (vertical) offset.y else offset.x
+                    }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollBy(1f) } }
+
+        rule.runOnIdle { assertThat(firstItemOffset).isEqualTo(-1) }
+    }
+
+    @Test
+    fun maxSpan_returnsNumberOfSlotsPerLine() {
+        val state = LazyGridState()
+        rule.setContent {
+            LazyGrid(
+                cells = 4,
+                modifier = Modifier.mainAxisSize(itemSizeDp * 4).crossAxisSize(itemSizeDp * 2),
+                state = state,
+                reverseLayout = reverseLayout,
+            ) {
+                items(8) { Box(Modifier.requiredSize(itemSizeDp)) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(state.layoutInfo.maxSpan).isEqualTo(4) }
     }
 
     fun LazyGridLayoutInfo.assertVisibleItems(

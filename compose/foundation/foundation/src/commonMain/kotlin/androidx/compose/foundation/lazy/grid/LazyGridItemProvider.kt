@@ -27,13 +27,12 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 internal interface LazyGridItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
     val spanLayoutProvider: LazyGridSpanLayoutProvider
 }
 
-@ExperimentalFoundationApi
 @Composable
 internal fun rememberLazyGridItemProviderLambda(
     state: LazyGridState,
@@ -59,7 +58,6 @@ internal fun rememberLazyGridItemProviderLambda(
     }
 }
 
-@ExperimentalFoundationApi
 private class LazyGridItemProviderImpl(
     private val state: LazyGridState,
     private val intervalContent: LazyGridIntervalContent,

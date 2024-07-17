@@ -50,7 +50,6 @@ import androidx.compose.ui.platform.LocalResourceIdCache
  * Example:
  *
  * @sample androidx.compose.ui.samples.AndroidDrawableInDrawScopeSample
- *
  * @param id Resources object to query the image file from
  * @return [Painter] used for drawing the loaded resource
  */

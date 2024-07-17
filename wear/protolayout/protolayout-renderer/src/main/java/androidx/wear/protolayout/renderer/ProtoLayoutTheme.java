@@ -28,6 +28,12 @@ import androidx.annotation.RestrictTo.Scope;
 /** Theme customization for ProtoLayout texts, which includes Font types and variants. */
 @RestrictTo(Scope.LIBRARY)
 public interface ProtoLayoutTheme {
+    // These map to family names from androidx.wear.protolayout.LayoutElementBuilders.FontStyle
+    String FONT_NAME_DEFAULT = "default";
+    String FONT_NAME_ROBOTO = "roboto";
+    String FONT_NAME_ROBOTO_FLEX = "roboto-flex";
+    String FONT_NAME_LEGACY_VARIANT_TITLE = "protolayout-title";
+    String FONT_NAME_LEGACY_VARIANT_BODY = "protolayout-body";
 
     /** Holder for different weights of the same font variant. */
     interface FontSet {
@@ -43,13 +49,22 @@ public interface ProtoLayoutTheme {
     }
 
     /**
-     * Gets the FontSet for a given font variant.
+     * Returns the {@link FontSet} for the first font family name that is supported. If none are
+     * supported, defaults to the system font.
      *
-     * @param fontVariant the numeric value of the proto enum {@link
-     *     androidx.wear.protolayout.proto.LayoutElementProto.FontVariant}.
+     * <p>It's theme's responsibility to define which font family is supported by returning the
+     * corresponding {@link FontSet}. The default one should be system font and always supported.
+     * The Roboto Flex variable font from {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#ROBOTO_FLEX_FONT} and
+     * standard Roboto font from {@link
+     * androidx.wear.protolayout.LayoutElementBuilders.FontStyle#ROBOTO_FONT} should be
+     * supported on renderers supporting versions 1.4 and above.
+     *
+     * @param preferredFontFamilies the ordered list of String values representing the preferred
+     *     font families that should be used.
      */
     @NonNull
-    FontSet getFontSet(int fontVariant);
+    FontSet getFontSet(@NonNull String... preferredFontFamilies);
 
     /** Gets an Android Theme object styled with TextAppearance attributes. */
     @NonNull
@@ -63,9 +78,9 @@ public interface ProtoLayoutTheme {
     int getFallbackTextAppearanceResId();
 
     /**
-     * Gets a drawable resource Id for a custom ripple. The resource with this id should be
-     * present in the Android Theme returned by {@link ProtoLayoutTheme#getTheme()}. If no custom
-     * ripple is set, this method should return zero.
+     * Gets a drawable resource Id for a custom ripple. The resource with this id should be present
+     * in the Android Theme returned by {@link ProtoLayoutTheme#getTheme()}. If no custom ripple is
+     * set, this method should return zero.
      */
     @DrawableRes
     int getRippleResId();

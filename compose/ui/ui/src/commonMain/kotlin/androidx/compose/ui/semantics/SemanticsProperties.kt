@@ -17,7 +17,6 @@
 package androidx.compose.ui.semantics
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.geometry.Offset
@@ -88,14 +87,14 @@ object SemanticsProperties {
         "Use `isTraversalGroup` instead.",
         replaceWith = ReplaceWith("IsTraversalGroup"),
     )
-    val IsContainer: SemanticsPropertyKey<Boolean>
-        get() = IsTraversalGroup
+    // TODO(mnuzen): `isContainer` should not need to be an accessibility key after a new
+    //  pruning API is added. See b/347038246 for more details.
+    val IsContainer = AccessibilityKey<Boolean>("IsContainer")
 
     /** @see SemanticsPropertyReceiver.isTraversalGroup */
-    val IsTraversalGroup = AccessibilityKey<Boolean>("IsTraversalGroup")
+    val IsTraversalGroup = SemanticsPropertyKey<Boolean>("IsTraversalGroup")
 
     /** @see SemanticsPropertyReceiver.invisibleToUser */
-    @ExperimentalComposeUiApi
     val InvisibleToUser =
         SemanticsPropertyKey<Unit>(
             name = "InvisibleToUser",
@@ -126,7 +125,7 @@ object SemanticsProperties {
 
     /** @see SemanticsPropertyReceiver.traversalIndex */
     val TraversalIndex =
-        AccessibilityKey<Float>(
+        SemanticsPropertyKey<Float>(
             name = "TraversalIndex",
             mergePolicy = { parentValue, _ ->
                 // Never merge traversal indices
@@ -648,6 +647,12 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * accessibility: [SemanticsActions.OnClick]
          */
         val DropdownList = Role(6)
+
+        /**
+         * This element is a number picker that a user can perform gesture to adjust and select the
+         * next or previous value.
+         */
+        val NumberPicker = Role(7)
     }
 
     override fun toString() =
@@ -659,6 +664,7 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
             Tab -> "Tab"
             Image -> "Image"
             DropdownList -> "DropdownList"
+            NumberPicker -> "NumberPicker"
             else -> "Unknown"
         }
 }
@@ -794,7 +800,8 @@ var SemanticsPropertyReceiver.focused by SemanticsProperties.Focused
     "Use `isTraversalGroup` instead.",
     replaceWith = ReplaceWith("isTraversalGroup"),
 )
-var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsTraversalGroup
+@Suppress("DEPRECATION")
+var SemanticsPropertyReceiver.isContainer by SemanticsProperties.IsContainer
 
 /**
  * Whether this semantics node is a traversal group. This is defined as a node whose function is to
@@ -816,7 +823,6 @@ var SemanticsPropertyReceiver.isTraversalGroup by SemanticsProperties.IsTraversa
  * redundant with semantics of their parent, consider [SemanticsModifier.clearAndSetSemantics]
  * instead.
  */
-@ExperimentalComposeUiApi
 fun SemanticsPropertyReceiver.invisibleToUser() {
     this[SemanticsProperties.InvisibleToUser] = Unit
 }

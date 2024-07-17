@@ -182,10 +182,8 @@ class Camera2CaptureRequestBuilder {
             }
         }
 
-        if (isRepeatingRequest) {
-            applyTemplateParamsOverrideWorkaround(builder, captureConfig.getTemplateType(),
-                    mTemplateParamsOverride);
-        }
+        applyTemplateParamsOverrideWorkaround(builder, captureConfig.getTemplateType(),
+                mTemplateParamsOverride);
 
         applyAeFpsRange(captureConfig, builder);
 

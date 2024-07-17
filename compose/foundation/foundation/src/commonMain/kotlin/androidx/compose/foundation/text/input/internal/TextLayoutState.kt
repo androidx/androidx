@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
@@ -37,7 +37,6 @@ import androidx.compose.ui.unit.dp
  * Manages text layout for TextField including layout coordinates of decoration box and inner text
  * field.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextLayoutState {
     private var layoutCache = TextFieldLayoutStateCache()
 
@@ -93,12 +92,14 @@ internal class TextLayoutState {
         textStyle: TextStyle,
         singleLine: Boolean,
         softWrap: Boolean,
+        keyboardOptions: KeyboardOptions,
     ) {
         layoutCache.updateNonMeasureInputs(
             textFieldState = textFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
             softWrap = softWrap,
+            keyboardOptions = keyboardOptions,
         )
     }
 

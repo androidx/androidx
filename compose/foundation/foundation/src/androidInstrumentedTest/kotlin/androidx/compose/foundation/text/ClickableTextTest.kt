@@ -16,16 +16,12 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -33,12 +29,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argWhere
-import org.mockito.kotlin.inOrder
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -82,43 +75,6 @@ class ClickableTextTest {
         rule.runOnIdle {
             verify(onClick1, times(0)).invoke(any())
             verify(onClick2, times(1)).invoke(any())
-        }
-    }
-
-    @OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
-    @Test
-    fun onhover_callback() {
-        val onHover: (Int?) -> Unit = mock()
-        val onClick: (Int) -> Unit = mock()
-        rule.setContent {
-            ClickableText(
-                modifier = Modifier.testTag("clickableText"),
-                text = AnnotatedString("android"),
-                onHover = onHover,
-                onClick = onClick,
-            )
-        }
-
-        rule.onNodeWithTag("clickableText").performMouseInput {
-            moveTo(Offset(-1f, -1f), 0) // outside bounds
-            moveTo(Offset(1f, 1f), 0) // inside bounds
-            moveTo(Offset(-1f, -1f), 0) // outside bounds again
-            moveTo(Offset(1f, 1f), 0) // inside bounds again
-            moveTo(Offset(1f, 2f), 0) // move but stay on the same character
-            moveTo(Offset(50f, 1f), 0) // move to different character
-        }
-
-        rule.runOnIdle {
-            onHover.inOrder {
-                verify().invoke(0) // first enter
-                verify().invoke(null) // first exit
-                verify().invoke(0) // second enter
-                verify().invoke(argWhere { it > 0 }) // move to different character
-                verifyNoMoreInteractions()
-            }
-            // Using `verifyZeroInteractions` here inexplicably results in a build failure, but
-            // `verifyNoMoreInteractions` builds and is literally calling the same API.
-            verifyNoMoreInteractions(onClick)
         }
     }
 }

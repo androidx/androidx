@@ -767,4 +767,15 @@ internal class LongObjectMapTest {
         assertTrue(map.all { key, value -> key < 7L && value.isNotEmpty() })
         assertFalse(map.all { key, _ -> key < 6L })
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableLongObjectMap<String>()
+
+        for (i in 0..1000000) {
+            map[i.toLong()] = i.toString()
+            map.remove(i.toLong())
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }

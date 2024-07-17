@@ -16,12 +16,12 @@
   -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/item_main"
-        android:title="@string/main_cuj" />
+        android:id="@+id/item_resize"
+        android:title="@string/resize_cuj" />
+    <item
+        android:id="@+id/item_scroll"
+        android:title="@string/scroll_cuj" />
     <item
         android:id="@+id/item_pooling_container"
         android:title="@string/poolingcontainer_cuj" />
-    <item
-        android:id="@+id/item_sandbox_death"
-        android:title="Sandbox Death CUJ" />
 </menu>

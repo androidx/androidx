@@ -110,6 +110,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui-graphics"))
                 api(project(":compose:ui:ui-text"))
+                api(project(":graphics:graphics-shapes"))
 
                 implementation(project(":compose:ui:ui-util"))
                 implementation(project(":compose:foundation:foundation-layout"))

@@ -18,10 +18,18 @@ package androidx.compose.foundation.gestures
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.AnimationVector
+import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.AnimationVector2D
+import androidx.compose.animation.core.AnimationVector4D
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.core.VectorizedAnimationSpec
+import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.animation.core.animateTo
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
@@ -142,7 +150,7 @@ suspend fun TransformableState.animateZoomBy(
 /**
  * Animate rotate by a ratio of [degrees] clockwise and suspend until its finished.
  *
- * @param degrees ratio over the current size by which to rotate, in degrees
+ * @param degrees the degrees by which to rotate clockwise
  * @param animationSpec [AnimationSpec] to be used for animation
  */
 suspend fun TransformableState.animateRotateBy(
@@ -181,6 +189,196 @@ suspend fun TransformableState.animatePanBy(
         }
     }
 }
+
+/**
+ * Animate zoom, pan, and rotation simultaneously and suspend until the animation is finished.
+ *
+ * Zoom is animated by a ratio of [zoomFactor] over the current size. Pan is animated by [offset] in
+ * pixels. Rotation is animated by the value of [degrees] clockwise.
+ *
+ * @sample androidx.compose.foundation.samples.TransformableAnimateBySample
+ * @param zoomFactor ratio over the current size by which to zoom. For example, if [zoomFactor] is
+ *   `3f`, zoom will be increased 3 fold from the current value.
+ * @param offset offset to pan, in pixels
+ * @param degrees the degrees by which to rotate clockwise
+ * @param zoomAnimationSpec [AnimationSpec] to be used for animating zoom
+ * @param offsetAnimationSpec [AnimationSpec] to be used for animating offset
+ * @param rotationAnimationSpec [AnimationSpec] to be used for animating rotation
+ */
+@ExperimentalFoundationApi
+suspend fun TransformableState.animateBy(
+    zoomFactor: Float = 1f,
+    offset: Offset = Offset.Zero,
+    degrees: Float = 0f,
+    zoomAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+    offsetAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
+    rotationAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow)
+) {
+    require(zoomFactor > 0) { "zoom value should be greater than 0" }
+    var previousState = AnimationData(zoom = 1f, offset = Offset.Zero, degrees = 0f)
+    val targetState = AnimationData(zoomFactor, offset, degrees)
+    val animationSpec =
+        DelegatingAnimationSpec(zoomAnimationSpec, offsetAnimationSpec, rotationAnimationSpec)
+    transform {
+        AnimationState(
+                typeConverter = AnimationDataConverter,
+                initialValue = previousState,
+                initialVelocity = ZeroAnimationVelocity
+            )
+            .animateTo(targetState, animationSpec) {
+                transformBy(
+                    zoomChange =
+                        if (previousState.zoom == 0f) 1f else value.zoom / previousState.zoom,
+                    rotationChange = value.degrees - previousState.degrees,
+                    panChange = value.offset - previousState.offset
+                )
+                previousState = value
+            }
+    }
+}
+
+private val ZeroAnimationVelocity = AnimationData(zoom = 0f, offset = Offset.Zero, degrees = 0f)
+
+private class DelegatingAnimationSpec(
+    private val zoomAnimationSpec: AnimationSpec<Float>,
+    private val offsetAnimationSpec: AnimationSpec<Offset>,
+    private val rotationAnimationSpec: AnimationSpec<Float>
+) : AnimationSpec<AnimationData> {
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<AnimationData, V>
+    ): VectorizedAnimationSpec<V> {
+        val vectorizedZoomAnimationSpec = zoomAnimationSpec.vectorize(Float.VectorConverter)
+        val vectorizedOffsetAnimationSpec = offsetAnimationSpec.vectorize(Offset.VectorConverter)
+        val vectorizedRotationAnimationSpec = rotationAnimationSpec.vectorize(Float.VectorConverter)
+        return object : VectorizedFiniteAnimationSpec<V> {
+            override fun getDurationNanos(
+                initialValue: V,
+                targetValue: V,
+                initialVelocity: V
+            ): Long {
+                val initialAnimationData = converter.convertFromVector(initialValue)
+                val targetAnimationData = converter.convertFromVector(targetValue)
+                val initialVelocityAnimationData = converter.convertFromVector(initialVelocity)
+
+                return maxOf(
+                    vectorizedZoomAnimationSpec.getDurationNanos(
+                        initialAnimationData.zoomVector(),
+                        targetAnimationData.zoomVector(),
+                        initialVelocityAnimationData.zoomVector()
+                    ),
+                    vectorizedOffsetAnimationSpec.getDurationNanos(
+                        initialAnimationData.offsetVector(),
+                        targetAnimationData.offsetVector(),
+                        initialVelocityAnimationData.offsetVector()
+                    ),
+                    vectorizedRotationAnimationSpec.getDurationNanos(
+                        initialAnimationData.degreesVector(),
+                        targetAnimationData.degreesVector(),
+                        initialVelocityAnimationData.degreesVector()
+                    )
+                )
+            }
+
+            override fun getVelocityFromNanos(
+                playTimeNanos: Long,
+                initialValue: V,
+                targetValue: V,
+                initialVelocity: V
+            ): V {
+                val initialAnimationData = converter.convertFromVector(initialValue)
+                val targetAnimationData = converter.convertFromVector(targetValue)
+                val initialVelocityAnimationData = converter.convertFromVector(initialVelocity)
+
+                val zoomVelocity =
+                    vectorizedZoomAnimationSpec.getVelocityFromNanos(
+                        playTimeNanos,
+                        initialAnimationData.zoomVector(),
+                        targetAnimationData.zoomVector(),
+                        initialVelocityAnimationData.zoomVector()
+                    )
+                val offsetVelocity =
+                    vectorizedOffsetAnimationSpec.getVelocityFromNanos(
+                        playTimeNanos,
+                        initialAnimationData.offsetVector(),
+                        targetAnimationData.offsetVector(),
+                        initialVelocityAnimationData.offsetVector()
+                    )
+                val rotationVelocity =
+                    vectorizedRotationAnimationSpec.getVelocityFromNanos(
+                        playTimeNanos,
+                        initialAnimationData.degreesVector(),
+                        targetAnimationData.degreesVector(),
+                        initialVelocityAnimationData.degreesVector()
+                    )
+
+                return packToAnimationVector(zoomVelocity, offsetVelocity, rotationVelocity)
+            }
+
+            override fun getValueFromNanos(
+                playTimeNanos: Long,
+                initialValue: V,
+                targetValue: V,
+                initialVelocity: V
+            ): V {
+                val initialAnimationData = converter.convertFromVector(initialValue)
+                val targetAnimationData = converter.convertFromVector(targetValue)
+                val initialVelocityAnimationData = converter.convertFromVector(initialVelocity)
+
+                val zoomValue =
+                    vectorizedZoomAnimationSpec.getValueFromNanos(
+                        playTimeNanos,
+                        initialAnimationData.zoomVector(),
+                        targetAnimationData.zoomVector(),
+                        initialVelocityAnimationData.zoomVector()
+                    )
+                val offsetValue =
+                    vectorizedOffsetAnimationSpec.getValueFromNanos(
+                        playTimeNanos,
+                        initialAnimationData.offsetVector(),
+                        targetAnimationData.offsetVector(),
+                        initialVelocityAnimationData.offsetVector()
+                    )
+                val rotationValue =
+                    vectorizedRotationAnimationSpec.getValueFromNanos(
+                        playTimeNanos,
+                        initialAnimationData.degreesVector(),
+                        targetAnimationData.degreesVector(),
+                        initialVelocityAnimationData.degreesVector()
+                    )
+
+                return packToAnimationVector(zoomValue, offsetValue, rotationValue)
+            }
+
+            private fun AnimationData.zoomVector() =
+                Float.VectorConverter.convertToVector(this.zoom)
+
+            private fun AnimationData.offsetVector() =
+                Offset.VectorConverter.convertToVector(Offset(this.offset.x, this.offset.y))
+
+            private fun AnimationData.degreesVector() =
+                Float.VectorConverter.convertToVector(this.degrees)
+
+            private fun packToAnimationVector(
+                zoom: AnimationVector1D,
+                offset: AnimationVector2D,
+                rotation: AnimationVector1D
+            ): V =
+                converter.convertToVector(
+                    AnimationData(zoom.value, Offset(offset.v1, offset.v2), rotation.value)
+                )
+        }
+    }
+}
+
+private object AnimationDataConverter : TwoWayConverter<AnimationData, AnimationVector4D> {
+    override val convertToVector: (AnimationData) -> AnimationVector4D
+        get() = { AnimationVector4D(it.zoom, it.offset.x, it.offset.y, it.degrees) }
+
+    override val convertFromVector: (AnimationVector4D) -> AnimationData
+        get() = { AnimationData(zoom = it.v1, offset = Offset(it.v2, it.v3), degrees = it.v4) }
+}
+
+private data class AnimationData(val zoom: Float, val offset: Offset, val degrees: Float)
 
 /**
  * Zoom without animation by a ratio of [zoomFactor] over the current size and suspend until it's

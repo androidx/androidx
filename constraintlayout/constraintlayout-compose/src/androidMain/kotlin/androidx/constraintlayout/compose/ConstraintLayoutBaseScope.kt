@@ -16,6 +16,8 @@
 
 package androidx.constraintlayout.compose
 
+import android.annotation.SuppressLint
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.layout.FirstBaseline
@@ -27,6 +29,8 @@ import androidx.constraintlayout.core.parser.CLNumber
 import androidx.constraintlayout.core.parser.CLObject
 import androidx.constraintlayout.core.parser.CLString
 import androidx.constraintlayout.core.state.ConstraintSetParser
+import androidx.constraintlayout.core.utils.GridCore
+import org.jetbrains.annotations.TestOnly
 
 /**
  * Common scope for [ConstraintLayoutScope] and [ConstraintSetScope], the content being shared
@@ -640,396 +644,304 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
 
     /**
      * Creates a Grid based helper that lays out its elements in a single Row. Example:
-     * ConstraintLayout( ConstraintSet { val a = createRefFor("1") val b = createRefFor("2") val c =
-     * createRefFor("3") val d = createRefFor("4") val e = createRefFor("5") val weights =
-     * intArrayOf(3, 3, 2, 2, 1) val g1 = createRow( a, b, c, d, e, skips = arrayOf(Skip(1, 1),
-     * Skip(3, 2)), spans = arrayOf(Span(1, 2)), horizontalGap = 10.dp, columnWeights = weights,
-     * padding = 10.dp, ) constrain(g1) { width = Dimension.matchParent height =
-     * Dimension.matchParent }, modifier = Modifier.fillMaxSize() ) { val numArray = arrayOf("1",
-     * "2", "3", "4", "5") for (num in numArray) { Button( modifier =
-     * Modifier.layoutId(num).width(120.dp), onClick = {}, ) { Text(text = String.format("btn%s",
-     * num)) } } }
+     * ```
+     * ConstraintLayout(
+     *     constraintSet = ConstraintSet {
+     *         val (a, b, c, d, e) = createRefsFor(0, 1, 2, 3, 4)
+     *         val row = createRow(
+     *             a, b, c, d, e,
+     *             spacing = 10.dp,
+     *             weights = floatArrayOf(3f, 3f, 2f, 2f, 1f),
+     *         )
+     *         constrain(row) {
+     *             width = Dimension.matchParent
+     *             height = Dimension.matchParent
+     *         }
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param skips specify area(s) in a Row to be skipped - format: Skip(index, size)
-     * @param spans specify area(s) in a Row to be spanned - format: Span(index, size)
-     * @param horizontalGap defines the gap between views in the x axis
-     * @param columnWeights defines the weight of each column
-     * @param padding sets padding around the content
+     *         constrain(a, b, c, d, e) {
+     *             width = Dimension.fillToConstraints
+     *         }
+     *     },
+     *     modifier = Modifier.fillMaxSize()
+     * ) {
+     *     repeat(5) {
+     *         Text(
+     *             text = "item$it",
+     *             modifier = Modifier
+     *                 .layoutId(it)
+     *                 .background(Color.LightGray)
+     *         )
+     *     }
+     * }
+     * ```
+     *
+     * @param elements [LayoutReference]s to be laid out by the Grid-based Row helper.
+     * @param spacing Defines the horizontal spacing between each item in the Row.
+     * @param weights Defines the weight for each element in the Row. Note that the number of
+     *   weights provided are expected to match the number of [elements] given. Otherwise, weights
+     *   will be automatically appended (with a value of `1`), or trimmed to match the number of
+     *   given [elements].
+     * @see createGrid
      */
+    @SuppressLint("Range") // Enables internal grid mode for row and column
     fun createRow(
         vararg elements: LayoutReference,
-        skips: Array<Skip> = arrayOf(),
-        spans: Array<Span> = arrayOf(),
-        horizontalGap: Dp = 0.dp,
-        columnWeights: IntArray = intArrayOf(),
-        padding: Dp = 0.dp,
+        spacing: Dp = 0.dp,
+        weights: FloatArray = floatArrayOf(),
     ): ConstrainedLayoutReference {
         return createGrid(
             elements = elements,
             rows = 1,
-            skips = skips,
-            spans = spans,
-            horizontalGap = horizontalGap,
-            columnWeights = columnWeights,
-            paddingStart = padding,
-            paddingTop = padding,
-            paddingEnd = padding,
-            paddingBottom = padding,
+            columns = 0,
+            horizontalSpacing = spacing,
+            columnWeights = weights,
         )
     }
 
     /**
-     * Creates a Grid based helper that lays out its elements in a single Row. Example:
-     * ConstraintLayout( ConstraintSet { val a = createRefFor("1") val b = createRefFor("2") val c =
-     * createRefFor("3") val d = createRefFor("4") val e = createRefFor("5") val weights =
-     * intArrayOf(3, 3, 2, 2, 1) val g1 = createRow( a, b, c, d, e, skips = arrayOf(Skip(1, 1),
-     * Skip(3, 2)), spans = arrayOf(Span(1, 2)), horizontalGap = 10.dp, columnWeights = weights,
-     * paddingHorizontal = 10.dp, paddingVertical = 10.dp, ) constrain(g1) { width =
-     * Dimension.matchParent height = Dimension.matchParent }, modifier = Modifier.fillMaxSize() ) {
-     * val numArray = arrayOf("1", "2", "3", "4", "5") for (num in numArray) { Button( modifier =
-     * Modifier.layoutId(num).width(120.dp), onClick = {}, ) { Text(text = String.format("btn%s",
-     * num)) } } }
+     * Creates a Grid based helper that lays out its elements in a single Column.
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param skips specify area(s) in a Row to be skipped - format: Skip(index, size)
-     * @param spans specify area(s) in a Row to be spanned - format: Span(index, size)
-     * @param horizontalGap defines the gap between views in the y axis
-     * @param columnWeights defines the weight of each column
-     * @param paddingHorizontal sets paddingStart and paddingEnd of the content
-     * @param paddingVertical sets paddingTop and paddingBottom of the content
-     */
-    fun createRow(
-        vararg elements: LayoutReference,
-        skips: Array<Skip> = arrayOf(),
-        spans: Array<Span> = arrayOf(),
-        horizontalGap: Dp = 0.dp,
-        columnWeights: IntArray = intArrayOf(),
-        paddingHorizontal: Dp = 0.dp,
-        paddingVertical: Dp = 0.dp,
-    ): ConstrainedLayoutReference {
-        return createGrid(
-            elements = elements,
-            rows = 1,
-            skips = skips,
-            spans = spans,
-            horizontalGap = horizontalGap,
-            columnWeights = columnWeights,
-            paddingStart = paddingHorizontal,
-            paddingTop = paddingVertical,
-            paddingEnd = paddingHorizontal,
-            paddingBottom = paddingVertical,
-        )
-    }
-
-    /**
-     * Creates a Grid based helper that lays out its elements in a single Column. Example:
-     * ConstraintLayout( ConstraintSet { val a = createRefFor("1") val b = createRefFor("2") val c =
-     * createRefFor("3") val d = createRefFor("4") val e = createRefFor("5") val weights =
-     * intArrayOf(3, 3, 2, 2, 1) val g1 = createColumn( a, b, c, d, e, skips = arrayOf(Skip(1, 1),
-     * Skip(3, 2)), spans = arrayOf(Span(1, 2)), verticalGap = 10.dp, rowWeights = weights, padding
-     * = 10.dp, ) constrain(g1) { width = Dimension.matchParent height = Dimension.matchParent },
-     * modifier = Modifier.fillMaxSize() ) { val numArray = arrayOf("1", "2", "3", "4", "5") for
-     * (num in numArray) { Button( modifier = Modifier.layoutId(num).width(120.dp), onClick = {}, )
-     * { Text(text = String.format("btn%s", num)) } } }
+     * Example:
+     * ```
+     * ConstraintLayout(
+     *     constraintSet = ConstraintSet {
+     *         val (a, b, c, d, e) = createRefsFor(0, 1, 2, 3, 4)
+     *         val column = createColumn(
+     *             a, b, c, d, e,
+     *             spacing = 10.dp,
+     *             weights = floatArrayOf(3f, 3f, 2f, 2f, 1f),
+     *         )
+     *         constrain(column) {
+     *             width = Dimension.matchParent
+     *             height = Dimension.matchParent
+     *         }
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param spans specify area(s) in a Column to be spanned - format: Span(index, size)
-     * @param skips specify area(s) in a Column to be skipped - format: Skip(index, size)
-     * @param verticalGap defines the gap between views in the y axis
-     * @param rowWeights defines the weight of each row
-     * @param padding sets padding around the content
+     *         constrain(a, b, c, d, e) {
+     *             height = Dimension.fillToConstraints
+     *         }
+     *     },
+     *     modifier = Modifier.fillMaxSize()
+     * ) {
+     *     repeat(5) {
+     *         Text(
+     *             text = "item$it",
+     *             modifier = Modifier
+     *                 .layoutId(it)
+     *                 .background(Color.LightGray)
+     *         )
+     *     }
+     * }
+     * ```
+     *
+     * @param elements [LayoutReference]s to be laid out by the Grid-based Column helper
+     * @param spacing Defines the vertical spacing between each item in the Column.
+     * @param weights Defines the weight for each element in the Column. Note that the number of
+     *   weights provided are expected to match the number of [elements] given. Otherwise, weights
+     *   will be automatically appended (with a value of `1`), or trimmed to match the number of
+     *   given [elements].
+     * @see createGrid
      */
+    @SuppressLint("Range") // Enables internal grid mode for row and column
     fun createColumn(
         vararg elements: LayoutReference,
-        skips: Array<Skip> = arrayOf(),
-        spans: Array<Span> = arrayOf(),
-        rowWeights: IntArray = intArrayOf(),
-        verticalGap: Dp = 0.dp,
-        padding: Dp = 0.dp,
+        spacing: Dp = 0.dp,
+        weights: FloatArray = floatArrayOf(),
     ): ConstrainedLayoutReference {
         return createGrid(
             elements = elements,
+            rows = 0,
             columns = 1,
-            skips = skips,
-            spans = spans,
-            verticalGap = verticalGap,
-            rowWeights = rowWeights,
-            paddingStart = padding,
-            paddingTop = padding,
-            paddingEnd = padding,
-            paddingBottom = padding,
+            verticalSpacing = spacing,
+            rowWeights = weights,
         )
     }
 
     /**
-     * Creates a Grid based helper that lays out its elements in a single Column. Example:
-     * ConstraintLayout( ConstraintSet { val a = createRefFor("1") val b = createRefFor("2") val c =
-     * createRefFor("3") val d = createRefFor("4") val e = createRefFor("5") val weights =
-     * intArrayOf(3, 3, 2, 2, 1) val g1 = createColumn( a, b, c, d, e, skips = arrayOf(Skip(1, 1),
-     * Skip(3, 2)), spans = arrayOf(Span(1, 2)), verticalGap = 10.dp, rowWeights = weights, padding
-     * = 10.dp, ) constrain(g1) { width = Dimension.matchParent height = Dimension.matchParent },
-     * modifier = Modifier.fillMaxSize() ) { val numArray = arrayOf("1", "2", "3", "4", "5") for
-     * (num in numArray) { Button( modifier = Modifier.layoutId(num).width(120.dp), onClick = {}, )
-     * { Text(text = String.format("btn%s", num)) } } }
+     * Helper that creates a fixed Grid layout.
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param skips specify area(s) in a Column to be skipped - format: Skip(index, size)
-     * @param spans specify area(s) in a Column to be spanned - format: Span(index, size)
-     * @param verticalGap defines the gap between views in the y axis
-     * @param rowWeights defines the weight of each row
-     * @param paddingHorizontal sets paddingStart and paddingEnd of the content
-     * @param paddingVertical sets paddingTop and paddingBottom of the content
-     */
-    fun createColumn(
-        vararg elements: LayoutReference,
-        skips: Array<Skip> = arrayOf(),
-        spans: Array<Span> = arrayOf(),
-        verticalGap: Dp = 0.dp,
-        rowWeights: IntArray = intArrayOf(),
-        paddingHorizontal: Dp = 0.dp,
-        paddingVertical: Dp = 0.dp,
-    ): ConstrainedLayoutReference {
-        return createGrid(
-            elements = elements,
-            columns = 1,
-            skips = skips,
-            spans = spans,
-            verticalGap = verticalGap,
-            rowWeights = rowWeights,
-            paddingStart = paddingHorizontal,
-            paddingTop = paddingVertical,
-            paddingEnd = paddingHorizontal,
-            paddingBottom = paddingVertical,
-        )
-    }
-
-    /**
-     * Creates a Grid representation with a Grid Helper. Example: ConstraintLayout( ConstraintSet {
-     * val a = createRefFor("1") val b = createRefFor("2") val c = createRefFor("3") val d =
-     * createRefFor("4") val e = createRefFor("5") val f = createRefFor("6") val g =
-     * createRefFor("7") val h = createRefFor("8") val i = createRefFor("9") val j =
-     * createRefFor("0") val k = createRefFor("box") val weights = intArrayOf(3, 3, 2, 2) val flags
-     * = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder") val g1 = createGrid( k, a, b, c, d,
-     * e, f, g, h, i, j, k, rows = 5, columns = 3, verticalGap = 25.dp, horizontalGap = 25.dp, skips
-     * = arrayOf(Skip(12, 1, 1)), spans = arrayOf(Span(0, 1, 3)), rowWeights = weights,
-     * paddingHorizontal = 10.dp, paddingVertical = 10.dp, flags = flags, ) constrain(g1) { width =
-     * Dimension.matchParent height = Dimension.matchParent }, modifier = Modifier.fillMaxSize() ) {
-     * val numArray = arrayOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0") for (num in
-     * numArray) { Button( modifier = Modifier.layoutId(num).width(120.dp), onClick = {}, ) {
-     * Text(text = String.format("btn%s", num)) } } Box( modifier =
-     * Modifier.background(Color.Gray).layoutId("box"), Alignment.BottomEnd ) { Text("100", fontSize
-     * = 80.sp) } }
+     * A grid is defined by a set number of rows and columns. By default the given [elements] are
+     * arranged horizontally first (left to right, then top to bottom).
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param orientation 0 if horizontal and 1 if vertical
-     * @param rows sets the number of rows in Grid
-     * @param columns sets the number of columns in Grid
-     * @param verticalGap defines the gap between views in the y axis
-     * @param horizontalGap defines the gap between views in the x axis
-     * @param rowWeights defines the weight of each row
-     * @param columnWeights defines the weight of each column
-     * @param skips defines the positions in a Grid to be skipped the format: Skip(position, rows,
-     *   columns) position - the index of the starting position rows - the number of rows to skip
-     *   coloumns - the number of columns to skip
-     * @param spans defines the spanned area(s) in Grid the format: Span(position, rows, columns)
-     *   position - the index of the starting position rows - the number of rows to span coloumns -
-     *   the number of columns to span
-     * @param padding sets padding around the content
-     * @param flags set different flags to be enabled (not case-sensitive), including
-     *   SubGridByColRow: reverse the width and height specification for spans/skips. Original -
-     *   Position:HeightxWidth; with the flag - Position:WidthxHeight SpansRespectWidgetOrder: spans
-     *   would respect the order of the widgets. Original - the widgets in the front of the widget
-     *   list would be assigned to the spanned area; with the flag - all the widges will be arranged
-     *   based on the given order. For example, for a layout with 1 row and 3 columns. If we have
-     *   two widgets: w1, w2 with a span as 1:1x2, the original layout would be [w2 w1 w1]. Since w1
-     *   is in the front of the list, it would be assigned to the spanned area. With the flag, the
-     *   layout would be [w1 w2 w2] that respects the order of the widget list.
-     */
-    fun createGrid(
-        vararg elements: LayoutReference,
-        orientation: Int = 0,
-        rows: Int = 0,
-        columns: Int = 0,
-        verticalGap: Dp = 0.dp,
-        horizontalGap: Dp = 0.dp,
-        rowWeights: IntArray = intArrayOf(),
-        columnWeights: IntArray = intArrayOf(),
-        skips: Array<Skip> = arrayOf(),
-        spans: Array<Span> = arrayOf(),
-        padding: Dp = 0.dp,
-        flags: Array<GridFlag> = arrayOf(),
-    ): ConstrainedLayoutReference {
-        return createGrid(
-            elements = elements,
-            orientation = orientation,
-            rows = rows,
-            columns = columns,
-            horizontalGap = horizontalGap,
-            verticalGap = verticalGap,
-            rowWeights = rowWeights,
-            columnWeights = columnWeights,
-            skips = skips,
-            spans = spans,
-            paddingStart = padding,
-            paddingTop = padding,
-            paddingEnd = padding,
-            paddingBottom = padding,
-            flags = flags,
-        )
-    }
-
-    /**
-     * Creates a Grid representation with a Grid Helper. Example: ConstraintLayout( ConstraintSet {
-     * val a = createRefFor("1") val b = createRefFor("2") val c = createRefFor("3") val d =
-     * createRefFor("4") val e = createRefFor("5") val f = createRefFor("6") val g =
-     * createRefFor("7") val h = createRefFor("8") val i = createRefFor("9") val j =
-     * createRefFor("0") val k = createRefFor("box") val weights = intArrayOf(3, 3, 2, 2) val flags
-     * = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder") val g1 = createGrid( k, a, b, c, d,
-     * e, f, g, h, i, j, k, rows = 5, columns = 3, verticalGap = 25.dp, horizontalGap = 25.dp, skips
-     * = arrayOf(Skip(12, 1, 1)), spans = arrayOf(Span(0, 1, 3)), rowWeights = weights,
-     * paddingHorizontal = 10.dp, paddingVertical = 10.dp, flags = flags, ) constrain(g1) { width =
-     * Dimension.matchParent height = Dimension.matchParent }, modifier = Modifier.fillMaxSize() ) {
-     * val numArray = arrayOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "0") for (num in
-     * numArray) { Button( modifier = Modifier.layoutId(num).width(120.dp), onClick = {}, ) {
-     * Text(text = String.format("btn%s", num)) } } Box( modifier =
-     * Modifier.background(Color.Gray).layoutId("box"), Alignment.BottomEnd ) { Text("100", fontSize
-     * = 80.sp) } }
+     * Either [rowWeights] or [columnWeights] may be provided to modify their size in the grid
+     * relative to each other.
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param rowWeights defines the weight of each row
-     * @param rows sets the number of rows in Grid
-     * @param columns sets the number of columns in Grid
-     * @param verticalGap defines the gap between views in the y axis
-     * @param horizontalGap defines the gap between views in the x axis
-     * @param columnWeights defines the weight of each column
-     * @param orientation 0 if horizontal and 1 if vertical
-     * @param skips defines the positions in a Grid to be skipped the format: Skip(position, rows,
-     *   columns) position - the index of the starting position rows - the number of rows to skip
-     *   coloumns - the number of columns to skip
-     * @param spans defines the spanned area(s) in Grid the format: Span(position, rows, columns)
-     *   position - the index of the starting position rows - the number of rows to span coloumns -
-     *   the number of columns to span
-     * @param paddingHorizontal sets paddingStart and paddingEnd of the content
-     * @param paddingVertical sets paddingTop and paddingBottom of the content
-     * @param flags set different flags to be enabled (not case-sensitive), including
-     *   SubGridByColRow: reverse the width and height specification for spans/skips. Original -
-     *   Position:HeightxWidth; with the flag - Position:WidthxHeight SpansRespectWidgetOrder: spans
-     *   would respect the order of the widgets. Original - the widgets in the front of the widget
-     *   list would be assigned to the spanned area; with the flag - all the widges will be arranged
-     *   based on the given order. For example, for a layout with 1 row and 3 columns. If we have
-     *   two widgets: w1, w2 with a span as 1:1x2, the original layout would be [w2 w1 w1]. Since w1
-     *   is in the front of the list, it would be assigned to the spanned area. With the flag, the
-     *   layout would be [w1 w2 w2] that respects the order of the widget list.
-     */
-    fun createGrid(
-        vararg elements: LayoutReference,
-        orientation: Int = 0,
-        rows: Int = 0,
-        columns: Int = 0,
-        verticalGap: Dp = 0.dp,
-        horizontalGap: Dp = 0.dp,
-        rowWeights: IntArray = intArrayOf(),
-        columnWeights: IntArray = intArrayOf(),
-        skips: Array<Skip> = arrayOf(),
-        spans: Array<Span> = arrayOf(),
-        paddingHorizontal: Dp = 0.dp,
-        paddingVertical: Dp = 0.dp,
-        flags: Array<GridFlag> = arrayOf(),
-    ): ConstrainedLayoutReference {
-        return createGrid(
-            elements = elements,
-            rowWeights = rowWeights,
-            columnWeights = columnWeights,
-            orientation = orientation,
-            rows = rows,
-            columns = columns,
-            horizontalGap = horizontalGap,
-            verticalGap = verticalGap,
-            skips = skips,
-            spans = spans,
-            paddingStart = paddingHorizontal,
-            paddingTop = paddingVertical,
-            paddingEnd = paddingHorizontal,
-            paddingBottom = paddingVertical,
-            flags = flags
-        )
-    }
-
-    /**
-     * Creates a Grid representation with a Grid Helper. Example: ConstraintLayout( ConstraintSet {
-     * val a = createRefFor("1") val b = createRefFor("2") val c = createRefFor("3") val d =
-     * createRefFor("4") val e = createRefFor("5") val f = createRefFor("6") val g =
-     * createRefFor("7") val h = createRefFor("8") val i = createRefFor("9") val j =
-     * createRefFor("0") val k = createRefFor("box") val weights = intArrayOf(3, 3, 2, 2) val flags
-     * = arrayOf("SubGridByColRow", "SpansRespectWidgetOrder") val g1 = createGrid( k, a, b, c, d,
-     * e, f, g, h, i, j, k, rows = 5, columns = 3, verticalGap = 25.dp, horizontalGap = 25.dp, skips
-     * = arrayOf(Skip(12, 1, 1)), spans = arrayOf(Span(0, 1, 3)), rowWeights = weights, paddingStart
-     * = 10.dp, paddingTop = 10.dp, paddingEnd = 10.dp, paddingBottom = 10.dp, flags = flags, )
-     * constrain(g1) { width = Dimension.matchParent height = Dimension.matchParent }, modifier =
-     * Modifier.fillMaxSize() ) { val numArray = arrayOf("1", "2", "3", "4", "5", "6", "7", "8",
-     * "9", "0") for (num in numArray) { Button( modifier = Modifier.layoutId(num).width(120.dp),
-     * onClick = {}, ) { Text(text = String.format("btn%s", num)) } } Box( modifier =
-     * Modifier.background(Color.Gray).layoutId("box"), Alignment.BottomEnd ) { Text("100", fontSize
-     * = 80.sp) } }
+     * You may provide [Span]s to define size of each cell within the grid.
      *
-     * @param elements [LayoutReference]s to be laid out by the Grid helper
-     * @param orientation 0 if horizontal and 1 if vertical
-     * @param rows sets the number of rows in Grid
-     * @param columns sets the number of columns in Grid
-     * @param verticalGap defines the gap between views in the y axis
-     * @param horizontalGap defines the gap between views in the x axis
-     * @param rowWeights defines the weight of each row
-     * @param columnWeights defines the weight of each column
-     * @param skips defines the positions in a Grid to be skipped the format: Skip(position, rows,
-     *   columns) position - the index of the starting position rows - the number of rows to skip
-     *   coloumns - the number of columns to skip
-     * @param spans defines the spanned area(s) in Grid the format: Span(position, rows, columns)
-     *   position - the index of the starting position rows - the number of rows to span coloumns -
-     *   the number of columns to span
-     * @param paddingStart sets paddingStart of the content
-     * @param paddingTop sets paddingTop of the content
-     * @param paddingEnd sets paddingEnd of the content
-     * @param paddingBottom sets paddingBottom of the content
-     * @param flags set different flags to be enabled (not case-sensitive), including
-     *   SubGridByColRow: reverse the width and height specification for spans/skips. Original -
-     *   Position:HeightxWidth; with the flag - Position:WidthxHeight SpansRespectWidgetOrder: spans
-     *   would respect the order of the widgets. Original - the widgets in the front of the widget
-     *   list would be assigned to the spanned area; with the flag - all the widges will be arranged
-     *   based on the given order. For example, for a layout with 1 row and 3 columns. If we have
-     *   two widgets: w1, w2 with a span as 1:1x2, the original layout would be [w2 w1 w1]. Since w1
-     *   is in the front of the list, it would be assigned to the spanned area. With the flag, the
-     *   layout would be [w1 w2 w2] that respects the order of the widget list.
+     * To avoid placing Layouts in specific cells (or an area within the grid), you may provide
+     * [skips]. Note that if the provided [Span]s and [Skip]s overlap, the [Skip]s will take
+     * priority, ignoring the overlapping [Span] definition.
+     *
+     * Here's an example showing how to build a calculator layout using a couple of [Span]s:
+     * ```
+     * // For most of the keys we can just use the displayed text as the ID.
+     * val ids = arrayOf(
+     *     // Text box will span all 4 columns and the first 2 of rows
+     *     "textBox",
+     *     "C", "+/-", "%", "/",
+     *     "7", "8", "9", "*",
+     *     "4", "5", "6", "-",
+     *     "1", "2", "3", "+",
+     *     // The '0' will span two columns, note that it's on the 24th position in the grid
+     *     "0", ".", "="
+     * )
+     * ConstraintLayout(
+     *     constraintSet = ConstraintSet {
+     *         val idRefs = Array(ids.size) { createRefFor(ids[it]) }
+     *
+     *         val g1 = createGrid(
+     *             elements = idRefs,
+     *             rows = 7,
+     *             columns = 4,
+     *             verticalSpacing = 10.dp,
+     *             horizontalSpacing = 10.dp,
+     *             spans = arrayOf(
+     *                 // textBox
+     *                 Span(position = 0, rows = 2, columns = 4),
+     *                 // '0' key
+     *                 Span(position = 24, rows = 1, columns = 2)
+     *             )
+     *         )
+     *
+     *         constrain(g1) {
+     *             width = Dimension.matchParent
+     *             height = Dimension.matchParent
+     *         }
+     *
+     *         constrain(*idRefs) {
+     *             // Make all the layouts fill up their space, you may still use coercing methods
+     *             // such as `atMost(Dp)` or `atMostWrapContent()` to further limit their size.
+     *             width = Dimension.fillToConstraints
+     *             height = Dimension.fillToConstraints
+     *         }
+     *     },
+     *     modifier = Modifier.fillMaxSize()
+     * ) {
+     *     ids.forEach { id ->
+     *         when (id) {
+     *             "textBox" -> {
+     *                 Box(
+     *                     modifier = Modifier
+     *                         .background(Color.Gray)
+     *                         // As usual, IDs should only be assigned on top-level children
+     *                         .layoutId(id),
+     *                     contentAlignment = Alignment.BottomEnd
+     *                 ) {
+     *                     Text(text = "100", fontSize = 80.sp)
+     *                 }
+     *             }
+     *
+     *             else -> {
+     *                 Button(onClick = { }, Modifier.layoutId(id)) {
+     *                     Text(text = id, fontSize = 30.sp)
+     *                 }
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * Here's another example using [Skip]s to easily lay out the typical Keyboard navigation pad:
+     * ```
+     * val keys = arrayOf(
+     *     "Insert", "Home", "Page Up",
+     *     "Delete", "End", "Page Down",
+     *     "↑", "←", "↓", "→"
+     * )
+     * ConstraintLayout(
+     *     constraintSet = ConstraintSet {
+     *         val keyRefs = Array(keys.size) { createRefFor(keys[it]) }
+     *
+     *         val g1 = createGrid(
+     *             elements = keyRefs,
+     *             rows = 5,
+     *             columns = 3,
+     *             verticalSpacing = 8.dp,
+     *             horizontalSpacing = 8.dp,
+     *             skips = arrayOf(
+     *                 // These positions follow the expected Grid cells indexing
+     *                 // Arranged horizontally by default:
+     *                 //   - 0 is top-left
+     *                 //   - 14 is bottom-right (5 rows x 3 columns - 1)
+     *                 Skip(position = 6, rows = 1, columns = 3),
+     *                 Skip(position = 9, rows = 1, columns = 1),
+     *                 Skip(position = 11, rows = 1, columns = 1)
+     *             )
+     *         )
+     *         constrain(g1) {
+     *             width = Dimension.matchParent
+     *             height = Dimension.matchParent
+     *         }
+     *
+     *         constrain(*keyRefs) {
+     *             width = Dimension.fillToConstraints.atMost(100.dp)
+     *             height = Dimension.fillToConstraints.atMost(100.dp)
+     *         }
+     *     },
+     *     modifier = Modifier.fillMaxSize()
+     * ) {
+     *     keys.forEachIndexed { index, key ->
+     *         Box(
+     *             modifier = Modifier
+     *                 .layoutId(key)
+     *                 .background(Color.LightGray),
+     *             contentAlignment = Alignment.Center
+     *         ) {
+     *             Text(
+     *                 text = key,
+     *                 textAlign = TextAlign.Center,
+     *                 // Make fontSize bigger for the arrow keys
+     *                 fontSize = if (index >= 6) 24.sp else TextUnit.Unspecified
+     *             )
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * @param elements [LayoutReference]s to be laid out by the Grid helper. By default, they are
+     *   positioned in the given order based on the arrangement. Horizontal arrangement by default.
+     * @param rows Sets the number of rows in the Grid
+     * @param columns Sets the number of columns in the Grid
+     * @param isHorizontalArrangement Whether to place the given [elements] horizontally, filling
+     *   the cells from left to right and top to bottom. Otherwise, the [elements] are placed
+     *   vertically, filling each cell from top to bottom and left to right. `true` by default.
+     * @param verticalSpacing Defines the gap between each row.
+     * @param horizontalSpacing Defines the gap between each column.
+     * @param rowWeights Defines the weight for each row. The weight specifies how much space each
+     *   row takes relative to each other. Should be either an empty array (all rows are the same
+     *   size), or have a value corresponding for each row. Otherwise, these weights will be trimmed
+     *   or padded (with trailing 1f) to match the given [rows].
+     * @param columnWeights Defines the weight for each column. The weight specifies how much space
+     *   each column takes relative to each other. Should be either an empty array (all columns are
+     *   the same size), or have a value corresponding for each column. Otherwise, these weights
+     *   will be trimmed or padded (with trailing 1f) to match the given [columns].
+     * @param skips A [Skip] defines an area within the Grid where Layouts may **not** be placed.
+     *   So, as the [elements] are being placed, they will skip any cell covered by the given skips.
+     * @param spans A [Span] defines how much area should each cell occupy when placing an item on
+     *   it. Keep in mind that when laying out, the Grid won't place any overlapping items over the
+     *   spanned area. In that sense, a [Span] works similarly to a [Skip], except that an item will
+     *   be placed at the original spanned cell position. Also note, [skips] take priority over
+     *   spans, meaning that defining a [Span] that overlaps a [Skip] is a no-op.
+     * @param flags A [GridFlags] definition that may change certain behaviors of the Grid helper.
+     *   [GridFlags.None] by default.
+     * @see createColumn
+     * @see createRow
      */
     fun createGrid(
         vararg elements: LayoutReference,
-        orientation: Int = 0,
-        rows: Int = 0,
-        columns: Int = 0,
-        verticalGap: Dp = 0.dp,
-        horizontalGap: Dp = 0.dp,
-        rowWeights: IntArray = intArrayOf(),
-        columnWeights: IntArray = intArrayOf(),
+        @IntRange(from = 1) rows: Int,
+        @IntRange(from = 1) columns: Int,
+        isHorizontalArrangement: Boolean = true,
+        verticalSpacing: Dp = 0.dp,
+        horizontalSpacing: Dp = 0.dp,
+        rowWeights: FloatArray = floatArrayOf(),
+        columnWeights: FloatArray = floatArrayOf(),
         skips: Array<Skip> = arrayOf(),
         spans: Array<Span> = arrayOf(),
-        paddingStart: Dp = 0.dp,
-        paddingTop: Dp = 0.dp,
-        paddingEnd: Dp = 0.dp,
-        paddingBottom: Dp = 0.dp,
-        flags: Array<GridFlag> = arrayOf(),
+        flags: GridFlags = GridFlags.None,
     ): ConstrainedLayoutReference {
         val ref = ConstrainedLayoutReference(createHelperId())
         val elementArray = CLArray(charArrayOf())
-        val flagArray = CLArray(charArrayOf())
         elements.forEach { elementArray.add(CLString.from(it.id.toString())) }
-        val paddingArray =
-            CLArray(charArrayOf()).apply {
-                add(CLNumber(paddingStart.value))
-                add(CLNumber(paddingTop.value))
-                add(CLNumber(paddingEnd.value))
-                add(CLNumber(paddingBottom.value))
-            }
-        flags.forEach { flagArray.add(CLString.from(it.name)) }
         var strRowWeights = ""
         var strColumnWeights = ""
         if (rowWeights.size > 1) {
@@ -1051,17 +963,16 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
         ref.asCLContainer().apply {
             put("contains", elementArray)
             putString("type", "grid")
-            putNumber("orientation", orientation.toFloat())
+            putNumber("orientation", if (isHorizontalArrangement) 0f else 1f)
             putNumber("rows", rows.toFloat())
             putNumber("columns", columns.toFloat())
-            putNumber("vGap", verticalGap.value)
-            putNumber("hGap", horizontalGap.value)
-            put("padding", paddingArray)
+            putNumber("vGap", verticalSpacing.value)
+            putNumber("hGap", horizontalSpacing.value)
             putString("rowWeights", strRowWeights)
             putString("columnWeights", strColumnWeights)
             putString("skips", strSkips)
             putString("spans", strSpans)
-            put("flags", flagArray)
+            putNumber("flags", flags.value.toFloat())
         }
 
         return ref
@@ -1332,10 +1243,7 @@ abstract class LayoutReference internal constructor(internal open val id: Any) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as LayoutReference
-
+        if (other !is LayoutReference) return false
         if (id != other.id) return false
 
         return true
@@ -1347,7 +1255,7 @@ abstract class LayoutReference internal constructor(internal open val id: Any) {
 
     internal fun setHelperParams(helperParams: HelperParams) {
         // Use the class name to force one instance per implementation
-        helperParamsMap[helperParams.javaClass.simpleName] = helperParams
+        helperParams::class.simpleName?.let { helperParamsMap[it] = helperParams }
     }
 
     /**
@@ -1355,7 +1263,7 @@ abstract class LayoutReference internal constructor(internal open val id: Any) {
      * type [T] has been set.
      */
     internal inline fun <reified T> getHelperParams(): T? where T : HelperParams {
-        return helperParamsMap[T::class.java.simpleName] as? T
+        return helperParamsMap[T::class.simpleName] as? T
     }
 }
 
@@ -1534,21 +1442,66 @@ class Visibility internal constructor(internal val name: String) {
 }
 
 /**
- * GridFlag defines the available flags of Grid SubGridByColRow: reverse the width and height
- * specification for spans/skips. Original - Position:HeightxWidth; with the flag -
- * Position:WidthxHeight SpansRespectWidgetOrder: spans would respect the order of the widgets.
- * Original - the widgets in the front of the widget list would be assigned to the spanned area;
- * with the flag - all the widges will be arranged based on the given order. For example, for a
- * layout with 1 row and 3 columns. If we have two widgets: w1, w2 with a span as 1:1x2, the
- * original layout would be [w2 w1 w1]. Since w1 is in the front of the list, it would be assigned
- * to the spanned area. With the flag, the layout would be [w1 w2 w2] that respects the order of the
- * widget list.
+ * Set of individual options that may change the Grid helper behavior.
+ *
+ * By default, the Grid helper places its [LayoutReference]s as given in the `elements` parameter.
+ * Following arrangement rules (skips, spans and orientation).
+ *
+ * However, when [isPlaceLayoutsOnSpansFirst] is `true`. The given [LayoutReference]s will be first
+ * placed on the cells occupied by the given `spans` array. Then, the remaining layouts are placed
+ * on the remaining cells following typical arrangement rules.
+ *
+ * For example, on a grid layout with 1 row and 3 columns, placing two widgets: w0, w1, with a span
+ * defined as `Span(position = 1, rows = 1, columns = 2)`. The grid layout by default would place
+ * them as `[w0 w1 w1]`. Whereas when [isPlaceLayoutsOnSpansFirst] is `true`, they'd be placed as
+ * `[w1 w0 w0]`.
+ *
+ * In some situations, [isPlaceLayoutsOnSpansFirst] can make it easier to match the desired layouts
+ * with the given spans on the Grid.
+ *
+ * @see ConstraintLayoutBaseScope.createGrid
  */
-@Immutable
-class GridFlag internal constructor(internal val name: String) {
+@JvmInline
+value class GridFlags private constructor(internal val value: Int) {
+    /**
+     * @param isPlaceLayoutsOnSpansFirst Whether to make it so that Layouts are first placed on
+     *   cells occupied by spans.
+     */
+    constructor(
+        isPlaceLayoutsOnSpansFirst: Boolean = false
+    ) : this((if (isPlaceLayoutsOnSpansFirst) 0 else GridCore.SPANS_RESPECT_WIDGET_ORDER))
+
+    @TestOnly // Only for tests, the additional flag is not needed when using the DSL
+    internal constructor(
+        isPlaceLayoutsOnSpansFirst: Boolean = false,
+        isSubGridByColRow: Boolean = false
+    ) : this(
+        (if (isPlaceLayoutsOnSpansFirst) 0 else GridCore.SPANS_RESPECT_WIDGET_ORDER) or
+            (if (isSubGridByColRow) GridCore.SUB_GRID_BY_COL_ROW else 0)
+    )
+
+    /**
+     * When true, the Grid helper will first place Layouts on cells occupied by spans, then fill the
+     * remaining cells following the typical arrangement rules.
+     */
+    val isPlaceLayoutsOnSpansFirst: Boolean
+        get() = value and (GridCore.SPANS_RESPECT_WIDGET_ORDER) == 0
+
+    override fun toString(): String =
+        "GridFlag(isPlaceLayoutsOnSpansFirst = $isPlaceLayoutsOnSpansFirst)"
+
     companion object {
-        val SpansRespectWidgetOrder = GridFlag("spansrespectwidgetorder")
-        val SubGridByColRow = GridFlag("subgridbycolrow")
+        /** All default behaviors apply. */
+        val None = GridFlags(isPlaceLayoutsOnSpansFirst = false)
+
+        /**
+         * Creates a [GridFlags] instance with `isPlaceLayoutsOnSpansFirst` as `true`.
+         *
+         * Making it so that when placing the layouts, they are first placed on cells occupied by
+         * spans, then, any remaining layouts are placed on the remaining cells following the
+         * typical arrangement rules.
+         */
+        val PlaceLayoutsOnSpansFirst = GridFlags(isPlaceLayoutsOnSpansFirst = true)
     }
 }
 
@@ -1603,10 +1556,17 @@ class FlowStyle internal constructor(internal val name: String) {
  * @constructor create a new Skip containing the position and size information of the skipped area
  */
 @JvmInline
-value class Skip(val description: String) {
-    constructor(position: Int, rows: Int, columns: Int) : this("$position:${rows}x$columns")
+value class Skip private constructor(val description: String) {
+    constructor(
+        @IntRange(from = 0) position: Int,
+        @IntRange(from = 1) rows: Int,
+        @IntRange(from = 1) columns: Int
+    ) : this("$position:${rows}x$columns")
 
-    constructor(position: Int, size: Int) : this("$position:$size")
+    constructor(
+        @IntRange(from = 0) position: Int,
+        @IntRange(from = 1) size: Int
+    ) : this("$position:$size")
 }
 
 /**
@@ -1620,7 +1580,14 @@ value class Skip(val description: String) {
  */
 @JvmInline
 value class Span(val description: String) {
-    constructor(position: Int, rows: Int, columns: Int) : this("$position:${rows}x$columns")
+    constructor(
+        @IntRange(from = 0) position: Int,
+        @IntRange(from = 1) rows: Int,
+        @IntRange(from = 1) columns: Int
+    ) : this("$position:${rows}x$columns")
 
-    constructor(position: Int, size: Int) : this("$position:$size")
+    constructor(
+        @IntRange(from = 0) position: Int,
+        @IntRange(from = 1) size: Int
+    ) : this("$position:$size")
 }

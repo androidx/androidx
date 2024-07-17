@@ -115,6 +115,9 @@ constructor(
         if (TemporalNoiseQuirk.isEnabled(cameraMetadata)) {
             quirks.add(TemporalNoiseQuirk())
         }
+        if (ImageCaptureFailedForVideoSnapshotQuirk.isEnabled()) {
+            quirks.add(ImageCaptureFailedForVideoSnapshotQuirk())
+        }
 
         Quirks(quirks)
     }

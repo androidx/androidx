@@ -50,10 +50,10 @@ import androidx.compose.runtime.remember
  * overriding only the parts of the theme definition that need to change.
  *
  * @sample androidx.compose.material.samples.MaterialThemeSample
- *
  * @param colors A complete definition of the Material Color theme for this hierarchy
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of shapes to be used by the components in this hierarchy
+ * @param content The content inheriting this theme
  */
 @Composable
 fun MaterialTheme(
@@ -69,15 +69,12 @@ fun MaterialTheme(
                 colors.copy()
             }
             .apply { updateColorsFrom(colors) }
-    val rippleIndication = rippleOrFallbackImplementation()
+    val rippleIndication = ripple()
     val selectionColors = rememberTextSelectionColors(rememberedColors)
-    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColors provides rememberedColors,
         LocalContentAlpha provides ContentAlpha.high,
         LocalIndication provides rippleIndication,
-        // TODO: b/304985887 - remove after one stable release
-        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalShapes provides shapes,
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography

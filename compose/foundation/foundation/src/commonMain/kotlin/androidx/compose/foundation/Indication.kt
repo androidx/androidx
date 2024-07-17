@@ -163,7 +163,6 @@ interface IndicationInstance {
  * Draws visual effects for this component when interactions occur.
  *
  * @sample androidx.compose.foundation.samples.IndicationSample
- *
  * @param interactionSource [InteractionSource] that will be used by [indication] to draw visual
  *   effects - this [InteractionSource] represents the stream of [Interaction]s for this component.
  * @param indication [Indication] used to draw visual effects. If `null`, no visual effects will be

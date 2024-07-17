@@ -1363,7 +1363,7 @@ public abstract class WatchFaceService : WallpaperService() {
         private var lastWatchFaceColors: WatchFaceColors? = null
         private var lastPreviewImageNeedsUpdateRequest: String? = null
         private var overriddenComplications: HashMap<Int, ComplicationData>? = null
-        private val complicationSlotsToClearAfterEditing = HashSet<Int>()
+        private val editedComplicationPreviewData = mutableMapOf<Int, ComplicationData>()
         private var pauseAnimationDeathRecipient: PauseAnimationDeathRecipient? = null
         private var privIsVisible = true
 
@@ -1714,51 +1714,42 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         /**
-         * Marks [slotId] to be cleared after editing, to prevent the user seeing a glimpse of the
-         * old complication.
+         * Marks [slotId] to be cleared after editing if necessary, to prevent the user seeing a
+         * glimpse of the old complication.
          */
         @AnyThread
-        internal fun clearComplicationSlotAfterEditing(slotId: Int) {
-            synchronized(lock) { complicationSlotsToClearAfterEditing.add(slotId) }
+        internal fun clearComplicationSlotAfterEditing(slotId: Int, previewData: ComplicationData) {
+            synchronized(lock) { editedComplicationPreviewData.put(slotId, previewData) }
         }
 
         /** Forgets any calls to [clearComplicationSlotAfterEditing]. */
         @AnyThread
         internal fun dontClearAnyComplicationSlotsAfterEditing() {
-            synchronized(lock) { complicationSlotsToClearAfterEditing.clear() }
+            synchronized(lock) { editedComplicationPreviewData.clear() }
         }
 
         /**
          * Undoes any complication overrides by [overrideComplicationsForEditing], restoring the
-         * original data. However any complications marked as being cleared after editing by
-         * [clearComplicationSlotAfterEditing] will be replaced by [EmptyComplicationData] to
-         * prevent the user seeing a flash of the old data.
+         * original data. In addition any complications marked as being cleared after editing by
+         * [clearComplicationSlotAfterEditing] whose data soure changed, will be replaced by
+         * [EmptyComplicationData] to prevent the user seeing a flash of the old complication.
          */
         @AnyThread
         internal fun onEditSessionFinished() {
             synchronized(lock) {
-                if (overriddenComplications == null) {
-                    complicationsFlow.update {
-                        it.toMutableMap().apply {
-                            for (frozenSlot in complicationSlotsToClearAfterEditing) {
-                                put(frozenSlot, EmptyComplicationData())
-                            }
-                            complicationSlotsToClearAfterEditing.clear()
-                        }
+                val complications = overriddenComplications ?: HashMap(complicationsFlow.value)
+                for ((frozenSlot, previewData) in editedComplicationPreviewData) {
+                    if (
+                        complicationsFlow.value[frozenSlot]!!.dataSource != previewData.dataSource
+                    ) {
+                        complications[frozenSlot] = EmptyComplicationData()
                     }
-                    return
                 }
 
-                // Restore the original complications, except for any frozen slots which are
-                // replaced with EmptyComplicationData.
-                for (frozenSlot in complicationSlotsToClearAfterEditing) {
-                    overriddenComplications!![frozenSlot] = EmptyComplicationData()
-                }
-                complicationSlotsToClearAfterEditing.clear()
-
-                complicationsFlow.update { overriddenComplications!! }
-
+                complicationsFlow.value = complications
                 overriddenComplications = null
+
+                editedComplicationPreviewData.clear()
             }
         }
 
@@ -2610,6 +2601,7 @@ public abstract class WatchFaceService : WallpaperService() {
         override fun onVisibilityChanged(visible: Boolean): Unit =
             TraceEvent("onVisibilityChanged").use {
                 super.onVisibilityChanged(visible)
+                Log.i(TAG, "onVisibilityChanged($isVisible)")
 
                 // In the WSL flow Home doesn't know when WallpaperService has actually launched a
                 // watchface after requesting a change. It used [Constants.ACTION_REQUEST_STATE] as

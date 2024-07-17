@@ -16,11 +16,9 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import kotlin.math.min
 import kotlin.math.sqrt
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridIntervalContent) {
     class LineConfiguration(val firstItemIndex: Int, val spans: List<GridItemSpan>)
 

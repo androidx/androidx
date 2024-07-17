@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -31,7 +30,6 @@ import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -305,7 +303,6 @@ class CardScreenshotTest {
         assertPressed("outlinedCard_pressed")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun filledCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -324,7 +321,6 @@ class CardScreenshotTest {
         assertAgainstGolden("filledCard_hover")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun elevatedCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -343,7 +339,6 @@ class CardScreenshotTest {
         assertAgainstGolden("elevatedCard_hover")
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun outlinedCard_hover() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -381,7 +376,6 @@ class CardScreenshotTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
             localInputModeManager!!.requestInputMode(InputMode.Keyboard)
             focusRequester.requestFocus()
         }
@@ -409,7 +403,6 @@ class CardScreenshotTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
             localInputModeManager!!.requestInputMode(InputMode.Keyboard)
             focusRequester.requestFocus()
         }
@@ -437,7 +430,6 @@ class CardScreenshotTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class)
             localInputModeManager!!.requestInputMode(InputMode.Keyboard)
             focusRequester.requestFocus()
         }

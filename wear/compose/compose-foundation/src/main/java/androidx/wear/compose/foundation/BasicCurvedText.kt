@@ -49,6 +49,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.TextUnitType
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -60,7 +62,6 @@ import kotlin.math.sqrt
  * created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
- *
  * @param text The text to display
  * @param modifier The [CurvedModifier] to apply to this curved text.
  * @param angularDirection Specify if the text is laid out clockwise or anti-clockwise, and if those
@@ -93,7 +94,6 @@ public fun CurvedScope.basicCurvedText(
  * created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
- *
  * @param text The text to display
  * @param style A style to use.
  * @param modifier The [CurvedModifier] to apply to this curved text.
@@ -139,7 +139,13 @@ internal class CurvedTextChild(
     }
 
     override fun CurvedMeasureScope.initializeMeasure(measurables: Iterator<Measurable>) {
-        delegate.updateIfNeeded(text, clockwise, actualStyle.fontSize.toPx())
+        delegate.updateIfNeeded(
+            text,
+            clockwise,
+            actualStyle.fontSize.toPx(),
+            actualStyle.letterSpacing,
+            density
+        )
 
         // Size the compose-ui node reasonably.
 
@@ -223,6 +229,8 @@ internal class CurvedTextDelegate {
     private var text: String = ""
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
+    private var letterSpacing: TextUnit = TextUnit.Unspecified
+    private var density: Float = 0f
 
     var textWidth by mutableFloatStateOf(0f)
     var textHeight by mutableFloatStateOf(0f)
@@ -237,12 +245,39 @@ internal class CurvedTextDelegate {
     var lastLayoutInfo: CurvedLayoutInfo? = null
     var lastParentSweepRadians: Float = 0f
 
-    fun updateIfNeeded(text: String, clockwise: Boolean, fontSizePx: Float) {
-        if (text != this.text || clockwise != this.clockwise || fontSizePx != this.fontSizePx) {
+    fun updateIfNeeded(
+        text: String,
+        clockwise: Boolean,
+        fontSizePx: Float,
+        letterSpacing: TextUnit,
+        density: Float
+    ) {
+        if (
+            text != this.text ||
+                clockwise != this.clockwise ||
+                fontSizePx != this.fontSizePx ||
+                letterSpacing != this.letterSpacing ||
+                density != this.density
+        ) {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
+            this.letterSpacing = letterSpacing
+            this.density = density
+
             paint.textSize = fontSizePx
+            paint.letterSpacing =
+                letterSpacing.let {
+                    when (it.type) {
+                        TextUnitType.Em -> it.value
+                        TextUnitType.Sp -> {
+                            val emWidth = paint.textSize * paint.textScaleX
+                            if (emWidth == 0.0f) 0f else it.value * density / emWidth
+                        }
+                        else -> 0f
+                    }
+                }
+
             updateMeasures()
             lastLayoutInfo = null // Ensure paths are recomputed
         }

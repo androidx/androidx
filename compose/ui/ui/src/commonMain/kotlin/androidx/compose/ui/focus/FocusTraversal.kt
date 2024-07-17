@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
@@ -48,7 +47,6 @@ import androidx.compose.ui.unit.LayoutDirection.Rtl
  *   focus search.
  * @param layoutDirection the current system [LayoutDirection].
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetNode.customFocusSearch(
     focusDirection: FocusDirection,
     layoutDirection: LayoutDirection
@@ -74,11 +72,11 @@ internal fun FocusTargetNode.customFocusSearch(
         //  the user presses dPad center. (They can also redirect the "In" to some other item).
         //  Developers can specify a custom "Out" to specify which composable should take focus
         //  when the user presses the back button.
-        @OptIn(ExperimentalComposeUiApi::class) Enter -> {
-            @OptIn(ExperimentalComposeUiApi::class) focusProperties.enter(focusDirection)
+        Enter -> {
+            focusProperties.enter(focusDirection)
         }
-        @OptIn(ExperimentalComposeUiApi::class) Exit -> {
-            @OptIn(ExperimentalComposeUiApi::class) focusProperties.exit(focusDirection)
+        Exit -> {
+            focusProperties.exit(focusDirection)
         }
         else -> error("invalid FocusDirection")
     }
@@ -94,7 +92,6 @@ internal fun FocusTargetNode.customFocusSearch(
  * @return if no focus node is found, we return false. If we receive a cancel, we return null
  *   otherwise we return the result of [onFound].
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun FocusTargetNode.focusSearch(
     focusDirection: FocusDirection,
     layoutDirection: LayoutDirection,
@@ -108,7 +105,7 @@ internal fun FocusTargetNode.focusSearch(
         Right,
         Up,
         Down -> twoDimensionalFocusSearch(focusDirection, previouslyFocusedRect, onFound)
-        @OptIn(ExperimentalComposeUiApi::class) Enter -> {
+        Enter -> {
             // we search among the children of the active item.
             val direction =
                 when (layoutDirection) {
@@ -118,7 +115,7 @@ internal fun FocusTargetNode.focusSearch(
             findActiveFocusNode()
                 ?.twoDimensionalFocusSearch(direction, previouslyFocusedRect, onFound)
         }
-        @OptIn(ExperimentalComposeUiApi::class) Exit ->
+        Exit ->
             findActiveFocusNode()?.findNonDeactivatedParent().let {
                 if (it == null || it == this) false else onFound.invoke(it)
             }

@@ -1407,11 +1407,19 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                 // Check the annotations on the types and type arguments
                 mapOf(
                         "superClass" to superClass,
+                        "superClassArg" to superClass.typeArguments.single(),
                         "superInterface" to superInterface,
+                        "superInterfaceArg" to superInterface.typeArguments.single(),
                         "field" to field.type,
+                        "fieldArg" to field.type.typeArguments.single(),
                         "methodReturnType" to method.returnType,
+                        "methodReturnTypeArg" to method.returnType.typeArguments.single(),
                         "methodParameter" to method.parameters.single().type,
+                        "methodParameterArg" to
+                            method.parameters.single().type.typeArguments.single(),
                         "constructorParameter" to constructor.parameters.single().type,
+                        "constructorParameterArg" to
+                            constructor.parameters.single().type.typeArguments.single(),
                     )
                     .forEach { (desc, type) ->
                         if (!invocation.isKsp && source == javaSource && preCompiled) {
@@ -1420,14 +1428,8 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                             assertWithMessage("$desc type: $type")
                                 .that(type.getAllAnnotationTypeElements())
                                 .isEmpty()
-                            assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")
-                                .that(type.getAllAnnotationTypeElements())
-                                .isEmpty()
                         } else {
                             assertWithMessage("$desc type: $type")
-                                .that(type.getAllAnnotationTypeElements())
-                                .containsExactly(a, b)
-                            assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")
                                 .that(type.getAllAnnotationTypeElements())
                                 .containsExactly(a, b)
                         }

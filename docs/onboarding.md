@@ -1054,18 +1054,4 @@ includes content from
 
 ### How do I enable MultiDex for my library?
 
-Go to your project/app level build.gradle file, and add
-
-```
-android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
-}
-```
-
-as well as `androidTestImplementation(libs.multidex)` to the dependenices block.
-
-If you want it enabled for the application and not test APK, add
-`implementation(libs.multidex)` to the dependencies block instead. Any prior
-failures may not re-occur now that the software is multi-dexed. Rerun the build.
+It is enabled automatically as androidx minSdkVersion is API >=21.

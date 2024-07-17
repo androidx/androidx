@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.Interaction
@@ -200,7 +199,6 @@ import kotlinx.coroutines.launch
  *   innerTextField exactly once.
  */
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 internal fun CoreTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -365,7 +363,7 @@ internal fun CoreTextField(
         }
 
     // Hide the keyboard if made disabled or read-only while focused (b/237308379).
-    val writeable by rememberUpdatedState(enabled && !readOnly && windowInfo.isWindowFocused)
+    val writeable by rememberUpdatedState(enabled && !readOnly)
     LaunchedEffect(Unit) {
         try {
             snapshotFlow { writeable }
@@ -1123,7 +1121,6 @@ private fun endInputSession(state: LegacyTextFieldState) {
  * This function is used to handle 2, 3, and 4, and the others are automatically handled by the
  * focus system.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun BringIntoViewRequester.bringSelectionEndIntoView(
     value: TextFieldValue,
     textDelegate: TextDelegate,

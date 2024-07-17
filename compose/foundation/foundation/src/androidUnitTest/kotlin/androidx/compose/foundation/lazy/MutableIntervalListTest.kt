@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import com.google.common.truth.Truth.assertThat
@@ -25,7 +24,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class MutableIntervalListTest {
 
     private val intervalList = MutableIntervalList<Int>()

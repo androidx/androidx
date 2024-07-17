@@ -45,7 +45,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
@@ -59,7 +58,4 @@ androidx {
 
 android {
     namespace "androidx.preference.ktx"
-    defaultConfig {
-        multiDexEnabled true
-    }
 }

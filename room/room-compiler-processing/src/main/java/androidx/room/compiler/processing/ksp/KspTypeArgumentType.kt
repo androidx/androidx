@@ -30,16 +30,17 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
  * The typeName for type arguments requires the type parameter, hence we have a special type for
  * them when we produce them.
  */
-internal class KspTypeArgumentType(
+internal open class KspTypeArgumentType(
     env: KspProcessingEnv,
     val typeArg: KSTypeArgument,
     originalKSAnnotations: Sequence<KSAnnotation> = typeArg.annotations,
     scope: KSTypeVarianceResolverScope? = null,
     typeAlias: KSType? = null,
+    ksType: KSType = typeArg.requireType(),
 ) :
     KspType(
         env = env,
-        ksType = typeArg.requireType(),
+        ksType = ksType,
         originalKSAnnotations = originalKSAnnotations,
         scope = scope,
         typeAlias = typeAlias,
@@ -92,7 +93,7 @@ internal class KspTypeArgumentType(
             typeAlias = typeAlias
         )
 
-    private class DelegatingTypeArg(
+    internal class DelegatingTypeArg(
         val original: KSTypeArgument,
         override val type: KSTypeReference
     ) : KSTypeArgument by original

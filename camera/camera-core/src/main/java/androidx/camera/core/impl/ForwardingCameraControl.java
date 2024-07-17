@@ -20,6 +20,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -155,5 +156,21 @@ public class ForwardingCameraControl implements CameraControlInternal {
     @Override
     public CameraControlInternal getImplementation() {
         return mCameraControlInternal.getImplementation();
+    }
+
+    @Override
+    public void incrementVideoUsage() {
+        mCameraControlInternal.incrementVideoUsage();
+    }
+
+    @Override
+    public void decrementVideoUsage() {
+        mCameraControlInternal.decrementVideoUsage();
+    }
+
+    @VisibleForTesting
+    @Override
+    public boolean isInVideoUsage() {
+        return mCameraControlInternal.isInVideoUsage();
     }
 }

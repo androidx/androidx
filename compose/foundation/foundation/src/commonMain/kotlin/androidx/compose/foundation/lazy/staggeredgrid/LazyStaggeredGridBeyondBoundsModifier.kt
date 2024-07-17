@@ -31,10 +31,6 @@ internal class LazyStaggeredGridBeyondBoundsState(
     val state: LazyStaggeredGridState,
 ) : LazyLayoutBeyondBoundsState {
 
-    override fun remeasure() {
-        state.remeasurement?.forceRemeasure()
-    }
-
     override val itemCount: Int
         get() = state.layoutInfo.totalItemsCount
 

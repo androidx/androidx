@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -264,6 +266,7 @@ internal class LazyGridIntervalContent(content: TvLazyGridScope.() -> Unit) :
         apply(content)
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun item(
         key: Any?,
         span: (TvLazyGridItemSpanScope.() -> TvGridItemSpan)?,
@@ -282,6 +285,7 @@ internal class LazyGridIntervalContent(content: TvLazyGridScope.() -> Unit) :
         if (span != null) hasCustomSpans = true
     }
 
+    @Suppress("OVERRIDE_DEPRECATION")
     override fun items(
         count: Int,
         key: ((index: Int) -> Any)?,

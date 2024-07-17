@@ -19,7 +19,6 @@ package androidx.wear.compose.integration.demos
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -95,7 +94,6 @@ fun CustomizedHorizontalPageIndicator() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
     val pagesCount = 3

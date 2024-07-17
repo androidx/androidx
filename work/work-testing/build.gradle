@@ -44,7 +44,6 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
 
     testImplementation(libs.truth)
     testImplementation(libs.testCore)
@@ -65,7 +64,4 @@ androidx {
 
 android {
     namespace "androidx.work.testing"
-    defaultConfig {
-        multiDexEnabled = true
-    }
 }

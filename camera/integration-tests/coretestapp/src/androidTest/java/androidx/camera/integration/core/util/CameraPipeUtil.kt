@@ -17,15 +17,20 @@
 package androidx.camera.integration.core.util
 
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.OptIn
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.interop.Camera2CameraControl
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.camera2.interop.CaptureRequestOptions
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl as CPCamera2CameraControl
+import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo as CPCamera2CameraInfo
+import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions as CPCaptureRequestOptions
 import androidx.camera.core.CameraControl
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.ExtendableBuilder
@@ -102,40 +107,156 @@ object CameraPipeUtil {
         }
     }
 
+    interface Camera2CameraInfoWrapper {
+        fun <T> getCameraCharacteristic(key: CameraCharacteristics.Key<T>): T?
+
+        companion object
+    }
+
+    interface Camera2CameraControlWrapper {
+        fun setCaptureRequestOptions(bundle: CaptureRequestOptionsWrapper): ListenableFuture<Void?>
+
+        companion object
+    }
+
     @kotlin.OptIn(
         androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
     )
     @OptIn(markerClass = [ExperimentalCamera2Interop::class])
     @JvmStatic
-    fun setRequestOptions(
+    fun Camera2CameraInfoWrapper.Companion.from(
         implName: String,
-        cameraControl: CameraControl,
-        parameter: Map<CaptureRequest.Key<Int>, Int>
-    ): ListenableFuture<Void?> {
-        return if (implName == CameraPipeConfig::class.simpleName) {
-            androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl.from(
-                    cameraControl
-                )
-                .setCaptureRequestOptions(
-                    androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions.Builder()
-                        .apply {
-                            parameter.forEach { (key, value) ->
-                                setCaptureRequestOption(key, value)
-                            }
+        cameraInfo: CameraInfo
+    ): Camera2CameraInfoWrapper {
+        return when (implName) {
+            CameraPipeConfig::class.simpleName ->
+                object : Camera2CameraInfoWrapper {
+                    private val wrappedCameraInfo = CPCamera2CameraInfo.from(cameraInfo)
+
+                    override fun <T> getCameraCharacteristic(
+                        key: CameraCharacteristics.Key<T>
+                    ): T? {
+                        return wrappedCameraInfo.getCameraCharacteristic(key)
+                    }
+                }
+            androidx.camera.camera2.Camera2Config::class.simpleName ->
+                object : Camera2CameraInfoWrapper {
+                    private val wrappedCameraInfo = Camera2CameraInfo.from(cameraInfo)
+
+                    override fun <T> getCameraCharacteristic(
+                        key: CameraCharacteristics.Key<T>
+                    ): T? {
+                        return wrappedCameraInfo.getCameraCharacteristic(key)
+                    }
+                }
+            else -> throw IllegalArgumentException("Unexpected implementation: $implName")
+        }
+    }
+
+    interface CaptureRequestOptionsWrapper {
+
+        fun unwrap(): Any
+
+        interface Builder {
+            fun <ValueT : Any> setCaptureRequestOption(
+                key: CaptureRequest.Key<ValueT>,
+                value: ValueT
+            ): Builder
+
+            fun build(): CaptureRequestOptionsWrapper
+        }
+
+        companion object
+    }
+
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
+    )
+    @OptIn(markerClass = [ExperimentalCamera2Interop::class])
+    @JvmStatic
+    fun CaptureRequestOptionsWrapper.Companion.builder(
+        implName: String
+    ): CaptureRequestOptionsWrapper.Builder {
+        return when (implName) {
+            CameraPipeConfig::class.simpleName ->
+                object : CaptureRequestOptionsWrapper.Builder {
+                    private val wrappedBuilder =
+                        androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
+                            .Builder()
+
+                    override fun <ValueT : Any> setCaptureRequestOption(
+                        key: CaptureRequest.Key<ValueT>,
+                        value: ValueT
+                    ): CaptureRequestOptionsWrapper.Builder {
+                        wrappedBuilder.setCaptureRequestOption(key, value)
+                        return this
+                    }
+
+                    override fun build(): CaptureRequestOptionsWrapper {
+                        val wrappedOptions = wrappedBuilder.build()
+                        return object : CaptureRequestOptionsWrapper {
+                            override fun unwrap() = wrappedOptions
                         }
-                        .build()
-                )
-        } else {
-            Camera2CameraControl.from(cameraControl)
-                .setCaptureRequestOptions(
-                    CaptureRequestOptions.Builder()
-                        .apply {
-                            parameter.forEach { (key, value) ->
-                                setCaptureRequestOption(key, value)
-                            }
+                    }
+                }
+            Camera2Config::class.simpleName ->
+                object : CaptureRequestOptionsWrapper.Builder {
+                    private val wrappedBuilder = CaptureRequestOptions.Builder()
+
+                    override fun <ValueT : Any> setCaptureRequestOption(
+                        key: CaptureRequest.Key<ValueT>,
+                        value: ValueT
+                    ): CaptureRequestOptionsWrapper.Builder {
+                        wrappedBuilder.setCaptureRequestOption(key, value)
+                        return this
+                    }
+
+                    override fun build(): CaptureRequestOptionsWrapper {
+                        val wrappedOptions = wrappedBuilder.build()
+                        return object : CaptureRequestOptionsWrapper {
+                            override fun unwrap() = wrappedOptions
                         }
-                        .build()
-                )
+                    }
+                }
+            else -> throw IllegalArgumentException("Unexpected implementation: $implName")
+        }
+    }
+
+    @kotlin.OptIn(
+        androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop::class
+    )
+    @OptIn(markerClass = [ExperimentalCamera2Interop::class])
+    @JvmStatic
+    fun Camera2CameraControlWrapper.Companion.from(
+        implName: String,
+        cameraControl: CameraControl
+    ): Camera2CameraControlWrapper {
+        return when (implName) {
+            CameraPipeConfig::class.simpleName ->
+                object : Camera2CameraControlWrapper {
+                    private val wrappedCameraControl = CPCamera2CameraControl.from(cameraControl)
+
+                    override fun setCaptureRequestOptions(
+                        bundle: CaptureRequestOptionsWrapper
+                    ): ListenableFuture<Void?> {
+                        return wrappedCameraControl.setCaptureRequestOptions(
+                            bundle.unwrap() as CPCaptureRequestOptions
+                        )
+                    }
+                }
+            Camera2Config::class.simpleName ->
+                object : Camera2CameraControlWrapper {
+                    private val wrappedCameraControl = Camera2CameraControl.from(cameraControl)
+
+                    override fun setCaptureRequestOptions(
+                        bundle: CaptureRequestOptionsWrapper
+                    ): ListenableFuture<Void?> {
+                        return wrappedCameraControl.setCaptureRequestOptions(
+                            bundle.unwrap() as CaptureRequestOptions
+                        )
+                    }
+                }
+            else -> throw IllegalArgumentException("Unexpected implementation: $implName")
         }
     }
 

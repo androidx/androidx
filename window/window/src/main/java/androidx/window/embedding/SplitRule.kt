@@ -51,7 +51,6 @@ import kotlin.math.min
  * directions with different device states.
  *
  * @sample androidx.window.samples.embedding.splitWithOrientations
- *
  * @see androidx.window.embedding.SplitPairRule
  * @see androidx.window.embedding.SplitPlaceholderRule
  */

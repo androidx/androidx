@@ -41,11 +41,10 @@ import androidx.compose.ui.unit.dp
  * when the layout direction is RTL, positive [x] offsets will move the content to the left. For a
  * modifier that offsets without considering layout direction, see [absoluteOffset].
  *
- * @see absoluteOffset
- *
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.OffsetModifier
+ * @see absoluteOffset
  */
 @Stable
 fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) =
@@ -70,11 +69,10 @@ fun Modifier.offset(x: Dp = 0.dp, y: Dp = 0.dp) =
  * positive [x] offset will always move the content to the right. For a modifier that considers the
  * layout direction when applying the offset, see [offset].
  *
- * @see offset
- *
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.AbsoluteOffsetModifier
+ * @see offset
  */
 @Stable
 fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
@@ -104,11 +102,10 @@ fun Modifier.absoluteOffset(x: Dp = 0.dp, y: Dp = 0.dp) =
  * LD is RTL, positive horizontal offsets will move the content to the left. For a modifier that
  * offsets without considering layout direction, see [absoluteOffset].
  *
- * @see [absoluteOffset]
- *
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.OffsetPxModifier
+ * @see [absoluteOffset]
  */
 fun Modifier.offset(offset: Density.() -> IntOffset) =
     this then
@@ -134,11 +131,10 @@ fun Modifier.offset(offset: Density.() -> IntOffset) =
  * positive horizontal offset will always move the content to the right. For a modifier that
  * considers layout direction when applying the offset, see [offset].
  *
- * @see offset
- *
  * Example usage:
  *
  * @sample androidx.compose.foundation.layout.samples.AbsoluteOffsetPxModifier
+ * @see offset
  */
 fun Modifier.absoluteOffset(offset: Density.() -> IntOffset) =
     this then

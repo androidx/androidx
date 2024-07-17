@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.Constraints
 
 /** Abstracts away the subcomposition from the measuring logic. */
 @OptIn(ExperimentalFoundationApi::class)
-internal abstract class LazyGridMeasuredItemProvider
-@ExperimentalFoundationApi
-constructor(
+internal abstract class LazyGridMeasuredItemProvider(
     private val itemProvider: LazyGridItemProvider,
     private val measureScope: LazyLayoutMeasureScope,
     private val defaultMainAxisSpacing: Int

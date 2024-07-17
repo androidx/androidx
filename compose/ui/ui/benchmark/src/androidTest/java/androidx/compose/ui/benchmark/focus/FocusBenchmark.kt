@@ -17,11 +17,22 @@
 package androidx.compose.ui.benchmark.focus
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReusableContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.benchmark.toggleStateBenchmarkRecompose
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.benchmark.repeatModifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -36,6 +47,40 @@ class FocusBenchmark {
     @get:Rule val composeBenchmarkRule = ComposeBenchmarkRule()
 
     @Test
+    fun modifyActiveHierarchy() {
+        composeBenchmarkRule.toggleStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableTestCase {
+                private val focusRequester = FocusRequester()
+                private var shouldAddNode by mutableStateOf(false)
+
+                @Composable
+                override fun MeasuredContent() {
+                    Box(Modifier.thenIf(shouldAddNode) { focusTargetModifierChain() }) {
+                        Box(focusTargetModifierChain())
+                    }
+                }
+
+                @Composable
+                override fun ContentWrappers(content: @Composable () -> Unit) {
+                    Box(focusTargetModifierChain()) {
+                        Column {
+                            content()
+                            Box(Modifier.focusRequester(focusRequester).focusTarget())
+                            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                        }
+                    }
+                }
+
+                override fun toggleState() {
+                    shouldAddNode = !shouldAddNode
+                }
+
+                private fun focusTargetModifierChain() = repeatModifier(100, Modifier::focusTarget)
+            }
+        })
+    }
+
+    @Test
     fun focusTarget() {
         composeBenchmarkRule.benchmarkToFirstPixel {
             object : LayeredComposeTestCase() {
@@ -45,5 +90,56 @@ class FocusBenchmark {
                 }
             }
         }
+    }
+
+    @Test
+    fun reuseInactiveFocusTarget() {
+        composeBenchmarkRule.toggleStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableTestCase {
+
+                private var reuseKey by mutableStateOf(0)
+
+                @Composable
+                override fun MeasuredContent() {
+                    ReusableContent(reuseKey) { Box(Modifier.focusTarget()) }
+                }
+
+                override fun toggleState() {
+                    reuseKey++
+                }
+            }
+        })
+    }
+
+    @Test
+    fun reuseInactiveFocusTarget_insideActiveParent() {
+        composeBenchmarkRule.toggleStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableTestCase {
+
+                private val focusRequester = FocusRequester()
+                private var reuseKey by mutableStateOf(0)
+
+                @Composable
+                override fun MeasuredContent() {
+                    ReusableContent(reuseKey) { Box(Modifier.focusTarget()) }
+                }
+
+                @Composable
+                override fun ContentWrappers(content: @Composable () -> Unit) {
+                    Box(Modifier.focusRequester(focusRequester).focusTarget()) {
+                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                        content()
+                    }
+                }
+
+                override fun toggleState() {
+                    reuseKey++
+                }
+            }
+        })
+    }
+
+    private inline fun Modifier.thenIf(condition: Boolean, block: () -> Modifier): Modifier {
+        return if (condition) then(block()) else this
     }
 }

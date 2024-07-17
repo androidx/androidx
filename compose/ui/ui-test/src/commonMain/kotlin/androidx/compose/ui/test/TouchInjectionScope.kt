@@ -76,7 +76,6 @@ import kotlin.math.roundToLong
  * Example of performing an L-shaped gesture:
  *
  * @sample androidx.compose.ui.test.samples.touchInputLShapedGesture
- *
  * @see InjectionScope
  */
 @JvmDefaultWithCompatibility
@@ -240,7 +239,6 @@ interface TouchInjectionScope : InjectionScope {
      * events quicker than can be dispatched and batches them together.
      *
      * @sample androidx.compose.ui.test.samples.touchInputMultiTouchWithHistory
-     *
      * @param relativeHistoricalTimes Time of each historical event, as a millisecond relative to
      *   the time the actual event is sent. For example, -10L means 10ms earlier.
      * @param historicalCoordinates Coordinates of each historical event, in the same coordinate
@@ -458,17 +456,19 @@ fun TouchInjectionScope.swipe(start: Offset, end: Offset, durationMillis: Long =
  * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of the
  * node. The default duration is 200 milliseconds.
  *
- * @param curve The function that defines the position of the gesture over time
+ * @param curve The function that describes the gesture. The argument passed to the function is the
+ *   time in milliseconds since the start of the swipe, and the return value is the location of the
+ *   pointer at that point in time.
  * @param durationMillis The duration of the gesture
  * @param keyTimes An optional list of timestamps in milliseconds at which a move event must be
  *   sampled
  */
 fun TouchInjectionScope.swipe(
-    curve: (Long) -> Offset,
+    curve: (timeMillis: Long) -> Offset,
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
-    @OptIn(ExperimentalTestApi::class) multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
+    multiTouchSwipe(listOf(curve), durationMillis, keyTimes)
 }
 
 /**
@@ -480,17 +480,16 @@ fun TouchInjectionScope.swipe(
  * coordinates are in the node's local coordinate system, where (0, 0) is the top left corner of the
  * node. The default duration is 200 milliseconds.
  *
- * Will stay experimental until support has been added to start and end each pointer at different
- * times.
- *
- * @param curves The functions that define the position of the gesture over time
+ * @param curves The functions that describe the gesture. Function _i_ defines the position over
+ *   time for pointer id _i_. The argument passed to each function is the time in milliseconds since
+ *   the start of the swipe, and the return value is the location of that pointer at that point in
+ *   time.
  * @param durationMillis The duration of the gesture
  * @param keyTimes An optional list of timestamps in milliseconds at which a move event must be
  *   sampled
  */
-@ExperimentalTestApi
 fun TouchInjectionScope.multiTouchSwipe(
-    curves: List<(Long) -> Offset>,
+    curves: List<(timeMillis: Long) -> Offset>,
     durationMillis: Long = 200,
     keyTimes: List<Long> = emptyList()
 ) {
@@ -580,7 +579,6 @@ fun TouchInjectionScope.pinch(
     durationMillis: Long = 400
 ) {
     val durationFloat = durationMillis.toFloat()
-    @OptIn(ExperimentalTestApi::class)
     multiTouchSwipe(
         listOf(
             { lerp(start0, end0, it / durationFloat) },

@@ -43,7 +43,11 @@ public abstract class Logger {
      */
     public static void setLogger(@NonNull Logger logger) {
         synchronized (sLock) {
-            sLogger = logger;
+            // Don't override the logger if one has been defined already.
+            // The application might have overridden the logger using the @Restricted API.
+            if (sLogger == null) {
+                sLogger = logger;
+            }
         }
     }
 

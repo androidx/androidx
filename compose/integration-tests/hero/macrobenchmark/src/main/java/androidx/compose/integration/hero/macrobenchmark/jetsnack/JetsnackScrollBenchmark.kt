@@ -18,6 +18,8 @@ package androidx.compose.integration.hero.macrobenchmark.jetsnack
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -41,37 +43,60 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Test
-    fun scrollHome() {
-        val ACTION = "$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY"
+    fun scrollHome() =
+        benchmarkScroll(
+            action = "$PACKAGE_NAME.jetsnack.JETSNACK_ACTIVITY",
+            measureBlock = {
+                val searchCondition = Until.hasObject(By.res("snack_collection"))
+                // Wait until a snack collection item within the list is rendered
+                device.wait(searchCondition, 3_000)
+
+                val contentList = device.findObject(By.res("snack_list"))
+                scrollActions(contentList, idleMethod = { device.waitForComposeIdle() })
+            }
+        )
+
+    @Test
+    fun scrollViewsHome() =
+        benchmarkScroll(
+            action = "$PACKAGE_NAME.jetsnack.JETSNACK_VIEWS_ACTIVITY",
+            measureBlock = {
+                val resPkg = "androidx.compose.integration.hero.macrobenchmark.target"
+                val searchCondition = Until.hasObject(By.res(resPkg, "snackImageView"))
+                // Wait until a snack collection item within the list is rendered
+                device.wait(searchCondition, 3_000)
+
+                val contentList = device.findObject(By.res(resPkg, "snackFeedRecyclerView"))
+                scrollActions(contentList, idleMethod = { device.waitForIdle() })
+            }
+        )
+
+    @OptIn(ExperimentalMetricApi::class)
+    private fun benchmarkScroll(action: String, measureBlock: MacrobenchmarkScope.() -> Unit) =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
             compilationMode = compilationMode,
-            iterations = ITERATIONS
-        ) {
-            val intent = Intent()
-            intent.action = ACTION
-            startActivityAndWait(intent)
+            iterations = ITERATIONS,
+            measureBlock = {
+                val intent = Intent()
+                intent.action = action
+                startActivityAndWait(intent)
 
-            val searchCondition = Until.hasObject(By.res("snack_collection"))
-            // Wait until a snack collection item within the list is rendered
-            device.wait(searchCondition, 3_000)
+                measureBlock()
+            }
+        )
 
-            val contentList = device.findObject(By.res("snack_list"))
-            scrollActions(contentList)
-        }
-    }
-
-    private fun MacrobenchmarkScope.scrollActions(contentList: UiObject2) {
+    private fun MacrobenchmarkScope.scrollActions(contentList: UiObject2, idleMethod: () -> Unit) {
         // Set gesture margin to avoid triggering gesture navigation
         contentList.setGestureMargin(device.displayWidth / 5)
 
         contentList.fling(Direction.DOWN)
-        device.waitForComposeIdle()
+        idleMethod()
         contentList.fling(Direction.UP)
-        device.waitForComposeIdle()
+        idleMethod()
         contentList.fling(Direction.DOWN)
-        device.waitForComposeIdle()
+        idleMethod()
     }
 
     companion object {

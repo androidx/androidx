@@ -45,9 +45,9 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -59,6 +59,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -368,7 +370,6 @@ class AndroidAccessibilityTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun testCreateAccessibilityNodeInfo_forSecureTextField() {
         // Arrange.
@@ -560,6 +561,21 @@ class AndroidAccessibilityTest {
                         AccessibilityActionCompat(ACTION_CLICK, null),
                     )
             }
+        }
+    }
+
+    @Test
+    fun testCreateAccessibilityNodeInfo_numberPicker_expectedClassName() {
+        // Arrange.
+        setContent { Box(Modifier.semantics { role = Role.NumberPicker }.testTag(tag)) }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(info) { assertThat(className).isEqualTo("android.widget.NumberPicker") }
         }
     }
 
@@ -936,6 +952,55 @@ class AndroidAccessibilityTest {
 
         // Assert - Since the column is screenReaderFocusable, it comes before the button.
         rule.runOnIdle { assertThat(rowANI.extras.traversalBefore).isEqualTo(buttonId) }
+    }
+
+    @Test
+    fun testSortedAccessibilityNodeInfo_traversalGroupClipping() {
+        // Arrange.
+        val clickableTitle = "clickableTitle"
+        val clickableFirstListElement = "firstListElement"
+
+        setContent {
+            Box {
+                LazyColumn {
+                    items(50) { index ->
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .clickable {}
+                                .padding(16.dp)
+                                .then(
+                                    if (index == 0) Modifier.testTag(clickableFirstListElement)
+                                    else Modifier
+                                )
+                        ) {
+                            Text("Item #${index + 1}")
+                        }
+                    }
+                }
+                Box(
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .height(120.dp)
+                            .background(Color.Black.copy(alpha = 0.9f))
+                            .semantics { isTraversalGroup = true }
+                ) {
+                    Text(
+                        "Testing Box Covering First Elements",
+                        Modifier.align(Alignment.Center).testTag(clickableTitle)
+                    )
+                }
+            }
+        }
+
+        val titleId = rule.onNodeWithTag(clickableTitle).semanticsId
+        val firstElementId = rule.onNodeWithTag(clickableFirstListElement).semanticsId
+
+        // Act.
+        val titleANI = rule.runOnIdle { createAccessibilityNodeInfo(titleId) }
+
+        // Assert - both the title and element are readable; though the title box covers the first
+        // element, it does not clip the items below.
+        rule.runOnIdle { assertThat(titleANI.extras.traversalBefore).isEqualTo(firstElementId) }
     }
 
     @Composable
@@ -3229,7 +3294,6 @@ class AndroidAccessibilityTest {
         assertThat(vitrualViewId).isEqualTo(hitTestedId)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun testSemanticsHitTest_invisibleToUserSemantics() {
         // Arrange.
@@ -3954,6 +4018,63 @@ class AndroidAccessibilityTest {
     }
 
     @Test
+    fun testSemanticsHitTest_unimportantTraversalProperties() {
+        // Arrange.
+        setContent {
+            Box(
+                Modifier.size(100.dp).testTag(tag).semantics {
+                    isTraversalGroup = true
+                    traversalIndex = 1f
+                }
+            ) {}
+        }
+        val bounds = with(rule.density) { rule.onNodeWithTag(tag).getBoundsInRoot().toRect() }
+
+        // Act.
+        val hitNodeId =
+            rule.runOnIdle {
+                delegate.hitTestSemanticsAt(
+                    bounds.left + bounds.width / 2,
+                    bounds.top + bounds.height / 2
+                )
+            }
+
+        // Assert it doesn't hit the tagged node since it only has unimportant properties.
+        rule.runOnIdle { assertThat(hitNodeId).isEqualTo(InvalidId) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testAccessibilityNodeInfoTreePruned_invisibleDoesNotPrune() {
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag)) {
+                with(LocalDensity.current) {
+                    BasicText(
+                        "Child One",
+                        Modifier.zIndex(1f)
+                            .testTag(childOneTag)
+                            .semantics { invisibleToUser() }
+                            .requiredSize(50.toDp())
+                    )
+                    BasicText("Child Two", Modifier.testTag(childTwoTag).requiredSize(50.toDp()))
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
+        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
+
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
+            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
+                .isEqualTo("Child Two")
+        }
+    }
+
+    @Test
     fun testDialog_setCorrectBounds() {
         var dialogComposeView: AndroidComposeView? = null
         setContent {
@@ -4000,7 +4121,6 @@ class AndroidAccessibilityTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun testTestTagsAsResourceId() {
         // Arrange.
         val tag1 = "box1"

@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.Constraints
 
 /** Abstracts away the subcomposition from the measuring logic. */
 @OptIn(ExperimentalFoundationApi::class)
-internal abstract class LazyListMeasuredItemProvider
-@ExperimentalFoundationApi
-constructor(
+internal abstract class LazyListMeasuredItemProvider(
     constraints: Constraints,
     isVertical: Boolean,
     private val itemProvider: LazyListItemProvider,

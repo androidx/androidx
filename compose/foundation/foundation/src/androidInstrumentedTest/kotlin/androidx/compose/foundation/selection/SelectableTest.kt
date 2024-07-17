@@ -39,7 +39,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -408,7 +407,6 @@ class SelectableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun selectableTest_interactionSource_hover() {
         val interactionSource = MutableInteractionSource()
@@ -486,7 +484,7 @@ class SelectableTest {
         rule.runOnIdle { assertThat(interactions).isEmpty() }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Touch)
+            inputModeManager.requestInputMode(Touch)
             focusRequester.requestFocus()
         }
 
@@ -528,7 +526,7 @@ class SelectableTest {
         rule.runOnIdle { assertThat(interactions).isEmpty() }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -588,7 +586,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_clickWithEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -608,7 +606,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -622,7 +620,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_clickWithNumPadEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -642,7 +640,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -656,7 +654,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_clickWithDPadCenter() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -676,7 +674,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -690,7 +688,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_enterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -714,7 +712,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -738,7 +736,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_numPadEnterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -762,7 +760,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -786,7 +784,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_dpadCenter_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -810,7 +808,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
         rule.waitForIdle()
@@ -835,7 +833,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -859,19 +857,19 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("selectable").performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag("selectable").performKeyInput { pressKey(Key.Backspace) }
         rule.runOnIdle { assertThat(interactions).isEmpty() }
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -895,7 +893,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -933,7 +931,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -964,7 +962,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 
@@ -995,7 +993,7 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_interruptedClick_emitsCancelIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1021,7 +1019,7 @@ class SelectableTest {
         }
 
         rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
+            inputModeManager.requestInputMode(Keyboard)
             focusRequester.requestFocus()
         }
 

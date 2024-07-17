@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Wallpapers.YELLOW_DOMINATED_EXAMPLE
 @Preview(name = "Phone", device = PHONE, showSystemUi = true)
 @Preview(
     name = "Phone - Landscape",
-    device = "spec:width = 411dp, height = 891dp, orientation = landscape, dpi = 420",
+    device = "spec:width=411dp,height=891dp,orientation=landscape,dpi=420",
     showSystemUi = true
 )
 @Preview(name = "Unfolded Foldable", device = FOLDABLE, showSystemUi = true)

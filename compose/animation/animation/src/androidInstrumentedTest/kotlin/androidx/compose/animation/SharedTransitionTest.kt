@@ -99,15 +99,19 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
 import kotlinx.coroutines.runBlocking
+import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.RuleChain
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class SharedTransitionTest {
-
-    @get:Rule val rule = createComposeRule()
+    val rule = createComposeRule()
+    // Detect leaks BEFORE and AFTER compose rule work
+    @get:Rule
+    val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)
 
     @Test
     fun transitionInterruption() {
@@ -556,7 +560,6 @@ class SharedTransitionTest {
     }
 
     @SdkSuppress(minSdkVersion = 26)
-    @OptIn(ExperimentalAnimationApi::class)
     @Test
     fun testBothContentShowing() {
         var visible by mutableStateOf(false)
@@ -651,6 +654,81 @@ class SharedTransitionTest {
             }
             rule.waitForIdle()
             rule.mainClock.advanceTimeByFrame()
+        }
+    }
+
+    @Test
+    fun testObserverScopeClearedAfterDisposing() {
+        var visible by mutableStateOf(false)
+        val tween = tween<Float>(100, easing = LinearEasing)
+        var transitionScope: SharedTransitionScopeImpl? = null
+        var shouldDispose by mutableStateOf(false)
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                if (!shouldDispose) {
+                    SharedTransitionLayout(
+                        Modifier.requiredSize(100.dp).testTag("scope").background(Color.White)
+                    ) {
+                        transitionScope = this as SharedTransitionScopeImpl
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = EnterTransition.None,
+                            exit = ExitTransition.None
+                        ) {
+                            Box(
+                                Modifier.sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this@AnimatedVisibility,
+                                        fadeIn(tween),
+                                        fadeOut(tween)
+                                    )
+                                    .fillMaxSize()
+                            ) {
+                                Box(
+                                    Modifier.fillMaxHeight()
+                                        .fillMaxWidth(0.5f)
+                                        .background(Color.Red)
+                                        .align(Alignment.CenterStart)
+                                )
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = !visible,
+                            enter = EnterTransition.None,
+                            exit = ExitTransition.None
+                        ) {
+                            Box(
+                                Modifier.sharedBounds(
+                                        rememberSharedContentState(key = "test"),
+                                        this@AnimatedVisibility,
+                                        fadeIn(tween),
+                                        fadeOut(tween)
+                                    )
+                                    .fillMaxSize()
+                            ) {
+                                Box(
+                                    Modifier.fillMaxHeight()
+                                        .fillMaxWidth(0.5f)
+                                        .background(Color.Blue)
+                                        .align(Alignment.CenterEnd)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertFalse(transitionScope!!.isTransitionActive)
+        visible = true
+        rule.waitForIdle()
+
+        shouldDispose = true
+        rule.waitForIdle()
+
+        assertTrue(transitionScope!!.disposed)
+        transitionScope!!.observerForTest.clearIf {
+            error("Scope $it is not cleared from SharedTransitionScopeObserver")
         }
     }
 

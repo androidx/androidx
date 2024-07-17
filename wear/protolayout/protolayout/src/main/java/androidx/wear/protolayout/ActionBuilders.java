@@ -220,7 +220,6 @@ public final class ActionBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidIntExtra toProto() {
             return mImpl;
@@ -304,7 +303,6 @@ public final class ActionBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidLongExtra toProto() {
             return mImpl;
@@ -388,7 +386,6 @@ public final class ActionBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.AndroidDoubleExtra toProto() {
             return mImpl;
@@ -841,7 +838,6 @@ public final class ActionBuilders {
         }
 
         /** Returns the internal proto instance. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         ActionProto.LoadAction toProto() {
             return mImpl;

@@ -19,7 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -113,7 +112,6 @@ internal class AlignmentOffsetPositionProvider(val alignment: Alignment, val off
  * visible as long as it is part of the composition hierarchy.
  *
  * @sample androidx.compose.ui.samples.PopupSample
- *
  * @param alignment The alignment relative to the parent.
  * @param offset An offset from the original aligned position of the popup. Offset respects the
  *   Ltr/Rtl context, thus in Ltr it will be added to the original aligned position and in Rtl it
@@ -127,7 +125,7 @@ expect fun Popup(
     alignment: Alignment = Alignment.TopStart,
     offset: IntOffset = IntOffset(0, 0),
     onDismissRequest: (() -> Unit)? = null,
-    properties: PopupProperties = @OptIn(ExperimentalComposeUiApi::class) PopupProperties(),
+    properties: PopupProperties = PopupProperties(),
     content: @Composable () -> Unit
 )
 
@@ -137,7 +135,6 @@ expect fun Popup(
  * The popup is positioned using a custom [popupPositionProvider].
  *
  * @sample androidx.compose.ui.samples.PopupSample
- *
  * @param popupPositionProvider Provides the screen position of the popup.
  * @param onDismissRequest Executes when the user clicks outside of the popup.
  * @param properties [PopupProperties] for further customization of this popup's behavior.
@@ -147,6 +144,6 @@ expect fun Popup(
 expect fun Popup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: (() -> Unit)? = null,
-    properties: PopupProperties = @OptIn(ExperimentalComposeUiApi::class) PopupProperties(),
+    properties: PopupProperties = PopupProperties(),
     content: @Composable () -> Unit
 )

@@ -32,6 +32,7 @@ import androidx.core.telecom.internal.CallCompat
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.test.utils.TestUtils.printParticipants
 import androidx.core.telecom.util.ExperimentalAppActions
+import androidx.lifecycle.lifecycleScope
 import java.util.Collections
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -89,17 +90,17 @@ internal class MockInCallServiceDelegate : Service() {
                             CallsManager.PARTICIPANT -> {
                                 addParticipantsSupport(capability.supportedActions.toSet()) {
                                     Log.i(LOG_TAG, "ICSC.onCreateCallCompat: setup participants")
-                                    scope?.launch {
+                                    lifecycleScope.launch {
                                         it.participantsStateFlow.collect { participants ->
                                             printParticipants(participants, "ICS participants")
                                         }
                                     }
-                                    scope?.launch {
+                                    lifecycleScope.launch {
                                         it.activeParticipantStateFlow.collect { participant ->
                                             Log.i(LOG_TAG, "ICS active participant: $participant")
                                         }
                                     }
-                                    scope?.launch {
+                                    lifecycleScope.launch {
                                         it.raisedHandsStateFlow.collect { participants ->
                                             Log.i(LOG_TAG, "ICS raised hands: $participants")
                                         }

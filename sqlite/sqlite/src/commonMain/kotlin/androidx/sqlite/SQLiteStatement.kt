@@ -24,7 +24,8 @@ package androidx.sqlite
  *
  * See also [Prepared Statement](https://www.sqlite.org/c3ref/stmt.html)
  */
-@Suppress("NotCloseable") // TODO(b/315461431): No common Closeable interface in KMP
+// TODO(b/315461431): No common Closeable interface in KMP
+@Suppress("NotCloseable", "AcronymName") // SQL is a known term and should remain capitalized
 interface SQLiteStatement {
     /**
      * Binds a ByteArray value to this statement at an index.

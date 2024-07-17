@@ -37,7 +37,6 @@ import kotlin.jvm.JvmName
  *   [LoadResult.Page.nextKey] set to `null` respectively.
  *
  * @sample androidx.paging.samples.remoteMediatorItemKeyedSample
- *
  * @sample androidx.paging.samples.remoteMediatorPageKeyedSample
  */
 @ExperimentalPagingApi

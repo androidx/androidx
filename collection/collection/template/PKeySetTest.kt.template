@@ -560,4 +560,18 @@ internal class PKeySetTest {
         assertTrue(4KeySuffix in set)
         assertFalse(5KeySuffix in set)
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val set = mutablePKeySetOf()
+
+        for (i in 0 .. 1000000) {
+            set.add(i.toPKey())
+            set.remove(i.toPKey())
+            assertTrue(
+                set.capacity < 16,
+                "Set grew larger than 16 after step $i"
+            )
+        }
+    }
 }

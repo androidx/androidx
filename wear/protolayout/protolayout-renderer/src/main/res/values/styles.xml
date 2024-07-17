@@ -12,9 +12,19 @@
     <item name="protoLayoutBoldFont">sans-serif</item>
   </style>
 
+  <style name="ProtoLayoutRobotoFont">
+    <item name="protoLayoutNormalFont">Roboto-Regular.ttf</item>
+    <item name="protoLayoutMediumFont">Roboto-Medium.ttf</item>
+    <item name="protoLayoutBoldFont">Roboto-Regular.ttf</item>
+  </style>
+
   <style name="ProtoLayoutBaseTheme">
     <item name="protoLayoutFallbackTextAppearance">@style/ProtoLayoutFallbackTextAppearance</item>
     <item name="protoLayoutTitleFont">@style/ProtoLayoutBaseFont</item>
     <item name="protoLayoutBodyFont">@style/ProtoLayoutBaseFont</item>
+    <item name="protoLayoutDefaultSystemFont">@style/ProtoLayoutBaseFont</item>
+    <item name="protoLayoutRobotoFont">@style/ProtoLayoutRobotoFont</item>
+<!--  TODO(b/348207120): Enable Roboto Flex font.  -->
+    <item name="protoLayoutRobotoFlexFont">@style/ProtoLayoutRobotoFont</item>
   </style>
 </resources>

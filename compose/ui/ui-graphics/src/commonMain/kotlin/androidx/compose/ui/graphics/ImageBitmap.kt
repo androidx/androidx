@@ -61,7 +61,6 @@ interface ImageBitmap {
      * critical code paths
      *
      * @sample androidx.compose.ui.graphics.samples.ImageBitmapReadPixelsSample
-     *
      * @param buffer The array to store the [ImageBitmap]'s colors. By default this allocates an
      *   [IntArray] large enough to store all the pixel information. Consumers of this API are
      *   advised to use the smallest [IntArray] necessary to extract relevant pixel information,
@@ -101,7 +100,6 @@ interface ImageBitmap {
  * code paths
  *
  * @sample androidx.compose.ui.graphics.samples.ImageBitmapToPixelMapSample
- *
  * @param startX The x-coordinate of the first pixel to read from the [ImageBitmap]
  * @param startY The y-coordinate of the first pixel to read from the [ImageBitmap]
  * @param width The number of pixels to read from each row

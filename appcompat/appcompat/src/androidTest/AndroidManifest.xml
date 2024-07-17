@@ -21,7 +21,6 @@
         tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
 
     <application
-        android:name="androidx.multidex.MultiDexApplication"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
 

@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
@@ -41,7 +42,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.first
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
@@ -66,6 +66,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
@@ -104,7 +105,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class CombinedClickableTest {
 
     @get:Rule val rule = createComposeRule()
@@ -271,96 +271,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    fun clickWithEnterKey() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "ClickableText",
-                modifier =
-                    Modifier.testTag("myClickable")
-                        .focusRequester(focusRequester)
-                        .combinedClickable { counter++ }
-            )
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyDown(Key.Enter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyUp(Key.Enter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
-
-    @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    fun clickWithNumPadEnterKey() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "ClickableText",
-                modifier =
-                    Modifier.testTag("myClickable")
-                        .focusRequester(focusRequester)
-                        .combinedClickable { counter++ }
-            )
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyDown(Key.NumPadEnter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyUp(Key.NumPadEnter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
-
-    @Test
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
-    fun clickWithDPadCenter() {
-        var counter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "ClickableText",
-                modifier =
-                    Modifier.testTag("myClickable")
-                        .focusRequester(focusRequester)
-                        .combinedClickable { counter++ }
-            )
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyDown(Key.DirectionCenter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyUp(Key.DirectionCenter) }
-
-        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
-    }
-
-    @Test
     fun clickOnChildBasicText() {
         var counter = 0
         val onClick: () -> Unit = { ++counter }
@@ -407,6 +317,227 @@ class CombinedClickableTest {
         rule.onNodeWithTag("myClickable").performTouchInput { longClick() }
 
         rule.runOnIdle { assertThat(counter).isEqualTo(2) }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun longClickWithEnterKeyThenDPadCenter_triggersListenerTwice() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onLongClick = { ++longClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
+            longPressKey(Key.Enter)
+            longPressKey(Key.DirectionCenter)
+        }
+
+        rule.runOnIdle {
+            assertThat(longClickCounter).isEqualTo(2)
+            assertThat(clickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun longClickWithEnterKeyConcurrentlyWithDPadCenter_triggersListenerForEach() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onLongClick = { ++longClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
+            // The press duration is 100ms longer than the minimum required for a long press.
+            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
+            keyDown(Key.Enter)
+            advanceEventTime(durationMillis / 2)
+            keyDown(Key.DirectionCenter)
+            advanceEventTime(durationMillis / 2)
+            keyUp(Key.Enter)
+            advanceEventTime(durationMillis / 2)
+            keyUp(Key.DirectionCenter)
+        }
+
+        rule.runOnIdle {
+            assertThat(longClickCounter).isEqualTo(2)
+            assertThat(clickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun longClickWithEnterKeyConcurrentlyWithShortClickDPadCenter_triggersListenerForEach() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onLongClick = { ++longClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
+            // The press duration is 100ms longer than the minimum required for a long press.
+            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
+            keyDown(Key.Enter)
+            advanceEventTime(durationMillis / 2)
+            keyDown(Key.DirectionCenter)
+            advanceEventTime(durationMillis / 2)
+            keyUp(Key.Enter)
+            keyUp(Key.DirectionCenter)
+        }
+
+        rule.runOnIdle {
+            assertThat(longClickCounter).isEqualTo(1)
+            assertThat(clickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun updateOnLongClickListenerBetweenEnterKeyDownAndUp_callsNewListener() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        var newLongClickCounter = 0
+        var mutableOnLongClick: () -> Unit by mutableStateOf({ ++longClickCounter })
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onLongClick = mutableOnLongClick,
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
+            keyDown(Key.Enter)
+            advanceEventTime(100)
+        }
+        mutableOnLongClick = { ++newLongClickCounter }
+        rule.waitForIdle()
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            // The press duration is 100ms longer than the minimum required for a long press.
+            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
+            advanceEventTime(durationMillis)
+            keyUp(Key.Enter)
+        }
+
+        rule.runOnIdle {
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(newLongClickCounter).isEqualTo(1)
+            assertThat(clickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun modifierReusedBetweenEnterKeyDownAndKeyUp_doesNotCallListeners() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        var reuseKey by mutableStateOf(0)
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            ReusableContent(reuseKey) {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable")
+                            .focusRequester(focusRequester)
+                            .combinedClickable(
+                                onLongClick = { ++longClickCounter },
+                                onClick = { ++clickCounter }
+                            )
+                )
+            }
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
+            keyDown(Key.Enter)
+            // Press the Enter key down for 100ms less than the required long press duration.
+            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis - 100
+            advanceEventTime(durationMillis)
+        }
+        rule.runOnIdle { reuseKey = 1 }
+        rule.waitForIdle()
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            // Press the key down for another 200ms to reach the required long press duration.
+            advanceEventTime(200)
+            keyUp(Key.Enter)
+        }
+
+        rule.runOnIdle {
+            assertThat(longClickCounter).isEqualTo(0)
+            assertThat(clickCounter).isEqualTo(0)
+        }
     }
 
     @Test
@@ -1075,7 +1206,6 @@ class CombinedClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover() {
         val interactionSource = MutableInteractionSource()
@@ -1119,7 +1249,6 @@ class CombinedClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun interactionSource_hover_and_press() {
         val interactionSource = MutableInteractionSource()
@@ -1186,9 +1315,7 @@ class CombinedClickableTest {
                 )
             }
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Touch)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Touch) }
 
         val interactions = mutableListOf<Interaction>()
 
@@ -1226,9 +1353,7 @@ class CombinedClickableTest {
                 )
             }
         }
-        rule.runOnIdle {
-            @OptIn(ExperimentalComposeUiApi::class) inputModeManager.requestInputMode(Keyboard)
-        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
 
         val interactions = mutableListOf<Interaction>()
 
@@ -1615,7 +1740,6 @@ class CombinedClickableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @LargeTest
     fun noHover_whenDisabled() {
@@ -1677,7 +1801,6 @@ class CombinedClickableTest {
         rule.onNodeWithTag("myClickable").performMouseInput { exit(Offset(-1f, -1f)) }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun noFocus_whenDisabled() {
         val requester = FocusRequester()
@@ -1722,7 +1845,6 @@ class CombinedClickableTest {
     }
 
     /** Test for b/269319898 */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun noFocusPropertiesSet_whenDisabled() {
         val requester = FocusRequester()
@@ -1891,149 +2013,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun enterKey_emitsIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("clickable")
-                            .focusRequester(focusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
-                )
-            }
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("clickable").performKeyInput { keyDown(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("clickable").performKeyInput { keyUp(Key.Enter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun numPadEnterKey_emitsIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("clickable")
-                            .focusRequester(focusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
-                )
-            }
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("clickable").performKeyInput { keyDown(Key.NumPadEnter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("clickable").performKeyInput { keyUp(Key.NumPadEnter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
-    fun dpadCenter_emitsIndication() {
-        val interactionSource = MutableInteractionSource()
-        val focusRequester = FocusRequester()
-        lateinit var scope: CoroutineScope
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            scope = rememberCoroutineScope()
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp)) {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("clickable")
-                            .focusRequester(focusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
-                )
-            }
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-        rule.waitForIdle()
-
-        val interactions = mutableListOf<Interaction>()
-        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
-
-        rule.onNodeWithTag("clickable").performKeyInput { keyDown(Key.DirectionCenter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.onNodeWithTag("clickable").performKeyInput { keyUp(Key.DirectionCenter) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(2)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-            assertThat(interactions.last()).isInstanceOf(PressInteraction.Release::class.java)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2063,12 +2043,12 @@ class CombinedClickableTest {
         val interactions = mutableListOf<Interaction>()
         scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
 
-        rule.onNodeWithTag("clickable").performKeyInput { pressKey(Key.Spacebar) }
+        rule.onNodeWithTag("clickable").performKeyInput { pressKey(Key.Backspace) }
         rule.runOnIdle { assertThat(interactions).isEmpty() }
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2129,7 +2109,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2188,7 +2168,7 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     fun interruptedClick_emitsCancelIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -2303,4 +2283,10 @@ private fun SemanticsNodeInteraction.assertOnLongClickLabelMatches(
                 expectedValue
         }
     )
+}
+
+private fun KeyInjectionScope.longPressKey(key: Key) {
+    // The press duration is 100ms longer than the minimum required for a long press.
+    val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
+    pressKey(key, durationMillis)
 }

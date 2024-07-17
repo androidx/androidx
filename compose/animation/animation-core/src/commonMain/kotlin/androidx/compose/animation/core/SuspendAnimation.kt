@@ -35,9 +35,7 @@ import kotlinx.coroutines.CancellationException
  * @param animationSpec The animation configuration that will be used. [spring] by default.
  * @param block Will be invoked on every frame with the current value and velocity of the animation
  *   for that frame.
- *
  * @sample androidx.compose.animation.core.samples.suspendAnimateFloatVariant
- *
  * @see AnimationState.animateTo
  */
 suspend fun animate(
@@ -131,7 +129,6 @@ suspend fun <T, V : AnimationVector> animate(
  *   call [AnimationScope.cancelAnimation]. After [AnimationScope.cancelAnimation] is called,
  *   [block] will not be invoked again. The animation loop will exit after the [block] returns. All
  *   the animation related info can be accessed via [AnimationScope].
- *
  * @sample androidx.compose.animation.core.samples.animateToOnAnimationState
  */
 suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(

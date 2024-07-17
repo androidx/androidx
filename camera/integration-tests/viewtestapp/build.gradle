@@ -24,9 +24,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.view"
-        minSdkVersion 21
-        versionCode 1
-        multiDexEnabled true
     }
 
     sourceSets {
@@ -46,9 +43,6 @@ android {
         }
     }
 
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
     namespace "androidx.camera.integration.view"
 }
 
@@ -72,7 +66,6 @@ dependencies {
     // but it doesn't work in androidx.
     implementation("androidx.lifecycle:lifecycle-common-java8:2.5.1")
     api(libs.constraintLayout)
-    compileOnly(libs.kotlinCompiler)
 
     // Lifecycle and LiveData
     implementation("androidx.lifecycle:lifecycle-livedata:2.2.0")

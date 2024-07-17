@@ -436,7 +436,6 @@ class PointerInputChange(
         Offset.Zero
     )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     internal constructor(
         id: PointerId,
         uptimeMillis: Long,
@@ -476,12 +475,10 @@ class PointerInputChange(
     // stabilized. It doesn't appear in current.txt; and in experimental_current.txt,
     // it has the same effect as a primary constructor val.
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
     val historical: List<HistoricalChange>
         get() = _historical ?: listOf()
 
-    @OptIn(ExperimentalComposeUiApi::class) private var _historical: List<HistoricalChange>? = null
+    private var _historical: List<HistoricalChange>? = null
 
     internal var originalEventPosition: Offset = Offset.Zero
 
@@ -513,7 +510,6 @@ class PointerInputChange(
         ConsumedData(downChange = isInitiallyConsumed, positionChange = isInitiallyConsumed)
         private set
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
         replaceWith =
@@ -560,7 +556,6 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange]
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
@@ -587,7 +582,6 @@ class PointerInputChange(
             scrollDelta = scrollDelta
         )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
     @Deprecated(
         "Partial consumption has been deprecated. Use copy() instead without `consumed` " +
@@ -636,7 +630,6 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange].
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
@@ -745,22 +738,19 @@ class PointerInputChange(
 
     // Long string concatenation causes atomicfu plugin to be slow/hang.
     // See https://youtrack.jetbrains.com/issue/KT-65645/Atomicfu-plugin-compilation-hangs-on-a-long-string-concatenation
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun toString(): String {
-        return buildString {
-            append("PointerInputChange(id=$id, ")
-            append("uptimeMillis=$uptimeMillis, ")
-            append("position=$position, ")
-            append("pressed=$pressed, ")
-            append("pressure=$pressure, ")
-            append("previousUptimeMillis=$previousUptimeMillis, ")
-            append("previousPosition=$previousPosition, ")
-            append("previousPressed=$previousPressed, ")
-            append("isConsumed=$isConsumed, ")
-            append("type=$type, ")
-            append("historical=$historical,")
-            append("scrollDelta=$scrollDelta)")
-        }
+        return "PointerInputChange(id=$id, " +
+            "uptimeMillis=$uptimeMillis, " +
+            "position=$position, " +
+            "pressed=$pressed, " +
+            "pressure=$pressure, " +
+            "previousUptimeMillis=$previousUptimeMillis, " +
+            "previousPosition=$previousPosition, " +
+            "previousPressed=$previousPressed, " +
+            "isConsumed=$isConsumed, " +
+            "type=$type, " +
+            "historical=$historical," +
+            "scrollDelta=$scrollDelta)"
     }
 }
 
@@ -775,7 +765,6 @@ class PointerInputChange(
  * @param position The [Offset] of the historical pointer event, relative to the containing element.
  */
 @Immutable
-@ExperimentalComposeUiApi
 class HistoricalChange(val uptimeMillis: Long, val position: Offset) {
     internal var originalEventPosition: Offset = Offset.Zero
         private set

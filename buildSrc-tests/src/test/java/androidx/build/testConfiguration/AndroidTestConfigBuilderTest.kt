@@ -58,11 +58,12 @@ class AndroidTestConfigBuilderTest {
     }
 
     @Test
-    fun testXmlAgainstGoldenWithInitialSetupApks() {
+    fun testXmlAgainstGoldenMainSandboxConfiguration() {
         builder.initialSetupApks(listOf("init-placeholder.apk"))
+        builder.enablePrivacySandbox(true)
         MatcherAssert.assertThat(
             builder.buildXml(),
-            CoreMatchers.`is`(goldenConfigWithInitialSetupApks)
+            CoreMatchers.`is`(goldenConfigForMainSandboxConfiguration)
         )
     }
 
@@ -377,7 +378,7 @@ private val goldenDefaultConfig = """
     </configuration>
 """.trimIndent()
 
-private val goldenConfigWithInitialSetupApks = """
+private val goldenConfigForMainSandboxConfiguration = """
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Copyright (C) 2020 The Android Open Source Project
     Licensed under the Apache License, Version 2.0 (the "License")
@@ -403,6 +404,12 @@ private val goldenConfigWithInitialSetupApks = """
     <option name="install-arg" value="-t" />
     <option name="test-file-name" value="init-placeholder.apk" />
     <option name="test-file-name" value="placeholder.apk" />
+    </target_preparer>
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="cmd sdk_sandbox set-state --enabled"/>
+    <option name="run-command" value="device_config set_sync_disabled_for_tests persistent" />
+    <option name="teardown-command" value="cmd sdk_sandbox set-state --reset"/>
+    <option name="teardown-command" value="device_config set_sync_disabled_for_tests none" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
     <option name="runner" value="com.example.Runner"/>

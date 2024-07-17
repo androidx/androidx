@@ -78,6 +78,7 @@ public class FakeCamera implements CameraInternal {
     private final List<UseCase> mUseCaseUpdateHistory = new ArrayList<>();
     private final List<UseCase> mUseCaseResetHistory = new ArrayList<>();
     private boolean mHasTransform = true;
+    private boolean mIsPrimary = true;
 
     @Nullable
     private SessionConfig mSessionConfig;
@@ -380,6 +381,17 @@ public class FakeCamera implements CameraInternal {
      */
     public void setHasTransform(boolean hasCameraTransform) {
         mHasTransform = hasCameraTransform;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public void setPrimary(boolean isPrimary) {
+        mIsPrimary = isPrimary;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isPrimary() {
+        return mIsPrimary;
     }
 
     private void checkNotReleased() {

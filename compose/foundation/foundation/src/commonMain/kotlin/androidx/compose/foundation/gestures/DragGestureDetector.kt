@@ -68,7 +68,6 @@ import kotlinx.coroutines.CancellationException
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.AwaitDragOrCancellationSample
- *
  * @see awaitHorizontalTouchSlopOrCancellation
  * @see awaitVerticalTouchSlopOrCancellation
  */
@@ -95,7 +94,6 @@ suspend fun AwaitPointerEventScope.awaitTouchSlopOrCancellation(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.DragSample
- *
  * @see awaitTouchSlopOrCancellation
  * @see awaitDragOrCancellation
  * @see horizontalDrag
@@ -130,7 +128,6 @@ suspend fun AwaitPointerEventScope.drag(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.AwaitDragOrCancellationSample
- *
  * @see awaitVerticalDragOrCancellation
  * @see awaitHorizontalDragOrCancellation
  * @see drag
@@ -163,7 +160,6 @@ suspend fun AwaitPointerEventScope.awaitDragOrCancellation(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.DetectDragGesturesSample
- *
  * @see detectVerticalDragGestures
  * @see detectHorizontalDragGestures
  * @see detectDragGesturesAfterLongPress to detect gestures after long press
@@ -222,7 +218,6 @@ suspend fun PointerInputScope.detectDragGestures(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.DetectDragGesturesSample
- *
  * @see detectVerticalDragGestures
  * @see detectHorizontalDragGestures
  * @see detectDragGesturesAfterLongPress to detect gestures after long press
@@ -302,7 +297,6 @@ internal suspend fun PointerInputScope.detectDragGestures(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.DetectDragWithLongPressGesturesSample
- *
  * @see detectVerticalDragGestures
  * @see detectHorizontalDragGestures
  * @see detectDragGestures
@@ -360,7 +354,6 @@ suspend fun PointerInputScope.detectDragGesturesAfterLongPress(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.AwaitVerticalDragOrCancellationSample
- *
  * @see awaitHorizontalTouchSlopOrCancellation
  * @see awaitTouchSlopOrCancellation
  */
@@ -398,7 +391,6 @@ internal suspend fun AwaitPointerEventScope.awaitVerticalPointerSlopOrCancellati
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.VerticalDragSample
- *
  * @see awaitVerticalTouchSlopOrCancellation
  * @see awaitVerticalDragOrCancellation
  * @see horizontalDrag
@@ -427,7 +419,6 @@ suspend fun AwaitPointerEventScope.verticalDrag(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.AwaitVerticalDragOrCancellationSample
- *
  * @see awaitHorizontalDragOrCancellation
  * @see awaitDragOrCancellation
  * @see verticalDrag
@@ -464,7 +455,6 @@ suspend fun AwaitPointerEventScope.awaitVerticalDragOrCancellation(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.DetectVerticalDragGesturesSample
- *
  * @see detectDragGestures
  * @see detectHorizontalDragGestures
  */
@@ -518,7 +508,6 @@ suspend fun PointerInputScope.detectVerticalDragGestures(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.AwaitHorizontalDragOrCancellationSample
- *
  * @see awaitVerticalTouchSlopOrCancellation
  * @see awaitTouchSlopOrCancellation
  */
@@ -553,7 +542,6 @@ internal suspend fun AwaitPointerEventScope.awaitHorizontalPointerSlopOrCancella
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.HorizontalDragSample
- *
  * @see awaitHorizontalTouchSlopOrCancellation
  * @see awaitDragOrCancellation
  * @see verticalDrag
@@ -582,7 +570,6 @@ suspend fun AwaitPointerEventScope.horizontalDrag(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.AwaitHorizontalDragOrCancellationSample
- *
  * @see horizontalDrag
  * @see awaitVerticalDragOrCancellation
  * @see awaitDragOrCancellation
@@ -619,7 +606,6 @@ suspend fun AwaitPointerEventScope.awaitHorizontalDragOrCancellation(
  * Example Usage:
  *
  * @sample androidx.compose.foundation.samples.DetectHorizontalDragGesturesSample
- *
  * @see detectVerticalDragGestures
  * @see detectDragGestures
  */

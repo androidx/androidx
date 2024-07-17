@@ -549,7 +549,7 @@ constructor(
 
     @GuardedBy("lock")
     private fun addRepeatingUseCase() {
-        meteringRepeating.bindToCamera(cameraInternal.get(), null, null)
+        meteringRepeating.bindToCamera(cameraInternal.get(), null, null, null)
         meteringRepeating.setupSession()
         attach(listOf(meteringRepeating))
         activate(meteringRepeating)

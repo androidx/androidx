@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.rememberScrollableState
@@ -43,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 
 /** A provider that doesn't use the concept of items for snapping. */
-@OptIn(ExperimentalFoundationApi::class)
 class NonItemBasedSnappingLayoutInfoProvider(
     private val currentOffset: Int,
     layoutSize: Int,
@@ -85,7 +83,6 @@ class NonItemBasedSnappingLayoutInfoProvider(
 
 private val ThumbSize = 60.dp
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NonItemBasedLayout() {
     var thumbOffset by remember { mutableStateOf(IntOffset.Zero) }

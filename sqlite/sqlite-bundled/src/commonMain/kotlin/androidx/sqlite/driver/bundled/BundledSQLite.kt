@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:JvmName("BundledSQLite")
+
 package androidx.sqlite.driver.bundled
 
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmName
 
 /** Opens the database in read-only mode. */
 const val SQLITE_OPEN_READONLY = 0x00000001

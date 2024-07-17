@@ -61,7 +61,6 @@ fun Modifier.onRotaryScrollEvent(onRotaryScrollEvent: (RotaryScrollEvent) -> Boo
  * Return true to indicate that you consumed the event and want to stop propagation of this event.
  *
  * @return true if the event is consumed, false otherwise.
- *
  * @sample androidx.compose.ui.samples.PreRotaryEventSample
  */
 fun Modifier.onPreRotaryScrollEvent(

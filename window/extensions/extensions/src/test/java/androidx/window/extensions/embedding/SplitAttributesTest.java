@@ -36,46 +36,46 @@ import org.robolectric.RobolectricTestRunner;
 public class SplitAttributesTest {
     @Test
     public void testSplitAttributesEquals() {
-        final SplitAttributes layout1 = new SplitAttributes.Builder()
+        final SplitAttributes attrs1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackgroundColor(SplitAttributes.DEFAULT_ANIMATION_BACKGROUND_COLOR)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
-        final SplitAttributes layout2 = new SplitAttributes.Builder()
+        final SplitAttributes attrs2 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackgroundColor(SplitAttributes.DEFAULT_ANIMATION_BACKGROUND_COLOR)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
-        final SplitAttributes layout3 = new SplitAttributes.Builder()
+        final SplitAttributes attrs3 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(SplitAttributes.DEFAULT_ANIMATION_BACKGROUND_COLOR)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
-        final SplitAttributes layout4 = new SplitAttributes.Builder()
+        final SplitAttributes attrs4 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(Color.BLUE)
+                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
                 .build();
-        final SplitAttributes layout5 = new SplitAttributes.Builder()
+        final SplitAttributes attrs5 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackgroundColor(Color.BLUE)
+                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
                 .build();
 
-        assertNotEquals(layout1, layout2);
-        assertNotEquals(layout1.hashCode(), layout2.hashCode());
+        assertNotEquals(attrs1, attrs2);
+        assertNotEquals(attrs1.hashCode(), attrs2.hashCode());
 
-        assertNotEquals(layout2, layout3);
-        assertNotEquals(layout2.hashCode(), layout3.hashCode());
+        assertNotEquals(attrs2, attrs3);
+        assertNotEquals(attrs2.hashCode(), attrs3.hashCode());
 
-        assertNotEquals(layout3, layout1);
-        assertNotEquals(layout3.hashCode(), layout1.hashCode());
+        assertNotEquals(attrs3, attrs1);
+        assertNotEquals(attrs3.hashCode(), attrs1.hashCode());
 
-        assertNotEquals(layout4, layout3);
-        assertNotEquals(layout4.hashCode(), layout3.hashCode());
+        assertNotEquals(attrs4, attrs3);
+        assertNotEquals(attrs4.hashCode(), attrs3.hashCode());
 
-        assertEquals(layout4, layout5);
-        assertEquals(layout4.hashCode(), layout5.hashCode());
+        assertEquals(attrs4, attrs5);
+        assertEquals(attrs4.hashCode(), attrs5.hashCode());
     }
 
     @Test

@@ -171,12 +171,11 @@ private fun TestSiblings() {
 @Composable
 private fun CustomLayout(rtlSupport: Boolean) {
     Layout(
-        content =
-            @Composable {
-                Box(boxSize.background(color = Color.Red)) {}
-                Box(boxSize.background(color = Color.Green)) {}
-                Box(boxSize.background(color = Color.Blue)) {}
-            }
+        content = {
+            Box(boxSize.background(color = Color.Red)) {}
+            Box(boxSize.background(color = Color.Green)) {}
+            Box(boxSize.background(color = Color.Blue)) {}
+        }
     ) { measurables, constraints ->
         val p = measurables.map { e -> e.measure(constraints.copy(minWidth = 0, minHeight = 0)) }
         val w = p.fold(0) { sum, e -> sum + e.width }

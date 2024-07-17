@@ -199,7 +199,6 @@ import kotlinx.coroutines.launch
  * image](https://developer.android.com/images/reference/androidx/compose/material3/time-picker.png)
  *
  * @sample androidx.compose.material3.samples.TimePickerSample
- *
  * @sample androidx.compose.material3.samples.TimePickerSwitchableSample
  *
  * [state] state for this timepicker, allows to subscribe to changes to [TimePickerState.hour] and
@@ -247,7 +246,6 @@ fun TimePicker(
  * and one for hours Subscribe to updates through [TimePickerState]
  *
  * @sample androidx.compose.material3.samples.TimeInputSample
- *
  * @param state state for this timepicker, allows to subscribe to changes to [TimePickerState.hour]
  *   and [TimePickerState.minute], and set the initial time for this picker.
  * @param modifier the [Modifier] to be applied to this time input
@@ -1711,7 +1709,7 @@ private fun timeInputOnChange(
 
     if (value.text.isEmpty()) {
         if (selection == TimePickerSelectionMode.Hour) {
-            state.hour = 0
+            state.hour = if (state.isAfternoon && !state.is24hour) 12 else 0
         } else {
             state.minute = 0
         }
@@ -1729,7 +1727,7 @@ private fun timeInputOnChange(
 
         if (newValue <= max) {
             if (selection == TimePickerSelectionMode.Hour) {
-                state.hour = newValue
+                state.hour = newValue + if (state.isAfternoon && !state.is24hour) 12 else 0
                 if (newValue > 1 && !state.is24hour) {
                     state.selection = TimePickerSelectionMode.Minute
                 }

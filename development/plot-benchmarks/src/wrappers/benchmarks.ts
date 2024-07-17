@@ -13,11 +13,11 @@ export class BenchmarkWrapper {
   }
 
   metric(label: string): Standard | undefined {
-    return this.benchmark?.metrics[label];
+    return this.benchmark?.metrics?.[label];
   }
 
   sampled(label: string): Sampled | undefined {
-    return this.benchmark?.sampledMetrics[label];
+    return this.benchmark?.sampledMetrics?.[label];
   }
 
   metricLabels(): string[] {
@@ -39,7 +39,7 @@ export class BenchmarkWrapper {
     return this.benchmark.name;
   }
 
-  private static labels(collection: MetricsCollection | null): string[] {
+  private static labels(collection: MetricsCollection | undefined): string[] {
     const labels: string[] = [];
     if (collection) {
       for (const key in collection) {

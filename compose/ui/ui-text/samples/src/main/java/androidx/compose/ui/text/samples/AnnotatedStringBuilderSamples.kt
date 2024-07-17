@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
@@ -46,6 +47,24 @@ fun AnnotatedStringConstructorSample() {
             listOf(
                 AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 6),
                 AnnotatedString.Range(ParagraphStyle(textIndent = TextIndent(5.sp)), 6, 11)
+            )
+    )
+}
+
+@Sampled
+fun AnnotatedStringMainConstructorSample() {
+    AnnotatedString(
+        text = "Jetpack Compose",
+        // mark all text as a link, separate it into two paragraphs and make "Compose" italic
+        annotations =
+            listOf(
+                AnnotatedString.Range(
+                    LinkAnnotation.Url("https://developer.android.com/jetpack/compose"),
+                    0,
+                    15
+                ),
+                AnnotatedString.Range(ParagraphStyle(textAlign = TextAlign.Center), 0, 8),
+                AnnotatedString.Range(SpanStyle(fontStyle = FontStyle.Italic), 8, 15)
             )
     )
 }
@@ -223,6 +242,26 @@ fun AnnotatedStringWithListenerSample() {
                     uriHandler.openUri(url)
                 }
             withLink(link) { append("Jetpack Compose") }
+        }
+    )
+}
+
+@Composable
+@Sampled
+@Suppress("UNCHECKED_CAST")
+fun AnnotatedStringMapAnnotationsSamples(text: AnnotatedString, linkColor: Color) {
+    // An example of applying color to the links in the given text where the `linkColor` would
+    // usually come from the theme in your app
+    val linkStyles = TextLinkStyles(style = SpanStyle(color = linkColor))
+    BasicText(
+        text.mapAnnotations {
+            when (it.item) {
+                is LinkAnnotation.Url ->
+                    (it as Range<LinkAnnotation.Url>).copy(it.item.copy(styles = linkStyles))
+                is LinkAnnotation.Clickable ->
+                    (it as Range<LinkAnnotation.Clickable>).copy(it.item.copy(styles = linkStyles))
+                else -> it
+            }
         }
     )
 }

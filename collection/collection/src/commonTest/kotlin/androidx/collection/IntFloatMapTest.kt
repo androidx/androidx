@@ -752,4 +752,15 @@ internal class IntFloatMapTest {
         assertEquals(1024, map.trim())
         assertEquals(0, map.trim())
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableIntFloatMap()
+
+        for (i in 0..1000000) {
+            map[i.toInt()] = i.toFloat()
+            map.remove(i.toInt())
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }

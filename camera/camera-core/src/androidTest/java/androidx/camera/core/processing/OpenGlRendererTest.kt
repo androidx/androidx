@@ -34,6 +34,7 @@ import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.processing.util.GraphicDeviceInfo
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.TestImageUtil.createBitmap
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
@@ -73,13 +74,15 @@ class OpenGlRendererTest {
         #extension GL_OES_EGL_image_external : require
         precision mediump float;
         uniform samplerExternalOES %s;
+        uniform float uAlphaScale;
         varying vec2 %s;
         void main() {
           vec4 sampleColor = texture2D(%s, %s);
-          gl_FragColor = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
+          vec4 src = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
              sampleColor.b * 0.289, sampleColor.r * 0.449 + sampleColor.g * 0.686 +
              sampleColor.b * 0.268, sampleColor.r * 0.272 + sampleColor.g * 0.534 +
              sampleColor.b * 0.131, 1.0);
+          gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);
         }
         """
 
@@ -388,7 +391,7 @@ class OpenGlRendererTest {
     private suspend fun initRender(
         dynamicRange: DynamicRange = DynamicRange.SDR,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT,
-    ): OpenGlRenderer.GraphicDeviceInfo {
+    ): GraphicDeviceInfo {
         prepareCamera()
         assumeDynamicRange(dynamicRange)
         return createOpenGlRendererAndInit(
@@ -458,7 +461,7 @@ class OpenGlRendererTest {
     private suspend fun createOpenGlRendererAndInit(
         dynamicRange: DynamicRange = DynamicRange.SDR,
         shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
-    ): OpenGlRenderer.GraphicDeviceInfo {
+    ): GraphicDeviceInfo {
         createOpenGlRenderer()
 
         return if (currentCoroutineContext()[ContinuationInterceptor] == glDispatcher) {

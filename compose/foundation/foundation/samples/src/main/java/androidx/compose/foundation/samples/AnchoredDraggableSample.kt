@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.samples
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
@@ -31,6 +28,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.forEach
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -225,7 +223,6 @@ fun AnchoredDraggableCatchAnimatingWidgetSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 fun AnchoredDraggableWithOverscrollSample() {
@@ -335,7 +332,10 @@ fun DraggableAnchorsSample() {
                     state =
                         rememberDraggableState { delta ->
                             offset =
-                                (offset + delta).coerceIn(anchors.minAnchor(), anchors.maxAnchor())
+                                (offset + delta).coerceIn(
+                                    anchors.minPosition(),
+                                    anchors.maxPosition()
+                                )
                         },
                     orientation = Orientation.Horizontal,
                     onDragStopped = { velocity ->

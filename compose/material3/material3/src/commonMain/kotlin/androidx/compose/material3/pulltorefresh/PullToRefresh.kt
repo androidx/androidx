@@ -28,15 +28,21 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.LoadingIndicatorDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.loadingIndicatorColor
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.loadingIndicatorContainerColor
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionTokens
+import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -90,9 +96,15 @@ import kotlinx.coroutines.launch
 /**
  * [PullToRefreshBox] is a container that expects a scrollable layout as content and adds gesture
  * support for manually refreshing when the user swipes downward at the beginning of the content. By
- * default, it uses [PullToRefreshDefaults.Indicator] as the refresh indicator.
+ * default, it uses [PullToRefreshDefaults.Indicator] as the refresh indicator, but you may also
+ * choose to set your own indicator or use [PullToRefreshDefaults.LoadingIndicator].
  *
  * @sample androidx.compose.material3.samples.PullToRefreshSample
+ *
+ * Using a [androidx.compose.material3.LoadingIndicator] as the [PullToRefreshBox] indicator can be
+ * done like this
+ *
+ * @sample androidx.compose.material3.samples.PullToRefreshWithLoadingIndicatorSample
  *
  * View models can be used as source as truth as shown in
  *
@@ -106,6 +118,9 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.compose.material3.samples.PullToRefreshScalingSample
  *
+ * Custom indicators with default transforms can be seen in
+ *
+ * @sample androidx.compose.material3.samples.PullToRefreshCustomIndicatorWithDefaultTransform
  * @param isRefreshing whether a refresh is occurring
  * @param onRefresh callback invoked when the user gesture crosses the threshold, thereby requesting
  *   a refresh.
@@ -142,49 +157,6 @@ fun PullToRefreshBox(
         indicator()
     }
 }
-
-/**
- * A Modifier that handles the size, offset, clipping, shadow, and background drawing of a
- * pull-to-refresh indicator, useful when implementing custom indicators.
- * [PullToRefreshDefaults.Indicator] applies this automatically.
- *
- * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
- *   calculate the offset
- * @param isRefreshing whether a refresh is occurring
- * @param threshold how much the indicator can be pulled down before a refresh is triggered on
- *   release
- * @param shape the [Shape] of this indicator
- * @param containerColor the container color of this indicator
- * @param elevation the elevation for the indicator
- */
-@ExperimentalMaterial3Api
-fun Modifier.pullToRefreshIndicator(
-    state: PullToRefreshState,
-    isRefreshing: Boolean,
-    threshold: Dp = PullToRefreshDefaults.PositionalThreshold,
-    shape: Shape = PullToRefreshDefaults.shape,
-    containerColor: Color = Color.Unspecified,
-    elevation: Dp = PullToRefreshDefaults.Elevation,
-): Modifier =
-    this.size(SpinnerContainerSize)
-        .drawWithContent {
-            clipRect(
-                top = 0f,
-                left = -Float.MAX_VALUE,
-                right = Float.MAX_VALUE,
-                bottom = Float.MAX_VALUE
-            ) {
-                this@drawWithContent.drawContent()
-            }
-        }
-        .graphicsLayer {
-            val showElevation = state.distanceFraction > 0f || isRefreshing
-            translationY = state.distanceFraction * threshold.roundToPx() - size.height
-            shadowElevation = if (showElevation) elevation.toPx() else 0f
-            this.shape = shape
-            clip = true
-        }
-        .background(color = containerColor, shape = shape)
 
 /**
  * A Modifier that adds nested scroll to a container to support a pull-to-refresh gesture. When the
@@ -283,13 +255,7 @@ internal class PullToRefreshModifierNode(
 
     override fun onAttach() {
         delegate(nestedScrollNode)
-        coroutineScope.launch {
-            if (isRefreshing) {
-                state.snapTo(1f)
-            } else {
-                state.snapTo(0f)
-            }
-        }
+        coroutineScope.launch { state.snapTo(if (isRefreshing) 1f else 0f) }
     }
 
     override fun onPreScroll(
@@ -417,38 +383,121 @@ object PullToRefreshDefaults {
     val shape: Shape = CircleShape
 
     /** The default container color for [Indicator] */
+    @Deprecated(
+        "Use loadingIndicatorContainerColor instead",
+        ReplaceWith("loadingIndicatorContainerColor")
+    )
     val containerColor: Color
         @Composable get() = MaterialTheme.colorScheme.surfaceContainerHigh
 
+    /**
+     * The default container color for the loading indicator that appears when pulling to refresh.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    val loadingIndicatorContainerColor: Color
+        @Composable get() = LoadingIndicatorDefaults.ContainerColor
+
     /** The default indicator color for [Indicator] */
+    @Deprecated("Use loadingIndicatorColor instead", ReplaceWith("loadingIndicatorColor"))
     val indicatorColor: Color
         @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
+
+    /**
+     * The default active indicator color for the loading indicator that appears when pulling to
+     * refresh.
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    val loadingIndicatorColor: Color
+        @Composable get() = LoadingIndicatorDefaults.IndicatorColor
 
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
 
-    /** The default elevation for [pullToRefreshIndicator] */
+    /** The default elevation for [IndicatorBox] */
     val Elevation = ElevationTokens.Level2
 
-    /** The default indicator for [PullToRefreshBox]. */
+    /**
+     * A Wrapper that handles the size, offset, clipping, shadow, and background drawing for a
+     * pull-to-refresh indicator, useful when implementing custom indicators.
+     * [PullToRefreshDefaults.Indicator] uses this as the container.
+     *
+     * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+     *   calculate the offset
+     * @param isRefreshing whether a refresh is occurring
+     * @param modifier the modifier applied to this layout
+     * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+     *   release
+     * @param shape the [Shape] of this indicator
+     * @param containerColor the container color of this indicator
+     * @param elevation the elevation for the indicator
+     * @param content content for this [IndicatorBox]
+     */
+    @Composable
+    fun IndicatorBox(
+        state: PullToRefreshState,
+        isRefreshing: Boolean,
+        modifier: Modifier = Modifier,
+        threshold: Dp = PositionalThreshold,
+        shape: Shape = PullToRefreshDefaults.shape,
+        containerColor: Color = Color.Unspecified,
+        elevation: Dp = Elevation,
+        content: @Composable BoxScope.() -> Unit
+    ) {
+        Box(
+            modifier =
+                modifier
+                    .size(SpinnerContainerSize)
+                    .drawWithContent {
+                        clipRect(
+                            top = 0f,
+                            left = -Float.MAX_VALUE,
+                            right = Float.MAX_VALUE,
+                            bottom = Float.MAX_VALUE
+                        ) {
+                            this@drawWithContent.drawContent()
+                        }
+                    }
+                    .graphicsLayer {
+                        val showElevation = state.distanceFraction > 0f || isRefreshing
+                        translationY = state.distanceFraction * threshold.roundToPx() - size.height
+                        shadowElevation = if (showElevation) elevation.toPx() else 0f
+                        this.shape = shape
+                        clip = true
+                    }
+                    .background(color = containerColor, shape = shape),
+            contentAlignment = Alignment.Center,
+            content = content
+        )
+    }
+
+    /**
+     * The default indicator for [PullToRefreshBox].
+     *
+     * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+     *   calculate the offset
+     * @param isRefreshing whether a refresh is occurring
+     * @param modifier the modifier applied to this layout
+     * @param containerColor the container color of this indicator
+     * @param color the color of this indicator
+     * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+     *   release
+     */
+    @Suppress("DEPRECATION")
     @Composable
     fun Indicator(
         state: PullToRefreshState,
         isRefreshing: Boolean,
         modifier: Modifier = Modifier,
-        containerColor: Color = PullToRefreshDefaults.containerColor,
-        color: Color = PullToRefreshDefaults.indicatorColor,
+        containerColor: Color = this.containerColor,
+        color: Color = this.indicatorColor,
         threshold: Dp = PositionalThreshold,
     ) {
-        Box(
-            modifier =
-                modifier.pullToRefreshIndicator(
-                    state = state,
-                    isRefreshing = isRefreshing,
-                    containerColor = containerColor,
-                    threshold = threshold,
-                ),
-            contentAlignment = Alignment.Center
+        IndicatorBox(
+            modifier = modifier,
+            state = state,
+            isRefreshing = isRefreshing,
+            containerColor = containerColor,
+            threshold = threshold,
         ) {
             Crossfade(
                 targetState = isRefreshing,
@@ -464,6 +513,74 @@ object PullToRefreshDefaults {
                     CircularArrowProgressIndicator(
                         progress = { state.distanceFraction },
                         color = color,
+                    )
+                }
+            }
+        }
+    }
+
+    /** A [LoadingIndicator] indicator for [PullToRefreshBox]. */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun LoadingIndicator(
+        state: PullToRefreshState,
+        isRefreshing: Boolean,
+        modifier: Modifier = Modifier,
+        containerColor: Color = this.loadingIndicatorContainerColor,
+        color: Color = this.loadingIndicatorColor,
+        elevation: Dp = ElevationTokens.Level0,
+        threshold: Dp = PositionalThreshold
+    ) {
+        IndicatorBox(
+            modifier = modifier.size(width = LoaderIndicatorWidth, height = LoaderIndicatorHeight),
+            state = state,
+            isRefreshing = isRefreshing,
+            containerColor = containerColor,
+            elevation = elevation,
+            threshold = threshold,
+        ) {
+            Crossfade(
+                targetState = isRefreshing,
+                animationSpec = tween(durationMillis = CrossfadeDurationMs)
+            ) { refreshing ->
+                if (refreshing) {
+                    androidx.compose.material3.LoadingIndicator(
+                        // TODO Set the LoadingIndicator colors
+                        modifier =
+                            Modifier.requiredSize(
+                                width = LoaderIndicatorWidth,
+                                height = LoaderIndicatorHeight
+                            ),
+                        containerColor = containerColor,
+                        indicatorColor = color
+                    )
+                } else {
+                    // The LoadingIndicator will rotate and morph for a coerced progress value of 0
+                    // to 1. When the state's distanceFraction is above one, we rotate the entire
+                    // component we have a continuous rotation until the refreshing flag is true.
+                    androidx.compose.material3.LoadingIndicator(
+                        // TODO Set the LoadingIndicator colors
+                        progress = { state.distanceFraction },
+                        modifier =
+                            Modifier.requiredSize(
+                                    width = LoaderIndicatorWidth,
+                                    height = LoaderIndicatorHeight
+                                )
+                                .drawWithContent {
+                                    val progress = state.distanceFraction
+                                    if (progress > 1f) {
+                                        // Start the rotation on progress - 1 (i.e. 0) to avoid a
+                                        // jump that would be more noticeable on some
+                                        // LoadingIndicator shapes.
+                                        rotate(-(progress - 1) * 180) {
+                                            this@drawWithContent.drawContent()
+                                        }
+                                    } else {
+                                        drawContent()
+                                    }
+                                },
+                        containerColor = containerColor,
+                        indicatorColor = color
                     )
                 }
             }
@@ -669,6 +786,11 @@ internal val SpinnerSize = 16.dp // (ArcRadius + PullRefreshIndicatorDefaults.St
 internal val SpinnerContainerSize = 40.dp
 private val ArrowWidth = 10.dp
 private val ArrowHeight = 5.dp
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal val LoaderIndicatorHeight = LoadingIndicatorDefaults.ContainerHeight
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal val LoaderIndicatorWidth = LoadingIndicatorDefaults.ContainerWidth
 
 // Values taken from SwipeRefreshLayout
 private const val MinAlpha = 0.3f

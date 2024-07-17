@@ -23,6 +23,7 @@ import androidx.kruth.assertThat
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.SQLiteStatement
+import androidx.test.filters.FlakyTest
 import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
@@ -313,6 +314,7 @@ class InvalidationTrackerTest {
     }
 
     @Test
+    @FlakyTest(bugId = 349880963)
     fun multipleRefreshAsync() = runTest {
         // Validate that when multiple refresh are enqueued, that only one runs.
         tracker.refreshAsync()

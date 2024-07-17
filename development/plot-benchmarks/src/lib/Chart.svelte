@@ -34,13 +34,13 @@
     const onUpdate = (chart: Chart) => {
       $chart = chart;
       // Bad typings.
-      const legend = chart.options.plugins.legend as any;
+      const legend = chart.options.plugins?.legend as any;
       $items = legend.labels.generateLabels(chart);
     };
     const plugins = {
       tooltip: {
         callbacks: {
-          label: (context: TooltipItem<typeof chartType>): string | null => {
+          label: (context: TooltipItem<typeof chartType>): string | void | string[] => {
             // TODO: Configure Tooltips
             // https://www.chartjs.org/docs/latest/configuration/tooltip.html
             const label = context.dataset.label;
@@ -51,7 +51,7 @@
               return `${label}: ${fx} F(${frequency})`;
             } else {
               // Fallback to default behavior
-              return undefined;
+              return;
             }
           },
         },
@@ -131,7 +131,7 @@
   {/if}
 </article>
 
-{#if $items}
+{#if $chart && $items}
   <Legend chart={$chart} items={$items} />
 {/if}
 

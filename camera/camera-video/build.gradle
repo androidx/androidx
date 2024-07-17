@@ -47,7 +47,6 @@ dependencies {
         exclude group: "androidx.camera", module: "camera-core"
     })
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(path: ":camera:camera-camera2"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -68,7 +67,6 @@ dependencies {
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
-    androidTestImplementation("androidx.palette:palette:1.0.0")
     androidTestImplementation libs.mockitoKotlin, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
@@ -76,10 +74,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
-
     lintOptions {
         enable 'CameraXQuirksClassDetector'
     }

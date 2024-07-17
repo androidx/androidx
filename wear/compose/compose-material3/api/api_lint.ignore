@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+GetterSetterNames: androidx.wear.compose.material3.PickerState#getCanScrollBackward():
+    Getter for boolean property `canScrollBackward` is named `getCanScrollBackward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.wear.compose.material3.PickerState#getCanScrollForward():
+    Getter for boolean property `canScrollForward` is named `getCanScrollForward` but should match the property name. Use `@get:JvmName` to rename.
+GetterSetterNames: androidx.wear.compose.material3.PickerState#repeatItems:
+    Invalid name for boolean property `repeatItems`. Should start with one of `has`, `can`, `should`, `is`.

@@ -91,9 +91,7 @@ import kotlinx.coroutines.yield
  * Examples:
  *
  * @sample androidx.tv.material3.samples.SimpleCarousel
- *
  * @sample androidx.tv.material3.samples.CarouselIndicatorWithRectangleShape
- *
  * @param modifier Modifier applied to the Carousel.
  * @param itemCount total number of items present in the carousel.
  * @param carouselState state associated with this carousel.
@@ -106,7 +104,6 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current item among all items.
  * @param content defines the items for a given index.
  */
-// @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
@@ -254,7 +251,6 @@ private fun AutoScrollSideEffect(
 
 @OptIn(
     ExperimentalTvMaterial3Api::class,
-    //    ExperimentalComposeUiApi::class
 )
 private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,

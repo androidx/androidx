@@ -89,6 +89,7 @@ import androidx.compose.ui.unit.dp
  * @param border Optional border to draw on top of the surface
  * @param elevation The size of the shadow below the surface. Note that It will not affect z index
  *   of the Surface. If you want to change the drawing order you can use `Modifier.zIndex`.
+ * @param content The content to be displayed on this Surface
  */
 @Composable
 fun Surface(
@@ -190,6 +191,7 @@ fun Surface(
  *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
  *   or preview the surface in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content to be displayed on this Surface
  */
 @ExperimentalMaterialApi
 @Composable
@@ -227,7 +229,7 @@ fun Surface(
                     )
                     .clickable(
                         interactionSource = interactionSource,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         enabled = enabled,
                         onClick = onClick
                     ),
@@ -298,6 +300,7 @@ fun Surface(
  *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
  *   or preview the surface in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content to be displayed on this Surface
  */
 @ExperimentalMaterialApi
 @Composable
@@ -337,7 +340,7 @@ fun Surface(
                     .selectable(
                         selected = selected,
                         interactionSource = interactionSource,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         enabled = enabled,
                         onClick = onClick
                     ),
@@ -408,6 +411,7 @@ fun Surface(
  *   emitting [Interaction]s for this surface. You can use this to change the surface's appearance
  *   or preview the surface in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content to be displayed on this Surface
  */
 @ExperimentalMaterialApi
 @Composable
@@ -447,7 +451,7 @@ fun Surface(
                     .toggleable(
                         value = checked,
                         interactionSource = interactionSource,
-                        indication = rippleOrFallbackImplementation(),
+                        indication = ripple(),
                         enabled = enabled,
                         onValueChange = onCheckedChange
                     ),

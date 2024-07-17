@@ -19,7 +19,6 @@ package androidx.compose.ui.modifier
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.platform.InspectorValueInfo
@@ -51,7 +50,6 @@ interface ModifierLocalProvider<T> : Modifier.Element {
  * the right of this modifier, or modifiers that are children of the layout node that this modifier
  * is attached to.
  */
-@ExperimentalComposeUiApi
 fun <T> Modifier.modifierLocalProvider(key: ProvidableModifierLocal<T>, value: () -> T): Modifier {
     return this.then(
         object :

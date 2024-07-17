@@ -155,6 +155,8 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
      *                                          supported sizes list that will be given a
      *                                          suggested stream specification
+     * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
+     * @param hasVideoCapture                   whether the use cases has video capture.
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalStateException    if not initialized
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
@@ -170,7 +172,8 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn) {
+            boolean isPreviewStabilizationOn,
+            boolean hasVideoCapture) {
         Preconditions.checkArgument(!newUseCaseConfigsSupportedSizeMap.isEmpty(),
                 "No new use cases to be bound.");
 
@@ -186,6 +189,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                 cameraMode,
                 existingSurfaces,
                 newUseCaseConfigsSupportedSizeMap,
-                isPreviewStabilizationOn);
+                isPreviewStabilizationOn,
+                hasVideoCapture);
     }
 }

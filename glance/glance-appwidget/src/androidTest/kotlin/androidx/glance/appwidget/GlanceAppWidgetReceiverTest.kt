@@ -643,6 +643,27 @@ class GlanceAppWidgetReceiverTest {
     }
 
     @Test
+    fun layoutConfigurationCanBeDeleted() {
+        val fakeIndex = 9999
+        TestGlanceAppWidget.uiDefinition = { Text("something") }
+
+        mHostRule.startHost()
+
+        val appWidgetManager = GlanceAppWidgetManager(context)
+        val glanceId = runBlocking {
+            appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java).first()
+        }
+
+        val appWidgetId = (glanceId as AppWidgetId).appWidgetId
+        val config = LayoutConfiguration.create(context, appWidgetId, nextIndex = fakeIndex)
+        val file = config.dataStoreFile
+        assertThat(file.exists())
+
+        val isDeleted = LayoutConfiguration.delete(context, glanceId)
+        assertThat(isDeleted).isTrue()
+    }
+
+    @Test
     fun updateAll() =
         runBlocking<Unit> {
             TestGlanceAppWidget.uiDefinition = { Text("text") }

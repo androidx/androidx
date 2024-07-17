@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation
 
+import androidx.collection.mutableLongObjectMapOf
+import androidx.collection.mutableLongSetOf
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.ScrollableContainerNode
 import androidx.compose.foundation.gestures.detectTapAndPress
@@ -23,14 +25,10 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.focus.FocusEventModifierNode
-import androidx.compose.ui.focus.FocusRequesterModifierNode
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.requestFocus
+import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -41,15 +39,18 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -60,7 +61,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.toOffset
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -89,7 +90,6 @@ import kotlinx.coroutines.launch
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will appear
  *   disabled for accessibility services
  * @param onClickLabel semantic / accessibility label for the [onClick] action
@@ -162,7 +162,6 @@ fun Modifier.clickable(
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
  *   [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
  *   [MutableInteractionSource] will be created if needed.
@@ -220,7 +219,6 @@ fun Modifier.clickable(
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param enabled Controls the enabled state. When `false`, [onClick], [onLongClick] or
  *   [onDoubleClick] won't be invoked
  * @param onClickLabel semantic / accessibility label for the [onClick] action
@@ -230,11 +228,7 @@ fun Modifier.clickable(
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
  * @param onClick will be called when user clicks on the element
- *
- * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
- * input quite well but provides subpar functionality for other input types.
  */
-@ExperimentalFoundationApi
 fun Modifier.combinedClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
@@ -304,13 +298,15 @@ fun Modifier.combinedClickable(
  * [MutableInteractionSource] as a parameter for [interactionSource] instead of `null`, as this
  * cannot be lazily created inside clickable.
  *
+ * Note, if the modifier instance gets re-used between a key down and key up events, the ongoing
+ * input will be aborted.
+ *
  * ***Note*** Any removal operations on Android Views from `clickable` should wrap `onClick` in a
  * `post { }` block to guarantee the event dispatch completes before executing the removal. (You do
  * not need to do this when removing a composable because Compose guarantees it completes via the
  * snapshot state system.)
  *
  * @sample androidx.compose.foundation.samples.ClickableSample
- *
  * @param interactionSource [MutableInteractionSource] that will be used to emit
  *   [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
  *   [MutableInteractionSource] will be created if needed.
@@ -326,11 +322,7 @@ fun Modifier.combinedClickable(
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
  * @param onClick will be called when user clicks on the element
- *
- * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
- * input quite well but provides subpar functionality for other input types.
  */
-@ExperimentalFoundationApi
 fun Modifier.combinedClickable(
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
@@ -604,6 +596,13 @@ internal open class ClickableNode(
         // so no need need to reset pointer input handling when they change
         updateCommon(interactionSource, indicationNodeFactory, enabled, onClickLabel, role, onClick)
     }
+
+    final override fun onClickKeyDownEvent(event: KeyEvent) = false
+
+    final override fun onClickKeyUpEvent(event: KeyEvent): Boolean {
+        onClick()
+        return true
+    }
 }
 
 /**
@@ -629,11 +628,7 @@ internal open class ClickableNode(
  * @param onClickLabel semantic / accessibility label for the [onClick] action
  * @param role the type of user interface element. Accessibility services might use this to describe
  *   the element or do customizations
- *
- * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
- * input quite well but provides subpar functionality for other input types.
  */
-@ExperimentalFoundationApi
 fun CombinedClickableNode(
     onClick: () -> Unit,
     onLongClickLabel: String?,
@@ -660,11 +655,7 @@ fun CombinedClickableNode(
 /**
  * Public interface for the internal node used inside [combinedClickable], to allow for custom
  * modifier nodes to delegate to it.
- *
- * Note: This API is experimental and is temporarily being exposed to enable performance analysis,
- * you should use [combinedClickable] instead for the majority of use cases.
  */
-@ExperimentalFoundationApi
 sealed interface CombinedClickableNode : PointerInputModifierNode {
     /**
      * Updates this node with new values, and resets any invalidated state accordingly.
@@ -700,7 +691,6 @@ sealed interface CombinedClickableNode : PointerInputModifierNode {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class CombinedClickableNodeImpl(
     onClick: () -> Unit,
     private var onLongClickLabel: String?,
@@ -713,6 +703,7 @@ private class CombinedClickableNodeImpl(
     role: Role?,
 ) :
     CombinedClickableNode,
+    CompositionLocalConsumerModifierNode,
     AbstractClickableNode(
         interactionSource,
         indicationNodeFactory,
@@ -721,6 +712,9 @@ private class CombinedClickableNodeImpl(
         role,
         onClick
     ) {
+    private val pressedDownKeys = mutableLongSetOf()
+    private val longKeyPressJobs = mutableLongObjectMapOf<Job>()
+
     override suspend fun PointerInputScope.clickPointerInput() {
         detectTapGestures(
             onDoubleTap =
@@ -808,6 +802,53 @@ private class CombinedClickableNodeImpl(
             )
         }
     }
+
+    override fun onClickKeyDownEvent(event: KeyEvent): Boolean {
+        val keyCode = event.key.keyCode
+        pressedDownKeys.add(keyCode)
+        if (onLongClick != null) {
+            if (longKeyPressJobs[keyCode] == null) {
+                longKeyPressJobs[keyCode] =
+                    coroutineScope.launch {
+                        delay(currentValueOf(LocalViewConfiguration).longPressTimeoutMillis)
+                        onLongClick?.invoke()
+                    }
+                return true
+            }
+        }
+        return false
+    }
+
+    override fun onClickKeyUpEvent(event: KeyEvent): Boolean {
+        val keyCode = event.key.keyCode
+        if (!pressedDownKeys.contains(keyCode)) {
+            // If the node is reused while a key is pressed down (which resets the set of pressed
+            // down keys), we shouldn't interpret the key up event as a click.
+            return false
+        }
+        pressedDownKeys.remove(keyCode)
+        if (longKeyPressJobs[keyCode] != null) {
+            longKeyPressJobs[keyCode]?.let {
+                if (it.isActive) {
+                    it.cancel()
+                    onClick()
+                }
+            }
+            longKeyPressJobs.remove(keyCode)
+        } else {
+            onClick()
+        }
+        return true
+    }
+
+    override fun onReset() {
+        super.onReset()
+        longKeyPressJobs.apply {
+            forEachValue { it.cancel() }
+            clear()
+        }
+        pressedDownKeys.clear()
+    }
 }
 
 internal abstract class AbstractClickableNode(
@@ -821,7 +862,6 @@ internal abstract class AbstractClickableNode(
     DelegatingNode(),
     PointerInputModifierNode,
     KeyInputModifierNode,
-    FocusEventModifierNode,
     SemanticsModifierNode,
     TraversableNode {
     protected var enabled = enabled
@@ -832,7 +872,14 @@ internal abstract class AbstractClickableNode(
 
     final override val shouldAutoInvalidate: Boolean = false
 
-    protected val focusableNode: FocusableNode = FocusableNode(interactionSource)
+    protected val focusableNode: FocusableNode =
+        FocusableNode(
+            interactionSource,
+            focusability = Focusability.SystemDefined,
+            onFocus = ::initializeIndicationAndInteractionSourceIfNeeded
+        )
+
+
     private var pointerInputNode: SuspendingPointerInputModifierNode? = null
     private var indicationNode: DelegatableNode? = null
 
@@ -1014,6 +1061,7 @@ internal abstract class AbstractClickableNode(
             enabled && event.isPress -> {
                 // If the key already exists in the map, keyEvent is a repeat event.
                 // We ignore it as we only want to emit an interaction for the initial key press.
+                var wasInteractionHandled = false
                 if (!currentKeyPressInteractions.containsKey(event.key)) {
                     val press = PressInteraction.Press(centerOffset)
                     currentKeyPressInteractions[event.key] = press
@@ -1022,10 +1070,9 @@ internal abstract class AbstractClickableNode(
                     if (interactionSource != null) {
                         coroutineScope.launch { interactionSource?.emit(press) }
                     }
-                    true
-                } else {
-                    false
+                    wasInteractionHandled = true
                 }
+                onClickKeyDownEvent(event) || wasInteractionHandled
             }
             enabled && event.isClick -> {
                 currentKeyPressInteractions.remove(event.key)?.let {
@@ -1035,21 +1082,18 @@ internal abstract class AbstractClickableNode(
                         }
                     }
                 }
-                onClick()
+                onClickKeyUpEvent(event)
                 true
             }
             else -> false
         }
     }
 
-    final override fun onPreKeyEvent(event: KeyEvent) = false
+    protected abstract fun onClickKeyDownEvent(event: KeyEvent): Boolean
 
-    final override fun onFocusEvent(focusState: FocusState) {
-        if (focusState.isFocused) {
-            initializeIndicationAndInteractionSourceIfNeeded()
-        }
-        focusableNode.onFocusEvent(focusState)
-    }
+    protected abstract fun onClickKeyUpEvent(event: KeyEvent): Boolean
+
+    final override fun onPreKeyEvent(event: KeyEvent) = false
 
     final override val shouldMergeDescendantSemantics: Boolean
         get() = true
@@ -1142,53 +1186,6 @@ internal abstract class AbstractClickableNode(
     companion object TraverseKey
 }
 
-internal class ClickableSemanticsNode(
-    private var enabled: Boolean,
-    private var onClickLabel: String?,
-    private var role: Role?,
-    private var onClick: () -> Unit,
-    private var onLongClickLabel: String?,
-    private var onLongClick: (() -> Unit)?,
-) : SemanticsModifierNode, Modifier.Node() {
-    fun update(
-        enabled: Boolean,
-        onClickLabel: String?,
-        role: Role?,
-        onClick: () -> Unit,
-        onLongClickLabel: String?,
-        onLongClick: (() -> Unit)?,
-    ) {
-        this.enabled = enabled
-        this.onClickLabel = onClickLabel
-        this.role = role
-        this.onClick = onClick
-        this.onLongClickLabel = onLongClickLabel
-        this.onLongClick = onLongClick
-    }
-
-    override val shouldMergeDescendantSemantics: Boolean
-        get() = true
-
-    override fun SemanticsPropertyReceiver.applySemantics() {
-        if (this@ClickableSemanticsNode.role != null) {
-            role = this@ClickableSemanticsNode.role!!
-        }
-        onClick(
-            action = { onClick(); true },
-            label = onClickLabel
-        )
-        if (onLongClick != null) {
-            onLongClick(
-                action = { onLongClick?.invoke(); true },
-                label = onLongClickLabel
-            )
-        }
-        if (!enabled) {
-            disabled()
-        }
-    }
-}
-
 internal fun TraversableNode.hasScrollableContainer(): Boolean {
     var hasScrollable = false
     traverseAncestors(ScrollableContainerNode.TraverseKey) { node ->
@@ -1198,8 +1195,9 @@ internal fun TraversableNode.hasScrollableContainer(): Boolean {
     return hasScrollable
 }
 
-private fun FocusRequesterModifierNode.requestFocusWhenInMouseInputMode() {
+private fun FocusableNode.requestFocusWhenInMouseInputMode() {
     if (isMouseInputWorkaround()) {
-        requestFocus()
+        // TODO Restore focus workaround after merging
+        //  requestFocus()
     }
 }

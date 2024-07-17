@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.graphics.layer
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
@@ -44,13 +43,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.isLayerManagerInitialized
+import androidx.compose.ui.graphics.isLayerPersistenceEnabled
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -150,8 +149,7 @@ class AndroidGraphicsLayerTest {
                     .toImageBitmap()
                     .toPixelMap()
                     .verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            },
-            verifySoftwareRender = false // Only supported in hardware accelerated use cases
+            }
         )
     }
 
@@ -176,6 +174,28 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testDrawLayerAfterDiscard() {
+        var layer: GraphicsLayer? = null
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
+                    }
+                layer!!.discardDisplayList()
+                layer!!.record { drawRect(Color.Red) }
+                drawLayer(layer!!)
+            },
+            verify = {
+                assertEquals(TEST_SIZE, layer!!.size)
+                assertEquals(IntOffset.Zero, layer!!.topLeft)
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            }
+        )
+    }
+
+    @Test
     fun testDrawAfterDiscard() {
         var layer: GraphicsLayer? = null
         graphicsLayerTest(
@@ -184,7 +204,7 @@ class AndroidGraphicsLayerTest {
                     graphicsContext.createGraphicsLayer().apply {
                         assertEquals(IntSize.Zero, this.size)
                         record { drawRect(Color.Red) }
-                        discardDisplayList()
+                        emulateTrimMemory()
                     }
                 drawLayer(layer!!)
             },
@@ -196,6 +216,9 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    // this test is failing on API 21 as there toImageBitmap() is using software rendering
+    // and we reverted the software rendering b/333866398
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
         // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
@@ -212,8 +235,7 @@ class AndroidGraphicsLayerTest {
                     }
                 drawIntoCanvas { layer.drawForPersistence(it) }
             },
-            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) },
-            verifySoftwareRender = false
+            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
         )
     }
 
@@ -741,8 +763,7 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -819,7 +840,6 @@ class AndroidGraphicsLayerTest {
                 }
             },
             usePixelCopy = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
         )
     }
 
@@ -877,8 +897,7 @@ class AndroidGraphicsLayerTest {
                 }
                 Assert.assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -971,8 +990,7 @@ class AndroidGraphicsLayerTest {
                     )
                 }
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -1008,8 +1026,7 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(nonPureRedCount > 0)
             },
-            entireScene = false,
-            verifySoftwareRender = false // RenderEffect only supported with hardware acceleration
+            entireScene = false
         )
     }
 
@@ -1122,8 +1139,7 @@ class AndroidGraphicsLayerTest {
                     assertPixelColor(Color.Black, 0, height - 1)
                     assertPixelColor(expectedCenter, width / 2, height / 2)
                 }
-            },
-            verifySoftwareRender = false // ModulateAlpha only supported with hardware acceleration
+            }
         )
     }
 
@@ -1447,6 +1463,28 @@ class AndroidGraphicsLayerTest {
     }
 
     @Test
+    fun testReleaseWithNoReferencesDiscardsDisplaylist() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer()
+                layer.record {
+                    // Intentionally cause an exception to be thrown during recording
+                    drawRect(Color.Red)
+                }
+
+                graphicsContext.releaseGraphicsLayer(layer)
+                // View layers don't have a hasDisplayList method to verify and by default
+                // returns true all the time. So if we have a RenderNode backed layer verify that
+                // the displaylist is discarded after it has been released
+                if (layer.impl !is GraphicsViewLayer) {
+                    assertFalse(layer.impl.hasDisplayList)
+                }
+            },
+            verify = { /* NO-OP */ }
+        )
+    }
+
+    @Test
     fun testEndRecordingAlwaysCalled() {
         graphicsLayerTest(
             block = { graphicsContext ->
@@ -1465,6 +1503,31 @@ class AndroidGraphicsLayerTest {
                 drawLayer(layer)
             },
             verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
+        )
+    }
+
+    @Test
+    fun testReleasingLayerDuringPersistenceLogicIsNotCrashing() {
+        lateinit var layer1: GraphicsLayer
+        lateinit var layer2: GraphicsLayer
+        graphicsLayerTest(
+            block = { context ->
+                // creating new layers will also schedule a persistence pass in Handler
+                layer1 = context.createGraphicsLayer()
+                layer2 = context.createGraphicsLayer()
+                layer2.record(Density(1f), Ltr, IntSize(10, 10)) { drawRect(Color.Red) }
+                layer1.record(Density(1f), Ltr, IntSize(10, 10)) { drawLayer(layer2) }
+                // we release layer2, but as it is drawn into layer1 its content is not discarded.
+                context.releaseGraphicsLayer(layer2)
+                // layer1 loses its content without us updating the dependency tracking
+                layer1.emulateTrimMemory()
+            },
+            verify = {
+                // just verifying there is no crash in layer persistence logic
+                // there was an issue where the next persistence logic will re-draw layer1 content
+                // and during this draw we fully release layer2. this was removing an item from
+                // a set which is currently being iterated on.
+            }
         )
     }
 
@@ -1488,8 +1551,7 @@ class AndroidGraphicsLayerTest {
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: (suspend (PixelMap) -> Unit)? = null,
         entireScene: Boolean = false,
-        usePixelCopy: Boolean = false,
-        verifySoftwareRender: Boolean = true
+        usePixelCopy: Boolean = false
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
         var androidGraphicsContext: GraphicsContext? = null
@@ -1548,7 +1610,9 @@ class AndroidGraphicsLayerTest {
                 testActivity = activity
                 activity.runOnUiThread {
                     // Layer persistence is only required on M+
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                    if (
+                        Build.VERSION.SDK_INT > Build.VERSION_CODES.M && isLayerPersistenceEnabled
+                    ) {
                         assertTrue(androidGraphicsContext!!.isLayerManagerInitialized())
                     }
                     resumed.countDown()
@@ -1583,16 +1647,6 @@ class AndroidGraphicsLayerTest {
                         bitmap.toPixelMap()
                     }
                 runBlocking { verify(pixelMap) }
-                if (verifySoftwareRender) {
-                    val softwareRenderLatch = CountDownLatch(1)
-                    var softwareBitmap: Bitmap? = null
-                    testActivity!!.runOnUiThread {
-                        softwareBitmap = doSoftwareRender(target)
-                        softwareRenderLatch.countDown()
-                    }
-                    assertTrue(softwareRenderLatch.await(300, TimeUnit.MILLISECONDS))
-                    runBlocking { verify(softwareBitmap!!.asImageBitmap().toPixelMap()) }
-                }
             }
         } finally {
             val detachLatch = CountDownLatch(1)
@@ -1606,18 +1660,11 @@ class AndroidGraphicsLayerTest {
             }
             assertTrue(detachLatch.await(3000, TimeUnit.MILLISECONDS))
             // Layer persistence is only required on M+
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && isLayerPersistenceEnabled) {
                 assertFalse(androidGraphicsContext!!.isLayerManagerInitialized())
             }
             scenario?.moveToState(Lifecycle.State.DESTROYED)
         }
-    }
-
-    private fun doSoftwareRender(target: View): Bitmap {
-        val bitmap = Bitmap.createBitmap(target.width, target.height, Bitmap.Config.ARGB_8888)
-        val softwareCanvas = Canvas(bitmap)
-        target.draw(softwareCanvas)
-        return bitmap
     }
 
     private class GraphicsContextHostDrawable(

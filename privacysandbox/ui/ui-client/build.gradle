@@ -51,17 +51,13 @@ dependencies {
     androidTestImplementation(libs.espressoIntents)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation project(path: ':appcompat:appcompat')
+    androidTestImplementation project(":privacysandbox:ui:ui-provider")
 }
 
 android {
     namespace "androidx.privacysandbox.ui.client"
-    defaultConfig {
-        multiDexEnabled true
-        minSdk 21
-    }
 }
 
 androidx {

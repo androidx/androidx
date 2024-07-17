@@ -37,6 +37,7 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.SessionConfig.CloseableErrorListener
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE
@@ -63,6 +64,8 @@ class MeteringRepeating(
 
     private val deferrableSurfaceLock = Any()
 
+    private var closeableErrorListener: CloseableErrorListener? = null
+
     @GuardedBy("deferrableSurfaceLock") private var deferrableSurface: DeferrableSurface? = null
 
     override fun getDefaultConfig(applyDefaultConfig: Boolean, factory: UseCaseConfigFactory) =
@@ -71,10 +74,13 @@ class MeteringRepeating(
     override fun getUseCaseConfigBuilder(config: Config) =
         Builder(cameraProperties, displayInfoManager)
 
-    override fun onSuggestedStreamSpecUpdated(suggestedStreamSpec: StreamSpec): StreamSpec {
-        updateSessionConfig(createPipeline(meteringSurfaceSize).build())
+    override fun onSuggestedStreamSpecUpdated(
+        primaryStreamSpec: StreamSpec,
+        secondaryStreamSpec: StreamSpec?,
+    ): StreamSpec {
+        updateSessionConfig(listOf(createPipeline(meteringSurfaceSize).build()))
         notifyActive()
-        return suggestedStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
+        return primaryStreamSpec.toBuilder().setResolution(meteringSurfaceSize).build()
     }
 
     override fun onUnbind() {
@@ -88,7 +94,7 @@ class MeteringRepeating(
     fun setupSession() {
         // The suggested stream spec passed to `updateSuggestedStreamSpec` doesn't matter since
         // this use case uses the min preview size.
-        updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build())
+        updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build(), null)
     }
 
     private fun createPipeline(resolution: Size): SessionConfig.Builder {
@@ -112,13 +118,18 @@ class MeteringRepeating(
                 )
         }
 
+        // Closes the old error listener if there is
+        closeableErrorListener?.close()
+        val errorListener = CloseableErrorListener { _, _ ->
+            updateSessionConfig(listOf(createPipeline(resolution).build()))
+            notifyReset()
+        }
+        closeableErrorListener = errorListener
+
         return SessionConfig.Builder.createFrom(MeteringRepeatingConfig(), resolution).apply {
             setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
             addSurface(deferrableSurface!!)
-            addErrorListener { _, _ ->
-                updateSessionConfig(createPipeline(resolution).build())
-                notifyReset()
-            }
+            setErrorListener(errorListener)
         }
     }
 

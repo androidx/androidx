@@ -17,6 +17,7 @@
 package androidx.appcompat.app
 
 import android.view.View
+import android.view.ViewGroup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.test.core.app.ActivityScenario
@@ -34,7 +35,7 @@ import org.junit.runner.RunWith
 class AppCompatDialogTest {
 
     @Test
-    fun testViewTreeLifecycleOwner() {
+    fun testViewTreeLifecycleOwnerWhenSetContentView() {
         withUse(ActivityScenario.launch(AppCompatActivity::class.java)) {
             lateinit var view: View
             val dialog = withActivity {
@@ -42,6 +43,40 @@ class AppCompatDialogTest {
                 AppCompatDialog(this)
             }
             dialog.setContentView(view)
+
+            val lifecycle = dialog.lifecycle
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+
+            onActivity { dialog.show() }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+            val viewOwner = dialog.window?.decorView?.findViewTreeLifecycleOwner()!!
+            assertThat(viewOwner).isEqualTo(dialog)
+
+            onActivity { dialog.dismiss() }
+            assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+
+            assertWithMessage("A new Lifecycle object should be created after destruction")
+                .that(dialog.lifecycle)
+                .isNotSameInstanceAs(lifecycle)
+        }
+    }
+
+    @Test
+    fun testViewTreeLifecycleOwnerWhenAddContentView() {
+        withUse(ActivityScenario.launch(AppCompatActivity::class.java)) {
+            lateinit var view: View
+            val dialog = withActivity {
+                view = View(this)
+                AppCompatDialog(this)
+            }
+            dialog.addContentView(
+                view,
+                ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+            )
 
             val lifecycle = dialog.lifecycle
             assertThat(lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)

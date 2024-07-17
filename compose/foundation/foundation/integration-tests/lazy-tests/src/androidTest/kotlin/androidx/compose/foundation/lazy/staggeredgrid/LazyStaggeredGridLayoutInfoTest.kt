@@ -22,12 +22,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -206,6 +209,29 @@ class LazyStaggeredGridLayoutInfoTest(orientation: Orientation) :
                     )
             }
         }
+    }
+
+    @Test
+    fun snapshotFlowIsNotifiedAboutNewOffsetOnSmallScrolls() {
+        var firstItemOffset = 0
+
+        val state = LazyStaggeredGridState()
+        rule.setContent {
+            LazyStaggeredGrid(lanes = 1, modifier = Modifier.size(15.dp), state = state) {
+                items(100) { Box(Modifier.size(10.dp)) }
+            }
+            LaunchedEffect(state) {
+                snapshotFlow { state.layoutInfo }
+                    .collectLatest {
+                        val offset = it.visibleItemsInfo.firstOrNull()?.offset ?: IntOffset.Zero
+                        firstItemOffset = if (vertical) offset.y else offset.x
+                    }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollBy(1f) } }
+
+        rule.runOnIdle { assertThat(firstItemOffset).isEqualTo(-1) }
     }
 
     private val LazyStaggeredGridLayoutInfo.itemPairs: List<Pair<Int, IntOffset>>

@@ -258,7 +258,7 @@ fun RowScope.NavigationBarItem(
                 Box(
                     Modifier.layoutId(IndicatorRippleLayoutIdTag)
                         .clip(NavigationBarTokens.ActiveIndicatorShape.value)
-                        .indication(offsetInteractionSource, rippleOrFallbackImplementation())
+                        .indication(offsetInteractionSource, ripple())
                 )
             }
         val indicator =
@@ -515,22 +515,25 @@ private fun NavigationBarItemLayout(
     alwaysShowLabel: Boolean,
     animationProgress: () -> Float,
 ) {
-    Layout({
-        indicatorRipple()
-        indicator()
+    Layout(
+        modifier = Modifier.badgeBounds(),
+        content = {
+            indicatorRipple()
+            indicator()
 
-        Box(Modifier.layoutId(IconLayoutIdTag)) { icon() }
+            Box(Modifier.layoutId(IconLayoutIdTag)) { icon() }
 
-        if (label != null) {
-            Box(
-                Modifier.layoutId(LabelLayoutIdTag)
-                    .graphicsLayer { alpha = if (alwaysShowLabel) 1f else animationProgress() }
-                    .padding(horizontal = NavigationBarItemHorizontalPadding / 2)
-            ) {
-                label()
+            if (label != null) {
+                Box(
+                    Modifier.layoutId(LabelLayoutIdTag)
+                        .graphicsLayer { alpha = if (alwaysShowLabel) 1f else animationProgress() }
+                        .padding(horizontal = NavigationBarItemHorizontalPadding / 2)
+                ) {
+                    label()
+                }
             }
         }
-    }) { measurables, constraints ->
+    ) { measurables, constraints ->
         @Suppress("NAME_SHADOWING") val animationProgress = animationProgress()
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =

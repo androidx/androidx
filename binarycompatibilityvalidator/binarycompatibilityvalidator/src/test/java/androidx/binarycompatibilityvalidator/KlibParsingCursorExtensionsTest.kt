@@ -538,6 +538,37 @@ class KlibParsingCursorExtensionsTest {
     }
 
     @Test
+    fun hasSignatureVersion() {
+        val input = "// - Signature version: 2"
+        val cursor = Cursor(input)
+        assertThat(cursor.hasSignatureVersion()).isTrue()
+        assertThat(cursor.currentLine).isEqualTo(input)
+    }
+
+    @Test
+    fun hasSignatureVersionFalsePositive() {
+        val input = "// - Show manifest properties: true"
+        val cursor = Cursor(input)
+        assertThat(cursor.hasSignatureVersion()).isFalse()
+    }
+
+    @Test
+    fun parseSignatureVersion() {
+        val input = "// - Signature version: 2"
+        val cursor = Cursor(input)
+        val signatureVersion = cursor.parseSignatureVersion()
+        assertThat(signatureVersion.toString()).isEqualTo("V2")
+    }
+
+    @Test
+    fun parseSignatureVersionFromTheFuture() {
+        val input = "// - Signature version: 101"
+        val cursor = Cursor(input)
+        val signatureVersion = cursor.parseSignatureVersion()
+        assertThat(signatureVersion.toString()).isEqualTo("Unsupported(versionNumber=101)")
+    }
+
+    @Test
     fun parseEnumEntryName() {
         val input = "SOME_ENUM something else"
         val cursor = Cursor(input)

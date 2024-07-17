@@ -17,7 +17,6 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.collection.LongSparseArray
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.InternalCoreApi
 
@@ -39,7 +38,6 @@ internal expect class PointerInputEvent {
  * @param positionOnScreen The position of the event relative to the device screen.
  * @param position The position of the event relative to the owner.
  */
-@OptIn(ExperimentalComposeUiApi::class)
 internal data class PointerInputEventData(
     val id: PointerId,
     val uptime: Long,

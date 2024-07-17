@@ -100,7 +100,7 @@ package androidx.slice {
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static java.util.Set<androidx.slice.SliceSpec!>? getCurrentSpecs();
     method @Deprecated public java.util.List<android.net.Uri!> getPinnedSlices();
     method @Deprecated public final String? getType(android.net.Uri);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object? getWrapper();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object? getWrapper();
     method @Deprecated public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
     method @Deprecated public abstract androidx.slice.Slice? onBindSlice(android.net.Uri);
     method @Deprecated public final boolean onCreate();

@@ -225,6 +225,18 @@ private val FloatingActionButtons =
         examples = FloatingActionButtonsExamples,
     )
 
+private val FloatingAppBars =
+    Component(
+        id = nextId(),
+        name = "Floating App Bar",
+        description = "A floating app bar displays key actions above the content.",
+        // No floating app bar icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/floating-app-bars",
+        docsUrl = "$DocsUrl#floatingappbar",
+        sourceUrl = "$Material3SourceUrl/FloatingAppBar.kt",
+        examples = FloatingAppBarsExamples
+    )
+
 private val IconButtons =
     Component(
         id = nextId(),
@@ -250,6 +262,22 @@ private val Lists =
         sourceUrl = "$Material3SourceUrl/ListItem.kt",
         examples = ListsExamples,
     )
+
+private val LoadingIndicators =
+    Component(
+        id = nextId(),
+        name = "Loading indicators",
+        description =
+            "Loading indicators express an unspecified wait time or display the length of " +
+                "a loading process.",
+        // No loading indicator icon
+        guidelinesUrl = "$ComponentGuidelinesUrl/loading-indicators",
+        tintIcon = true,
+        docsUrl = "$PackageSummaryUrl#loadingindicator",
+        sourceUrl = "$Material3SourceUrl/LoadingIndicator.kt",
+        examples = LoadingIndicatorsExamples,
+    )
+
 private val Menus =
     Component(
         id = nextId(),
@@ -411,6 +439,17 @@ private val Snackbars =
         examples = SnackbarsExamples
     )
 
+private val SplitButtons =
+    Component(
+        id = nextId(),
+        name = "Split Button",
+        description = "Split buttons let user perform additional actions besides the main action",
+        guidelinesUrl = "", // No guidelines yet
+        docsUrl = "", // No docs yet
+        sourceUrl = "$Material3SourceUrl/SplitButton.kt",
+        examples = SplitButtonExamples
+    )
+
 private val Switches =
     Component(
         id = nextId(),
@@ -502,8 +541,10 @@ val Components =
         Dialogs,
         ExtendedFloatingActionButton,
         FloatingActionButtons,
+        FloatingAppBars,
         IconButtons,
         Lists,
+        LoadingIndicators,
         Menus,
         NavigationBar,
         NavigationDrawer,
@@ -516,6 +557,7 @@ val Components =
         SegmentedButtons,
         Sliders,
         Snackbars,
+        SplitButtons,
         Switches,
         Tabs,
         TextFields,

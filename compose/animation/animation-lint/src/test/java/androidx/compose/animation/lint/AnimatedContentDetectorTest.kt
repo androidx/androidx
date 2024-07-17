@@ -34,7 +34,10 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
     override fun getDetector(): Detector = AnimatedContentDetector()
 
     override fun getIssues(): MutableList<Issue> =
-        mutableListOf(AnimatedContentDetector.UnusedContentLambdaTargetStateParameter)
+        mutableListOf(
+            AnimatedContentDetector.UnusedContentLambdaTargetStateParameter,
+            AnimatedContentDetector.UnusedTargetStateInContentKeyLambda
+        )
 
     // Simplified AnimatedContent.kt stubs
     private val AnimatedContentStub =
@@ -265,18 +268,54 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
 
                 @Composable
                 fun Test() {
-                    AnimatedContent(foo) { if (foo) { /**/ } else { /**/ } }
-                    AnimatedContent(foo, content = { if (foo) { /**/ } else { /**/ } })
-                    AnimatedContent(foo) { param -> if (foo) { /**/ } else { /**/ } }
-                    AnimatedContent(foo, content = { param -> if (foo) { /**/ } else { /**/ } })
-                    AnimatedContent(foo) { _ -> if (foo) { /**/ } else { /**/ } }
-                    AnimatedContent(foo, content = { _ -> if (foo) { /**/ } else { /**/ } })
-                    Transition(foo).AnimatedContent { if (foo) { /**/ } else { /**/ } }
-                    Transition(foo).AnimatedContent(content = { if (foo) { /**/ } else { /**/ } })
-                    Transition(foo).AnimatedContent { param -> if (foo) { /**/ } else { /**/ } }
-                    Transition(foo).AnimatedContent(content = { param -> if (foo) { /**/ } else { /**/ } })
-                    Transition(foo).AnimatedContent { _ -> if (foo) { /**/ } else { /**/ } }
-                    Transition(foo).AnimatedContent(content = { _ -> if (foo) { /**/ } else { /**/ } })
+                    AnimatedContent(
+                        foo,
+                        contentKey = { if (foo) { /**/ } else { /**/ } }
+                    ) { if (foo) { /**/ } else { /**/ } }
+                    AnimatedContent(
+                        foo,
+                        contentKey = { if (foo) { /**/ } else { /**/ } },
+                        content = { if (foo) { /**/ } else { /**/ } }
+                    )
+                    AnimatedContent(
+                        foo,
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } }
+                    ) { param -> if (foo) { /**/ } else { /**/ } }
+                    AnimatedContent(
+                        foo,
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } },
+                        content = { param -> if (foo) { /**/ } else { /**/ } }
+                    )
+                    AnimatedContent(
+                        foo,
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } }
+                    ) { _ -> if (foo) { /**/ } else { /**/ } }
+                    AnimatedContent(
+                        foo,
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } },
+                        content = { _ -> if (foo) { /**/ } else { /**/ } }
+                    )
+                    Transition(foo).AnimatedContent(
+                        contentKey = { if (foo) { /**/ } else { /**/ } }
+                    ) { if (foo) { /**/ } else { /**/ } }
+                    Transition(foo).AnimatedContent(
+                        contentKey = { if (foo) { /**/ } else { /**/ } },
+                        content = { if (foo) { /**/ } else { /**/ } }
+                    )
+                    Transition(foo).AnimatedContent(
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } }
+                    ) { param -> if (foo) { /**/ } else { /**/ } }
+                    Transition(foo).AnimatedContent(
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } },
+                        content = { param -> if (foo) { /**/ } else { /**/ } }
+                    )
+                    Transition(foo).AnimatedContent(
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } }
+                    ) { _ -> if (foo) { /**/ } else { /**/ } }
+                    Transition(foo).AnimatedContent(
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } },
+                        content = { _ -> if (foo) { /**/ } else { /**/ } }
+                    )
                 }
             """
                 ),
@@ -285,45 +324,79 @@ class AnimatedContentDetectorTest : LintDetectorTest() {
             )
             .run()
             .expect(
-                """
-src/foo/test.kt:11: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo) { if (foo) { /**/ } else { /**/ } }
-                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/foo/test.kt:12: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo, content = { if (foo) { /**/ } else { /**/ } })
-                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/foo/test.kt:13: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo) { param -> if (foo) { /**/ } else { /**/ } }
-                                           ~~~~~
-src/foo/test.kt:14: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo, content = { param -> if (foo) { /**/ } else { /**/ } })
-                                                     ~~~~~
-src/foo/test.kt:15: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo) { _ -> if (foo) { /**/ } else { /**/ } }
-                                           ~
-src/foo/test.kt:16: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo, content = { _ -> if (foo) { /**/ } else { /**/ } })
-                                                     ~
-src/foo/test.kt:17: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent { if (foo) { /**/ } else { /**/ } }
-                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                """src/foo/test.kt:14: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { if (foo) { /**/ } else { /**/ } }
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 src/foo/test.kt:18: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent(content = { if (foo) { /**/ } else { /**/ } })
-                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/foo/test.kt:19: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent { param -> if (foo) { /**/ } else { /**/ } }
-                                                      ~~~~~
-src/foo/test.kt:20: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent(content = { param -> if (foo) { /**/ } else { /**/ } })
-                                                                ~~~~~
-src/foo/test.kt:21: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent { _ -> if (foo) { /**/ } else { /**/ } }
-                                                      ~
-src/foo/test.kt:22: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent(content = { _ -> if (foo) { /**/ } else { /**/ } })
-                                                                ~
-12 errors, 0 warnings
-            """
+                        content = { if (foo) { /**/ } else { /**/ } }
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:23: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { param -> if (foo) { /**/ } else { /**/ } }
+                        ~~~~~
+src/foo/test.kt:27: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
+                        content = { param -> if (foo) { /**/ } else { /**/ } }
+                                    ~~~~~
+src/foo/test.kt:32: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { _ -> if (foo) { /**/ } else { /**/ } }
+                        ~
+src/foo/test.kt:36: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
+                        content = { _ -> if (foo) { /**/ } else { /**/ } }
+                                    ~
+src/foo/test.kt:40: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { if (foo) { /**/ } else { /**/ } }
+                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:43: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
+                        content = { if (foo) { /**/ } else { /**/ } }
+                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:47: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { param -> if (foo) { /**/ } else { /**/ } }
+                        ~~~~~
+src/foo/test.kt:50: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
+                        content = { param -> if (foo) { /**/ } else { /**/ } }
+                                    ~~~~~
+src/foo/test.kt:54: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { _ -> if (foo) { /**/ } else { /**/ } }
+                        ~
+src/foo/test.kt:57: Error: Target state parameter _ is not used [UnusedContentLambdaTargetStateParameter]
+                        content = { _ -> if (foo) { /**/ } else { /**/ } }
+                                    ~
+src/foo/test.kt:13: Error: Target state parameter it is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { if (foo) { /**/ } else { /**/ } }
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:17: Error: Target state parameter it is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { if (foo) { /**/ } else { /**/ } },
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:22: Error: Target state parameter param is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } }
+                                       ~~~~~
+src/foo/test.kt:26: Error: Target state parameter param is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } },
+                                       ~~~~~
+src/foo/test.kt:31: Error: Target state parameter _ is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } }
+                                       ~
+src/foo/test.kt:35: Error: Target state parameter _ is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } },
+                                       ~
+src/foo/test.kt:39: Error: Target state parameter it is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { if (foo) { /**/ } else { /**/ } }
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:42: Error: Target state parameter it is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { if (foo) { /**/ } else { /**/ } },
+                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/foo/test.kt:46: Error: Target state parameter param is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } }
+                                       ~~~~~
+src/foo/test.kt:49: Error: Target state parameter param is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { param -> if (foo) { /**/ } else { /**/ } },
+                                       ~~~~~
+src/foo/test.kt:53: Error: Target state parameter _ is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } }
+                                       ~
+src/foo/test.kt:56: Error: Target state parameter _ is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { _ -> if (foo) { /**/ } else { /**/ } },
+                                       ~
+24 errors, 0 warnings"""
             )
     }
 
@@ -342,37 +415,68 @@ src/foo/test.kt:22: Error: Target state parameter _ is not used [UnusedContentLa
 
                 @Composable
                 fun Test() {
-                    AnimatedContent(foo) {
+                    // These `it`s refer to the `let`, not the `AnimatedContent`, so we
+                    // should still report an error
+                    AnimatedContent(
+                        foo,
+                        contentKey = {
+                            foo.let {
+                                it.let {
+                                    if (it) { /**/ } else { /**/ }
+                                }
+                            }
+                        }
+                    ) {
                         foo.let {
-                            // These `it`s refer to the `let`, not the `AnimatedContent`, so we
-                            // should still report an error
                             it.let {
                                 if (it) { /**/ } else { /**/ }
                             }
                         }
                     }
-                    AnimatedContent(foo) { param ->
+
+                    // This `param` refers to the `let`, not the `AnimatedContent`, so we
+                    // should still report an error
+                    AnimatedContent(
+                        foo,
+                        contentKey = { param ->
+                            foo.let { param ->
+                                if (param) { /**/ } else { /**/ }
+                            }
+                        }
+                    ) { param ->
                         foo.let { param ->
-                            // This `param` refers to the `let`, not the `AnimatedContent`, so we
-                            // should still report an error
                             if (param) { /**/ } else { /**/ }
                         }
                     }
 
-                    Transition(foo).AnimatedContent {
+                    // These `it`s refer to the `let`, not the `AnimatedContent`, so we
+                    // should still report an error
+                    Transition(foo).AnimatedContent(
+                        contentKey = {
+                            foo.let {
+                                it.let {
+                                    if (it) { /**/ } else { /**/ }
+                                }
+                            }
+                        }
+                    ) {
                         foo.let {
-                            // These `it`s refer to the `let`, not the `AnimatedContent`, so we
-                            // should still report an error
                             it.let {
                                 if (it) { /**/ } else { /**/ }
                             }
                         }
                     }
 
-                    Transition(foo).AnimatedContent {
+                    // This `param` refers to the `let`, not the `AnimatedContent`, so we
+                    // should still report an error
+                    Transition(foo).AnimatedContent(
+                        contentKey = { param ->
+                            foo.let { param ->
+                                if (param) { /**/ } else { /**/ }
+                            }
+                        }
+                    ) { param ->
                         foo.let { param ->
-                            // This `param` refers to the `let`, not the `AnimatedContent`, so we
-                            // should still report an error
                             if (param) { /**/ } else { /**/ }
                         }
                     }
@@ -384,21 +488,31 @@ src/foo/test.kt:22: Error: Target state parameter _ is not used [UnusedContentLa
             )
             .run()
             .expect(
-                """
-src/foo/test.kt:11: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo) {
-                                         ^
-src/foo/test.kt:20: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
-                    AnimatedContent(foo) { param ->
-                                           ~~~~~
-src/foo/test.kt:28: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent {
-                                                    ^
-src/foo/test.kt:38: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
-                    Transition(foo).AnimatedContent {
-                                                    ^
-4 errors, 0 warnings
-            """
+                """src/foo/test.kt:22: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
+                    ) {
+                      ^
+src/foo/test.kt:39: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { param ->
+                        ~~~~~
+src/foo/test.kt:55: Error: Target state parameter it is not used [UnusedContentLambdaTargetStateParameter]
+                    ) {
+                      ^
+src/foo/test.kt:71: Error: Target state parameter param is not used [UnusedContentLambdaTargetStateParameter]
+                    ) { param ->
+                        ~~~~~
+src/foo/test.kt:15: Error: Target state parameter it is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = {
+                                     ^
+src/foo/test.kt:34: Error: Target state parameter param is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { param ->
+                                       ~~~~~
+src/foo/test.kt:48: Error: Target state parameter it is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = {
+                                     ^
+src/foo/test.kt:66: Error: Target state parameter param is not used [UnusedTargetStateInContentKeyLambda]
+                        contentKey = { param ->
+                                       ~~~~~
+8 errors, 0 warnings"""
             )
     }
 
@@ -417,13 +531,24 @@ src/foo/test.kt:38: Error: Target state parameter it is not used [UnusedContentL
 
             @Composable
             fun Test() {
-                AnimatedContent(foo) { if (it) { /**/ } else { /**/ } }
-                AnimatedContent(foo, content = { if (it) { /**/ } else { /**/ } })
-                AnimatedContent(foo) { param -> if (param) { /**/ } else { /**/ } }
-                AnimatedContent(foo, content = { param -> if (param) { /**/ } else { /**/ } })
-
-                val content : @Composable (Boolean) -> Unit = {}
-                AnimatedContent(foo, content = content)
+                AnimatedContent(
+                    foo,
+                    contentKey = { if (it) { /**/ } else { /**/ } }
+                ) { if (it) { /**/ } else { /**/ } }
+                AnimatedContent(
+                    foo,
+                    contentKey = { if (it) { /**/ } else { /**/ } },
+                    content = { if (it) { /**/ } else { /**/ } }
+                )
+                AnimatedContent(
+                    foo,
+                    contentKey = { param -> if (param) { /**/ } else { /**/ } }
+                ) { param -> if (param) { /**/ } else { /**/ } }
+                AnimatedContent(
+                    foo,
+                    contentKey = { param -> if (param) { /**/ } else { /**/ } },
+                    content = { param -> if (param) { /**/ } else { /**/ } }
+                )
 
                 AnimatedContent(foo) { param ->
                     foo.let {
@@ -463,18 +588,18 @@ src/foo/test.kt:38: Error: Target state parameter it is not used [UnusedContentL
                     foo,
                     transitionSpec = { ContentTransform() },
                     content = { if (it) { /**/ } },
-                    contentKey = { 0 }
+                    contentKey = { if (it) 0 else 1 },
                 )
 
                 AnimatedContent(
                     foo,
-                    contentKey = { 0 },
+                    contentKey = { if (it) 0 else 1 },
                     transitionSpec = { ContentTransform() },
                     content = { if (it) { /**/ } },
                 )
 
                 Transition(foo).AnimatedContent(
-                    contentKey = { 0 },
+                    contentKey = { if (it) 0 else 1 },
                     transitionSpec = { ContentTransform() },
                     content = {  if (it) { /**/ } },
                 )
@@ -482,8 +607,13 @@ src/foo/test.kt:38: Error: Target state parameter it is not used [UnusedContentL
                 Transition(foo).AnimatedContent(
                     transitionSpec = { ContentTransform() },
                     content = { if (it) { /**/ } },
-                    contentKey = { 0 }
+                    contentKey = { if (it) 0 else 1 },
                 )
+
+                // Unsupported cases
+                val contentKey: (Boolean) -> Any? = {}
+                val content : @Composable (Boolean) -> Unit = {}
+                AnimatedContent(foo, contentKey = contentKey, content = content)
             }
         """
                 ),

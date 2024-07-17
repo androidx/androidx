@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
@@ -46,9 +45,9 @@ private const val HorizonMilliseconds: Int = 100
  *
  * The quality of the velocity estimation will be better if more data points have been received.
  */
+@OptIn(ExperimentalVelocityTrackerApi::class)
 class VelocityTracker {
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private val strategy =
         if (VelocityTrackerStrategyUseImpulse) {
             VelocityTracker1D.Strategy.Impulse
@@ -380,7 +379,6 @@ fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
     // event data in the position HistoricalArray.Size. Our historical array doesn't have access
     // to the final position, but we can get that information from the original event data X and Y
     // coordinates.
-    @OptIn(ExperimentalComposeUiApi::class)
     if (!event.changedToUpIgnoreConsumed()) {
         event.historical.fastForEach { addPosition(it.uptimeMillis, it.originalEventPosition) }
         addPosition(event.uptimeMillis, event.originalEventPosition)
@@ -644,7 +642,14 @@ private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
  */
 @Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
 @get:Suppress("GetterSetterNames")
-@get:ExperimentalComposeUiApi
-@set:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
+@get:ExperimentalVelocityTrackerApi
+@set:ExperimentalVelocityTrackerApi
+@ExperimentalVelocityTrackerApi
 var VelocityTrackerStrategyUseImpulse = false
+
+@RequiresOptIn(
+    "This an opt-in flag to test the Velocity Tracker strategy algorithm used " +
+        "for calculating gesture velocities in Compose."
+)
+@Retention(AnnotationRetention.BINARY)
+annotation class ExperimentalVelocityTrackerApi

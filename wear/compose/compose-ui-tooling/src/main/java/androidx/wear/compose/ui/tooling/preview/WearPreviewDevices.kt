@@ -24,7 +24,6 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * shapes and sizes. It supports [WearDevices.SMALL_ROUND] and [WearDevices.LARGE_ROUND].
  *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIconPreview
- *
  * @see WearDevices.SMALL_ROUND
  * @see WearDevices.LARGE_ROUND
  */

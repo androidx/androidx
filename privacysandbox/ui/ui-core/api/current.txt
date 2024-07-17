@@ -1,16 +1,41 @@
 // Signature format: 4.0
 package androidx.privacysandbox.ui.core {
 
+  public final class SandboxedSdkViewUiInfo {
+    ctor public SandboxedSdkViewUiInfo(int uiContainerWidth, int uiContainerHeight, android.graphics.Rect onScreenGeometry, float uiContainerOpacityHint);
+    method public static androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo fromBundle(android.os.Bundle bundle);
+    method public android.graphics.Rect getOnScreenGeometry();
+    method public int getUiContainerHeight();
+    method public float getUiContainerOpacityHint();
+    method public int getUiContainerWidth();
+    method public static android.os.Bundle toBundle(androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo sandboxedSdkViewUiInfo);
+    property public final android.graphics.Rect onScreenGeometry;
+    property public final int uiContainerHeight;
+    property public final float uiContainerOpacityHint;
+    property public final int uiContainerWidth;
+    field public static final androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo.Companion Companion;
+  }
+
+  public static final class SandboxedSdkViewUiInfo.Companion {
+    method public androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo fromBundle(android.os.Bundle bundle);
+    method public android.os.Bundle toBundle(androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo sandboxedSdkViewUiInfo);
+  }
+
   public interface SandboxedUiAdapter {
+    method public void addObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
     method public void openSession(android.content.Context context, android.os.IBinder windowInputToken, int initialWidth, int initialHeight, boolean isZOrderOnTop, java.util.concurrent.Executor clientExecutor, androidx.privacysandbox.ui.core.SandboxedUiAdapter.SessionClient client);
+    method public void removeObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
   }
 
   public static interface SandboxedUiAdapter.Session extends java.lang.AutoCloseable {
     method public void close();
+    method public java.util.Set<java.lang.String> getSignalOptions();
     method public android.view.View getView();
     method public void notifyConfigurationChanged(android.content.res.Configuration configuration);
     method public void notifyResized(int width, int height);
+    method public void notifyUiChanged(android.os.Bundle uiContainerInfo);
     method public void notifyZOrderChanged(boolean isZOrderOnTop);
+    property public abstract java.util.Set<java.lang.String> signalOptions;
     property public abstract android.view.View view;
   }
 
@@ -29,6 +54,22 @@ package androidx.privacysandbox.ui.core {
     property public final int clientVersion;
     field public static final androidx.privacysandbox.ui.core.SdkRuntimeUiLibVersions INSTANCE;
     field public static final int apiVersion = 1; // 0x1
+  }
+
+  public interface SessionObserver {
+    method public void onSessionClosed();
+    method public void onSessionOpened(androidx.privacysandbox.ui.core.SessionObserverContext sessionObserverContext);
+    method public void onUiContainerChanged(android.os.Bundle uiContainerInfo);
+  }
+
+  public final class SessionObserverContext {
+    ctor public SessionObserverContext(android.view.View? view);
+    method public android.view.View? getView();
+    property public final android.view.View? view;
+  }
+
+  public fun interface SessionObserverFactory {
+    method public androidx.privacysandbox.ui.core.SessionObserver create();
   }
 
 }

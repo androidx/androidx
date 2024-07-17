@@ -22,6 +22,7 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -156,6 +157,18 @@ public interface CameraControlInternal extends CameraControl {
     @NonNull
     default CameraControlInternal getImplementation() {
         return this;
+    }
+
+    /** Increments the count of whether this camera is being used for a video output or not. */
+    default void incrementVideoUsage() {}
+
+    /** Decrements the count of whether this camera is being used for a video output or not. */
+    default void decrementVideoUsage() {}
+
+    /** Gets the information of whether the camera is being used in a video output or not. */
+    @VisibleForTesting
+    default boolean isInVideoUsage() {
+        return false;
     }
 
     @NonNull

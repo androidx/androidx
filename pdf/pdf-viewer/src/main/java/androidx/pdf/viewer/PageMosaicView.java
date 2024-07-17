@@ -25,6 +25,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.GotoLinkDestination;
@@ -42,7 +43,8 @@ import java.util.List;
 @SuppressWarnings("UnusedVariable")
 public class PageMosaicView extends MosaicView implements PageViewFactory.PageView {
 
-    private static final String SEARCH_OVERLAY_KEY = "SearchOverlayKey";
+    @VisibleForTesting
+    public static final String SEARCH_OVERLAY_KEY = "SearchOverlayKey";
 
     private final int mPageNum;
     private String mPageText;
@@ -82,15 +84,23 @@ public class PageMosaicView extends MosaicView implements PageViewFactory.PageVi
         return mPageText == null && Accessibility.get().isAccessibilityEnabled(getContext());
     }
 
+    @Nullable
+    public String getPageText() {
+        return this.mPageText;
+    }
+
     /** Set page text and content description. */
     public void setPageText(@Nullable String pageText) {
         this.mPageText = pageText;
-        String description =
-                (pageText != null)
-                        ? pageText
-                        : getContext()
-                                .getString(androidx.pdf.R.string.desc_page, (mPageNum + 1));
-        setContentDescription(description);
+        setContentDescription(buildContentDescription(pageText, mPageNum));
+    }
+
+    @NonNull
+    protected String buildContentDescription(@Nullable String pageText, int pageNum) {
+        return (pageText != null)
+                ? pageText
+                : getContext()
+                        .getString(androidx.pdf.R.string.desc_page, (mPageNum + 1));
     }
 
     /** Returns true if we have data about any links on the page. */

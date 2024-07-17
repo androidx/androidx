@@ -16,11 +16,8 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.compose.ui.platform.LocalContext
 import androidx.wear.compose.material3.CardDefaults
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
@@ -29,6 +26,7 @@ import androidx.wear.compose.material3.samples.AppCardSample
 import androidx.wear.compose.material3.samples.AppCardWithIconSample
 import androidx.wear.compose.material3.samples.AppCardWithImageSample
 import androidx.wear.compose.material3.samples.CardSample
+import androidx.wear.compose.material3.samples.CardWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedAppCardSample
 import androidx.wear.compose.material3.samples.OutlinedCardSample
 import androidx.wear.compose.material3.samples.OutlinedTitleCardSample
@@ -39,20 +37,17 @@ import androidx.wear.compose.material3.samples.TitleCardWithSubtitleAndTimeSampl
 
 @Composable
 fun CardDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
+    val context = LocalContext.current
+    ScalingLazyDemo {
         item { ListHeader { Text("Card") } }
         item { CardSample() }
+        item { CardWithOnLongClickSample { showOnLongClickToast(context) } }
         item { OutlinedCardSample() }
-
         item { ListHeader { Text("App card") } }
         item { AppCardSample() }
         item { AppCardWithIconSample() }
         item { AppCardWithImageSample() }
         item { OutlinedAppCardSample() }
-
         item { ListHeader { Text("Title card") } }
         item { TitleCardSample() }
         item { TitleCardWithSubtitleDemo() }
@@ -62,7 +57,6 @@ fun CardDemo() {
         item { OutlinedTitleCardSample() }
         item { OutlinedTitleCardWithSubtitleDemo() }
         item { OutlinedTitleCardWithSubtitleAndTimeDemo() }
-
         item { ListHeader { Text("Image card") } }
         item { TitleCardWithImageBackgroundSample() }
     }

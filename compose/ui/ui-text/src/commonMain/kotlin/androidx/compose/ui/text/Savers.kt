@@ -29,9 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.util.fastMap
 
@@ -95,23 +98,17 @@ internal val AnnotatedStringSaver =
         save = {
             arrayListOf(
                 save(it.text),
-                save(it.spanStyles, AnnotationRangeListSaver, this),
-                save(it.paragraphStyles, AnnotationRangeListSaver, this),
                 save(it.annotations, AnnotationRangeListSaver, this),
             )
         },
         restore = {
             val list = it as List<Any?>
             // lift these to make types work
-            val spanStylesOrNull: List<AnnotatedString.Range<SpanStyle>>? =
+            val annotationsOrNull: List<AnnotatedString.Range<out AnnotatedString.Annotation>>? =
                 restore(list[1], AnnotationRangeListSaver)
-            val paragraphStylesOrNull: List<AnnotatedString.Range<ParagraphStyle>>? =
-                restore(list[2], AnnotationRangeListSaver)
             AnnotatedString(
                 text = restore(list[0])!!,
-                spanStylesOrNull = spanStylesOrNull?.ifEmpty { null },
-                paragraphStylesOrNull = paragraphStylesOrNull?.ifEmpty { null },
-                annotations = restore(list[3], AnnotationRangeListSaver),
+                annotations = annotationsOrNull,
             )
         }
     )
@@ -150,7 +147,8 @@ private val AnnotationRangeSaver =
                     is UrlAnnotation -> AnnotationType.Url
                     is LinkAnnotation.Url -> AnnotationType.Link
                     is LinkAnnotation.Clickable -> AnnotationType.Clickable
-                    else -> AnnotationType.String
+                    is StringAnnotation -> AnnotationType.String
+                    else -> throw UnsupportedOperationException()
                 }
 
             val item =
@@ -164,7 +162,7 @@ private val AnnotationRangeSaver =
                     AnnotationType.Link -> save(it.item as LinkAnnotation.Url, LinkSaver, this)
                     AnnotationType.Clickable ->
                         save(it.item as LinkAnnotation.Clickable, ClickableSaver, this)
-                    AnnotationType.String -> save(it.item)
+                    AnnotationType.String -> save((it.item as StringAnnotation).value)
                 }
 
             arrayListOf(save(marker), item, save(it.start), save(it.end), save(it.tag))
@@ -203,7 +201,12 @@ private val AnnotationRangeSaver =
                 }
                 AnnotationType.String -> {
                     val item: String = restore(list[1])!!
-                    AnnotatedString.Range(item = item, start = start, end = end, tag = tag)
+                    AnnotatedString.Range(
+                        item = StringAnnotation(item),
+                        start = start,
+                        end = end,
+                        tag = tag
+                    )
                 }
             }
         }
@@ -264,7 +267,12 @@ internal val ParagraphStyleSaver =
                 save(it.textAlign),
                 save(it.textDirection),
                 save(it.lineHeight, TextUnit.Saver, this),
-                save(it.textIndent, TextIndent.Saver, this)
+                save(it.textIndent, TextIndent.Saver, this),
+                save(it.platformStyle, PlatformParagraphStyle.Saver, this),
+                save(it.lineHeightStyle, LineHeightStyle.Saver, this),
+                save(it.lineBreak, LineBreak.Saver, this),
+                save(it.hyphens),
+                save(it.textMotion, TextMotion.Saver, this)
             )
         },
         restore = {
@@ -273,7 +281,12 @@ internal val ParagraphStyleSaver =
                 textAlign = restore(list[0])!!,
                 textDirection = restore(list[1])!!,
                 lineHeight = restore(list[2], TextUnit.Saver)!!,
-                textIndent = restore(list[3], TextIndent.Saver)
+                textIndent = restore(list[3], TextIndent.Saver),
+                platformStyle = restore(list[4], PlatformParagraphStyle.Saver),
+                lineHeightStyle = restore(list[5], LineHeightStyle.Saver),
+                lineBreak = restore(list[6], LineBreak.Saver)!!,
+                hyphens = restore(list[7])!!,
+                textMotion = restore(list[8], TextMotion.Saver)
             )
         }
     )
@@ -508,3 +521,25 @@ private val LocaleSaver =
         save = { it.toLanguageTag() },
         restore = { Locale(languageTag = it as String) }
     )
+
+internal val LineHeightStyle.Companion.Saver: Saver<LineHeightStyle, Any>
+    get() = LineHeightStyleSaver
+
+private val LineHeightStyleSaver =
+    Saver<LineHeightStyle, Any>(
+        save = { arrayListOf(save(it.alignment), save(it.trim), save(it.mode)) },
+        restore = {
+            @Suppress("UNCHECKED_CAST") val list = it as List<Any>
+            LineHeightStyle(
+                alignment = restore(list[0])!!,
+                trim = restore(list[1])!!,
+                mode = restore(list[2])!!
+            )
+        },
+    )
+
+internal expect val PlatformParagraphStyle.Companion.Saver: Saver<PlatformParagraphStyle, Any>
+
+internal expect val LineBreak.Companion.Saver: Saver<LineBreak, Any>
+
+internal expect val TextMotion.Companion.Saver: Saver<TextMotion, Any>

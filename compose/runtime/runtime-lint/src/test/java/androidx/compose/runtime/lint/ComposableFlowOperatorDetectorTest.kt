@@ -277,6 +277,9 @@ src/androidx/compose/runtime/foo/test.kt:64: Error: Flow operator functions shou
 
                 fun <T> Flow<T>.customOperator(param: Boolean): Flow<T> = this
 
+                @Composable
+                fun <T> Flow<T>.customComposableOperator(param: Boolean): Flow<T> = this
+
                 fun test() {
                     emptyFlow
                         .map { true }
@@ -329,6 +332,12 @@ src/androidx/compose/runtime/foo/test.kt:64: Error: Flow operator functions shou
                             .customOperator(true)
                             .drop(0)
                     }
+                }
+
+                @Composable
+                fun test4() {
+                    emptyFlow
+                        .customComposableOperator(true)
                 }
             """
                 ),

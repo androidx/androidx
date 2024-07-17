@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -98,7 +97,6 @@ fun BasicTextMinMaxLinesDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TextWithMinMaxLines(
     text: AnnotatedString,

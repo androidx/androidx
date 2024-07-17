@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.time
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 import java.time.Instant
 import java.time.LocalDateTime
@@ -34,11 +35,12 @@ import java.time.LocalDateTime
  *   zoneOffset will assume the current system zone offset at query time.
  */
 class TimeRangeFilter
-internal constructor(
-    internal val startTime: Instant? = null,
-    internal val endTime: Instant? = null,
-    internal val localStartTime: LocalDateTime? = null,
-    internal val localEndTime: LocalDateTime? = null,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val startTime: Instant? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val endTime: Instant? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val localStartTime: LocalDateTime? = null,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val localEndTime: LocalDateTime? = null,
 ) {
     companion object {
         /**

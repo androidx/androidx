@@ -1,0 +1,85 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.compose.material3.samples
+
+import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.toScrollAwayInfoProvider
+import androidx.wear.compose.material3.FilledTonalButton
+import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ScreenStage
+import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.scrollAway
+
+@Sampled
+@Composable
+fun ScrollAwaySample() {
+    val state = rememberScalingLazyListState()
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        ScalingLazyColumn(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+            autoCentering = AutoCenteringParams(itemIndex = 10)
+        ) {
+            item {
+                ListHeader {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "ScalingLazyColumn",
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+            items(50) {
+                FilledTonalButton(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 36.dp),
+                    onClick = {},
+                    label = { Text("Item ${it + 1}") },
+                )
+            }
+        }
+        TimeText(
+            // In practice, it is recommended to use the [AppScaffold] and [ScreenScaffold],
+            // so that the Material3 scroll away behavior is provided by default, rather than using
+            // [Modifier.scrollAway] directly.
+            modifier =
+                Modifier.scrollAway(
+                    scrollInfoProvider = state.toScrollAwayInfoProvider(),
+                    screenStage = {
+                        if (state.isScrollInProgress) ScreenStage.Scrolling else ScreenStage.Idle
+                    }
+                ),
+            content = {
+                text("ScrollAway")
+                separator()
+                time()
+            }
+        )
+    }
+}

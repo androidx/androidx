@@ -31,8 +31,6 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    implementation(libs.junit)
     implementation(libs.googletest)
     implementation(project(":test:ext:junit-gtest"))
     androidTestImplementation(libs.testExtJunit)
@@ -44,7 +42,6 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 21
         externalNativeBuild {
             cmake {
                 arguments "-DANDROID_STL=c++_shared"

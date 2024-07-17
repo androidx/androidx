@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.demos.text2
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.demos.text.TagLine
@@ -115,14 +112,12 @@ private fun CapitalizeValueCallbackDemo() {
     Text(text = "Backing state: \"$text\"", style = MaterialTheme.typography.caption)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun PlainBasicTextField() {
     val state = remember { TextFieldState() }
     BasicTextField(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SingleLineBasicTextField() {
     val state = remember { TextFieldState() }
@@ -134,7 +129,6 @@ fun SingleLineBasicTextField() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MultiLineBasicTextField() {
     val state = remember { TextFieldState() }
@@ -146,7 +140,6 @@ fun MultiLineBasicTextField() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StateTogglingBasicTextField() {
     var counter by remember { mutableIntStateOf(0) }
@@ -164,7 +157,6 @@ fun StateTogglingBasicTextField() {
     BasicTextField(state, demoTextFieldModifiers, textStyle = LocalTextStyle.current)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BasicTextFieldEditControls() {
     var enabled by remember { mutableStateOf(true) }

@@ -19,7 +19,6 @@ package androidx.compose.ui.focus
 import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
@@ -46,7 +45,6 @@ import org.junit.runner.RunWith
 class FocusTransactionsTest {
     @get:Rule val rule = createComposeRule()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun reentrantRequestFocus_byCallingRequestFocusWithinOnFocusChanged() {
         // Arrange.
@@ -89,7 +87,6 @@ class FocusTransactionsTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun reentrantRequestFocus_byCallingRequestFocusWithinOnFocusChanged2() {
         // Arrange.
@@ -174,7 +171,6 @@ class FocusTransactionsTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun cancelTakeFocus_fromCustomEnter() {
         // Arrange.

@@ -41,7 +41,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.demos.R
 import androidx.compose.ui.geometry.Offset
@@ -50,7 +49,6 @@ import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
-@OptIn(ExperimentalComposeUiApi::class)
 val AndroidInComposeDemos =
     DemoCategory(
         "Android In Compose Interop",
@@ -275,7 +273,6 @@ private fun TwoAndroidScrollViewsInCompose() {
     }
 }
 
-@ExperimentalComposeUiApi
 @Composable
 private fun PointerInteropFilterDemo() {
 

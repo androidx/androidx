@@ -60,7 +60,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.focus.FocusDirection
@@ -216,7 +215,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_mouseWheel() {
         var total = 0f
@@ -251,7 +249,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_mouseWheel_badMotionEvent() {
         var total = 0f
@@ -389,7 +386,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_reverse_mouseWheel() {
         var total = 0f
@@ -472,7 +468,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_mouseWheel() {
         var total = 0f
@@ -506,7 +501,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_mouseWheel_badMotionEvent() {
         var total = 0f
@@ -643,7 +637,6 @@ class ScrollableTest {
         rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_reversed_mouseWheel() {
         var total = 0f
@@ -953,7 +946,6 @@ class ScrollableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_nestedScroll_childPartialConsumptionForMouseWheel() {
         var innerDrag = 0f
@@ -1190,7 +1182,6 @@ class ScrollableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun focusScroll_nestedScroll_childPartialConsumptionForSemantics() {
         var outerDrag = 0f
@@ -2613,7 +2604,6 @@ class ScrollableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun producingEqualMaterializedModifierAfterRecomposition() {
         val state = ScrollableState { it }
@@ -3075,7 +3065,6 @@ class ScrollableTest {
 // Very low tolerance on the difference
 internal val VelocityTrackerCalculationThreshold = 1
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEvents(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
@@ -3083,7 +3072,6 @@ internal suspend fun savePointerInputEvents(
     savePointerInputEventsWithFix(tracker, pointerInputScope)
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEventsWithFix(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope
@@ -3111,7 +3099,6 @@ internal suspend fun savePointerInputEventsWithFix(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal suspend fun savePointerInputEventsLegacy(
     tracker: VelocityTracker,
     pointerInputScope: PointerInputScope

@@ -26,15 +26,10 @@ import androidx.compose.ui.internal.checkPrecondition
  * This can be useful to compose multiple node implementations into one.
  *
  * @sample androidx.compose.ui.samples.DelegatedNodeSampleExplicit
- *
  * @sample androidx.compose.ui.samples.DelegatedNodeSampleImplicit
- *
  * @sample androidx.compose.ui.samples.LazyDelegationExample
- *
  * @sample androidx.compose.ui.samples.ConditionalDelegationExample
- *
  * @sample androidx.compose.ui.samples.DelegateInAttachSample
- *
  * @see DelegatingNode
  */
 abstract class DelegatingNode : Modifier.Node() {

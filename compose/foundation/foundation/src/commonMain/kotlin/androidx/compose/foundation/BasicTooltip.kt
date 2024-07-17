@@ -49,7 +49,6 @@ import kotlinx.coroutines.withTimeout
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
-@ExperimentalFoundationApi
 expect fun BasicTooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable () -> Unit,
@@ -73,7 +72,6 @@ expect fun BasicTooltipBox(
  *   the mutator mutex, only one will be shown on the screen at any time.
  */
 @Composable
-@ExperimentalFoundationApi
 fun rememberBasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
@@ -100,7 +98,6 @@ fun rememberBasicTooltipState(
  *   the mutator mutex, only one will be shown on the screen at any time.
  */
 @Stable
-@ExperimentalFoundationApi
 fun BasicTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
@@ -113,7 +110,6 @@ fun BasicTooltipState(
     )
 
 @Stable
-@OptIn(ExperimentalFoundationApi::class)
 private class BasicTooltipStateImpl(
     initialIsVisible: Boolean,
     override val isPersistent: Boolean,
@@ -173,7 +169,6 @@ private class BasicTooltipStateImpl(
  * its own [BasicTooltipState].
  */
 @Stable
-@ExperimentalFoundationApi
 interface BasicTooltipState {
     /** [Boolean] that indicates if the tooltip is currently being shown or not. */
     val isVisible: Boolean
@@ -205,7 +200,6 @@ interface BasicTooltipState {
 }
 
 /** BasicTooltip defaults that contain default values for tooltips created. */
-@ExperimentalFoundationApi
 object BasicTooltipDefaults {
     /** The global/default [MutatorMutex] used to sync Tooltips. */
     val GlobalMutatorMutex: MutatorMutex = MutatorMutex()

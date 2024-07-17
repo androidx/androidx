@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -125,7 +124,7 @@ class NavigationDrawerTest {
         rule.onAllNodesWithText("Opened").assertAnyAreDisplayed()
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun navigationDrawer_focusMovesOutOfDrawer_closedStateComposableDisplayed() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
@@ -153,7 +152,7 @@ class NavigationDrawerTest {
         rule.onAllNodesWithText("Closed").assertAnyAreDisplayed()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun navigationDrawer_focusMovesIntoDrawer_openStateComposableDisplayed() {
         InstrumentationRegistry.getInstrumentation().setInTouchMode(false)
@@ -286,7 +285,7 @@ class NavigationDrawerTest {
         assert(endPositionInClosedState.value > endPositionInOpenState.value)
     }
 
-    @OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalTestApi::class)
     @Test
     fun navigationDrawer_parentContainerGainsFocus_onBackPress() {
         val drawerFocusRequester = FocusRequester()

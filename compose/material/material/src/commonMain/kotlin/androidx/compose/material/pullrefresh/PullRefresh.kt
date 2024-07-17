@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.Velocity
  * order to receive scroll events. For example:
  *
  * @sample androidx.compose.material.samples.PullRefreshSample
- *
  * @param state The [PullRefreshState] associated with this pull-to-refresh component. The state
  *   will be updated by this modifier.
  * @param enabled If not enabled, all scroll delta and fling velocity will be ignored.
@@ -49,7 +48,6 @@ fun Modifier.pullRefresh(state: PullRefreshState, enabled: Boolean = true) =
  * order to receive scroll events. For example:
  *
  * @sample androidx.compose.material.samples.CustomPullRefreshSample
- *
  * @param onPull Callback for dispatching vertical scroll delta, takes float pullDelta as argument.
  *   Positive delta (pulling down) is dispatched only if the child does not consume it (i.e. pulling
  *   down despite being at the top of a scrollable component), whereas negative delta (swiping up)

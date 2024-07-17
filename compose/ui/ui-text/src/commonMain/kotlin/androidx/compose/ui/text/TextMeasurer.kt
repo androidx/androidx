@@ -136,7 +136,6 @@ constructor(
      *   specified, defaults to the value that was given during initialization of this
      *   [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
-     *
      * @sample androidx.compose.ui.text.samples.measureTextAnnotatedString
      */
     @Stable
@@ -230,7 +229,6 @@ constructor(
      *   specified, defaults to the value that was given during initialization of this
      *   [TextMeasurer].
      * @param skipCache Disables cache optimization if it is passed as true.
-     *
      * @sample androidx.compose.ui.text.samples.measureTextStringWithConstraints
      */
     @Stable
@@ -327,7 +325,12 @@ constructor(
                     MultiParagraph(
                         intrinsics = nonNullIntrinsics,
                         constraints =
-                            Constraints(maxWidth = width, maxHeight = constraints.maxHeight),
+                            Constraints.fitPrioritizingWidth(
+                                minWidth = 0,
+                                maxWidth = width,
+                                minHeight = 0,
+                                maxHeight = constraints.maxHeight
+                            ),
                         // This is a fallback behavior for ellipsis. Native
                         maxLines = finalMaxLines,
                         ellipsis = overflow == TextOverflow.Ellipsis

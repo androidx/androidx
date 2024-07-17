@@ -19,7 +19,6 @@
 
 package androidx.compose.foundation.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -54,13 +53,8 @@ import kotlinx.coroutines.launch
  * Here is a sample where a part of a composable is brought into view:
  *
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
- *
  * @see BringIntoViewRequester
- *
- * Note: this API is experimental while we optimise the performance and find the right API shape for
- * it
  */
-@ExperimentalFoundationApi
 interface BringIntoViewResponder {
 
     /**
@@ -76,7 +70,7 @@ interface BringIntoViewResponder {
      *   should be the destination rectangle that [localRect] will eventually occupy, once the
      *   scrolling animation is finished.
      */
-    @ExperimentalFoundationApi fun calculateRectForParent(localRect: Rect): Rect
+    fun calculateRectForParent(localRect: Rect): Rect
 
     /**
      * Bring this specified rectangle into bounds by making this scrollable parent scroll
@@ -92,7 +86,7 @@ interface BringIntoViewResponder {
      *   bounds of the request change while the request is being processed. If the rectangle cannot
      *   be calculated, e.g. because the [LayoutCoordinates] are not attached, return null.
      */
-    @ExperimentalFoundationApi suspend fun bringChildIntoView(localRect: () -> Rect?)
+    suspend fun bringChildIntoView(localRect: () -> Rect?)
 }
 
 /**
@@ -101,18 +95,12 @@ interface BringIntoViewResponder {
  * mechanism works.
  *
  * @sample androidx.compose.foundation.samples.BringIntoViewSample
- *
  * @see BringIntoViewRequester
- *
- * Note: this API is experimental while we optimise the performance and find the right API shape for
- * it
  */
 @Suppress("ModifierInspectorInfo")
-@ExperimentalFoundationApi
 fun Modifier.bringIntoViewResponder(responder: BringIntoViewResponder): Modifier =
     this.then(BringIntoViewResponderElement(responder))
 
-@ExperimentalFoundationApi
 private class BringIntoViewResponderElement(private val responder: BringIntoViewResponder) :
     ModifierNodeElement<BringIntoViewResponderNode>() {
     override fun create(): BringIntoViewResponderNode = BringIntoViewResponderNode(responder)
@@ -142,7 +130,6 @@ private class BringIntoViewResponderElement(private val responder: BringIntoView
  * itself as the [BringIntoViewParent] for subsequent modifiers. This class is responsible for
  * recursively propagating requests up the responder chain.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class BringIntoViewResponderNode(var responder: BringIntoViewResponder) :
     Modifier.Node(), BringIntoViewParent, LayoutAwareModifierNode, TraversableNode {
 

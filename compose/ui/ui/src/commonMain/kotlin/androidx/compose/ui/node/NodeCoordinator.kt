@@ -486,10 +486,17 @@ internal abstract class NodeCoordinator(
             this.layerBlock = layerBlock
             if (layer == null) {
                 layer =
-                    layoutNode.requireOwner().createLayer(drawBlock, invalidateParentLayer).apply {
-                        resize(measuredSize)
-                        move(position)
-                    }
+                    layoutNode
+                        .requireOwner()
+                        .createLayer(
+                            drawBlock,
+                            invalidateParentLayer,
+                            forceUseOldLayers = layoutNode.forceUseOldLayers
+                        )
+                        .apply {
+                            resize(measuredSize)
+                            move(position)
+                        }
                 updateLayerParameters()
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
@@ -502,7 +509,7 @@ internal abstract class NodeCoordinator(
                 it.destroy()
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
-                if (isAttached) {
+                if (isAttached && layoutNode.isPlaced) {
                     layoutNode.owner?.onLayoutChange(layoutNode)
                 }
             }
@@ -511,10 +518,11 @@ internal abstract class NodeCoordinator(
         }
     }
 
-    private fun updateLayerParameters(invokeOnLayoutChange: Boolean = true) {
+    /** returns true if some of the positional properties did change. */
+    private fun updateLayerParameters(invokeOnLayoutChange: Boolean = true): Boolean {
         if (explicitLayer != null) {
             // the parameters of the explicit layers are configured differently.
-            return
+            return false
         }
         val layer = layer
         if (layer != null) {
@@ -533,15 +541,23 @@ internal abstract class NodeCoordinator(
             val layerPositionalProperties =
                 layerPositionalProperties
                     ?: LayerPositionalProperties().also { layerPositionalProperties = it }
+            tmpLayerPositionalProperties.copyFrom(layerPositionalProperties)
             layerPositionalProperties.copyFrom(graphicsLayerScope)
             layer.updateLayerProperties(graphicsLayerScope)
+            val wasClipping = isClipping
             isClipping = graphicsLayerScope.clip
             lastLayerAlpha = graphicsLayerScope.alpha
-            if (invokeOnLayoutChange) {
+            val positionalPropertiesChanged =
+                !tmpLayerPositionalProperties.hasSameValuesAs(layerPositionalProperties)
+            if (
+                invokeOnLayoutChange && (positionalPropertiesChanged || wasClipping != isClipping)
+            ) {
                 layoutNode.owner?.onLayoutChange(layoutNode)
             }
+            return positionalPropertiesChanged
         } else {
             checkPrecondition(layerBlock == null) { "null layer with a non-null layerBlock" }
+            return false
         }
     }
 
@@ -1299,28 +1315,21 @@ internal abstract class NodeCoordinator(
             if (coordinator.isValidOwnerScope) {
                 // coordinator.layerPositionalProperties should always be non-null here, but
                 // we'll just be careful with a null check.
-                // todo how this will be communicated to us in the new impl?
-                val layerPositionalProperties = coordinator.layerPositionalProperties
-                if (layerPositionalProperties == null) {
-                    coordinator.updateLayerParameters()
-                } else {
-                    tmpLayerPositionalProperties.copyFrom(layerPositionalProperties)
-                    coordinator.updateLayerParameters()
-                    if (!tmpLayerPositionalProperties.hasSameValuesAs(layerPositionalProperties)) {
-                        val layoutNode = coordinator.layoutNode
-                        val layoutDelegate = layoutNode.layoutDelegate
-                        if (layoutDelegate.childrenAccessingCoordinatesDuringPlacement > 0) {
-                            if (
-                                layoutDelegate.coordinatesAccessedDuringModifierPlacement ||
-                                    layoutDelegate.coordinatesAccessedDuringPlacement
-                            ) {
-                                layoutNode.requestRelayout()
-                            }
-                            layoutDelegate.measurePassDelegate
-                                .notifyChildrenUsingCoordinatesWhilePlacing()
+                val positionalPropertiesChanged = coordinator.updateLayerParameters()
+                if (positionalPropertiesChanged) {
+                    val layoutNode = coordinator.layoutNode
+                    val layoutDelegate = layoutNode.layoutDelegate
+                    if (layoutDelegate.childrenAccessingCoordinatesDuringPlacement > 0) {
+                        if (
+                            layoutDelegate.coordinatesAccessedDuringModifierPlacement ||
+                                layoutDelegate.coordinatesAccessedDuringPlacement
+                        ) {
+                            layoutNode.requestRelayout()
                         }
-                        layoutNode.owner?.requestOnPositionedCallback(layoutNode)
+                        layoutDelegate.measurePassDelegate
+                            .notifyChildrenUsingCoordinatesWhilePlacing()
                     }
+                    layoutNode.owner?.requestOnPositionedCallback(layoutNode)
                 }
             }
         }

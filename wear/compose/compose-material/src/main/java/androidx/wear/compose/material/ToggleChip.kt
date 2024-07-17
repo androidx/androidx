@@ -161,7 +161,7 @@ public fun ToggleChip(
         labelSpacerSize = 0.dp,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -281,10 +281,11 @@ public fun SplitToggleChip(
         enabled = enabled,
         checkedInteractionSource = checkedInteractionSource,
         clickInteractionSource = clickInteractionSource,
+        onClickLabel = null,
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /** Represents the background and content colors used in [ToggleChip]s in different states. */

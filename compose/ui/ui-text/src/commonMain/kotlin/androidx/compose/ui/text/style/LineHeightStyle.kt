@@ -33,16 +33,32 @@ import androidx.compose.ui.text.PlatformParagraphStyle
  * @param trim defines whether the space that would be added to the top of first line, and bottom of
  *   the last line should be trimmed or not. This feature is available only when
  *   [PlatformParagraphStyle.includeFontPadding] is false.
+ * @param mode defines the behavior when the specified line height is smaller than system preferred
+ *   line height. By specifying [Mode.Fixed], the line height is always set to the specified value.
+ *   This is the default value. By specifying [Mode.Minimum], the specified line height is smaller
+ *   than the system preferred value, the system preferred one is used instead.
  */
-class LineHeightStyle(val alignment: Alignment, val trim: Trim) {
+class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) {
+
+    constructor(alignment: Alignment, trim: Trim) : this(alignment, trim, Mode.Fixed)
+
     companion object {
         /**
          * The default configuration for [LineHeightStyle]:
          * - alignment = [Alignment.Proportional]
          * - trim = [Trim.Both]
+         * - mode = [Mode.Fixed]
          */
-        val Default = LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.Both)
+        val Default =
+            LineHeightStyle(alignment = Alignment.Proportional, trim = Trim.Both, mode = Mode.Fixed)
     }
+
+    /** Returns a copy of this [LineHeightStyle], optionally overriding some of the values. */
+    fun copy(
+        alignment: Alignment = this.alignment,
+        trim: Trim = this.trim,
+        mode: Mode = this.mode,
+    ) = LineHeightStyle(alignment, trim, mode)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -50,6 +66,7 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim) {
 
         if (alignment != other.alignment) return false
         if (trim != other.trim) return false
+        if (mode != other.mode) return false
 
         return true
     }
@@ -57,11 +74,12 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim) {
     override fun hashCode(): Int {
         var result = alignment.hashCode()
         result = 31 * result + trim.hashCode()
+        result = 31 * result + mode.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "LineHeightStyle(" + "alignment=$alignment, " + "trim=$trim" + ")"
+        return "LineHeightStyle(" + "alignment=$alignment, " + "trim=$trim," + "mode=$mode" + ")"
     }
 
     /**
@@ -277,6 +295,32 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim) {
              * </pre>
              */
             val Bottom = Alignment(topRatio = 1f)
+        }
+    }
+
+    /**
+     * Defines if the specified line height value should be enforced.
+     *
+     * The line height is determined by the font file used in the text. So, sometimes the specified
+     * text height can be too tight to show the given text. By using `Adjustment.Minimum` the line
+     * height can be adjusted to the system provided value if the specified line height is too
+     * tight. This is useful for supporting languages that use tall glyphs, e.g. Arabic, Myanmar,
+     * etc.
+     */
+    @JvmInline
+    value class Mode private constructor(private val value: Int) {
+        companion object {
+            /**
+             * Always use the specified line height. Even if the system preferred line height is
+             * larger than specified one, the specified line height is used.
+             */
+            val Fixed = Mode(0)
+
+            /**
+             * Use the specified line height if the system preferred line height is smaller than
+             * specified line height.
+             */
+            val Minimum = Mode(1)
         }
     }
 }

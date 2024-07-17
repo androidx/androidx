@@ -17,6 +17,7 @@
 package androidx.core.uwb.impl
 
 import androidx.core.uwb.RangingCapabilities
+import androidx.core.uwb.RangingControleeParameters
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbComplexChannel
 import androidx.core.uwb.UwbControllerSessionScope
@@ -73,6 +74,26 @@ internal class UwbControllerSessionScopeImpl(
         } catch (e: ApiException) {
             if (e.statusCode == UwbStatusCodes.INVALID_API_CALL) {
                 throw IllegalStateException("Please check that the ranging is active.")
+            }
+        }
+    }
+
+    override suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters) {
+        val uwbAddress = com.google.android.gms.nearby.uwb.UwbAddress(address.address)
+        val uwbControleeParams =
+            com.google.android.gms.nearby.uwb.RangingControleeParameters(
+                uwbAddress,
+                parameters.subSessionId,
+                parameters.subSessionKey
+            )
+        try {
+            uwbClient.addControleeWithSessionParams(uwbControleeParams).await()
+        } catch (e: ApiException) {
+            if (e.statusCode == UwbStatusCodes.INVALID_API_CALL) {
+                throw IllegalStateException(
+                    "Please check that the ranging is active and the" +
+                        "ranging profile supports multi-device ranging."
+                )
             }
         }
     }

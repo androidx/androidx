@@ -20,7 +20,6 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_SCROLL
 import androidx.collection.LongSparseArray
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
 
 internal actual typealias NativePointerButtons = Int
@@ -79,7 +78,6 @@ internal actual constructor(
     fun component1(): List<PointerInputChange> = changes
 
     // only because PointerEvent was a data class
-    @OptIn(ExperimentalComposeUiApi::class)
     fun copy(changes: List<PointerInputChange>, motionEvent: MotionEvent?): PointerEvent =
         when (motionEvent) {
             null -> PointerEvent(changes, null)

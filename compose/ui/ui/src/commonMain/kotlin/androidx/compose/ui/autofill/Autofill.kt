@@ -16,10 +16,9 @@
 
 package androidx.compose.ui.autofill
 
-import androidx.compose.ui.synchronized
 import androidx.compose.ui.createSynchronizedObject
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.synchronized
 
 /**
  * Autofill API.
@@ -28,7 +27,6 @@ import androidx.compose.ui.geometry.Rect
  * request or cancel autofill as required. For instance, the [TextField] can call
  * [requestAutofillForNode] when it gains focus, and [cancelAutofillForNode] when it loses focus.
  */
-@ExperimentalComposeUiApi
 interface Autofill {
 
     /**
@@ -66,7 +64,6 @@ interface Autofill {
  * @property onFill The callback that is called by the autofill framework to perform autofill.
  * @property id A virtual id that is automatically generated for each node.
  */
-@ExperimentalComposeUiApi
 class AutofillNode(
     val autofillTypes: List<AutofillType> = listOf(),
     var boundingBox: Rect? = null,

@@ -34,6 +34,7 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation("androidx.tracing:tracing:1.2.0")
     implementation(libs.guavaListenableFuture)
     implementation(libs.autoValueAnnotations)
 
@@ -56,7 +57,6 @@ dependencies {
     testImplementation(libs.junit) // Needed for Assert.assertThrows
     testImplementation("org.codehaus.plexus:plexus-utils:3.4.1")
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -80,10 +80,6 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
-
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }

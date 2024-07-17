@@ -777,4 +777,15 @@ internal class ObjectIntTest {
         assertEquals(1024, map.trim())
         assertEquals(0, map.trim())
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableObjectIntMap<Int>()
+
+        for (i in 0..1000000) {
+            map[i] = i.toInt()
+            map.remove(i)
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
 }

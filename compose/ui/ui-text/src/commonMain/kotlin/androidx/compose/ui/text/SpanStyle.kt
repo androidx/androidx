@@ -58,9 +58,7 @@ private val DefaultColorForegroundStyle = TextForegroundStyle.from(DefaultColor)
  * [ParagraphStyle].
  *
  * @sample androidx.compose.ui.text.samples.SpanStyleSample
- *
  * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
- *
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This may be
  *   [TextUnit.Unspecified] for inheriting from another [SpanStyle].
  * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
@@ -105,7 +103,7 @@ internal constructor(
     val shadow: Shadow? = null,
     val platformStyle: PlatformSpanStyle? = null,
     val drawStyle: DrawStyle? = null
-) {
+) : AnnotatedString.Annotation {
 
     /**
      * Styling configuration for a text span. This configuration only allows character level
@@ -113,9 +111,7 @@ internal constructor(
      * please see [ParagraphStyle].
      *
      * @sample androidx.compose.ui.text.samples.SpanStyleSample
-     *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
-     *
      * @param color The text color.
      * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
      *   may be [TextUnit.Unspecified] for inheriting from another [SpanStyle].
@@ -183,9 +179,7 @@ internal constructor(
      * please see [ParagraphStyle].
      *
      * @sample androidx.compose.ui.text.samples.SpanStyleSample
-     *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
-     *
      * @param color The color to draw the text.
      * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
      *   may be [TextUnit.Unspecified] for inheriting from another [SpanStyle].
@@ -255,9 +249,7 @@ internal constructor(
      * please see [ParagraphStyle].
      *
      * @sample androidx.compose.ui.text.samples.SpanStyleSample
-     *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
-     *
      * @param color The color to draw the text.
      * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
      *   may be [TextUnit.Unspecified] for inheriting from another [SpanStyle].
@@ -325,9 +317,7 @@ internal constructor(
      * please see [ParagraphStyle].
      *
      * @sample androidx.compose.ui.text.samples.SpanStyleBrushSample
-     *
      * @sample androidx.compose.ui.text.samples.AnnotatedStringBuilderSample
-     *
      * @param brush The brush to use when painting the text. If brush is given as null, it will be
      *   treated as unspecified. It is equivalent to calling the alternative color constructor with
      *   [Color.Unspecified]

@@ -19,7 +19,6 @@ package androidx.compose.ui.node
 import androidx.collection.MutableObjectFloatMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
@@ -131,7 +130,6 @@ internal abstract class LookaheadCapablePlaceable :
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override val isLookingAhead: Boolean
         get() = false
 

@@ -28,7 +28,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -82,7 +81,6 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Preview
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FocusedBoundsDemo() {
     // This demo demonstrates multiple observers with two separate observers:
@@ -158,7 +156,6 @@ private class FocusableAndroidViewDemo(context: Context) : LinearLayout(context)
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun FocusedBoundsObserver(modifier: Modifier, content: @Composable () -> Unit) {
     var coordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
@@ -250,7 +247,6 @@ private fun Eyeball(focalPoint: Offset, parentBounds: Rect) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.highlightFocusedBounds() = composed {
     var coordinates: LayoutCoordinates? by remember { mutableStateOf(null) }
     var focusedChild: LayoutCoordinates? by remember { mutableStateOf(null) }
@@ -280,7 +276,6 @@ private fun Modifier.highlightFocusedBounds() = composed {
         .drawAnimatedFocusHighlight(focusedBoundsClipped, focusedBounds)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun calculateHighlightBounds(
     child: LayoutCoordinates?,
     coordinates: LayoutCoordinates?,

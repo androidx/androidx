@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.toSize
 /** GraphicsLayer implementation for Android Q+ that uses the public RenderNode API */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class GraphicsLayerV29(
+    override val ownerId: Long,
     private val canvasHolder: CanvasHolder = CanvasHolder(),
     private val canvasDrawScope: CanvasDrawScope = CanvasDrawScope()
 ) : GraphicsLayerImpl {

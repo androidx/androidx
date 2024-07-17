@@ -18,7 +18,7 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 
-@OptIn(ExperimentalFoundationApi::class)
+@ExperimentalFoundationApi
 internal class TestPrefetchScheduler : PrefetchScheduler {
 
     private var activeRequests = mutableListOf<PrefetchRequest>()

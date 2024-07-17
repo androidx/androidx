@@ -27,7 +27,7 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
@@ -64,7 +64,7 @@ internal fun rememberLazyListItemProviderLambda(
     }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 private class LazyListItemProviderImpl
 constructor(
     private val state: LazyListState,

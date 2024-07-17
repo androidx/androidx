@@ -207,7 +207,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
     }
 
     private fun PsiParameter.isNullableAny(): Boolean {
-        val element = toUElement() as UParameter
+        val element = toUElement() as? UParameter ?: return false
         return element.type.canonicalText == FqJavaObjectName &&
             element.getAnnotations().any { it.qualifiedName == FqKotlinNullableAnnotation }
     }

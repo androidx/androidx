@@ -23,7 +23,6 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key.Companion.Back
 import androidx.compose.ui.input.key.Key.Companion.DirectionRight
@@ -39,7 +38,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class ComposeViewKeyEventInteropTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
@@ -81,7 +79,6 @@ class ComposeViewKeyEventInteropTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun composeView_consumesKeyEvent_ifFocusIsMoved() {
         // Arrange.
         val (item1, item2) = FocusRequester.createRefs()

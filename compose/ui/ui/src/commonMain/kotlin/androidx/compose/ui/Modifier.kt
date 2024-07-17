@@ -184,7 +184,6 @@ interface Modifier {
          * after the node is detached (after [onDetach] returns).
          *
          * @sample androidx.compose.ui.samples.ModifierNodeCoroutineScopeSample
-         *
          * @throws IllegalStateException If called while the node is not attached.
          */
         val coroutineScope: CoroutineScope
@@ -349,7 +348,6 @@ interface Modifier {
          *
          * This API can only be called if the node [isAttached].
          */
-        @ExperimentalComposeUiApi
         fun sideEffect(effect: () -> Unit) {
             requireOwner().registerOnEndApplyChangesListener(effect)
         }

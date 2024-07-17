@@ -43,11 +43,11 @@ public class ExtraSupportedSurfaceCombinationsContainer {
      * Retrieves the extra surface combinations which can be supported on the device.
      */
     @NonNull
-    public List<SurfaceCombination> get(@NonNull String cameraId, int hardwareLevel) {
+    public List<SurfaceCombination> get(@NonNull String cameraId) {
         if (mQuirk == null) {
             return new ArrayList<>();
         }
 
-        return mQuirk.getExtraSupportedSurfaceCombinations(cameraId, hardwareLevel);
+        return mQuirk.getExtraSupportedSurfaceCombinations(cameraId);
     }
 }

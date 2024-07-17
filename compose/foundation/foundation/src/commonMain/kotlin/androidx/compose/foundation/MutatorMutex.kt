@@ -146,7 +146,6 @@ class MutatorMutex {
      * For example:
      *
      * @sample androidx.compose.foundation.samples.mutatorMutexStateObjectWithReceiver
-     *
      * @param receiver the receiver `this` that [block] will be called with
      * @param priority the priority of this mutation; [MutatePriority.Default] by default. Higher
      *   priority mutations will interrupt lower priority mutations.

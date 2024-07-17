@@ -9,6 +9,15 @@ package androidx.work.multiprocess {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startRemoteWork();
   }
 
+  public final class RemoteListenableDelegatingWorker extends androidx.work.ListenableWorker {
+    ctor public RemoteListenableDelegatingWorker(android.content.Context context, androidx.work.WorkerParameters workerParameters);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result> startWork();
+    field public static final androidx.work.multiprocess.RemoteListenableDelegatingWorker.Companion Companion;
+  }
+
+  public static final class RemoteListenableDelegatingWorker.Companion {
+  }
+
   public abstract class RemoteListenableWorker extends androidx.work.ListenableWorker {
     ctor public RemoteListenableWorker(android.content.Context, androidx.work.WorkerParameters);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startRemoteWork();

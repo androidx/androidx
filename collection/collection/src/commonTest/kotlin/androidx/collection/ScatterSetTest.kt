@@ -823,4 +823,53 @@ internal class ScatterSetTest {
         assertTrue(set.contains("Ciao"))
         assertTrue(set.contains("Annyeong"))
     }
+
+    @Test
+    fun insertOneRemoveOne() {
+        val set = MutableScatterSet<Int>()
+
+        for (i in 0..1000000) {
+            set.add(i)
+            set.remove(i)
+            assertTrue(set.capacity < 16, "Set grew larger than 16 after step $i")
+        }
+    }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableScatterMap<Int, String>()
+
+        for (i in 0..100) {
+            map[i] = i.toString()
+        }
+
+        for (i in 0..100) {
+            if (i % 2 == 0) {
+                map.remove(i)
+            }
+        }
+
+        for (i in 0..100) {
+            if (i % 2 == 0) {
+                map[i] = i.toString()
+            }
+        }
+
+        for (i in 0..100) {
+            if (i % 2 != 0) {
+                map.remove(i)
+            }
+        }
+
+        for (i in 0..100) {
+            if (i % 2 != 0) {
+                map[i] = i.toString()
+            }
+        }
+
+        assertEquals(127, map.capacity)
+        for (i in 0..100) {
+            assertTrue(map.contains(i), "Map should contain element $i")
+        }
+    }
 }

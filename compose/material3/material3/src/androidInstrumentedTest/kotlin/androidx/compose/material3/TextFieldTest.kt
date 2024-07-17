@@ -53,6 +53,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -86,6 +87,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
@@ -105,6 +107,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -119,7 +122,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldTest {
@@ -172,6 +174,35 @@ class TextFieldTest {
         rule
             .setMaterialContentForSizeAssertions { TextField(value = "input", onValueChange = {}) }
             .assertWidthIsEqualTo(ExpectedDefaultTextFieldWidth)
+    }
+
+    @Test
+    fun testTextField_heightDoesNotChange_duringFocusAnimation() {
+        val numTicks = 5
+        val tick = TextFieldAnimationDuration / numTicks
+        rule.mainClock.autoAdvance = false
+
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = "",
+                onValueChange = {},
+                label = { Text("Label") },
+            )
+        }
+
+        // click to focus
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        repeat(numTicks + 1) {
+            rule
+                .onNodeWithTag(TextFieldTag)
+                .getBoundsInRoot()
+                .height
+                .assertIsEqualTo(ExpectedDefaultTextFieldHeight)
+
+            rule.mainClock.advanceTimeBy(tick.toLong())
+        }
     }
 
     @Test

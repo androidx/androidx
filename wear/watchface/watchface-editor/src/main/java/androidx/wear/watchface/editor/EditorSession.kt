@@ -606,15 +606,15 @@ internal constructor(
                     getPreviewData(
                         complicationDataSourceInfoRetriever,
                         complicationDataSourceChooserResult.dataSourceInfo
-                    )
+                    ) ?: EmptyComplicationData()
 
                 // Emit an updated complicationPreviewDataMap.
                 complicationsPreviewData.value =
                     HashMap(complicationsPreviewData.value).apply {
-                        this[complicationSlotId] = previewData ?: EmptyComplicationData()
+                        this[complicationSlotId] = previewData
                     }
 
-                onComplicationDataSourceForSlotSelected(complicationSlotId)
+                onComplicationDataSourceForSlotSelected(complicationSlotId, previewData)
 
                 return ChosenComplicationDataSource(
                     complicationSlotId,
@@ -806,7 +806,7 @@ internal constructor(
     protected open val showComplicationRationaleDialogIntent: Intent? = null
 
     /** Called when the user has selected a complication for a slot. */
-    open fun onComplicationDataSourceForSlotSelected(slotId: Int) {}
+    open fun onComplicationDataSourceForSlotSelected(slotId: Int, previewData: ComplicationData) {}
 }
 
 /**
@@ -1030,8 +1030,11 @@ internal class OnWatchFaceEditorSessionImpl(
         return editorDelegate.complicationSlotsManager.getComplicationSlotAt(x, y)?.id
     }
 
-    override fun onComplicationDataSourceForSlotSelected(slotId: Int) {
-        editorDelegate.clearComplicationSlotAfterEditing(slotId)
+    override fun onComplicationDataSourceForSlotSelected(
+        slotId: Int,
+        previewData: ComplicationData
+    ) {
+        editorDelegate.clearComplicationSlotAfterEditing(slotId, previewData)
     }
 }
 

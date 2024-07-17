@@ -23,8 +23,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.internal.childSemantics
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
+import androidx.compose.material3.tokens.IconButtonSmallTokens
 import androidx.compose.material3.tokens.IconButtonTokens
 import androidx.compose.material3.tokens.OutlinedIconButtonTokens
 import androidx.compose.runtime.Composable
@@ -43,6 +45,67 @@ import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
+
+/**
+ * <a href="https://m3.material.io/components/icon-button/overview" class="external"
+ * target="_blank">Material Design standard icon button</a>.
+ *
+ * Icon buttons help people take supplementary actions with a single tap. They’re used when a
+ * compact button is required, such as in a toolbar or image list.
+ *
+ * ![Standard icon button
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/standard-icon-button.png)
+ *
+ * [content] should typically be an [Icon] (see [androidx.compose.material.icons.Icons]). If using a
+ * custom icon, note that the typical size for the internal icon is 24 x 24 dp. This icon button has
+ * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
+ *
+ * Simple Usage
+ *
+ * @sample androidx.compose.material3.samples.IconButtonSample IconButton with a color tint
+ * @sample androidx.compose.material3.samples.TintedIconButtonSample
+ * @param onClick called when this icon button is clicked
+ * @param modifier the [Modifier] to be applied to this icon button
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [IconButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.iconButtonColors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the content of this icon button, typically an [Icon]
+ */
+@Deprecated(
+    message = "Use overload with `shape`",
+    replaceWith =
+        ReplaceWith(
+            "IconButton(onClick, modifier, enabled, colors, interactionSource, shape, content)"
+        ),
+    level = DeprecationLevel.HIDDEN
+)
+@Composable
+fun IconButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit
+) {
+    IconButton(
+        onClick,
+        modifier,
+        enabled,
+        colors,
+        interactionSource,
+        IconButtonTokens.StateLayerShape.value,
+        content
+    )
+}
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -61,10 +124,18 @@ import androidx.compose.ui.semantics.semantics
  * Simple Usage
  *
  * @sample androidx.compose.material3.samples.IconButtonSample
+ *
  * IconButton with a color tint
  *
  * @sample androidx.compose.material3.samples.TintedIconButtonSample
  *
+ * IconButton with smaller square narrow shape
+ *
+ * @sample androidx.compose.material3.samples.SmallSquareNarrowIconButtonSample
+ *
+ * IconButton with smaller square narrow shape
+ *
+ * @sample androidx.compose.material3.samples.SmallRoundWideIconButtonSample
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -76,6 +147,7 @@ import androidx.compose.ui.semantics.semantics
  *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
  *   appearance or preview the icon button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
+ * @param shape the [Shape] of this icon button.
  * @param content the content of this icon button, typically an [Icon]
  */
 @Composable
@@ -85,6 +157,7 @@ fun IconButton(
     enabled: Boolean = true,
     colors: IconButtonColors = IconButtonDefaults.iconButtonColors(),
     interactionSource: MutableInteractionSource? = null,
+    shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit
 ) {
     Box(
@@ -92,19 +165,16 @@ fun IconButton(
             modifier
                 .minimumInteractiveComponentSize()
                 .size(IconButtonTokens.StateLayerSize)
-                .clip(IconButtonTokens.StateLayerShape.value)
-                .background(color = colors.containerColor(enabled))
+                .clip(shape)
+                .background(color = colors.containerColor(enabled), shape = shape)
                 .clickable(
                     onClick = onClick,
                     enabled = enabled,
                     role = Role.Button,
                     interactionSource = interactionSource,
-                    indication =
-                        rippleOrFallbackImplementation(
-                            bounded = false,
-                            radius = IconButtonTokens.StateLayerSize / 2
-                        )
-                ),
+                    indication = ripple()
+                )
+                .childSemantics(),
         contentAlignment = Alignment.Center
     ) {
         val contentColor = colors.contentColor(enabled)
@@ -127,7 +197,6 @@ fun IconButton(
  * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.IconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -142,6 +211,15 @@ fun IconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
+@Deprecated(
+    message = "Use overload with `shape`",
+    replaceWith =
+        ReplaceWith(
+            "IconToggleButton(checked, onCheckedChange, modifier, enabled, colors," +
+                " interactionSource, shape, content)"
+        ),
+    level = DeprecationLevel.HIDDEN
+)
 @Composable
 fun IconToggleButton(
     checked: Boolean,
@@ -152,12 +230,65 @@ fun IconToggleButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
+    IconToggleButton(
+        checked,
+        onCheckedChange,
+        modifier,
+        enabled,
+        colors,
+        interactionSource,
+        IconButtonTokens.StateLayerShape.value,
+        content
+    )
+}
+
+/**
+ * <a href="https://m3.material.io/components/icon-button/overview" class="external"
+ * target="_blank">Material Design standard icon toggle button</a>.
+ *
+ * Icon buttons help people take supplementary actions with a single tap. They’re used when a
+ * compact button is required, such as in a toolbar or image list.
+ *
+ * ![Standard icon toggle button
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/standard-icon-toggle-button.png)
+ *
+ * [content] should typically be an [Icon] (see [androidx.compose.material.icons.Icons]). If using a
+ * custom icon, note that the typical size for the internal icon is 24 x 24 dp. This icon button has
+ * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
+ *
+ * @sample androidx.compose.material3.samples.IconToggleButtonSample
+ * @param checked whether this icon button is toggled on or off
+ * @param onCheckedChange called when this icon button is clicked
+ * @param modifier the [Modifier] to be applied to this icon button
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.iconToggleButtonColors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param shape the [Shape] of this icon button.
+ * @param content the content of this icon button, typically an [Icon]
+ */
+@Composable
+fun IconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors = IconButtonDefaults.iconToggleButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    shape: Shape = IconButtonDefaults.standardShape,
+    content: @Composable () -> Unit
+) {
     Box(
         modifier =
             modifier
                 .minimumInteractiveComponentSize()
                 .size(IconButtonTokens.StateLayerSize)
-                .clip(IconButtonTokens.StateLayerShape.value)
+                .clip(shape)
                 .background(color = colors.containerColor(enabled, checked).value)
                 .toggleable(
                     value = checked,
@@ -165,11 +296,7 @@ fun IconToggleButton(
                     enabled = enabled,
                     role = Role.Checkbox,
                     interactionSource = interactionSource,
-                    indication =
-                        rippleOrFallbackImplementation(
-                            bounded = false,
-                            radius = IconButtonTokens.StateLayerSize / 2
-                        )
+                    indication = ripple()
                 ),
         contentAlignment = Alignment.Center
     ) {
@@ -195,7 +322,6 @@ fun IconToggleButton(
  * Filled icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -262,7 +388,6 @@ fun FilledIconButton(
  * Filled tonal icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledTonalIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -325,7 +450,6 @@ fun FilledTonalIconButton(
  * Toggleable filled icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledIconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -396,7 +520,6 @@ fun FilledIconToggleButton(
  * Toggleable filled tonal icon button sample:
  *
  * @sample androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -466,7 +589,6 @@ fun FilledTonalIconToggleButton(
  * button has an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.OutlinedIconButtonSample
- *
  * @param onClick called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
  * @param enabled controls the enabled state of this icon button. When `false`, this component will
@@ -528,7 +650,6 @@ fun OutlinedIconButton(
  * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
  *
  * @sample androidx.compose.material3.samples.OutlinedIconToggleButtonSample
- *
  * @param checked whether this icon button is toggled on or off
  * @param onCheckedChange called when this icon button is clicked
  * @param modifier the [Modifier] to be applied to this icon button
@@ -571,7 +692,10 @@ fun OutlinedIconToggleButton(
         interactionSource = interactionSource
     ) {
         Box(
-            modifier = Modifier.size(OutlinedIconButtonTokens.ContainerSize),
+            modifier =
+                Modifier.size(
+                    OutlinedIconButtonTokens.ContainerSize,
+                ),
             contentAlignment = Alignment.Center
         ) {
             content()
@@ -580,6 +704,10 @@ fun OutlinedIconToggleButton(
 
 /** Contains the default values used by all icon button types. */
 object IconButtonDefaults {
+    /** Default ripple shape for a standard icon button. */
+    val standardShape: Shape
+        @Composable get() = IconButtonTokens.StateLayerShape.value
+
     /** Default shape for a filled icon button. */
     val filledShape: Shape
         @Composable get() = FilledIconButtonTokens.ContainerShape.value
@@ -587,6 +715,58 @@ object IconButtonDefaults {
     /** Default shape for an outlined icon button. */
     val outlinedShape: Shape
         @Composable get() = OutlinedIconButtonTokens.ContainerShape.value
+
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default round shape for any icon button. */
+    val roundShape: Shape
+        @Composable get() = IconButtonSmallTokens.ContainerShapeRound.value
+
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default square shape for any icon button. */
+    val squareShape: Shape
+        @Composable get() = IconButtonSmallTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default small narrow container for any icon button. */
+    val SmallIconSize: Dp = IconButtonSmallTokens.IconSize
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default small narrow container for any icon button. */
+    val SmallNarrowContainerSize: DpSize =
+        DpSize(
+            IconButtonSmallTokens.IconSize +
+                IconButtonSmallTokens.NarrowLeadingSpace +
+                IconButtonSmallTokens.NarrowTrailingSpace,
+            IconButtonSmallTokens.ContainerHeight
+        )
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default small narrow container for any icon button. */
+    val SmallContainerSize: DpSize =
+        DpSize(
+            IconButtonSmallTokens.IconSize +
+                IconButtonSmallTokens.UniformLeadingSpace +
+                IconButtonSmallTokens.UniformLeadingSpace,
+            IconButtonSmallTokens.ContainerHeight
+        )
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default small narrow container for any icon button. */
+    val SmallWideContainerSize: DpSize =
+        DpSize(
+            IconButtonSmallTokens.IconSize +
+                IconButtonSmallTokens.WideLeadingSpace +
+                IconButtonSmallTokens.WideTrailingSpace,
+            IconButtonSmallTokens.ContainerHeight
+        )
 
     /** Creates a [IconButtonColors] that represents the default colors used in a [IconButton]. */
     @Composable

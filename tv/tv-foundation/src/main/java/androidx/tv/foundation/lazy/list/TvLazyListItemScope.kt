@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.tv.foundation.lazy.list
 
 import androidx.annotation.FloatRange
@@ -29,6 +31,7 @@ import androidx.compose.ui.unit.IntOffset
 
 @Stable
 @TvLazyListScopeMarker
+@Deprecated("Use `LazyListItemScope` instead.")
 sealed interface TvLazyListItemScope {
     /**
      * Have the content fill the [Constraints.maxWidth] and [Constraints.maxHeight] of the parent
@@ -42,6 +45,7 @@ sealed interface TvLazyListItemScope {
      * Regular [Modifier.fillMaxSize] can't work inside the scrolling layouts as the items are
      * measured with [Constraints.Infinity] as the constraints for the main axis.
      */
+    @Deprecated("Use `LazyListItemScope.fillParentMaxSize` instead.")
     fun Modifier.fillParentMaxSize(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f): Modifier
 
     /**
@@ -54,6 +58,7 @@ sealed interface TvLazyListItemScope {
      * Regular [Modifier.fillMaxWidth] can't work inside the scrolling horizontally layouts as the
      * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
+    @Deprecated("Use `LazyListItemScope.fillParentMaxWidth` instead.")
     fun Modifier.fillParentMaxWidth(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
     ): Modifier
@@ -68,6 +73,7 @@ sealed interface TvLazyListItemScope {
      * Regular [Modifier.fillMaxHeight] can't work inside the scrolling vertically layouts as the
      * items are measured with [Constraints.Infinity] as the constraints for the main axis.
      */
+    @Deprecated("Use `LazyListItemScope.fillParentMaxHeight` instead.")
     fun Modifier.fillParentMaxHeight(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f
     ): Modifier
@@ -81,6 +87,7 @@ sealed interface TvLazyListItemScope {
      *
      * @param animationSpec a finite animation that will be used to animate the item placement.
      */
+    @Deprecated("Use `LazyListItemScope.animateItemPlacement` instead.")
     @ExperimentalFoundationApi
     fun Modifier.animateItemPlacement(
         animationSpec: FiniteAnimationSpec<IntOffset> =

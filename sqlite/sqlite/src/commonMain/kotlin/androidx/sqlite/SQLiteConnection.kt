@@ -24,7 +24,8 @@ package androidx.sqlite
  *
  * See also [Database Connection](https://www.sqlite.org/c3ref/sqlite3.html)
  */
-@Suppress("NotCloseable") // TODO(b/315461431): No common Closeable interface in KMP
+// TODO(b/315461431): No common Closeable interface in KMP
+@Suppress("NotCloseable", "AcronymName") // SQL is a known term and should remain capitalized
 interface SQLiteConnection {
     /**
      * Prepares a new SQL statement.

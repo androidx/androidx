@@ -138,7 +138,6 @@ object TextPainter {
  *   Otherwise, [Size.height] either defines where the text is clipped ([TextOverflow.Clip]) or
  *   becomes no-op.
  * @param blendMode Blending algorithm to be applied to the text
- *
  * @sample androidx.compose.ui.text.samples.DrawTextAnnotatedStringSample
  */
 fun DrawScope.drawText(
@@ -203,9 +202,7 @@ fun DrawScope.drawText(
  *   Otherwise, [Size.height] either defines where the text is clipped ([TextOverflow.Clip]) or
  *   becomes no-op.
  * @param blendMode Blending algorithm to be applied to the text
- *
  * @sample androidx.compose.ui.text.samples.DrawTextSample
- *
  * @sample androidx.compose.ui.text.samples.DrawTextStyledSample
  */
 fun DrawScope.drawText(
@@ -254,9 +251,7 @@ fun DrawScope.drawText(
  * @param textDecoration The decorations to paint on the text (e.g., an underline).
  * @param drawStyle Whether or not the text is stroked or filled in.
  * @param blendMode Blending algorithm to be applied to the text
- *
  * @sample androidx.compose.ui.text.samples.DrawTextMeasureInLayoutSample
- *
  * @sample androidx.compose.ui.text.samples.DrawTextDrawWithCacheSample
  */
 fun DrawScope.drawText(

@@ -165,7 +165,7 @@ internal class TextFieldDecoratorModifierNode(
     var filter: InputTransformation?,
     var enabled: Boolean,
     var readOnly: Boolean,
-    keyboardOptions: KeyboardOptions,
+    var keyboardOptions: KeyboardOptions,
     var keyboardActionHandler: KeyboardActionHandler?,
     var singleLine: Boolean,
     var interactionSource: MutableInteractionSource
@@ -345,10 +345,6 @@ internal class TextFieldDecoratorModifierNode(
             )
         )
 
-    var keyboardOptions: KeyboardOptions =
-        keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
-        private set
-
     /**
      * Needs to be kept separate from a window focus so we can restart an input session when the
      * window receives the focus back. Element can stay focused even if the window loses its focus.
@@ -359,7 +355,12 @@ internal class TextFieldDecoratorModifierNode(
     private var windowInfo: WindowInfo? = null
 
     private val isFocused: Boolean
-        get() = isElementFocused && windowInfo?.isWindowFocused == true
+        get() {
+            // make sure that we read both window focus and element focus for snapshot aware
+            // callers to successfully update when either one changes
+            val isWindowFocused = windowInfo?.isWindowFocused == true
+            return isElementFocused && isWindowFocused
+        }
 
     /**
      * We observe text changes to show/hide text toolbar and cursor handles. This job is only run
@@ -418,8 +419,8 @@ internal class TextFieldDecoratorModifierNode(
         interactionSource: MutableInteractionSource
     ) {
         // Find the diff: current previous and new values before updating current.
-        val previousWriteable = this.enabled && !this.readOnly
-        val writeable = enabled && !readOnly
+        val previousEditable = this.editable
+        val editable = enabled && !readOnly
 
         val previousEnabled = this.enabled
         val previousTextFieldState = this.textFieldState
@@ -434,7 +435,7 @@ internal class TextFieldDecoratorModifierNode(
         this.filter = filter
         this.enabled = enabled
         this.readOnly = readOnly
-        this.keyboardOptions = keyboardOptions.fillUnspecifiedValuesWith(filter?.keyboardOptions)
+        this.keyboardOptions = keyboardOptions
         this.keyboardActionHandler = keyboardActionHandler
         this.singleLine = singleLine
         this.interactionSource = interactionSource
@@ -442,21 +443,24 @@ internal class TextFieldDecoratorModifierNode(
         // React to diff.
         // Something about the session changed, restart the session.
         if (
-            writeable != previousWriteable ||
+            editable != previousEditable ||
                 textFieldState != previousTextFieldState ||
-                // compare with the new keyboardOptions that's merged
-                this.keyboardOptions != previousKeyboardOptions
+                keyboardOptions != previousKeyboardOptions
         ) {
-            if (writeable && isFocused) {
+            if (editable && isFocused) {
                 // The old session will be implicitly disposed.
                 startInputSession(fromTap = false)
-            } else if (!writeable) {
+            } else if (!editable) {
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
             }
         }
 
-        if (previousEnabled != enabled) {
+        if (
+            enabled != previousEnabled ||
+                editable != previousEditable ||
+                keyboardOptions.imeActionOrDefault != previousKeyboardOptions.imeActionOrDefault
+        ) {
             invalidateSemantics()
         }
 
@@ -602,6 +606,9 @@ internal class TextFieldDecoratorModifierNode(
             }
         } else {
             disposeInputSession()
+            // only clear the composing region when element loses focus. Window focus lost should
+            // not clear the composing region.
+            textFieldState.editUntransformedTextAsUser { finishComposingText() }
             textFieldState.collapseSelectionToMax()
         }
         stylusHandwritingNode.onFocusEvent(focusState)
@@ -676,7 +683,6 @@ internal class TextFieldDecoratorModifierNode(
         observeReads {
             windowInfo = currentValueOf(LocalWindowInfo)
             onFocusChange()
-            startInputSessionOnWindowFocusChange()
         }
     }
 
@@ -708,15 +714,6 @@ internal class TextFieldDecoratorModifierNode(
         inputSessionJob?.cancel()
         inputSessionJob = null
         stylusHandwritingTrigger?.resetReplayCache()
-    }
-
-    private fun startInputSessionOnWindowFocusChange() {
-        if (windowInfo == null) return
-        // b/326323000: We do not dispose input session on just window focus change until another
-        // item requests focus and we lose element focus status which is handled by onFocusEvent.
-        if (windowInfo?.isWindowFocused == true && isElementFocused) {
-            startInputSession(fromTap = false)
-        }
     }
 
     private fun requireKeyboardController(): SoftwareKeyboardController =

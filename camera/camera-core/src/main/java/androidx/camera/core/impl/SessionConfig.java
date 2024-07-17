@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Configurations needed for a capture session.
@@ -52,6 +53,15 @@ import java.util.Set;
  */
 public final class SessionConfig {
     public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
+    // Current supported session template values and the bigger index in the list, the
+    // priority is higher.
+    private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
+            CameraDevice.TEMPLATE_PREVIEW,
+            // TODO(230673983): Based on the framework assumptions, we prioritize video capture
+            //  and disable ZSL (fallback to regular) if both use cases are bound.
+            CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
+            CameraDevice.TEMPLATE_RECORD
+    );
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
     private final List<OutputConfig> mOutputConfigs;
     /** The {@link OutputConfig} for the postview. */
@@ -62,7 +72,7 @@ public final class SessionConfig {
     private final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks;
     /** The callbacks used in single requests. */
     private final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks;
-    private final List<ErrorListener> mErrorListeners;
+    private final ErrorListener mErrorListener;
     /** The configuration for building the {@link CaptureRequest} used for repeating requests. */
     private final CaptureConfig mRepeatingCaptureConfig;
     /** The type of the session */
@@ -228,8 +238,8 @@ public final class SessionConfig {
             List<StateCallback> deviceStateCallbacks,
             List<CameraCaptureSession.StateCallback> sessionStateCallbacks,
             List<CameraCaptureCallback> singleCameraCaptureCallbacks,
-            List<ErrorListener> errorListeners,
             CaptureConfig repeatingCaptureConfig,
+            @Nullable ErrorListener errorListener,
             @Nullable InputConfiguration inputConfiguration,
             int sessionType,
             @Nullable OutputConfig postviewOutputConfig) {
@@ -238,7 +248,7 @@ public final class SessionConfig {
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
         mSingleCameraCaptureCallbacks =
                 Collections.unmodifiableList(singleCameraCaptureCallbacks);
-        mErrorListeners = Collections.unmodifiableList(errorListeners);
+        mErrorListener = errorListener;
         mRepeatingCaptureConfig = repeatingCaptureConfig;
         mInputConfiguration = inputConfiguration;
         mSessionType = sessionType;
@@ -253,8 +263,8 @@ public final class SessionConfig {
                 new ArrayList<CameraDevice.StateCallback>(0),
                 new ArrayList<CameraCaptureSession.StateCallback>(0),
                 new ArrayList<CameraCaptureCallback>(0),
-                new ArrayList<>(0),
                 new CaptureConfig.Builder().build(),
+                /* errorListener */ null,
                 /* inputConfiguration */ null,
                 DEFAULT_SESSION_TYPE,
                 /* postviewOutputConfig */ null);
@@ -328,10 +338,10 @@ public final class SessionConfig {
         return mRepeatingCaptureConfig.getCameraCaptureCallbacks();
     }
 
-    /** Obtains all registered {@link ErrorListener} callbacks. */
-    @NonNull
-    public List<ErrorListener> getErrorListeners() {
-        return mErrorListeners;
+    /** Obtains the registered {@link ErrorListener} callback. */
+    @Nullable
+    public ErrorListener getErrorListener() {
+        return mErrorListener;
     }
 
     /** Obtains all registered {@link CameraCaptureCallback} callbacks for single requests. */
@@ -343,6 +353,12 @@ public final class SessionConfig {
     @NonNull
     public CaptureConfig getRepeatingCaptureConfig() {
         return mRepeatingCaptureConfig;
+    }
+
+    /** Returns the one which has higher priority. */
+    public static int getHigherPriorityTemplateType(int type1, int type2) {
+        return SUPPORTED_TEMPLATE_PRIORITY.indexOf(type1)
+                >= SUPPORTED_TEMPLATE_PRIORITY.indexOf(type2) ? type1 : type2;
     }
 
     public enum SessionError {
@@ -367,6 +383,32 @@ public final class SessionConfig {
          * @param error         The error that was generated.
          */
         void onError(@NonNull SessionConfig sessionConfig, @NonNull SessionError error);
+    }
+
+    /**
+     * A closeable ErrorListener that onError callback won't be invoked after it is closed.
+     */
+    public static final class CloseableErrorListener implements ErrorListener {
+        private final AtomicBoolean mIsClosed = new AtomicBoolean(false);
+        private final ErrorListener mErrorListener;
+
+        public CloseableErrorListener(@NonNull ErrorListener errorListener) {
+            mErrorListener = errorListener;
+        }
+
+        @Override
+        public void onError(@NonNull SessionConfig sessionConfig, @NonNull SessionError error) {
+            if (!mIsClosed.get()) {
+                mErrorListener.onError(sessionConfig, error);
+            }
+        }
+
+        /**
+         * Closes the ErrorListener to not invoke the onError callback function.
+         */
+        public void close() {
+            mIsClosed.set(true);
+        }
     }
 
     /**
@@ -399,8 +441,9 @@ public final class SessionConfig {
         final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
         final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
         final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks = new ArrayList<>();
-        final List<ErrorListener> mErrorListeners = new ArrayList<>();
         final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
+        @Nullable
+        ErrorListener mErrorListener;
         @Nullable
         InputConfiguration mInputConfiguration;
         int mSessionType = DEFAULT_SESSION_TYPE;
@@ -649,8 +692,8 @@ public final class SessionConfig {
          * Adds all {@link ErrorListener} listeners repeating requests.
          */
         @NonNull
-        public Builder addErrorListener(@NonNull ErrorListener errorListener) {
-            mErrorListeners.add(errorListener);
+        public Builder setErrorListener(@NonNull ErrorListener errorListener) {
+            mErrorListener = errorListener;
             return this;
         }
 
@@ -787,8 +830,8 @@ public final class SessionConfig {
                     new ArrayList<>(mDeviceStateCallbacks),
                     new ArrayList<>(mSessionStateCallbacks),
                     new ArrayList<>(mSingleCameraCaptureCallbacks),
-                    new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
+                    mErrorListener,
                     mInputConfiguration,
                     mSessionType,
                     mPostviewOutputConfig);
@@ -800,20 +843,11 @@ public final class SessionConfig {
      * the parameters for the {@link SessionConfig} are compatible with each other
      */
     public static final class ValidatingBuilder extends BaseBuilder {
-        // Current supported session template values and the bigger index in the list, the
-        // priority is higher.
-        private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
-                CameraDevice.TEMPLATE_PREVIEW,
-                // TODO(230673983): Based on the framework assumptions, we prioritize video capture
-                //  and disable ZSL (fallback to regular) if both use cases are bound.
-                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
-                CameraDevice.TEMPLATE_RECORD
-        );
-
         private static final String TAG = "ValidatingBuilder";
         private final SurfaceSorter mSurfaceSorter = new SurfaceSorter();
         private boolean mValid = true;
         private boolean mTemplateSet = false;
+        private List<ErrorListener> mErrorListeners = new ArrayList<>();
 
         /**
          * Add an implementation option to the ValidatingBuilder's CaptureConfigBuilder. If it
@@ -835,7 +869,7 @@ public final class SessionConfig {
             if (captureConfig.getTemplateType() != CaptureConfig.TEMPLATE_TYPE_NONE) {
                 mTemplateSet = true;
                 mCaptureConfigBuilder.setTemplateType(
-                        selectTemplateType(captureConfig.getTemplateType(),
+                        getHigherPriorityTemplateType(captureConfig.getTemplateType(),
                                 mCaptureConfigBuilder.getTemplateType()));
             }
 
@@ -859,7 +893,9 @@ public final class SessionConfig {
             // Check camera capture callbacks for single requests.
             mSingleCameraCaptureCallbacks.addAll(sessionConfig.getSingleCameraCaptureCallbacks());
 
-            mErrorListeners.addAll(sessionConfig.getErrorListeners());
+            if (sessionConfig.getErrorListener() != null) {
+                mErrorListeners.add(sessionConfig.getErrorListener());
+            }
 
             // Check input configuration for reprocessable capture session.
             if (sessionConfig.getInputConfiguration() != null) {
@@ -977,21 +1013,26 @@ public final class SessionConfig {
             List<OutputConfig> outputConfigs = new ArrayList<>(mOutputConfigs);
             mSurfaceSorter.sort(outputConfigs);
 
+            ErrorListener errorListener = null;
+            // Creates an error listener to notify errors to the underlying error listeners.
+            if (!mErrorListeners.isEmpty()) {
+                errorListener = (sessionConfig, error) -> {
+                    for (ErrorListener listener: mErrorListeners) {
+                        listener.onError(sessionConfig, error);
+                    }
+                };
+            }
+
             return new SessionConfig(
                     outputConfigs,
                     new ArrayList<>(mDeviceStateCallbacks),
                     new ArrayList<>(mSessionStateCallbacks),
                     new ArrayList<>(mSingleCameraCaptureCallbacks),
-                    new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
+                    errorListener,
                     mInputConfiguration,
                     mSessionType,
                     mPostviewOutputConfig);
-        }
-
-        private int selectTemplateType(int type1, int type2) {
-            return SUPPORTED_TEMPLATE_PRIORITY.indexOf(type1)
-                    >= SUPPORTED_TEMPLATE_PRIORITY.indexOf(type2) ? type1 : type2;
         }
     }
 }

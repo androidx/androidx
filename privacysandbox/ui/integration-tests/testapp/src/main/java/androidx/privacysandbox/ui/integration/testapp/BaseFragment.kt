@@ -21,13 +21,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
-import androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat
+import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import kotlinx.coroutines.runBlocking
 
@@ -68,22 +69,46 @@ abstract class BaseFragment : Fragment() {
     }
 
     /**
-     * Unloads all SDKs, resulting in sandbox death. This method registers a death callback to
-     * ensure that the app is not also killed.
+     * Returns the list of [SandboxedSdkView]s that are currently displayed inside this fragment.
+     *
+     * This will be called when the drawer is opened or closed, to automatically flip the Z-ordering
+     * of any remote views.
      */
-    fun unloadAllSdks() {
-        sdkSandboxManager.addSdkSandboxProcessDeathCallback(Runnable::run, DeathCallbackImpl())
-        sdkSandboxManager.unloadSdk(SDK_NAME)
-        sdkSandboxManager.unloadSdk(MEDIATEE_SDK_NAME)
-    }
+    abstract fun getSandboxedSdkViews(): List<SandboxedSdkView>
 
     /**
-     * Called when the app's drawer layout state changes. When called, change the Z-order of any
-     * [SandboxedSdkView] owned by the fragment to ensure that the remote UI is not drawn over the
-     * drawer. If the drawer is open, move all remote views to Z-below, otherwise move them to
-     * Z-above.
+     * Called when the @AdType or @MediationOption of any [SandboxedSdkView] inside the fragment is
+     * changed using the toggle switches in the drawer.
+     *
+     * Set the value of [currentAdType], [currentMediationOption] and [shouldDrawViewabilityLayer]
+     * inside the method using the parameters passed to it, then call [loadBannerAd] method using
+     * the parameters along with the [SandboxedSdkView] for which the new Ad needs to be loaded.
      */
-    abstract fun handleDrawerStateChange(isDrawerOpen: Boolean)
+    // TODO(b/343436839) : Handle this automatically
+    // TODO(b/348194843): Clean up the options
+    abstract fun handleLoadAdFromDrawer(
+        adType: Int,
+        mediationOption: Int,
+        drawViewabilityLayer: Boolean
+    )
+
+    fun loadBannerAd(
+        @AdType adType: Int,
+        @MediationOption mediationOption: Int,
+        sandboxedSdkView: SandboxedSdkView,
+        drawViewabilityLayer: Boolean,
+        waitInsideOnDraw: Boolean = false
+    ) {
+        val sdkBundle =
+            sdkApi.loadBannerAd(adType, mediationOption, waitInsideOnDraw, drawViewabilityLayer)
+        sandboxedSdkView.setAdapter(SandboxedUiAdapterFactory.createFromCoreLibInfo(sdkBundle))
+    }
+
+    open fun handleDrawerStateChange(isDrawerOpen: Boolean) {
+        getSandboxedSdkViews().forEach {
+            it.orderProviderUiAboveClientUi(!isDrawerOpen && isZOrderOnTop)
+        }
+    }
 
     private inner class StateChangeListener(val view: SandboxedSdkView) :
         SandboxedSdkUiSessionStateChangedListener {
@@ -104,18 +129,14 @@ abstract class BaseFragment : Fragment() {
         }
     }
 
-    private inner class DeathCallbackImpl : SdkSandboxProcessDeathCallbackCompat {
-        override fun onSdkSandboxDied() {
-            activity.runOnUiThread {
-                Toast.makeText(activity, "Sandbox died", Toast.LENGTH_LONG).show()
-            }
-        }
-    }
-
     companion object {
         private const val SDK_NAME = "androidx.privacysandbox.ui.integration.testsdkprovider"
         private const val MEDIATEE_SDK_NAME =
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"
         const val TAG = "TestSandboxClient"
+        var isZOrderOnTop = true
+        @AdType var currentAdType = AdType.NON_WEBVIEW
+        @MediationOption var currentMediationOption = MediationOption.NON_MEDIATED
+        var shouldDrawViewabilityLayer = false
     }
 }

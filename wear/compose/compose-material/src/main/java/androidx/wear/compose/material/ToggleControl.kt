@@ -44,7 +44,6 @@ import androidx.wear.compose.materialcore.animateSelectionColor
  * Example of a [SplitToggleChip] with [Checkbox] toggle control:
  *
  * @sample androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
- *
  * @param checked Boolean flag indicating whether this checkbox is currently checked.
  * @param modifier Modifier to be applied to the checkbox. This can be used to provide a content
  *   description for accessibility.
@@ -83,7 +82,7 @@ public fun Checkbox(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = WIDTH,
         height = HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -93,7 +92,6 @@ public fun Checkbox(
  * Example of a [ToggleChip] with [Switch] toggle control:
  *
  * @sample androidx.wear.compose.material.samples.ToggleChipWithSwitch
- *
  * @param checked Boolean flag indicating whether this switch is currently toggled on.
  * @param modifier Modifier to be applied to the switch. This can be used to provide a content
  *   description for accessibility.
@@ -142,7 +140,7 @@ public fun Switch(
         progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
         width = WIDTH,
         height = HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -152,7 +150,6 @@ public fun Switch(
  * Example of a [ToggleChip] with [RadioButton] toggle control:
  *
  * @sample androidx.wear.compose.material.samples.SelectableChipWithRadioButton
- *
  * @param selected Boolean flag indicating whether this radio button is currently toggled on.
  * @param modifier Modifier to be applied to the radio button. This can be used to provide a content
  *   description for accessibility.
@@ -194,7 +191,7 @@ public fun RadioButton(
         easing = STANDARD_IN,
         width = WIDTH,
         height = HEIGHT,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /** Represents the content colors used in [Checkbox] in different states. */

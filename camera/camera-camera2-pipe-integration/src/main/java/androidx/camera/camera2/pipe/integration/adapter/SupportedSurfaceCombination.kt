@@ -235,6 +235,7 @@ class SupportedSurfaceCombination(
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output sizes
      *   map.
      * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
+     * @param hasVideoCapture whether the use cases has video capture.
      * @return the suggested stream specs, which is a mapping from UseCaseConfig to the suggested
      *   stream specification.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
@@ -244,7 +245,8 @@ class SupportedSurfaceCombination(
         cameraMode: Int,
         attachedSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
-        isPreviewStabilizationOn: Boolean = false
+        isPreviewStabilizationOn: Boolean = false,
+        hasVideoCapture: Boolean = false
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize()
@@ -336,6 +338,7 @@ class SupportedSurfaceCombination(
                 newUseCaseConfigs,
                 useCasesPriorityOrder,
                 resolvedDynamicRanges,
+                hasVideoCapture
             )
         val attachedSurfaceStreamSpecMap = mutableMapOf<AttachedSurfaceInfo, StreamSpec>()
 
@@ -808,6 +811,7 @@ class SupportedSurfaceCombination(
         newUseCaseConfigs: List<UseCaseConfig<*>>,
         useCasesPriorityOrder: List<Int>,
         resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
+        hasVideoCapture: Boolean
     ): MutableMap<UseCaseConfig<*>, StreamSpec> {
         val suggestedStreamSpecMap = mutableMapOf<UseCaseConfig<*>, StreamSpec>()
         var targetFrameRateForDevice: Range<Int>? = null
@@ -824,6 +828,7 @@ class SupportedSurfaceCombination(
                     .setImplementationOptions(
                         StreamUseCaseUtil.getStreamSpecImplementationOptions(useCaseConfig)
                     )
+                    .setZslDisabled(hasVideoCapture)
 
             if (targetFrameRateForDevice != null) {
                 streamSpecBuilder.setExpectedFrameRateRange(targetFrameRateForDevice)
@@ -1214,9 +1219,7 @@ class SupportedSurfaceCombination(
                 isBurstCaptureSupported
             )
         )
-        surfaceCombinations.addAll(
-            extraSupportedSurfaceCombinationsContainer[cameraId, hardwareLevel]
-        )
+        surfaceCombinations.addAll(extraSupportedSurfaceCombinationsContainer[cameraId])
     }
 
     private fun generateUltraHighResolutionSupportedCombinationList() {

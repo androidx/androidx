@@ -409,32 +409,44 @@ constructor(
         // inside measuring we do scrollToBeConsumed.roundToInt() so there will be no scroll if
         // we have less than 0.5 pixels
         if (abs(scrollToBeConsumed) > 0.5f) {
-            val layoutInfo = layoutInfoState.value
             val preScrollToBeConsumed = scrollToBeConsumed
             val intDelta = scrollToBeConsumed.fastRoundToInt()
-            val postLookaheadInfo = postLookaheadLayoutInfo
-            var scrolledWithoutRemeasure =
-                layoutInfo.tryToApplyScrollWithoutRemeasure(
+
+            var scrolledLayoutInfo =
+                layoutInfoState.value.copyWithScrollDeltaWithoutRemeasure(
                     delta = intDelta,
                     updateAnimations = !hasLookaheadPassOccurred
                 )
-            if (scrolledWithoutRemeasure && postLookaheadInfo != null) {
-                scrolledWithoutRemeasure =
-                    postLookaheadInfo.tryToApplyScrollWithoutRemeasure(
+            if (scrolledLayoutInfo != null && this.postLookaheadLayoutInfo != null) {
+                // if we were able to scroll the lookahead layout info without remeasure, lets
+                // try to do the same for post lookahead layout info (sometimes they diverge).
+                val scrolledPostLookaheadLayoutInfo =
+                    postLookaheadLayoutInfo?.copyWithScrollDeltaWithoutRemeasure(
                         delta = intDelta,
                         updateAnimations = true
                     )
+                if (scrolledPostLookaheadLayoutInfo != null) {
+                    // we can apply scroll delta for both phases without remeasure
+                    postLookaheadLayoutInfo = scrolledPostLookaheadLayoutInfo
+                } else {
+                    // we can't apply scroll delta for post lookahead, so we have to remeasure
+                    scrolledLayoutInfo = null
+                }
             }
-            if (scrolledWithoutRemeasure) {
+
+            if (scrolledLayoutInfo != null) {
                 applyMeasureResult(
-                    result = layoutInfo,
+                    result = scrolledLayoutInfo,
                     isLookingAhead = hasLookaheadPassOccurred,
                     visibleItemsStayedTheSame = true
                 )
                 // we don't need to remeasure, so we only trigger re-placement:
                 placementScopeInvalidator.invalidateScope()
 
-                notifyPrefetchOnScroll(preScrollToBeConsumed - scrollToBeConsumed, layoutInfo)
+                notifyPrefetchOnScroll(
+                    preScrollToBeConsumed - scrollToBeConsumed,
+                    scrolledLayoutInfo
+                )
             } else {
                 remeasurement?.forceRemeasure()
                 notifyPrefetchOnScroll(preScrollToBeConsumed - scrollToBeConsumed, this.layoutInfo)
@@ -589,7 +601,6 @@ constructor(
          * A [Saver] implementation for [LazyListState] that handles setting a custom
          * [LazyListPrefetchStrategy].
          */
-        @ExperimentalFoundationApi
         internal fun saver(prefetchStrategy: LazyListPrefetchStrategy): Saver<LazyListState, *> =
             listSaver(
                 save = { listOf(it.firstVisibleItemIndex, it.firstVisibleItemScrollOffset) },

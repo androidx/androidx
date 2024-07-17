@@ -32,9 +32,7 @@ import androidx.compose.ui.unit.IntSize
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.OnSizeChangedSample
- *
  * @sample androidx.compose.ui.samples.OnPlaced
- *
  * @sample androidx.compose.ui.samples.LayoutAwareModifierNodeSample
  */
 interface LayoutAwareModifierNode : DelegatableNode {

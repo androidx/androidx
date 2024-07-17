@@ -32,6 +32,8 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Item;
+import androidx.car.app.model.Row;
+import androidx.car.app.model.Template;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.core.app.Person;
@@ -62,6 +64,7 @@ public class ConversationItem implements Item {
     private final ConversationCallbackDelegate mConversationCallbackDelegate;
     @NonNull
     private final List<Action> mActions;
+    private final boolean mIndexable;
 
     @Override
     public int hashCode() {
@@ -72,7 +75,8 @@ public class ConversationItem implements Item {
                 mIcon,
                 mIsGroupConversation,
                 mMessages,
-                mActions
+                mActions,
+                mIndexable
         );
     }
 
@@ -95,6 +99,7 @@ public class ConversationItem implements Item {
                         && mIsGroupConversation == otherConversationItem.mIsGroupConversation
                         && Objects.equals(mMessages, otherConversationItem.mMessages)
                         && Objects.equals(mActions, otherConversationItem.mActions)
+                        && mIndexable == otherConversationItem.mIndexable
                 ;
     }
 
@@ -108,6 +113,7 @@ public class ConversationItem implements Item {
         checkState(!mMessages.isEmpty(), "Message list cannot be empty.");
         this.mConversationCallbackDelegate = requireNonNull(builder.mConversationCallbackDelegate);
         this.mActions = CollectionUtils.unmodifiableCopy(builder.mActions);
+        this.mIndexable = builder.mIndexable;
     }
 
     /** Default constructor for serialization. */
@@ -131,6 +137,7 @@ public class ConversationItem implements Item {
                     }
                 });
         mActions = Collections.emptyList();
+        mIndexable = true;
     }
 
     /**
@@ -193,6 +200,24 @@ public class ConversationItem implements Item {
     }
 
     /**
+     * Returns whether this item should be included in an indexed list.
+     *
+     * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to sort,
+     * partition, or filter a list. Indexing is generally used for features called "Accelerators",
+     * which allow a user to quickly find a particular {@link Item} in a long list.
+     *
+     * <p>To exclude a single item from indexed lists and accelerator features, use
+     * {@link Row.Builder#setIndexable(boolean)}.
+     *
+     * <p>To enable/disable accelerators for the entire list, see the API for the particular
+     * list-like {@link Template} that you are using.
+     */
+    @ExperimentalCarApi
+    public boolean isIndexable() {
+        return mIndexable;
+    }
+
+    /**
      * Verifies that a given {@link Person} has the required fields to be a message sender. Returns
      * the input {@link Person} if valid, or throws an exception if invalid.
      *
@@ -221,6 +246,7 @@ public class ConversationItem implements Item {
         @Nullable
         ConversationCallbackDelegate mConversationCallbackDelegate;
         final List<Action> mActions;
+        boolean mIndexable = true;
 
         /**
          * Specifies a unique identifier for the conversation
@@ -315,6 +341,14 @@ public class ConversationItem implements Item {
             mActionsCopy.add(requireNonNull(action));
             ActionsConstraints.ACTIONS_CONSTRAINTS_CONVERSATION_ITEM.validateOrThrow(mActionsCopy);
             mActions.add(action);
+            return this;
+        }
+
+        /** @see #isIndexable */
+        @ExperimentalCarApi
+        @NonNull
+        public Builder setIndexable(boolean indexable) {
+            mIndexable = indexable;
             return this;
         }
 

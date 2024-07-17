@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.injectionscope.mouse
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.draggable2D
 import androidx.compose.foundation.gestures.rememberDraggable2DState
@@ -69,7 +68,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 class ClickTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
@@ -337,6 +335,7 @@ class ClickTest {
     // Rather than checking the events sent on, for this more complex mouse gesture we
     // check if the events actually lead to the expected outcome.
     @Test
+    @OptIn(ExperimentalTestApi::class)
     fun dragAndDropTest() = runComposeUiTest {
         val sizeDp = 50.dp
         val sizePx = with(density) { sizeDp.toPx() }
@@ -346,7 +345,6 @@ class ClickTest {
         var yOffsetPx by mutableStateOf(0f)
 
         setContent {
-            @OptIn(ExperimentalFoundationApi::class)
             Box(Modifier.padding(16.dp).fillMaxSize()) {
                 Box(
                     Modifier.testTag("draggable-box")

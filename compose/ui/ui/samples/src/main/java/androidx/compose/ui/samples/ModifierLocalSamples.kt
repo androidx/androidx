@@ -24,14 +24,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.modifier.modifierLocalProvider
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun ModifierLocalParentChildCommunicationWithinLayoutNodeSample() {
@@ -53,7 +51,6 @@ fun ModifierLocalParentChildCommunicationWithinLayoutNodeSample() {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun ModifierLocalChildParentCommunicationWithinLayoutNodeSample() {
@@ -84,7 +81,6 @@ fun ModifierLocalChildParentCommunicationWithinLayoutNodeSample() {
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun ModifierLocalParentChildCommunicationInterLayoutNodeSample() {
@@ -106,7 +102,6 @@ fun ModifierLocalParentChildCommunicationInterLayoutNodeSample() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Sampled
 @Composable
 fun ModifierLocalChildParentCommunicationInterLayoutNodeSample() {

@@ -13,10 +13,6 @@ plugins {
 
 android {
     namespace "androidx.activity.integration.macrobenchmark.target"
-
-    defaultConfig {
-        minSdkVersion 21
-    }
 }
 
 dependencies {

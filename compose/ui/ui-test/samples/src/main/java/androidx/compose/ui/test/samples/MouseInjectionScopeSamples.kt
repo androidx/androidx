@@ -18,10 +18,9 @@ package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
-import androidx.compose.ui.test.animateAlong
-import androidx.compose.ui.test.animateTo
+import androidx.compose.ui.test.animateMoveAlong
+import androidx.compose.ui.test.animateMoveTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
@@ -30,7 +29,6 @@ import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputClick() {
     composeTestRule.onNodeWithTag("myComponent").performMouseInput {
@@ -39,27 +37,25 @@ fun mouseInputClick() {
     }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
-fun mouseInputAnimateTo() {
+fun mouseInputAnimateMoveTo() {
     composeTestRule.onNodeWithTag("myComponent").performMouseInput {
         // Hover over the node, making an X shape
         moveTo(topLeft)
-        animateTo(bottomRight)
+        animateMoveTo(bottomRight)
         // Note that an actual user wouldn't be able to instantly
         // move from the bottom right to the top right
         moveTo(topRight)
-        animateTo(bottomLeft)
+        animateMoveTo(bottomLeft)
     }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
-fun mouseInputAnimateAlong() {
+fun mouseInputAnimateMoveAlong() {
     composeTestRule.onNodeWithTag("myComponent").performMouseInput {
         // Hover over the node, making a full circle with a radius of 100px
         val r = 100f
-        animateAlong(
+        animateMoveAlong(
             curve = {
                 val angle = 2 * PI * it / 1000
                 center + Offset(r * cos(angle).toFloat(), r * sin(angle).toFloat())
@@ -69,7 +65,6 @@ fun mouseInputAnimateAlong() {
     }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputScrollWhileDown() {
     composeTestRule
@@ -89,7 +84,6 @@ fun mouseInputScrollWhileDown() {
         }
 }
 
-@OptIn(ExperimentalTestApi::class)
 @Sampled
 fun mouseInputSmoothScroll() {
     composeTestRule.onNodeWithTag("horizontalScrollable").performMouseInput {

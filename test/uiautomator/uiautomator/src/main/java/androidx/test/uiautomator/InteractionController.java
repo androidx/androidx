@@ -52,9 +52,6 @@ class InteractionController {
     private static final long LONG_PRESS_DURATION_MS =
             (long) (ViewConfiguration.getLongPressTimeout() * 1.5f);
 
-    private final KeyCharacterMap mKeyCharacterMap =
-            KeyCharacterMap.load(KeyCharacterMap.VIRTUAL_KEYBOARD);
-
     private final UiDevice mDevice;
 
     private static final long REGULAR_CLICK_LENGTH = 100;
@@ -390,29 +387,6 @@ class InteractionController {
         }
         ret &= touchUp(segments[segments.length - 1].x, segments[segments.length -1].y);
         return ret;
-    }
-
-
-    public boolean sendText(String text) {
-        KeyEvent[] events = mKeyCharacterMap.getEvents(text.toCharArray());
-
-        if (events != null) {
-            long keyDelay = Configurator.getInstance().getKeyInjectionDelay();
-            for (KeyEvent event2 : events) {
-                // We have to change the time of an event before injecting it because
-                // all KeyEvents returned by KeyCharacterMap.getEvents() have the same
-                // time stamp and the system rejects too old events. Hence, it is
-                // possible for an event to become stale before it is injected if it
-                // takes too long to inject the preceding ones.
-                KeyEvent event = KeyEvent.changeTimeRepeat(event2,
-                        SystemClock.uptimeMillis(), 0);
-                if (!injectEventSync(event)) {
-                    return false;
-                }
-                SystemClock.sleep(keyDelay);
-            }
-        }
-        return true;
     }
 
     public boolean sendKey(int keyCode, int metaState) {

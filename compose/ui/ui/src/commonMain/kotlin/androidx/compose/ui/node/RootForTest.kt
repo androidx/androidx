@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.TextInputService
@@ -49,7 +48,7 @@ interface RootForTest {
      *
      * @param enable force enable accessibility if true.
      */
-    @ExperimentalComposeUiApi fun forceAccessibilityForTesting(enable: Boolean) {}
+    fun forceAccessibilityForTesting(enable: Boolean) {}
 
     /**
      * Set the time interval between sending accessibility events in milliseconds.
@@ -59,7 +58,7 @@ interface RootForTest {
      * batches. A recurring event will be sent at most once during the [intervalMillis] timeframe.
      * The default time delay is 100 milliseconds.
      */
-    @ExperimentalComposeUiApi fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {}
+    fun setAccessibilityEventBatchIntervalMillis(intervalMillis: Long) {}
 
     /**
      * Requests another layout (measure + placement) pass be performed for any nodes that need it.
@@ -71,5 +70,5 @@ interface RootForTest {
      * fast as possible (i.e. without waiting for the choreographer to schedule them) in order to
      * get to idle, e.g. during a `waitForIdle` call.
      */
-    @ExperimentalComposeUiApi fun measureAndLayoutForTest() {}
+    fun measureAndLayoutForTest() {}
 }

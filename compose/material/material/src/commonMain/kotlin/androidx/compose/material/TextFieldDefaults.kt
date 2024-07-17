@@ -493,9 +493,7 @@ object TextFieldDefaults {
      *
      * See example of using [TextFieldDecorationBox] to build your own custom text field
      *
-     * @sample androidx.compose.material.samples.CustomTextFieldBasedOnDecorationBox
-     * C
-     *
+     * @sample androidx.compose.material.samples.CustomTextFieldBasedOnDecorationBox C
      * @param value the input [String] shown by the text field
      * @param innerTextField input text field that this decoration box wraps. You will pass here a
      *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
@@ -596,7 +594,6 @@ object TextFieldDefaults {
      * Example of custom text field based on [OutlinedTextFieldDecorationBox]:
      *
      * @sample androidx.compose.material.samples.CustomOutlinedTextFieldBasedOnDecorationBox
-     *
      * @param value the input [String] shown by the text field
      * @param innerTextField input text field that this decoration box wraps. You will pass here a
      *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of

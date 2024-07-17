@@ -33,7 +33,7 @@ import kotlin.jvm.JvmInline
  * 3) Adds state restoration on top of the composable returned by [itemProvider] with help of
  *    [saveableStateHolder].
  */
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 internal class LazyLayoutItemContentFactory(
     private val saveableStateHolder: SaveableStateHolder,
     val itemProvider: () -> LazyLayoutItemProvider,

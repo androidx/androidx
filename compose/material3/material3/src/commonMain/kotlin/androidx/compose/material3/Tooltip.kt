@@ -113,7 +113,6 @@ import kotlinx.coroutines.withTimeout
  * Rich tooltip shown on long press with a custom caret
  *
  * @sample androidx.compose.material3.samples.RichTooltipWithCustomCaretSample
- *
  * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip relative
  *   to the anchor content.
  * @param tooltip the composable that will be used to populate the tooltip's content.

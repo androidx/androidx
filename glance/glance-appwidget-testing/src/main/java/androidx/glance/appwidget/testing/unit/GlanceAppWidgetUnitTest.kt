@@ -45,7 +45,6 @@ import kotlin.time.Duration
  * Note: Keeping a reference to the [GlanceAppWidgetUnitTest] outside of this function is an error.
  *
  * @sample androidx.glance.appwidget.testing.samples.isolatedGlanceComposableTestSamples
- *
  * @param timeout test time out; defaults to 10s
  * @param block The test block that involves calling methods in [GlanceAppWidgetUnitTest]
  */

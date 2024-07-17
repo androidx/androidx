@@ -19,13 +19,13 @@ package androidx.compose.ui.graphics.layer
 import android.graphics.PixelFormat
 import android.media.ImageReader
 import android.os.Build
-import android.os.Build.VERSION.SDK_INT
-import android.os.Build.VERSION_CODES.M
 import android.os.Looper
 import android.os.Message
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.collection.MutableObjectList
 import androidx.collection.ScatterSet
+import androidx.collection.mutableObjectListOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.graphics.CanvasHolder
 import androidx.core.os.HandlerCompat
@@ -37,8 +37,7 @@ import androidx.core.os.HandlerCompat
  */
 internal class LayerManager(val canvasHolder: CanvasHolder) {
 
-    private val activeLayerSet = mutableScatterSetOf<GraphicsLayer>()
-    private val nonActiveLayerCache = WeakCache<GraphicsLayer>()
+    private val layerSet = mutableScatterSetOf<GraphicsLayer>()
 
     /**
      * Create a placeholder ImageReader instance that we will use to issue a single draw call for
@@ -50,15 +49,15 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
 
     private val handler =
         HandlerCompat.createAsync(Looper.getMainLooper()) {
-            persistLayers(activeLayerSet)
+            persistLayers(layerSet)
             true
         }
 
-    fun takeFromCache(ownerId: Long): GraphicsLayer? =
-        nonActiveLayerCache.pop()?.also { it.reuse(ownerId) }
+    private var postponedReleaseRequests: MutableObjectList<GraphicsLayer>? = null
+    private var persistenceIterationInProgress = false
 
     fun persist(layer: GraphicsLayer) {
-        activeLayerSet.add(layer)
+        layerSet.add(layer)
         if (!handler.hasMessages(0)) {
             // we don't run persistLayers() synchronously in order to do less work as there
             // might be a lot of new layers created during one frame. however we also want
@@ -71,11 +70,17 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
     }
 
     fun release(layer: GraphicsLayer) {
-        if (activeLayerSet.remove(layer)) {
-            layer.discardDisplayList()
-            if (SDK_INT >= M) { // L throws during RenderThread when reusing the Views.
-                nonActiveLayerCache.push(layer)
+        if (!persistenceIterationInProgress) {
+            if (layerSet.remove(layer)) {
+                layer.discardDisplayList()
             }
+        } else {
+            // we can't remove an item from a list, which is currently being iterated.
+            // so we use a second list to remember such requests
+            val requests =
+                postponedReleaseRequests
+                    ?: mutableObjectListOf<GraphicsLayer>().also { postponedReleaseRequests = it }
+            requests.add(layer)
         }
     }
 
@@ -97,7 +102,9 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
         if (shouldPersistLayers) {
             val reader =
                 imageReader
-                    ?: ImageReader.newInstance(1, 1, PixelFormat.RGBA_8888, 1)
+                    // 3 buffers is the default max buffers amount for a swapchain. The buffers are
+                    // lazily allocated only if one is not available when it is requested.
+                    ?: ImageReader.newInstance(1, 1, PixelFormat.RGBA_8888, 3)
                         .apply {
                             // We don't care about the result, but release the buffer back to the
                             // queue
@@ -112,11 +119,18 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
             val surface = reader.surface
             val canvas = LockHardwareCanvasHelper.lockHardwareCanvas(surface)
 
+            persistenceIterationInProgress = true
             canvasHolder.drawInto(canvas) {
                 canvas.save()
                 canvas.clipRect(0, 0, 1, 1)
                 layers.forEach { layer -> layer.drawForPersistence(this) }
                 canvas.restore()
+            }
+            persistenceIterationInProgress = false
+            val requests = postponedReleaseRequests
+            if (requests != null && requests.isNotEmpty()) {
+                requests.forEach { release(it) }
+                requests.clear()
             }
             surface.unlockCanvasAndPost(canvas)
         }
@@ -137,7 +151,7 @@ internal class LayerManager(val canvasHolder: CanvasHolder) {
      */
     fun updateLayerPersistence() {
         destroy()
-        persistLayers(activeLayerSet)
+        persistLayers(layerSet)
     }
 
     companion object {

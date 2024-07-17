@@ -23,7 +23,6 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireOwner
-import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.node.visitSelfAndChildren
 
 /**
@@ -56,17 +55,4 @@ internal fun FocusEventModifierNode.getFocusState(): FocusState {
         }
     }
     return Inactive
-}
-
-/**
- * Sends a "Focus Event" up the hierarchy that asks all [FocusEventModifierNode]s to recompute their
- * observed focus state.
- *
- * Make this public after [FocusTargetNode] is made public.
- */
-internal fun FocusTargetNode.refreshFocusEventNodes() {
-    visitSelfAndAncestors(Nodes.FocusEvent, untilType = Nodes.FocusTarget) {
-        // TODO(251833873): Consider caching it.getFocusState().
-        it.onFocusEvent(it.getFocusState())
-    }
 }

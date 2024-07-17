@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.dp
  * Alternatively, use [androidx.compose.foundation.layout.FlowRow] to wrap chips to a new line.
  *
  * @sample androidx.compose.material.samples.ChipGroupReflowSample
- *
  * @param onClick called when the chip is clicked.
  * @param modifier Modifier to be applied to the chip
  * @param enabled When disabled, chip will not respond to user input. It will also appear visually
@@ -81,6 +80,7 @@ import androidx.compose.ui.unit.dp
  *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
+ * @param shape defines the chip's shape as well as its shadow
  * @param border Border to draw around the chip. Pass `null` here for no border.
  * @param colors [ChipColors] that will be used to resolve the background and content color for this
  *   chip in different states. See [ChipDefaults.chipColors].
@@ -159,7 +159,6 @@ fun Chip(
  * [ChipDefaults.outlinedFilterChipColors] and [ChipDefaults.outlinedBorder]
  *
  * @sample androidx.compose.material.samples.OutlinedFilterChipSample
- *
  * @param selected boolean state for this chip: either it is selected or not
  * @param onClick will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
@@ -407,6 +406,7 @@ object ChipDefaults {
      * @param backgroundColor the background color of this chip when enabled
      * @param contentColor the content color of this chip when enabled, there is a separate param
      *   for icon colors
+     * @param leadingIconContentColor the leading icon content color of this chip when enabled
      * @param disabledBackgroundColor the background color of this chip when not enabled
      * @param disabledContentColor the content color of this chip when not enabled
      * @param disabledLeadingIconContentColor the color of this chip's start icon when not enabled

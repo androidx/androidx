@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
@@ -44,7 +43,6 @@ import kotlinx.coroutines.CoroutineScope
  * Measures and calculates the positions for the currently visible items. The result is produced as
  * a [LazyGridMeasureResult] which contains all the calculations.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyGrid(
     itemsCount: Int,
     measuredLineProvider: LazyGridMeasuredLineProvider,
@@ -161,8 +159,9 @@ internal fun measureLazyGrid(
         // if we were scrolled backward, but there were not enough items before. this means
         // not the whole scroll was consumed
         if (currentFirstLineScrollOffset < minOffset) {
-            scrollDelta += currentFirstLineScrollOffset
+            val notConsumedScrollDelta = minOffset - currentFirstLineScrollOffset
             currentFirstLineScrollOffset = minOffset
+            scrollDelta -= notConsumedScrollDelta
         }
 
         // neutralize previously added padding as we stopped filling the before content padding
@@ -391,7 +390,6 @@ internal fun measureLazyGrid(
     }
 }
 
-@ExperimentalFoundationApi
 private inline fun calculateExtraItems(
     pinnedItems: List<Int>,
     measuredItemProvider: LazyGridMeasuredItemProvider,

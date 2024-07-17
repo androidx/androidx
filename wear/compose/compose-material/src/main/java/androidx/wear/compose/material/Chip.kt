@@ -1388,7 +1388,7 @@ private fun ChipImpl(
                     enabled = enabled,
                     onClick = onClick,
                     role = role,
-                    indication = rippleOrFallbackImplementation(),
+                    indication = ripple(),
                     interactionSource = interactionSource,
                 )
                 .padding(contentPadding),

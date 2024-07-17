@@ -29,7 +29,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewParent
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -63,7 +62,6 @@ import androidx.compose.ui.viewinterop.AndroidViewHolder
  * @see [View.onTouchEvent]
  * @see [ViewParent.requestDisallowInterceptTouchEvent]
  */
-@ExperimentalComposeUiApi
 fun Modifier.pointerInteropFilter(
     requestDisallowInterceptTouchEvent: (RequestDisallowInterceptTouchEvent)? = null,
     onTouchEvent: (MotionEvent) -> Boolean
@@ -87,7 +85,6 @@ fun Modifier.pointerInteropFilter(
  * Function that can be passed to [pointerInteropFilter] and then later invoked which provides an
  * analog to [ViewParent.requestDisallowInterceptTouchEvent].
  */
-@ExperimentalComposeUiApi
 class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
     internal var pointerInteropFilter: PointerInteropFilter? = null
 
@@ -100,7 +97,6 @@ class RequestDisallowInterceptTouchEvent : (Boolean) -> Unit {
  * Similar to the 2 argument overload of [pointerInteropFilter], but connects directly to an
  * [AndroidViewHolder] for more seamless interop with Android.
  */
-@ExperimentalComposeUiApi
 internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
     val filter = PointerInteropFilter()
     filter.onTouchEvent = { motionEvent ->
@@ -167,7 +163,6 @@ internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
  * intercept when new pointers go down. [requestDisallowInterceptTouchEvent] must be called again to
  * change that state.
  */
-@ExperimentalComposeUiApi
 internal class PointerInteropFilter : PointerInputModifier {
 
     lateinit var onTouchEvent: (MotionEvent) -> Boolean
@@ -331,7 +326,6 @@ internal class PointerInteropFilter : PointerInputModifier {
  *
  * If you need to handle and consume [MotionEvent]s, use [pointerInteropFilter].
  */
-@ExperimentalComposeUiApi
 fun Modifier.motionEventSpy(watcher: (motionEvent: MotionEvent) -> Unit): Modifier =
     this.pointerInput(watcher) {
         interceptOutOfBoundsChildEvents = true

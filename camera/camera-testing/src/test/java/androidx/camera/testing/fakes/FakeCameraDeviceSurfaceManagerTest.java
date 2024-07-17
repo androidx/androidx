@@ -17,9 +17,12 @@
 package androidx.camera.testing.fakes;
 
 import static android.graphics.ImageFormat.YUV_420_888;
+
 import static androidx.camera.core.impl.SurfaceConfig.ConfigSize.PREVIEW;
 import static androidx.camera.core.impl.SurfaceConfig.ConfigType.YUV;
+
 import static com.google.common.truth.Truth.assertThat;
+
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
@@ -94,6 +97,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
                 FAKE_CAMERA_ID0,
                 emptyList(),
                 createConfigOutputSizesMap(preview, analysis),
+                false,
                 false);
     }
 
@@ -113,6 +117,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
                 CameraMode.DEFAULT,
                 FAKE_CAMERA_ID0,
                 singletonList(analysis), createConfigOutputSizesMap(preview, video),
+                false,
                 false);
     }
 
@@ -125,6 +130,7 @@ public class FakeCameraDeviceSurfaceManagerTest {
                 CameraMode.DEFAULT,
                 FAKE_CAMERA_ID0,
                 Collections.emptyList(), createConfigOutputSizesMap(preview, video, analysis),
+                false,
                 false);
     }
 
@@ -135,12 +141,14 @@ public class FakeCameraDeviceSurfaceManagerTest {
                         CameraMode.DEFAULT,
                         FAKE_CAMERA_ID0,
                         emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig),
+                        false,
                         false).first;
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecCamera1 =
                 mFakeCameraDeviceSurfaceManager.getSuggestedStreamSpecs(
                         CameraMode.DEFAULT,
                         FAKE_CAMERA_ID1,
                         emptyList(), createConfigOutputSizesMap(mFakeUseCaseConfig),
+                        false,
                         false).first;
 
         assertThat(suggestedStreamSpecsCamera0.get(mFakeUseCaseConfig)).isEqualTo(

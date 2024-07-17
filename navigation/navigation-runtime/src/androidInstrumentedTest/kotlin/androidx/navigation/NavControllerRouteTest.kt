@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
@@ -256,7 +257,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass::class) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -269,7 +270,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass::class) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -286,7 +287,7 @@ class NavControllerRouteTest {
             }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -299,7 +300,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass()) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
     }
 
     @UiThreadTest
@@ -312,7 +313,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass(0)) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
         val arg = navController.currentBackStackEntry?.arguments?.getInt("arg")
         assertThat(arg).isNotNull()
         assertThat(arg).isEqualTo(0)
@@ -328,7 +329,7 @@ class NavControllerRouteTest {
             navController.createGraph(startDestination = TestClass(false)) { test<TestClass>() }
         assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
         val arg = navController.currentBackStackEntry?.arguments?.getBoolean("arg")
         assertThat(arg).isNotNull()
         assertThat(arg).isEqualTo(false)
@@ -416,7 +417,7 @@ class NavControllerRouteTest {
             }
         assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
         assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().hashCode())
+            .isEqualTo(serializer<TestClass>().generateHashCode())
 
         val nestedArg = navController.currentBackStackEntry?.arguments?.getInt("nestedArg")
         assertThat(nestedArg).isNotNull()
@@ -620,6 +621,130 @@ class NavControllerRouteTest {
         navController.navigate("second_test/arg2")
         assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg2}")
         assertThat(navigator.backStack.size).isEqualTo(2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateSingleTopSharedStartDestination() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "graph_one") {
+                navigation(route = "graph_one", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+                navigation(route = "graph_two", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+            }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+
+        navController.navigate("graph_one") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateSingleTopSharedStartDestinationDifferentGraph() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "graph_one") {
+                navigation(route = "graph_one", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+                navigation(route = "graph_two", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+            }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+
+        navController.navigate("graph_two") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest"
+            )
+            .inOrder()
+
+        // should be single top
+        navController.navigate("graph_two") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest"
+            )
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateSingleTopSharedStartDestinationAlternatingGraph() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "graph_one") {
+                navigation(route = "graph_one", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+                navigation(route = "graph_two", startDestination = "shared_startDest") {
+                    test("shared_startDest")
+                }
+            }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "graph_one", "shared_startDest")
+            .inOrder()
+
+        // go to different graph
+        navController.navigate("graph_two") { launchSingleTop = true }
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest"
+            )
+            .inOrder()
+
+        // go back to original graph
+        navController.navigate("graph_one") { launchSingleTop = true }
+        // should not be single top
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest",
+                "graph_one",
+                "shared_startDest",
+            )
+            .inOrder()
+
+        // single top to original graph again
+        navController.navigate("graph_one") { launchSingleTop = true }
+        // should be single top
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly(
+                "root",
+                "graph_one",
+                "shared_startDest",
+                "graph_two",
+                "shared_startDest",
+                "graph_one",
+                "shared_startDest",
+            )
+            .inOrder()
     }
 
     @UiThreadTest
@@ -3954,6 +4079,20 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
         val route = navController.currentBackStackEntry?.toRoute<TestClass>()
         assertThat(route!!.arg).isNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEmptyString() {
+        @Serializable @SerialName("test") class TestClass(val arg: String)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass("")) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).isEqualTo("")
     }
 
     @UiThreadTest

@@ -21,7 +21,7 @@ import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.DimensionBuilders.weight;
-import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder.ROBOTO_FLEX_FONT;
+import static androidx.wear.protolayout.LayoutElementBuilders.FontStyle.ROBOTO_FLEX_FONT;
 import static androidx.wear.protolayout.LayoutElementBuilders.TABULAR_OPTION_TAG;
 import static androidx.wear.protolayout.LayoutElementBuilders.WEIGHT_AXIS_TAG;
 import static androidx.wear.protolayout.LayoutElementBuilders.WIDTH_AXIS_TAG;
@@ -520,16 +520,18 @@ public class LayoutElementBuildersTest {
                 new LayoutElementBuilders.FontVariationSetting.Builder(repeatedAxis, expectedValue)
                         .build();
         LayoutElementBuilders.FontSetting setting1Repeated =
-                new LayoutElementBuilders.FontVariationSetting
-                        .Builder(repeatedAxis, expectedValue + 5)
+                new LayoutElementBuilders.FontVariationSetting.Builder(
+                                repeatedAxis, expectedValue + 5)
                         .build();
         LayoutElementBuilders.FontVariationSetting setting2 =
                 new LayoutElementBuilders.FontVariationSetting.Builder(
-                        /* axisTag= */ "tst2", /* value= */ 200).build();
+                                /* axisTag= */ "tst2", /* value= */ 200)
+                        .build();
 
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
-                        .setSettings(setting1, setting2, setting1Repeated).build();
+                        .setSettings(setting1, setting2, setting1Repeated)
+                        .build();
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
         List<LayoutElementProto.FontSetting> settingsList = fontStyleProto.getSettingsList();
@@ -547,15 +549,18 @@ public class LayoutElementBuildersTest {
                 new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 300).build();
         LayoutElementBuilders.FontSetting setting2 =
                 new LayoutElementBuilders.FontVariationSetting.Builder(
-                        /* axisTag= */ "axs2", /* value= */ 200).build();
+                                /* axisTag= */ "axs2", /* value= */ 200)
+                        .build();
         LayoutElementBuilders.FontSetting setting3 =
                 new LayoutElementBuilders.FontVariationSetting.Builder(
-                        /* axisTag= */ expectedAxis, expectedValue).build();
+                                /* axisTag= */ expectedAxis, expectedValue)
+                        .build();
 
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
                         .setSettings(setting1, setting2)
-                        .setSettings(setting3).build();
+                        .setSettings(setting3)
+                        .build();
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
         List<LayoutElementProto.FontSetting> settingsList = fontStyleProto.getSettingsList();
@@ -586,13 +591,11 @@ public class LayoutElementBuildersTest {
 
         String actualAxis1Tag =
                 new String(
-                        ByteBuffer.allocate(4)
-                                .putInt(settingsList.get(0).getAxisTag()).array(),
+                        ByteBuffer.allocate(4).putInt(settingsList.get(0).getAxisTag()).array(),
                         StandardCharsets.US_ASCII);
         String actualAxis2Tag =
                 new String(
-                        ByteBuffer.allocate(4)
-                                .putInt(settingsList.get(1).getAxisTag()).array(),
+                        ByteBuffer.allocate(4).putInt(settingsList.get(1).getAxisTag()).array(),
                         StandardCharsets.US_ASCII);
 
         assertThat(actualAxis1Tag).isEqualTo(WEIGHT_AXIS_TAG);
@@ -606,8 +609,7 @@ public class LayoutElementBuildersTest {
     public void testFontSettings_setTnum() {
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
-                        .setSettings(
-                                LayoutElementBuilders.FontSetting.tabularNum())
+                        .setSettings(LayoutElementBuilders.FontSetting.tabularNum())
                         .build();
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
 
@@ -620,8 +622,7 @@ public class LayoutElementBuildersTest {
 
         String actualAxis1Tag =
                 new String(
-                        ByteBuffer.allocate(4)
-                                .putInt(settingsList.get(0).getTag()).array(),
+                        ByteBuffer.allocate(4).putInt(settingsList.get(0).getTag()).array(),
                         StandardCharsets.US_ASCII);
 
         assertThat(actualAxis1Tag).isEqualTo(TABULAR_OPTION_TAG);
@@ -643,11 +644,9 @@ public class LayoutElementBuildersTest {
     @Test
     public void testSetting_equal() {
         LayoutElementBuilders.FontSetting setting1 =
-                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
-                        .build();
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100).build();
         LayoutElementBuilders.FontSetting setting2 =
-                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
-                        .build();
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100).build();
 
         assertThat(setting1).isEqualTo(setting2);
         assertThat(setting1.hashCode()).isEqualTo(setting2.hashCode());
@@ -656,11 +655,9 @@ public class LayoutElementBuildersTest {
     @Test
     public void testSetting_notEqualTag() {
         LayoutElementBuilders.FontSetting setting1 =
-                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
-                        .build();
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100).build();
         LayoutElementBuilders.FontSetting setting2 =
-                new LayoutElementBuilders.FontVariationSetting.Builder("axs2", 100)
-                        .build();
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs2", 100).build();
 
         assertThat(setting1).isNotEqualTo(setting2);
         assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
@@ -669,11 +666,9 @@ public class LayoutElementBuildersTest {
     @Test
     public void testSetting_notEqualValue() {
         LayoutElementBuilders.FontSetting setting1 =
-                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100)
-                        .build();
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs1", 100).build();
         LayoutElementBuilders.FontSetting setting2 =
-                new LayoutElementBuilders.FontVariationSetting.Builder("axs21", 200)
-                        .build();
+                new LayoutElementBuilders.FontVariationSetting.Builder("axs21", 200).build();
 
         assertThat(setting1).isNotEqualTo(setting2);
         assertThat(setting1.hashCode()).isNotEqualTo(setting2.hashCode());
@@ -682,13 +677,11 @@ public class LayoutElementBuildersTest {
     @Test
     public void testFontSettings_tooManySettings_throws() {
         LayoutElementBuilders.FontSetting[] sizes =
-                new LayoutElementBuilders.FontSetting[
-                        LayoutElementBuilders.FontStyle.Builder.SETTINGS_LIMIT + 1];
+                new LayoutElementBuilders.FontSetting
+                        [LayoutElementBuilders.FontStyle.Builder.SETTINGS_LIMIT + 1];
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new LayoutElementBuilders.FontStyle.Builder()
-                        .setSettings(sizes)
-                        .build());
+                () -> new LayoutElementBuilders.FontStyle.Builder().setSettings(sizes).build());
     }
 
     @Test

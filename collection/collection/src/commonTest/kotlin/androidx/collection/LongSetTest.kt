@@ -552,4 +552,15 @@ internal class LongSetTest {
         assertTrue(4L in set)
         assertFalse(5L in set)
     }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val set = mutableLongSetOf()
+
+        for (i in 0..1000000) {
+            set.add(i.toLong())
+            set.remove(i.toLong())
+            assertTrue(set.capacity < 16, "Set grew larger than 16 after step $i")
+        }
+    }
 }

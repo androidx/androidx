@@ -30,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
@@ -38,7 +37,6 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LookaheadWithSubcompose() {
     Column {
@@ -109,7 +107,6 @@ fun LookaheadWithSubcompose() {
 }
 
 context(LookaheadScope)
-@OptIn(ExperimentalComposeUiApi::class)
 private fun Modifier.conditionallyAnimateBounds(
     shouldAnimate: Boolean,
     modifier: Modifier = Modifier

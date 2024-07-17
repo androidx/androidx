@@ -18,14 +18,43 @@ package androidx.privacysandbox.ui.integration.testapp
 
 import android.content.Context
 import android.os.Bundle
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
+import androidx.privacysandbox.ui.integration.sdkproviderutils.ViewabilityHandler
 import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
-class AppOwnedMediateeSdkApi(val sdkContext: Context) : IAppOwnedMediateeSdkApi.Stub() {
-    private val mTestAdapters = TestAdapters(sdkContext)
+class AppOwnedMediateeSdkApi(private val sdkContext: Context) : IAppOwnedMediateeSdkApi.Stub() {
+    private val testAdapters = TestAdapters(sdkContext)
 
-    override fun loadTestAdWithWaitInsideOnDraw(text: String): Bundle {
-        return mTestAdapters.TestBannerAdWithWaitInsideOnDraw(text).toCoreLibInfo(sdkContext)
+    override fun loadBannerAd(
+        @AdType adType: Int,
+        waitInsideOnDraw: Boolean,
+        drawViewability: Boolean
+    ): Bundle {
+        val adapter: SandboxedUiAdapter =
+            when (adType) {
+                AdType.WEBVIEW -> loadWebViewBannerAd()
+                AdType.WEBVIEW_FROM_LOCAL_ASSETS -> loadWebViewBannerAdFromLocalAssets()
+                else -> loadNonWebViewBannerAd("AppOwnedMediation", waitInsideOnDraw)
+            }
+        ViewabilityHandler.addObserverFactoryToAdapter(adapter, drawViewability)
+        return adapter.toCoreLibInfo(sdkContext)
+    }
+
+    private fun loadWebViewBannerAd(): SandboxedUiAdapter {
+        return testAdapters.WebViewBannerAd()
+    }
+
+    private fun loadWebViewBannerAdFromLocalAssets(): SandboxedUiAdapter {
+        return testAdapters.WebViewAdFromLocalAssets()
+    }
+
+    private fun loadNonWebViewBannerAd(
+        text: String,
+        waitInsideOnDraw: Boolean
+    ): SandboxedUiAdapter {
+        return testAdapters.TestBannerAd(text, waitInsideOnDraw)
     }
 }

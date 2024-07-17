@@ -223,6 +223,7 @@ includeProject(":lint-checks")
 includeProject(":lint-checks:integration-tests")
 
 includeProject(":core:core-bundle")
+includeProject(":graphics:graphics-shapes")
 includeProject(":lifecycle:lifecycle-common")
 includeProject(":lifecycle:lifecycle-runtime")
 includeProject(":lifecycle:lifecycle-runtime-compose")

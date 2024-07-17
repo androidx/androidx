@@ -12,12 +12,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-}
-
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.interpolator:interpolator:1.0.0")
@@ -36,7 +30,6 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker

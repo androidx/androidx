@@ -26,7 +26,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
@@ -86,7 +85,6 @@ class MoveWithHistoryTest {
         Truth.assertThat(scrollState.value).isLessThan(101)
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     fun flingScrollableImpl(scrollState: ScrollState, useHistoricalEvents: Boolean) {
         val touchSlop = 18f
         rule.setContent {

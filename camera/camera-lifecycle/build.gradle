@@ -38,10 +38,10 @@ dependencies {
     implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.tracing:tracing-ktx:1.2.0")
 
     annotationProcessor(libs.autoValue)
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -60,9 +60,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     lintOptions {
         enable 'CameraXQuirksClassDetector'
     }

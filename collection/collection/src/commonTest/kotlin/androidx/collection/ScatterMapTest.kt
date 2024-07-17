@@ -1396,4 +1396,53 @@ internal class ScatterMapTest {
         assertEquals(1024, map.trim())
         assertEquals(0, map.trim())
     }
+
+    @Test
+    fun insertOneRemoveOne() {
+        val map = MutableScatterMap<Int, String>()
+
+        for (i in 0..1000000) {
+            map[i] = i.toString()
+            map.remove(i)
+            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+        }
+    }
+
+    @Test
+    fun insertManyRemoveMany() {
+        val map = MutableScatterMap<Int, String>()
+
+        for (i in 0..100) {
+            map[i] = i.toString()
+        }
+
+        for (i in 0..100) {
+            if (i % 2 == 0) {
+                map.remove(i)
+            }
+        }
+
+        for (i in 0..100) {
+            if (i % 2 == 0) {
+                map[i] = i.toString()
+            }
+        }
+
+        for (i in 0..100) {
+            if (i % 2 != 0) {
+                map.remove(i)
+            }
+        }
+
+        for (i in 0..100) {
+            if (i % 2 != 0) {
+                map[i] = i.toString()
+            }
+        }
+
+        assertEquals(127, map.capacity)
+        for (i in 0..100) {
+            assertTrue(map.contains(i), "Map should contain element $i")
+        }
+    }
 }

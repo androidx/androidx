@@ -19,6 +19,32 @@ package androidx.camera.core.processing;
 import static android.opengl.GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 
 import static androidx.camera.core.ImageProcessingUtil.copyByteBufferToBitmap;
+import static androidx.camera.core.processing.util.GLUtils.EMPTY_ATTRIBS;
+import static androidx.camera.core.processing.util.GLUtils.NO_OUTPUT_SURFACE;
+import static androidx.camera.core.processing.util.GLUtils.PIXEL_STRIDE;
+import static androidx.camera.core.processing.util.GLUtils.TEX_BUF;
+import static androidx.camera.core.processing.util.GLUtils.VAR_TEXTURE;
+import static androidx.camera.core.processing.util.GLUtils.VAR_TEXTURE_YUV;
+import static androidx.camera.core.processing.util.GLUtils.VERTEX_BUF;
+import static androidx.camera.core.processing.util.GLUtils.checkEglErrorOrLog;
+import static androidx.camera.core.processing.util.GLUtils.checkEglErrorOrThrow;
+import static androidx.camera.core.processing.util.GLUtils.checkGlErrorOrThrow;
+import static androidx.camera.core.processing.util.GLUtils.checkGlThreadOrThrow;
+import static androidx.camera.core.processing.util.GLUtils.checkInitializedOrThrow;
+import static androidx.camera.core.processing.util.GLUtils.checkLocationOrThrow;
+import static androidx.camera.core.processing.util.GLUtils.chooseSurfaceAttrib;
+import static androidx.camera.core.processing.util.GLUtils.create4x4IdentityMatrix;
+import static androidx.camera.core.processing.util.GLUtils.createPBufferSurface;
+import static androidx.camera.core.processing.util.GLUtils.createProgram;
+import static androidx.camera.core.processing.util.GLUtils.createTexture;
+import static androidx.camera.core.processing.util.GLUtils.createWindowSurface;
+import static androidx.camera.core.processing.util.GLUtils.deleteFbo;
+import static androidx.camera.core.processing.util.GLUtils.deleteTexture;
+import static androidx.camera.core.processing.util.GLUtils.generateFbo;
+import static androidx.camera.core.processing.util.GLUtils.generateTexture;
+import static androidx.camera.core.processing.util.GLUtils.getGlVersionNumber;
+import static androidx.camera.core.processing.util.GLUtils.getSurfaceSize;
+import static androidx.camera.core.processing.util.GLUtils.getTexNumUnits;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
@@ -30,35 +56,28 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.opengl.GLES30;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
+import androidx.camera.core.processing.util.GLUtils.InputFormat;
+import androidx.camera.core.processing.util.GraphicDeviceInfo;
+import androidx.camera.core.processing.util.OutputSurface;
 import androidx.core.util.Pair;
 import androidx.core.util.Preconditions;
 
-import com.google.auto.value.AutoValue;
-
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.microedition.khronos.egl.EGL10;
 
@@ -70,166 +89,41 @@ import javax.microedition.khronos.egl.EGL10;
  * {@link IllegalStateException} will be thrown when other methods are called.
  */
 @WorkerThread
-public final class OpenGlRenderer {
-    /** Unknown version information. */
-    public static final String VERSION_UNKNOWN = "0.0";
+public class OpenGlRenderer {
 
     private static final String TAG = "OpenGlRenderer";
 
-    private static final int EGL_GL_COLORSPACE_KHR = 0x309D;
-    private static final int EGL_GL_COLORSPACE_BT2020_HLG_EXT = 0x3540;
-
-    private static final String VAR_TEXTURE_COORD = "vTextureCoord";
-    private static final String VAR_TEXTURE = "sTexture";
-    private static final String VAR_TEXTURE_YUV = "sTextureYuv";
-    // SAMPLER_SELECTOR_UNKNOWN must be 0 to correctly initialize HDR shader uniform selector
-    private static final int SAMPLER_SELECTOR_UNKNOWN = 0;
-    private static final int SAMPLER_SELECTOR_DEFAULT = 1;
-    private static final int SAMPLER_SELECTOR_YUV = 2;
-    private static final int PIXEL_STRIDE = 4;
-    private static final int[] EMPTY_ATTRIBS = {EGL14.EGL_NONE};
-    private static final int[] HLG_SURFACE_ATTRIBS = {
-            EGL_GL_COLORSPACE_KHR, EGL_GL_COLORSPACE_BT2020_HLG_EXT,
-            EGL14.EGL_NONE
-    };
-
-    private static final String DEFAULT_VERTEX_SHADER = String.format(Locale.US,
-            "uniform mat4 uTexMatrix;\n"
-                    + "attribute vec4 aPosition;\n"
-                    + "attribute vec4 aTextureCoord;\n"
-                    + "varying vec2 %s;\n"
-                    + "void main() {\n"
-                    + "    gl_Position = aPosition;\n"
-                    + "    %s = (uTexMatrix * aTextureCoord).xy;\n"
-                    + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
-
-    private static final String HDR_VERTEX_SHADER = String.format(Locale.US,
-            "#version 300 es\n"
-                    + "in vec4 aPosition;\n"
-                    + "in vec4 aTextureCoord;\n"
-                    + "uniform mat4 uTexMatrix;\n"
-                    + "out vec2 %s;\n"
-                    + "void main() {\n"
-                    + "  gl_Position = aPosition;\n"
-                    + "  %s = (uTexMatrix * aTextureCoord).xy;\n"
-                    + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
-
-    private static final String DEFAULT_FRAGMENT_SHADER = String.format(Locale.US,
-            "#extension GL_OES_EGL_image_external : require\n"
-                    + "precision mediump float;\n"
-                    + "varying vec2 %s;\n"
-                    + "uniform samplerExternalOES %s;\n"
-                    + "void main() {\n"
-                    + "    gl_FragColor = texture2D(%s, %s);\n"
-                    + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE, VAR_TEXTURE, VAR_TEXTURE_COORD);
-
-    private static final String HDR_FRAGMENT_SHADER = String.format(Locale.US,
-            "#version 300 es\n"
-                    + "#extension GL_OES_EGL_image_external_essl3 : require\n"
-                    + "#extension GL_EXT_YUV_target : require\n"
-                    + "precision mediump float;\n"
-                    + "uniform samplerExternalOES %s;\n"
-                    + "uniform __samplerExternal2DY2YEXT %s;\n"
-                    + "uniform int uSamplerSelector;\n"
-                    + "in vec2 %s;\n"
-                    + "out vec4 outColor;\n"
-                    + "\n"
-                    + "vec3 yuvToRgb(vec3 yuv) {\n"
-                    + "  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);\n"
-                    + "  const mat3 yuvToRgbColorTransform = mat3(\n"
-                    + "    1.1689f, 1.1689f, 1.1689f,\n"
-                    + "    0.0000f, -0.1881f, 2.1502f,\n"
-                    + "    1.6853f, -0.6530f, 0.0000f\n"
-                    + "  );\n"
-                    + "  return clamp(yuvToRgbColorTransform * (yuv - yuvOffset), 0.0, 1.0);\n"
-                    + "}\n"
-                    + "\n"
-                    + "void main() {\n"
-                    + "  if (uSamplerSelector == %d) {\n"
-                    + "    outColor = texture(%s, %s);\n"
-                    + "  } else if (uSamplerSelector == %d) {\n"
-                    + "    vec3 srcYuv = texture(%s, %s).xyz;\n"
-                    + "    outColor = vec4(yuvToRgb(srcYuv), 1.0);\n"
-                    + "  } else {\n"
-                    + "    outColor = vec4(0.0);\n"
-                    + "  }\n"
-                    + "}",
-            VAR_TEXTURE,
-            VAR_TEXTURE_YUV,
-            VAR_TEXTURE_COORD,
-            SAMPLER_SELECTOR_DEFAULT,
-            VAR_TEXTURE,
-            VAR_TEXTURE_COORD,
-            SAMPLER_SELECTOR_YUV,
-            VAR_TEXTURE_YUV,
-            VAR_TEXTURE_COORD
-
-    );
-
-    private static final float[] VERTEX_COORDS = {
-            -1.0f, -1.0f,   // 0 bottom left
-            1.0f, -1.0f,    // 1 bottom right
-            -1.0f, 1.0f,   // 2 top left
-            1.0f, 1.0f,    // 3 top right
-    };
-    private static final FloatBuffer VERTEX_BUF = createFloatBuffer(VERTEX_COORDS);
-
-    private static final float[] TEX_COORDS = {
-            0.0f, 0.0f,     // 0 bottom left
-            1.0f, 0.0f,     // 1 bottom right
-            0.0f, 1.0f,     // 2 top left
-            1.0f, 1.0f      // 3 top right
-    };
-    private static final FloatBuffer TEX_BUF = createFloatBuffer(TEX_COORDS);
-
-    private static final int SIZEOF_FLOAT = 4;
-    private static final OutputSurface NO_OUTPUT_SURFACE =
-            OutputSurface.of(EGL14.EGL_NO_SURFACE, 0, 0);
-
-    private final AtomicBoolean mInitialized = new AtomicBoolean(false);
-    @VisibleForTesting
-    final Map<Surface, OutputSurface> mOutputSurfaceMap = new HashMap<>();
+    protected final AtomicBoolean mInitialized = new AtomicBoolean(false);
+    protected final Map<Surface, OutputSurface> mOutputSurfaceMap = new HashMap<>();
     @Nullable
-    private Thread mGlThread;
+    protected Thread mGlThread;
     @NonNull
-    private EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
+    protected EGLDisplay mEglDisplay = EGL14.EGL_NO_DISPLAY;
     @NonNull
-    private EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
+    protected EGLContext mEglContext = EGL14.EGL_NO_CONTEXT;
     @NonNull
-    private int[] mSurfaceAttrib = EMPTY_ATTRIBS;
+    protected int[] mSurfaceAttrib = EMPTY_ATTRIBS;
     @Nullable
-    private EGLConfig mEglConfig;
+    protected EGLConfig mEglConfig;
     @NonNull
-    private EGLSurface mTempSurface = EGL14.EGL_NO_SURFACE;
+    protected EGLSurface mTempSurface = EGL14.EGL_NO_SURFACE;
     @Nullable
-    private Surface mCurrentSurface;
+    protected Surface mCurrentSurface;
+    protected int mProgramHandle = -1;
+    protected int mTexMatrixLoc = -1;
+    protected int mTransMatrixLoc = -1;
+    protected int mAlphaScaleLoc = -1;
+    protected int mPositionLoc = -1;
+    protected int mTexCoordLoc = -1;
+    protected int mSamplerDefaultLoc = -1;
+    protected int mSamplerYuvLoc = -1;
+    protected int mSamplerSelectorLoc = -1;
+    protected int mExternalTexNumUnits = -1;
+    protected boolean mIsDefaultHdrShader = false;
+    @NonNull
+    protected InputFormat mCurrentInputformat = InputFormat.UNKNOWN;
+
     private int mExternalTextureId = -1;
-    private int mProgramHandle = -1;
-    private int mTexMatrixLoc = -1;
-    private int mPositionLoc = -1;
-    private int mTexCoordLoc = -1;
-    private int mSamplerDefaultLoc = -1;
-    private int mSamplerYuvLoc = -1;
-    private int mSamplerSelectorLoc = -1;
-    private int mExternalTexNumUnits = -1;
-    private boolean mIsDefaultHdrShader = false;
-    private InputFormat mCurrentInputformat = InputFormat.UNKNOWN;
-
-    public enum InputFormat {
-        UNKNOWN(SAMPLER_SELECTOR_UNKNOWN),
-        DEFAULT(SAMPLER_SELECTOR_DEFAULT),
-        YUV(SAMPLER_SELECTOR_YUV);
-
-        private final int mSamplerSelector;
-
-        InputFormat(int samplerSelector) {
-            mSamplerSelector = samplerSelector;
-        }
-
-        private int getSamplerSelector() {
-            return mSamplerSelector;
-        }
-    }
 
     /**
      * Initializes the OpenGLRenderer
@@ -248,7 +142,7 @@ public final class OpenGlRenderer {
     @NonNull
     public GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
             @NonNull ShaderProvider shaderProvider) {
-        checkInitializedOrThrow(false);
+        checkInitializedOrThrow(mInitialized, false);
         GraphicDeviceInfo.Builder infoBuilder = GraphicDeviceInfo.builder();
         try {
             if (dynamicRange.is10BitHdr()) {
@@ -267,10 +161,12 @@ public final class OpenGlRenderer {
             createTempSurface();
             makeCurrent(mTempSurface);
             infoBuilder.setGlVersion(getGlVersionNumber());
-            createProgram(dynamicRange, shaderProvider);
+            mProgramHandle = createProgram(dynamicRange, shaderProvider);
+            mIsDefaultHdrShader = dynamicRange.is10BitHdr();
             loadLocations();
-            createTexture();
-            useAndConfigureProgram();
+            mExternalTextureId = createTexture();
+            mExternalTexNumUnits = getTexNumUnits();
+            useAndConfigureProgram(mExternalTextureId);
         } catch (IllegalStateException | IllegalArgumentException e) {
             releaseInternal();
             throw e;
@@ -289,7 +185,7 @@ public final class OpenGlRenderer {
         if (!mInitialized.getAndSet(false)) {
             return;
         }
-        checkGlThreadOrThrow();
+        checkGlThreadOrThrow(mGlThread);
         releaseInternal();
     }
 
@@ -300,8 +196,8 @@ public final class OpenGlRenderer {
      *                               on the GL thread.
      */
     public void registerOutputSurface(@NonNull Surface surface) {
-        checkInitializedOrThrow(true);
-        checkGlThreadOrThrow();
+        checkInitializedOrThrow(mInitialized, true);
+        checkGlThreadOrThrow(mGlThread);
 
         if (!mOutputSurfaceMap.containsKey(surface)) {
             mOutputSurfaceMap.put(surface, NO_OUTPUT_SURFACE);
@@ -315,8 +211,8 @@ public final class OpenGlRenderer {
      *                               on the GL thread.
      */
     public void unregisterOutputSurface(@NonNull Surface surface) {
-        checkInitializedOrThrow(true);
-        checkGlThreadOrThrow();
+        checkInitializedOrThrow(mInitialized, true);
+        checkGlThreadOrThrow(mGlThread);
 
         removeOutputSurfaceInternal(surface, true);
     }
@@ -329,8 +225,8 @@ public final class OpenGlRenderer {
      *                               on the GL thread.
      */
     public int getTextureName() {
-        checkInitializedOrThrow(true);
-        checkGlThreadOrThrow();
+        checkInitializedOrThrow(mInitialized, true);
+        checkGlThreadOrThrow(mGlThread);
 
         return mExternalTextureId;
     }
@@ -345,16 +241,16 @@ public final class OpenGlRenderer {
      *                               on the GL thread.
      */
     public void setInputFormat(@NonNull InputFormat inputFormat) {
-        checkInitializedOrThrow(true);
-        checkGlThreadOrThrow();
+        checkInitializedOrThrow(mInitialized, true);
+        checkGlThreadOrThrow(mGlThread);
 
         if (mCurrentInputformat != inputFormat) {
             mCurrentInputformat = inputFormat;
-            activateExternalTexture();
+            activateExternalTexture(mExternalTextureId);
         }
     }
 
-    private void activateExternalTexture() {
+    private void activateExternalTexture(int externalTextureId) {
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
 
         int texUnit = GLES20.GL_TEXTURE0;
@@ -369,7 +265,7 @@ public final class OpenGlRenderer {
         GLES20.glActiveTexture(texUnit);
         checkGlErrorOrThrow("glActiveTexture");
 
-        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, mExternalTextureId);
+        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, externalTextureId);
         checkGlErrorOrThrow("glBindTexture");
     }
 
@@ -382,8 +278,8 @@ public final class OpenGlRenderer {
      */
     public void render(long timestampNs, @NonNull float[] textureTransform,
             @NonNull Surface surface) {
-        checkInitializedOrThrow(true);
-        checkGlThreadOrThrow();
+        checkInitializedOrThrow(mInitialized, true);
+        checkGlThreadOrThrow(mGlThread);
 
         OutputSurface outputSurface = getOutSurfaceOrThrow(surface);
 
@@ -521,14 +417,14 @@ public final class OpenGlRenderer {
         deleteTexture(texture);
         deleteFbo(fbo);
         // Set the external texture to be active.
-        activateExternalTexture();
+        activateExternalTexture(mExternalTextureId);
     }
 
     // Returns a pair of GL extension (first) and EGL extension (second) strings.
     @NonNull
     private Pair<String, String> getExtensionsBeforeInitialized(
             @NonNull DynamicRange dynamicRangeToInitialize) {
-        checkInitializedOrThrow(false);
+        checkInitializedOrThrow(mInitialized, false);
         try {
             createEglContext(dynamicRangeToInitialize, /*infoBuilder=*/null);
             createTempSurface();
@@ -544,63 +440,6 @@ public final class OpenGlRenderer {
         } finally {
             releaseInternal();
         }
-    }
-
-    private static String getGlVersionNumber() {
-        // Logic adapted from CTS Egl14Utils:
-        // https://cs.android.com/android/platform/superproject/+/master:cts/tests/tests/opengl/src/android/opengl/cts/Egl14Utils.java;l=46;drc=1c705168ab5118c42e5831cd84871d51ff5176d1
-        String glVersion = GLES20.glGetString(GLES20.GL_VERSION);
-        Pattern pattern = Pattern.compile("OpenGL ES ([0-9]+)\\.([0-9]+).*");
-        Matcher matcher = pattern.matcher(glVersion);
-        if (matcher.find()) {
-            String major = Preconditions.checkNotNull(matcher.group(1));
-            String minor = Preconditions.checkNotNull(matcher.group(2));
-            return major + "." + minor;
-        }
-        return VERSION_UNKNOWN;
-    }
-
-    private static int[] chooseSurfaceAttrib(@NonNull String eglExtensions,
-            @NonNull DynamicRange dynamicRange) {
-        int[] attribs = EMPTY_ATTRIBS;
-        if (dynamicRange.getEncoding() == DynamicRange.ENCODING_HLG) {
-            if (eglExtensions.contains("EGL_EXT_gl_colorspace_bt2020_hlg")) {
-                attribs = HLG_SURFACE_ATTRIBS;
-            } else {
-                Logger.w(TAG, "Dynamic range uses HLG encoding, but "
-                        + "device does not support EGL_EXT_gl_colorspace_bt2020_hlg."
-                        + "Fallback to default colorspace.");
-            }
-        }
-        // TODO(b/303675500): Add path for PQ (EGL_EXT_gl_colorspace_bt2020_pq) output for
-        //  HDR10/HDR10+
-        return attribs;
-    }
-
-    private static int generateFbo() {
-        int[] fbos = new int[1];
-        GLES20.glGenFramebuffers(1, fbos, 0);
-        checkGlErrorOrThrow("glGenFramebuffers");
-        return fbos[0];
-    }
-
-    private static int generateTexture() {
-        int[] textures = new int[1];
-        GLES20.glGenTextures(1, textures, 0);
-        checkGlErrorOrThrow("glGenTextures");
-        return textures[0];
-    }
-
-    private static void deleteTexture(int texture) {
-        int[] textures = {texture};
-        GLES20.glDeleteTextures(1, textures, 0);
-        checkGlErrorOrThrow("glDeleteTextures");
-    }
-
-    private static void deleteFbo(int fbo) {
-        int[] fbos = {fbo};
-        GLES20.glDeleteFramebuffers(1, fbos, 0);
-        checkGlErrorOrThrow("glDeleteFramebuffers");
     }
 
     private void createEglContext(@NonNull DynamicRange dynamicRange,
@@ -668,7 +507,7 @@ public final class OpenGlRenderer {
                 /*height=*/1);
     }
 
-    private void makeCurrent(@NonNull EGLSurface eglSurface) {
+    protected void makeCurrent(@NonNull EGLSurface eglSurface) {
         Preconditions.checkNotNull(mEglDisplay);
         Preconditions.checkNotNull(mEglContext);
         if (!EGL14.eglMakeCurrent(mEglDisplay, eglSurface, eglSurface, mEglContext)) {
@@ -676,44 +515,7 @@ public final class OpenGlRenderer {
         }
     }
 
-    private void createProgram(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
-        int vertexShader = -1;
-        int fragmentShader = -1;
-        int program = -1;
-        try {
-            vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
-                    dynamicRange.is10BitHdr() ? HDR_VERTEX_SHADER : DEFAULT_VERTEX_SHADER);
-            fragmentShader = loadFragmentShader(dynamicRange, shaderProvider);
-            program = GLES20.glCreateProgram();
-            checkGlErrorOrThrow("glCreateProgram");
-            GLES20.glAttachShader(program, vertexShader);
-            checkGlErrorOrThrow("glAttachShader");
-            GLES20.glAttachShader(program, fragmentShader);
-            checkGlErrorOrThrow("glAttachShader");
-            GLES20.glLinkProgram(program);
-            int[] linkStatus = new int[1];
-            GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, /*offset=*/0);
-            if (linkStatus[0] != GLES20.GL_TRUE) {
-                throw new IllegalStateException(
-                        "Could not link program: " + GLES20.glGetProgramInfoLog(program));
-            }
-            mProgramHandle = program;
-        } catch (IllegalStateException | IllegalArgumentException e) {
-            if (vertexShader != -1) {
-                GLES20.glDeleteShader(vertexShader);
-            }
-            if (fragmentShader != -1) {
-                GLES20.glDeleteShader(fragmentShader);
-            }
-            if (program != -1) {
-                GLES20.glDeleteProgram(program);
-            }
-            throw e;
-        }
-    }
-
-    private void useAndConfigureProgram() {
+    protected void useAndConfigureProgram(int textureId) {
         // Select the program.
         GLES20.glUseProgram(mProgramHandle);
         checkGlErrorOrThrow("glUseProgram");
@@ -746,8 +548,17 @@ public final class OpenGlRenderer {
                 /*normalized=*/false, texStride, TEX_BUF);
         checkGlErrorOrThrow("glVertexAttribPointer");
 
+        // Set to default value for single camera case
+        GLES20.glUniformMatrix4fv(mTransMatrixLoc,
+                /*count=*/1, /*transpose=*/false, create4x4IdentityMatrix(),
+                /*offset=*/0);
+        checkGlErrorOrThrow("glUniformMatrix4fv");
+
+        GLES20.glUniform1f(mAlphaScaleLoc, 1.0f);
+        checkGlErrorOrThrow("glUniform1f");
+
         // Activate the texture
-        activateExternalTexture();
+        activateExternalTexture(textureId);
     }
 
     private void loadLocations() {
@@ -757,6 +568,10 @@ public final class OpenGlRenderer {
         checkLocationOrThrow(mTexCoordLoc, "aTextureCoord");
         mTexMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTexMatrix");
         checkLocationOrThrow(mTexMatrixLoc, "uTexMatrix");
+        mTransMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTransMatrix");
+        checkLocationOrThrow(mTransMatrixLoc, "uTransMatrix");
+        mAlphaScaleLoc = GLES20.glGetUniformLocation(mProgramHandle, "uAlphaScale");
+        checkLocationOrThrow(mAlphaScaleLoc, "uAlphaScale");
         mSamplerDefaultLoc = GLES20.glGetUniformLocation(mProgramHandle, VAR_TEXTURE);
         checkLocationOrThrow(mSamplerDefaultLoc, VAR_TEXTURE);
         if (mIsDefaultHdrShader) {
@@ -765,92 +580,6 @@ public final class OpenGlRenderer {
             mSamplerSelectorLoc = GLES20.glGetUniformLocation(mProgramHandle, "uSamplerSelector");
             checkLocationOrThrow(mSamplerSelectorLoc, "uSamplerSelector");
         }
-    }
-
-    private void createTexture() {
-        int[] textures = new int[1];
-        GLES20.glGenTextures(1, textures, 0);
-        checkGlErrorOrThrow("glGenTextures");
-
-        int texId = textures[0];
-        GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texId);
-        checkGlErrorOrThrow("glBindTexture " + texId);
-
-        GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
-                GLES20.GL_NEAREST);
-        GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
-                GLES20.GL_LINEAR);
-        GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
-                GLES20.GL_CLAMP_TO_EDGE);
-        GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_T,
-                GLES20.GL_CLAMP_TO_EDGE);
-        checkGlErrorOrThrow("glTexParameter");
-
-        // Collect the required texture units for GL_TEXTURE_EXTERNAL_OES so we know
-        // which texture unit we can use to bind the YUV sampler. The documentation says
-        // GL_TEXTURE_EXTERNAL_OES can only use a maximum of 3 texture units, so default
-        // to that if we can't query the required units
-        int requiredUnits = -1;
-        try {
-            int[] texParams = new int[1];
-            GLES30.glGetTexParameteriv(
-                    GL_TEXTURE_EXTERNAL_OES,
-                    GLES11Ext.GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES,
-                    texParams, 0
-            );
-            checkGlErrorOrThrow("glGetTexParameteriv");
-            if (texParams[0] >= 0 && texParams[0] <= 3) {
-                requiredUnits = texParams[0];
-            } else {
-                Log.e(TAG, "Query for GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES returned out of"
-                        + " bounds size: " + texParams[0] + ". Defaulting to 3.");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to query GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES", e);
-        }
-
-        mExternalTexNumUnits = requiredUnits != -1 ? requiredUnits : 3;
-        mExternalTextureId = texId;
-    }
-
-    private int loadFragmentShader(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
-        if (shaderProvider == ShaderProvider.DEFAULT) {
-            String shader;
-            if (dynamicRange.is10BitHdr()) {
-                shader = HDR_FRAGMENT_SHADER;
-                mIsDefaultHdrShader = true;
-            } else {
-                shader = DEFAULT_FRAGMENT_SHADER;
-            }
-            return loadShader(GLES20.GL_FRAGMENT_SHADER, shader);
-        } else {
-            // Throw IllegalArgumentException if the shader provider can not provide a valid
-            // fragment shader.
-            String source;
-            try {
-                source = shaderProvider.createFragmentShader(VAR_TEXTURE, VAR_TEXTURE_COORD);
-                // A simple check to workaround custom shader doesn't contain required variable.
-                // See b/241193761.
-                if (source == null || !source.contains(VAR_TEXTURE_COORD) || !source.contains(
-                        VAR_TEXTURE)) {
-                    throw new IllegalArgumentException("Invalid fragment shader");
-                }
-                return loadShader(GLES20.GL_FRAGMENT_SHADER, source);
-            } catch (Throwable t) {
-                if (t instanceof IllegalArgumentException) {
-                    throw t;
-                }
-                throw new IllegalArgumentException("Unable to compile fragment shader", t);
-            }
-        }
-    }
-
-    @NonNull
-    private Size getSurfaceSize(@NonNull EGLSurface eglSurface) {
-        int width = querySurface(mEglDisplay, eglSurface, EGL14.EGL_WIDTH);
-        int height = querySurface(mEglDisplay, eglSurface, EGL14.EGL_HEIGHT);
-        return new Size(width, height);
     }
 
     private void releaseInternal() {
@@ -896,6 +625,8 @@ public final class OpenGlRenderer {
         mTexMatrixLoc = -1;
         mPositionLoc = -1;
         mTexCoordLoc = -1;
+        mTransMatrixLoc = -1;
+        mAlphaScaleLoc = -1;
         mSamplerDefaultLoc = -1;
         mSamplerYuvLoc = -1;
         mSamplerSelectorLoc = -1;
@@ -907,46 +638,16 @@ public final class OpenGlRenderer {
         mIsDefaultHdrShader = false;
     }
 
-    private void checkInitializedOrThrow(boolean shouldInitialized) {
-        boolean result = shouldInitialized == mInitialized.get();
-        String message = shouldInitialized ? "OpenGlRenderer is not initialized"
-                : "OpenGlRenderer is already initialized";
-        Preconditions.checkState(result, message);
-    }
-
-    private void checkGlThreadOrThrow() {
-        Preconditions.checkState(mGlThread == Thread.currentThread(),
-                "Method call must be called on the GL thread.");
-    }
-
     @NonNull
-    private OutputSurface getOutSurfaceOrThrow(@NonNull Surface surface) {
+    protected OutputSurface getOutSurfaceOrThrow(@NonNull Surface surface) {
         Preconditions.checkState(mOutputSurfaceMap.containsKey(surface),
                 "The surface is not registered.");
 
         return requireNonNull(mOutputSurfaceMap.get(surface));
     }
 
-    @SuppressWarnings("SameParameterValue") // currently hard code width/height with 1/1
-    @NonNull
-    private static EGLSurface createPBufferSurface(@NonNull EGLDisplay eglDisplay,
-            @NonNull EGLConfig eglConfig, int width, int height) {
-        int[] surfaceAttrib = {
-                EGL14.EGL_WIDTH, width,
-                EGL14.EGL_HEIGHT, height,
-                EGL14.EGL_NONE
-        };
-        EGLSurface eglSurface = EGL14.eglCreatePbufferSurface(eglDisplay, eglConfig, surfaceAttrib,
-                /*offset=*/0);
-        checkEglErrorOrThrow("eglCreatePbufferSurface");
-        if (eglSurface == null) {
-            throw new IllegalStateException("surface was null");
-        }
-        return eglSurface;
-    }
-
     @Nullable
-    private OutputSurface createOutputSurfaceInternal(@NonNull Surface surface) {
+    protected OutputSurface createOutputSurfaceInternal(@NonNull Surface surface) {
         EGLSurface eglSurface;
         try {
             eglSurface = createWindowSurface(mEglDisplay, requireNonNull(mEglConfig), surface,
@@ -956,11 +657,11 @@ public final class OpenGlRenderer {
             return null;
         }
 
-        Size size = getSurfaceSize(eglSurface);
+        Size size = getSurfaceSize(mEglDisplay, eglSurface);
         return OutputSurface.of(eglSurface, size.getWidth(), size.getHeight());
     }
 
-    private void removeOutputSurfaceInternal(@NonNull Surface surface, boolean unregister) {
+    protected void removeOutputSurfaceInternal(@NonNull Surface surface, boolean unregister) {
         // Unmake current surface.
         if (mCurrentSurface == surface) {
             mCurrentSurface = null;
@@ -982,173 +683,6 @@ public final class OpenGlRenderer {
             } catch (RuntimeException e) {
                 Logger.w(TAG, "Failed to destroy EGL surface: " + e.getMessage(), e);
             }
-        }
-    }
-
-    @NonNull
-    private static EGLSurface createWindowSurface(@NonNull EGLDisplay eglDisplay,
-            @NonNull EGLConfig eglConfig, @NonNull Surface surface, @NonNull int[] surfaceAttrib) {
-        // Create a window surface, and attach it to the Surface we received.
-        EGLSurface eglSurface = EGL14.eglCreateWindowSurface(eglDisplay, eglConfig, surface,
-                surfaceAttrib, /*offset=*/0);
-        checkEglErrorOrThrow("eglCreateWindowSurface");
-        if (eglSurface == null) {
-            throw new IllegalStateException("surface was null");
-        }
-        return eglSurface;
-    }
-
-    private static int loadShader(int shaderType, @NonNull String source) {
-        int shader = GLES20.glCreateShader(shaderType);
-        checkGlErrorOrThrow("glCreateShader type=" + shaderType);
-        GLES20.glShaderSource(shader, source);
-        GLES20.glCompileShader(shader);
-        int[] compiled = new int[1];
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, /*offset=*/0);
-        if (compiled[0] == 0) {
-            Logger.w(TAG, "Could not compile shader: " + source);
-            GLES20.glDeleteShader(shader);
-            throw new IllegalStateException(
-                    "Could not compile shader type " + shaderType + ":" + GLES20.glGetShaderInfoLog(
-                            shader));
-        }
-        return shader;
-    }
-
-    private static int querySurface(@NonNull EGLDisplay eglDisplay, @NonNull EGLSurface eglSurface,
-            int what) {
-        int[] value = new int[1];
-        EGL14.eglQuerySurface(eglDisplay, eglSurface, what, value, /*offset=*/0);
-        return value[0];
-    }
-
-    @NonNull
-    public static FloatBuffer createFloatBuffer(@NonNull float[] coords) {
-        ByteBuffer bb = ByteBuffer.allocateDirect(coords.length * SIZEOF_FLOAT);
-        bb.order(ByteOrder.nativeOrder());
-        FloatBuffer fb = bb.asFloatBuffer();
-        fb.put(coords);
-        fb.position(0);
-        return fb;
-    }
-
-    private static void checkLocationOrThrow(int location, @NonNull String label) {
-        if (location < 0) {
-            throw new IllegalStateException("Unable to locate '" + label + "' in program");
-        }
-    }
-
-    private static void checkEglErrorOrThrow(@NonNull String op) {
-        int error = EGL14.eglGetError();
-        if (error != EGL14.EGL_SUCCESS) {
-            throw new IllegalStateException(op + ": EGL error: 0x" + Integer.toHexString(error));
-        }
-    }
-
-    private static void checkEglErrorOrLog(@NonNull String op) {
-        try {
-            checkEglErrorOrThrow(op);
-        } catch (IllegalStateException e) {
-            Logger.e(TAG, e.toString(), e);
-        }
-    }
-
-    private static void checkGlErrorOrThrow(@NonNull String op) {
-        int error = GLES20.glGetError();
-        if (error != GLES20.GL_NO_ERROR) {
-            throw new IllegalStateException(op + ": GL error 0x" + Integer.toHexString(error));
-        }
-    }
-
-    @AutoValue
-    abstract static class OutputSurface {
-
-        @NonNull
-        static OutputSurface of(@NonNull EGLSurface eglSurface, int width, int height) {
-            return new AutoValue_OpenGlRenderer_OutputSurface(eglSurface, width, height);
-        }
-
-        @NonNull
-        abstract EGLSurface getEglSurface();
-
-        abstract int getWidth();
-
-        abstract int getHeight();
-    }
-
-    /**
-     * Information about an initialized graphics device.
-     *
-     * <p>This information can be used to determine which version or extensions of OpenGL and EGL
-     * are supported on the device to ensure the attached output surface will have expected
-     * characteristics.
-     */
-    @AutoValue
-    public abstract static class GraphicDeviceInfo {
-        /**
-         * Returns the OpenGL version this graphics device has been initialized to.
-         *
-         * <p>The version is in the form &lt;major&gt;.&lt;minor&gt;.
-         *
-         * <p>Returns {@link OpenGlRenderer#VERSION_UNKNOWN} if version information can't be
-         * retrieved.
-         */
-        @NonNull
-        public abstract String getGlVersion();
-
-        /**
-         * Returns the EGL version this graphics device has been initialized to.
-         *
-         * <p>The version is in the form &lt;major&gt;.&lt;minor&gt;.
-         *
-         * <p>Returns {@link OpenGlRenderer#VERSION_UNKNOWN} if version information can't be
-         * retrieved.
-         */
-        @NonNull
-        public abstract String getEglVersion();
-
-        /**
-         * Returns a space separated list of OpenGL extensions or an empty string if extensions
-         * could not be retrieved.
-         */
-        @NonNull
-        public abstract String getGlExtensions();
-
-        /**
-         * Returns a space separated list of EGL extensions or an empty string if extensions
-         * could not be retrieved.
-         */
-        @NonNull
-        public abstract String getEglExtensions();
-
-        static Builder builder() {
-            return new AutoValue_OpenGlRenderer_GraphicDeviceInfo.Builder()
-                    .setGlVersion(OpenGlRenderer.VERSION_UNKNOWN)
-                    .setEglVersion(OpenGlRenderer.VERSION_UNKNOWN)
-                    .setGlExtensions("")
-                    .setEglExtensions("");
-        }
-
-        // Should not be instantiated directly
-        GraphicDeviceInfo() {
-        }
-
-        @AutoValue.Builder
-        abstract static class Builder {
-            @NonNull
-            abstract Builder setGlVersion(@NonNull String version);
-
-            @NonNull
-            abstract Builder setEglVersion(@NonNull String version);
-
-            @NonNull
-            abstract Builder setGlExtensions(@NonNull String extensions);
-
-            @NonNull
-            abstract Builder setEglExtensions(@NonNull String extensions);
-
-            @NonNull
-            abstract GraphicDeviceInfo build();
         }
     }
 }

@@ -19,7 +19,6 @@ import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.CompositionLocalMap
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.CacheDrawModifierNode
@@ -49,9 +48,6 @@ import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadLayingOut
 import androidx.compose.ui.node.LayoutNode.LayoutState.LookaheadMeasuring
 import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.Nodes.Draw
-import androidx.compose.ui.node.Nodes.FocusEvent
-import androidx.compose.ui.node.Nodes.FocusProperties
-import androidx.compose.ui.node.Nodes.FocusTarget
 import androidx.compose.ui.node.Nodes.PointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -96,10 +92,8 @@ internal class LayoutNode(
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
 
-    @set:ExperimentalComposeUiApi
-    @get:ExperimentalComposeUiApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @ExperimentalComposeUiApi
+    var forceUseOldLayers: Boolean = false
+
     override var compositeKeyHash: Int = 0
 
     internal var isVirtualLookaheadRoot: Boolean = false
@@ -499,9 +493,6 @@ internal class LayoutNode(
         onAttach?.invoke(owner)
 
         layoutDelegate.updateParentData()
-        if (!isDeactivated) {
-            invalidateFocusOnAttach()
-        }
     }
 
     /**
@@ -1075,16 +1066,6 @@ internal class LayoutNode(
         // If we've already scheduled a measure, the positioned callbacks will get called anyway
         if (layoutPending || measurePending || needsOnPositionedDispatch) return
         requireOwner().requestOnPositionedCallback(this)
-    }
-
-    private fun invalidateFocusOnAttach() {
-        if (nodes.has(FocusTarget or FocusProperties or FocusEvent)) {
-            nodes.headToTail {
-                if (it.isKind(FocusTarget) or it.isKind(FocusProperties) or it.isKind(FocusEvent)) {
-                    autoInvalidateInsertedNode(it)
-                }
-            }
-        }
     }
 
     internal inline fun ignoreRemeasureRequests(block: () -> Unit) {

@@ -315,7 +315,6 @@ val ControlledComposition.recomposeCoroutineContext: CoroutineContext
  * release resources.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param applier The [Applier] instance to be used in the composition.
  * @param parent The parent [CompositionContext].
  * @see Applier
@@ -354,7 +353,6 @@ fun ReusableComposition(applier: Applier<*>, parent: CompositionContext): Reusab
  * release resources.
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param applier The [Applier] instance to be used in the composition.
  * @param parent The parent [CompositionContext].
  * @see Applier
@@ -680,7 +678,7 @@ internal class CompositionImpl(
                         @Suppress("UNCHECKED_CAST")
                         observer.onBeginComposition(
                             this,
-                            invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                            invalidations.asMap() as Map<RecomposeScope, Set<Any>>
                         )
                     }
                     composer.composeContent(invalidations, content)
@@ -891,7 +889,7 @@ internal class CompositionImpl(
                     @Suppress("UNCHECKED_CAST")
                     observer?.onBeginComposition(
                         this,
-                        invalidations.asMap() as Map<RecomposeScope, Set<Any>?>
+                        invalidations.asMap() as Map<RecomposeScope, Set<Any>>
                     )
                     composer.recompose(invalidations).also { shouldDrain ->
                         // Apply would normally do this for us; do it now if apply shouldn't happen.

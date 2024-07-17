@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.wear.watchface.WatchState#getInterruptionFilter():
+    Attempted to change nullability of java.lang.Integer (from NONNULL to NULLABLE) in method androidx.wear.watchface.WatchState.getInterruptionFilter()
+InvalidNullConversion: androidx.wear.watchface.WatchState#interruptionFilter:
+    Attempted to change nullability of java.lang.Integer (from NONNULL to NULLABLE) in property WatchState.interruptionFilter
+InvalidNullConversion: androidx.wear.watchface.WatchState#isAmbient:
+    Attempted to change nullability of java.lang.Boolean (from NONNULL to NULLABLE) in property WatchState.isAmbient
+InvalidNullConversion: androidx.wear.watchface.WatchState#isAmbient():
+    Attempted to change nullability of java.lang.Boolean (from NONNULL to NULLABLE) in method androidx.wear.watchface.WatchState.isAmbient()
+InvalidNullConversion: androidx.wear.watchface.WatchState#isBatteryLowAndNotCharging:
+    Attempted to change nullability of java.lang.Boolean (from NONNULL to NULLABLE) in property WatchState.isBatteryLowAndNotCharging
+InvalidNullConversion: androidx.wear.watchface.WatchState#isBatteryLowAndNotCharging():
+    Attempted to change nullability of java.lang.Boolean (from NONNULL to NULLABLE) in method androidx.wear.watchface.WatchState.isBatteryLowAndNotCharging()
+InvalidNullConversion: androidx.wear.watchface.WatchState#isVisible:
+    Attempted to change nullability of java.lang.Boolean (from NONNULL to NULLABLE) in property WatchState.isVisible
+InvalidNullConversion: androidx.wear.watchface.WatchState#isVisible():
+    Attempted to change nullability of java.lang.Boolean (from NONNULL to NULLABLE) in method androidx.wear.watchface.WatchState.isVisible()

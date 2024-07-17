@@ -1,6 +1,25 @@
 // Signature format: 4.0
 package androidx.privacysandbox.ui.provider {
 
+  public abstract class AbstractSandboxedUiAdapter implements androidx.privacysandbox.ui.core.SandboxedUiAdapter {
+    ctor public AbstractSandboxedUiAdapter();
+    method public final void addObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
+    method public final java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> getSessionObserverFactories();
+    method public final void removeObserverFactory(androidx.privacysandbox.ui.core.SessionObserverFactory sessionObserverFactory);
+    property public final java.util.List<androidx.privacysandbox.ui.core.SessionObserverFactory> sessionObserverFactories;
+  }
+
+  public abstract static class AbstractSandboxedUiAdapter.AbstractSession implements androidx.privacysandbox.ui.core.SandboxedUiAdapter.Session {
+    ctor public AbstractSandboxedUiAdapter.AbstractSession();
+    method public void close();
+    method public final java.util.Set<java.lang.String> getSignalOptions();
+    method public void notifyConfigurationChanged(android.content.res.Configuration configuration);
+    method public void notifyResized(int width, int height);
+    method public void notifyUiChanged(android.os.Bundle uiContainerInfo);
+    method public void notifyZOrderChanged(boolean isZOrderOnTop);
+    property public final java.util.Set<java.lang.String> signalOptions;
+  }
+
   public final class SandboxedUiAdapterProxy {
     method public static android.os.Bundle toCoreLibInfo(androidx.privacysandbox.ui.core.SandboxedUiAdapter, android.content.Context context);
   }

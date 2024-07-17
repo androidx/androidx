@@ -118,7 +118,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     private val accessibilityEventLoopIntervalMs = 100L
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun testPopulateAccessibilityNodeInfoProperties_general() {
         // Arrange.
         val clickActionLabel = "click"
@@ -450,7 +449,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 24)
-    @OptIn(ExperimentalComposeUiApi::class)
     fun testIsNotImportant_testOnlyProperties() {
         // Arrange.
         rule.setContentWithAccessibilityEnabled {

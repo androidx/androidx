@@ -79,7 +79,6 @@ import kotlin.math.roundToInt
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.InlineSliderSegmentedSample
- *
  * @param value Current value of the Slider. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated.
@@ -137,8 +136,7 @@ fun InlineSlider(
         val containerColor = colors.containerColor(enabled)
         val barSeparatorColor = colors.barSeparatorColor(enabled)
         CompositionLocalProvider(
-            LocalIndication provides
-                rippleOrFallbackImplementation(bounded = false, radius = this.maxWidth / 2)
+            LocalIndication provides ripple(bounded = false, radius = this.maxWidth / 2)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -242,7 +240,6 @@ fun InlineSlider(
  * A segmented slider sample:
  *
  * @sample androidx.wear.compose.material3.samples.InlineSliderSegmentedSample
- *
  * @param value Current value of the Slider. If outside of [valueProgression] provided, value will
  *   be coerced to this range.
  * @param onValueChange Lambda in which value should be updated.

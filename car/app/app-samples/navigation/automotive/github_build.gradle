@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-apply plugin: 'com.android.application'
+plugins {
+    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.android.application)
+}
 
 android {
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "androidx.car.app.sample.navigation"
         minSdkVersion 29
-        targetSdkVersion 33
+        targetSdkVersion 34
         // Increment this to generate signed builds for uploading to Playstore
         // Make sure this is different from the navigation-mobile version
         versionCode 113
@@ -39,14 +42,19 @@ android {
         }
     }
 
-    compileOptions {
-        targetCompatibility = JavaVersion.VERSION_1_8
-        sourceCompatibility = JavaVersion.VERSION_1_8
+    java.toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
     }
+
+    kotlinOptions {
+        jvmTarget = libs.versions.java.get()
+    }
+
     namespace "androidx.car.app.sample.navigation"
 }
 
 dependencies {
-    implementation "androidx.car.app:app-automotive:1.3.0-beta01"
+    implementation libs.androidx.app.automotive
     implementation project(":navigation:common")
+    implementation libs.androidx.core.ktx
 }

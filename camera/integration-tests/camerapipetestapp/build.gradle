@@ -24,9 +24,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.camera.integration.camera2.pipe"
-        minSdkVersion 21
-        versionCode 1
-        multiDexEnabled true
     }
 
     sourceSets {

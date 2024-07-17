@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-// VERSION: v0_16
+// VERSION: v0_65
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
-
 internal object IconToggleButtonTokens {
     val CheckedContainerColor = ColorSchemeKeyTokens.Primary
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimary
@@ -30,6 +29,7 @@ internal object IconToggleButtonTokens {
     val DisabledUncheckedContainerOpacity = 0.12f
     val DisabledUncheckedContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledUncheckedContentOpacity = 0.38f
+    val IconDisabledCheckedContainerShape = ShapeKeyTokens.CornerExtraLarge
     val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UncheckedContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
 }

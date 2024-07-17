@@ -50,7 +50,6 @@ import androidx.tv.material3.tokens.Elevation
  * Samples:
  *
  * @sample androidx.tv.material3.samples.WideButtonSample
- *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
  * @param onLongClick called when this button is long clicked (long-pressed).
@@ -119,11 +118,8 @@ fun WideButton(
  * Samples:
  *
  * @sample androidx.tv.material3.samples.WideButtonWithIcon
- *
  * @sample androidx.tv.material3.samples.WideButtonWithSubtitle
- *
  * @sample androidx.tv.material3.samples.WideButtonWithIconAndSubtitle
- *
  * @param onClick called when this button is clicked
  * @param title the title content of the button, typically a [Text]
  * @param modifier the [Modifier] to be applied to this button

@@ -31,7 +31,10 @@ class AnimationIssueRegistry : IssueRegistry() {
         get() =
             listOf(
                 CrossfadeDetector.UnusedCrossfadeTargetStateParameter,
-                AnimatedContentDetector.UnusedContentLambdaTargetStateParameter
+                AnimatedContentDetector.UnusedContentLambdaTargetStateParameter,
+                AnimatedContentDetector.UnusedTargetStateInContentKeyLambda,
+                SharedTransitionScopeDetector.UnusedSharedTransitionModifierParameter,
+                SharedTransitionScopeDetector.ConstantContentStateKeyInItemsCall,
             )
 
     override val vendor =

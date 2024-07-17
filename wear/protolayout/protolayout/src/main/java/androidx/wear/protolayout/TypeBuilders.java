@@ -499,8 +499,17 @@ public final class TypeBuilders {
          * values for the corresponding field, this static value will be ignored. If the static
          * value is not specified, false will be used instead.
          */
-        public boolean getValue() {
+        boolean isValue() {
             return mImpl.getValue();
+        }
+
+        /**
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, false will be used instead.
+         */
+        public boolean getValue() {
+            return isValue();
         }
 
         /**

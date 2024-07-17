@@ -24,7 +24,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VelocityTrackerCalculationThreshold
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -63,7 +62,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
@@ -1963,6 +1961,62 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun testSmallScrollWithLookaheadScope_lookaheadSizeIsDifferent() {
+        val itemSize = 5
+        val itemSizeDp = with(rule.density) { itemSize.toDp() }
+        val containerSize = 12
+        val containerSizeDp = with(rule.density) { containerSize.toDp() }
+        val scrollDelta = 7f
+        val scrollDeltaDp = with(rule.density) { scrollDelta.toDp() }
+        val state = LazyListState()
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LookaheadScope {
+                LazyColumnOrRow(Modifier.mainAxisSize(containerSizeDp), state = state) {
+                    repeat(20) {
+                        item {
+                            Box(
+                                Modifier.layout { measurable, _ ->
+                                        val size =
+                                            if (isLookingAhead) {
+                                                itemSize * 2
+                                            } else {
+                                                itemSize
+                                            }
+                                        val placeable =
+                                            measurable.measure(Constraints.fixed(size, size))
+                                        layout(placeable.width, placeable.height) {
+                                            placeable.place(0, 0)
+                                        }
+                                    }
+                                    .testTag("$it")
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("1").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+
+        rule.runOnIdle { runBlocking { scope.launch { state.scrollBy(scrollDelta) } } }
+
+        // users see the actual sizes (5 pixels), not the lookahead ones (10 pixels).
+        // as we scrolled by 7 pixels, the 0th item is not visible anymore
+        // but in the lookahead measuring it is still partially visible, so
+        // it is not disposed.
+        rule.onNodeWithTag("0").assertIsNotDisplayed()
+        rule
+            .onNodeWithTag("1")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp - scrollDeltaDp)
+        rule
+            .onNodeWithTag("2")
+            .assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 2 - scrollDeltaDp)
+    }
+
+    @Test
     fun testLookaheadPositionWithTwoInBoundTwoOutBound() {
         testLookaheadPositionWithPlacementAnimator(
             initialList = listOf(0, 1, 2, 3, 4, 5),
@@ -2017,7 +2071,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
     @Composable
     private fun LazyListInLookaheadScope(
         list: List<Int>,
@@ -2054,7 +2107,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.trackPositions(
         lookaheadPosition: MutableMap<Int, Int>,
         postLookaheadPosition: MutableMap<Int, Int>,
@@ -2091,7 +2143,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             }
         }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
     @Test
     fun animContentSizeWithPlacementAnimator() {
         val lookaheadPosition = mutableMapOf<Int, Int>()
@@ -2269,7 +2320,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
             assert(assertedSmallItems)
         }
 
-    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
     @Test
     fun animVisibilityWithPlacementAnimator() {
         val lookaheadPosition = mutableMapOf<Int, Int>()
@@ -2351,7 +2401,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun resizeLazyList() {
         val lookaheadPositions = mutableMapOf<Int, Offset>()
@@ -2444,7 +2493,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun lookaheadSizeSmallerThanPostLookahead() {
         val lookaheadPositions = mutableMapOf<Int, Offset>()
@@ -2544,7 +2592,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     private val Offset.mainAxisPosition
         get() = (if (vertical) y else x).roundToInt()
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun postLookaheadItemsComposed() {
         lateinit var state: LazyListState
@@ -2583,7 +2630,6 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun postLookaheadItemsComposedBasedOnScrollDelta() {
         var lookaheadSize by mutableStateOf(30)

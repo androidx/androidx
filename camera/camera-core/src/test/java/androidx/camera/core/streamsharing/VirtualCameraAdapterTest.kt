@@ -78,7 +78,7 @@ class VirtualCameraAdapterTest {
         private val SESSION_CONFIG_WITH_SURFACE =
             SessionConfig.Builder()
                 .addSurface(FakeDeferrableSurface(INPUT_SIZE, ImageFormat.PRIVATE))
-                .addErrorListener { _, error -> receivedSessionConfigError = error }
+                .setErrorListener { _, error -> receivedSessionConfigError = error }
                 .build()
     }
 
@@ -99,8 +99,9 @@ class VirtualCameraAdapterTest {
     @Before
     fun setUp() {
         adapter =
-            VirtualCameraAdapter(parentCamera, setOf(child1, child2), useCaseConfigFactory) { _, _
-                ->
+            VirtualCameraAdapter(parentCamera, null, setOf(child1, child2), useCaseConfigFactory) {
+                _,
+                _ ->
                 snapshotTriggered = true
                 Futures.immediateFuture(null)
             }
@@ -162,9 +163,10 @@ class VirtualCameraAdapterTest {
         useCase.bindToCamera(
             parentCamera,
             null,
+            null,
             useCase.getDefaultConfig(true, useCaseConfigFactory)
         )
-        useCase.updateSuggestedStreamSpec(StreamSpec.builder(INPUT_SIZE).build())
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(INPUT_SIZE).build(), null)
         return VirtualCameraAdapter.getChildSurface(useCase)
     }
 
@@ -270,6 +272,7 @@ class VirtualCameraAdapterTest {
         adapter =
             VirtualCameraAdapter(
                 parentCamera,
+                null,
                 setOf(preview, child2, imageCapture),
                 useCaseConfigFactory
             ) { _, _ ->

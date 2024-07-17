@@ -24,6 +24,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.utils.TransformUtils.sizeToRect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -169,11 +170,14 @@ class SurfaceOutputImplTest {
                 TARGET,
                 INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
                 OUTPUT_SIZE,
-                INPUT_SIZE,
-                sizeToRect(INPUT_SIZE),
-                /*rotationDegrees=*/ 180,
-                /*mirroring=*/ false,
-                camera,
+                SurfaceOutput.CameraInputInfo.of(
+                    INPUT_SIZE,
+                    sizeToRect(INPUT_SIZE),
+                    camera,
+                    /*rotationDegrees=*/ 180,
+                    /*mirroring=*/ false
+                ),
+                null,
                 android.graphics.Matrix()
             )
             .apply { surfaceOutputsToCleanup.add(this) }

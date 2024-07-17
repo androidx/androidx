@@ -83,9 +83,9 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
             Manifest.permission.RECORD_AUDIO,
         )
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-
     companion object {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
         fun parameters() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
@@ -224,7 +224,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
             CameraXExecutors.mainThreadExecutor(),
             object : ImageCapture.OnImageCapturedCallback() {
                 override fun onCaptureSuccess(image: ImageProxy) {
-                    imageCapturedTimestamp = SystemClock.elapsedRealtime()
+                    imageCapturedTimestamp = SystemClock.elapsedRealtimeNanos()
                     imageCapturedLatch.countDown()
                     image.close()
                 }
@@ -232,7 +232,7 @@ class ImageCaptureTest(private val config: CameraXExtensionTestParams) {
                 override fun onCaptureProcessProgressed(progress: Int) {
                     processProgressData.add(progress)
                     if (progress == 100) {
-                        progress100Timestamp = SystemClock.elapsedRealtime()
+                        progress100Timestamp = SystemClock.elapsedRealtimeNanos()
                         progress100Latch.countDown()
                     }
                 }

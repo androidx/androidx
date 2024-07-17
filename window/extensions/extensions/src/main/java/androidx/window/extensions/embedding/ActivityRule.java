@@ -24,6 +24,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Predicate;
 
@@ -107,8 +108,8 @@ public class ActivityRule extends EmbeddingRule {
          *                         matches the rule
          * @param intentPredicate the {@link Predicate} to verify if a given {@link Intent}
          *                         matches the rule
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         public Builder(@NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate) {
             mActivityPredicate = activityPredicate;
@@ -124,8 +125,8 @@ public class ActivityRule extends EmbeddingRule {
 
         /**
          * @see ActivityRule#getTag()
-         * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setTag(@NonNull String tag) {
             mTag = Objects.requireNonNull(tag);

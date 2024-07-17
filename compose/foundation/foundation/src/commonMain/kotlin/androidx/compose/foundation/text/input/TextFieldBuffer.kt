@@ -44,7 +44,6 @@ import kotlin.jvm.JvmName
  * To get one of these, and for usage samples, see [TextFieldState.edit]. Every change to the buffer
  * is tracked in a [ChangeList] which you can access via the [changes] property.
  */
-@OptIn(ExperimentalFoundationApi::class)
 class TextFieldBuffer
 internal constructor(
     initialValue: TextFieldCharSequence,
@@ -86,7 +85,6 @@ internal constructor(
      * this value at any given time, even those made after reading this property.
      *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
-     *
      * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
      */
     @ExperimentalFoundationApi
@@ -355,7 +353,6 @@ internal constructor(
      * appear in the text, not the order in which they were made. Overlapping changes are
      * represented as a single change.
      */
-    @ExperimentalFoundationApi
     interface ChangeList {
         /** The number of changes that have been performed. */
         val changeCount: Int
@@ -425,7 +422,6 @@ fun TextFieldBuffer.selectAll() {
  * [forEachChangeReversed].
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldChangeIterationSample
- *
  * @see forEachChangeReversed
  */
 @ExperimentalFoundationApi
@@ -446,7 +442,6 @@ inline fun ChangeList.forEachChange(block: (range: TextRange, originalRange: Tex
  * safely, such changes will not be visited.
  *
  * @sample androidx.compose.foundation.samples.BasicTextFieldChangeReverseIterationSample
- *
  * @see forEachChange
  */
 @ExperimentalFoundationApi

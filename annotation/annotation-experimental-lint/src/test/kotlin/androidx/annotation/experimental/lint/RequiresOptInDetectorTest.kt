@@ -569,13 +569,10 @@ src/sample/optin/UseJavaExperimentalWithMessageFromJava.java:51: Error: Don't us
 
         val expected =
             """
-src/sample/optin/RegressionTestJava313686921.java:31: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
-        return param;
-               ~~~~~
-src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
-        unsafeAnnotatedAnnotationUsageOnMethod("param");
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 errors, 0 warnings
+src/sample/optin/RegressionTestJava313686921.java:30: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+    public void unsafeAnnotatedAnnotationUsageOnParam(@AnnotatedJavaAnnotation Object param) {
+                                                                                      ~~~~~
+1 errors, 0 warnings
         """
                 .trimIndent()
 
@@ -596,14 +593,25 @@ src/sample/optin/RegressionTestJava313686921.java:43: Error: This declaration is
 
         val expected =
             """
-src/sample/optin/AnnotatedKotlinAnnotation.kt:22: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
-    return param
-           ~~~~~
+src/sample/optin/AnnotatedKotlinAnnotation.kt:21: Error: This declaration is opt-in and its usage should be marked with @sample.optin.ExperimentalJavaAnnotation or @OptIn(markerClass = sample.optin.ExperimentalJavaAnnotation.class) [UnsafeOptInUsageError]
+fun unsafeAnnotatedAnnotationUsage(@AnnotatedKotlinAnnotation param: Any): Any {
+                                                              ~~~~~
 1 errors, 0 warnings
         """
                 .trimIndent()
 
         check(*input).expect(expected)
+    }
+
+    /** Regression test for b/344616929 that shows where to put @OptIn: use-site! */
+    @Test
+    fun regressionTestJava344616929() {
+        val input =
+            arrayOf(
+                javaSample("sample.optin.ExperimentalJavaAnnotation"),
+                javaSample("sample.optin.RegressionTestJava344616929")
+            )
+        check(*input).expectClean()
     }
 
     companion object {

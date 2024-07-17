@@ -32,7 +32,6 @@ plugins {
 android {
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
-        multiDexKeepProguard file("multidex-rules.pro")
     }
     namespace "androidx.startup"
 }

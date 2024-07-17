@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.pointer.util
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Velocity
 import com.google.common.truth.Truth.assertThat
@@ -76,7 +75,7 @@ class VelocityTrackerTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
+    @OptIn(ExperimentalVelocityTrackerApi::class)
     @Test
     fun calculateVelocity_gapOf40MillisecondsInPositions_positionsAfterGapIgnored() {
         val tracker = VelocityTracker()
@@ -145,7 +144,7 @@ private fun createPxPosition(width: Float, height: Float) = Offset(width, height
 internal class PointerInputData(val uptime: Long, val position: Offset, val down: Boolean)
 
 // Expected velocities for "velocityEventData". See below.
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalVelocityTrackerApi::class)
 internal val expected2DVelocities =
     if (VelocityTrackerStrategyUseImpulse) {
         listOf(

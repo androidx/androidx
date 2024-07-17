@@ -72,7 +72,6 @@ import androidx.compose.ui.unit.dp
  * text:
  *
  * @sample androidx.compose.material.samples.ButtonWithIconSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
@@ -90,6 +89,7 @@ import androidx.compose.ui.unit.dp
  *   this button in different states. See [ButtonDefaults.buttonColors].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -149,7 +149,6 @@ fun Button(
  * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.OutlinedButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
@@ -166,6 +165,7 @@ fun Button(
  *   this button in different states. See [ButtonDefaults.outlinedButtonColors].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
 @NonRestartableComposable
@@ -207,7 +207,6 @@ fun OutlinedButton(
  * The default text style for internal [Text] components will be set to [Typography.button].
  *
  * @sample androidx.compose.material.samples.TextButtonSample
- *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param enabled Controls the enabled state of the button. When `false`, this button will not be
@@ -224,6 +223,7 @@ fun OutlinedButton(
  *   this button in different states. See [ButtonDefaults.textButtonColors].
  * @param contentPadding The spacing values to apply internally between the container and the
  *   content
+ * @param content The content displayed on the button, expected to be text.
  */
 @Composable
 @NonRestartableComposable

@@ -637,7 +637,7 @@ class FocusMeteringControlTest {
     fun customFovAdjusted() {
         // 16:9 to 4:3
         val useCase = FakeUseCase()
-        useCase.updateSuggestedStreamSpec(StreamSpec.builder(Size(1920, 1080)).build())
+        useCase.updateSuggestedStreamSpec(StreamSpec.builder(Size(1920, 1080)).build(), null)
 
         val factory = SurfaceOrientedMeteringPointFactory(1.0f, 1.0f, useCase)
         val point = factory.createPoint(0f, 0f)
@@ -1723,9 +1723,10 @@ class FocusMeteringControlTest {
                 )
             }
             .also {
-                it.bindToCamera(FakeCamera("0"), null, null)
+                it.bindToCamera(FakeCamera("0"), null, null, null)
                 it.updateSuggestedStreamSpec(
-                    StreamSpec.builder(suggestedStreamSpecResolution).build()
+                    StreamSpec.builder(suggestedStreamSpecResolution).build(),
+                    null
                 )
             }
 

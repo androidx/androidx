@@ -262,7 +262,7 @@ public final class DeviceParametersBuilders {
              * layout that uses features not available on schema version 1.0 , this can be used to
              * conditionally choose which feature to use.
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setRendererSchemaVersion(@NonNull VersionInfo rendererSchemaVersion) {
                 mImpl.setRendererSchemaVersion(rendererSchemaVersion.toProto());
@@ -306,7 +306,6 @@ public final class DeviceParametersBuilders {
          * on various factors. Any freshness request lower than the current limit will be replaced
          * by that limit. A value of 0 here signifies that the minimum freshness limit in unknown.
          */
-        @ProtoLayoutExperimental
         public long getMinimumFreshnessLimitMillis() {
             return mImpl.getMinimumFreshnessLimitMillis();
         }
@@ -350,7 +349,6 @@ public final class DeviceParametersBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
-            @ProtoLayoutExperimental
             public Builder setMinimumFreshnessLimitMillis(long minimumFreshnessLimitMillis) {
                 mImpl.setMinimumFreshnessLimitMillis(minimumFreshnessLimitMillis);
                 return this;

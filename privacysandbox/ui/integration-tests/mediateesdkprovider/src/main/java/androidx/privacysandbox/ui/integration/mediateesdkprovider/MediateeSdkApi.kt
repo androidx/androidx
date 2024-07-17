@@ -18,14 +18,43 @@ package androidx.privacysandbox.ui.integration.mediateesdkprovider
 
 import android.content.Context
 import android.os.Bundle
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
+import androidx.privacysandbox.ui.integration.sdkproviderutils.ViewabilityHandler
 import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
-class MediateeSdkApi(val sdkContext: Context) : IMediateeSdkApi.Stub() {
+class MediateeSdkApi(private val sdkContext: Context) : IMediateeSdkApi.Stub() {
     private val testAdapters = TestAdapters(sdkContext)
 
-    override fun loadTestAdWithWaitInsideOnDraw(text: String): Bundle {
-        return testAdapters.TestBannerAdWithWaitInsideOnDraw(text).toCoreLibInfo(sdkContext)
+    override fun loadBannerAd(
+        @AdType adType: Int,
+        withSlowDraw: Boolean,
+        drawViewability: Boolean
+    ): Bundle {
+        val adapter: SandboxedUiAdapter =
+            when (adType) {
+                AdType.WEBVIEW -> loadWebViewBannerAd()
+                AdType.WEBVIEW_FROM_LOCAL_ASSETS -> loadWebViewBannerAdFromLocalAssets()
+                else -> loadNonWebViewBannerAd("Mediation", withSlowDraw)
+            }
+        ViewabilityHandler.addObserverFactoryToAdapter(adapter, drawViewability)
+        return adapter.toCoreLibInfo(sdkContext)
+    }
+
+    private fun loadWebViewBannerAd(): SandboxedUiAdapter {
+        return testAdapters.WebViewBannerAd()
+    }
+
+    private fun loadWebViewBannerAdFromLocalAssets(): SandboxedUiAdapter {
+        return testAdapters.WebViewAdFromLocalAssets()
+    }
+
+    private fun loadNonWebViewBannerAd(
+        text: String,
+        waitInsideOnDraw: Boolean
+    ): SandboxedUiAdapter {
+        return testAdapters.TestBannerAd(text, waitInsideOnDraw)
     }
 }

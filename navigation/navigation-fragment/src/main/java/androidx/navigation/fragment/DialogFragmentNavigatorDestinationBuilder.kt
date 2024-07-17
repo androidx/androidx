@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:SuppressLint("NullAnnotationGroup") // b/331484152
-
 package androidx.navigation.fragment
 
-import android.annotation.SuppressLint
 import androidx.annotation.IdRes
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.NavDestinationBuilder

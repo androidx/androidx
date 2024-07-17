@@ -18,4 +18,8 @@ package androidx.collection.internal
 
 import kotlin.test.Ignore
 
+<<<<<<<< HEAD:collection/collection/src/webTest/kotlin/androidx/collection/internal/IgnoreTargets.web.kt
 actual typealias IgnoreWeb = Ignore
+========
+internal actual fun Modifier.systemGestureExclusion(): Modifier = implementedInJetBrainsFork()
+>>>>>>>> androidx/navigation/2.8.0-beta05:compose/material3/adaptive/adaptive-layout/src/jvmStubsMain/kotlin/androidx/compose/material3/adaptive/layout/PaneExpansionDragHandle.jvmStubs.kt

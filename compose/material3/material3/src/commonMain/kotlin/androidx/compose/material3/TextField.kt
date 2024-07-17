@@ -47,7 +47,7 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.SuffixId
 import androidx.compose.material3.internal.SupportingId
 import androidx.compose.material3.internal.TextFieldId
-import androidx.compose.material3.internal.TextFieldPadding
+import androidx.compose.material3.internal.TextFieldLabelExtraPadding
 import androidx.compose.material3.internal.TrailingId
 import androidx.compose.material3.internal.ZeroConstraints
 import androidx.compose.material3.internal.defaultErrorSemantics
@@ -82,6 +82,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -691,7 +692,6 @@ private class TextFieldMeasurePolicy(
                 supportingHeight = heightOrZero(supportingPlaceable),
                 animationProgress = animationProgress,
                 constraints = constraints,
-                density = density,
                 paddingValues = paddingValues,
             )
         val height = totalHeight - supportingHeight
@@ -710,6 +710,9 @@ private class TextFieldMeasurePolicy(
 
         return layout(width, totalHeight) {
             if (labelPlaceable != null) {
+                // The padding defined by the user only applies to the text field when the label
+                // is focused. More padding needs to be added when the text field is unfocused.
+                val labelStartPosition = topPaddingValue + TextFieldLabelExtraPadding.roundToPx()
                 placeWithLabel(
                     width = width,
                     totalHeight = totalHeight,
@@ -723,10 +726,10 @@ private class TextFieldMeasurePolicy(
                     containerPlaceable = containerPlaceable,
                     supportingPlaceable = supportingPlaceable,
                     singleLine = singleLine,
+                    labelStartPosition = labelStartPosition,
                     labelEndPosition = topPaddingValue,
                     textPosition = topPaddingValue + labelPlaceable.height,
                     animationProgress = animationProgress,
-                    density = density,
                 )
             } else {
                 placeWithoutLabel(
@@ -904,7 +907,6 @@ private class TextFieldMeasurePolicy(
             supportingHeight = supportingHeight,
             animationProgress = animationProgress,
             constraints = ZeroConstraints,
-            density = density,
             paddingValues = paddingValues
         )
     }
@@ -939,7 +941,7 @@ private fun calculateWidth(
     return max(wrappedWidth, constraints.minWidth)
 }
 
-private fun calculateHeight(
+private fun Density.calculateHeight(
     textFieldHeight: Int,
     labelHeight: Int,
     leadingHeight: Int,
@@ -950,22 +952,21 @@ private fun calculateHeight(
     supportingHeight: Int,
     animationProgress: Float,
     constraints: Constraints,
-    density: Float,
     paddingValues: PaddingValues
 ): Int {
     val hasLabel = labelHeight > 0
 
-    val verticalPadding =
-        density *
-            (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()).value
-    // Even though the padding is defined by the developer, if there's a label, it only affects the
-    // text field in the focused state. Otherwise, we use the default value.
-    val actualVerticalPadding =
+    // The padding defined by the user only applies to the text field when the label
+    // is focused. More padding needs to be added when the text field is unfocused.
+    val baseVerticalPadding =
+        (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding()).toPx()
+    val labelVerticalPadding =
         if (hasLabel) {
-            lerp((TextFieldPadding * 2).value * density, verticalPadding, animationProgress)
+            lerp((TextFieldLabelExtraPadding * 2).toPx(), 0f, animationProgress)
         } else {
-            verticalPadding
+            0f
         }
+    val verticalPadding = (baseVerticalPadding + labelVerticalPadding).roundToInt()
 
     val inputFieldHeight =
         maxOf(
@@ -977,11 +978,11 @@ private fun calculateHeight(
         )
 
     val middleSectionHeight =
-        actualVerticalPadding + lerp(0, labelHeight, animationProgress) + inputFieldHeight
+        verticalPadding + (if (animationProgress == 1f) labelHeight else 0) + inputFieldHeight
 
     return max(
         constraints.minHeight,
-        maxOf(leadingHeight, trailingHeight, middleSectionHeight.roundToInt()) + supportingHeight
+        maxOf(leadingHeight, trailingHeight, middleSectionHeight) + supportingHeight
     )
 }
 
@@ -993,7 +994,7 @@ private fun Placeable.PlacementScope.placeWithLabel(
     width: Int,
     totalHeight: Int,
     textfieldPlaceable: Placeable,
-    labelPlaceable: Placeable?,
+    labelPlaceable: Placeable,
     placeholderPlaceable: Placeable?,
     leadingPlaceable: Placeable?,
     trailingPlaceable: Placeable?,
@@ -1002,10 +1003,10 @@ private fun Placeable.PlacementScope.placeWithLabel(
     containerPlaceable: Placeable,
     supportingPlaceable: Placeable?,
     singleLine: Boolean,
+    labelStartPosition: Int,
     labelEndPosition: Int,
     textPosition: Int,
     animationProgress: Float,
-    density: Float
 ) {
     // place container
     containerPlaceable.place(IntOffset.Zero)
@@ -1018,23 +1019,18 @@ private fun Placeable.PlacementScope.placeWithLabel(
         0,
         Alignment.CenterVertically.align(leadingPlaceable.height, height)
     )
-    labelPlaceable?.let {
-        // if it's a single line, the label's start position is in the center of the
-        // container. When it's a multiline text field, the label's start position is at the
-        // top with padding
-        val startPosition =
-            if (singleLine) {
-                Alignment.CenterVertically.align(it.height, height)
-            } else {
-                // Even though the padding is defined by the developer, it only affects the text
-                // field
-                // when the text field is focused. Otherwise, we use the default value.
-                (TextFieldPadding.value * density).roundToInt()
-            }
-        val distance = startPosition - labelEndPosition
-        val positionY = startPosition - (distance * animationProgress).roundToInt()
-        it.placeRelative(widthOrZero(leadingPlaceable), positionY)
-    }
+
+    val labelY =
+        labelPlaceable.let {
+            val startPosition =
+                if (singleLine) {
+                    Alignment.CenterVertically.align(it.height, height)
+                } else {
+                    labelStartPosition
+                }
+            lerp(startPosition, labelEndPosition, animationProgress)
+        }
+    labelPlaceable.placeRelative(widthOrZero(leadingPlaceable), labelY)
 
     prefixPlaceable?.placeRelative(widthOrZero(leadingPlaceable), textPosition)
 

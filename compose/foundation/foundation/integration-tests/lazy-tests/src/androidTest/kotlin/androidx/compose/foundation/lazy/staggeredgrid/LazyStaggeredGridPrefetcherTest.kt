@@ -70,7 +70,6 @@ class LazyStaggeredGridPrefetcherTest(orientation: Orientation) :
     internal lateinit var state: LazyStaggeredGridState
     private val scheduler = TestPrefetchScheduler()
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun rememberState(
         initialFirstVisibleItemIndex: Int = 0,

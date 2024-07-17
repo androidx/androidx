@@ -46,7 +46,6 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
@@ -169,7 +168,6 @@ interface ProgressProvider<T> {
 
 context(LookaheadScope)
 @SuppressLint("PrimitiveInCollection")
-@OptIn(ExperimentalComposeUiApi::class)
 fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = composed {
     val sizeMap = remember { mutableMapOf<T, IntSize>() }
     val offsetMap = remember { mutableMapOf<T, Offset>() }

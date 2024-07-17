@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.dp
  * [Row]) to achieve radio group-like behaviour, where the entire layout is selectable:
  *
  * @sample androidx.compose.material3.samples.RadioGroupSample
- *
  * @param selected whether this radio button is selected or not
  * @param onClick called when this radio button is clicked. If `null`, then this radio button will
  *   not be interactable, unless something else handles its input events and updates its state.
@@ -95,11 +94,7 @@ fun RadioButton(
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication =
-                    rippleOrFallbackImplementation(
-                        bounded = false,
-                        radius = RadioButtonTokens.StateLayerSize / 2
-                    )
+                indication = ripple(bounded = false, radius = RadioButtonTokens.StateLayerSize / 2)
             )
         } else {
             Modifier

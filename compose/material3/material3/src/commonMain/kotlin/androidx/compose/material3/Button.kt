@@ -72,13 +72,12 @@ import androidx.compose.ui.unit.dp
  * like "Save", "Join now", or "Confirm".
  *
  * @sample androidx.compose.material3.samples.ButtonSample
- *
  * @sample androidx.compose.material3.samples.ButtonWithIconSample
  *
  * Choose the best button for an action based on the amount of emphasis it needs. The more important
  * an action is, the higher emphasis its button should be.
  * - See [OutlinedButton] for a medium-emphasis button with a border.
- * - See [ElevatedButton] for an [OutlinedButton] with a shadow.
+ * - See [ElevatedButton] for an [FilledTonalButton] with a shadow.
  * - See [TextButton] for a low-emphasis button with no border.
  * - See [FilledTonalButton] for a middle ground between [OutlinedButton] and [Button].
  *
@@ -103,6 +102,7 @@ import androidx.compose.ui.unit.dp
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
 fun Button(
@@ -196,6 +196,7 @@ fun Button(
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
 fun ElevatedButton(
@@ -269,6 +270,7 @@ fun ElevatedButton(
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
 fun FilledTonalButton(
@@ -341,6 +343,7 @@ fun FilledTonalButton(
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content displayed on the button, expected to be text, icon or image.
  */
 @Composable
 fun OutlinedButton(
@@ -414,6 +417,7 @@ fun OutlinedButton(
  *   emitting [Interaction]s for this button. You can use this to change the button's appearance or
  *   preview the button in different states. Note that if `null` is provided, interactions will
  *   still happen internally.
+ * @param content The content displayed on the button, expected to be text.
  */
 @Composable
 fun TextButton(

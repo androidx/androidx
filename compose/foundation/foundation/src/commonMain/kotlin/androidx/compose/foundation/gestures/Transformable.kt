@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.TransformEvent.TransformDelta
 import androidx.compose.foundation.gestures.TransformEvent.TransformStarted
@@ -49,7 +48,6 @@ import kotlinx.coroutines.launch
  * reflect their own state in UI when using this component.
  *
  * @sample androidx.compose.foundation.samples.TransformableSample
- *
  * @param state [TransformableState] of the transformable. Defines how transformation events will be
  *   interpreted by the user land logic, contains useful information about on-going events and
  *   provides animation capabilities.
@@ -59,7 +57,6 @@ import kotlinx.coroutines.launch
  *   detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.transformable(
     state: TransformableState,
     lockRotationOnZoomPan: Boolean = false,
@@ -78,7 +75,6 @@ fun Modifier.transformable(
  * transformable modifiers to work well within the scrollable container. See example:
  *
  * @sample androidx.compose.foundation.samples.TransformableSampleInsideScroll
- *
  * @param state [TransformableState] of the transformable. Defines how transformation events will be
  *   interpreted by the user land logic, contains useful information about on-going events and
  *   provides animation capabilities.
@@ -89,7 +85,6 @@ fun Modifier.transformable(
  *   detected.
  * @param enabled whether zooming by gestures is enabled or not
  */
-@ExperimentalFoundationApi
 fun Modifier.transformable(
     state: TransformableState,
     canPan: (Offset) -> Boolean,

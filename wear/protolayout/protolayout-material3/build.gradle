@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     annotationProcessor(libs.nullaway)
-    // Add dependencies here
+    api(project(":wear:protolayout:protolayout"))
 }
 
 android {

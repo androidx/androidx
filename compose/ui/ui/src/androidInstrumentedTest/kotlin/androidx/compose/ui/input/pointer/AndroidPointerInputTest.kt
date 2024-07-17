@@ -2693,25 +2693,8 @@ class AndroidPointerInputTest {
     }
 
     /*
-     * Tests TOUCH events are triggered incorrectly when dynamically adding a pointer input modifier
-     * (which uses Unit for its key [bad]) ABOVE an existing pointer input modifier. This is more
-     * of an "education test" for developers to see how things can go wrong if you use "Unit" for
-     * your key in pointer input and pointer input modifiers are later added dynamically.
-     *
-     * Note: Even though we are dynamically adding a new pointer input modifier above the existing
-     * pointer input modifier, Compose actually reuses the existing pointer input modifier to
-     * contain the new pointer input modifier. It then adds a new pointer input modifier below that
-     * one and copies in the original (non-dynamic) pointer input modifier into that. However, in
-     * this case, because we are using the "Unit" for both keys, Compose thinks they are the same
-     * pointer input modifier, so it never replaces the existing lambda with the dynamic pointer
-     * input modifier node's lambda. This is why you should not use Unit for your key.
-     *
-     * Why can't the lambdas passed into pointer input be compared? We can't memoize them because
-     * they are outside of a Compose scope (defined in a Modifier extension function), so
-     * developers need to pass a unique key(s) as a way to let us know when to update the lambda.
-     * You can do that with a unique key for each pointer input modifier and/or take it a step
-     * further and use captured values in the lambda as keys (ones that change lambda
-     * behavior).
+     * Tests TOUCH events are triggered correctly when dynamically adding a pointer input modifier
+     * (which uses Unit for its key) ABOVE an existing pointer input modifier.
      *
      * Specific events:
      *  1. UI Element (modifier 1 only): PRESS (touch)
@@ -2723,7 +2706,7 @@ class AndroidPointerInputTest {
      *  7. UI Element (modifier 1 and 2): RELEASE (touch)
      */
     @Test
-    fun dynamicInputModifierWithUnitKey_addsAboveExistingModifier_failsToTriggerNewModifier() {
+    fun dynamicInputModifierWithUnitKey_addsAboveExistingModifier_triggersBothModifiers() {
         // --> Arrange
         var box1LayoutCoordinates: LayoutCoordinates? = null
 
@@ -2907,20 +2890,16 @@ class AndroidPointerInputTest {
             // executed again to allow devs to reset their gesture detectors for the new Modifier
             // chain changes.
             assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
-            // The dynamic one has been added, so we execute its thing as well.
-            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+            // The dynamic one has been added, so we execute its lambda as well.
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
 
             // Verify Box 1 existing modifier events
-            // This is 2 because the dynamic modifier added before the existing one, is using Unit
-            // for the key, so the comparison shows that it doesn't need to update the lambda...
-            // Thus, it uses the old lambda (why it is very important you don't use Unit for your
-            // key.
-            assertThat(preexistingModifierPress).isEqualTo(3)
+            assertThat(preexistingModifierPress).isEqualTo(2)
             assertThat(preexistingModifierMove).isEqualTo(1)
             assertThat(preexistingModifierRelease).isEqualTo(1)
 
             // Verify Box 1 dynamically added modifier events
-            assertThat(dynamicModifierPress).isEqualTo(0)
+            assertThat(dynamicModifierPress).isEqualTo(1)
             assertThat(dynamicModifierMove).isEqualTo(0)
             assertThat(dynamicModifierRelease).isEqualTo(0)
 
@@ -2936,16 +2915,16 @@ class AndroidPointerInputTest {
         )
         rule.runOnUiThread {
             assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
-            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
 
             // Verify Box 1 existing modifier events
-            assertThat(preexistingModifierPress).isEqualTo(3)
-            assertThat(preexistingModifierMove).isEqualTo(3)
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
             assertThat(preexistingModifierRelease).isEqualTo(1)
 
             // Verify Box 1 dynamically added modifier events
-            assertThat(dynamicModifierPress).isEqualTo(0)
-            assertThat(dynamicModifierMove).isEqualTo(0)
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
             assertThat(dynamicModifierRelease).isEqualTo(0)
 
             assertThat(pointerEvent).isNotNull()
@@ -2960,17 +2939,17 @@ class AndroidPointerInputTest {
         )
         rule.runOnUiThread {
             assertThat(originalPointerInputScopeExecutionCount).isEqualTo(2)
-            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(0)
+            assertThat(dynamicPointerInputScopeExecutionCount).isEqualTo(1)
 
             // Verify Box 1 existing modifier events
-            assertThat(preexistingModifierPress).isEqualTo(3)
-            assertThat(preexistingModifierMove).isEqualTo(3)
-            assertThat(preexistingModifierRelease).isEqualTo(3)
+            assertThat(preexistingModifierPress).isEqualTo(2)
+            assertThat(preexistingModifierMove).isEqualTo(2)
+            assertThat(preexistingModifierRelease).isEqualTo(2)
 
             // Verify Box 1 dynamically added modifier events
-            assertThat(dynamicModifierPress).isEqualTo(0)
-            assertThat(dynamicModifierMove).isEqualTo(0)
-            assertThat(dynamicModifierRelease).isEqualTo(0)
+            assertThat(dynamicModifierPress).isEqualTo(1)
+            assertThat(dynamicModifierMove).isEqualTo(1)
+            assertThat(dynamicModifierRelease).isEqualTo(1)
 
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()

@@ -89,56 +89,155 @@
         </LinearLayout>
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <ToggleButton
                 android:id="@+id/mode_button"
-                android:textOn="@string/switch_mode"
-                android:textOff="@string/switch_mode"
                 android:layout_width="100dp"
                 android:layout_height="70dp"
-                android:layout_gravity="top|right"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="15dp" />
+                android:layout_gravity="top|left"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:textOff="@string/switch_mode"
+                android:textOn="@string/switch_mode" />
 
             <ToggleButton
                 android:id="@+id/layout_button"
-                android:textOn="@string/change_layout"
-                android:textOff="@string/change_layout"
                 android:layout_width="100dp"
                 android:layout_height="70dp"
-                android:layout_gravity="top|right"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="15dp" />
+                android:layout_gravity="top|left"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:textOff="@string/change_layout"
+                android:textOn="@string/change_layout" />
 
             <ToggleButton
                 android:id="@+id/toggle_button"
-                android:textOn="@string/toggle_camera"
-                android:textOff="@string/toggle_camera"
                 android:layout_width="100dp"
                 android:layout_height="70dp"
-                android:layout_gravity="top|right"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="15dp" />
+                android:layout_gravity="top|left"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:textOff="@string/toggle_camera"
+                android:textOn="@string/toggle_camera" />
 
             <ToggleButton
                 android:id="@+id/dual_selfie"
-                android:textOn="@string/dual_selfie_on"
-                android:textOff="@string/dual_selfie_off"
                 android:layout_width="46dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/round_toggle_button"
+                android:checked="false"
                 android:scaleType="fitXY"
                 android:textColor="#EEEEEE"
+                android:textOff="@string/dual_selfie_off"
+                android:textOn="@string/dual_selfie_on"
                 android:textSize="10dp"
-                android:checked="false"
+                android:visibility="gone" />
+
+            <ToggleButton
+                android:id="@+id/dual_record"
+                android:layout_width="46dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|left"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
                 android:background="@drawable/round_toggle_button"
-                android:visibility="gone"
-                android:layout_gravity="top|right"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="15dp" />
+                android:checked="false"
+                android:scaleType="fitXY"
+                android:textColor="#EEEEEE"
+                android:textOff="@string/dual_recording_off"
+                android:textOn="@string/dual_recording_on"
+                android:textSize="10dp" />
         </LinearLayout>
     </FrameLayout>
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="0dp"
+        app:layout_constraintGuide_percent="0.7" />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/takevideo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="0dp"
+        app:layout_constraintGuide_percent="0.4" />
+        <Button
+            android:id="@+id/Video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:text="Record"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/takevideo"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/video_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            android:text="Pause"
+            app:layout_constraintBottom_toTopOf="@+id/Video"
+            app:layout_constraintEnd_toEndOf="@+id/Video"
+            app:layout_constraintStart_toStartOf="@+id/Video"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+    <ToggleButton
+        android:id="@+id/video_persistent"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
+        android:scaleType="fitXY"
+        android:textColor="#EEEEEE"
+        android:textSize="14dp"
+        android:textOn="@string/toggle_video_persistent_on"
+        android:textOff="@string/toggle_video_persistent_off"
+        android:checked="false"
+        android:background="@drawable/round_toggle_button"
+        app:layout_constraintBottom_toTopOf="@+id/video_quality"
+        app:layout_constraintEnd_toEndOf="@+id/video_quality"
+        app:layout_constraintStart_toStartOf="@+id/video_quality"/>
+
+        <TextView
+            android:id="@+id/video_stats"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#FFF"
+            android:elevation="2dp"
+            android:scaleType="fitXY"
+            android:src="@android:drawable/btn_radio"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintDimensionRatio="4:3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="@+id/guideline"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <Button
+            android:id="@+id/video_quality"
+            android:layout_width="46dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="1dp"
+            android:layout_marginLeft="5dp"
+            android:background="@drawable/round_button"
+            android:scaleType="fitXY"
+            android:textColor="#EEEEEE"
+            android:textSize="14dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 <!--</LinearLayout>-->

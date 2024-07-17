@@ -28,7 +28,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.Period
+import java.time.ZoneOffset
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -40,6 +42,11 @@ private val METRIC_PROTO =
         .setFieldName("count")
 private val TIME_RANGE_FILTER =
     TimeRangeFilter.between(Instant.ofEpochMilli(123), Instant.ofEpochMilli(456))
+private val LOCAL_TIME_RANGE_FILTER =
+    TimeRangeFilter.between(
+        LocalDateTime.ofInstant(TIME_RANGE_FILTER.startTime!!, ZoneOffset.UTC),
+        LocalDateTime.ofInstant(TIME_RANGE_FILTER.endTime!!, ZoneOffset.UTC)
+    )
 private val DATA_ORIGIN_FILTER = setOf(DataOrigin("testAppName"))
 
 @RunWith(AndroidJUnit4::class)
@@ -89,7 +96,7 @@ class AggregateRequestConverterTest {
         val request =
             AggregateGroupByPeriodRequest(
                 metrics = setOf(METRIC),
-                timeRangeFilter = TIME_RANGE_FILTER,
+                timeRangeFilter = LOCAL_TIME_RANGE_FILTER,
                 timeRangeSlicer = Period.ofDays(1),
                 dataOriginFilter = DATA_ORIGIN_FILTER
             )
@@ -99,7 +106,7 @@ class AggregateRequestConverterTest {
                 RequestProto.AggregateDataRequest.newBuilder()
                     .addMetricSpec(METRIC_PROTO)
                     .addAllDataOrigin(DATA_ORIGIN_FILTER.toProtoList())
-                    .setTimeSpec(TIME_RANGE_FILTER.toProto())
+                    .setTimeSpec(LOCAL_TIME_RANGE_FILTER.toProto())
                     .setSlicePeriod(Period.ofDays(1).toString())
                     .build()
             )

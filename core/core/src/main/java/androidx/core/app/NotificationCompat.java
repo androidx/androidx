@@ -863,6 +863,11 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_MISSED_CALL = "missed_call";
 
+    /**
+     * Notification category: voicemail.
+     */
+    public static final String CATEGORY_VOICEMAIL = "voicemail";
+
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({BADGE_ICON_NONE, BADGE_ICON_SMALL, BADGE_ICON_LARGE})
@@ -5509,7 +5514,12 @@ public class NotificationCompat {
          *                the notification.
          * @param notification The notification from which to get texts from its content view.
          * @return A list of text from the notification custom content view made by the above
-         * method. Otherwise, returns the empty list.
+         * method. Note that the method only returns a list of text from one of the custom view
+         * as the above when it set, meaning when multiple custom content views has set in a
+         * notification, the returned list will base on the detail of custom content and usage as
+         * the priority: First is {@link Notification#bigContentView}, then is
+         * {@link Notification#contentView} when no big content view has set, or
+         * {@link Notification#headsUpContentView} when set. Otherwise, returns the empty list.
          */
         @NonNull
         @SuppressWarnings("MixedMutabilityReturnType")

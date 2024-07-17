@@ -50,7 +50,6 @@ public fun CurvedModifier.sizeIn(
  * Specify the dimensions (sweep and thickness) for the content.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedFixedSize
- *
  * @param sweepDegrees Indicates the sweep (angular size) of the content.
  * @param thickness Indicates the thickness (radial size) of the content.
  */
@@ -70,7 +69,6 @@ public fun CurvedModifier.size(
  * center of the item, except for [basicCurvedText], where it will be measured at the text baseline.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedFixedSize
- *
  * @param angularWidth Indicates the arc length of the content in Dp.
  */
 public fun CurvedModifier.angularSizeDp(angularWidth: Dp) =
@@ -111,11 +109,8 @@ internal class SweepSizeWrapper(
         baseInitializeMeasure(measurables)
     }
 
-    override fun calculateSweepRadians(partialLayoutInfo: PartialLayoutInfo): Float =
-        partialLayoutInfo.sweepRadians.coerceIn(
-            minSweepDegrees.toRadians(),
-            maxSweepDegrees.toRadians()
-        )
+    override fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float): Float =
+        sweepRadians.coerceIn(minSweepDegrees.toRadians(), maxSweepDegrees.toRadians())
 }
 
 internal class AngularWidthSizeWrapper(
@@ -136,11 +131,8 @@ internal class AngularWidthSizeWrapper(
         baseInitializeMeasure(measurables)
     }
 
-    override fun calculateSweepRadians(partialLayoutInfo: PartialLayoutInfo): Float =
-        partialLayoutInfo.sweepRadians.coerceIn(
-            minAngularWidthPx / partialLayoutInfo.measureRadius,
-            maxAngularWidthPx / partialLayoutInfo.measureRadius
-        )
+    override fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float) =
+        sweepRadians.coerceIn(minAngularWidthPx / measureRadius, maxAngularWidthPx / measureRadius)
 }
 
 internal abstract class BaseSizeWrapper(
@@ -163,7 +155,7 @@ internal abstract class BaseSizeWrapper(
     override fun doEstimateThickness(maxRadius: Float) =
         wrapped.estimateThickness(maxRadius).coerceIn(minThicknessPx, maxThicknessPx)
 
-    protected abstract fun calculateSweepRadians(partialLayoutInfo: PartialLayoutInfo): Float
+    protected abstract fun calculateSweepRadians(sweepRadians: Float, measureRadius: Float): Float
 
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
@@ -172,7 +164,7 @@ internal abstract class BaseSizeWrapper(
     ): Float {
         wrapped.angularPosition(
             parentStartAngleRadians,
-            parentSweepRadians = sweepRadians,
+            parentSweepRadians = calculateSweepRadians(parentSweepRadians, measureRadius),
             centerOffset
         )
         return parentStartAngleRadians
@@ -184,7 +176,7 @@ internal abstract class BaseSizeWrapper(
     ): PartialLayoutInfo {
         val partialLayoutInfo = wrapped.radialPosition(parentOuterRadius, estimatedThickness)
         return PartialLayoutInfo(
-            calculateSweepRadians(partialLayoutInfo),
+            calculateSweepRadians(partialLayoutInfo.sweepRadians, partialLayoutInfo.measureRadius),
             parentOuterRadius,
             thickness = estimatedThickness,
             measureRadius =

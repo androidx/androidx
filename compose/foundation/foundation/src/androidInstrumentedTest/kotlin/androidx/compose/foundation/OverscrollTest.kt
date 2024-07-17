@@ -44,11 +44,11 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -68,7 +68,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.abs
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -76,13 +75,11 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class OverscrollTest {
     @get:Rule val rule = createComposeRule()
 
     @get:Rule
-    val animationScaleRule: AnimationDurationScaleRule =
-        AnimationDurationScaleRule.createForAllTests(1f)
+    val animationScaleRule: AnimationDurationScaleRule = AnimationDurationScaleRule.create()
 
     @Before
     fun before() {
@@ -126,7 +123,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX + 10800, centerY), endVelocity = 30000f)
+            swipeWithVelocity(center, centerRight, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
@@ -159,7 +156,7 @@ class OverscrollTest {
         rule.runOnIdle {
             val slop = viewConfig.touchSlop
             // since we consume 1/10 of the delta in the pre scroll during overscroll, expect 9/10
-            assertThat(abs(acummulatedScroll - 1000f * 9 / 10)).isWithin(0.1f)
+            assertThat(abs(acummulatedScroll)).isWithin(0.1f).of((1000f - slop) * 9 / 10)
 
             assertThat(controller.lastPreScrollDelta).isEqualTo(Offset(1000f - slop, 0f))
             assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
@@ -202,7 +199,7 @@ class OverscrollTest {
         rule.runOnIdle {
             val slop = viewConfig.touchSlop
             // since we consume 1/10 of the delta in the pre scroll during overscroll, expect 9/10
-            assertThat(abs(acummulatedScroll - 1000f * 9 / 10)).isWithin(0.1f)
+            assertThat(abs(acummulatedScroll)).isWithin(0.1f).of((1000f - slop) * 9 / 10)
 
             assertThat(controller.lastPreScrollDelta).isEqualTo(Offset(1000f - slop, 0f))
             assertThat(controller.lastNestedScrollSource).isEqualTo(NestedScrollSource.UserInput)
@@ -251,12 +248,12 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX + 10800, centerY), endVelocity = 30000f)
+            swipeWithVelocity(center, centerRight, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
-            assertThat(abs(controller.preFlingVelocity.x - 30000f)).isWithin(0.1f)
-            assertThat(abs(lastFlingReceived - 30000f * 9 / 10)).isWithin(0.1f)
+            assertThat(abs(controller.preFlingVelocity.x)).isWithin(0.1f).of(3000f)
+            assertThat(abs(lastFlingReceived)).isWithin(0.1f).of(3000f * 9 / 10)
         }
     }
 
@@ -314,6 +311,7 @@ class OverscrollTest {
             overscrollEffect =
                 AndroidEdgeEffectOverscrollEffect(
                     LocalView.current.context,
+                    LocalDensity.current,
                     OverscrollConfiguration(Color.Gray)
                 )
         }
@@ -323,7 +321,6 @@ class OverscrollTest {
         assertThat(first).isEqualTo(second)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.R)
     fun glowOverscroll_doesNotClip() {
@@ -377,7 +374,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotClipCrossAxis_verticalOverscroll() {
@@ -464,7 +460,6 @@ class OverscrollTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotClipCrossAxis_horizontalOverscroll() {
@@ -551,7 +546,6 @@ class OverscrollTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_clipsBothAxes_overscrollInBothDirections() {
@@ -644,7 +638,6 @@ class OverscrollTest {
      * when stretching down, or if there are no pixels (transparent) there, this will cause any
      * background underneath the content to become visible.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotIncludeUnclippedPixels_verticalOverscroll() {
@@ -697,7 +690,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotIncludeUnclippedPixels_horizontalOverscroll() {
@@ -750,7 +742,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun stretchOverscroll_doesNotIncludeUnclippedPixels_overscrollInBothDirections() {
@@ -803,7 +794,6 @@ class OverscrollTest {
         rule.onNodeWithTag(tag).captureToImage().assertHasNoColor(Color.Red)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun zeroSizedEffectIsNotConsumingOffsetsAndVelocity() {
@@ -839,7 +829,6 @@ class OverscrollTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun notAttachedEffectIsNotConsumingOffsetsAndVelocity() {
@@ -885,7 +874,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX + 10800, centerY), endVelocity = 30000f)
+            swipeWithVelocity(center, centerRight, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
@@ -921,7 +910,7 @@ class OverscrollTest {
         rule.onNodeWithTag(boxTag).assertExists()
 
         rule.onNodeWithTag(boxTag).performTouchInput {
-            swipeWithVelocity(center, Offset(centerX, centerY + 10800), endVelocity = 30000f)
+            swipeWithVelocity(center, bottomCenter, endVelocity = 3000f)
         }
 
         rule.runOnIdle {
@@ -1145,7 +1134,6 @@ class OverscrollTest {
         }
     }
 
-    @ExperimentalFoundationApi
     @MediumTest
     @Test
     fun testOverscrollCallbacks_verticalSwipeUp_shouldTriggerCallbacks() {
@@ -1188,11 +1176,10 @@ class OverscrollTest {
                         .drawBehind { drawCount++ }
             )
         }
-        rule.runOnIdle { assertEquals(1, drawCount) }
+        // Due to b/302303969 there are no guarantees runOnIdle() will wait for drawing to happen
+        rule.waitUntil { drawCount == 1 }
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @ExperimentalFoundationApi
     @MediumTest
     @Test
     fun testOverscrollCallbacks_verticalScrollMouse_shouldNotTriggerCallbacks() {
@@ -1230,7 +1217,6 @@ class OverscrollTest {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private fun ComposeContentTestRule.setOverscrollContentAndReturnViewConfig(
     scrollableState: ScrollableState,
     overscrollEffect: OverscrollEffect,
@@ -1290,7 +1276,6 @@ private class InspectableConnection : NestedScrollConnection {
 }
 
 // Custom offset overscroll that only counts the number of times each callback is triggered.
-@OptIn(ExperimentalFoundationApi::class)
 private class OffsetOverscrollEffectCounter : OverscrollEffect {
     var applyToScrollCount: Int = 0
         private set
@@ -1298,7 +1283,6 @@ private class OffsetOverscrollEffectCounter : OverscrollEffect {
     var applyToFlingCount: Int = 0
         private set
 
-    @ExperimentalFoundationApi
     override fun applyToScroll(
         delta: Offset,
         source: NestedScrollSource,

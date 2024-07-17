@@ -70,7 +70,6 @@ import kotlin.math.abs
  * Example of [SwipeToRevealChip] with primary and secondary actions
  *
  * @sample androidx.wear.compose.material.samples.SwipeToRevealChipSample
- *
  * @param primaryAction A composable to describe the primary action when swiping. The action will be
  *   triggered on clicking the action. See [SwipeToRevealPrimaryAction].
  * @param revealState [RevealState] of the [SwipeToReveal]
@@ -134,7 +133,6 @@ public fun SwipeToRevealChip(
  * Example of [SwipeToRevealCard] with primary and secondary actions
  *
  * @sample androidx.wear.compose.material.samples.SwipeToRevealCardSample
- *
  * @param primaryAction A composable to describe the primary action when swiping. The action will be
  *   triggered on clicking the action. See [SwipeToRevealPrimaryAction].
  * @param revealState [RevealState] of the [SwipeToReveal]
@@ -277,7 +275,7 @@ public fun RevealScope.SwipeToRevealUndoAction(
         modifier =
             modifier.clickable(
                 interactionSource = interactionSource,
-                indication = rippleOrFallbackImplementation(),
+                indication = ripple(),
                 role = Role.Button,
                 onClick = {
                     revealState.lastActionType = RevealActionType.UndoAction
@@ -526,7 +524,7 @@ private fun RevealScope.ActionCommon(
                 .fillMaxSize()
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = rippleOrFallbackImplementation(),
+                    indication = ripple(),
                     role = Role.Button,
                     onClick = {
                         revealState.lastActionType = actionType

@@ -30,13 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
@@ -93,8 +91,6 @@ class HoverableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @ExperimentalComposeUiApi
     @Test
     fun hoverableTest_hovered() {
         var isHovered = false
@@ -133,8 +129,6 @@ class HoverableTest {
         Truth.assertThat(isHovered).isTrue()
     }
 
-    @OptIn(ExperimentalTestApi::class)
-    @ExperimentalComposeUiApi
     @Test
     fun hoverableTest_interactionSource() {
         val interactionSource = MutableInteractionSource()
@@ -177,7 +171,6 @@ class HoverableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun hoverableTest_interactionSource_resetWhenDisposed() {
         val interactionSource = MutableInteractionSource()
@@ -224,7 +217,6 @@ class HoverableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun hoverableTest_interactionSource_resetWhenReused() {
         val interactionSource = MutableInteractionSource()
@@ -271,7 +263,6 @@ class HoverableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun hoverableTest_interactionSource_resetWhenMoved() {
         val interactionSource = MutableInteractionSource()
@@ -322,7 +313,6 @@ class HoverableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun hoverableTest_interactionSource_dontHoverWhenDisabled() {
         val interactionSource = MutableInteractionSource()
@@ -352,7 +342,6 @@ class HoverableTest {
         rule.runOnIdle { Truth.assertThat(interactions).isEmpty() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun hoverableTest_interactionSource_resetWhenDisabled() {
         val interactionSource = MutableInteractionSource()

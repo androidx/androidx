@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text2
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.demos.text.fontSize8
 import androidx.compose.foundation.layout.Box
@@ -113,7 +112,6 @@ private val imeActions =
         ImeAction.Done
     )
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun KeyboardActionDemoItem(
     imeAction: ImeAction,

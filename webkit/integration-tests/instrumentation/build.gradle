@@ -15,15 +15,12 @@ plugins {
 android {
     namespace 'androidx.webkit.instrumentation'
 
-    defaultConfig {
-        multiDexEnabled = true
-    }
     flavorDimensions = ["targetSdk"]
 
     productFlavors {
         targetSdk32 {
             dimension "targetSdk"
-            targetSdkVersion 32
+
         }
         targetSdkLatest {
             dimension "targetSdk"
@@ -31,6 +28,13 @@ android {
         }
     }
 }
+
+androidComponents {
+    beforeVariants(selector().withFlavor("targetSdk", "targetSdk32")) { variant ->
+        variant.androidTest.targetSdk = 32
+    }
+}
+
 dependencies {
     androidTestImplementation(project(":webkit:webkit"))
 
@@ -43,7 +47,6 @@ dependencies {
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
-    androidTestImplementation(libs.multidex)
 
     // Hamcrest matchers:
     androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)

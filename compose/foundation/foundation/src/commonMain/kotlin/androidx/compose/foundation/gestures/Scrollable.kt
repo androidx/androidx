@@ -21,11 +21,9 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.splineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.FocusedBoundsObserverNode
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.OverscrollEffect
-import androidx.compose.foundation.gestures.BringIntoViewSpec.Companion.DefaultBringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -91,7 +89,6 @@ import kotlinx.coroutines.withContext
  * draggable, consider using [draggable].
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
- *
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
  *   interpreted by the user land logic and contains useful information about on-going events.
  * @param orientation orientation of the scrolling
@@ -104,7 +101,6 @@ import kotlinx.coroutines.withContext
  *   this scrollable is being dragged.
  */
 @Stable
-@OptIn(ExperimentalFoundationApi::class)
 fun Modifier.scrollable(
     state: ScrollableState,
     orientation: Orientation,
@@ -138,7 +134,6 @@ fun Modifier.scrollable(
  * look-and-feel.
  *
  * @sample androidx.compose.foundation.samples.ScrollableSample
- *
  * @param state [ScrollableState] state of the scrollable. Defines how scroll events will be
  *   interpreted by the user land logic and contains useful information about on-going events.
  * @param orientation orientation of the scrolling
@@ -156,12 +151,8 @@ fun Modifier.scrollable(
  *   when scroll requests are received from the focus system. If null is provided the system will
  *   use the behavior provided by [LocalBringIntoViewSpec] which by default has a platform dependent
  *   implementation.
- *
- * Note: This API is experimental as it brings support for some experimental features:
- * [overscrollEffect] and [bringIntoViewSpec].
  */
 @Stable
-@ExperimentalFoundationApi
 fun Modifier.scrollable(
     state: ScrollableState,
     orientation: Orientation,
@@ -184,7 +175,6 @@ fun Modifier.scrollable(
             bringIntoViewSpec
         )
 
-@OptIn(ExperimentalFoundationApi::class)
 private class ScrollableElement(
     val state: ScrollableState,
     val orientation: Orientation,
@@ -263,7 +253,6 @@ private class ScrollableElement(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class ScrollableNode(
     state: ScrollableState,
     private var overscrollEffect: OverscrollEffect?,
@@ -561,7 +550,6 @@ object ScrollableDefaults {
      * effects.
      */
     @Composable
-    @ExperimentalFoundationApi
     fun overscrollEffect(): OverscrollEffect {
         return rememberOverscrollEffect()
     }
@@ -590,21 +578,6 @@ object ScrollableDefaults {
         }
         return reverseDirection
     }
-
-    /**
-     * A default implementation for [BringIntoViewSpec] that brings a child into view using the
-     * least amount of effort.
-     */
-    @Deprecated(
-        "This has been replaced by composition locals LocalBringIntoViewSpec",
-        replaceWith =
-            ReplaceWith(
-                "LocalBringIntoView.current",
-                "androidx.compose.foundation.gestures.LocalBringIntoViewSpec"
-            )
-    )
-    @ExperimentalFoundationApi
-    fun bringIntoViewSpec(): BringIntoViewSpec = DefaultBringIntoViewSpec
 }
 
 internal interface ScrollConfig {
@@ -632,7 +605,6 @@ private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) 
  * Holds all scrolling related logic: controls nested scrolling, flinging, overscroll and delta
  * dispatching.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class ScrollingLogic(
     var scrollableState: ScrollableState,
     private var orientation: Orientation,

@@ -174,7 +174,7 @@ class ImageCaptureTest {
                 bufferFormat = ImageFormat.JPEG,
             )
         // Act: pipeline can be recreated without crashing.
-        imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build())
+        imageCapture.updateSuggestedStreamSpec(StreamSpec.builder(resolution).build(), null)
     }
 
     @Test
@@ -276,12 +276,10 @@ class ImageCaptureTest {
         assertTakePictureManagerHasTheSameSurface(imageCapture)
 
         // Act: invoke onError callback.
-        imageCapture.sessionConfig.errorListeners
-            .single()
-            .onError(
-                imageCapture.sessionConfig,
-                SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
-            )
+        imageCapture.sessionConfig.errorListener!!.onError(
+            imageCapture.sessionConfig,
+            SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
+        )
 
         // Assert: the surface has been recreated.
         val newSurface = imageCapture.sessionConfig.surfaces.single().surface.get()

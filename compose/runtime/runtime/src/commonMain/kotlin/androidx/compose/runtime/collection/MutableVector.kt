@@ -43,7 +43,7 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
 
     /** Returns an [IntRange] of the valid indices for this [MutableVector]. */
     inline val indices: IntRange
-        get() = 0..size - 1
+        get() = 0 until size
 
     /** Adds [element] to the [MutableVector] and returns `true`. */
     fun add(element: T): Boolean {
@@ -297,7 +297,7 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
      */
     fun first(): T {
         if (isEmpty()) {
-            throw NoSuchElementException("MutableVector is empty.")
+            throwNoSuchElementException()
         }
         return get(0)
     }
@@ -318,7 +318,16 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
                 i++
             } while (i < size)
         }
-        throwNoSuchElementException()
+        throwNoSuchElementException("MutableVector contains no element matching the predicate.")
+    }
+
+    @PublishedApi
+    internal inline fun throwNoSuchElementException(): Nothing =
+        throwNoSuchElementException("MutableVector is empty.")
+
+    @PublishedApi
+    internal fun throwNoSuchElementException(message: String): Nothing {
+        throw NoSuchElementException(message)
     }
 
     /** Returns the first element in the [MutableVector] or `null` if it [isEmpty]. */
@@ -541,7 +550,7 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
      */
     fun last(): T {
         if (isEmpty()) {
-            throw NoSuchElementException("MutableVector is empty.")
+            throwNoSuchElementException("MutableVector is empty.")
         }
         return get(lastIndex)
     }
@@ -562,7 +571,7 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
                 i--
             } while (i >= 0)
         }
-        throwNoSuchElementException()
+        throwNoSuchElementException("MutableVector contains no element matching the predicate.")
     }
 
     /**
@@ -710,7 +719,7 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
     fun removeAll(elements: MutableVector<T>): Boolean {
         val initialSize = size
         for (i in 0..elements.lastIndex) {
-            remove(elements.get(i))
+            remove(elements[i])
         }
         return initialSize != size
     }
@@ -828,11 +837,6 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
             } while (i < size)
         }
         return sum
-    }
-
-    @PublishedApi
-    internal fun throwNoSuchElementException(): Nothing {
-        throw NoSuchElementException("MutableVector contains no element matching the predicate.")
     }
 
     private class VectorListIterator<T>(private val list: MutableList<T>, private var index: Int) :
@@ -1008,14 +1012,16 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
 
         override fun addAll(index: Int, elements: Collection<T>): Boolean {
             list.addAll(index + start, elements)
-            end += elements.size
-            return elements.size > 0
+            val size = elements.size
+            end += size
+            return size > 0
         }
 
         override fun addAll(elements: Collection<T>): Boolean {
             list.addAll(end, elements)
-            end += elements.size
-            return elements.size > 0
+            val size = elements.size
+            end += size
+            return size > 0
         }
 
         override fun clear() {
@@ -1078,31 +1084,41 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
     }
 }
 
-private fun List<*>.checkIndex(index: Int) {
+internal fun List<*>.checkIndex(index: Int) {
     val size = size
     if (index < 0 || index >= size) {
-        throw IndexOutOfBoundsException(
-            "Index $index is out of bounds. " + "The list has $size elements."
-        )
+        throwListIndexOutOfBoundsException(index, size)
     }
 }
 
-private fun List<*>.checkSubIndex(fromIndex: Int, toIndex: Int) {
-    val size = size
+private fun throwListIndexOutOfBoundsException(index: Int, size: Int) {
+    throw IndexOutOfBoundsException("Index $index is out of bounds. The list has $size elements.")
+}
+
+internal fun List<*>.checkSubIndex(fromIndex: Int, toIndex: Int) {
     if (fromIndex > toIndex) {
-        throw IllegalArgumentException(
-            "Indices are out of order. fromIndex ($fromIndex) is " +
-                "greater than toIndex ($toIndex)."
-        )
+        throwReversedIndicesException(fromIndex, toIndex)
     }
     if (fromIndex < 0) {
-        throw IndexOutOfBoundsException("fromIndex ($fromIndex) is less than 0.")
+        throwNegativeIndexException(fromIndex)
     }
     if (toIndex > size) {
-        throw IndexOutOfBoundsException(
-            "toIndex ($toIndex) is more than than the list size ($size)"
-        )
+        throwOutOfRangeException(toIndex, size)
     }
+}
+
+private fun throwOutOfRangeException(toIndex: Int, size: Int) {
+    throw IndexOutOfBoundsException("toIndex ($toIndex) is more than than the list size ($size)")
+}
+
+private fun throwNegativeIndexException(fromIndex: Int) {
+    throw IndexOutOfBoundsException("fromIndex ($fromIndex) is less than 0.")
+}
+
+private fun throwReversedIndicesException(fromIndex: Int, toIndex: Int) {
+    throw IllegalArgumentException(
+        "Indices are out of order. fromIndex ($fromIndex) is " + "greater than toIndex ($toIndex)."
+    )
 }
 
 /**

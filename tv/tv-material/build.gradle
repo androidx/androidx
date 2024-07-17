@@ -33,8 +33,8 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
 
-    def annotationVersion = "1.7.1"
-    def composeVersion = "1.6.5"
+    def annotationVersion = "1.8.0"
+    def composeVersion = "1.6.8"
     def profileInstallerVersion = "1.3.1"
 
     api("androidx.annotation:annotation:$annotationVersion")
@@ -62,9 +62,6 @@ dependencies {
 
 android {
     namespace "androidx.tv.material"
-    defaultConfig {
-        minSdkVersion 21
-    }
     sourceSets.androidTest.assets.srcDirs +=
              project.rootDir.absolutePath + "/../../golden/tv/compose/material3"
 }

@@ -17,6 +17,7 @@
 package androidx.camera.integration.extensions
 
 import android.content.Context
+import android.graphics.Bitmap
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
@@ -68,6 +69,7 @@ import org.junit.runners.Parameterized
 @SdkSuppress(minSdkVersion = 21)
 class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensionTestParams) {
     companion object {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         @JvmStatic
         @get:Parameterized.Parameters(name = "config = {0}")
         val parameters: Collection<CameraXExtensionTestParams>
@@ -83,8 +85,6 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(config.cameraXConfig)
         )
-
-    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var extensionsManager: ExtensionsManager
@@ -113,18 +113,23 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
         }
     }
 
-    private suspend fun isCaptureProcessProgressSupported(
+    private fun isCaptureProcessProgressSupported(
         extensionsCameraSelector: CameraSelector
     ): Boolean {
-        return withContext(Dispatchers.Main) {
-            cameraProvider.unbindAll()
-            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, extensionsCameraSelector)
-            ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
-                .isCaptureProcessProgressSupported
-        }
+        val cameraInfo = cameraProvider.getCameraInfo(extensionsCameraSelector)
+        return ImageCapture.getImageCaptureCapabilities(cameraInfo)
+            .isCaptureProcessProgressSupported
     }
 
-    private suspend fun assertPreviewAndImageCaptureWorking(clientVersion: String) {
+    private fun isPostviewSupported(extensionsCameraSelector: CameraSelector): Boolean {
+        val cameraInfo = cameraProvider.getCameraInfo(extensionsCameraSelector)
+        return ImageCapture.getImageCaptureCapabilities(cameraInfo).isPostviewSupported
+    }
+
+    private suspend fun assertPreviewAndImageCaptureWorking(
+        clientVersion: String,
+        verifyPostview: Boolean = false
+    ) {
         extensionsManager =
             ExtensionsManager.getInstanceAsync(context, cameraProvider, clientVersion)[
                     10000, TimeUnit.MILLISECONDS]
@@ -137,13 +142,21 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
 
         val expectCaptureProcessProgress =
             isCaptureProcessProgressSupported(extensionCameraSelector)
+        val expectPostview =
+            if (verifyPostview) {
+                assumeTrue(isPostviewSupported(extensionCameraSelector))
+                true
+            } else {
+                false
+            }
 
         val previewFrameLatch = CountDownLatch(1)
         val captureLatch = CountDownLatch(1)
+        val postviewLatch = CountDownLatch(1)
         var captureProcessProgressInvoked = false
 
         val preview = Preview.Builder().build()
-        val imageCapture = ImageCapture.Builder().build()
+        val imageCapture = ImageCapture.Builder().setPostviewEnabled(expectPostview).build()
 
         withContext(Dispatchers.Main) {
             preview.setSurfaceProvider(
@@ -170,8 +183,15 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
                 override fun onCaptureProcessProgressed(progress: Int) {
                     captureProcessProgressInvoked = true
                 }
+
+                override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
+                    postviewLatch.countDown()
+                }
             }
         )
+        if (expectPostview) {
+            assertThat(postviewLatch.await(10, TimeUnit.SECONDS)).isTrue()
+        }
         assertThat(captureLatch.await(10, TimeUnit.SECONDS)).isTrue()
         assertThat(captureProcessProgressInvoked).isEqualTo(expectCaptureProcessProgress)
     }
@@ -199,5 +219,10 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
     @Test
     fun previewImageCaptureWork_clientVersion_1_4_0() = runBlocking {
         assertPreviewAndImageCaptureWorking(clientVersion = "1.4.0")
+    }
+
+    @Test
+    fun previewImageCaptureWorkWithPostView_clientVersion_1_4_0() = runBlocking {
+        assertPreviewAndImageCaptureWorking(clientVersion = "1.4.0", verifyPostview = true)
     }
 }

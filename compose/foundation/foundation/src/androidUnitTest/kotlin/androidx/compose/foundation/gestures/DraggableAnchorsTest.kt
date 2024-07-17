@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.TestValue.A
 import androidx.compose.foundation.gestures.TestValue.B
 import androidx.compose.foundation.gestures.TestValue.C
@@ -71,28 +68,48 @@ class DraggableAnchorsTest {
     }
 
     @Test
-    fun draggableAnchors_minAnchor() {
+    fun draggableAnchors_minPosition() {
         val anchors = DraggableAnchors {
             A at -100f
             B at 100f
         }
-        assertThat(anchors.minAnchor()).isEqualTo(-100f)
+        assertThat(anchors.minPosition()).isEqualTo(-100f)
     }
 
     @Test
-    fun draggableAnchors_maxAnchor() {
+    fun draggableAnchors_maxPosition() {
         val anchors = DraggableAnchors {
             A at -100f
             B at 100f
         }
-        assertThat(anchors.maxAnchor()).isEqualTo(100f)
+        assertThat(anchors.maxPosition()).isEqualTo(100f)
     }
 
     @Test
-    fun draggableAnchors_hasAnchorFor() {
+    fun draggableAnchors_hasPositionFor() {
         val anchors = DraggableAnchors { A at 100f }
         assertThat(anchors.positionOf(A)).isEqualTo(100f)
-        assertThat(anchors.hasAnchorFor(A)).isTrue()
+        assertThat(anchors.hasPositionFor(A)).isTrue()
+    }
+
+    @Test
+    fun draggableAnchors_equality_equalAnchors() {
+        val anchors1 = DraggableAnchors { A at 100f }
+        val anchors2 = DraggableAnchors { A at 100f }
+        assertThat(anchors1).isEqualTo(anchors2)
+    }
+
+    @Test
+    fun draggableAnchors_equality_inequalAnchors() {
+        val anchors1 = DraggableAnchors { A at 100f }
+        val anchors2 = DraggableAnchors { B at 100f }
+        assertThat(anchors1).isNotEqualTo(anchors2)
+    }
+
+    @Test
+    fun draggableAnchors_equality_differentObject() {
+        val anchors = DraggableAnchors { A at 100f }
+        assertThat(anchors).isNotEqualTo("Test")
     }
 }
 

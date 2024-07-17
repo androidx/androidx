@@ -37,26 +37,36 @@ ChangedType: androidx.kruth.TruthFailureSubject#truthFailures():
     Method androidx.kruth.TruthFailureSubject.truthFailures has changed return type from androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject,java.lang.AssertionError> to androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T>
 
 
+InvalidNullConversion: androidx.kruth.IterableSubject#isNotIn(Iterable<?>) parameter #0:
+    Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.IterableSubject.isNotIn(Iterable<?> iterable)
+InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(T[]) parameter #0:
+    Attempted to change nullability of T (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(T[] actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter messageToPrepend in androidx.kruth.StandardSubjectBuilder.withMessage(String messageToPrepend)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter messageToPrepend in androidx.kruth.StandardSubjectBuilder.withMessage(String messageToPrepend)
 InvalidNullConversion: androidx.kruth.StringSubject#contains(CharSequence) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter charSequence in androidx.kruth.StringSubject.contains(CharSequence charSequence)
+    Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter charSequence in androidx.kruth.StringSubject.contains(CharSequence charSequence)
 InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.containsMatch(String regex)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.containsMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContain(CharSequence) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter charSequence in androidx.kruth.StringSubject.doesNotContain(CharSequence charSequence)
+    Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter charSequence in androidx.kruth.StringSubject.doesNotContain(CharSequence charSequence)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContainMatch(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.doesNotContainMatch(String regex)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.doesNotContainMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotMatch(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.doesNotMatch(String regex)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.doesNotMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#endsWith(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.endsWith(String string)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter string in androidx.kruth.StringSubject.endsWith(String string)
 InvalidNullConversion: androidx.kruth.StringSubject#matches(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter regex in androidx.kruth.StringSubject.matches(String regex)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.matches(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#startsWith(String) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter string in androidx.kruth.StringSubject.startsWith(String string)
+    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter string in androidx.kruth.StringSubject.startsWith(String string)
 InvalidNullConversion: androidx.kruth.StringSubject.CaseInsensitiveStringComparison#doesNotContain(CharSequence) parameter #0:
-    Attempted to change parameter from @Nullable to @NonNull: incompatible change for parameter expected in androidx.kruth.StringSubject.CaseInsensitiveStringComparison.doesNotContain(CharSequence expected)
+    Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter expected in androidx.kruth.StringSubject.CaseInsensitiveStringComparison.doesNotContain(CharSequence expected)
+InvalidNullConversion: androidx.kruth.Subject#check(String, java.lang.Object...) parameter #1:
+    Attempted to change nullability of java.lang.Object (from NULLABLE to NONNULL) in parameter args in androidx.kruth.Subject.check(String format, java.lang.Object... args)
+InvalidNullConversion: androidx.kruth.Subject#isIn(Iterable<?>) parameter #0:
+    Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.Subject.isIn(Iterable<?> iterable)
+InvalidNullConversion: androidx.kruth.Subject#isNotIn(Iterable<?>) parameter #0:
+    Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.Subject.isNotIn(Iterable<?> iterable)
 
 
 RemovedClass: androidx.kruth.Correspondence:

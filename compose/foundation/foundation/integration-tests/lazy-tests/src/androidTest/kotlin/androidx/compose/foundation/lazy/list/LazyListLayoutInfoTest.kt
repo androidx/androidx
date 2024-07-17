@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.list
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -25,10 +26,12 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
@@ -36,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -449,6 +453,32 @@ class LazyListLayoutInfoTest(param: LayoutInfoTestParam) :
             assertThat(state.layoutInfo.viewportEndOffset).isEqualTo(itemSizePx * 5)
             state.layoutInfo.assertVisibleItems(count = 4, startOffset = itemSizePx)
         }
+    }
+
+    @Test
+    fun snapshotFlowIsNotifiedAboutNewOffsetOnSmallScrolls() {
+        var firstItemOffset = 0
+
+        val state = LazyListState()
+        rule.setContent {
+            LazyColumnOrRow(
+                modifier = Modifier.size(15.dp),
+                reverseLayout = reverseLayout,
+                state = state
+            ) {
+                items(100) { Box(Modifier.size(10.dp)) }
+            }
+            LaunchedEffect(state) {
+                snapshotFlow { state.layoutInfo }
+                    .collectLatest {
+                        firstItemOffset = it.visibleItemsInfo.firstOrNull()?.offset ?: 0
+                    }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollBy(1f) } }
+
+        rule.runOnIdle { assertThat(firstItemOffset).isEqualTo(-1) }
     }
 
     fun LazyListLayoutInfo.assertVisibleItems(

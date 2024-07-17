@@ -21,9 +21,11 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.longPress
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -33,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.testutils.expectError
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -41,6 +42,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -53,22 +55,26 @@ import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.MouseInjectionScope
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
+import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getPartialBoundsOfLinks
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkAnnotation.Url
 import androidx.compose.ui.text.Placeholder
@@ -165,9 +171,8 @@ class BasicTextLinkTest {
         setupContent { TextWithLinks() }
 
         rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onFirstText().performTouchInput {
-            val boundingBox = layoutResult!!.getBoundingBox(7)
-            click(boundingBox.center)
+        rule.onFirstText().performTouchInputOnFirstLink({ (it.item as? Url)?.url == Url1 }) {
+            click(it)
         }
 
         rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
@@ -178,11 +183,9 @@ class BasicTextLinkTest {
         setupContent { TextWithLinks() }
 
         rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onFirstText().performTouchInput {
-            val boundingBox = layoutResult!!.getBoundingBox(20)
-            click(boundingBox.center)
+        rule.onFirstText().performTouchInputOnFirstLink({ (it.item as? Url)?.url == Url2 }) {
+            click(it)
         }
-
         rule.runOnIdle { assertThat(openedUri).isEqualTo(Url2) }
     }
 
@@ -230,10 +233,9 @@ class BasicTextLinkTest {
         setupContent { RtlTextWithLinks() }
 
         rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
-            val boundingBox = layoutResult!!.getBoundingBox(3)
-            click(boundingBox.center)
-        }
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .performTouchInputOnFirstLink({ (it.item as? Url)?.url == Url1 }) { click(it) }
 
         rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
     }
@@ -243,10 +245,9 @@ class BasicTextLinkTest {
         setupContent { RtlTextWithLinks() }
 
         rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
-            val boundingBox = layoutResult!!.getBoundingBox(30)
-            click(boundingBox.center)
-        }
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .performTouchInputOnFirstLink({ (it.item as? Url)?.url == Url2 }) { click(it) }
 
         rule.runOnIdle { assertThat(openedUri).isEqualTo(Url2) }
     }
@@ -282,10 +283,9 @@ class BasicTextLinkTest {
         setupContent { BidiTextWithLinks() }
 
         rule.runOnIdle { assertThat(layoutResult).isNotNull() }
-        rule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text)).performTouchInput {
-            val boundingBox = layoutResult!!.getBoundingBox(8)
-            click(boundingBox.center)
-        }
+        rule
+            .onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text))
+            .performTouchInputOnFirstLink({ (it.item as? Url)?.url == Url1 }) { click(it) }
 
         rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
     }
@@ -322,7 +322,11 @@ class BasicTextLinkTest {
             BasicText(text = text, inlineContent = mapOf("box" to inlineTextContent))
         }
 
-        rule.onAllNodes(hasClickAction(), useUnmergedTree = true)[0].performClick()
+        rule.onNodeWithText("text", substring = true).performTouchInputOnFirstLink({
+            (it.item as? Url)?.url == Url1
+        }) {
+            click(it)
+        }
 
         rule.onNodeWithTag("box", useUnmergedTree = true).assertExists()
         rule.runOnIdle { assertThat(openedUri).isEqualTo(Url1) }
@@ -410,10 +414,7 @@ class BasicTextLinkTest {
         }
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
-        rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
-            .captureToImage()
-            .assertContainsColor(Color.Red)
+        rule.onNodeWithText("text").captureToImage().assertContainsColor(Color.Red)
     }
 
     @Test
@@ -429,13 +430,12 @@ class BasicTextLinkTest {
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
+            .onNodeWithText("text")
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertContainsColor(Color.Red)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHover_hoveredStyleUsed() {
@@ -455,14 +455,13 @@ class BasicTextLinkTest {
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { moveTo(this.center) }
+            .onNodeWithText("text")
+            .performMouseInputOnFirstLink { moveTo(it) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertDoesNotContainColor(Color.Red)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_withinOtherStyle_onHover_hoveredStyleUsed() {
@@ -484,15 +483,14 @@ class BasicTextLinkTest {
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { moveTo(this.center) }
+            .onNodeWithText("text")
+            .performMouseInputOnFirstLink { moveTo(it) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertDoesNotContainColor(Color.Red)
             .assertContainsColor(Color.Blue)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHover_hoveredStyle_mergedIntoNormal() {
@@ -512,8 +510,8 @@ class BasicTextLinkTest {
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
-            .performMouseInput { moveTo(this.center) }
+            .onNodeWithText("text")
+            .performMouseInputOnFirstLink { moveTo(it) }
             .captureToImage()
             .assertContainsColor(Color.Green)
             .assertContainsColor(Color.Red)
@@ -543,6 +541,40 @@ class BasicTextLinkTest {
             .captureToImage()
             .assertContainsColor(Color.Blue)
             .assertDoesNotContainColor(Color.Red)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_onFocus_restoresOriginalStyle_afterFocusLost() {
+        val textWithLink = buildAnnotatedString {
+            withLink(
+                Url("link", TextLinkStyles(focusedStyle = SpanStyle(background = Color.Blue)))
+            ) {
+                append("text")
+            }
+        }
+        setupContent {
+            Column {
+                Box(Modifier.size(10.dp).focusable().testTag("box"))
+                BasicText(text = textWithLink, style = TextStyle(color = Color.White))
+            }
+        }
+
+        // link captures focus
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertContainsColor(Color.Blue)
+
+        // link loses focus
+        rule.onNodeWithTag("box").requestFocus()
+
+        // verify link restores its unfocused style
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Blue)
     }
 
     @Test
@@ -600,7 +632,6 @@ class BasicTextLinkTest {
             .assertContainsColor(Color.Red)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onFocus_onHovered_onHoveredStyleUsed() {
@@ -628,7 +659,6 @@ class BasicTextLinkTest {
             .assertDoesNotContainColor(Color.Blue)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_onHovered_onFocus_onHoveredStyleUsed() {
@@ -656,7 +686,6 @@ class BasicTextLinkTest {
             .assertDoesNotContainColor(Color.Blue)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun link_hoveredAndFocused_mergedStyle() {
@@ -695,8 +724,8 @@ class BasicTextLinkTest {
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
-            .performTouchInput { longPress(this.center) }
+            .onNodeWithText("text")
+            .performTouchInputOnFirstLink { longPress(it) }
             .captureToImage()
             .assertContainsColor(Color.Green)
     }
@@ -716,8 +745,8 @@ class BasicTextLinkTest {
         setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
 
         rule
-            .onNode(hasClickAction(), useUnmergedTree = true)
-            .performTouchInput { longPress(this.center) }
+            .onNodeWithText("text")
+            .performTouchInputOnFirstLink { longPress(it) }
             .captureToImage()
             .assertDoesNotContainColor(Color.Green)
             .assertContainsColor(Color.Blue)
@@ -725,7 +754,6 @@ class BasicTextLinkTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @OptIn(ExperimentalTestApi::class)
     fun link_onPressed_whenHoveredAndFocused_pressedStyleUsed() {
         val textWithLink = buildAnnotatedString {
             withLink(
@@ -826,10 +854,44 @@ class BasicTextLinkTest {
         }
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun link_doesNotReplaceNestedStyle_whenEmptyStyle() {
+        val textWithLink = buildAnnotatedString {
+            withLink(Url("link", TextLinkStyles(focusedStyle = SpanStyle(Color.Blue)))) {
+                withStyle(SpanStyle(Color.Green)) { append("text") }
+            }
+        }
+        setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
+
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Blue)
+            .assertContainsColor(Color.Green)
+
+        rule
+            .onNode(hasClickAction(), useUnmergedTree = true)
+            .requestFocus()
+            .captureToImage()
+            .assertDoesNotContainColor(Color.Blue)
+            .assertContainsColor(Color.Green)
+    }
+
+    @Test
+    fun link_doesNotModifyAnnotations_whenEmptyStyles() {
+        val textWithLink = buildAnnotatedString { withLink(Url("link")) { append("text") } }
+        setupContent { BasicText(text = textWithLink, style = TextStyle(color = Color.White)) }
+
+        val styles = rule.onNodeWithText("text").fetchTextLayoutResult().layoutInput.text.spanStyles
+
+        assertThat(styles).isEmpty()
+    }
+
     @Composable
     private fun TextWithLinks() =
         with(rule.density) {
-            Column {
+            Column(Modifier.padding(87.dp)) {
                 /**
                  * +-----------------------+ | text link text a long | | link text | | text link | |
                  * [ ] | +-----------------------+
@@ -885,7 +947,6 @@ class BasicTextLinkTest {
         BasicText(text, onTextLayout = { layoutResult = it })
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun setupContent(content: @Composable () -> Unit) {
         val keyboardMockManager =
             object : InputModeManager {
@@ -908,6 +969,22 @@ class BasicTextLinkTest {
 
     private fun SemanticsNodeInteractionsProvider.onFirstText(): SemanticsNodeInteraction =
         onAllNodesWithText("text", substring = true)[0]
+
+    private fun SemanticsNodeInteraction.performMouseInputOnFirstLink(
+        predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
+        block: MouseInjectionScope.(offsetInLink: Offset) -> Unit
+    ): SemanticsNodeInteraction {
+        val linkBounds = getPartialBoundsOfLinks(predicate).first()
+        return this.performMouseInput { block(linkBounds.center) }
+    }
+
+    private fun SemanticsNodeInteraction.performTouchInputOnFirstLink(
+        predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
+        block: TouchInjectionScope.(offsetInLink: Offset) -> Unit
+    ): SemanticsNodeInteraction {
+        val linkBounds = getPartialBoundsOfLinks(predicate).first()
+        return this.performTouchInput { block(linkBounds.center) }
+    }
 }
 
 private class DelegatedViewConfiguration(

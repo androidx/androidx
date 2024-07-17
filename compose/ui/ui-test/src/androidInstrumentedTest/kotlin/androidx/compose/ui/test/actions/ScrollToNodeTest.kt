@@ -25,8 +25,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -62,7 +66,8 @@ class ScrollToNodeTest(private val config: TestConfig) {
         val orientation: Orientation,
         val reverseLayout: Boolean,
         val viewportSize: ViewportSize,
-        val targetPosition: StartPosition
+        val targetPosition: StartPosition,
+        val hasNestedScrollConsumer: Boolean
     ) {
         val viewportSizePx: Int
             get() = viewportSize.sizePx
@@ -112,8 +117,10 @@ class ScrollToNodeTest(private val config: TestConfig) {
                 "targetIs=" +
                 when (targetPosition) {
                     NotInList -> "$targetPosition"
-                    else -> "${targetPosition}Viewport"
-                }
+                    else -> "${targetPosition}Viewport "
+                } +
+                "nestedScrollConsumer=" +
+                hasNestedScrollConsumer
     }
 
     companion object {
@@ -132,13 +139,16 @@ class ScrollToNodeTest(private val config: TestConfig) {
                     for (reverseScrolling in listOf(false, true)) {
                         for (viewportSize in ViewportSize.values()) {
                             for (targetPosition in StartPosition.values()) {
-                                TestConfig(
-                                        orientation = orientation,
-                                        reverseLayout = reverseScrolling,
-                                        viewportSize = viewportSize,
-                                        targetPosition = targetPosition
-                                    )
-                                    .also { add(it) }
+                                for (nestedScrollConsumer in listOf(true, false)) {
+                                    TestConfig(
+                                            orientation = orientation,
+                                            reverseLayout = reverseScrolling,
+                                            viewportSize = viewportSize,
+                                            targetPosition = targetPosition,
+                                            hasNestedScrollConsumer = nestedScrollConsumer
+                                        )
+                                        .also { add(it) }
+                                }
                             }
                         }
                     }
@@ -257,6 +267,11 @@ class ScrollToNodeTest(private val config: TestConfig) {
         Modifier.composed {
             with(LocalDensity.current) {
                 Modifier.testTag(containerTag)
+                    .then(
+                        if (config.hasNestedScrollConsumer)
+                            Modifier.nestedScroll(horizontalNestedScrollConsumer)
+                        else Modifier
+                    )
                     .requiredSize(config.viewportSizePx.toDp(), itemSizePx.toDp())
             }
         }
@@ -265,6 +280,11 @@ class ScrollToNodeTest(private val config: TestConfig) {
         Modifier.composed {
             with(LocalDensity.current) {
                 Modifier.testTag(containerTag)
+                    .then(
+                        if (config.hasNestedScrollConsumer)
+                            Modifier.nestedScroll(verticalNestedScrollConsumer)
+                        else Modifier
+                    )
                     .requiredSize(itemSizePx.toDp(), config.viewportSizePx.toDp())
             }
         }
@@ -307,4 +327,18 @@ class ScrollToNodeTest(private val config: TestConfig) {
         FullyBefore(2 * itemsAround, 20, 2 * itemsAround - 1, 50),
         NotInList(0, 0, 0, 0)
     }
+
+    private val verticalNestedScrollConsumer =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                return Offset(0f, available.y / 2f)
+            }
+        }
+
+    private val horizontalNestedScrollConsumer =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                return Offset(available.x / 2f, 0f)
+            }
+        }
 }

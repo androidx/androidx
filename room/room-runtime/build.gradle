@@ -54,9 +54,6 @@ android {
             root = 'src/androidMain'
         }
     }
-    defaultConfig {
-        multiDexEnabled true
-    }
     buildFeatures {
         aidl = true
     }
@@ -109,6 +106,7 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(project(":room:room-common"))
                 api(project(":sqlite:sqlite"))
+                api("androidx.collection:collection:1.4.0")
                 api("androidx.annotation:annotation:1.8.0")
                 api(libs.kotlinCoroutinesCore)
                 implementation(libs.atomicFu)
@@ -144,7 +142,6 @@ androidXMultiplatform {
                 api(project(":sqlite:sqlite-framework"))
                 api(libs.kotlinCoroutinesAndroid)
                 implementation("androidx.arch.core:core-runtime:2.2.0")
-                compileOnly("androidx.collection:collection:1.2.0")
                 compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
                 compileOnly("androidx.paging:paging-common:2.0.0")
                 implementation("androidx.annotation:annotation-experimental:1.4.1")

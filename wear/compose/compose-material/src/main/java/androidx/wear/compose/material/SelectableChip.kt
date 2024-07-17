@@ -159,7 +159,7 @@ public fun SelectableChip(
         labelSpacerSize = 0.dp,
         toggleControlSpacing = TOGGLE_CONTROL_SPACING,
         iconSpacing = ICON_SPACING,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /**
@@ -281,10 +281,11 @@ public fun SplitSelectableChip(
         enabled = enabled,
         checkedInteractionSource = selectionInteractionSource,
         clickInteractionSource = containerInteractionSource,
+        onClickLabel = null,
         contentPadding = contentPadding,
         shape = shape,
         labelSpacerSize = 0.dp,
-        ripple = rippleOrFallbackImplementation()
+        ripple = ripple()
     )
 
 /** Represents the background and content colors used in [SelectableChip]s in different states. */

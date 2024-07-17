@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.ui.layout.AlignmentLine
@@ -121,10 +120,10 @@ internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
 
 internal class LazyStaggeredGridMeasureResult(
     val firstVisibleItemIndices: IntArray,
-    var firstVisibleItemScrollOffsets: IntArray,
-    var consumedScroll: Float,
+    val firstVisibleItemScrollOffsets: IntArray,
+    val consumedScroll: Float,
     val measureResult: MeasureResult,
-    var canScrollForward: Boolean,
+    val canScrollForward: Boolean,
     val isVertical: Boolean,
     /** True when extra remeasure is required. */
     val remeasureNeeded: Boolean,
@@ -150,23 +149,24 @@ internal class LazyStaggeredGridMeasureResult(
         if (isVertical) Orientation.Vertical else Orientation.Horizontal
 
     /**
-     * Tries to apply a scroll [delta] for this layout info. In some cases we can apply small scroll
-     * deltas by just changing the offsets for each [visibleItemsInfo]. But we can only do so if
-     * after applying the delta we would not need to compose a new item or dispose an item which is
-     * currently visible. In this case this function will not apply the [delta] and return false.
+     * Creates a new layout info with applying a scroll [delta] for this layout info. In some cases
+     * we can apply small scroll deltas by just changing the offsets for each [visibleItemsInfo].
+     * But we can only do so if after applying the delta we would not need to compose a new item or
+     * dispose an item which is currently visible. In this case this function will not apply the
+     * [delta] and return null.
      *
-     * @return true if we can safely apply a passed scroll [delta] to this layout info. If true is
-     *   returned, only the placement phase is needed to apply new offsets. If false is returned, it
-     *   means we have to rerun the full measure phase to apply the [delta].
+     * @return new layout info if we can safely apply a passed scroll [delta] to this layout info.
+     *   If If new layout info is returned, only the placement phase is needed to apply new offsets.
+     *   If null is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    fun tryToApplyScrollWithoutRemeasure(delta: Int): Boolean {
+    fun copyWithScrollDeltaWithoutRemeasure(delta: Int): LazyStaggeredGridMeasureResult? {
         if (
             remeasureNeeded ||
                 visibleItemsInfo.isEmpty() ||
                 firstVisibleItemIndices.isEmpty() ||
                 firstVisibleItemScrollOffsets.isEmpty()
         ) {
-            return false
+            return null
         }
         visibleItemsInfo.fastForEach {
             // non scrollable items require special handling.
@@ -176,7 +176,7 @@ internal class LazyStaggeredGridMeasureResult(
                     // that firstVisibleItemIndices will change. we require a remeasure for it.
                     it.mainAxisOffset <= 0 != it.mainAxisOffset + delta <= 0
             ) {
-                return false
+                return null
             }
             if (it.mainAxisOffset <= viewportStartOffset) {
                 // we compare with viewportStartOffset in order to know when the item will became
@@ -189,7 +189,7 @@ internal class LazyStaggeredGridMeasureResult(
                     } else { // scrolling backward
                         viewportStartOffset - it.mainAxisOffset > delta
                     }
-                if (!canApply) return false
+                if (!canApply) return null
             }
             // item is partially visible at the bottom.
             if (it.mainAxisOffset + it.mainAxisSizeWithSpacings >= viewportEndOffset) {
@@ -199,26 +199,40 @@ internal class LazyStaggeredGridMeasureResult(
                     } else { // scrolling backward
                         viewportEndOffset - it.mainAxisOffset > delta
                     }
-                if (!canApply) return false
+                if (!canApply) return null
             }
         }
-        firstVisibleItemScrollOffsets =
-            IntArray(firstVisibleItemScrollOffsets.size) { index ->
-                firstVisibleItemScrollOffsets[index] - delta
-            }
         visibleItemsInfo.fastForEach { it.applyScrollDelta(delta) }
-        consumedScroll = delta.toFloat()
-        if (!canScrollForward && delta > 0) {
-            // we scrolled backward, so now we can scroll forward
-            canScrollForward = true
-        }
-        return true
+        return LazyStaggeredGridMeasureResult(
+            firstVisibleItemIndices = firstVisibleItemIndices,
+            firstVisibleItemScrollOffsets =
+                IntArray(firstVisibleItemScrollOffsets.size) { index ->
+                    firstVisibleItemScrollOffsets[index] - delta
+                },
+            consumedScroll = delta.toFloat(),
+            measureResult = measureResult,
+            canScrollForward =
+                canScrollForward || delta > 0, // we scrolled backward, so now we can scroll forward
+            isVertical = isVertical,
+            remeasureNeeded = remeasureNeeded,
+            slots = slots,
+            spanProvider = spanProvider,
+            density = density,
+            totalItemsCount = totalItemsCount,
+            visibleItemsInfo = visibleItemsInfo,
+            viewportSize = viewportSize,
+            viewportStartOffset = viewportStartOffset,
+            viewportEndOffset = viewportEndOffset,
+            beforeContentPadding = beforeContentPadding,
+            afterContentPadding = afterContentPadding,
+            mainAxisItemSpacing = mainAxisItemSpacing,
+            coroutineScope = coroutineScope,
+        )
     }
 }
 
 private val EmptyArray = IntArray(0)
 
-@OptIn(ExperimentalFoundationApi::class)
 internal val EmptyLazyStaggeredGridLayoutInfo =
     LazyStaggeredGridMeasureResult(
         firstVisibleItemIndices = EmptyArray,

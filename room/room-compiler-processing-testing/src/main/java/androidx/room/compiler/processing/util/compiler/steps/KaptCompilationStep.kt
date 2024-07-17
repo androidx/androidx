@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.util.compiler.steps
 
+import androidx.room.compiler.processing.util.FileResource
 import androidx.room.compiler.processing.util.compiler.DiagnosticsMessageCollector
 import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
 import androidx.room.compiler.processing.util.compiler.TestKapt3Registrar
@@ -108,15 +109,22 @@ internal class KaptCompilationStep(
                 diagnostics = result.diagnostics + kaptMessages.getDiagnostics(),
                 sourceSets = arguments.sourceSets + generatedSources
             )
-        val outputClasspath =
-            listOf(result.compiledClasspath) + workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
+        val outputResources = workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
+        val outputClasspath = listOf(result.compiledClasspath) + outputResources
+        val generatedResources =
+            outputResources
+                .walkTopDown()
+                .filter { it.isFile }
+                .map { FileResource(it.relativeTo(outputResources).path, it) }
+                .toList()
         return CompilationStepResult(
             success = result.exitCode == ExitCode.OK,
             generatedSourceRoots = generatedSources,
             diagnostics = diagnostics,
             nextCompilerArguments =
                 arguments.copy(sourceSets = arguments.sourceSets + generatedSources),
-            outputClasspath = outputClasspath
+            outputClasspath = outputClasspath,
+            generatedResources = generatedResources
         )
     }
 

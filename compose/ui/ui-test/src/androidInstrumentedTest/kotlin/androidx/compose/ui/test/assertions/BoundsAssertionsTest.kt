@@ -19,11 +19,14 @@ package androidx.compose.ui.test.assertions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.WithMinimumTouchTargetSize
@@ -32,11 +35,14 @@ import androidx.compose.testutils.expectError
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.text
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -49,12 +55,20 @@ import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getAlignmentLinePosition
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getPartialBoundsOfLinks
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -447,5 +461,140 @@ class BoundsAssertionsTest {
                 mapOf(TestLine to linePositionPx)
             ) {}
         }
+    }
+
+    @Test
+    fun getBoundsWithinLink_multipleMatches() {
+        lateinit var textLayoutResult: TextLayoutResult
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString {
+                    append("a")
+                    withLink(LinkAnnotation.Url("url1")) { append("link1") }
+                    withLink(LinkAnnotation.Url("url2")) { append("link2") }
+                    withLink(LinkAnnotation.Clickable("tag1") {}) { append("link3") }
+                },
+                onTextLayout = { textLayoutResult = it },
+            )
+        }
+
+        val textNode = rule.onNodeWithText("a", substring = true)
+        assertThat(textNode.getPartialBoundsOfLinks { true })
+            .containsExactly(
+                textLayoutResult.getBoundingBox(1),
+                textLayoutResult.getBoundingBox(6),
+                textLayoutResult.getBoundingBox(11)
+            )
+    }
+
+    @Test
+    fun getBoundsWithinLink_forSpecificUrl_multipleMatches() {
+        lateinit var textLayoutResult: TextLayoutResult
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString {
+                    append("a")
+                    withLink(LinkAnnotation.Url("url1")) { append("link1") }
+                    withLink(LinkAnnotation.Url("url2")) { append("link2") }
+                    withLink(LinkAnnotation.Url("url1") {}) { append("link3") }
+                    withLink(LinkAnnotation.Clickable("tag2") {}) { append("link4") }
+                },
+                onTextLayout = { textLayoutResult = it },
+            )
+        }
+
+        val textNode = rule.onNodeWithText("a", substring = true)
+        assertThat(
+                textNode.getPartialBoundsOfLinks { (it.item as? LinkAnnotation.Url)?.url == "url1" }
+            )
+            .containsExactly(
+                textLayoutResult.getBoundingBox(1),
+                textLayoutResult.getBoundingBox(11)
+            )
+    }
+
+    @Test
+    fun getBoundsWithinLink_forAllClickable_multipleMatches() {
+        lateinit var textLayoutResult: TextLayoutResult
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString {
+                    append("a")
+                    withLink(LinkAnnotation.Clickable("tag1") {}) { append("link1") }
+                    withLink(LinkAnnotation.Url("url2")) { append("link2") }
+                    withLink(LinkAnnotation.Clickable("tag2") {}) { append("link3") }
+                },
+                onTextLayout = { textLayoutResult = it },
+            )
+        }
+
+        val textNode = rule.onNodeWithText("a", substring = true)
+        assertThat(textNode.getPartialBoundsOfLinks { it.item is LinkAnnotation.Clickable })
+            .containsExactly(
+                textLayoutResult.getBoundingBox(1),
+                textLayoutResult.getBoundingBox(11)
+            )
+    }
+
+    fun getBoundsWithinLink_ZeroMatches() {
+        rule.setContent { BasicText(AnnotatedString("a")) }
+        assertThat(rule.onNodeWithText("a").getPartialBoundsOfLinks { true })
+            .isEqualTo(emptyList<Rect>())
+    }
+
+    fun getBoundsWithinLink_explicitZeroMatches() {
+        rule.setContent {
+            BasicText(buildAnnotatedString { withLink(LinkAnnotation.Url("url")) { append("a") } })
+        }
+        assertThat(rule.onNodeWithText("abc").getPartialBoundsOfLinks { false })
+            .isEqualTo(emptyList<Rect>())
+    }
+
+    @Test
+    fun getBoundsWithinLink_relativeToTextNode() {
+        lateinit var textLayoutResult: TextLayoutResult
+        val offset = IntOffset(17, 17)
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString { withLink(LinkAnnotation.Url("url")) { append("link") } },
+                onTextLayout = { textLayoutResult = it },
+                modifier = Modifier.absoluteOffset { offset }
+            )
+        }
+
+        val textNode = rule.onNodeWithText("link")
+        assertThat(textNode.getPartialBoundsOfLinks { true }.first())
+            .isEqualTo(textLayoutResult.getBoundingBox(0))
+    }
+
+    @Test(expected = AssertionError::class)
+    fun getBoundsWithinLink_expectMatchingTextForTextLayoutResult() {
+        val TAG = "text node"
+        rule.setContent {
+            BasicText(
+                buildAnnotatedString { withLink(LinkAnnotation.Url("url")) { append("link") } },
+                modifier = Modifier.testTag(TAG).semantics { text = AnnotatedString("other text") }
+            )
+        }
+        rule.onNodeWithTag(TAG).getPartialBoundsOfLinks { true }
+    }
+
+    @Test
+    fun getBoundsWithinLink_mergedNode_expectMatchingTextForTextLayoutResult() {
+        lateinit var textLayoutResult: TextLayoutResult
+        val TAG = "box node"
+        rule.setContent {
+            Box(Modifier.semantics(true) {}.testTag(TAG)) {
+                Box(Modifier.size(10.dp).semantics { text = AnnotatedString("no link text") })
+                BasicText(
+                    buildAnnotatedString { withLink(LinkAnnotation.Url("url")) { append("link") } },
+                    onTextLayout = { textLayoutResult = it }
+                )
+            }
+        }
+
+        val textNode = rule.onNodeWithTag(TAG)
+        assertThat(textNode.getPartialBoundsOfLinks { true }.first())
+            .isEqualTo(textLayoutResult.getBoundingBox(0))
     }
 }

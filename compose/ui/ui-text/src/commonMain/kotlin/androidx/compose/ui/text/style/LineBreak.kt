@@ -41,7 +41,7 @@ import androidx.compose.ui.text.style.LineBreak.Companion.Simple
  * @sample androidx.compose.ui.text.samples.AndroidLineBreakSample
  */
 @Immutable
-expect value class LineBreak private constructor(private val mask: Int) {
+expect value class LineBreak private constructor(internal val mask: Int) {
     companion object {
         /**
          * Basic, fast line breaking. Ideal for text input fields, as it will cause minimal text

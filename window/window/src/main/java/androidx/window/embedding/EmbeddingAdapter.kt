@@ -36,8 +36,6 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.ratio
-import androidx.window.extensions.core.util.function.Function
-import androidx.window.extensions.core.util.function.Predicate
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
@@ -55,6 +53,8 @@ import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlac
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
+import androidx.window.reflection.JFunction2
+import androidx.window.reflection.Predicate2
 
 /** Adapter class that translates data classes between Extension and Jetpack interfaces. */
 internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) {
@@ -68,6 +68,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         return splitInfoList.map(this::translate)
     }
 
+    @Suppress("DEPRECATION")
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
         return when (vendorApiLevel) {
             1 -> api1Impl.translateCompat(splitInfo)
@@ -116,9 +117,10 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
 
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
-    ): Function<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> = Function { oemParams ->
-        translateSplitAttributes(calculator.invoke(translate(oemParams)))
-    }
+    ): JFunction2<OEMSplitAttributesCalculatorParams, OEMSplitAttributes> =
+        JFunction2 { oemParams ->
+            translateSplitAttributes(calculator.invoke(translate(oemParams)))
+        }
 
     @SuppressLint("NewApi")
     fun translate(params: OEMSplitAttributesCalculatorParams): SplitAttributesCalculatorParams =
@@ -150,13 +152,13 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
             return api1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
         } else {
             val activitiesPairPredicate =
-                Predicate<AndroidPair<Activity, Activity>> { activitiesPair ->
+                Predicate2<AndroidPair<Activity, Activity>> { activitiesPair ->
                     rule.filters.any { filter ->
                         filter.matchesActivityPair(activitiesPair.first, activitiesPair.second)
                     }
                 }
             val activityIntentPredicate =
-                Predicate<AndroidPair<Activity, Intent>> { activityIntentPair ->
+                Predicate2<AndroidPair<Activity, Intent>> { activityIntentPair ->
                     rule.filters.any { filter ->
                         filter.matchesActivityIntentPair(
                             activityIntentPair.first,
@@ -165,7 +167,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                     }
                 }
             val windowMetricsPredicate =
-                Predicate<WindowMetrics> { windowMetrics ->
+                Predicate2<WindowMetrics> { windowMetrics ->
                     rule.checkParentMetrics(context, windowMetrics)
                 }
             val tag = rule.tag
@@ -242,15 +244,15 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
             return api1Impl.translateSplitPlaceholderRuleCompat(context, rule, predicateClass)
         } else {
             val activityPredicate =
-                Predicate<Activity> { activity ->
+                Predicate2<Activity> { activity ->
                     rule.filters.any { filter -> filter.matchesActivity(activity) }
                 }
             val intentPredicate =
-                Predicate<Intent> { intent ->
+                Predicate2<Intent> { intent ->
                     rule.filters.any { filter -> filter.matchesIntent(intent) }
                 }
             val windowMetricsPredicate =
-                Predicate<WindowMetrics> { windowMetrics ->
+                Predicate2<WindowMetrics> { windowMetrics ->
                     rule.checkParentMetrics(context, windowMetrics)
                 }
             val tag = rule.tag
@@ -291,11 +293,11 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
             return api1Impl.translateActivityRuleCompat(rule, predicateClass)
         } else {
             val activityPredicate =
-                Predicate<Activity> { activity ->
+                Predicate2<Activity> { activity ->
                     rule.filters.any { filter -> filter.matchesActivity(activity) }
                 }
             val intentPredicate =
-                Predicate<Intent> { intent ->
+                Predicate2<Intent> { intent ->
                     rule.filters.any { filter -> filter.matchesIntent(intent) }
                 }
             val builder =

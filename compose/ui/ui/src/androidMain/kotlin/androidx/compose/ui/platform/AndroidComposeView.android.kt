@@ -72,7 +72,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
@@ -223,7 +222,7 @@ internal var platformTextInputServiceInterceptor:
 private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
 @Suppress("ViewConstructor", "VisibleForTests", "ConstPropertyName", "NullAnnotationGroup")
-@OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class)
 internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
 
@@ -411,10 +410,28 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private val canvasHolder = CanvasHolder()
 
+    // Backed by mutableStateOf so that the ambient provider recomposes when it changes
+    override var layoutDirection by
+        mutableStateOf(
+            // We don't use the attached View's layout direction here since that layout direction
+            // may not
+            // be resolved since composables may be composed without attaching to the RootViewImpl.
+            // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
+            // configuration) as a default layout direction.
+            toLayoutDirection(context.resources.configuration.layoutDirection)
+                ?: LayoutDirection.Ltr
+        )
+        private set
+
+    override val viewConfiguration: ViewConfiguration =
+        AndroidViewConfiguration(android.view.ViewConfiguration.get(context))
+
     override val root =
         LayoutNode().also {
             it.measurePolicy = RootMeasurePolicy
             it.density = density
+            it.layoutDirection = layoutDirection
+            it.viewConfiguration = viewConfiguration
             // Composed modifiers cannot be added here directly
             it.modifier =
                 Modifier.then(semanticsModifier)
@@ -529,9 +546,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override val measureIteration: Long
         get() = measureAndLayoutDelegate.measureIteration
 
-    override val viewConfiguration: ViewConfiguration =
-        AndroidViewConfiguration(android.view.ViewConfiguration.get(context))
-
     override val hasPendingMeasureOrLayout
         get() = measureAndLayoutDelegate.hasPendingMeasureOrLayout
 
@@ -637,19 +651,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private val Configuration.fontWeightAdjustmentCompat: Int
         get() = if (SDK_INT >= S) fontWeightAdjustment else 0
-
-    // Backed by mutableStateOf so that the ambient provider recomposes when it changes
-    override var layoutDirection by
-        mutableStateOf(
-            // We don't use the attached View's layout direction here since that layout direction
-            // may not
-            // be resolved since composables may be composed without attaching to the RootViewImpl.
-            // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
-            // configuration) as a default layout direction.
-            toLayoutDirection(context.resources.configuration.layoutDirection)
-                ?: LayoutDirection.Ltr
-        )
-        private set
 
     /** Provide haptic feedback to the user. Use the Android version of haptic feedback. */
     override val hapticFeedBack: HapticFeedback = PlatformHapticFeedback(this)
@@ -819,13 +820,13 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     /**
-     * Avoid Android 8 crash by not traversing assist structure. Autofill assistStructure will be
-     * dispatched via `dispatchProvideAutofillStructure`, not this method. See b/251152083 for more
-     * details.
+     * Avoid crash by not traversing assist structure. Autofill assistStructure will be dispatched
+     * via `dispatchProvideAutofillStructure` from Android 8 and on. See b/251152083 and b/320768586
+     * more details.
      */
     override fun dispatchProvideStructure(structure: ViewStructure) {
-        if (SDK_INT == 26 || SDK_INT == 27) {
-            AndroidComposeViewAssistHelperMethodsO.setClassName(structure)
+        if (SDK_INT in 23..27) {
+            AndroidComposeViewAssistHelperMethodsO.setClassName(structure, view)
         } else {
             super.dispatchProvideStructure(structure)
         }
@@ -861,7 +862,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun focusSearch(focused: View?, direction: Int): View? {
-        if (focused != null) {
+        // do not propagate search if a measurement is happening
+        if (focused != null && !measureAndLayoutDelegate.duringMeasureLayout) {
             // Find the next composable using FocusOwner.
             val focusedBounds = focused.calculateBoundingRect()
             val focusDirection = toFocusDirection(direction) ?: Down
@@ -1378,7 +1380,13 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             val (minWidth, maxWidth) = convertMeasureSpec(widthMeasureSpec)
             val (minHeight, maxHeight) = convertMeasureSpec(heightMeasureSpec)
 
-            val constraints = Constraints(minWidth, maxWidth, minHeight, maxHeight)
+            val constraints =
+                Constraints.fitPrioritizingHeight(
+                    minWidth = minWidth,
+                    maxWidth = maxWidth,
+                    minHeight = minHeight,
+                    maxHeight = maxHeight
+                )
             if (onMeasureConstraints == null) {
                 // first onMeasure after last onLayout
                 onMeasureConstraints = constraints
@@ -1459,7 +1467,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
-        explicitLayer: GraphicsLayer?
+        explicitLayer: GraphicsLayer?,
+        forceUseOldLayers: Boolean
     ): OwnedLayer {
         if (explicitLayer != null) {
             return GraphicsLayerOwnerLayer(
@@ -1470,22 +1479,24 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 invalidateParentLayer = invalidateParentLayer
             )
         }
-        // First try the layer cache
-        val layer = layerCache.pop()
-        if (layer !== null) {
-            layer.reuseLayer(drawBlock, invalidateParentLayer)
-            return layer
-        }
+        if (!forceUseOldLayers) {
+            // First try the layer cache
+            val layer = layerCache.pop()
+            if (layer !== null) {
+                layer.reuseLayer(drawBlock, invalidateParentLayer)
+                return layer
+            }
 
-        // enable new layers on versions supporting render nodes
-        if (isHardwareAccelerated && SDK_INT >= M && SDK_INT != P) {
-            return GraphicsLayerOwnerLayer(
-                graphicsLayer = graphicsContext.createGraphicsLayer(),
-                context = graphicsContext,
-                ownerView = this,
-                drawBlock = drawBlock,
-                invalidateParentLayer = invalidateParentLayer
-            )
+            // enable new layers on versions supporting render nodes
+            if (isHardwareAccelerated && SDK_INT >= M && SDK_INT != P) {
+                return GraphicsLayerOwnerLayer(
+                    graphicsLayer = graphicsContext.createGraphicsLayer(),
+                    context = graphicsContext,
+                    ownerView = this,
+                    drawBlock = drawBlock,
+                    invalidateParentLayer = invalidateParentLayer
+                )
+            }
         }
 
         // RenderNode is supported on Q+ for certain, but may also be supported on M-O.
@@ -2497,8 +2508,8 @@ private object AndroidComposeViewVerificationHelperMethodsO {
 private object AndroidComposeViewAssistHelperMethodsO {
     @RequiresApi(M)
     @DoNotInline
-    fun setClassName(structure: ViewStructure) {
-        structure.setClassName(javaClass.name)
+    fun setClassName(structure: ViewStructure, view: View) {
+        structure.setClassName(view.accessibilityClassName.toString())
     }
 }
 

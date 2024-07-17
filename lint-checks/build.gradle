@@ -40,12 +40,18 @@ sourceSets {
 dependencies {
     compileOnly(libs.androidLintApi)
     compileOnly(libs.androidLintChecks)
+    compileOnly(libs.androidToolsCommon)
+    compileOnly(libs.intellijCore)
+    compileOnly(libs.intellijKotlinCompiler)
     compileOnly(libs.kotlinStdlib)
+    compileOnly(libs.lintModel)
+    compileOnly(libs.sdklib)
+    compileOnly(libs.uast)
 
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
+    testImplementation(libs.guava)
 }
 
 androidx {

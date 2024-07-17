@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
 import androidx.compose.ui.focus.FocusRequester.Companion.Default
@@ -33,7 +32,6 @@ import androidx.compose.ui.platform.InspectorInfo
 
 private const val PrevFocusedChild = "previouslyFocusedChildHash"
 
-@ExperimentalComposeUiApi
 internal fun FocusTargetNode.saveFocusedChild(): Boolean {
     if (!focusState.hasFocus) return false
     visitChildren(Nodes.FocusTarget) {
@@ -48,7 +46,6 @@ internal fun FocusTargetNode.saveFocusedChild(): Boolean {
     return false
 }
 
-@ExperimentalComposeUiApi
 internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
     if (previouslyFocusedChildHash == 0) {
         val savableStateRegistry = currentValueOf(LocalSaveableStateRegistry)
@@ -81,12 +78,9 @@ internal fun FocusTargetNode.pinFocusedChild(): PinnedHandle? {
  * @param onRestoreFailed callback provides a lambda that is invoked if focus restoration fails.
  *   This lambda can be used to return a custom fallback item by providing a [FocusRequester]
  *   attached to that item. This can be used to customize the initially focused item.
- *
  * @sample androidx.compose.ui.samples.FocusRestorerSample
- *
  * @sample androidx.compose.ui.samples.FocusRestorerCustomFallbackSample
  */
-@ExperimentalComposeUiApi
 fun Modifier.focusRestorer(onRestoreFailed: (() -> FocusRequester)? = null): Modifier =
     this then FocusRestorerElement(onRestoreFailed)
 
@@ -98,15 +92,13 @@ internal class FocusRestorerNode(var onRestoreFailed: (() -> FocusRequester)?) :
 
     private var pinnedHandle: PinnedHandle? = null
     private val onExit: (FocusDirection) -> FocusRequester = {
-        @OptIn(ExperimentalComposeUiApi::class) saveFocusedChild()
+        saveFocusedChild()
         pinnedHandle?.release()
         pinnedHandle = pinFocusedChild()
         Default
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private val onEnter: (FocusDirection) -> FocusRequester = {
-        @OptIn(ExperimentalComposeUiApi::class)
         val result = if (restoreFocusedChild()) Cancel else onRestoreFailed?.invoke()
         pinnedHandle?.release()
         pinnedHandle = null
@@ -114,9 +106,7 @@ internal class FocusRestorerNode(var onRestoreFailed: (() -> FocusRequester)?) :
     }
 
     override fun applyFocusProperties(focusProperties: FocusProperties) {
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.enter = onEnter
-        @OptIn(ExperimentalComposeUiApi::class)
         focusProperties.exit = onExit
     }
 

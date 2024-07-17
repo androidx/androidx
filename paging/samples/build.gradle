@@ -31,9 +31,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.paging.samples"
 }
 
@@ -55,7 +52,6 @@ dependencies {
     implementation(project(":paging:paging-rxjava2"))
 
     implementation(libs.guavaAndroid)
-    implementation(libs.multidex)
     implementation(libs.retrofit)
 }
 

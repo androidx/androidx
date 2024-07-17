@@ -19,7 +19,6 @@ package androidx.compose.ui.input
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
@@ -38,7 +37,6 @@ import org.junit.runners.Parameterized
 
 @SmallTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalComposeUiApi::class)
 class InputModeTest(private val param: Param) {
     @get:Rule val rule = createComposeRule()
 

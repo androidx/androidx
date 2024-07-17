@@ -45,7 +45,6 @@ import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.ExecutionException
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
@@ -433,9 +432,7 @@ class AdSelectionManagerFuturesTest {
             UpdateAdCounterHistogramRequest(adSelectionId, adEventType, seller)
 
         // Actually invoke the compat code.
-        runBlocking {
-            managerCompat!!.updateAdCounterHistogramAsync(updateAdCounterHistogramRequest)
-        }
+        managerCompat!!.updateAdCounterHistogramAsync(updateAdCounterHistogramRequest).get()
 
         // Verify that the compat code was invoked correctly.
         val captor =
@@ -471,7 +468,7 @@ class AdSelectionManagerFuturesTest {
             )
 
         // Actually invoke the compat code.
-        runBlocking { managerCompat!!.reportEventAsync(reportEventRequest) }
+        managerCompat!!.reportEventAsync(reportEventRequest).get()
 
         // Verify that the compat code was invoked correctly.
         val captor =
@@ -500,9 +497,8 @@ class AdSelectionManagerFuturesTest {
             PersistAdSelectionResultRequest(adSelectionId, seller, adSelectionData)
 
         // Actually invoke the compat code.
-        val result = runBlocking {
-            managerCompat!!.persistAdSelectionResultAsync(persistAdSelectionResultRequest)
-        }
+        val result =
+            managerCompat!!.persistAdSelectionResultAsync(persistAdSelectionResultRequest).get()
 
         // Verify that the compat code was invoked correctly.
         val captor =
@@ -514,7 +510,7 @@ class AdSelectionManagerFuturesTest {
         // Verify that the request that the compat code makes to the platform is correct.
         verifyPersistAdSelectionResultRequest(captor.value)
 
-        verifyResponse(result.get())
+        verifyResponse(result)
     }
 
     @SuppressWarnings("NewApi")
@@ -824,12 +820,14 @@ class AdSelectionManagerFuturesTest {
             request: android.adservices.adselection.PersistAdSelectionResultRequest
         ) {
             val adTechIdentifier = android.adservices.common.AdTechIdentifier.fromString(adId)
+            @Suppress("DEPRECATION")
             val expectedRequest =
                 android.adservices.adselection.PersistAdSelectionResultRequest.Builder()
                     .setAdSelectionId(adSelectionId)
                     .setSeller(adTechIdentifier)
                     .setAdSelectionResult(adSelectionData)
                     .build()
+            @Suppress("DEPRECATION")
             Assert.assertEquals(expectedRequest.adSelectionId, request.adSelectionId)
             Assert.assertEquals(expectedRequest.seller, request.seller)
             Assert.assertTrue(

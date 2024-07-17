@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.UastLintUtils
 import com.android.tools.lint.detector.api.isKotlin
+import com.intellij.psi.PsiAnnotationOwner
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiTypeParameter
 import com.intellij.psi.PsiVariable
@@ -53,8 +54,8 @@ import org.jetbrains.uast.UReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getUastParentOfType
 import org.jetbrains.uast.isNullLiteral
-import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.toUElementOfType
 
 /**
  * Lint check for ensuring that [androidx.lifecycle.MutableLiveData] values are never null when the
@@ -320,7 +321,12 @@ internal fun UElement.isNullable(context: JavaContext): Boolean {
         val isSuspendMethod = !context.evaluator.isSuspend(psiMethod)
         return psiMethod.hasAnnotation(NULLABLE_ANNOTATION) && isSuspendMethod
     } else if (this is UReferenceExpression) {
-        return (resolveToUElement() as? UAnnotated)?.findAnnotation(NULLABLE_ANNOTATION) != null
+        val resolved = resolve()
+        return if (resolved is PsiAnnotationOwner) {
+            resolved.findAnnotation(NULLABLE_ANNOTATION) != null
+        } else {
+            resolved.toUElementOfType<UAnnotated>()?.findAnnotation(NULLABLE_ANNOTATION) != null
+        }
     }
     return false
 }

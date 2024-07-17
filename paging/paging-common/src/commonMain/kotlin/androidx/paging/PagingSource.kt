@@ -60,11 +60,8 @@ import androidx.paging.LoadType.REFRESH
  * @param Value Type of data loaded in by this [PagingSource]. E.g., the type of data that will be
  *   passed to a [PagingDataAdapter][androidx.paging.PagingDataAdapter] to be displayed in a
  *   `RecyclerView`.
- *
  * @sample androidx.paging.samples.pageKeyedPagingSourceSample
- *
  * @sample androidx.paging.samples.itemKeyedPagingSourceSample
- *
  * @see Pager
  */
 public abstract class PagingSource<Key : Any, Value : Any> {
@@ -233,7 +230,6 @@ public abstract class PagingSource<Key : Any, Value : Any> {
          * As a convenience, iterating on this object will iterate through its loaded [data].
          *
          * @sample androidx.paging.samples.pageKeyedPage
-         *
          * @sample androidx.paging.samples.pageIndexedPage
          */
         public data class Page<Key : Any, Value : Any>

@@ -88,7 +88,9 @@ class ImageCaptureTest(
     val useCamera =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(PreTestCameraIdList(cameraXConfig))
 
-    @get:Rule var wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+    // Launch activity when testing in Vivo devices to prevent testing process from being killed.
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule(brandsToEnable = listOf("vivo"))
 
     @get:Rule val temporaryFolder = TemporaryFolder(context.cacheDir)
 
@@ -116,7 +118,9 @@ class ImageCaptureTest(
             ExtensionsManager.getInstanceAsync(context, cameraProvider)[
                     10000, TimeUnit.MILLISECONDS]
 
-        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
+        assumeTrue(
+            ExtensionsTestUtil.isExtensionAvailable(extensionsManager, lensFacing, extensionMode)
+        )
 
         extensionsCameraSelector =
             extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
@@ -152,6 +156,7 @@ class ImageCaptureTest(
 
     @Test
     fun canBindToLifeCycleAndTakePicture(): Unit = runBlocking {
+        val isCaptureProcessProgressSupported = isCaptureProcessProgressSupported()
         val mockOnImageCapturedCallback =
             Mockito.mock(ImageCapture.OnImageCapturedCallback::class.java)
 
@@ -162,6 +167,12 @@ class ImageCaptureTest(
 
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).times(1))
             .onCaptureStarted()
+
+        if (isCaptureProcessProgressSupported) {
+            Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).atLeastOnce())
+                .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
+        }
+
         Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(15000))
             .onCaptureSuccess(imageProxy.capture())
         assertThat(imageProxy.value).isNotNull()
@@ -271,6 +282,8 @@ class ImageCaptureTest(
 
     @Test
     fun canBindToLifeCycleAndTakePicture_diskIo(): Unit = runBlocking {
+        val isCaptureProcessProgressSupported = isCaptureProcessProgressSupported()
+
         val mockOnImageSavedCallback = Mockito.mock(ImageCapture.OnImageSavedCallback::class.java)
 
         bindAndTakePicture(mockOnImageSavedCallback)
@@ -279,6 +292,11 @@ class ImageCaptureTest(
         val outputFileResults = ArgumentCaptor.forClass(ImageCapture.OutputFileResults::class.java)
 
         Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).times(1)).onCaptureStarted()
+
+        if (isCaptureProcessProgressSupported) {
+            Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).atLeastOnce())
+                .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
+        }
 
         Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(15000))
             .onImageSaved(outputFileResults.capture())
@@ -299,14 +317,11 @@ class ImageCaptureTest(
         capabilities.isCaptureProcessProgressSupported
     }
 
-    private fun isPostviewSupported(): Boolean = runBlocking {
-        val camera =
-            withContext(Dispatchers.Main) {
-                cameraProvider.bindToLifecycle(fakeLifecycleOwner, extensionsCameraSelector)
-            }
-
-        val capabilities = ImageCapture.getImageCaptureCapabilities(camera.cameraInfo)
-        capabilities.isPostviewSupported
+    private fun isPostviewSupported(): Boolean {
+        return ImageCapture.getImageCaptureCapabilities(
+                cameraProvider.getCameraInfo(extensionsCameraSelector)
+            )
+            .isPostviewSupported
     }
 
     private suspend fun bindAndTakePicture(
@@ -447,61 +462,6 @@ class ImageCaptureTest(
             )
             camera
         }
-    }
-
-    @Test
-    fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress(): Unit = runBlocking {
-        assumeTrue(isCaptureProcessProgressSupported())
-
-        val mockOnImageCapturedCallback =
-            Mockito.mock(ImageCapture.OnImageCapturedCallback::class.java)
-
-        bindAndTakePicture(mockOnImageCapturedCallback)
-
-        // Verify the image captured.
-        val imageProxy = ArgumentCaptor.forClass(ImageProxy::class.java)
-
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).times(1))
-            .onCaptureStarted()
-
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(8000).atLeastOnce())
-            .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
-
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.timeout(15000))
-            .onCaptureSuccess(imageProxy.capture())
-
-        assertThat(imageProxy.value).isNotNull()
-        imageProxy.value.close() // Close the image after verification.
-
-        // Verify the take picture should not have any error happen.
-        Mockito.verify(mockOnImageCapturedCallback, Mockito.never())
-            .onError(ArgumentMatchers.any(ImageCaptureException::class.java))
-    }
-
-    @Test
-    fun canBindToLifeCycleAndTakePictureWithCaptureProcessProgress_diskIo(): Unit = runBlocking {
-        assumeTrue(isCaptureProcessProgressSupported())
-
-        val mockOnImageSavedCallback = Mockito.mock(ImageCapture.OnImageSavedCallback::class.java)
-
-        bindAndTakePicture(mockOnImageSavedCallback)
-
-        // Verify the image captured.
-        val outputFileResults = ArgumentCaptor.forClass(ImageCapture.OutputFileResults::class.java)
-
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).times(1)).onCaptureStarted()
-
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(8000).atLeastOnce())
-            .onCaptureProcessProgressed(ArgumentMatchers.anyInt())
-
-        Mockito.verify(mockOnImageSavedCallback, Mockito.timeout(15000))
-            .onImageSaved(outputFileResults.capture())
-
-        assertThat(outputFileResults.value).isNotNull()
-
-        // Verify the take picture should not have any error happen.
-        Mockito.verify(mockOnImageSavedCallback, Mockito.never())
-            .onError(ArgumentMatchers.any(ImageCaptureException::class.java))
     }
 
     private fun isRotationOptionSupportedDevice() =

@@ -59,6 +59,15 @@ sealed interface LazyGridItemInfo {
     /** The content type of the item which was passed to the item() or items() function. */
     val contentType: Any?
 
+    /**
+     * The horizontal span of the item if it's in a [LazyVerticalGrid] or the vertical span if the
+     * item is in a [LazyHorizontalGrid].
+     *
+     * Note, [LazyGridLayoutInfo.maxSpan] can be used to get the maximum number of spans in a line,
+     * e.g., to check if the item is filling the whole line.
+     */
+    val span: Int
+
     companion object {
         /**
          * Possible value for [row], when they are unknown. This can happen when the item is visible

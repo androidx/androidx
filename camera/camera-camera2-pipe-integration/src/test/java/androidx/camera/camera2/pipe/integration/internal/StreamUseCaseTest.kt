@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CaptureMode
+import androidx.camera.core.LayoutSettings
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraMode
@@ -639,7 +640,15 @@ class StreamUseCaseTest() {
                 FakeUseCase(FakeUseCaseConfig.Builder().useCaseConfig, CaptureType.IMAGE_CAPTURE),
                 FakeUseCase(FakeUseCaseConfig.Builder().useCaseConfig, CaptureType.VIDEO_CAPTURE)
             )
-        val streamSharing = StreamSharing(FakeCamera(), children, useCaseConfigFactory)
+        val streamSharing =
+            StreamSharing(
+                FakeCamera(),
+                null,
+                LayoutSettings.DEFAULT,
+                LayoutSettings.DEFAULT,
+                children,
+                useCaseConfigFactory
+            )
         val surfaceConfigAttachedSurfaceInfoMap: Map<Int, AttachedSurfaceInfo> = mutableMapOf()
         val surfaceConfigUseCaseConfigMap: MutableMap<Int, UseCaseConfig<*>> = mutableMapOf()
         surfaceConfigUseCaseConfigMap[0] =

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
@@ -39,7 +40,11 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -103,6 +108,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         textStyle: TextStyle,
         singleLine: Boolean,
         softWrap: Boolean,
+        keyboardOptions: KeyboardOptions,
     ) {
         nonMeasureInputs =
             NonMeasureInputs(
@@ -110,6 +116,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 textStyle = textStyle,
                 singleLine = singleLine,
                 softWrap = softWrap,
+                isKeyboardTypePhone = keyboardOptions.keyboardType == KeyboardType.Phone,
             )
     }
 
@@ -217,6 +224,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 if (newResult != cachedResult) {
                     updateCacheIfWritable {
                         this.visualText = visualText
+                        this.composition = visualText.composition
                         this.singleLine = nonMeasureInputs.singleLine
                         this.softWrap = nonMeasureInputs.softWrap
                         this.textStyle = nonMeasureInputs.textStyle
@@ -272,6 +280,17 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
 
         val textMeasurer = obtainTextMeasurer(measureInputs)
 
+        val finalTextStyle =
+            if (nonMeasureInputs.isKeyboardTypePhone) {
+                val textStyle = nonMeasureInputs.textStyle
+                val currentLocale = textStyle.localeList?.let { it[0] } ?: Locale.current
+                val textDirection =
+                    resolveTextDirectionForKeyboardTypePhone(currentLocale.platformLocale)
+                nonMeasureInputs.textStyle.merge(TextStyle(textDirection = textDirection))
+            } else {
+                nonMeasureInputs.textStyle
+            }
+
         return textMeasurer.measure(
             text =
                 buildAnnotatedString {
@@ -284,7 +303,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                         )
                     }
                 },
-            style = nonMeasureInputs.textStyle,
+            style = finalTextStyle,
             softWrap = nonMeasureInputs.softWrap,
             maxLines = if (nonMeasureInputs.singleLine) 1 else Int.MAX_VALUE,
             constraints = measureInputs.constraints,
@@ -390,6 +409,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         val textStyle: TextStyle,
         val singleLine: Boolean,
         val softWrap: Boolean,
+        val isKeyboardTypePhone: Boolean,
     ) {
 
         override fun toString(): String =
@@ -397,7 +417,8 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                 "textFieldState=$textFieldState, " +
                 "textStyle=$textStyle, " +
                 "singleLine=$singleLine, " +
-                "softWrap=$softWrap" +
+                "softWrap=$softWrap, " +
+                "isKeyboardTypePhone=$isKeyboardTypePhone" +
                 ")"
 
         companion object {
@@ -423,7 +444,8 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
                             a.textFieldState === b.textFieldState &&
                                 a.textStyle == b.textStyle &&
                                 a.singleLine == b.singleLine &&
-                                a.softWrap == b.softWrap
+                                a.softWrap == b.softWrap &&
+                                a.isKeyboardTypePhone == b.isKeyboardTypePhone
                         } else {
                             !((a == null) xor (b == null))
                         }
@@ -476,3 +498,11 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
     }
     // endregion
 }
+
+/**
+ * Returns the directionality of [locale]'s number system.
+ *
+ * We need to use the digit direction of the [locale] while deciding TextDirection if KeyboardType
+ * is configured as [KeyboardType.Phone].
+ */
+internal expect fun resolveTextDirectionForKeyboardTypePhone(locale: PlatformLocale): TextDirection

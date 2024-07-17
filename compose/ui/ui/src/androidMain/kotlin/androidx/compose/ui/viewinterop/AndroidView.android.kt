@@ -32,7 +32,6 @@ import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.saveable.SaveableStateRegistry
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
@@ -91,9 +90,7 @@ import androidx.savedstate.SavedStateRegistryOwner
  * that participates in nested scroll. For more information on how to enable nested scroll interop:
  *
  * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
- *
  * @sample androidx.compose.ui.samples.AndroidViewSample
- *
  * @param factory The block creating the [View] to be composed.
  * @param modifier The modifier to be applied to the layout.
  * @param update A callback to be invoked after the layout is inflated and upon recomposition to
@@ -176,13 +173,9 @@ fun <T : View> AndroidView(
  * that participates in nested scroll. For more information on how to enable nested scroll interop:
  *
  * @sample androidx.compose.ui.samples.ViewInComposeNestedScrollInteropSample
- *
  * @sample androidx.compose.ui.samples.AndroidViewSample
- *
  * @sample androidx.compose.ui.samples.ReusableAndroidViewInLazyColumnSample
- *
  * @sample androidx.compose.ui.samples.AndroidViewWithReleaseSample
- *
  * @param factory The block creating the [View] to be composed.
  * @param modifier The modifier to be applied to the layout.
  * @param onReset A callback invoked as a signal that the view is about to be attached to the
@@ -298,7 +291,7 @@ private fun <T : View> Updater<LayoutNode>.updateViewHolderParams(
                 LayoutDirection.Rtl -> android.util.LayoutDirection.RTL
             }
     }
-    @OptIn(ExperimentalComposeUiApi::class) set(compositeKeyHash, SetCompositeKeyHash)
+    set(compositeKeyHash, SetCompositeKeyHash)
 }
 
 @Suppress("UNCHECKED_CAST", "ExceptionMessage")

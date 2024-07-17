@@ -16,14 +16,12 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
 
-@ExperimentalFoundationApi
 internal class LazyStaggeredGridAnimateScrollScope(private val state: LazyStaggeredGridState) :
     LazyLayoutAnimateScrollScope {
 

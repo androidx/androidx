@@ -141,6 +141,7 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public String? getIconContent();
     method public String getText();
+    method public boolean hasText();
   }
 
   public static final class CompactChip.Builder {

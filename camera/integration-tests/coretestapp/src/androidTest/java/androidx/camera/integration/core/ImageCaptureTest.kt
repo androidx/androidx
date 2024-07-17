@@ -63,6 +63,7 @@ import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
 import androidx.camera.core.impl.MutableOptionsBundle
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
@@ -419,6 +420,66 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             timeout = numImages * CAPTURE_TIMEOUT,
             capturedImagesCount = numImages
         )
+    }
+
+    @Test
+    fun canTakeImage_whenSessionErrorListenerReceivesError(): Unit = runBlocking {
+        val imageCapture = ImageCapture.Builder().build()
+        // Arrange.
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA,
+                imageCapture
+            )
+        }
+
+        // Retrieves the initial session config
+        val initialSessionConfig = imageCapture.sessionConfig
+
+        // Checks that image can be taken successfully when onError is received.
+        triggerOnErrorAndTakePicture(imageCapture, initialSessionConfig)
+
+        if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+            withContext(Dispatchers.Main) {
+                // Binds the ImageCapture use case to the other camera
+                cameraProvider.unbind(imageCapture)
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    imageCapture
+                )
+            }
+
+            // Checks that image can be taken successfully when onError is received by the old
+            // error listener.
+            triggerOnErrorAndTakePicture(imageCapture, initialSessionConfig)
+        }
+
+        // Checks that image can be taken successfully when onError is received by the new
+        // error listener.
+        triggerOnErrorAndTakePicture(imageCapture, imageCapture.sessionConfig)
+    }
+
+    private suspend fun triggerOnErrorAndTakePicture(
+        imageCapture: ImageCapture,
+        sessionConfig: SessionConfig
+    ) {
+        withContext(Dispatchers.Main) {
+            // Forces invoke the onError callback
+            sessionConfig.errorListener!!.onError(
+                sessionConfig,
+                SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
+            )
+        }
+
+        // Act.
+        val callback = FakeImageCaptureCallback()
+        imageCapture.takePicture(mainExecutor, callback)
+
+        // Assert.
+        // Image can still be taken when an error reported to the session config error listener
+        callback.awaitCapturesAndAssert(capturedImagesCount = 1)
     }
 
     @Test

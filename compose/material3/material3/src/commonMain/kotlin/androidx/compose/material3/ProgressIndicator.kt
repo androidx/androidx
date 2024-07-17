@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
@@ -32,6 +33,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
 import androidx.compose.material3.ProgressIndicatorDefaults.drawStopIndicator
+import androidx.compose.material3.tokens.CircularProgressIndicatorTokens
+import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
 import androidx.compose.material3.tokens.ProgressIndicatorTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -69,7 +72,6 @@ import kotlin.math.min
  * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material3.samples.LinearProgressIndicatorSample
- *
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
@@ -122,7 +124,6 @@ fun LinearProgressIndicator(
  * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material3.samples.LinearProgressIndicatorSample
- *
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
@@ -193,7 +194,6 @@ fun LinearProgressIndicator(
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * @sample androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
- *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color color of this progress indicator
  * @param trackColor color of the track behind the indicator, visible when the progress has not
@@ -235,7 +235,6 @@ fun LinearProgressIndicator(
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * @sample androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSample
- *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color color of this progress indicator
  * @param trackColor color of the track behind the indicator, visible when the progress has not
@@ -466,8 +465,8 @@ private fun DrawScope.drawLinearIndicator(
     }
 }
 
-private val SemanticsBoundsPadding: Dp = 10.dp
-private val IncreaseSemanticsBounds: Modifier =
+@VisibleForTesting internal val SemanticsBoundsPadding: Dp = 10.dp
+internal val IncreaseSemanticsBounds: Modifier =
     Modifier.layout { measurable, constraints ->
             val paddingPx = SemanticsBoundsPadding.roundToPx()
             // We need to add vertical padding to the semantics bounds in order to meet
@@ -501,7 +500,6 @@ private val IncreaseSemanticsBounds: Modifier =
  * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material3.samples.CircularProgressIndicatorSample
- *
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
@@ -557,7 +555,6 @@ fun CircularProgressIndicator(
  * animating progress, such as in the following example:
  *
  * @sample androidx.compose.material3.samples.CircularProgressIndicatorSample
- *
  * @param progress the progress of this progress indicator, where 0.0 represents no progress and 1.0
  *   represents full progress. Values outside of this range are coerced into the range.
  * @param modifier the [Modifier] to be applied to this progress indicator
@@ -620,7 +617,6 @@ fun CircularProgressIndicator(
  * image](https://firebasestorage.googleapis.com/v0/b/design-spec/o/projects%2Fgoogle-material-3%2Fimages%2Flqdiyyvh-1P-progress-indicator-configurations.png?alt=media)
  *
  * @sample androidx.compose.material3.samples.IndeterminateCircularProgressIndicatorSample
- *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color color of this progress indicator
  * @param strokeWidth stroke width of this progress indicator
@@ -869,7 +865,7 @@ object ProgressIndicatorDefaults {
         @Composable get() = Color.Transparent
 
     /** Default stroke width for a circular progress indicator. */
-    val CircularStrokeWidth: Dp = ProgressIndicatorTokens.TrackThickness
+    val CircularStrokeWidth: Dp = CircularProgressIndicatorTokens.TrackThickness
 
     /** Default stroke cap for a linear progress indicator. */
     val LinearStrokeCap: StrokeCap = StrokeCap.Round
@@ -884,19 +880,19 @@ object ProgressIndicatorDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val LinearTrackStopIndicatorSize: Dp = ProgressIndicatorTokens.StopSize
+    val LinearTrackStopIndicatorSize: Dp = LinearProgressIndicatorTokens.StopSize
 
     /** Default indicator track gap size for a linear progress indicator. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val LinearIndicatorTrackGapSize: Dp = ProgressIndicatorTokens.ActiveTrackSpace
+    val LinearIndicatorTrackGapSize: Dp = LinearProgressIndicatorTokens.TrackActiveSpace
 
     /** Default indicator track gap size for a circular progress indicator. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3Api
     @ExperimentalMaterial3Api
-    val CircularIndicatorTrackGapSize: Dp = ProgressIndicatorTokens.ActiveTrackSpace
+    val CircularIndicatorTrackGapSize: Dp = CircularProgressIndicatorTokens.TrackActiveSpace
 
     /**
      * The default [AnimationSpec] that should be used when animating between progress in a
@@ -961,13 +957,12 @@ object ProgressIndicatorDefaults {
 internal val LinearIndicatorWidth = 240.dp
 
 /*@VisibleForTesting*/
-internal val LinearIndicatorHeight = ProgressIndicatorTokens.TrackThickness
+internal val LinearIndicatorHeight = LinearProgressIndicatorTokens.Height
 
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle
 /*@VisibleForTesting*/
-internal val CircularIndicatorDiameter =
-    ProgressIndicatorTokens.Size - ProgressIndicatorTokens.TrackThickness * 2
+internal val CircularIndicatorDiameter = CircularProgressIndicatorTokens.Size
 
 // Indeterminate linear indicator transition specs
 

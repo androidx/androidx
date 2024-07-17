@@ -59,7 +59,6 @@ import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
  * Example of an [IconButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
- *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -104,7 +103,7 @@ fun IconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -129,7 +128,6 @@ fun IconButton(
  * Example of [FilledIconButton]:
  *
  * @sample androidx.wear.compose.material3.samples.FilledIconButtonSample
- *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -174,7 +172,7 @@ fun FilledIconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -199,7 +197,6 @@ fun FilledIconButton(
  * Example of [FilledTonalIconButton]:
  *
  * @sample androidx.wear.compose.material3.samples.FilledTonalIconButtonSample
- *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -244,7 +241,7 @@ fun FilledTonalIconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -272,7 +269,6 @@ fun FilledTonalIconButton(
  * Example of [OutlinedIconButton]:
  *
  * @sample androidx.wear.compose.material3.samples.OutlinedIconButtonSample
- *
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -318,7 +314,7 @@ fun OutlinedIconButton(
         shape = shape,
         border = { border },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content = provideScopeContent(colors.contentColor(enabled = enabled), content)
     )
 
@@ -342,7 +338,6 @@ fun OutlinedIconButton(
  * A simple icon toggle button using the default colors
  *
  * @sample androidx.wear.compose.material3.samples.IconToggleButtonSample
- *
  * @param checked Boolean flag indicating whether this toggle button is currently checked.
  * @param onCheckedChange Callback to be invoked when this toggle button is clicked.
  * @param modifier Modifier to be applied to the toggle button.
@@ -383,7 +378,7 @@ fun IconToggleButton(
         toggleButtonSize = IconButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
-        ripple = rippleOrFallbackImplementation(),
+        ripple = ripple(),
         content =
             provideScopeContent(colors.contentColor(enabled = enabled, checked = checked), content)
     )

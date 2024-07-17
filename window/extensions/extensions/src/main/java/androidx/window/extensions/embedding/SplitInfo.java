@@ -35,7 +35,7 @@ public class SplitInfo {
     private final SplitAttributes mSplitAttributes;
 
     @NonNull
-    private final IBinder mToken;
+    private final Token mToken;
 
     /**
      * The {@code SplitInfo} constructor
@@ -48,7 +48,7 @@ public class SplitInfo {
     SplitInfo(@NonNull ActivityStack primaryActivityStack,
             @NonNull ActivityStack secondaryActivityStack,
             @NonNull SplitAttributes splitAttributes,
-            @NonNull IBinder token) {
+            @NonNull Token token) {
         Objects.requireNonNull(primaryActivityStack);
         Objects.requireNonNull(secondaryActivityStack);
         Objects.requireNonNull(splitAttributes);
@@ -91,10 +91,18 @@ public class SplitInfo {
         return mSplitAttributes;
     }
 
-    /** Returns a token uniquely identifying the container. */
-    @RequiresVendorApiLevel(level = 3)
+    /** @deprecated Use {@link #getSplitInfoToken()} instead. */
+    @Deprecated
+    @RequiresVendorApiLevel(level = 3, deprecatedSince = 5)
     @NonNull
     public IBinder getToken() {
+        return mToken.getRawToken();
+    }
+
+    /** Returns a token uniquely identifying the split. */
+    @RequiresVendorApiLevel(level = 5)
+    @NonNull
+    public Token getSplitInfoToken() {
         return mToken;
     }
 
@@ -126,5 +134,55 @@ public class SplitInfo {
                 + ", mSplitAttributes=" + mSplitAttributes
                 + ", mToken=" + mToken
                 + '}';
+    }
+
+    /**
+     * A unique identifier to represent the split.
+     */
+    public static final class Token {
+
+        @NonNull
+        private final IBinder mToken;
+
+        Token(@NonNull IBinder token) {
+            mToken = token;
+        }
+
+        @NonNull
+        IBinder getRawToken() {
+            return mToken;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Token)) return false;
+            Token token = (Token) o;
+            return Objects.equals(mToken, token.mToken);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mToken);
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return "Token{"
+                    + "mToken=" + mToken
+                    + '}';
+        }
+
+        /**
+         * Creates a split token from binder.
+         *
+         * @param token the raw binder used by OEM Extensions implementation.
+         */
+        @RequiresVendorApiLevel(level = 5)
+        @NonNull
+        public static Token createFromBinder(@NonNull IBinder token) {
+            return new Token(token);
+        }
     }
 }

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.input.key
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -31,10 +30,8 @@ import androidx.compose.ui.platform.InspectorInfo
  *   hardware keyboard. While implementing this callback, return true to stop propagation of this
  *   event. If you return false, the key event will be sent to this
  *   [SoftKeyboardInterceptionModifierNode]'s parent, and ultimately to the software keyboard.
- *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-@ExperimentalComposeUiApi
 fun Modifier.onInterceptKeyBeforeSoftKeyboard(
     onInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean
 ): Modifier =
@@ -58,10 +55,8 @@ fun Modifier.onInterceptKeyBeforeSoftKeyboard(
  *   will be sent to this [SoftKeyboardInterceptionModifierNode]'s child. If none of the children
  *   consume the event, it will be sent back up to the root [KeyInputModifierNode] using the
  *   onKeyEvent callback, and ultimately to the software keyboard.
- *
  * @sample androidx.compose.ui.samples.KeyEventSample
  */
-@ExperimentalComposeUiApi
 fun Modifier.onPreInterceptKeyBeforeSoftKeyboard(
     onPreInterceptKeyBeforeSoftKeyboard: (KeyEvent) -> Boolean,
 ): Modifier =
@@ -95,7 +90,6 @@ private data class SoftKeyboardInterceptionElement(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 private class InterceptedKeyInputNode(
     var onEvent: ((KeyEvent) -> Boolean)?,
     var onPreEvent: ((KeyEvent) -> Boolean)?

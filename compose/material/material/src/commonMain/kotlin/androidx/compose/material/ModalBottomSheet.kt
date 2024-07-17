@@ -320,7 +320,6 @@ fun rememberModalBottomSheetState(
  * A simple example of a modal bottom sheet looks like this:
  *
  * @sample androidx.compose.material.samples.ModalBottomSheetSample
- *
  * @param sheetContent The content of the bottom sheet.
  * @param modifier Optional [Modifier] for the entire component.
  * @param sheetState The state of the bottom sheet.

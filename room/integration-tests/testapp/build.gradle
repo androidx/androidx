@@ -28,18 +28,9 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
     buildFeatures {
         aidl = true
     }
-    buildTypes.configureEach {
-        // Need to make sure certain classes are put in primary dex as they're used early in
-        // process creation, and would fail to load on non-native-multidex API versions
-        multiDexKeepProguard file('multidex-rules.pro')
-    }
-
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         androidTest.assets.srcDirs += files("$projectDir/databases".toString())
@@ -86,7 +77,6 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation("androidx.lifecycle:lifecycle-livedata:2.6.1")
     implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
-    implementation(libs.multidex)
 
     // Workaround for b/191286558.
     implementation(project(":annotation:annotation-experimental"))
@@ -117,12 +107,7 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata:2.6.1")
-
-    // guavaAndroid is a implementation dependency instead of androidTestImplementation because
-    // if it's in the androidTest apk it causes the test APK to be multidex in ways that break
-    // non-native multidex (< API 21). This should be changed back to androidTestImplementation
-    // once this app is minApi 21
-    implementation(libs.guavaAndroid)
+    androidTestImplementation(libs.guavaAndroid)
 
     // libs.findbugs dependency resolves an app/testapp version conflict.
     androidTestImplementation(libs.findbugs)

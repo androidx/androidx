@@ -18,7 +18,6 @@ package androidx.compose.foundation.benchmark
 
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -34,7 +33,6 @@ private enum class DraggableAnchorsSampleValue {
     End
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(AndroidJUnit4::class)
 @Suppress("unused")
 @MediumTest
@@ -104,7 +102,7 @@ class DraggableAnchorsBenchmark {
     }
 
     @Test
-    fun hasAnchorFor() {
+    fun hasPositionFor() {
         val anchors = DraggableAnchors {
             DraggableAnchorsSampleValue.Start at 0f
             DraggableAnchorsSampleValue.HalfStart at 100f
@@ -112,11 +110,11 @@ class DraggableAnchorsBenchmark {
             DraggableAnchorsSampleValue.HalfEnd at 300f
             DraggableAnchorsSampleValue.End at 400f
         }
-        benchmarkRule.measureRepeated { anchors.hasAnchorFor(DraggableAnchorsSampleValue.Center) }
+        benchmarkRule.measureRepeated { anchors.hasPositionFor(DraggableAnchorsSampleValue.Center) }
     }
 
     @Test
-    fun minAnchor() {
+    fun minPosition() {
         val anchors = DraggableAnchors {
             DraggableAnchorsSampleValue.Start at 0f
             DraggableAnchorsSampleValue.HalfStart at 100f
@@ -124,11 +122,11 @@ class DraggableAnchorsBenchmark {
             DraggableAnchorsSampleValue.HalfEnd at 300f
             DraggableAnchorsSampleValue.End at 400f
         }
-        benchmarkRule.measureRepeated { anchors.minAnchor() }
+        benchmarkRule.measureRepeated { anchors.minPosition() }
     }
 
     @Test
-    fun maxAnchor() {
+    fun maxPosition() {
         val anchors = DraggableAnchors {
             DraggableAnchorsSampleValue.Start at 0f
             DraggableAnchorsSampleValue.HalfStart at 100f
@@ -136,6 +134,6 @@ class DraggableAnchorsBenchmark {
             DraggableAnchorsSampleValue.HalfEnd at 300f
             DraggableAnchorsSampleValue.End at 400f
         }
-        benchmarkRule.measureRepeated { anchors.maxAnchor() }
+        benchmarkRule.measureRepeated { anchors.maxPosition() }
     }
 }

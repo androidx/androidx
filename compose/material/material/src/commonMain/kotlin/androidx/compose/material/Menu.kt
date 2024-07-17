@@ -98,7 +98,6 @@ import kotlin.math.min
  * Example usage with a [ScrollState] to control the menu items scroll position:
  *
  * @sample androidx.compose.material.samples.MenuWithScrollStateSample
- *
  * @param expanded whether the menu is expanded or not
  * @param onDismissRequest called when the user requests to dismiss the menu, such as by tapping
  *   outside the menu's bounds
@@ -127,7 +126,6 @@ expect fun DropdownMenu(
  * Example usage:
  *
  * @sample androidx.compose.material.samples.MenuSample
- *
  * @param onClick Called when the menu item was clicked
  * @param modifier The modifier to be applied to the menu item
  * @param enabled Controls the enabled state of the menu item - when `false`, the menu item will not
@@ -239,7 +237,7 @@ internal fun DropdownMenuItemContent(
                     enabled = enabled,
                     onClick = onClick,
                     interactionSource = interactionSource,
-                    indication = rippleOrFallbackImplementation(true)
+                    indication = ripple(true)
                 )
                 .fillMaxWidth()
                 // Preferred min and max width used during the intrinsic measurement.

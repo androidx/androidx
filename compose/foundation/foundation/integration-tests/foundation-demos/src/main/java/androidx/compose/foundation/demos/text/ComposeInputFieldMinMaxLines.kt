@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.runtime.Composable
@@ -105,7 +104,6 @@ fun BasicTextFieldMinMaxDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TextFieldWithMinMaxLines(
     str: String? = null,

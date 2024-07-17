@@ -109,11 +109,8 @@ class SessionConfigAdapter(
         CoroutineScope(Dispatchers.Main.immediate).launch {
             // The error listener is used to notify the UseCase to recreate the pipeline,
             // and the create pipeline task would be executed on the main thread.
-            sessionConfig?.errorListeners?.forEach {
-                it.onError(
-                    sessionConfig,
-                    SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET
-                )
+            sessionConfig?.errorListener?.apply {
+                onError(sessionConfig, SessionConfig.SessionError.SESSION_ERROR_SURFACE_NEEDS_RESET)
             }
         }
     }

@@ -36,7 +36,6 @@ import androidx.compose.ui.util.fastForEach
  * animated.
  *
  * @param atEnd Whether the animated vector should be rendered at the end of all its animations.
- *
  * @sample androidx.compose.animation.graphics.samples.AnimatedVectorSample
  */
 @ExperimentalAnimationGraphicsApi

@@ -89,7 +89,7 @@ internal class LazyListScrollPosition(initialIndex: Int = 0, initialScrollOffset
      * were items added or removed before our current first visible item and keep this item as the
      * first visible one even given that its index has been changed.
      */
-    @ExperimentalFoundationApi
+    @OptIn(ExperimentalFoundationApi::class)
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyListItemProvider,
         index: Int

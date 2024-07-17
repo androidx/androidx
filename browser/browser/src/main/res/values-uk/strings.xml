@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fallback_menu_item_open_in_browser" msgid="3413186855122069269">"Відкрити у веб-переглядачі"</string>
+    <string name="fallback_menu_item_open_in_browser" msgid="3413186855122069269">"Відкрити у вебпереглядачі"</string>
     <string name="fallback_menu_item_copy_link" msgid="4566929209979330987">"Копіювати посилання"</string>
     <string name="fallback_menu_item_share_link" msgid="7145444925855055364">"Надіслати посилання"</string>
     <string name="copy_toast_msg" msgid="3260749812566568062">"Посилання скопійовано в буфер обміну"</string>

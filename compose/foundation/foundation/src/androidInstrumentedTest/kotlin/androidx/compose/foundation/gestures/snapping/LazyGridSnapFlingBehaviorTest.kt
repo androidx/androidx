@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -61,7 +60,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalFoundationApi::class)
 class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
     BaseLazyGridTestWithOrientation(orientation) {
 

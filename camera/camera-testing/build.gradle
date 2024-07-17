@@ -61,7 +61,6 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
 
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation("androidx.test:core:$testCoreVersion")
     androidTestImplementation("androidx.test:rules:$testRulesVersion")
@@ -76,7 +75,6 @@ dependencies {
 android {
     defaultConfig {
         externalNativeBuild {
-            multiDexEnabled = true
             cmake {
                 cppFlags "-std=c++17"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"

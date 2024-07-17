@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.demos.text2
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.demos.text.TagLine
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,7 +53,6 @@ fun TextFieldLineLimitsDemos() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DefaultLineLimits() {
     Text("Default")
@@ -67,7 +65,6 @@ fun DefaultLineLimits() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SingleLineLimits() {
     Text("Single Line")
@@ -80,7 +77,6 @@ fun SingleLineLimits() {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MultiLineLimits() {
     Text("Multi Line")

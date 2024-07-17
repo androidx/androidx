@@ -603,6 +603,8 @@ class AdvancedSessionProcessorTest {
     @Test
     fun useCasesCanWork_setPhysicalCameraId() = runBlocking {
         assumeAllowsSharedSurface()
+        // Physical CameraId doesn't work on OnePlus
+        assumeFalse(Build.BRAND.uppercase().equals("ONEPLUS"))
         val physicalCameraIdList = getPhysicalCameraId(cameraSelector)
         assumeTrue(physicalCameraIdList.isNotEmpty())
 

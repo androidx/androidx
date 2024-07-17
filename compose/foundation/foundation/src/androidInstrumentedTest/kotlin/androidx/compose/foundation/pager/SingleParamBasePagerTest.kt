@@ -17,7 +17,6 @@
 package androidx.compose.foundation.pager
 
 import android.view.View
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -65,7 +64,6 @@ import org.junit.Rule
  * Transition BasePagerTest to be used whilst we adopt [ParameterizedInCompositionRule] in the
  * necessary Pager Tests.
  */
-@OptIn(ExperimentalFoundationApi::class)
 open class SingleParamBasePagerTest {
 
     @get:Rule val rule = createParameterizedComposeTestRule<SingleParamConfig>()

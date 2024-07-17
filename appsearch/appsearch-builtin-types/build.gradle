@@ -37,13 +37,11 @@ dependencies {
     androidTestImplementation project(':appsearch:appsearch')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation project(':appsearch:appsearch-test-util')
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.junit)
 }
 
@@ -60,8 +58,4 @@ androidx {
 
 android {
     namespace "androidx.appsearch.builtintypes"
-
-    defaultConfig {
-        multiDexEnabled true
-    }
 }

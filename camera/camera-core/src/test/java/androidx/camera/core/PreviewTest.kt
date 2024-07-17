@@ -465,14 +465,14 @@ class PreviewTest {
     }
 
     @Test
-    fun invalidateAppSurfaceRequestWithProcessing_cameraNotReset() {
+    fun invalidateAppSurfaceRequestWithProcessing_cameraReset() {
         // Arrange: create Preview with processing.
         val surfaceRequest = createPreview(effect).mCurrentSurfaceRequest
         // Act: invalidate.
         surfaceRequest!!.invalidate()
         shadowOf(getMainLooper()).idle()
         // Assert: preview is not reset.
-        assertThat(backCamera.useCaseResetHistory).isEmpty()
+        assertThat(backCamera.useCaseResetHistory).containsExactly(previewToDetach)
     }
 
     @Test
@@ -584,7 +584,7 @@ class PreviewTest {
         val originalSessionConfig = preview.sessionConfig
 
         // Act: invoke the error listener.
-        preview.sessionConfig.errorListeners[0].onError(
+        preview.sessionConfig.errorListener!!.onError(
             preview.sessionConfig,
             SessionConfig.SessionError.SESSION_ERROR_UNKNOWN
         )
@@ -849,6 +849,7 @@ class PreviewTest {
         previewToDetach.bindToCamera(
             camera,
             null,
+            null,
             previewToDetach.getDefaultConfig(
                 true,
                 cameraXConfig.getUseCaseConfigFactoryProvider(null)!!.newInstance(context)
@@ -863,7 +864,7 @@ class PreviewTest {
                 .setImplementationOptions(streamSpecOptions)
                 .build()
         previewToDetach.sensorToBufferTransformMatrix = sensorToBufferTransform
-        previewToDetach.updateSuggestedStreamSpec(streamSpec)
+        previewToDetach.updateSuggestedStreamSpec(streamSpec, null)
         return previewToDetach
     }
 

@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -47,7 +46,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -62,12 +61,35 @@ internal typealias LinkRange = AnnotatedString.Range<LinkAnnotation>
  * This class assumes that links exist and does not perform any additional check inside its methods.
  * Therefore this class initialisation should be guarded by the `hasLinks` check.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextLinkScope(internal val initialText: AnnotatedString) {
     var textLayoutResult: TextLayoutResult? by mutableStateOf(null)
 
     /** [initialText] with applied links styling to it from [LinkAnnotation.styles] */
-    internal var text: AnnotatedString = initialText
+    internal var text: AnnotatedString
+
+    init {
+        text =
+            initialText.flatMapAnnotations {
+                // If link styles don't contain a non-null style for at least one of the states,
+                // we don't add any additional style to the list of annotations
+                if (
+                    it.item is LinkAnnotation && !(it.item as LinkAnnotation).styles.isNullOrEmpty()
+                ) {
+                    arrayListOf(
+                        // original link annotation
+                        it,
+                        // SpanStyle from the link styling object, or default SpanStyle otherwise
+                        AnnotatedString.Range(
+                            (it.item as LinkAnnotation).styles?.style ?: SpanStyle(),
+                            it.start,
+                            it.end
+                        )
+                    )
+                } else {
+                    arrayListOf(it)
+                }
+            }
+    }
 
     // Additional span style annotations applied to the AnnotatedString. These SpanStyles are coming
     // from LinkAnnotation's style arguments
@@ -145,7 +167,6 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
      * [TextLinkScope] object created *only* when there are links present in the text, we don't need
      * to do any additional guarding inside this composable function.
      */
-    @OptIn(ExperimentalFoundationApi::class)
     @Composable
     fun LinksComposables() {
         val uriHandler = LocalUriHandler.current
@@ -168,29 +189,31 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
                     )
             )
 
-            val isHovered by interactionSource.collectIsHoveredAsState()
-            val isFocused by interactionSource.collectIsFocusedAsState()
-            val isPressed by interactionSource.collectIsPressedAsState()
+            if (!range.item.styles.isNullOrEmpty()) {
+                val isHovered by interactionSource.collectIsHoveredAsState()
+                val isFocused by interactionSource.collectIsFocusedAsState()
+                val isPressed by interactionSource.collectIsPressedAsState()
 
-            StyleAnnotation(
-                isHovered,
-                isFocused,
-                isPressed,
-                range.item.styles?.style,
-                range.item.styles?.focusedStyle,
-                range.item.styles?.hoveredStyle,
-                range.item.styles?.pressedStyle,
-            ) {
-                // we calculate the latest style based on the link state and apply it to the
-                // initialText's style. This allows us to merge the style with the original instead
-                // of fully replacing it
-                val mergedStyle =
-                    range.item.styles
-                        ?.style
-                        .mergeOrUse(if (isFocused) range.item.styles?.focusedStyle else null)
-                        .mergeOrUse(if (isHovered) range.item.styles?.hoveredStyle else null)
-                        .mergeOrUse(if (isPressed) range.item.styles?.pressedStyle else null)
-                mergedStyle?.let { replaceStyle(it, range.start, range.end) }
+                StyleAnnotation(
+                    isHovered,
+                    isFocused,
+                    isPressed,
+                    range.item.styles?.style,
+                    range.item.styles?.focusedStyle,
+                    range.item.styles?.hoveredStyle,
+                    range.item.styles?.pressedStyle,
+                ) {
+                    // we calculate the latest style based on the link state and apply it to the
+                    // initialText's style. This allows us to merge the style with the original
+                    // instead of fully replacing it
+                    val mergedStyle =
+                        range.item.styles
+                            ?.style
+                            .mergeOrUse(if (isFocused) range.item.styles?.focusedStyle else null)
+                            .mergeOrUse(if (isHovered) range.item.styles?.hoveredStyle else null)
+                            .mergeOrUse(if (isPressed) range.item.styles?.pressedStyle else null)
+                    replaceStyle(range, mergedStyle)
+                }
             }
         }
     }
@@ -217,12 +240,11 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     internal fun applyAnnotators(): AnnotatedString {
         val styledText =
             if (annotators.isEmpty()) text
-            else
-                buildAnnotatedString {
-                    append(initialText)
-                    val scope = TextAnnotatorScope(this)
-                    annotators.fastForEach { it.invoke(scope) }
-                }
+            else {
+                val scope = TextAnnotatorScope(text)
+                annotators.fastForEach { it.invoke(scope) }
+                scope.styledText
+            }
         text = styledText
         return styledText
     }
@@ -235,6 +257,11 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             onDispose { annotators -= block }
         }
     }
+}
+
+private fun TextLinkStyles?.isNullOrEmpty(): Boolean {
+    return this == null ||
+        (style == null && focusedStyle == null && hoveredStyle == null && pressedStyle == null)
 }
 
 /** Interface holding the width, height and positioning logic. */
@@ -260,9 +287,33 @@ internal class TextRangeLayoutModifier(val measurePolicy: TextRangeScopeMeasureP
     override fun Density.modifyParentData(parentData: Any?) = this@TextRangeLayoutModifier
 }
 
-/** Provides methods to add styles to text inside a [TextLinkScope.StyleAnnotation] function. */
-private class TextAnnotatorScope(private val builder: AnnotatedString.Builder) {
-    fun replaceStyle(style: SpanStyle, start: Int, end: Int) {
-        builder.addStyle(style, start, end)
+/**
+ * Provides methods to update styles of the text inside a [TextLinkScope.StyleAnnotation] function.
+ */
+private class TextAnnotatorScope(private val initialText: AnnotatedString) {
+    var styledText = initialText
+
+    fun replaceStyle(linkRange: AnnotatedString.Range<LinkAnnotation>, newStyle: SpanStyle?) {
+        var linkFound = false
+        styledText =
+            initialText.mapAnnotations {
+                // if we found a link annotation on previous iteration, we need to update the
+                // SpanStyle
+                // on this iteration. This SpanStyle with the same range as the link annotation
+                // coming right after the link annotation corresponds to the link styling
+                val annotation =
+                    if (
+                        linkFound &&
+                            it.item is SpanStyle &&
+                            it.start == linkRange.start &&
+                            it.end == linkRange.end
+                    ) {
+                        AnnotatedString.Range(newStyle ?: SpanStyle(), it.start, it.end)
+                    } else {
+                        it
+                    }
+                linkFound = linkRange == it
+                annotation
+            }
     }
 }

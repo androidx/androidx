@@ -320,7 +320,7 @@ private class PooledConnectionImpl(
             return TransactionImpl<R>().block()
         } catch (ex: Throwable) {
             success = false
-            if (ex is RollbackException) {
+            if (ex is ConnectionPool.RollbackException) {
                 // Type arguments in exception subclasses is not allowed but the exception is always
                 // created with the correct type.
                 @Suppress("UNCHECKED_CAST") return (ex.result as R)
@@ -377,8 +377,6 @@ private class PooledConnectionImpl(
 
     private class TransactionItem(val id: Int, var shouldRollback: Boolean)
 
-    private class RollbackException(val result: Any?) : Throwable()
-
     private inner class TransactionImpl<T> : TransactionScope<T>, RawConnectionAccessor {
 
         override val rawConnection: SQLiteConnection
@@ -396,7 +394,7 @@ private class PooledConnectionImpl(
                 error("Not in a transaction")
             }
             delegate.withLock { transactionStack.last().shouldRollback = true }
-            throw RollbackException(result)
+            throw ConnectionPool.RollbackException(result)
         }
     }
 

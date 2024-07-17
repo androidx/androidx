@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.pager.PagerDebugConfig
 import androidx.compose.foundation.pager.PagerLayoutInfo
@@ -70,6 +69,9 @@ internal fun SnapLayoutInfoProvider(
         override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float {
             debugLog { "Approach Velocity=$velocity" }
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
+
+            // Page Size is Zero, do not proceed.
+            if (effectivePageSizePx == 0) return 0f
 
             // given this velocity, where can I go with a decay animation.
             val animationOffsetPx = decayOffset
@@ -227,7 +229,6 @@ private inline fun debugLog(generateMsg: () -> String) {
  * Given two possible bounds that this Pager can settle in represented by [lowerBoundOffset] and
  * [upperBoundOffset], this function will decide which one of them it will settle to.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal fun calculateFinalSnappingBound(
     pagerState: PagerState,
     layoutDirection: LayoutDirection,
@@ -254,8 +255,13 @@ internal fun calculateFinalSnappingBound(
             "layoutDirection=$layoutDirection"
     }
     // how many pages have I scrolled using a drag gesture.
+    val pageSize = pagerState.layoutInfo.pageSize
     val offsetFromSnappedPosition =
-        pagerState.dragGestureDelta() / pagerState.layoutInfo.pageSize.toFloat()
+        if (pageSize == 0) {
+            0f
+        } else {
+            pagerState.dragGestureDelta() / pageSize.toFloat()
+        }
 
     // we're only interested in the decimal part of the offset.
     val offsetFromSnappedPositionOverflow =

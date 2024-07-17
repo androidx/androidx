@@ -73,11 +73,10 @@ import kotlin.jvm.JvmInline
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-// TODO: Remove "internal".
 /** Class that describes the different supported icon positions of the navigation item. */
 @JvmInline
-@ExperimentalMaterial3Api
-internal value class NavigationItemIconPosition private constructor(private val value: Int) {
+@ExperimentalMaterial3ExpressiveApi
+value class NavigationItemIconPosition private constructor(private val value: Int) {
     companion object {
         /* The icon is positioned on top of the label. */
         val Top = NavigationItemIconPosition(0)
@@ -105,11 +104,9 @@ internal value class NavigationItemIconPosition private constructor(private val 
  * @param disabledIconColor the color to use for the icon when the item is disabled.
  * @param disabledTextColor the color to use for the text label when the item is disabled.
  * @constructor create an instance with arbitrary colors.
- *
- * TODO: Remove "internal".
  */
 @Immutable
-internal class NavigationItemColors
+class NavigationItemColors
 constructor(
     val selectedIconColor: Color,
     val selectedTextColor: Color,
@@ -230,7 +227,7 @@ constructor(
  *   for this item. You can create and pass in your own `remember`ed instance to observe
  *   [Interaction]s and customize the appearance / behavior of this item in different states
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun NavigationItem(
     selected: Boolean,
@@ -339,7 +336,7 @@ internal fun NavigationItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NavigationItemLayout(
     interactionSource: InteractionSource,
@@ -356,12 +353,13 @@ private fun NavigationItemLayout(
     topIconItemVerticalPadding: Dp
 ) {
     Layout(
+        modifier = Modifier.badgeBounds(),
         content = {
             // Create the indicator ripple.
             Box(
                 Modifier.layoutId(IndicatorRippleLayoutIdTag)
                     .clip(indicatorShape)
-                    .indication(interactionSource, rippleOrFallbackImplementation())
+                    .indication(interactionSource, ripple())
             )
             // Create the indicator. The indicator has a width-expansion animation which interferes
             // with

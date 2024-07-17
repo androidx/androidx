@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import org.junit.Assert.assertEquals
@@ -44,6 +45,7 @@ class CurvedTextStyleTest {
         assertNull(style.fontFamily)
         assertNull(style.fontStyle)
         assertNull(style.fontSynthesis)
+        assertTrue(style.letterSpacing.isUnspecified)
     }
 
     @Test
@@ -107,6 +109,15 @@ class CurvedTextStyleTest {
         val style = CurvedTextStyle(fontSynthesis = fontSynthesis)
 
         assertEquals(style.fontSynthesis, fontSynthesis)
+    }
+
+    @Test
+    fun `constructor with customized letter spacing`() {
+        val letterSpacing = 0.01f.em
+
+        val style = CurvedTextStyle(letterSpacing = letterSpacing)
+
+        assertEquals(style.letterSpacing, letterSpacing)
     }
 
     @Test
@@ -249,5 +260,24 @@ class CurvedTextStyleTest {
         val newStyle = style.merge(otherStyle)
 
         assertEquals(newStyle.fontSynthesis, otherStyle.fontSynthesis)
+    }
+
+    @Test
+    fun `merge with other's letter spacing is unspecified should use this' letter spacing`() {
+        val style = CurvedTextStyle(letterSpacing = 0.123f.em)
+
+        val newStyle = style.merge(CurvedTextStyle(letterSpacing = TextUnit.Unspecified))
+
+        assertEquals(newStyle.letterSpacing, style.letterSpacing)
+    }
+
+    @Test
+    fun `merge with other's letter spacing is set should use other's letter spacing`() {
+        val style = CurvedTextStyle(letterSpacing = 0.123f.em)
+        val otherStyle = CurvedTextStyle(letterSpacing = 0.345f.em)
+
+        val newStyle = style.merge(otherStyle)
+
+        assertEquals(newStyle.letterSpacing, otherStyle.letterSpacing)
     }
 }

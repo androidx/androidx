@@ -600,6 +600,18 @@ private fun createDefaultTracer(): Tracer {
     // implementation.
     val tracer =
         object : Tracer {
+            override fun isEnabled(): Boolean {
+                return androidx.tracing.Trace.isEnabled()
+            }
+
+            override fun beginSection(label: String) {
+                androidx.tracing.Trace.beginSection(label)
+            }
+
+            override fun endSection() {
+                androidx.tracing.Trace.endSection()
+            }
+
             override fun beginAsyncSection(methodName: String, cookie: Int) {
                 androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
             }

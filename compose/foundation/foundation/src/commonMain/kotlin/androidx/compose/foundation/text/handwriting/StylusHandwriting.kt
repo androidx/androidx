@@ -218,5 +218,5 @@ internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> B
 internal expect val isStylusHandwritingSupported: Boolean
 
 /** The amount of the padding added to the handwriting bounds of an editor. */
-internal val HandwritingBoundsVerticalOffset = 40.dp
-internal val HandwritingBoundsHorizontalOffset = 10.dp
+internal val HandwritingBoundsVerticalOffset = 0.dp
+internal val HandwritingBoundsHorizontalOffset = 0.dp

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.compose.animation.lint
 
 import androidx.compose.lint.Name
@@ -41,54 +43,119 @@ import org.jetbrains.uast.ULambdaExpression
  * error to not use this value, as AnimatedContent works by emitting content with a value
  * corresponding to the `from` and `to` states - if this value is not read, then `AnimatedContent`
  * will end up animating in and out the same content on top of each other.
+ *
+ * Likewise, `contentKey` should also use the provided targetState (`T`) to calculate its result.
  */
 class AnimatedContentDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> = listOf(AnimatedContent.shortName)
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (method.isInPackageName(Names.Animation.PackageName)) {
-            val lambdaArgument =
-                computeKotlinArgumentMapping(node, method)
-                    .orEmpty()
-                    .filter { (_, param) -> param.name == "content" }
-                    .keys
-                    .filterIsInstance<ULambdaExpression>()
-                    .firstOrNull() ?: return
+        if (!method.isInPackageName(Names.Animation.PackageName)) return
 
-            lambdaArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
-                val location =
-                    unreferencedParameter.parameter?.let { context.getLocation(it) }
-                        ?: context.getLocation(lambdaArgument)
-                val name = unreferencedParameter.name
-                context.report(
-                    UnusedContentLambdaTargetStateParameter,
-                    node,
-                    location,
-                    "Target state parameter `$name` is not used"
-                )
+        var contentLambdaExpression: ULambdaExpression? = null
+        var contentKeyLambdaExpression: ULambdaExpression? = null
+
+        // We check for unused lambda parameter in the `content` lambda and in the `contentKey`
+        // lambda, so we first need to capture the corresponding lambdas.
+        computeKotlinArgumentMapping(node, method).orEmpty().forEach { (expression, parameter) ->
+            when (parameter.name) {
+                "content" -> {
+                    if (expression is ULambdaExpression) {
+                        contentLambdaExpression = expression
+                    }
+                }
+                "contentKey" -> {
+                    if (expression is ULambdaExpression) {
+                        contentKeyLambdaExpression = expression
+                    }
+                }
             }
+        }
+
+        // Unused lambda parameter check for `content` lambda
+        contentLambdaExpression?.let { lambdaArgument ->
+            findAndReportUnusedTargetStateIssue(
+                lambdaArgument = lambdaArgument,
+                node = node,
+                context = context,
+                issue = UnusedContentLambdaTargetStateParameter
+            )
+        }
+
+        // Unused lambda parameter check for `contentKey` lambda
+        contentKeyLambdaExpression?.let { lambdaArgument ->
+            findAndReportUnusedTargetStateIssue(
+                lambdaArgument = lambdaArgument,
+                node = node,
+                context = context,
+                issue = UnusedTargetStateInContentKeyLambda
+            )
+        }
+    }
+
+    private fun findAndReportUnusedTargetStateIssue(
+        lambdaArgument: ULambdaExpression,
+        node: UCallExpression,
+        context: JavaContext,
+        issue: Issue
+    ) {
+        lambdaArgument.findUnreferencedParameters().forEach { unreferencedParameter ->
+            val location =
+                unreferencedParameter.parameter?.let { context.getLocation(it) }
+                    ?: context.getLocation(lambdaArgument)
+            val name = unreferencedParameter.name
+            context.report(
+                issue = issue,
+                scope = node,
+                location = location,
+                message = "Target state parameter `$name` is not used"
+            )
         }
     }
 
     companion object {
         val UnusedContentLambdaTargetStateParameter =
             Issue.create(
-                "UnusedContentLambdaTargetStateParameter",
-                "AnimatedContent calls should use the provided `T` parameter in the content lambda",
-                "`content` lambda in AnimatedContent works as a lookup function that returns the " +
-                    "corresponding content based on the parameter (a state of type `T`). It is " +
-                    "important for this lambda to return content *specific* to the input parameter, " +
-                    "so that the different contents can be properly animated. Not using the input " +
-                    "parameter to the content lambda will result in the same content for different " +
-                    "input (i.e. target state) and therefore an erroneous transition between the " +
-                    "exact same content.`",
-                Category.CORRECTNESS,
-                3,
-                Severity.ERROR,
-                Implementation(
-                    AnimatedContentDetector::class.java,
-                    EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
-                )
+                id = "UnusedContentLambdaTargetStateParameter",
+                briefDescription =
+                    "AnimatedContent calls should use the provided `T` parameter in the content lambda",
+                explanation =
+                    "`content` lambda in AnimatedContent works as a lookup function that returns the " +
+                        "corresponding content based on the parameter (a state of type `T`). It is " +
+                        "important for this lambda to return content *specific* to the input parameter, " +
+                        "so that the different contents can be properly animated. Not using the input " +
+                        "parameter to the content lambda will result in the same content for different " +
+                        "input (i.e. target state) and therefore an erroneous transition between the " +
+                        "exact same content.`",
+                category = Category.CORRECTNESS,
+                priority = 3,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        AnimatedContentDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                    )
+            )
+
+        val UnusedTargetStateInContentKeyLambda =
+            Issue.create(
+                id = "UnusedTargetStateInContentKeyLambda",
+                briefDescription =
+                    "`contentKey` lambda in AnimatedContent should always use " +
+                        "the provided `T` parameter.",
+                explanation =
+                    "In `AnimatedContent`, the `contentKey` lambda may be used when the " +
+                        "`targetState` is expected to mutate frequently but not all mutations are " +
+                        "desired to be considered a target state change. So `contentKey` is expected to " +
+                        "always use the given `targetState` parameter to calculate its result.",
+                category = Category.CORRECTNESS,
+                priority = 3,
+                severity = Severity.ERROR,
+                implementation =
+                    Implementation(
+                        AnimatedContentDetector::class.java,
+                        EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
+                    )
             )
     }
 }

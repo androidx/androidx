@@ -20,7 +20,6 @@ import android.app.Activity
 import android.util.SparseArray
 import android.view.View
 import android.view.autofill.AutofillValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
 import com.google.common.truth.Truth
 import org.junit.Before
@@ -30,7 +29,6 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = 26)
 class AndroidPerformAutofillTest {

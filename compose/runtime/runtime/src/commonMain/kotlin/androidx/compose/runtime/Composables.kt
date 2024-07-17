@@ -116,7 +116,6 @@ inline fun <T> remember(
  * A compound key can be created by passing in multiple arguments:
  *
  * @sample androidx.compose.runtime.samples.TwoInputsKeySample
- *
  * @param keys The set of values to be used to create a compound key. These will be compared to
  *   their previous values using [equals] and [hashCode]
  * @param block The composable children for this group.
@@ -221,7 +220,6 @@ val currentCompositeKeyHash: Int
  * [currentComposer].
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param factory A function which will create a new instance of [T]. This function is NOT
  *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
@@ -256,7 +254,6 @@ inline fun <T : Any, reified E : Applier<*>> ComposeNode(
  * [currentComposer].
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param factory A function which will create a new instance of [T]. This function is NOT
  *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
@@ -292,7 +289,6 @@ inline fun <T : Any, reified E : Applier<*>> ReusableComposeNode(
  * [currentComposer].
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param factory A function which will create a new instance of [T]. This function is NOT
  *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
@@ -331,7 +327,6 @@ inline fun <T : Any?, reified E : Applier<*>> ComposeNode(
  * [currentComposer].
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param factory A function which will create a new instance of [T]. This function is NOT
  *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
@@ -370,7 +365,6 @@ inline fun <T : Any?, reified E : Applier<*>> ReusableComposeNode(
  * [currentComposer].
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param factory A function which will create a new instance of [T]. This function is NOT
  *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is
@@ -417,7 +411,6 @@ inline fun <T, reified E : Applier<*>> ComposeNode(
  * [currentComposer].
  *
  * @sample androidx.compose.runtime.samples.CustomTreeComposition
- *
  * @param factory A function which will create a new instance of [T]. This function is NOT
  *   guaranteed to be called in place.
  * @param update A function to perform updates on the node. This will run every time emit is

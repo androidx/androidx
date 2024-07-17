@@ -27,22 +27,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.BadgeTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.HorizontalRuler
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.VerticalRuler
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirst
-import kotlin.math.roundToInt
 
 /**
  * Material Design badge box.
@@ -60,7 +56,6 @@ import kotlin.math.roundToInt
  * A simple icon with badge example looks like:
  *
  * @sample androidx.compose.material3.samples.NavigationBarItemWithBadge
- *
  * @param badge the badge to be displayed - typically a [Badge]
  * @param modifier the [Modifier] to be applied to this BadgedBox
  * @param content the anchor to which this badge will be positioned
@@ -71,15 +66,9 @@ fun BadgedBox(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit,
 ) {
-    var layoutAbsoluteLeft by remember { mutableFloatStateOf(0f) }
-    var layoutAbsoluteTop by remember { mutableFloatStateOf(0f) }
-    // We use Float.POSITIVE_INFINITY and Float.NEGATIVE_INFINITY to represent the case
-    // when there isn't a great grand parent layout.
-    var greatGrandParentAbsoluteRight by remember { mutableFloatStateOf(Float.POSITIVE_INFINITY) }
-    var greatGrandParentAbsoluteTop by remember { mutableFloatStateOf(Float.NEGATIVE_INFINITY) }
-
     Layout(
-        {
+        modifier = modifier,
+        content = {
             Box(
                 modifier = Modifier.layoutId("anchor"),
                 contentAlignment = Alignment.Center,
@@ -87,19 +76,6 @@ fun BadgedBox(
             )
             Box(modifier = Modifier.layoutId("badge"), content = badge)
         },
-        modifier =
-            modifier.onGloballyPositioned { coordinates ->
-                val windowBoundsRect = coordinates.boundsInWindow()
-                layoutAbsoluteLeft = windowBoundsRect.left
-                layoutAbsoluteTop = windowBoundsRect.top
-                val layoutGreatGrandParent =
-                    coordinates.parentLayoutCoordinates?.parentLayoutCoordinates?.parentCoordinates
-                layoutGreatGrandParent?.let {
-                    val greatGrandParentWindowBoundsRect = it.boundsInWindow()
-                    greatGrandParentAbsoluteRight = greatGrandParentWindowBoundsRect.right
-                    greatGrandParentAbsoluteTop = greatGrandParentWindowBoundsRect.top
-                }
-            }
     ) { measurables, constraints ->
         val badgePlaceable =
             measurables
@@ -119,11 +95,11 @@ fun BadgedBox(
         val totalHeight = anchorPlaceable.height
 
         layout(
-            totalWidth,
-            totalHeight,
+            width = totalWidth,
+            height = totalHeight,
             // Provide custom baselines based only on the anchor content to avoid default baseline
             // calculations from including by any badge content.
-            mapOf(FirstBaseline to firstBaseline, LastBaseline to lastBaseline)
+            alignmentLines = mapOf(FirstBaseline to firstBaseline, LastBaseline to lastBaseline),
         ) {
             // Use the width of the badge to infer whether it has any content (based on radius used
             // in [Badge]) and determine its horizontal offset.
@@ -136,21 +112,17 @@ fun BadgedBox(
             anchorPlaceable.placeRelative(0, 0)
 
             // Desired Badge placement
-            var badgeX = anchorPlaceable.width - badgeHorizontalOffset.roundToPx()
-            var badgeY = -badgePlaceable.height + badgeVerticalOffset.roundToPx()
-            // Badge correction logic if the badge will be cut off by the grandparent bounds.
-            val badgeAbsoluteTop = layoutAbsoluteTop + badgeY
-            val badgeAbsoluteRight = layoutAbsoluteLeft + badgeX + badgePlaceable.width.toFloat()
-            val badgeGreatGrandParentHorizontalDiff =
-                greatGrandParentAbsoluteRight - badgeAbsoluteRight
-            val badgeGreatGrandParentVerticalDiff = badgeAbsoluteTop - greatGrandParentAbsoluteTop
-            // Adjust badgeX and badgeY if the desired placement would cause it to clip.
-            if (badgeGreatGrandParentHorizontalDiff < 0) {
-                badgeX += badgeGreatGrandParentHorizontalDiff.roundToInt()
-            }
-            if (badgeGreatGrandParentVerticalDiff < 0) {
-                badgeY -= badgeGreatGrandParentVerticalDiff.roundToInt()
-            }
+            val badgeX =
+                minOf(
+                    anchorPlaceable.width - badgeHorizontalOffset.roundToPx(),
+                    BadgeEndRuler.current(Float.POSITIVE_INFINITY).toInt() - badgePlaceable.width
+                )
+
+            val badgeY =
+                maxOf(
+                    -badgePlaceable.height + badgeVerticalOffset.roundToPx(),
+                    BadgeTopRuler.current(Float.NEGATIVE_INFINITY).toInt()
+                )
 
             badgePlaceable.placeRelative(badgeX, badgeY)
         }
@@ -240,3 +212,23 @@ internal val BadgeWithContentVerticalOffset = 14.dp
 // Horizontally align start/end of icon only badge 6.dp from the end/start edge of anchor
 // Vertical overlap with anchor is 6.dp
 internal val BadgeOffset = 6.dp
+
+internal val BadgeTopRuler = HorizontalRuler()
+internal val BadgeEndRuler = VerticalRuler()
+
+internal fun Modifier.badgeBounds() =
+    this.layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        layout(
+            width = placeable.width,
+            height = placeable.height,
+            rulers = {
+                // use provides instead of provideRelative cause we will place relative
+                // in the badge code
+                BadgeEndRuler provides coordinates.size.width.toFloat()
+                BadgeTopRuler provides 0f
+            }
+        ) {
+            placeable.place(0, 0)
+        }
+    }

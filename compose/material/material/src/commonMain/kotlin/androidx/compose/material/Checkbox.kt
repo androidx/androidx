@@ -66,7 +66,6 @@ import kotlin.math.max
  * image](https://developer.android.com/images/reference/androidx/compose/material/checkboxes.png)
  *
  * @sample androidx.compose.material.samples.CheckboxSample
- *
  * @param checked whether Checkbox is checked or unchecked
  * @param onCheckedChange callback to be invoked when checkbox is being clicked, therefore the
  *   change of checked state in requested. If null, then this is passive and relies entirely on a
@@ -117,7 +116,6 @@ fun Checkbox(
  * image](https://developer.android.com/images/reference/androidx/compose/material/checkboxes.png)
  *
  * @sample androidx.compose.material.samples.TriStateCheckboxSample
- *
  * @param state whether TriStateCheckbox is checked, unchecked or in indeterminate state
  * @param onClick callback to be invoked when checkbox is being clicked, therefore the change of
  *   ToggleableState state is requested. If null, then this is passive and relies entirely on a
@@ -149,8 +147,7 @@ fun TriStateCheckbox(
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication =
-                    rippleOrFallbackImplementation(bounded = false, radius = CheckboxRippleRadius)
+                indication = ripple(bounded = false, radius = CheckboxRippleRadius)
             )
         } else {
             Modifier

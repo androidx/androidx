@@ -18,8 +18,6 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo.Interval
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.BeyondBoundsScope
@@ -29,9 +27,18 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.modifier.ModifierLocalProvider
-import androidx.compose.ui.modifier.ProvidableModifierLocal
+import androidx.compose.ui.modifier.ModifierLocalMap
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
+import androidx.compose.ui.modifier.modifierLocalMapOf
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.remeasureSync
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.LayoutDirection.Ltr
 import androidx.compose.ui.unit.LayoutDirection.Rtl
@@ -40,8 +47,6 @@ import androidx.compose.ui.unit.LayoutDirection.Rtl
  * This modifier is used to measure and place additional items when the lazy layout receives a
  * request to layout items beyond the visible bounds.
  */
-@Suppress("ComposableModifierFactory")
-@Composable
 internal fun Modifier.lazyLayoutBeyondBoundsModifier(
     state: LazyLayoutBeyondBoundsState,
     beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
@@ -54,29 +59,82 @@ internal fun Modifier.lazyLayoutBeyondBoundsModifier(
         this
     } else {
         this then
-            remember(state, beyondBoundsInfo, reverseLayout, layoutDirection, orientation) {
-                LazyLayoutBeyondBoundsModifierLocal(
-                    state,
-                    beyondBoundsInfo,
-                    reverseLayout,
-                    layoutDirection,
-                    orientation
-                )
-            }
+            LazyLayoutBeyondBoundsModifierElement(
+                state,
+                beyondBoundsInfo,
+                reverseLayout,
+                layoutDirection,
+                orientation
+            )
     }
 
-internal class LazyLayoutBeyondBoundsModifierLocal(
-    private val state: LazyLayoutBeyondBoundsState,
-    private val beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
-    private val reverseLayout: Boolean,
-    private val layoutDirection: LayoutDirection,
-    private val orientation: Orientation
-) : ModifierLocalProvider<BeyondBoundsLayout?>, BeyondBoundsLayout {
-    override val key: ProvidableModifierLocal<BeyondBoundsLayout?>
-        get() = ModifierLocalBeyondBoundsLayout
+private class LazyLayoutBeyondBoundsModifierElement(
+    val state: LazyLayoutBeyondBoundsState,
+    val beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
+    val reverseLayout: Boolean,
+    val layoutDirection: LayoutDirection,
+    val orientation: Orientation
+) : ModifierNodeElement<LazyLayoutBeyondBoundsModifierNode>() {
+    override fun create(): LazyLayoutBeyondBoundsModifierNode {
+        return LazyLayoutBeyondBoundsModifierNode(
+            state,
+            beyondBoundsInfo,
+            reverseLayout,
+            layoutDirection,
+            orientation
+        )
+    }
 
-    override val value: BeyondBoundsLayout
-        get() = this
+    override fun update(node: LazyLayoutBeyondBoundsModifierNode) {
+        node.update(state, beyondBoundsInfo, reverseLayout, layoutDirection, orientation)
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + beyondBoundsInfo.hashCode()
+        result = 31 * result + reverseLayout.hashCode()
+        result = 31 * result + layoutDirection.hashCode()
+        result = 31 * result + orientation.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        if (other !is LazyLayoutBeyondBoundsModifierElement) return false
+
+        if (state != other.state) return false
+        if (beyondBoundsInfo != other.beyondBoundsInfo) return false
+        if (reverseLayout != other.reverseLayout) return false
+        if (layoutDirection != other.layoutDirection) return false
+        if (orientation != other.orientation) return false
+
+        return true
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        // no op
+    }
+}
+
+internal class LazyLayoutBeyondBoundsModifierNode(
+    private var state: LazyLayoutBeyondBoundsState,
+    private var beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
+    private var reverseLayout: Boolean,
+    private var layoutDirection: LayoutDirection,
+    private var orientation: Orientation
+) : Modifier.Node(), ModifierLocalModifierNode, BeyondBoundsLayout, LayoutModifierNode {
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+    }
+
+    override val providedValues: ModifierLocalMap
+        get() = modifierLocalMapOf(ModifierLocalBeyondBoundsLayout to this)
 
     companion object {
         private val emptyBeyondBoundsScope =
@@ -91,7 +149,8 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
     ): T? {
         // If the lazy list is empty, or if it does not have any visible items (Which implies
         // that there isn't space to add a single item), we don't attempt to layout any more items.
-        if (state.itemCount <= 0 || !state.hasVisibleItems) {
+        // if the node is not yet attached or we haven't completed at least one layout pass..
+        if (state.itemCount <= 0 || !state.hasVisibleItems || !isAttached) {
             return block.invoke(emptyBeyondBoundsScope)
         }
 
@@ -105,13 +164,12 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
         var interval = beyondBoundsInfo.addInterval(startIndex, startIndex)
         var found: T? = null
         while (found == null && interval.hasMoreContent(direction)) {
-
             // Add one extra beyond bounds item.
             interval =
                 addNextInterval(interval, direction).also {
                     beyondBoundsInfo.removeInterval(interval)
                 }
-            state.remeasure()
+            remeasureSync()
 
             // When we invoke this block, the beyond bounds items are present.
             found =
@@ -125,7 +183,7 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
 
         // Dispose the items that are beyond the visible bounds.
         beyondBoundsInfo.removeInterval(interval)
-        state.remeasure()
+        remeasureSync()
         return found
     }
 
@@ -177,6 +235,20 @@ internal class LazyLayoutBeyondBoundsModifierLocal(
             After -> false
             else -> unsupportedDirection()
         }
+    }
+
+    fun update(
+        state: LazyLayoutBeyondBoundsState,
+        beyondBoundsInfo: LazyLayoutBeyondBoundsInfo,
+        reverseLayout: Boolean,
+        layoutDirection: LayoutDirection,
+        orientation: Orientation
+    ) {
+        this.state = state
+        this.beyondBoundsInfo = beyondBoundsInfo
+        this.reverseLayout = reverseLayout
+        this.layoutDirection = layoutDirection
+        this.orientation = orientation
     }
 }
 

@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 
@@ -39,10 +38,7 @@ expect interface WindowInfo {
     val isWindowFocused: Boolean
 
     /** Indicates the state of keyboard modifiers (pressed or not). */
-    // TODO(https://youtrack.jetbrains.com/issue/COMPOSE-412/Remove-getExperimentalComposeUiApi-from-val-keyboardModifiers)
-    //  remove get:ExperimentalComposeUiApi, as it actually isn't experimental
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @get:ExperimentalComposeUiApi
     open val keyboardModifiers: PointerKeyboardModifiers
 }
 

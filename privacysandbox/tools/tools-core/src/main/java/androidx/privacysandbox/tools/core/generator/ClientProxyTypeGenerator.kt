@@ -100,6 +100,8 @@ class ClientProxyTypeGenerator(
                             .build()
                     )
                     addFunction(generateOpenSession())
+                    addFunction(generateAddObserverFactory())
+                    addFunction(generateRemoveObserverFactory())
                 }
             }
 
@@ -168,6 +170,38 @@ class ClientProxyTypeGenerator(
                 "$sandboxedUiAdapterPropertyName.openSession(%N, windowInputToken, initialWidth, " +
                     "initialHeight, isZOrderOnTop, clientExecutor, client)",
                 contextPropertyName,
+            )
+        }
+
+    private fun generateAddObserverFactory() =
+        FunSpec.builder("addObserverFactory").build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameters(
+                listOf(
+                    ParameterSpec(
+                        "sessionObserverFactory",
+                        ClassName("androidx.privacysandbox.ui.core", "SessionObserverFactory")
+                    )
+                )
+            )
+            addStatement(
+                "$sandboxedUiAdapterPropertyName.addObserverFactory(" + "sessionObserverFactory)"
+            )
+        }
+
+    private fun generateRemoveObserverFactory() =
+        FunSpec.builder("removeObserverFactory").build {
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+            addParameters(
+                listOf(
+                    ParameterSpec(
+                        "sessionObserverFactory",
+                        ClassName("androidx.privacysandbox.ui.core", "SessionObserverFactory")
+                    )
+                )
+            )
+            addStatement(
+                "$sandboxedUiAdapterPropertyName.removeObserverFactory(" + "sessionObserverFactory)"
             )
         }
 

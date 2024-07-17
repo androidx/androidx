@@ -14,16 +14,6 @@
  * limitations under the License.
  */
 
-<<<<<<<< HEAD:compose/ui/ui-test/src/jsMain/kotlin/androidx/compose/ui/test/Actions.jsMain.kt
-package androidx.compose.ui.test
-
-@OptIn(ExperimentalTestApi::class)
-internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeInteraction {
-    return performMouseInput {
-        click()
-    }
-}
-========
 package androidx.room.util
 
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -33,5 +23,4 @@ import platform.posix.strerror
 
 /** Convenience function to get a String description of the last error number. */
 @OptIn(ExperimentalForeignApi::class)
-fun stringError(): String = strerror(errno)?.toKString() ?: "Unknown error"
->>>>>>>> 4ddd0ca0d2033b1ddbe4311683067312bc2be853:room/room-runtime/src/nativeMain/kotlin/androidx/room/util/PosixUtil.kt
+fun stringError(): String = "$errno - " + (strerror(errno)?.toKString() ?: "Unknown error")

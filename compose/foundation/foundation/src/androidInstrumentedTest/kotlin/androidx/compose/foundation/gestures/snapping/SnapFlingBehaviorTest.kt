@@ -26,7 +26,6 @@ import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.TestScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
@@ -68,7 +67,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
 class SnapFlingBehaviorTest {
     @get:Rule val rule = createComposeRule()
 
@@ -180,6 +178,43 @@ class SnapFlingBehaviorTest {
         }
 
         rule.runOnIdle { assertNotEquals(NoVelocity, afterFlingVelocity) }
+    }
+
+    @Test
+    fun performFling_invalidOffsets_shouldNotPropagateNans_calculateSnapOffset() {
+        val testLayoutInfoProvider =
+            object : SnapLayoutInfoProvider {
+                override fun calculateSnapOffset(velocity: Float): Float = Float.NaN
+            }
+        lateinit var testFlingBehavior: TargetedFlingBehavior
+        val exception =
+            kotlin.runCatching {
+                rule.setContent {
+                    testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
+                    VelocityEffect(testFlingBehavior, TestVelocity)
+                }
+            }
+        assert(exception.isFailure)
+    }
+
+    @Test
+    fun performFling_invalidOffsets_shouldNotPropagateNans_calculateApproachOffset() {
+        val testLayoutInfoProvider =
+            object : SnapLayoutInfoProvider {
+                override fun calculateApproachOffset(velocity: Float, decayOffset: Float): Float =
+                    Float.NaN
+
+                override fun calculateSnapOffset(velocity: Float): Float = 0.0f
+            }
+        lateinit var testFlingBehavior: TargetedFlingBehavior
+        val exception =
+            kotlin.runCatching {
+                rule.setContent {
+                    testFlingBehavior = rememberSnapFlingBehavior(testLayoutInfoProvider)
+                    VelocityEffect(testFlingBehavior, TestVelocity)
+                }
+            }
+        assert(exception.isFailure)
     }
 
     @Test
@@ -477,7 +512,6 @@ class SnapFlingBehaviorTest {
 }
 
 @Suppress("Deprecation")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun VelocityEffect(
     testFlingBehavior: FlingBehavior,
@@ -537,7 +571,6 @@ private const val TestVelocity = 1000f
 private const val MinOffset = -200f
 private const val MaxOffset = 300f
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberSnapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider,

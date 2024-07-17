@@ -19,6 +19,7 @@ package androidx.wear.compose.material3.demos
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -41,5 +42,14 @@ internal fun AvatarIcon() {
         Icons.Filled.AccountCircle,
         contentDescription = "Account",
         modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+    )
+}
+
+@Composable
+internal fun CheckIcon() {
+    Icon(
+        Icons.Filled.Check,
+        contentDescription = "Check",
+        modifier = Modifier.size(ButtonDefaults.IconSize)
     )
 }

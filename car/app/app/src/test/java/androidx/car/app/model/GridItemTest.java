@@ -85,11 +85,13 @@ public class GridItemTest {
                 IllegalArgumentException.class,
                 () -> new GridItem.Builder().setTitle(title2));
 
-        // DurationSpan and DistanceSpan do not throw
+        // CarIconSpan, DurationSpan and DistanceSpan do not throw
         CharSequence title3 = TestUtils.getCharSequenceWithDistanceAndDurationSpans("Title");
         new GridItem.Builder().setTitle(title3).setImage(BACK).build();
         CarText title4 = TestUtils.getCarTextVariantsWithDistanceAndDurationSpans("Title");
         new GridItem.Builder().setTitle(title4).setImage(BACK).build();
+        CharSequence title5 = TestUtils.getCharSequenceWithIconSpan("Title");
+        new GridItem.Builder().setTitle(title5).setImage(BACK).build();
     }
 
     @Test
@@ -162,11 +164,13 @@ public class GridItemTest {
                 IllegalArgumentException.class,
                 () -> new GridItem.Builder().setTitle("Title").setText(text2));
 
-        // DurationSpan and DistanceSpan do not throw
+        // CarIconSpan, DurationSpan and DistanceSpan do not throw
         CharSequence text3 = TestUtils.getCharSequenceWithColorSpan("Text");
         new GridItem.Builder().setTitle("Title").setText(text3).setImage(BACK).build();
         CarText text4 = TestUtils.getCarTextVariantsWithColorSpan("Text");
         new GridItem.Builder().setTitle("Title").setText(text4).setImage(BACK).build();
+        CharSequence text5 = TestUtils.getCharSequenceWithIconSpan("Text");
+        new GridItem.Builder().setTitle("Title").setText(text5).setImage(BACK).build();
     }
 
     @Test

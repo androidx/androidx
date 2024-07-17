@@ -61,6 +61,8 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.LocalReduceMotion
+import androidx.wear.compose.materialcore.screenHeightDp
+import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.max
 import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
@@ -392,7 +394,6 @@ public fun rememberPlaceholderState(isContentReady: () -> Boolean): PlaceholderS
  * modifiers.
  *
  * @sample androidx.wear.compose.material.samples.TextPlaceholder
- *
  * @param placeholderState determines whether the placeholder is visible and controls animation
  *   effects for the placeholder.
  * @param shape the shape to apply to the placeholder
@@ -445,7 +446,6 @@ public fun Modifier.placeholder(
  * modifiers.
  *
  * @sample androidx.wear.compose.material.samples.TextPlaceholder
- *
  * @param placeholderState the current placeholder state that determine whether the placeholder
  *   shimmer should be shown.
  * @param shape the shape of the component.
@@ -504,7 +504,6 @@ public object PlaceholderDefaults {
      * once all of the placeholder data is loaded:
      *
      * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelAndPlaceholders
-     *
      * @param originalChipColors the chip colors to use when not in placeholder mode.
      * @param placeholderState the placeholder state of the component
      * @param color the color to use for the placeholder background brush
@@ -554,7 +553,6 @@ public object PlaceholderDefaults {
      * away once all of the placeholder data is loaded:
      *
      * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabelsAndOverlaidPlaceholder
-     *
      * @param color the color to use for the placeholder background brush.
      * @param placeholderState the current placeholder state.
      */

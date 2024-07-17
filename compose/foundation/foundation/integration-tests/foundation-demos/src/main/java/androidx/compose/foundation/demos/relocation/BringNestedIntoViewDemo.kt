@@ -18,7 +18,6 @@
 
 package androidx.compose.foundation.demos.relocation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
@@ -47,7 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun BringNestedIntoViewDemo() {
     Column {
@@ -66,7 +64,6 @@ fun BringNestedIntoViewDemo() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ScrollableGrid(rows: Int, columns: Int, requesters: List<BringIntoViewRequester>) {
     Column(
@@ -97,7 +94,6 @@ private fun ScrollableGrid(rows: Int, columns: Int, requesters: List<BringIntoVi
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ControlGrid(rows: Int, columns: Int, requesters: List<BringIntoViewRequester>) {
     val coroutineScope = rememberCoroutineScope()

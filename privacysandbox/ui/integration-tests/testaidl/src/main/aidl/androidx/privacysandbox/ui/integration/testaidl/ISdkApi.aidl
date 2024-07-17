@@ -19,10 +19,7 @@ package androidx.privacysandbox.ui.integration.testaidl;
 import android.os.Bundle;
 
 interface ISdkApi {
-    Bundle loadWebViewAd();
-    Bundle loadLocalWebViewAd();
-    Bundle loadTestAd(String text);
-    Bundle loadTestAdWithWaitInsideOnDraw(String text);
-    Bundle loadMediatedTestAd(int count, boolean isAppMediatee);
-    void requestResize(int width, int height);
+   Bundle loadBannerAd(int adType, int sdkType, boolean withSlowDraw, boolean drawViewability);
+   void requestResize(int width, int height);
+   oneway void triggerProcessDeath();
 }

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalFoundationApi::class)
-
 package androidx.compose.foundation
 
 import androidx.compose.foundation.gestures.Draggable2DState
@@ -45,7 +43,6 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
@@ -210,7 +207,6 @@ class Draggable2DTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun draggable2D_immediateStart_callsStopWithoutSlop() {
         var total = Offset.Zero
@@ -689,7 +685,6 @@ class Draggable2DTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun draggable2D_cancelMidDown_shouldContinueWithNextDown() {
         var total = Offset.Zero

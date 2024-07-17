@@ -30,9 +30,7 @@ import androidx.paging.PagingConfig
  * Examples:
  *
  * @sample androidx.paging.compose.samples.PagingWithHorizontalPager
- *
  * @sample androidx.paging.compose.samples.PagingWithLazyGrid
- *
  * @param [key] a factory of stable and unique keys representing the item. Using the same key for
  *   multiple items in the list is not allowed. Type of the key should be saveable via Bundle on
  *   Android. When you specify the key the scroll position will be maintained based on the key,
@@ -64,9 +62,7 @@ public fun <T : Any> LazyPagingItems<T>.itemKey(
  * Examples:
  *
  * @sample androidx.paging.compose.samples.PagingWithLazyGrid
- *
  * @sample androidx.paging.compose.samples.PagingWithLazyList
- *
  * @param [contentType] a factory of the content types for the item. The item compositions of the
  *   same type could be reused more efficiently. Note that null is a valid type and items of such
  *   type will be considered compatible.

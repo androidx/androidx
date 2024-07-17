@@ -21,7 +21,6 @@ package androidx.compose.ui.input.pointer
 import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -130,7 +129,6 @@ class PointerInputEventProcessorTest {
     }
 
     @Test
-    @OptIn(ExperimentalComposeUiApi::class)
     fun pointerTypePassed() {
         val pointerTypes =
             listOf(
@@ -250,7 +248,6 @@ class PointerInputEventProcessorTest {
         assertThat(result.dispatchedToAPointerInputModifier).isTrue()
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun process_downMoveUp_convertedCorrectlyAndTraversesAllPassesInCorrectOrder() {
 
@@ -2833,7 +2830,7 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
             }
     }
 
-@OptIn(ExperimentalComposeUiApi::class, InternalCoreApi::class, InternalComposeUiApi::class)
+@OptIn(InternalCoreApi::class, InternalComposeUiApi::class)
 private class TestOwner : Owner {
     val onEndListeners = mutableListOf<() -> Unit>()
     var position: IntOffset = IntOffset.Zero
@@ -2989,7 +2986,8 @@ private class TestOwner : Owner {
     override fun createLayer(
         drawBlock: (Canvas, GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
-        explicitLayer: GraphicsLayer?
+        explicitLayer: GraphicsLayer?,
+        forceUseOldLayers: Boolean
     ): OwnedLayer {
         TODO("Not yet implemented")
     }

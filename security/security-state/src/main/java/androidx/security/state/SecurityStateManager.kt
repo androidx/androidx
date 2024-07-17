@@ -21,11 +21,10 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.system.Os
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.webkit.WebViewCompat
-import java.io.File
 import java.util.regex.Pattern
 
 /**
@@ -122,10 +121,10 @@ public open class SecurityStateManager(private val context: Context) {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public open fun getPackageVersion(packageName: String): String {
         if (packageName.isNotEmpty()) {
-            try {
-                return packageManager.getPackageInfo(packageName, 0).versionName ?: ""
+            return try {
+                packageManager.getPackageInfo(packageName, 0).versionName ?: ""
             } catch (e: PackageManager.NameNotFoundException) {
-                Log.e(TAG, "Failed to get SPL for package $packageName.", e)
+                ""
             }
         }
         return ""
@@ -163,7 +162,7 @@ public open class SecurityStateManager(private val context: Context) {
             } else {
                 null
             }
-        return webViewPackageInfo?.versionName ?: ""
+        return webViewPackageInfo?.packageName ?: ""
     }
 
     /**
@@ -195,7 +194,7 @@ public open class SecurityStateManager(private val context: Context) {
     }
 
     /**
-     * Attempts to retrieve the kernel version of the device from the system's '/proc/version' file.
+     * Attempts to retrieve the kernel version of the device using the system's uname() command.
      * This method is used to determine the current kernel version which is a part of the security
      * state assessment.
      *
@@ -204,7 +203,7 @@ public open class SecurityStateManager(private val context: Context) {
      */
     private fun getKernelVersion(): String {
         try {
-            val matcher = kernelReleasePattern.matcher(File("/proc/version").readText())
+            val matcher = kernelReleasePattern.matcher(Os.uname().release)
             return if (matcher.matches()) matcher.group(1)!! else ""
         } catch (e: Exception) {
             return ""

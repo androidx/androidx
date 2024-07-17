@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.core
 
 import android.content.Context
 import android.content.res.Configuration
+import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import java.lang.AutoCloseable
@@ -45,6 +46,31 @@ interface SandboxedUiAdapter {
         client: SessionClient
     )
 
+    /**
+     * Adds a [SessionObserverFactory] with a [SandboxedUiAdapter] for tracking UI presentation
+     * state across UI sessions. This has no effect on already open sessions.
+     *
+     * For each [SandboxedUiAdapter.Session] that is created for the adapter after registration is
+     * complete, [SessionObserverFactory.create] will be invoked to allow a new [SessionObserver]
+     * instance to be attached to the UI session. This [SessionObserver] will receive UI updates for
+     * the lifetime of the session. There may be one or more UI sessions created for a
+     * [SandboxedUiAdapter], and a separate [SessionObserverFactory.create] call will be made for
+     * each one.
+     */
+    fun addObserverFactory(sessionObserverFactory: SessionObserverFactory)
+
+    /**
+     * Removes a [SessionObserverFactory] from a [SandboxedUiAdapter], if it has been previously
+     * added with [addObserverFactory].
+     *
+     * If the [SessionObserverFactory] was not previously added, no action is performed. Any
+     * existing [SessionObserver] instances that have been created by the [SessionObserverFactory]
+     * will continue to receive updates until their corresponding [SandboxedUiAdapter.Session] has
+     * been closed. For any subsequent sessions created for the [SandboxedUiAdapter], no call to
+     * [SessionObserverFactory.create] will be made.
+     */
+    fun removeObserverFactory(sessionObserverFactory: SessionObserverFactory)
+
     /** A single session with the provider of remote content. */
     interface Session : AutoCloseable {
 
@@ -54,6 +80,16 @@ interface SandboxedUiAdapter {
          * [IllegalStateException].
          */
         val view: View
+
+        /**
+         * The set of options that will be used to determine what information is calculated and sent
+         * to [SessionObserver]s attached to this session.
+         *
+         * This value should not be directly set by UI providers. Instead, the registration of any
+         * [SessionObserverFactory] with [addObserverFactory] will indicate that information should
+         * be calculated for this session.
+         */
+        val signalOptions: Set<String>
 
         /**
          * Notify the provider that the size of the host presentation area has changed to a size of
@@ -69,6 +105,19 @@ interface SandboxedUiAdapter {
 
         /** Notify the session that the host configuration has changed to [configuration]. */
         fun notifyConfigurationChanged(configuration: Configuration)
+
+        /**
+         * Notify the session when the presentation state of its UI container has changed.
+         *
+         * [uiContainerInfo] contains a Bundle that represents the state of the container. The exact
+         * details of this Bundle depend on the container this Bundle is describing. This
+         * notification is not in real time and is throttled, so it should not be used to react to
+         * UI changes on the client side.
+         *
+         * UI providers should use [addObserverFactory] to observe UI changes rather than using this
+         * method.
+         */
+        fun notifyUiChanged(uiContainerInfo: Bundle)
 
         /**
          * Close this session, indicating that the remote provider of content should dispose of

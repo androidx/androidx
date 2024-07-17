@@ -292,7 +292,6 @@ fun rememberBottomSheetScaffoldState(
  * A simple example of a bottom sheet scaffold looks like this:
  *
  * @sample androidx.compose.material.samples.BottomSheetScaffoldSample
- *
  * @param sheetContent The content of the bottom sheet.
  * @param modifier An optional [Modifier] for the root of the scaffold.
  * @param scaffoldState The state of the scaffold.

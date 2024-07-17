@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
@@ -57,7 +56,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@OptIn(ExperimentalFoundationApi::class)
 class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
     BaseLazyListTestWithOrientation(orientation) {
 
@@ -447,7 +445,6 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class QuerySnapFlingBehavior(
     val snapFlingBehavior: TargetedFlingBehavior,
     val onAnimationStep: (Float) -> Unit

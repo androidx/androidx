@@ -51,7 +51,6 @@ internal fun down(
     return pointerInputChange
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputChange.moveTo(durationMillis: Long, x: Float = 0f, y: Float = 0f) =
     PointerInputChange(
         id = this.id,
@@ -65,7 +64,6 @@ internal fun PointerInputChange.moveTo(durationMillis: Long, x: Float = 0f, y: F
         isInitiallyConsumed = false
     )
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputChange.moveBy(durationMillis: Long, dx: Float = 0f, dy: Float = 0f) =
     PointerInputChange(
         id = this.id,
@@ -79,7 +77,6 @@ internal fun PointerInputChange.moveBy(durationMillis: Long, dx: Float = 0f, dy:
         isInitiallyConsumed = false
     )
 
-@OptIn(ExperimentalComposeUiApi::class)
 internal fun PointerInputChange.up(durationMillis: Long) =
     PointerInputChange(
         id = this.id,

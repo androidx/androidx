@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -71,7 +73,7 @@ fun PullToRefreshSample() {
     val onRefresh: () -> Unit = {
         isRefreshing = true
         coroutineScope.launch {
-            delay(1500)
+            delay(5000)
             itemCount += 5
             isRefreshing = false
         }
@@ -103,6 +105,57 @@ fun PullToRefreshSample() {
     }
 }
 
+@Sampled
+@Composable
+@Preview
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+fun PullToRefreshWithLoadingIndicatorSample() {
+    var itemCount by remember { mutableIntStateOf(15) }
+    var isRefreshing by remember { mutableStateOf(false) }
+    val state = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        coroutineScope.launch {
+            delay(5000)
+            itemCount += 5
+            isRefreshing = false
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Title") },
+                // Provide an accessible alternative to trigger refresh.
+                actions = {
+                    IconButton(onClick = onRefresh) {
+                        Icon(Icons.Filled.Refresh, "Trigger Refresh")
+                    }
+                }
+            )
+        }
+    ) {
+        PullToRefreshBox(
+            modifier = Modifier.padding(it),
+            state = state,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            indicator = {
+                PullToRefreshDefaults.LoadingIndicator(
+                    state = state,
+                    isRefreshing = isRefreshing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                )
+            }
+        ) {
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
+            }
+        }
+    }
+}
+
 @Composable
 @Preview
 @Sampled
@@ -123,7 +176,7 @@ fun PullToRefreshViewModelSample() {
                         isRefreshing = true
                         try {
                             itemCount += 5
-                            delay(1000) // simulate doing real work
+                            delay(5000) // simulate doing real work
                         } finally {
                             isRefreshing = false
                         }
@@ -182,7 +235,7 @@ fun PullToRefreshScalingSample() {
         isRefreshing = true
         coroutineScope.launch {
             // fetch something
-            delay(1500)
+            delay(5000)
             itemCount += 5
             isRefreshing = false
         }
@@ -243,7 +296,7 @@ fun PullToRefreshLinearProgressIndicatorSample() {
         isRefreshing = true
         coroutineScope.launch {
             // fetch something
-            delay(1500)
+            delay(5000)
             itemCount += 5
             isRefreshing = false
         }
@@ -298,7 +351,7 @@ fun PullToRefreshSampleCustomState() {
         isRefreshing = true
         coroutineScope.launch {
             // fetch something
-            delay(1500)
+            delay(5000)
             itemCount += 5
             isRefreshing = false
         }
@@ -348,6 +401,62 @@ fun PullToRefreshSampleCustomState() {
                 if (!isRefreshing) {
                     items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
                 }
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+fun PullToRefreshCustomIndicatorWithDefaultTransform() {
+    var itemCount by remember { mutableIntStateOf(15) }
+    var isRefreshing by remember { mutableStateOf(false) }
+    val state = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    val onRefresh: () -> Unit = {
+        isRefreshing = true
+        coroutineScope.launch {
+            delay(1500)
+            itemCount += 5
+            isRefreshing = false
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Title") },
+                // Provide an accessible alternative to trigger refresh.
+                actions = {
+                    IconButton(onClick = onRefresh) {
+                        Icon(Icons.Filled.Refresh, "Trigger Refresh")
+                    }
+                }
+            )
+        }
+    ) {
+        PullToRefreshBox(
+            modifier = Modifier.padding(it),
+            state = state,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            indicator = {
+                PullToRefreshDefaults.IndicatorBox(state = state, isRefreshing = isRefreshing) {
+                    if (isRefreshing) {
+                        CircularProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    } else {
+                        CircularProgressIndicator(
+                            modifier = Modifier.fillMaxWidth(),
+                            progress = { state.distanceFraction }
+                        )
+                    }
+                }
+            }
+        ) {
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(itemCount) { ListItem({ Text(text = "Item ${itemCount - it}") }) }
             }
         }
     }

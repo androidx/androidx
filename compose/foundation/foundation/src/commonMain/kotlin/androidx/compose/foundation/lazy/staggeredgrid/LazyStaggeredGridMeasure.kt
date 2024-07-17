@@ -48,7 +48,8 @@ import kotlinx.coroutines.CoroutineScope
 
 private const val DebugLoggingEnabled = false
 
-@ExperimentalFoundationApi
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalFoundationApi::class)
 private inline fun <T> withDebugLogging(
     scope: LazyLayoutMeasureScope,
     block: LazyLayoutMeasureScope.() -> T
@@ -80,7 +81,7 @@ private inline fun debugLog(message: () -> String) {
     }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     state: LazyStaggeredGridState,
     pinnedItems: List<Int>,
@@ -248,7 +249,7 @@ internal class LazyStaggeredGridMeasureContext(
         get() = if (isFullSpan) FullSpan else start
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 private fun LazyStaggeredGridMeasureContext.measure(
     initialScrollDelta: Int,
     initialItemIndices: IntArray,
@@ -436,8 +437,9 @@ private fun LazyStaggeredGridMeasureContext.measure(
         // we scrolled backward, but there were not enough items to fill the start. this means
         // some amount of scroll should be left over
         if (firstItemOffsets[0] < minOffset) {
-            scrollDelta += firstItemOffsets[0]
+            val notConsumedScrollDelta = minOffset - firstItemOffsets[0]
             firstItemOffsets.offsetBy(minOffset - firstItemOffsets[0])
+            scrollDelta -= notConsumedScrollDelta
             debugLog { "up, correcting scroll delta from ${firstItemOffsets[0]} to $minOffset" }
         }
 
@@ -950,7 +952,6 @@ private fun LazyStaggeredGridMeasureContext.calculateVisibleItems(
     return positionedItems
 }
 
-@ExperimentalFoundationApi
 private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
     position: (LazyStaggeredGridMeasuredItem) -> Unit,
     filter: (itemIndex: Int) -> Boolean,

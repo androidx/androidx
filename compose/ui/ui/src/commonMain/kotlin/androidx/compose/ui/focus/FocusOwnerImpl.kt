@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.collection.MutableLongSet
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.CustomDestinationResult.Cancelled
 import androidx.compose.ui.focus.CustomDestinationResult.None
@@ -62,10 +61,15 @@ internal class FocusOwnerImpl(
     private val onLayoutDirection: (() -> LayoutDirection)
 ) : FocusOwner {
 
-    internal var rootFocusNode = FocusTargetNode()
+    // The root focus target is not focusable, and acts like a focus group.
+    internal var rootFocusNode = FocusTargetNode(focusability = Focusability.Never)
 
     private val focusInvalidationManager =
-        FocusInvalidationManager(onRequestApplyChangesListener, ::invalidateOwnerFocusState)
+        FocusInvalidationManager(
+            onRequestApplyChangesListener,
+            ::invalidateOwnerFocusState,
+            ::rootState
+        )
 
     override val focusTransactionManager: FocusTransactionManager = FocusTransactionManager()
 
@@ -75,27 +79,19 @@ internal class FocusOwnerImpl(
      */
     // TODO(b/168831247): return an empty Modifier when there are no focusable children.
     override val modifier: Modifier =
-        Modifier
-            // The root focus target is not focusable, and acts like a focus group.
-            //  We could save an allocation here by making FocusTargetNode implement
-            //  FocusPropertiesModifierNode but to do that we would have to allocate
-            //  a focus properties object. This way only the root node has this extra allocation.
-            .focusProperties { canFocus = false }
-            .then(
-                object : ModifierNodeElement<FocusTargetNode>() {
-                    override fun create() = rootFocusNode
+        object : ModifierNodeElement<FocusTargetNode>() {
+            override fun create() = rootFocusNode
 
-                    override fun update(node: FocusTargetNode) {}
+            override fun update(node: FocusTargetNode) {}
 
-                    override fun InspectorInfo.inspectableProperties() {
-                        name = "RootFocusTarget"
-                    }
+            override fun InspectorInfo.inspectableProperties() {
+                name = "RootFocusTarget"
+            }
 
-                    override fun hashCode(): Int = rootFocusNode.hashCode()
+            override fun hashCode(): Int = rootFocusNode.hashCode()
 
-                    override fun equals(other: Any?) = other === this
-                }
-            )
+            override fun equals(other: Any?) = other === this
+        }
 
     /**
      * This function is called to ask the owner to request focus from the framework. eg. If a
@@ -160,12 +156,7 @@ internal class FocusOwnerImpl(
      * component.
      */
     override fun clearFocus(force: Boolean) {
-        clearFocus(
-            force,
-            refreshFocusEvents = true,
-            clearOwnerFocus = true,
-            focusDirection = @OptIn(ExperimentalComposeUiApi::class) Exit
-        )
+        clearFocus(force, refreshFocusEvents = true, clearOwnerFocus = true, focusDirection = Exit)
     }
 
     override fun clearFocus(
@@ -247,7 +238,7 @@ internal class FocusOwnerImpl(
             rootFocusNode.findActiveFocusNode()?.also {
                 // Check if a custom focus traversal order is specified.
                 when (val customDest = it.customFocusSearch(focusDirection, onLayoutDirection())) {
-                    @OptIn(ExperimentalComposeUiApi::class) Cancel -> return null
+                    Cancel -> return null
                     Default -> {
                         /* Do Nothing */
                     }
@@ -286,7 +277,6 @@ internal class FocusOwnerImpl(
         return false
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean {
         check(!focusInvalidationManager.hasPendingInvalidation()) {
             "Dispatching intercepted soft keyboard event while focus system is invalidated."

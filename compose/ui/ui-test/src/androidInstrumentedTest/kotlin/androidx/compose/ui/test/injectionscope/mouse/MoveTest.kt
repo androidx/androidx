@@ -22,13 +22,12 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Exit
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.MouseInjectionScope
-import androidx.compose.ui.test.animateAlong
-import androidx.compose.ui.test.animateBy
-import androidx.compose.ui.test.animateTo
+import androidx.compose.ui.test.animateMoveAlong
+import androidx.compose.ui.test.animateMoveBy
+import androidx.compose.ui.test.animateMoveTo
 import androidx.compose.ui.test.injectionscope.mouse.Common.PrimaryButton
 import androidx.compose.ui.test.injectionscope.mouse.Common.runMouseInputInjectionTest
 import androidx.compose.ui.test.injectionscope.mouse.Common.verifyMouseEvent
@@ -40,7 +39,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 @Suppress("KotlinConstantConditions") // for "0 * T"
 class MoveTest {
     companion object {
@@ -201,7 +199,7 @@ class MoveTest {
     @Test
     fun animatePointerTo() =
         runMouseInputInjectionTest(
-            mouseInput = { animateTo(position1, durationMillis = steps * T) },
+            mouseInput = { animateMoveTo(position1, durationMillis = steps * T) },
             eventVerifiers =
                 arrayOf(
                     { verifyMouseEvent(1 * T, Enter, false, distancePerStep * 1f) },
@@ -216,7 +214,7 @@ class MoveTest {
         runMouseInputInjectionTest(
             mouseInput = {
                 moveTo(position2)
-                animateBy(distance, durationMillis = steps * T)
+                animateMoveBy(distance, durationMillis = steps * T)
             },
             eventVerifiers =
                 arrayOf(
@@ -231,7 +229,7 @@ class MoveTest {
     @Test
     fun animateAlong_fromCurrentPosition() =
         runMouseInputInjectionTest(
-            mouseInput = { animateAlong(curveFromHere, durationMillis = steps * T) },
+            mouseInput = { animateMoveAlong(curveFromHere, durationMillis = steps * T) },
             eventVerifiers =
                 arrayOf(
                     // The curve starts at the current position (0, 0) so we expect no initial
@@ -246,7 +244,7 @@ class MoveTest {
     @Test
     fun animateAlong_fromOtherPosition() =
         runMouseInputInjectionTest(
-            mouseInput = { animateAlong(curveFromElsewhere, durationMillis = steps * T) },
+            mouseInput = { animateMoveAlong(curveFromElsewhere, durationMillis = steps * T) },
             eventVerifiers =
                 arrayOf(
                     // The curve doesn't start at the current position (0, 0) so we expect an

@@ -17,48 +17,32 @@
 package androidx.wear.compose.material3.demos
 
 import android.widget.Toast
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.SplitToggleButton
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SplitSwitchButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun SplitToggleButtonDemo() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        item { ListHeader { Text("Checkbox") } }
-        item { DemoSplitToggleCheckbox(enabled = true, initiallyChecked = true) }
-        item { DemoSplitToggleCheckbox(enabled = true, initiallyChecked = false) }
-        item { ListHeader { Text("Disabled Checkbox") } }
-        item { DemoSplitToggleCheckbox(enabled = false, initiallyChecked = true) }
-        item { DemoSplitToggleCheckbox(enabled = false, initiallyChecked = false) }
+fun SplitSwitchButtonDemo() {
+    ScalingLazyDemo() {
         item { ListHeader { Text("Switch") } }
-        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = true) }
-        item { DemoSplitToggleSwitch(enabled = true, initiallyChecked = false) }
+        item { DemoSplitSwitchButton(enabled = true, initiallyChecked = true) }
+        item { DemoSplitSwitchButton(enabled = true, initiallyChecked = false) }
         item { ListHeader { Text("Disabled Switch") } }
-        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = true) }
-        item { DemoSplitToggleSwitch(enabled = false, initiallyChecked = false) }
+        item { DemoSplitSwitchButton(enabled = false, initiallyChecked = true) }
+        item { DemoSplitSwitchButton(enabled = false, initiallyChecked = false) }
         item { ListHeader { Text("Multi-line") } }
         item {
-            DemoSplitToggleCheckbox(
+            DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
@@ -66,14 +50,14 @@ fun SplitToggleButtonDemo() {
             )
         }
         item {
-            DemoSplitToggleCheckbox(
+            DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoSplitToggleCheckbox(
+            DemoSplitSwitchButton(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max",
@@ -84,15 +68,15 @@ fun SplitToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoSplitToggleCheckbox(
+private fun DemoSplitSwitchButton(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
-    secondary: String = ""
+    secondary: String? = null,
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
-    SplitToggleButton(
+    SplitSwitchButton(
         modifier = Modifier.fillMaxWidth(),
         label = {
             Text(
@@ -103,53 +87,26 @@ private fun DemoSplitToggleCheckbox(
                 overflow = TextOverflow.Ellipsis
             )
         },
+        secondaryLabel =
+            secondary?.let {
+                {
+                    Text(
+                        secondary,
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 2,
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            },
         checked = checked,
-        toggleControl = {
-            Checkbox(modifier = Modifier.semantics { contentDescription = primary })
-        },
         onCheckedChange = { checked = it },
-        onClick = {
+        toggleContentDescription = primary,
+        onContainerClick = {
             val toastText = if (checked) "Checked" else "Not Checked"
             Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
         },
-        enabled = enabled,
-        secondaryLabel = {
-            if (secondary.isNotEmpty()) {
-                Text(
-                    secondary,
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2,
-                    textAlign = TextAlign.Start,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    )
-}
-
-@Composable
-private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
-    var checked by remember { mutableStateOf(initiallyChecked) }
-    val text = "Primary label"
-    val context = LocalContext.current
-    SplitToggleButton(
-        modifier = Modifier.fillMaxWidth(),
-        label = {
-            Text(
-                text,
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
-            )
-        },
-        checked = checked,
-        toggleControl = { Switch(modifier = Modifier.semantics { contentDescription = text }) },
-        onCheckedChange = { checked = it },
-        onClick = {
-            val toastText = text + " " + if (checked) "Checked" else "Not Checked"
-            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
-        },
+        containerClickLabel = "click",
         enabled = enabled,
     )
 }

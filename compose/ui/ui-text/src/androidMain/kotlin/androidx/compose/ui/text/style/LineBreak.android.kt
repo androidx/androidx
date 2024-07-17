@@ -36,12 +36,11 @@ import androidx.compose.ui.text.style.LineBreak.WordBreak
  * [Strictness], and [WordBreak].
  *
  * @sample androidx.compose.ui.text.samples.LineBreakSample
- *
  * @sample androidx.compose.ui.text.samples.AndroidLineBreakSample
  */
 @Immutable
 @JvmInline
-actual value class LineBreak private constructor(internal val mask: Int) {
+actual value class LineBreak internal constructor(internal val mask: Int) {
 
     /**
      * This represents a configuration for line breaking on Android, describing [Strategy],

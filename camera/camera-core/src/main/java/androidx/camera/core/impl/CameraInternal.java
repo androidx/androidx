@@ -46,12 +46,35 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      */
     enum State {
         /**
+         * Camera has been closed and has released all held resources.
+         */
+        RELEASED(/*holdsCameraSlot=*/false),
+        /**
+         * Camera is in the process of being released and cannot be reopened.
+         *
+         * <p>This is a transient state. Note that this state holds a camera slot even though the
+         * implementation may not actually hold camera resources.
+         */
+        // TODO: Check if this needs to be split up into multiple RELEASING states to
+        //  differentiate between when the camera slot is being held or not.
+        RELEASING(/*holdsCameraSlot=*/true),
+        /**
+         * Camera has been closed and should not be producing data.
+         */
+        CLOSED(/*holdsCameraSlot=*/false),
+        /**
          * Camera is waiting for resources to become available before opening.
          *
          * <p>The camera will automatically transition to an {@link #OPENING} state once resources
          * have become available. Resources are typically made available by other cameras closing.
          */
         PENDING_OPEN(/*holdsCameraSlot=*/false),
+        /**
+         * Camera is in the process of closing.
+         *
+         * <p>This is a transient state.
+         */
+        CLOSING(/*holdsCameraSlot=*/true),
         /**
          * Camera is in the process of opening.
          *
@@ -71,30 +94,7 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
          * capture session is not configured yet. External users will only see OPEN state, no
          * matter the internal state is CONFIGURED or OPEN.
          */
-        CONFIGURED(/*holdsCameraSlot=*/true),
-        /**
-         * Camera is in the process of closing.
-         *
-         * <p>This is a transient state.
-         */
-        CLOSING(/*holdsCameraSlot=*/true),
-        /**
-         * Camera has been closed and should not be producing data.
-         */
-        CLOSED(/*holdsCameraSlot=*/false),
-        /**
-         * Camera is in the process of being released and cannot be reopened.
-         *
-         * <p>This is a transient state. Note that this state holds a camera slot even though the
-         * implementation may not actually hold camera resources.
-         */
-        // TODO: Check if this needs to be split up into multiple RELEASING states to
-        //  differentiate between when the camera slot is being held or not.
-        RELEASING(/*holdsCameraSlot=*/true),
-        /**
-         * Camera has been closed and has released all held resources.
-         */
-        RELEASED(/*holdsCameraSlot=*/false);
+        CONFIGURED(/*holdsCameraSlot=*/true);
 
         private final boolean mHoldsCameraSlot;
 
@@ -135,7 +135,7 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      * resume regardless of the camera availability if the camera is interrupted in
      * OPEN/OPENING/PENDING_OPEN state.
      *
-     * When not in active resuming mode, it will retry opening camera only when camera
+     * <p>When not in active resuming mode, it will retry opening camera only when camera
      * becomes available.
      */
     default void setActiveResumingMode(boolean enabled) {
@@ -210,6 +210,18 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     default boolean getHasTransform() {
         return true;
     }
+
+    /**
+     * Sets the flag in camera instance as primary or secondary camera.
+     *
+     * <p> In dual camera case, the flag will be used to pick up the corresponding
+     * {@link SessionConfig} in {@link UseCase}.
+     *
+     * <p> In single camera case, the flag will always be set to true.
+     *
+     * @param isPrimary whether the camera is primary or secondary.
+     */
+    default void setPrimary(boolean isPrimary) {}
 
     /**
      * Returns the current {@link CameraConfig}.

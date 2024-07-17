@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-// VERSION: v0_32
+// VERSION: v0_65
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
-
 internal object ImageCardTokens {
     val AppNameColor = ColorSchemeKeyTokens.OnBackground
     val ContentColor = ColorSchemeKeyTokens.OnBackground
+    val OverlayScrimColor = ColorSchemeKeyTokens.Background
+    val OverlayScrimOpacity = 0.5f
     val SubtitleColor = ColorSchemeKeyTokens.Tertiary
     val TimeColor = ColorSchemeKeyTokens.OnBackground
     val TitleColor = ColorSchemeKeyTokens.OnBackground
-    val OverlayScrimColor = ColorSchemeKeyTokens.Background
-    val OverlayScrimOpacity = 0.5f
 }

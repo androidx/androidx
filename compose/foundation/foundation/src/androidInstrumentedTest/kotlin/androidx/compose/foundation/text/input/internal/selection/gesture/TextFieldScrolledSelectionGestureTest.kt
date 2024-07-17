@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text.input.internal.selection.gesture
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -82,7 +81,6 @@ import org.junit.runner.RunWith
  *
  * Regression test for b/314385218.
  */
-@ExperimentalFoundationApi
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {

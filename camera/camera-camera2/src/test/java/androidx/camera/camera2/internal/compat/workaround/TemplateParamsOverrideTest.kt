@@ -23,9 +23,11 @@ import android.hardware.camera2.CameraDevice.TEMPLATE_STILL_CAPTURE
 import android.hardware.camera2.CameraDevice.TEMPLATE_VIDEO_SNAPSHOT
 import android.hardware.camera2.CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
 import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_PREVIEW
+import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_STILL_CAPTURE
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import androidx.camera.camera2.internal.compat.quirk.CaptureIntentPreviewQuirk
+import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailedForVideoSnapshotQuirk
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.Quirks
 import com.google.common.truth.Truth.assertWithMessage
@@ -47,6 +49,11 @@ class TemplateParamsOverrideTest(
         private val paramsMapForCaptureIntentPreviewQuirk =
             mapOf(
                 TEMPLATE_RECORD to mapOf(CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_PREVIEW)
+            )
+        private val paramsMapForImageCaptureFailedForVideoSnapshot =
+            mapOf(
+                TEMPLATE_VIDEO_SNAPSHOT to
+                    mapOf(CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_STILL_CAPTURE)
             )
 
         @JvmStatic
@@ -76,6 +83,13 @@ class TemplateParamsOverrideTest(
                             override fun workaroundByCaptureIntentPreview() = true
                         },
                         paramsMapForCaptureIntentPreviewQuirk,
+                    )
+                )
+                add(
+                    arrayOf(
+                        "ImageCaptureFailedForVideoSnapshot",
+                        ImageCaptureFailedForVideoSnapshotQuirk(),
+                        paramsMapForImageCaptureFailedForVideoSnapshot,
                     )
                 )
             }

@@ -45,74 +45,89 @@ fun GraphicsContext(layerContainer: ViewGroup): GraphicsContext =
 private class AndroidGraphicsContext(private val ownerView: ViewGroup) : GraphicsContext {
 
     private val lock = Any()
-    private val layerManager = LayerManager(CanvasHolder())
+    private val layerManager: LayerManager?
     private var viewLayerContainer: DrawChildContainer? = null
     private var componentCallbackRegistered = false
     private var predrawListenerRegistered = false
 
-    private val componentCallback =
-        object : ComponentCallbacks2 {
-            override fun onConfigurationChanged(newConfig: Configuration) {
-                // NO-OP
-            }
-
-            override fun onLowMemory() {
-                // NO-OP
-            }
-
-            override fun onTrimMemory(level: Int) {
-                // See CacheManager.cpp. HWUI releases graphics resources whenever the trim memory
-                // callback exceed the level of TRIM_MEMORY_BACKGROUND so do the same here to
-                // release and recreate the internal ImageReader used to increment the ref count
-                // of internal RenderNodes
-                // Some devices skip straight to TRIM_COMPLETE so ensure we persist layers if
-                // we receive any trim memory callback that exceeds TRIM_MEMORY_BACKGROUND
-                if (level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {
-                    // HardwareRenderer instances would be discarded by HWUI so we need to discard
-                    // the existing underlying ImageReader instance and do a placeholder render
-                    // to increment the refcount of any outstanding layers again the next time the
-                    // content is drawn
-                    if (!predrawListenerRegistered) {
-                        layerManager.destroy()
-                        ownerView.viewTreeObserver.addOnPreDrawListener(
-                            object : ViewTreeObserver.OnPreDrawListener {
-                                override fun onPreDraw(): Boolean {
-                                    layerManager.updateLayerPersistence()
-                                    ownerView.viewTreeObserver.removeOnPreDrawListener(this)
-                                    predrawListenerRegistered = false
-                                    return true
-                                }
-                            }
-                        )
-                        predrawListenerRegistered = true
-                    }
-                }
-            }
-        }
+    private val componentCallback: ComponentCallbacks2?
 
     init {
         // Register the component callbacks when the GraphicsContext is created
-        if (ownerView.isAttachedToWindow) {
-            registerComponentCallback(ownerView.context)
-        }
-        ownerView.addOnAttachStateChangeListener(
-            object : OnAttachStateChangeListener {
-                override fun onViewAttachedToWindow(v: View) {
-                    // If the View is attached to the window again, re-add the component callbacks
-                    registerComponentCallback(v.context)
-                }
+        if (enableLayerPersistence) {
+            layerManager = LayerManager(CanvasHolder())
+            componentCallback =
+                object : ComponentCallbacks2 {
+                    override fun onConfigurationChanged(newConfig: Configuration) {
+                        // NO-OP
+                    }
 
-                override fun onViewDetachedFromWindow(v: View) {
-                    // When the View is detached from the window, remove the component callbacks
-                    // used to listen to trim memory signals
-                    unregisterComponentCallback(v.context)
-                    layerManager.destroy()
+                    override fun onLowMemory() {
+                        // NO-OP
+                    }
+
+                    override fun onTrimMemory(level: Int) {
+                        // See CacheManager.cpp. HWUI releases graphics resources whenever the trim
+                        // memory
+                        // callback exceed the level of TRIM_MEMORY_BACKGROUND so do the same here
+                        // to
+                        // release and recreate the internal ImageReader used to increment the ref
+                        // count
+                        // of internal RenderNodes
+                        // Some devices skip straight to TRIM_COMPLETE so ensure we persist layers
+                        // if
+                        // we receive any trim memory callback that exceeds TRIM_MEMORY_BACKGROUND
+                        if (level >= ComponentCallbacks2.TRIM_MEMORY_BACKGROUND) {
+                            // HardwareRenderer instances would be discarded by HWUI so we need to
+                            // discard
+                            // the existing underlying ImageReader instance and do a placeholder
+                            // render
+                            // to increment the refcount of any outstanding layers again the next
+                            // time the
+                            // content is drawn
+                            if (!predrawListenerRegistered) {
+                                layerManager.destroy()
+                                ownerView.viewTreeObserver.addOnPreDrawListener(
+                                    object : ViewTreeObserver.OnPreDrawListener {
+                                        override fun onPreDraw(): Boolean {
+                                            layerManager.updateLayerPersistence()
+                                            ownerView.viewTreeObserver.removeOnPreDrawListener(this)
+                                            predrawListenerRegistered = false
+                                            return true
+                                        }
+                                    }
+                                )
+                                predrawListenerRegistered = true
+                            }
+                        }
+                    }
                 }
+            if (ownerView.isAttachedToWindow) {
+                registerComponentCallback(ownerView.context)
             }
-        )
+            ownerView.addOnAttachStateChangeListener(
+                object : OnAttachStateChangeListener {
+                    override fun onViewAttachedToWindow(v: View) {
+                        // If the View is attached to the window again, re-add the component
+                        // callbacks
+                        registerComponentCallback(v.context)
+                    }
+
+                    override fun onViewDetachedFromWindow(v: View) {
+                        // When the View is detached from the window, remove the component callbacks
+                        // used to listen to trim memory signals
+                        unregisterComponentCallback(v.context)
+                        layerManager.destroy()
+                    }
+                }
+            )
+        } else {
+            layerManager = null
+            componentCallback = null
+        }
     }
 
-    fun isLayerManagerInitialized(): Boolean = layerManager.hasImageReader()
+    fun isLayerManagerInitialized(): Boolean = layerManager?.hasImageReader() ?: false
 
     private fun registerComponentCallback(context: Context) {
         if (!componentCallbackRegistered) {
@@ -131,36 +146,32 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
     override fun createGraphicsLayer(): GraphicsLayer {
         synchronized(lock) {
             val ownerId = getUniqueDrawingId(ownerView)
-            val reusedLayer = layerManager.takeFromCache(ownerId)
-            val layer =
-                if (reusedLayer != null) {
-                    reusedLayer
+            val layerImpl =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    GraphicsLayerV29(ownerId)
+                } else if (
+                    isRenderNodeCompatible && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ) {
+                    try {
+                        GraphicsLayerV23(ownerView, ownerId)
+                    } catch (_: Throwable) {
+                        // If we ever failed to create an instance of the RenderNode stub
+                        // based
+                        // GraphicsLayer, always fallback to creation of View based layers
+                        // as it is
+                        // unlikely that subsequent attempts to create a GraphicsLayer with
+                        // RenderNode
+                        // stubs would be successful.
+                        isRenderNodeCompatible = false
+                        GraphicsViewLayer(obtainViewLayerContainer(ownerView), ownerId)
+                    }
                 } else {
-                    val layerImpl =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            GraphicsLayerV29()
-                        } else if (
-                            isRenderNodeCompatible && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
-                        ) {
-                            try {
-                                GraphicsLayerV23(ownerView)
-                            } catch (_: Throwable) {
-                                // If we ever failed to create an instance of the RenderNode stub
-                                // based
-                                // GraphicsLayer, always fallback to creation of View based layers
-                                // as it is
-                                // unlikely that subsequent attempts to create a GraphicsLayer with
-                                // RenderNode
-                                // stubs would be successful.
-                                isRenderNodeCompatible = false
-                                GraphicsViewLayer(obtainViewLayerContainer(ownerView))
-                            }
-                        } else {
-                            GraphicsViewLayer(obtainViewLayerContainer(ownerView))
-                        }
-                    GraphicsLayer(layerImpl, layerManager, ownerId)
+                    GraphicsViewLayer(obtainViewLayerContainer(ownerView), ownerId)
                 }
-            layerManager.persist(layer)
+            val layer = GraphicsLayer(layerImpl, layerManager)
+            if (enableLayerPersistence) {
+                layerManager?.persist(layer)
+            }
             return layer
         }
     }
@@ -190,6 +201,8 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
 
     internal companion object {
         var isRenderNodeCompatible: Boolean = true
+
+        const val enableLayerPersistence = false
     }
 
     @RequiresApi(29)
@@ -202,3 +215,6 @@ private class AndroidGraphicsContext(private val ownerView: ViewGroup) : Graphic
 
 internal fun GraphicsContext.isLayerManagerInitialized(): Boolean =
     (this as AndroidGraphicsContext).isLayerManagerInitialized()
+
+internal val isLayerPersistenceEnabled: Boolean
+    get() = AndroidGraphicsContext.enableLayerPersistence

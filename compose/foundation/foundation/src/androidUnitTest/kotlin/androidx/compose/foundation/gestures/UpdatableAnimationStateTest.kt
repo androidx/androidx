@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.ui.MotionDurationScale
 import com.google.common.truth.Truth.assertThat
@@ -32,7 +31,6 @@ class UpdatableAnimationStateTest {
 
     private val frameClock = TestFrameClock()
 
-    @OptIn(ExperimentalFoundationApi::class)
     private val state = UpdatableAnimationState(BringIntoViewSpec.DefaultScrollAnimationSpec)
 
     @Test

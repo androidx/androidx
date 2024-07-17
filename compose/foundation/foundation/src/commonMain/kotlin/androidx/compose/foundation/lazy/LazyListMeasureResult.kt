@@ -30,13 +30,13 @@ internal class LazyListMeasureResult(
     /** The new first visible item. */
     val firstVisibleItem: LazyListMeasuredItem?,
     /** The new value for [LazyListState.firstVisibleItemScrollOffset]. */
-    var firstVisibleItemScrollOffset: Int,
+    val firstVisibleItemScrollOffset: Int,
     /** True if there is some space available to continue scrolling in the forward direction. */
-    var canScrollForward: Boolean,
+    val canScrollForward: Boolean,
     /** The amount of scroll consumed during the measure pass. */
-    var consumedScroll: Float,
+    val consumedScroll: Float,
     /** MeasureResult defining the layout. */
-    measureResult: MeasureResult,
+    private val measureResult: MeasureResult,
     /** The amount of scroll-back that happened due to reaching the end of the list. */
     val scrollBackAmount: Float,
     /** True when extra remeasure is required. */
@@ -76,16 +76,20 @@ internal class LazyListMeasureResult(
         get() = -viewportStartOffset
 
     /**
-     * Tries to apply a scroll [delta] for this layout info. In some cases we can apply small scroll
-     * deltas by just changing the offsets for each [visibleItemsInfo]. But we can only do so if
-     * after applying the delta we would not need to compose a new item or dispose an item which is
-     * currently visible. In this case this function will not apply the [delta] and return false.
+     * Creates a new layout info with applying a scroll [delta] for this layout info. In some cases
+     * we can apply small scroll deltas by just changing the offsets for each [visibleItemsInfo].
+     * But we can only do so if after applying the delta we would not need to compose a new item or
+     * dispose an item which is currently visible. In this case this function will not apply the
+     * [delta] and return null.
      *
-     * @return true if we can safely apply a passed scroll [delta] to this layout info. If true is
-     *   returned, only the placement phase is needed to apply new offsets. If false is returned, it
-     *   means we have to rerun the full measure phase to apply the [delta].
+     * @return new layout info if we can safely apply a passed scroll [delta] to this layout info.
+     *   If If new layout info is returned, only the placement phase is needed to apply new offsets.
+     *   If null is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    fun tryToApplyScrollWithoutRemeasure(delta: Int, updateAnimations: Boolean): Boolean {
+    fun copyWithScrollDeltaWithoutRemeasure(
+        delta: Int,
+        updateAnimations: Boolean
+    ): LazyListMeasureResult? {
         if (
             remeasureNeeded ||
                 visibleItemsInfo.isEmpty() ||
@@ -94,13 +98,13 @@ internal class LazyListMeasureResult(
                 (firstVisibleItemScrollOffset - delta) !in
                     0 until firstVisibleItem.mainAxisSizeWithSpacings
         ) {
-            return false
+            return null
         }
         val first = visibleItemsInfo.first()
         val last = visibleItemsInfo.last()
         if (first.nonScrollableItem || last.nonScrollableItem) {
             // non scrollable items like headers require special handling in the measurement.
-            return false
+            return null
         }
         val canApply =
             if (delta < 0) {
@@ -117,16 +121,31 @@ internal class LazyListMeasureResult(
                 minOf(deltaToFirstItemChange, deltaToLastItemChange) > delta
             }
         return if (canApply) {
-            firstVisibleItemScrollOffset -= delta
             visibleItemsInfo.fastForEach { it.applyScrollDelta(delta, updateAnimations) }
-            consumedScroll = delta.toFloat()
-            if (!canScrollForward && delta > 0) {
-                // we scrolled backward, so now we can scroll forward
-                canScrollForward = true
-            }
-            true
+            LazyListMeasureResult(
+                firstVisibleItem = firstVisibleItem,
+                firstVisibleItemScrollOffset = firstVisibleItemScrollOffset - delta,
+                canScrollForward =
+                    canScrollForward ||
+                        delta > 0, // we scrolled backward, so now we can scroll forward
+                consumedScroll = delta.toFloat(),
+                measureResult = measureResult,
+                scrollBackAmount = scrollBackAmount,
+                remeasureNeeded = remeasureNeeded,
+                coroutineScope = coroutineScope,
+                density = density,
+                childConstraints = childConstraints,
+                visibleItemsInfo = visibleItemsInfo,
+                viewportStartOffset = viewportStartOffset,
+                viewportEndOffset = viewportEndOffset,
+                totalItemsCount = totalItemsCount,
+                reverseLayout = reverseLayout,
+                orientation = orientation,
+                afterContentPadding = afterContentPadding,
+                mainAxisItemSpacing = mainAxisItemSpacing
+            )
         } else {
-            false
+            null
         }
     }
 }

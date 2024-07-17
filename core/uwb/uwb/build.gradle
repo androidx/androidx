@@ -49,7 +49,6 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.multidex)
 }
 
 androidx {
@@ -73,6 +72,5 @@ android {
     }
     defaultConfig {
         minSdkVersion 23
-        multiDexEnabled = true
     }
 }

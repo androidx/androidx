@@ -45,7 +45,6 @@ import kotlin.math.roundToInt
  * Example of a [Stepper] with range semantics:
  *
  * @sample androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
- *
  * @param value Current value of the Stepper. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated
@@ -95,7 +94,7 @@ fun Stepper(
             arrayOf(
                 LocalContentColor provides iconColor.copy(alpha = DisabledContentAlpha),
             ),
-        buttonRipple = rippleOrFallbackImplementation(bounded = false)
+        buttonRipple = ripple(bounded = false)
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) { content() }
     }

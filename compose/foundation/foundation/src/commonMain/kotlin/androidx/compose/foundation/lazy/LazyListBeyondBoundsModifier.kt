@@ -33,10 +33,6 @@ internal fun rememberLazyListBeyondBoundsState(
 internal class LazyListBeyondBoundsState(val state: LazyListState, val beyondBoundsItemCount: Int) :
     LazyLayoutBeyondBoundsState {
 
-    override fun remeasure() {
-        state.remeasurement?.forceRemeasure()
-    }
-
     override val itemCount: Int
         get() = state.layoutInfo.totalItemsCount
 

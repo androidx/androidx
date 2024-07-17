@@ -194,7 +194,6 @@ object TextFieldDefaults {
      * An example of building a custom text field using [DecorationBox]:
      *
      * @sample androidx.compose.material3.samples.CustomTextFieldBasedOnDecorationBox
-     *
      * @param value the input [String] shown by the text field
      * @param innerTextField input text field that this decoration box wraps. You will pass here a
      *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
@@ -228,12 +227,11 @@ object TextFieldDefaults {
      * @param shape defines the shape of this decoration box's container
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
      *   field decoration box in different states. See [TextFieldDefaults.colors].
-     * @param contentPadding the padding applied between the internal elements of this decoration
-     *   box and the edge of its container. If a [label] is present, the top padding represents the
-     *   distance from the top edge of the container to the top of the label when the text field is
-     *   focused. When [label] is null, the top padding represents the distance from the top edge of
-     *   the container to the top of the input field. All other paddings represent the distance from
-     *   the edge of the container to the corresponding edge of the closest element.
+     * @param contentPadding the padding between the input field and the surrounding elements of the
+     *   decoration box. Note that the padding values may not be respected if they are incompatible
+     *   with the text field's size constraints or layout. See
+     *   [TextFieldDefaults.contentPaddingWithLabel] and
+     *   [TextFieldDefaults.contentPaddingWithoutLabel].
      * @param container the container to be drawn behind the text field. By default, this uses
      *   [Container]. Default colors for the container come from the [colors].
      */
@@ -298,10 +296,12 @@ object TextFieldDefaults {
     }
 
     /**
-     * Default content padding applied to [TextField] when there is a label.
+     * Default content padding of the input field within the [TextField] when there is a label,
+     * except for the top padding, which instead represents the padding of the label in the focused
+     * state. The input field is placed directly beneath the label.
      *
-     * The top padding represents ths distance between the top edge of the [TextField] and the top
-     * of the label in the focused state. The input field is placed directly beneath the label.
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
      */
     fun contentPaddingWithLabel(
         start: Dp = TextFieldPadding,
@@ -310,7 +310,12 @@ object TextFieldDefaults {
         bottom: Dp = TextFieldWithLabelVerticalPadding
     ): PaddingValues = PaddingValues(start, top, end, bottom)
 
-    /** Default content padding applied to [TextField] when the label is null. */
+    /**
+     * Default content padding of the input field within the [TextField] when the label is null.
+     *
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
+     */
     fun contentPaddingWithoutLabel(
         start: Dp = TextFieldPadding,
         top: Dp = TextFieldPadding,
@@ -811,7 +816,6 @@ object OutlinedTextFieldDefaults {
      * An example of building a custom text field using [DecorationBox]:
      *
      * @sample androidx.compose.material3.samples.CustomOutlinedTextFieldBasedOnDecorationBox
-     *
      * @param value the input [String] shown by the text field
      * @param innerTextField input text field that this decoration box wraps. You will pass here a
      *   framework-controlled composable parameter "innerTextField" from the decorationBox lambda of
@@ -844,8 +848,10 @@ object OutlinedTextFieldDefaults {
      * @param supportingText the optional supporting text to be displayed below the text field
      * @param colors [TextFieldColors] that will be used to resolve the colors used for this text
      *   field in different states. See [OutlinedTextFieldDefaults.colors].
-     * @param contentPadding the padding applied between the internal elements of this decoration
-     *   box and the edge of its container
+     * @param contentPadding the padding between the input field and the surrounding elements of the
+     *   decoration box. Note that the padding values may not be respected if they are incompatible
+     *   with the text field's size constraints or layout. See
+     *   [OutlinedTextFieldDefaults.contentPadding].
      * @param container the container to be drawn behind the text field. By default, this is
      *   transparent and only includes a border. The cutout in the border to fit the [label] will be
      *   automatically added by the framework. Default colors for the container come from the
@@ -906,7 +912,10 @@ object OutlinedTextFieldDefaults {
     }
 
     /**
-     * Default content padding applied to [OutlinedTextField]. See [PaddingValues] for more details.
+     * Default content padding of the input field within the [OutlinedTextField].
+     *
+     * Horizontal padding represents the distance between the input field and the leading/trailing
+     * icons (if present) or the horizontal edges of the container if there are no icons.
      */
     fun contentPadding(
         start: Dp = TextFieldPadding,

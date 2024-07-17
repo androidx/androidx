@@ -31,9 +31,6 @@ plugins {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
@@ -64,7 +61,7 @@ dependencies {
     // A compile only dependency on extnensions.core so that other libraries do not expose it
     // transitively. The testCompile is added because tests are not getting the dependency
     // transitively.
-    testCompileOnly(extensions_core_version)
+    testImplementation(extensions_core_version)
     // A compile only dependency on extnensions.core so that other libraries do not expose it
     // transitively. The androidTestCompile is added because tests are not getting the dependency
     // transitively.
@@ -93,7 +90,6 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.mockitoKotlin, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
     androidTestImplementation(extensions_core_version)

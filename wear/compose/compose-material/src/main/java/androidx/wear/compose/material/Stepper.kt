@@ -38,11 +38,8 @@ import kotlin.math.roundToInt
  * [onValueChange] in this case will not be triggered.
  *
  * @sample androidx.wear.compose.material.samples.StepperSample
- *
  * @sample androidx.wear.compose.material.samples.StepperWithoutRangeSemanticsSample
- *
  * @sample androidx.wear.compose.material.samples.StepperWithCustomSemanticsSample
- *
  * @param value Current value of the Stepper. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated
@@ -102,7 +99,7 @@ fun Stepper(
                 LocalContentColor provides iconColor.copy(alpha = ContentAlpha.disabled),
                 LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha
             ),
-        buttonRipple = rippleOrFallbackImplementation(bounded = false)
+        buttonRipple = ripple(bounded = false)
     ) {
         CompositionLocalProvider(LocalContentColor provides contentColor) { content() }
     }
@@ -188,7 +185,6 @@ fun Stepper(
  * [PositionIndicator] if required.
  *
  * @sample androidx.wear.compose.material.samples.StepperSample
- *
  * @param value Current value of the Stepper. If outside of [valueRange] provided, value will be
  *   coerced to this range.
  * @param onValueChange Lambda in which value should be updated

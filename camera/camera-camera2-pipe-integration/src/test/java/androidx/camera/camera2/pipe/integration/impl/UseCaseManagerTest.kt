@@ -41,6 +41,7 @@ import androidx.camera.camera2.pipe.integration.adapter.TestDeferrableSurface
 import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
+import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureIntentPreviewQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
@@ -59,6 +60,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.DeferrableSurface
+import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.StreamSpec
@@ -525,7 +527,12 @@ class UseCaseManagerTest {
         // Arrange
         initializeUseCaseThreads(this)
         val useCaseManager =
-            createUseCaseManager(templateParamsOverride = TemplateParamsQuirkOverride)
+            createUseCaseManager(
+                templateParamsOverride =
+                    TemplateParamsQuirkOverride(
+                        Quirks(listOf(object : CaptureIntentPreviewQuirk {}))
+                    )
+            )
         val fakeUseCase =
             FakeUseCase().apply {
                 updateSessionConfigForTesting(
@@ -712,11 +719,12 @@ class UseCaseManagerTest {
         bindToCamera(
             FakeCamera("0"),
             null,
+            null,
             getDefaultConfig(
                 true,
                 CameraUseCaseAdapter(ApplicationProvider.getApplicationContext())
             )
         )
-        updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build())
+        updateSuggestedStreamSpec(StreamSpec.builder(supportedSizes[0]).build(), null)
     }
 }

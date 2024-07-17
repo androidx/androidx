@@ -27,7 +27,6 @@ import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
@@ -98,7 +97,6 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.mockitoAndroid5)
-                implementation(libs.multidex)
             }
         }
 
@@ -151,8 +149,4 @@ androidx {
 
 android {
     namespace "androidx.paging.common"
-
-    defaultConfig {
-        multiDexEnabled = true
-    }
 }

@@ -22,6 +22,8 @@
     <string name="toggle_camera">Toggle Camera</string>
     <string name="dual_selfie_on">Dual Selfie On</string>
     <string name="dual_selfie_off">Dual Selfie Off</string>
+    <string name="dual_recording_on">Dual Record On</string>
+    <string name="dual_recording_off">Dual Record Off</string>
     <string name="toggle">Toggle</string>
     <string name="finish">Finish</string>
     <string name="is_front_primary">IsFrontPrimary</string>

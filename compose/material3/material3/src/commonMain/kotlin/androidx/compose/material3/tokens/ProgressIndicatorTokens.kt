@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Version: v2_3_5
+// VERSION: v0_4_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
-import androidx.compose.ui.unit.dp
-
 internal object ProgressIndicatorTokens {
     val ActiveIndicatorColor = ColorSchemeKeyTokens.Primary
     val ActiveShape = ShapeKeyTokens.CornerFull
-    val ActiveThickness = 4.0.dp
-    val ActiveTrackSpace = 4.0.dp
     val StopColor = ColorSchemeKeyTokens.Primary
-    val StopShape = 4.0.dp
-    val StopSize = 4.0.dp
+    val StopShape = ShapeKeyTokens.CornerFull
     val TrackColor = ColorSchemeKeyTokens.SecondaryContainer
     val TrackShape = ShapeKeyTokens.CornerFull
-    val TrackThickness = 4.0.dp
-    val Size = 48.0.dp
 }

@@ -312,7 +312,6 @@ fun rememberBackdropScaffoldState(
  * A simple example of a backdrop scaffold looks like this:
  *
  * @sample androidx.compose.material.samples.BackdropScaffoldSample
- *
  * @param appBar App bar for the back layer. Make sure that the [peekHeight] is equal to the height
  *   of the app bar, so that the app bar is fully visible. Consider using [TopAppBar] but set the
  *   elevation to 0dp and background color to transparent as a surface is already provided.

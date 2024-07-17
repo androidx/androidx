@@ -33,9 +33,19 @@ val TimeTextDemos =
     listOf(
         ComposableDemo("Clock only") { TimeTextClockOnly() },
         ComposableDemo("Clock with Status") { TimeTextWithStatus() },
+        ComposableDemo("Clock with long Status") { TimeTextWithLongStatus() },
         ComposableDemo("Clock with Icon") { TimeTextWithIcon() },
         ComposableDemo("Clock with custom colors") { TimeTextWithCustomColors() }
     )
+
+@Composable
+fun TimeTextWithLongStatus() {
+    TimeText {
+        text("Some long leading text")
+        separator()
+        time()
+    }
+}
 
 @Composable
 fun TimeTextWithCustomColors() {

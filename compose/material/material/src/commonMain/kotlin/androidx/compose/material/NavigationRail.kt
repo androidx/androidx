@@ -227,7 +227,7 @@ fun NavigationRailItem(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by NavigationRailTransition.
-    val ripple = rippleOrFallbackImplementation(bounded = false, color = selectedContentColor)
+    val ripple = ripple(bounded = false, color = selectedContentColor)
     Box(
         modifier
             .selectable(

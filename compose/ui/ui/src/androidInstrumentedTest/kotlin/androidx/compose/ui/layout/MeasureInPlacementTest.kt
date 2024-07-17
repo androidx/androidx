@@ -19,12 +19,10 @@ package androidx.compose.ui.layout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TestActivity
@@ -81,10 +79,9 @@ class MeasureInPlacementTest {
     fun measureInLayoutPlacement() {
         var childSize = IntSize.Zero
         rule.setContent {
-            Layout(
-                modifier = Modifier.fillMaxSize(),
-                content = @Composable { Box(Modifier.size(10.dp)) }
-            ) { measurables, constraints ->
+            Layout(modifier = Modifier.fillMaxSize(), content = { Box(Modifier.size(10.dp)) }) {
+                measurables,
+                constraints ->
                 layout(100, 100) {
                     val p = measurables[0].measure(constraints)
                     childSize = IntSize(p.width, p.height)
@@ -102,7 +99,6 @@ class MeasureInPlacementTest {
      * Make sure that measurement in the layout modifier's placement block doesn't crash in
      * lookahead scope.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun measureInModifierPlacementWithLookaheadScope() {
         var childSize = IntSize.Zero
@@ -130,7 +126,6 @@ class MeasureInPlacementTest {
     /**
      * Make sure that measurement in the layout's placement block doesn't crash in lookahead scope.
      */
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun measureInLayoutPlacementWithLookaheadScope() {
         var childSize = IntSize.Zero
@@ -138,7 +133,7 @@ class MeasureInPlacementTest {
             LookaheadScope {
                 Layout(
                     modifier = Modifier.fillMaxSize(),
-                    content = @Composable { Box(Modifier.size(10.dp)) }
+                    content = { Box(Modifier.size(10.dp)) }
                 ) { measurables, constraints ->
                     layout(100, 100) {
                         val p = measurables[0].measure(constraints)

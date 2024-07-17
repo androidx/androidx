@@ -143,7 +143,6 @@ fun rememberDismissState(
  * A composable that can be dismissed by swiping left or right.
  *
  * @sample androidx.compose.material.samples.SwipeToDismissListItems
- *
  * @param state The state of this component.
  * @param modifier Optional [Modifier] for this component.
  * @param directions The set of directions in which the component can be dismissed.

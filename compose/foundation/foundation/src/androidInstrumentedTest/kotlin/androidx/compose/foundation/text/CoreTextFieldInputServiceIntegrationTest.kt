@@ -502,7 +502,7 @@ class CoreTextFieldInputServiceIntegrationTest {
     }
 
     @Test
-    fun textField_stopAndStartInput_whenToggleWindowFocus() {
+    fun textField_onlyStartsInputConnection_whenToggleWindowFocus() {
         val value = TextFieldValue("abc")
         val focusRequester = FocusRequester()
 
@@ -525,13 +525,24 @@ class CoreTextFieldInputServiceIntegrationTest {
 
         rule.runOnUiThread { focusRequester.requestFocus() }
 
-        rule.runOnIdle { inputMethodInterceptor.assertSessionActive() }
+        var firstInputConnection: InputConnection? = null
+        rule.runOnIdle {
+            inputMethodInterceptor.assertSessionActive()
+            inputMethodInterceptor.withInputConnection { firstInputConnection = this }
+        }
 
         focusWindow.value = false
-        rule.runOnIdle { inputMethodInterceptor.assertNoSessionActive() }
+        rule.runOnIdle { inputMethodInterceptor.assertSessionActive() }
 
         focusWindow.value = true
-        rule.runOnIdle { inputMethodInterceptor.assertSessionActive() }
+        var secondInputConnection: InputConnection? = null
+        rule.runOnIdle {
+            inputMethodInterceptor.assertSessionActive()
+            inputMethodInterceptor.withInputConnection { secondInputConnection = this }
+        }
+
+        // check that we have not created a separate input connection
+        assertThat(firstInputConnection).isSameInstanceAs(secondInputConnection)
     }
 
     private fun setContent(

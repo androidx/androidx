@@ -18,6 +18,7 @@ package androidx.compose.foundation
 
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.TransformableState
+import androidx.compose.foundation.gestures.animateBy
 import androidx.compose.foundation.gestures.animatePanBy
 import androidx.compose.foundation.gestures.animateRotateBy
 import androidx.compose.foundation.gestures.animateZoomBy
@@ -172,7 +173,6 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformable_pan_disallowed() {
         var cumulativePan = Offset.Zero
@@ -213,7 +213,6 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformableInsideScroll_pan_disallowed_parentScrolls() {
         var touchSlop = 0f
@@ -248,7 +247,6 @@ class TransformableTest {
         rule.runOnIdle { assertThat(scrollState.value).isEqualTo(50) }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformableInsideScroll_canPan_offsetProvided() {
         var lastCanPanOffset = Offset.Zero
@@ -608,6 +606,57 @@ class TransformableTest {
                 assertWithMessage("Should have panned to 100 / 80")
                     .that(totalPan)
                     .isEqualTo(expected)
+            }
+        }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun transformable_animateTo_all() =
+        runBlocking(AutoTestFrameClock()) {
+            rule.mainClock.autoAdvance = false
+            var cumulativeScale = 1.0f
+            var totalPan = Offset.Zero
+            var totalRotation = 0f
+            var callbackCount = 0
+            val state = TransformableState { zoom, pan, rotation ->
+                cumulativeScale *= zoom
+                totalPan += pan
+                totalRotation += rotation
+                callbackCount++
+            }
+            setTransformableContent { Modifier.transformable(state) }
+
+            val expectedOffset = Offset(100f, 80f)
+            state.animateBy(4f, expectedOffset, 180f)
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Animation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(1)
+            }
+
+            rule.mainClock.advanceTimeByFrame()
+
+            rule.runOnIdle {
+                assertWithMessage("Animation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(2)
+            }
+
+            rule.mainClock.advanceTimeBy(milliseconds = 100000)
+
+            rule.runOnIdle {
+                assertWithMessage("Animation should have been smooth")
+                    .that(callbackCount)
+                    .isAtLeast(3)
+                // Include a bit of tolerance for floating point discrepancies.
+                assertWithMessage("Should have scaled ~4x").that(cumulativeScale).isAtLeast(3.9f)
+                assertWithMessage("Should have panned to 100 / 80")
+                    .that(totalPan)
+                    .isEqualTo(expectedOffset)
+                assertWithMessage("Should have rotated 180").that(totalRotation).isAtLeast(179f)
             }
         }
 

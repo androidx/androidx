@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -82,7 +81,7 @@ internal fun createDelegate(
     return delegate
 }
 
-@OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
+@OptIn(InternalComposeUiApi::class)
 private class FakeOwner(
     val delegate: MeasureAndLayoutDelegate,
     val createLayer: () -> OwnedLayer,
@@ -250,8 +249,9 @@ private class FakeOwner(
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit,
-        explicitLayer: GraphicsLayer?
-    ) = createLayer()
+        explicitLayer: GraphicsLayer?,
+        forceUseOldLayers: Boolean
+    ): OwnedLayer = createLayer()
 
     override fun requestOnPositionedCallback(layoutNode: LayoutNode) {
         TODO("Not yet implemented")

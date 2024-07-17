@@ -39,7 +39,6 @@ import kotlin.jvm.JvmName
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
@@ -67,13 +66,11 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
@@ -98,13 +95,11 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
@@ -131,13 +126,11 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     key1: Any?,
@@ -165,13 +158,11 @@ fun Modifier.composed(
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierSample
- *
  * @sample androidx.compose.ui.samples.InspectorInfoInComposedModifierWithArgumentsSample
  *
  * [materialize] must be called to create instance-specific modifiers if you are directly applying a
  * [Modifier] to an element tree node.
  */
-@ExperimentalComposeUiApi
 fun Modifier.composed(
     fullyQualifiedName: String,
     vararg keys: Any?,

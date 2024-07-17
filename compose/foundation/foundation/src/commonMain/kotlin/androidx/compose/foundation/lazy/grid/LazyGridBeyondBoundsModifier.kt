@@ -29,10 +29,6 @@ internal class LazyGridBeyondBoundsState(
     val state: LazyGridState,
 ) : LazyLayoutBeyondBoundsState {
 
-    override fun remeasure() {
-        state.remeasurement?.forceRemeasure()
-    }
-
     override val itemCount: Int
         get() = state.layoutInfo.totalItemsCount
 

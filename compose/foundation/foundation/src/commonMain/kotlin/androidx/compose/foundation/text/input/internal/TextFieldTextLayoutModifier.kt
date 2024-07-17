@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.ceilToIntPx
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.AlignmentLine
@@ -51,7 +52,8 @@ internal data class TextFieldTextLayoutModifier(
     private val textFieldState: TransformedTextFieldState,
     private val textStyle: TextStyle,
     private val singleLine: Boolean,
-    private val onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
+    private val onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?,
+    private val keyboardOptions: KeyboardOptions,
 ) : ModifierNodeElement<TextFieldTextLayoutModifierNode>() {
     override fun create(): TextFieldTextLayoutModifierNode =
         TextFieldTextLayoutModifierNode(
@@ -59,7 +61,8 @@ internal data class TextFieldTextLayoutModifier(
             textFieldState = textFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
-            onTextLayout = onTextLayout
+            onTextLayout = onTextLayout,
+            keyboardOptions = keyboardOptions,
         )
 
     override fun update(node: TextFieldTextLayoutModifierNode) {
@@ -68,7 +71,8 @@ internal data class TextFieldTextLayoutModifier(
             textFieldState = textFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
-            onTextLayout = onTextLayout
+            onTextLayout = onTextLayout,
+            keyboardOptions = keyboardOptions,
         )
     }
 
@@ -82,7 +86,8 @@ internal class TextFieldTextLayoutModifierNode(
     textFieldState: TransformedTextFieldState,
     textStyle: TextStyle,
     private var singleLine: Boolean,
-    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
+    onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?,
+    keyboardOptions: KeyboardOptions,
 ) :
     Modifier.Node(),
     LayoutModifierNode,
@@ -95,7 +100,8 @@ internal class TextFieldTextLayoutModifierNode(
             textFieldState = textFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
-            softWrap = !singleLine
+            softWrap = !singleLine,
+            keyboardOptions = keyboardOptions,
         )
     }
 
@@ -108,7 +114,8 @@ internal class TextFieldTextLayoutModifierNode(
         textFieldState: TransformedTextFieldState,
         textStyle: TextStyle,
         singleLine: Boolean,
-        onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?
+        onTextLayout: (Density.(getResult: () -> TextLayoutResult?) -> Unit)?,
+        keyboardOptions: KeyboardOptions,
     ) {
         this.textLayoutState = textLayoutState
         this.textLayoutState.onTextLayout = onTextLayout
@@ -117,7 +124,8 @@ internal class TextFieldTextLayoutModifierNode(
             textFieldState = textFieldState,
             textStyle = textStyle,
             singleLine = singleLine,
-            softWrap = !singleLine
+            softWrap = !singleLine,
+            keyboardOptions = keyboardOptions,
         )
     }
 
@@ -137,7 +145,15 @@ internal class TextFieldTextLayoutModifierNode(
                 constraints = constraints,
             )
 
-        val placeable = measurable.measure(Constraints.fixed(result.size.width, result.size.height))
+        val placeable =
+            measurable.measure(
+                Constraints.fitPrioritizingWidth(
+                    minWidth = result.size.width,
+                    maxWidth = result.size.width,
+                    minHeight = result.size.height,
+                    maxHeight = result.size.height
+                )
+            )
 
         // calculate the min height for single line text to prevent text cuts.
         // for single line text maxLines puts in max height constraint based on

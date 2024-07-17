@@ -67,7 +67,6 @@ import kotlin.math.sqrt
  * title, use the other TopAppBar overload for a generic TopAppBar with no restriction on content.
  *
  * @sample androidx.compose.material.samples.SimpleTopAppBar
- *
  * @param title The title to be displayed in the center of the TopAppBar
  * @param windowInsets a window insets that app bar will respect.
  * @param modifier The [Modifier] to be applied to this TopAppBar
@@ -147,7 +146,6 @@ fun TopAppBar(
  * title, use the other TopAppBar overload for a generic TopAppBar with no restriction on content.
  *
  * @sample androidx.compose.material.samples.SimpleTopAppBar
- *
  * @param title The title to be displayed in the center of the TopAppBar
  * @param modifier The [Modifier] to be applied to this TopAppBar
  * @param navigationIcon The navigation icon displayed at the start of the TopAppBar. This should
@@ -315,7 +313,6 @@ fun TopAppBar(
  * Also see [BottomNavigation].
  *
  * @sample androidx.compose.material.samples.SimpleBottomAppBar
- *
  * @param windowInsets a window insets that app bar will respect.
  * @param modifier The [Modifier] to be applied to this BottomAppBar
  * @param backgroundColor The background color for the BottomAppBar. Use [Color.Transparent] to have
@@ -388,7 +385,6 @@ fun BottomAppBar(
  * Also see [BottomNavigation].
  *
  * @sample androidx.compose.material.samples.SimpleBottomAppBar
- *
  * @param modifier The [Modifier] to be applied to this BottomAppBar
  * @param backgroundColor The background color for the BottomAppBar. Use [Color.Transparent] to have
  *   no color.

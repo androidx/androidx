@@ -37,7 +37,6 @@ import kotlin.time.toKotlinDuration
  * vibration is canceled.
  *
  * @sample androidx.core.haptics.samples.AmplitudeWaveform
- *
  * @sample androidx.core.haptics.samples.PatternThenRepeatAmplitudeWaveform
  */
 class WaveformSignal(
@@ -57,7 +56,6 @@ class WaveformSignal(
          * Use [on] and [off] to create atoms.
          *
          * @sample androidx.core.haptics.samples.AmplitudeWaveform
-         *
          * @param atoms The [WaveformSignal.Atom] instances that define the [WaveformSignal].
          */
         @JvmStatic
@@ -70,7 +68,6 @@ class WaveformSignal(
          * the atom list.
          *
          * @sample androidx.core.haptics.samples.RepeatingAmplitudeWaveform
-         *
          * @param atoms The [WaveformSignal.Atom] instances that define the
          *   [RepeatingWaveformSignal].
          */
@@ -82,7 +79,6 @@ class WaveformSignal(
          * Returns a [WaveformSignal.Atom] that turns off the vibrator for the specified duration.
          *
          * @sample androidx.core.haptics.samples.PatternWaveform
-         *
          * @param duration The duration the vibrator should be turned off.
          */
         @RequiresApi(Build.VERSION_CODES.O)
@@ -94,7 +90,6 @@ class WaveformSignal(
          * Returns a [WaveformSignal.Atom] that turns off the vibrator for the specified duration.
          *
          * @sample androidx.core.haptics.samples.PatternWaveform
-         *
          * @param durationMillis The duration the vibrator should be turned off, in milliseconds.
          */
         @JvmStatic
@@ -106,7 +101,6 @@ class WaveformSignal(
          * a device-specific default amplitude.
          *
          * @sample androidx.core.haptics.samples.PatternWaveform
-         *
          * @param duration The duration for the vibration.
          */
         @RequiresApi(Build.VERSION_CODES.O)
@@ -119,7 +113,6 @@ class WaveformSignal(
          * a device-specific default amplitude.
          *
          * @sample androidx.core.haptics.samples.PatternWaveform
-         *
          * @param durationMillis The duration for the vibration, in milliseconds.
          */
         @JvmStatic
@@ -131,7 +124,6 @@ class WaveformSignal(
          * the specified amplitude.
          *
          * @sample androidx.core.haptics.samples.AmplitudeWaveform
-         *
          * @param duration The duration for the vibration.
          * @param amplitude The vibration strength, with 1 representing maximum amplitude, and 0
          *   representing off - equivalent to calling [off].
@@ -146,7 +138,6 @@ class WaveformSignal(
          * the specified amplitude.
          *
          * @sample androidx.core.haptics.samples.AmplitudeWaveform
-         *
          * @param durationMillis The duration for the vibration, in milliseconds.
          * @param amplitude The vibration strength, with 1 representing maximum amplitude, and 0
          *   representing off - equivalent to calling [off].
@@ -169,7 +160,6 @@ class WaveformSignal(
      * given waveform signal on repeat until the vibration is canceled.
      *
      * @sample androidx.core.haptics.samples.PatternThenRepeatExistingWaveform
-     *
      * @param waveformToRepeat The waveform to be played on repeat after this waveform.
      */
     fun thenRepeat(waveformToRepeat: WaveformSignal): RepeatingWaveformSignal =
@@ -180,7 +170,6 @@ class WaveformSignal(
      * given waveform atoms on repeat until the vibration is canceled.
      *
      * @sample androidx.core.haptics.samples.PatternThenRepeatAmplitudeWaveform
-     *
      * @param atoms The [WaveformSignal.Atom] instances that define the repeating [WaveformSignal]
      *   to be played after this waveform.
      */
@@ -215,7 +204,6 @@ class WaveformSignal(
      * step waveform. They can also be used to describe simpler on-off vibration patterns.
      *
      * @sample androidx.core.haptics.samples.PatternWaveform
-     *
      * @sample androidx.core.haptics.samples.AmplitudeWaveform
      */
     abstract class Atom internal constructor() {
@@ -235,7 +223,6 @@ class WaveformSignal(
      * vibration strength.
      *
      * @sample androidx.core.haptics.samples.PatternWaveform
-     *
      * @sample androidx.core.haptics.samples.AmplitudeWaveform
      */
     class ConstantVibrationAtom

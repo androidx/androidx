@@ -33,7 +33,6 @@ import androidx.compose.runtime.ReadOnlyComposable
  * theme:
  *
  * @sample androidx.compose.foundation.samples.DarkThemeSample
- *
  * @return `true` if the system is considered to be in 'dark theme'.
  */
 @Composable @ReadOnlyComposable fun isSystemInDarkTheme() = _isSystemInDarkTheme()

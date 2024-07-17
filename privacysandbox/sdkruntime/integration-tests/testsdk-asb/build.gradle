@@ -24,7 +24,6 @@ android {
     namespace 'androidx.privacysandbox.sdkruntime.integration.testsdk-asb'
     compileSdk 34
     compileSdkExtension 10
-    minSdk 34
     buildToolsVersion AndroidXConfig.getDefaultAndroidConfig(project).getBuildToolsVersion()
     bundle {
         packageName = "androidx.privacysandbox.sdkruntime.integrationtest.sdk"

@@ -29,7 +29,6 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.copy
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.DefaultScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
@@ -57,16 +56,12 @@ import kotlinx.coroutines.withContext
  * Please refer to the sample to learn how to use this API.
  *
  * @sample androidx.compose.foundation.samples.SnapFlingBehaviorSimpleSample
- *
  * @sample androidx.compose.foundation.samples.SnapFlingBehaviorCustomizedSample
- *
  * @param snapLayoutInfoProvider The information about the layout being snapped.
  * @param decayAnimationSpec The animation spec used to approach the target offset when the fling
  *   velocity is large enough. Large enough means large enough to naturally decay.
  * @param snapAnimationSpec The animation spec used to finally snap to the correct bound.
  */
-@OptIn(ExperimentalFoundationApi::class)
-@Suppress("Deprecation")
 fun snapFlingBehavior(
     snapLayoutInfoProvider: SnapLayoutInfoProvider,
     decayAnimationSpec: DecayAnimationSpec<Float>,
@@ -75,12 +70,7 @@ fun snapFlingBehavior(
     return SnapFlingBehavior(snapLayoutInfoProvider, decayAnimationSpec, snapAnimationSpec)
 }
 
-@Deprecated(
-    "Please use the snapFlingBehavior function",
-    replaceWith = ReplaceWith("androidx.compose.foundation.gestures.snapping.snapFlingBehavior")
-)
-@ExperimentalFoundationApi
-class SnapFlingBehavior(
+internal class SnapFlingBehavior(
     private val snapLayoutInfoProvider: SnapLayoutInfoProvider,
     private val decayAnimationSpec: DecayAnimationSpec<Float>,
     private val snapAnimationSpec: AnimationSpec<Float>
@@ -127,8 +117,13 @@ class SnapFlingBehavior(
 
                 val initialOffset =
                     snapLayoutInfoProvider.calculateApproachOffset(initialVelocity, decayOffset)
-                var remainingScrollOffset =
-                    abs(initialOffset) * sign(initialVelocity) // ensure offset sign is correct
+
+                check(!initialOffset.isNaN()) {
+                    "calculateApproachOffset returned NaN. Please use a valid value."
+                }
+
+                // ensure offset sign and value are correct
+                var remainingScrollOffset = abs(initialOffset) * sign(initialVelocity)
 
                 onRemainingScrollOffsetUpdate(remainingScrollOffset) // First Scroll Offset
 
@@ -138,8 +133,14 @@ class SnapFlingBehavior(
                         onRemainingScrollOffsetUpdate(remainingScrollOffset)
                     }
 
-                remainingScrollOffset =
+                val finalSnapOffset =
                     snapLayoutInfoProvider.calculateSnapOffset(animationState.velocity)
+
+                check(!finalSnapOffset.isNaN()) {
+                    "calculateSnapOffset returned NaN. Please use a valid value."
+                }
+
+                remainingScrollOffset = finalSnapOffset
 
                 debugLog { "Settling Final Bound=$remainingScrollOffset" }
 

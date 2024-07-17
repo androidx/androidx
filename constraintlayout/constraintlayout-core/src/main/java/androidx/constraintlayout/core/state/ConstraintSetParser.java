@@ -935,7 +935,6 @@ public class ConstraintSetParser {
                                       String name,
                                       LayoutVariables layoutVariables,
                                       CLObject element) throws CLParsingException {
-
         GridReference grid = state.getGrid(name, gridType);
 
         for (String param : element.names()) {
@@ -1001,11 +1000,12 @@ public class ConstraintSetParser {
                     }
                     break;
                 case "padding":
+                    // Note that padding is currently not properly handled in GridCore
                     CLElement paddingObject = element.get(param);
-                    int paddingStart = 0;
-                    int paddingTop = 0;
-                    int paddingEnd = 0;
-                    int paddingBottom = 0;
+                    float paddingStart = 0;
+                    float paddingTop = 0;
+                    float paddingEnd = 0;
+                    float paddingBottom = 0;
                     if (paddingObject instanceof CLArray && ((CLArray) paddingObject).size() > 1) {
                         paddingStart = ((CLArray) paddingObject).getInt(0);
                         paddingEnd = paddingStart;
@@ -1026,28 +1026,30 @@ public class ConstraintSetParser {
                         paddingEnd = paddingStart;
                         paddingBottom = paddingStart;
                     }
-                    grid.setPaddingStart(paddingStart);
-                    grid.setPaddingTop(paddingTop);
-                    grid.setPaddingEnd(paddingEnd);
-                    grid.setPaddingBottom(paddingBottom);
+                    grid.setPaddingStart(Math.round(toPix(state, paddingStart)));
+                    grid.setPaddingTop(Math.round(toPix(state, paddingTop)));
+                    grid.setPaddingEnd(Math.round(toPix(state, paddingEnd)));
+                    grid.setPaddingBottom(Math.round(toPix(state, paddingBottom)));
                     break;
                 case "flags":
-                    String flags = element.get(param).content();
-                    if (flags != null && flags.length() > 0) {
+                    int flagValue = 0;
+                    String flags = "";
+                    try {
+                        CLElement obj  = element.get(param);
+                        if (obj instanceof CLNumber) {
+                            flagValue = obj.getInt();
+                        } else {
+                            flags = obj.content();
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Error parsing grid flags " + ex);
+                    }
+
+                    if (flags != null && !flags.isEmpty()) {
+                        // In older APIs, the flags may still be defined as a String
                         grid.setFlags(flags);
                     } else {
-                        CLArray flagArray = element.getArrayOrNull(param);
-                        flags = "";
-                        if (flagArray != null) {
-                            for (int i = 0; i < flagArray.size(); i++) {
-                                String flag = flagArray.get(i).content();
-                                flags += flag;
-                                if (i != flagArray.size() - 1) {
-                                    flags += "|";
-                                }
-                            }
-                            grid.setFlags(flags);
-                        }
+                        grid.setFlags(flagValue);
                     }
                     break;
                 default:
@@ -1160,10 +1162,10 @@ public class ConstraintSetParser {
                     break;
                 case "padding":
                     CLElement paddingObject = element.get(param);
-                    int paddingLeft = 0;
-                    int paddingTop = 0;
-                    int paddingRight = 0;
-                    int paddingBottom = 0;
+                    float paddingLeft = 0;
+                    float paddingTop = 0;
+                    float paddingRight = 0;
+                    float paddingBottom = 0;
                     if (paddingObject instanceof CLArray && ((CLArray) paddingObject).size() > 1) {
                         paddingLeft = ((CLArray) paddingObject).getInt(0);
                         paddingRight = paddingLeft;
@@ -1184,10 +1186,10 @@ public class ConstraintSetParser {
                         paddingRight = paddingLeft;
                         paddingBottom = paddingLeft;
                     }
-                    flow.setPaddingLeft(paddingLeft);
-                    flow.setPaddingTop(paddingTop);
-                    flow.setPaddingRight(paddingRight);
-                    flow.setPaddingBottom(paddingBottom);
+                    flow.setPaddingLeft(Math.round(toPix(state, paddingLeft)));
+                    flow.setPaddingTop(Math.round(toPix(state, paddingTop)));
+                    flow.setPaddingRight(Math.round(toPix(state, paddingRight)));
+                    flow.setPaddingBottom(Math.round(toPix(state, paddingBottom)));
                     break;
                 case "vAlign":
                     String vAlignValue = element.get(param).content();

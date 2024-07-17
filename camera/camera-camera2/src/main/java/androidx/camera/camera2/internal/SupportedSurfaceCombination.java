@@ -558,6 +558,7 @@ final class SupportedSurfaceCombination {
      * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output
      *                                          sizes map.
      * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
+     * @param hasVideoCapture                   whether the use cases has video capture.
      * @return the suggested stream specifications, which is a pair of mappings. The first
      * mapping is from UseCaseConfig to the suggested stream specification representing new
      * UseCases. The second mapping is from attachedSurfaceInfo to the suggested stream
@@ -574,7 +575,8 @@ final class SupportedSurfaceCombination {
             @CameraMode.Mode int cameraMode,
             @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn) {
+            boolean isPreviewStabilizationOn,
+            boolean hasVideoCapture) {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize();
 
@@ -787,7 +789,8 @@ final class SupportedSurfaceCombination {
                                 resolvedDynamicRanges.get(useCaseConfig)))
                         .setImplementationOptions(
                                 StreamUseCaseUtil.getStreamSpecImplementationOptions(useCaseConfig)
-                        );
+                        )
+                        .setZslDisabled(hasVideoCapture);
                 if (targetFramerateForDevice != null) {
                     streamSpecBuilder.setExpectedFrameRateRange(targetFramerateForDevice);
                 }
@@ -1289,8 +1292,7 @@ final class SupportedSurfaceCombination {
                 GuaranteedConfigurationsUtil.generateSupportedCombinationList(mHardwareLevel,
                         mIsRawSupported, mIsBurstCaptureSupported));
 
-        mSurfaceCombinations.addAll(
-                mExtraSupportedSurfaceCombinationsContainer.get(mCameraId, mHardwareLevel));
+        mSurfaceCombinations.addAll(mExtraSupportedSurfaceCombinationsContainer.get(mCameraId));
     }
 
     private void generateUltraHighSupportedCombinationList() {

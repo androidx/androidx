@@ -23,6 +23,7 @@ import androidx.collection.IntObjectMap
 import androidx.collection.MutableIntSet
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.OwnerScope
@@ -32,6 +33,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.util.fastForEach
@@ -120,12 +122,19 @@ internal fun Role.toLegacyClassName(): String? =
         Role.RadioButton -> "android.widget.RadioButton"
         Role.Image -> "android.widget.ImageView"
         Role.DropdownList -> "android.widget.Spinner"
+        Role.NumberPicker -> "android.widget.NumberPicker"
         else -> null
     }
 
 internal fun SemanticsNode.isImportantForAccessibility() =
-    unmergedConfig.isMergingSemanticsOfDescendants ||
-        unmergedConfig.containsImportantForAccessibility()
+    isVisible &&
+        (unmergedConfig.isMergingSemanticsOfDescendants ||
+            unmergedConfig.containsImportantForAccessibility())
+
+// TODO(347749977): go through and remove experimental tag on `invisible` properties
+@OptIn(ExperimentalComposeUiApi::class)
+internal val SemanticsNode.isVisible: Boolean
+    get() = !isTransparent && !unmergedConfig.contains(SemanticsProperties.InvisibleToUser)
 
 internal val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
 

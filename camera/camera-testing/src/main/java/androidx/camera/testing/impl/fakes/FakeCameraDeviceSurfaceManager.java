@@ -31,9 +31,15 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraMode;
+import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.streamsharing.StreamSharingConfig;
+import androidx.camera.video.impl.VideoCaptureConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,26 +95,69 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
             @NonNull String cameraId,
             @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap,
-            boolean isPreviewStabilizationOn) {
+            boolean isPreviewStabilizationOn,
+            boolean hasVideoCapture) {
         List<UseCaseConfig<?>> newUseCaseConfigs =
                 new ArrayList<>(newUseCaseConfigsSupportedSizeMap.keySet());
         checkSurfaceCombo(existingSurfaces, newUseCaseConfigs);
+
+        // Populate the suggested stream specs for new use cases.
         Map<UseCaseConfig<?>, StreamSpec> suggestedStreamSpecs = new HashMap<>();
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-            StreamSpec streamSpec = StreamSpec.builder(MAX_OUTPUT_SIZE).build();
-            Map<Class<? extends UseCaseConfig<?>>, StreamSpec> definedStreamSpecs =
-                    mDefinedStreamSpecs.get(cameraId);
-            if (definedStreamSpecs != null) {
-                StreamSpec definedStreamSpec = definedStreamSpecs.get(useCaseConfig.getClass());
-                if (definedStreamSpec != null) {
-                    streamSpec = definedStreamSpec;
-                }
-            }
-
-            suggestedStreamSpecs.put(useCaseConfig, streamSpec);
+            suggestedStreamSpecs.put(useCaseConfig,
+                    getStreamSpec(cameraId, useCaseConfig.getClass(), hasVideoCapture));
         }
 
-        return new Pair<>(suggestedStreamSpecs, new HashMap<>());
+        // Populate the stream specs for existing use cases.
+        Map<AttachedSurfaceInfo, StreamSpec> existingStreamSpecs = new HashMap<>();
+        for (AttachedSurfaceInfo attachedSurfaceInfo : existingSurfaces) {
+            existingStreamSpecs.put(attachedSurfaceInfo, getStreamSpec(cameraId,
+                    captureTypeToUseCaseConfigType(attachedSurfaceInfo.getCaptureTypes().get(0)),
+                    hasVideoCapture));
+        }
+
+        return new Pair<>(suggestedStreamSpecs, existingStreamSpecs);
+    }
+
+    @NonNull
+    private StreamSpec getStreamSpec(@NonNull String cameraId, @NonNull Class<?> classType,
+            boolean hasVideoCapture) {
+        StreamSpec streamSpec = StreamSpec.builder(MAX_OUTPUT_SIZE)
+                .setZslDisabled(hasVideoCapture)
+                .build();
+        Map<Class<? extends UseCaseConfig<?>>, StreamSpec> definedStreamSpecs =
+                mDefinedStreamSpecs.get(cameraId);
+        if (definedStreamSpecs != null) {
+            StreamSpec definedStreamSpec = definedStreamSpecs.get(classType);
+            if (definedStreamSpec != null) {
+                streamSpec = definedStreamSpec;
+            }
+        }
+        return streamSpec;
+    }
+
+    /**
+     * Returns the {@link UseCaseConfig} type from a
+     * {@link androidx.camera.core.impl.UseCaseConfigFactory.CaptureType}.
+     */
+    private Class<?> captureTypeToUseCaseConfigType(
+            @NonNull UseCaseConfigFactory.CaptureType captureType) {
+        switch (captureType) {
+            case METERING_REPEATING:
+                // Fall-through
+            case PREVIEW:
+                return PreviewConfig.class;
+            case IMAGE_CAPTURE:
+                return ImageCaptureConfig.class;
+            case IMAGE_ANALYSIS:
+                return ImageAnalysisConfig.class;
+            case VIDEO_CAPTURE:
+                return VideoCaptureConfig.class;
+            case STREAM_SHARING:
+                return StreamSharingConfig.class;
+            default:
+                throw new IllegalArgumentException("Invalid capture type.");
+        }
     }
 
     /**

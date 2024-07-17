@@ -26,7 +26,6 @@ import androidx.core.haptics.device.HapticDeviceProfile
  * composing this with generic haptic signal extensions, including other fallback chains.
  *
  * @sample androidx.core.haptics.samples.HapticFallbackChainOfSignals
- *
  * @see HapticDeviceProfile
  */
 class FallbackChainSignal(

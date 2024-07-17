@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
@@ -157,11 +156,8 @@ private object BasicTextFieldDefaults {
  * @param scrollState Scroll state that manages either horizontal or vertical scroll of TextField.
  *   If [lineLimits] is [SingleLine], this text field is treated as single line with horizontal
  *   scroll behavior. In other cases the text field becomes vertically scrollable.
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldDecoratorSample
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldCustomInputTransformationSample
- *
  * @sample androidx.compose.foundation.samples.BasicTextFieldWithValueOnValueChangeSample
  */
 // This takes a composable lambda, but it is not primarily a container.
@@ -213,7 +209,6 @@ fun BasicTextField(
  *   codepoints.
  */
 // This takes a composable lambda, but it is not primarily a container.
-@OptIn(ExperimentalFoundationApi::class)
 @Suppress("ComposableLambdaParameterPosition")
 @Composable
 internal fun BasicTextField(
@@ -270,6 +265,11 @@ internal fun BasicTextField(
     // would be carrying an invalid TextFieldState in its nonMeasureInputs.
     val textLayoutState = remember(transformedState) { TextLayoutState() }
 
+    // InputTransformation.keyboardOptions might be backed by Snapshot state.
+    // Read in a restartable composable scope to make sure the resolved value is always up-to-date.
+    val resolvedKeyboardOptions =
+        keyboardOptions.fillUnspecifiedValuesWith(inputTransformation?.keyboardOptions)
+
     val textFieldSelectionState =
         remember(transformedState) {
             TextFieldSelectionState(
@@ -314,7 +314,7 @@ internal fun BasicTextField(
                     filter = inputTransformation,
                     enabled = enabled,
                     readOnly = readOnly,
-                    keyboardOptions = keyboardOptions,
+                    keyboardOptions = resolvedKeyboardOptions,
                     keyboardActionHandler = onKeyboardAction,
                     singleLine = singleLine,
                     interactionSource = interactionSource
@@ -387,7 +387,8 @@ internal fun BasicTextField(
                                         textFieldState = transformedState,
                                         textStyle = textStyle,
                                         singleLine = singleLine,
-                                        onTextLayout = onTextLayout
+                                        onTextLayout = onTextLayout,
+                                        keyboardOptions = resolvedKeyboardOptions,
                                     )
                                 )
                     )

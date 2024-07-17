@@ -36,7 +36,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
@@ -50,7 +49,6 @@ import kotlinx.coroutines.launch
 @Sampled
 @Composable
 fun OnPlaced() {
-    @OptIn(ExperimentalComposeUiApi::class)
     fun Modifier.animatePlacement(): Modifier = composed {
         val scope = rememberCoroutineScope()
         var targetOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -79,7 +77,6 @@ fun OnPlaced() {
             }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun AnimatedChildAlignment(alignment: Alignment) {
         Box(Modifier.fillMaxSize().padding(4.dp).border(1.dp, Color.Red)) {

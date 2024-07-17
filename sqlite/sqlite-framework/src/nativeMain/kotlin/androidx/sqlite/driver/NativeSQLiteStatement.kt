@@ -56,10 +56,6 @@ import sqlite3.sqlite3_finalize
 import sqlite3.sqlite3_reset
 import sqlite3.sqlite3_step
 
-/**
- * TODO:
- *     * (b/304295573) busy / locked handling
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
 class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
@@ -130,9 +126,7 @@ class NativeSQLiteStatement(
         // sqlite3_column_text16(), even empty strings, are always zero-terminated. Thus we use
         // toKStringFromUtf16() that returns a kotlin.String from a zero-terminated C string.
         val value = sqlite3_column_text16(stmtPointer, index)
-        if (sqlite3_errcode(dbPointer) == SQLITE_NOMEM) {
-            throw OutOfMemoryError()
-        }
+        if (value == null) throwIfOutOfMemory()
         return value!!.reinterpret<UShortVar>().toKStringFromUtf16()
     }
 
@@ -148,10 +142,9 @@ class NativeSQLiteStatement(
         throwIfNoRow()
         throwIfInvalidColumn(index)
         val blob = sqlite3_column_blob(stmtPointer, index)
-        if (sqlite3_errcode(dbPointer) == SQLITE_NOMEM) {
-            throw OutOfMemoryError()
-        }
+        if (blob == null) throwIfOutOfMemory()
         val size = sqlite3_column_bytes(stmtPointer, index)
+        if (size == 0) throwIfOutOfMemory()
         return if (blob != null && size > 0) {
             blob.readBytes(size)
         } else {
@@ -239,6 +232,13 @@ class NativeSQLiteStatement(
     private fun throwIfInvalidColumn(index: Int) {
         if (index < 0 || index >= getColumnCount()) {
             throwSQLiteException(SQLITE_RANGE, "column index out of range")
+        }
+    }
+
+    private fun throwIfOutOfMemory() {
+        val lastResultCode = sqlite3_errcode(dbPointer)
+        if (lastResultCode == SQLITE_NOMEM) {
+            throw OutOfMemoryError()
         }
     }
 }

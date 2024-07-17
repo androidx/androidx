@@ -19,7 +19,6 @@ package androidx.compose.foundation.anchoredDraggable
 import androidx.compose.animation.core.FloatDecayAnimationSpec
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.animateToWithDecay
 import androidx.compose.runtime.getValue
@@ -40,7 +39,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-@OptIn(ExperimentalFoundationApi::class)
 @RunWith(Parameterized::class)
 @LargeTest
 class AnchoredDraggableDecayAnimationTest(testNewBehavior: Boolean) :

@@ -31,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -66,7 +65,6 @@ fun InterceptEnterToSendMessageDemo() {
                 onValueChange = { textFieldValue = it },
                 modifier =
                     Modifier.padding(10.dp).fillMaxSize().onPreviewKeyEvent {
-                        @OptIn(ExperimentalComposeUiApi::class)
                         // Intercept all the "Enter" key events.
                         if (it.key == Key.Enter && it.type == KeyDown) {
                             // If this is a ctrl or shift key is pressed, we want to enter a new

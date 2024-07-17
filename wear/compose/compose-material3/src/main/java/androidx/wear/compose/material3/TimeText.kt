@@ -58,6 +58,7 @@ import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.sizeIn
+import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material3.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material3.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material3.TimeTextDefaults.timeFormat
@@ -93,7 +94,6 @@ import java.util.Locale
  * An example of a [TimeText] with an icon along with the clock:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithIcon
- *
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
  * @param maxSweepAngle The default maximum sweep angle in degrees.
@@ -170,7 +170,6 @@ sealed class TimeTextScope {
      * An example of a [TimeText] with an icon along with the clock:
      *
      * @sample androidx.wear.compose.material3.samples.TimeTextWithIcon
-     *
      * @param content Slot for the [composable] to be displayed.
      */
     abstract fun composable(content: @Composable () -> Unit)
@@ -178,10 +177,8 @@ sealed class TimeTextScope {
 
 /** Contains the default values used by [TimeText]. */
 object TimeTextDefaults {
-
-    /** By default, TimeText has 2.dp screen padding from the top. */
-    private val Padding = 2.dp
-
+    /** The default padding from the edge of the screen. */
+    private val Padding = ScaffoldDefaults.edgePadding
     /** Default format for 24h clock. */
     const val TimeFormat24Hours = "HH:mm"
 
@@ -213,7 +210,7 @@ object TimeTextDefaults {
 
     /**
      * Creates a [TextStyle] with default parameters used for showing time on square screens. By
-     * default a copy of MaterialTheme.typography.labelSmall style is created.
+     * default a copy of MaterialTheme.typography.arcMedium style is created.
      *
      * @param background The background color.
      * @param color The main color.
@@ -225,7 +222,7 @@ object TimeTextDefaults {
         color: Color = MaterialTheme.colorScheme.onBackground,
         fontSize: TextUnit = TextUnit.Unspecified,
     ) =
-        MaterialTheme.typography.labelSmall +
+        MaterialTheme.typography.arcMedium +
             TextStyle(color = color, background = background, fontSize = fontSize)
 
     /**
@@ -305,7 +302,8 @@ internal class CurvedTimeTextScope(
         scope.curvedText(
             text = text,
             overflow = TextOverflow.Ellipsis,
-            style = CurvedTextStyle(style = contentTextStyle.merge(style))
+            style = CurvedTextStyle(style = contentTextStyle.merge(style)),
+            modifier = CurvedModifier.weight(1f)
         )
     }
 

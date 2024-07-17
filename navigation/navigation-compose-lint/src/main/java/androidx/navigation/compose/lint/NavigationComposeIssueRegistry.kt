@@ -27,12 +27,14 @@ class NavigationComposeIssueRegistry : IssueRegistry() {
     // Tests are run with this version. We ensure that with ApiLintVersionsTest
     override val api = 14
     override val minApi = CURRENT_API
+
     override val issues
         get() =
             listOf(
                 ComposableDestinationInComposeScopeDetector.ComposableDestinationInComposeScope,
                 ComposableDestinationInComposeScopeDetector.ComposableNavGraphInComposeScope,
-                UnrememberedGetBackStackEntryDetector.UnrememberedGetBackStackEntry
+                UnrememberedGetBackStackEntryDetector.UnrememberedGetBackStackEntry,
+                WrongStartDestinationTypeDetector.WrongStartDestinationType,
             )
 
     override val vendor =

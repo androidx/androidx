@@ -18,7 +18,6 @@ package androidx.compose.foundation
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.findNearestAncestor
@@ -36,7 +35,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * Note that there may be some cases where the focused bounds change but the callback is _not_
  * invoked, but the last [LayoutCoordinates] will always return the most up-to-date bounds.
  */
-@ExperimentalFoundationApi
 fun Modifier.onFocusedBoundsChanged(onPositioned: (LayoutCoordinates?) -> Unit): Modifier =
     this then FocusedBoundsObserverElement(onPositioned)
 
@@ -71,66 +69,6 @@ internal class FocusedBoundsObserverNode(var onPositioned: (LayoutCoordinates?) 
     fun onFocusBoundsChanged(focusedBounds: LayoutCoordinates?) {
         onPositioned(focusedBounds)
         findNearestAncestor()?.onFocusBoundsChanged(focusedBounds)
-    }
-
-    companion object TraverseKey
-}
-
-/**
- * Modifier used by [Modifier.focusable] to publish the location of the focused element. Should only
- * be applied to the node when it is actually focused. Right now this will keep this node around,
- * but once the un-delegate API lands we can remove this node entirely if it is not focused.
- * (b/276790428)
- */
-internal class FocusedBoundsNode :
-    Modifier.Node(), TraversableNode, GlobalPositionAwareModifierNode {
-    private var isFocused: Boolean = false
-
-    override val traverseKey: Any
-        get() = TraverseKey
-
-    override val shouldAutoInvalidate: Boolean = false
-
-    private val observer: FocusedBoundsObserverNode?
-        get() =
-            if (isAttached) {
-                findNearestAncestor(FocusedBoundsObserverNode.TraverseKey)
-                    as? FocusedBoundsObserverNode
-            } else {
-                null
-            }
-
-    private var layoutCoordinates: LayoutCoordinates? = null
-
-    /**
-     * This should be called from a [androidx.compose.ui.focus.FocusEventModifierNode.onFocusEvent]
-     * where it is guarantee that an event will be dispatched during the lifecycle of the node. This
-     * means that when the node is detached (and we should warn observers) we'll receive an event.
-     */
-    fun setFocus(focused: Boolean) {
-        if (focused == isFocused) return
-        if (!focused) {
-            observer?.onFocusBoundsChanged(null)
-        } else {
-            notifyObserverWhenAttached()
-        }
-        isFocused = focused
-    }
-
-    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
-        layoutCoordinates = coordinates
-        if (!isFocused) return
-        if (coordinates.isAttached) {
-            notifyObserverWhenAttached()
-        } else {
-            observer?.onFocusBoundsChanged(null)
-        }
-    }
-
-    private fun notifyObserverWhenAttached() {
-        if (layoutCoordinates != null && layoutCoordinates!!.isAttached) {
-            observer?.onFocusBoundsChanged(layoutCoordinates)
-        }
     }
 
     companion object TraverseKey

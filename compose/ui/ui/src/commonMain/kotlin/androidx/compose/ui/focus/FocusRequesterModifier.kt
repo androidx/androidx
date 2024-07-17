@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.InspectorInfo
  * request focus state changes.
  *
  * @sample androidx.compose.ui.samples.RequestFocusSample
- *
  * @see FocusRequester
  * @see Modifier.focusRequester
  */

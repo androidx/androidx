@@ -163,7 +163,7 @@ fun LeadingIconTab(
     // The color of the Ripple should always the be selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rippleOrFallbackImplementation(bounded = true, color = selectedContentColor)
+    val ripple = ripple(bounded = true, color = selectedContentColor)
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Row(
@@ -206,7 +206,6 @@ fun LeadingIconTab(
  * A custom tab using this API may look like:
  *
  * @sample androidx.compose.material.samples.FancyTab
- *
  * @param selected whether this tab is selected or not
  * @param onClick the callback to be invoked when this tab is selected
  * @param modifier optional [Modifier] for this tab
@@ -235,7 +234,7 @@ fun Tab(
     // The color of the Ripple should always the selected color, as we want to show the color
     // before the item is considered selected, and hence before the new contentColor is
     // provided by TabTransition.
-    val ripple = rippleOrFallbackImplementation(bounded = true, color = selectedContentColor)
+    val ripple = ripple(bounded = true, color = selectedContentColor)
 
     TabTransition(selectedContentColor, unselectedContentColor, selected) {
         Column(

@@ -16,12 +16,16 @@
 
 package androidx.compose.runtime.collection
 
+import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterMapOf
+import kotlin.jvm.JvmInline
 
 /** Maps values to a set of scopes. */
-internal class ScopeMap<Key : Any, Scope : Any> {
-    val map = mutableScatterMapOf<Any, Any>()
+@JvmInline
+internal value class ScopeMap<Key : Any, Scope : Any>(
+    val map: MutableScatterMap<Any, Any> = mutableScatterMapOf(),
+) {
 
     /** The number of values in the map. */
     val size

@@ -19,14 +19,43 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.annotation.Size
+import kotlin.math.exp
+import kotlin.math.ln
+import kotlin.math.max
+import kotlin.math.pow
 
 object ColorSpaces {
     internal val SrgbPrimaries = floatArrayOf(0.640f, 0.330f, 0.300f, 0.600f, 0.150f, 0.060f)
     internal val Ntsc1953Primaries = floatArrayOf(0.67f, 0.33f, 0.21f, 0.71f, 0.14f, 0.08f)
+    internal val Bt2020Primaries = floatArrayOf(0.708f, 0.292f, 0.170f, 0.797f, 0.131f, 0.046f)
     internal val SrgbTransferParameters =
         TransferParameters(2.4, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045)
     private val NoneTransferParameters =
         TransferParameters(2.2, 1 / 1.055, 0.055 / 1.055, 1 / 12.92, 0.04045)
+
+    // HLG transfer with an SDR whitepoint of 203 nits
+    internal val Bt2020HlgTransferParameters =
+        TransferParameters(
+            gamma = TypeHLGish,
+            a = 2.0,
+            b = 2.0,
+            c = 1 / 0.17883277,
+            d = 0.28466892,
+            e = 0.55991073,
+            f = -0.685490157
+        )
+
+    // PQ transfer with an SDR whitepoint of 203 nits
+    internal val Bt2020PqTransferParameters =
+        TransferParameters(
+            gamma = TypePQish,
+            a = -1.555223,
+            b = 1.860454,
+            c = 32 / 2523.0,
+            d = 2413 / 128.0,
+            e = -2392 / 128.0,
+            f = 8192 / 1305.0
+        )
 
     /**
      * [RGB][Rgb] color space sRGB standardized as IEC 61966-2.1:1999.
@@ -238,6 +267,56 @@ object ColorSpaces {
         Rgb("None", SrgbPrimaries, Illuminant.D65, NoneTransferParameters, id = 16)
 
     /**
+     * [RGB][Rgb] color space BT.2100 standardized as Hybrid Log Gamma encoding
+     *
+     * ```
+     * | Property                | Value                                                   |
+     * |-------------------------|---------------------------------------------------------|
+     * | Name                    | Hybrid Log Gamma encoding                               |
+     * | CIE standard illuminant | [D65][Illuminant.D65]                                   |
+     * | Range                   | `[0.0, 1.0]`                                            |
+     * ```
+     */
+    val Bt2020Hlg =
+        Rgb(
+            "Hybrid Log Gamma encoding",
+            Bt2020Primaries,
+            Illuminant.D65,
+            null,
+            { x -> transferHlgOetf(Bt2020HlgTransferParameters, x) },
+            { x -> transferHlgEotf(Bt2020HlgTransferParameters, x) },
+            0.0f,
+            1.0f,
+            Bt2020HlgTransferParameters,
+            id = 17
+        )
+
+    /**
+     * [RGB][Rgb] color space BT.2100 standardized as Perceptual Quantizer encoding
+     *
+     * ```
+     * | Property                | Value                                                   |
+     * |-------------------------|---------------------------------------------------------|
+     * | Name                    | Perceptual Quantizer encoding                             |
+     * | CIE standard illuminant | [D65][Illuminant.D65]                                   |
+     * | Range                   | `[0.0, 1.0]`                                            |
+     * ```
+     */
+    val Bt2020Pq =
+        Rgb(
+            "Perceptual Quantizer encoding",
+            Bt2020Primaries,
+            Illuminant.D65,
+            null,
+            { x -> transferSt2048Oetf(Bt2020PqTransferParameters, x) },
+            { x -> transferSt2048Eotf(Bt2020PqTransferParameters, x) },
+            0.0f,
+            1.0f,
+            Bt2020PqTransferParameters,
+            id = 18
+        )
+
+    /**
      * [Lab][ColorModel.Lab] color space Oklab. This color space uses Oklab D65 as a profile
      * conversion space.
      *
@@ -249,7 +328,7 @@ object ColorSpaces {
      * | Range                   | (L: `[0.0, 1.0]`, a: `[-2, 2]`, b: `[-2, 2]`)           |
      * ```
      */
-    val Oklab: ColorSpace = Oklab("Oklab", id = 17)
+    val Oklab: ColorSpace = Oklab("Oklab", id = 19)
 
     /**
      * Returns a [ColorSpaces] instance of [ColorSpace] that matches the specified RGB to CIE XYZ
@@ -300,6 +379,74 @@ object ColorSpaces {
             CieXyz,
             CieLab,
             Unspecified,
+            Bt2020Hlg,
+            Bt2020Pq,
             Oklab
         )
+
+    internal fun transferHlgOetf(params: TransferParameters, x: Double): Double {
+        val sign = if (x < 0) -1.0 else 1.0
+        var absX = x * sign
+
+        // Unpack the transfer params matching skia's packing & invert R, G, and a
+        val R = 1.0 / params.a
+        val G = 1.0 / params.b
+        val a = 1.0 / params.c
+        val b = params.d
+        val c = params.e
+        val K = params.f + 1.0
+
+        absX /= K
+        val result =
+            if (absX <= 1) {
+                R * absX.pow(G)
+            } else {
+                a * ln(absX - b) + c
+            }
+        return sign * result
+    }
+
+    internal fun transferHlgEotf(params: TransferParameters, x: Double): Double {
+        val sign = if (x < 0) -1.0 else 1.0
+        val absX = x * sign
+
+        // Unpack the transfer params matching skia's packing
+        val R = params.a
+        val G = params.b
+        val a = params.c
+        val b = params.d
+        val c = params.e
+        val K = params.f + 1.0
+
+        val result =
+            if (absX * R <= 1) {
+                (absX * R).pow(G)
+            } else {
+                exp((absX - c) * a) + b
+            }
+        return K * sign * result
+    }
+
+    internal fun transferSt2048Oetf(params: TransferParameters, x: Double): Double {
+        val sign = if (x < 0) -1.0 else 1.0
+        val absX = x * sign
+
+        val a = -params.a
+        val b = params.d
+        val c = 1.0 / params.f
+        val d = params.b
+        val e = -params.e
+        val f = 1.0 / params.c
+
+        val tmp = max(a + b * absX.pow(c), 0.0)
+        return sign * (tmp / (d + e * absX.pow(c))).pow(f)
+    }
+
+    internal fun transferSt2048Eotf(pq: TransferParameters, x: Double): Double {
+        val sign = if (x < 0) -1.0 else 1.0
+        val absX = x * sign
+
+        val tmp = (pq.a + pq.b * absX.pow(pq.c)).coerceAtLeast(0.0)
+        return sign * (tmp / (pq.d + pq.e * absX.pow(pq.c))).pow(pq.f)
+    }
 }

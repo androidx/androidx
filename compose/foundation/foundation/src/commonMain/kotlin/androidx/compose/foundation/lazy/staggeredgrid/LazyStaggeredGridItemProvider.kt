@@ -33,7 +33,6 @@ internal interface LazyStaggeredGridItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun rememberStaggeredGridItemProviderLambda(
     state: LazyStaggeredGridState,
@@ -59,7 +58,6 @@ internal fun rememberStaggeredGridItemProviderLambda(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 private class LazyStaggeredGridItemProviderImpl(
     private val state: LazyStaggeredGridState,
     private val intervalContent: LazyStaggeredGridIntervalContent,

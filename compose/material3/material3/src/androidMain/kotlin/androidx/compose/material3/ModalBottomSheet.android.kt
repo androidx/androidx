@@ -183,7 +183,6 @@ actual object ModalBottomSheetDefaults {
  * A simple example of a modal bottom sheet looks like this:
  *
  * @sample androidx.compose.material3.samples.ModalBottomSheetSample
- *
  * @param onDismissRequest Executes when the user clicks outside of the bottom sheet, after sheet
  *   animates to [Hidden].
  * @param modifier Optional [Modifier] for the bottom sheet.

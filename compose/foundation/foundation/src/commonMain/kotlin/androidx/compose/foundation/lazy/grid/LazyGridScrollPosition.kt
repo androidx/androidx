@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
  * Contains the current scroll position represented by the first visible item index and the first
  * visible item scroll offset.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridScrollPosition(initialIndex: Int = 0, initialScrollOffset: Int = 0) {
     var index by mutableIntStateOf(initialIndex)
         private set
@@ -91,6 +90,7 @@ internal class LazyGridScrollPosition(initialIndex: Int = 0, initialScrollOffset
      * were items added or removed before our current first visible item and keep this item as the
      * first visible one even given that its index has been changed.
      */
+    @OptIn(ExperimentalFoundationApi::class)
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyGridItemProvider,
         index: Int

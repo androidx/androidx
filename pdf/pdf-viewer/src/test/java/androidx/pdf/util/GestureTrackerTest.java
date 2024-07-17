@@ -49,7 +49,6 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 public class GestureTrackerTest {
 
-    private static final String TAG = "GestureTrackerTest";
     private static final int TAP_TIMEOUT = 200;
 
     private GestureTracker mGestureTracker;
@@ -62,7 +61,7 @@ public class GestureTrackerTest {
     public void setUp() {
         mOpenMocks = MockitoAnnotations.openMocks(this);
         mGestureTracker =
-                new GestureTracker("GesturesTest", ApplicationProvider.getApplicationContext());
+                new GestureTracker(ApplicationProvider.getApplicationContext());
         mGestureTracker.setDelegateHandler(mGestureHandler);
     }
 

@@ -65,6 +65,11 @@ class ScatterMapBenchmarkTest(private val size: Int) {
         benchmark.runCollectionBenchmark(ScatterMapComputeBenchmark(sourceSet))
     }
 
+    @Test
+    fun insert_remove() {
+        benchmark.runCollectionBenchmark(ScatterMapInsertRemoveBenchmark(badHashSourceSet))
+    }
+
     companion object {
         @JvmStatic
         @Parameters(name = "size={0}")

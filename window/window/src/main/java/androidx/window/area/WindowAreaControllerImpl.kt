@@ -36,9 +36,9 @@ import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_ACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_CONTENT_VISIBLE
 import androidx.window.extensions.area.WindowAreaComponent.SESSION_STATE_INACTIVE
 import androidx.window.extensions.area.WindowAreaComponent.WindowAreaSessionState
-import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.layout.WindowMetrics
 import androidx.window.layout.WindowMetricsCalculator
+import androidx.window.reflection.Consumer2
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
@@ -63,7 +63,7 @@ internal class WindowAreaControllerImpl(
     private val vendorApiLevel: Int
 ) : WindowAreaController {
 
-    private lateinit var rearDisplaySessionConsumer: Consumer<Int>
+    private lateinit var rearDisplaySessionConsumer: Consumer2<Int>
     private var currentRearDisplayModeStatus: WindowAreaCapability.Status =
         WINDOW_AREA_STATUS_UNKNOWN
     private var currentRearDisplayPresentationStatus: WindowAreaCapability.Status =
@@ -78,12 +78,12 @@ internal class WindowAreaControllerImpl(
         get() {
             return callbackFlow {
                 val rearDisplayListener =
-                    Consumer<Int> { status ->
+                    Consumer2<Int> { status ->
                         updateRearDisplayAvailability(status)
                         channel.trySend(currentWindowAreaInfoMap.values.toList())
                     }
                 val rearDisplayPresentationListener =
-                    Consumer<ExtensionWindowAreaStatus> { extensionWindowAreaStatus ->
+                    Consumer2<ExtensionWindowAreaStatus> { extensionWindowAreaStatus ->
                         updateRearDisplayPresentationAvailability(extensionWindowAreaStatus)
                         channel.trySend(currentWindowAreaInfoMap.values.toList())
                     }
@@ -338,17 +338,17 @@ internal class WindowAreaControllerImpl(
         private val executor: Executor,
         private val appCallback: WindowAreaSessionCallback,
         private val extensionsComponent: WindowAreaComponent
-    ) : Consumer<Int> {
+    ) : Consumer2<Int> {
 
         private var session: WindowAreaSession? = null
 
-        override fun accept(t: Int) {
-            when (t) {
+        override fun accept(value: Int) {
+            when (value) {
                 SESSION_STATE_ACTIVE -> onSessionStarted()
                 SESSION_STATE_INACTIVE -> onSessionFinished()
                 else -> {
                     if (BuildConfig.verificationMode == VerificationMode.STRICT) {
-                        Log.d(TAG, "Received an unknown session status value: $t")
+                        Log.d(TAG, "Received an unknown session status value: $value")
                     }
                     onSessionFinished()
                 }
@@ -371,16 +371,16 @@ internal class WindowAreaControllerImpl(
         private val executor: Executor,
         private val windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
         private val windowAreaComponent: WindowAreaComponent
-    ) : Consumer<@WindowAreaSessionState Int> {
+    ) : Consumer2<@WindowAreaSessionState Int> {
 
         private var lastReportedSessionStatus: @WindowAreaSessionState Int = SESSION_STATE_INACTIVE
 
-        override fun accept(t: @WindowAreaSessionState Int) {
+        override fun accept(value: @WindowAreaSessionState Int) {
             val previousStatus: @WindowAreaSessionState Int = lastReportedSessionStatus
-            lastReportedSessionStatus = t
+            lastReportedSessionStatus = value
 
             executor.execute {
-                when (t) {
+                when (value) {
                     SESSION_STATE_ACTIVE -> {
                         // If the last status was visible, then ACTIVE infers the content is no
                         // longer visible.
@@ -405,7 +405,7 @@ internal class WindowAreaControllerImpl(
                         windowAreaPresentationSessionCallback.onSessionEnded(null)
                     }
                     else -> {
-                        Log.e(TAG, "Invalid session state value received: $t")
+                        Log.e(TAG, "Invalid session state value received: $value")
                     }
                 }
             }

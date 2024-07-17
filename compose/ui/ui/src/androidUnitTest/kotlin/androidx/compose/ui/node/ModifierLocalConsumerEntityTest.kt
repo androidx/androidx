@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
@@ -66,7 +65,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@OptIn(ExperimentalComposeUiApi::class)
 @RunWith(JUnit4::class)
 class ModifierLocalConsumerEntityTest {
 
@@ -294,7 +292,7 @@ class ModifierLocalConsumerEntityTest {
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
+    @OptIn(InternalComposeUiApi::class)
     private class FakeOwner : Owner {
         val listeners = mutableVectorOf<() -> Unit>()
 
@@ -411,7 +409,8 @@ class ModifierLocalConsumerEntityTest {
         override fun createLayer(
             drawBlock: (Canvas, GraphicsLayer?) -> Unit,
             invalidateParentLayer: () -> Unit,
-            explicitLayer: GraphicsLayer?
+            explicitLayer: GraphicsLayer?,
+            forceUseOldLayers: Boolean
         ) = TODO("Not yet implemented")
 
         override fun onRequestRelayout(

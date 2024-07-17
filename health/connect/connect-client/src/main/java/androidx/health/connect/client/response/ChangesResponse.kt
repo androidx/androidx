@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.response
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.changes.Change
 
 /**
@@ -30,7 +31,8 @@ import androidx.health.connect.client.changes.Change
  * @see [androidx.health.connect.client.HealthConnectClient.getChanges]
  */
 class ChangesResponse
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     public val changes: List<Change>,
     public val nextChangesToken: String,
     @get:JvmName("hasMore") public val hasMore: Boolean,

@@ -22,7 +22,6 @@ import android.view.View
 import android.view.autofill.AutofillManager
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.ExperimentalComposeUiApi
 
 /**
  * Autofill Manager callback.
@@ -59,14 +58,12 @@ internal object AutofillCallback : AutofillManager.AutofillCallback() {
     }
 
     /** Registers the autofill debug callback. */
-    @ExperimentalComposeUiApi
     @DoNotInline
     fun register(autofill: AndroidAutofill) {
         autofill.autofillManager.registerCallback(this)
     }
 
     /** Unregisters the autofill debug callback. */
-    @ExperimentalComposeUiApi
     @DoNotInline
     fun unregister(autofill: AndroidAutofill) {
         autofill.autofillManager.unregisterCallback(this)

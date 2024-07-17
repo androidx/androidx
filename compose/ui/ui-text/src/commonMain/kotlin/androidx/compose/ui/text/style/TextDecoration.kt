@@ -45,7 +45,6 @@ class TextDecoration internal constructor(val mask: Int) {
          * Creates a decoration that includes all the given decorations.
          *
          * @sample androidx.compose.ui.text.samples.TextDecorationCombinedSample
-         *
          * @param decorations The decorations to be added
          */
         fun combine(decorations: List<TextDecoration>): TextDecoration {

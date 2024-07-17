@@ -72,7 +72,6 @@ fun interface VisualTransformation {
      * 1234567890123456 transformed text: 1234-5678-9012-3456
      *
      * @sample androidx.compose.ui.text.samples.creditCardFilter
-     *
      * @param text The original text
      * @return the pair of filtered text and offset translator.
      */

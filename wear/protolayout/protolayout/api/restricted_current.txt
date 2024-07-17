@@ -154,13 +154,13 @@ package androidx.wear.protolayout {
   }
 
   @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class DeviceParametersBuilders.Capabilities {
-    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public long getMinimumFreshnessLimitMillis();
+    method public long getMinimumFreshnessLimitMillis();
   }
 
   public static final class DeviceParametersBuilders.Capabilities.Builder {
     ctor public DeviceParametersBuilders.Capabilities.Builder();
     method public androidx.wear.protolayout.DeviceParametersBuilders.Capabilities build();
-    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder setMinimumFreshnessLimitMillis(long);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.DeviceParametersBuilders.Capabilities.Builder setMinimumFreshnessLimitMillis(long);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class DeviceParametersBuilders.DeviceParameters {
@@ -180,7 +180,7 @@ package androidx.wear.protolayout {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setCapabilities(androidx.wear.protolayout.DeviceParametersBuilders.Capabilities);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setDevicePlatform(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setFontScale(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setRendererSchemaVersion(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setRendererSchemaVersion(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setScreenDensity(@FloatRange(from=0.0, fromInclusive=false, toInclusive=false) float);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setScreenHeightDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters.Builder setScreenShape(int);
@@ -566,7 +566,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.ExtensionLayoutElement.Builder {
-    ctor public LayoutElementBuilders.ExtensionLayoutElement.Builder();
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public LayoutElementBuilders.ExtensionLayoutElement.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder setExtensionId(String);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement.Builder setHeight(androidx.wear.protolayout.DimensionBuilders.ExtensionDimension);
@@ -576,8 +576,8 @@ package androidx.wear.protolayout {
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static interface LayoutElementBuilders.FontSetting {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting tabularNum();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(float);
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting width(float);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting weight(@IntRange(from=1, to=1000) int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static androidx.wear.protolayout.LayoutElementBuilders.FontSetting width(@FloatRange(from=25, to=200) float);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class LayoutElementBuilders.FontStyle {
@@ -591,6 +591,8 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.TypeBuilders.BoolProp? getUnderline();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.LayoutElementBuilders.FontVariantProp? getVariant();
     method public androidx.wear.protolayout.LayoutElementBuilders.FontWeightProp? getWeight();
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FLEX_FONT = "roboto-flex";
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FONT = "roboto";
   }
 
   public static final class LayoutElementBuilders.FontStyle.Builder {
@@ -610,9 +612,6 @@ package androidx.wear.protolayout {
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setVariant(int);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(androidx.wear.protolayout.LayoutElementBuilders.FontWeightProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.LayoutElementBuilders.FontStyle.Builder setWeight(int);
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String DEFAULT_SYSTEM_FONT = "default";
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FLEX_FONT = "roboto-flex";
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=400) public static final String ROBOTO_FONT = "roboto";
   }
 
   @Deprecated public static final class LayoutElementBuilders.FontStyles {
@@ -813,7 +812,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class LayoutElementBuilders.StrokeCapProp.Builder {
-    ctor public LayoutElementBuilders.StrokeCapProp.Builder();
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public LayoutElementBuilders.StrokeCapProp.Builder();
     method public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp.Builder setShadow(androidx.wear.protolayout.ModifiersBuilders.Shadow);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.LayoutElementBuilders.StrokeCapProp.Builder setValue(int);
@@ -1357,7 +1356,7 @@ package androidx.wear.protolayout {
 
   public final class TriggerBuilders {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnConditionMetTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
-    method public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnLoadTrigger();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnLoadTrigger();
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static interface TriggerBuilders.Trigger {

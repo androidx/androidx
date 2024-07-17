@@ -89,6 +89,7 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
@@ -119,14 +120,13 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.processing.util.OutConfig;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.impl.VideoCaptureConfig;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.ExtraSupportedResolutionQuirk;
 import androidx.camera.video.internal.compat.quirk.SizeCannotEncodeVideoQuirk;
-import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
@@ -174,18 +174,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static final String SURFACE_UPDATE_KEY =
             "androidx.camera.video.VideoCapture.streamUpdate";
     private static final Defaults DEFAULT_CONFIG = new Defaults();
-    @VisibleForTesting
-    static boolean sEnableSurfaceProcessingByQuirk;
-
-    static {
-        boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing =
-                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing();
-        boolean hasExtraSupportedResolutionQuirk =
-                DeviceQuirks.get(ExtraSupportedResolutionQuirk.class) != null;
-        sEnableSurfaceProcessingByQuirk =
-                hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing
-                        || hasExtraSupportedResolutionQuirk;
-    }
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
     DeferrableSurface mDeferrableSurface;
@@ -207,6 +195,10 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private Rect mCropRect;
     private int mRotationDegrees;
     private boolean mHasCompensatingTransformation = false;
+    @Nullable
+    private SourceStreamRequirementObserver mSourceStreamRequirementObserver;
+    @Nullable
+    private SessionConfig.CloseableErrorListener mCloseableErrorListener;
 
     /**
      * Create a VideoCapture associated with the given {@link VideoOutput}.
@@ -345,16 +337,18 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        Logger.d(TAG, "onSuggestedStreamSpecUpdated: " + suggestedStreamSpec);
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        Logger.d(TAG, "onSuggestedStreamSpecUpdated: " + primaryStreamSpec);
         VideoCaptureConfig<T> config = (VideoCaptureConfig<T>) getCurrentConfig();
         List<Size> customOrderedResolutions = config.getCustomOrderedResolutions(null);
         if (customOrderedResolutions != null
-                && !customOrderedResolutions.contains(suggestedStreamSpec.getResolution())) {
-            Logger.w(TAG, "suggested resolution " + suggestedStreamSpec.getResolution()
+                && !customOrderedResolutions.contains(primaryStreamSpec.getResolution())) {
+            Logger.w(TAG, "suggested resolution " + primaryStreamSpec.getResolution()
                     + " is not in custom ordered resolutions " + customOrderedResolutions);
         }
-        return suggestedStreamSpec;
+        return primaryStreamSpec;
     }
 
     /**
@@ -389,22 +383,35 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @Override
     public void onStateAttached() {
         super.onStateAttached();
-        Preconditions.checkNotNull(getAttachedStreamSpec(), "The suggested stream "
-                + "specification should be already updated and shouldn't be null.");
-        Preconditions.checkState(mSurfaceRequest == null, "The surface request should be null "
-                + "when VideoCapture is attached.");
+
+        Logger.d(TAG, "VideoCapture#onStateAttached: cameraID = " + getCameraId());
+
+        // For concurrent camera, the surface request might not be null when switching
+        // from single to dual camera.
+        if (getAttachedStreamSpec() == null || mSurfaceRequest != null) {
+            return;
+        }
         StreamSpec attachedStreamSpec = Preconditions.checkNotNull(getAttachedStreamSpec());
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mSessionConfigBuilder = createPipeline(getCameraId(),
+        mSessionConfigBuilder = createPipeline(
                 (VideoCaptureConfig<T>) getCurrentConfig(), attachedStreamSpec);
         applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
                 attachedStreamSpec);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
         getOutput().getStreamInfo().addObserver(CameraXExecutors.mainThreadExecutor(),
                 mStreamInfoObserver);
+        if (mSourceStreamRequirementObserver != null) {
+            // In case a previous observer was not closed, close it first
+            mSourceStreamRequirementObserver.close();
+        }
+        // Camera should be already bound by now, so calling getCameraControl() is ok
+        mSourceStreamRequirementObserver = new SourceStreamRequirementObserver(getCameraControl());
+        // Should automatically trigger once for latest data
+        getOutput().isSourceStreamRequired().addObserver(CameraXExecutors.mainThreadExecutor(),
+                mSourceStreamRequirementObserver);
         setSourceState(VideoOutput.SourceState.ACTIVE_NON_STREAMING);
     }
 
@@ -424,9 +431,22 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onStateDetached() {
+        Logger.d(TAG, "VideoCapture#onStateDetached");
+
         checkState(isMainThread(), "VideoCapture can only be detached on the main thread.");
+
+        // It's safer to remove and close mSourceStreamRequirementObserver before stopping recorder
+        // in case there is some bug leading to double video usage decrement updates (e.g. once for
+        // recorder stop and once for observer close)
+        if (mSourceStreamRequirementObserver != null) {
+            getOutput().isSourceStreamRequired().removeObserver(mSourceStreamRequirementObserver);
+            mSourceStreamRequirementObserver.close();
+            mSourceStreamRequirementObserver = null;
+        }
+
         setSourceState(VideoOutput.SourceState.INACTIVE);
         getOutput().getStreamInfo().removeObserver(mStreamInfoObserver);
+
         if (mSurfaceUpdateFuture != null) {
             if (mSurfaceUpdateFuture.cancel(false)) {
                 Logger.d(TAG, "VideoCapture is detached from the camera. Surface update "
@@ -446,7 +466,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         return requireNonNull(getAttachedStreamSpec()).toBuilder()
                 .setImplementationOptions(config).build();
     }
@@ -594,7 +614,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @SuppressLint("WrongConstant")
     @MainThread
     @NonNull
-    private SessionConfig.Builder createPipeline(@NonNull String cameraId,
+    private SessionConfig.Builder createPipeline(
             @NonNull VideoCaptureConfig<T> config,
             @NonNull StreamSpec streamSpec) {
         Threads.checkMainThread();
@@ -651,8 +671,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 shouldMirror(camera));
         mCameraEdge.addOnInvalidatedListener(onSurfaceInvalidated);
         if (mNode != null) {
-            SurfaceProcessorNode.OutConfig outConfig =
-                    SurfaceProcessorNode.OutConfig.of(mCameraEdge);
+            OutConfig outConfig = OutConfig.of(mCameraEdge);
             SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(
                     mCameraEdge,
                     singletonList(outConfig));
@@ -687,8 +706,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         // default if unresolved).
         sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
         sessionConfigBuilder.setVideoStabilization(config.getVideoStabilizationMode());
-        sessionConfigBuilder.addErrorListener(
-                (sessionConfig, error) -> resetPipeline(cameraId, config, streamSpec));
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+        }
+        mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
+                (sessionConfig, error) -> resetPipeline());
+        sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
@@ -712,6 +735,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private void clearPipeline() {
         Threads.checkMainThread();
 
+        // Closes the old error listener
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+            mCloseableErrorListener = null;
+        }
+
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
             mDeferrableSurface = null;
@@ -732,23 +761,21 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     }
 
     @MainThread
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void resetPipeline(@NonNull String cameraId,
-            @NonNull VideoCaptureConfig<T> config,
-            @NonNull StreamSpec streamSpec) {
-        clearPipeline();
-
-        // Ensure the attached camera has not changed before resetting.
-        // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
-        //  to this use case so we don't need to do this check.
-        if (isCurrentCamera(cameraId)) {
-            // Only reset the pipeline when the bound camera is the same.
-            mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
-            applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
-                    streamSpec);
-            updateSessionConfig(mSessionConfigBuilder.build());
-            notifyReset();
+    @SuppressWarnings({"WeakerAccess", "unchecked"}) /* synthetic accessor */
+    void resetPipeline() {
+        // Do nothing when the use case has been unbound.
+        if (getCamera() == null) {
+            return;
         }
+
+        clearPipeline();
+        mSessionConfigBuilder = createPipeline(
+                (VideoCaptureConfig<T>) getCurrentConfig(),
+                Preconditions.checkNotNull(getAttachedStreamSpec()));
+        applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo,
+                getAttachedStreamSpec());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
+        notifyReset();
     }
 
     /**
@@ -838,8 +865,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 // requested.
                 // 2. The in-progress transformation info becomes null, which means a recording
                 // has been finalized, and there's an existing compensating transformation.
-                resetPipeline(getCameraId(), (VideoCaptureConfig<T>) getCurrentConfig(),
-                        Preconditions.checkNotNull(getAttachedStreamSpec()));
+                resetPipeline();
             } else if ((currentStreamInfo.getId() != STREAM_ID_ERROR
                     && streamInfo.getId() == STREAM_ID_ERROR)
                     || (currentStreamInfo.getId() == STREAM_ID_ERROR
@@ -849,13 +875,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
                         streamInfo,
                         attachedStreamSpec);
-                updateSessionConfig(mSessionConfigBuilder.build());
+                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
                 notifyReset();
             } else if (currentStreamInfo.getStreamState() != streamInfo.getStreamState()) {
                 applyStreamInfoAndStreamSpecToSessionConfigBuilder(mSessionConfigBuilder,
                         streamInfo,
                         attachedStreamSpec);
-                updateSessionConfig(mSessionConfigBuilder.build());
+                updateSessionConfig(List.of(mSessionConfigBuilder.build()));
                 notifyUpdated();
             }
         }
@@ -865,6 +891,74 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             Logger.w(TAG, "Receive onError from StreamState observer", t);
         }
     };
+
+    /**
+     * Observes whether the source stream is required and updates source i.e. camera layer
+     * accordingly.
+     */
+    static class SourceStreamRequirementObserver implements Observer<Boolean> {
+        @Nullable
+        private CameraControlInternal mCameraControl;
+
+        private boolean mIsSourceStreamRequired = false;
+
+        SourceStreamRequirementObserver(@NonNull CameraControlInternal cameraControl) {
+            mCameraControl = cameraControl;
+        }
+
+        @MainThread
+        @Override
+        public void onNewData(@Nullable Boolean value) {
+            checkState(isMainThread(),
+                    "SourceStreamRequirementObserver can be updated from main thread only");
+            updateVideoUsageInCamera(Boolean.TRUE.equals(value));
+        }
+
+        @Override
+        public void onError(@NonNull Throwable t) {
+            Logger.w(TAG, "SourceStreamRequirementObserver#onError", t);
+        }
+
+        private void updateVideoUsageInCamera(boolean isRequired) {
+            if (mIsSourceStreamRequired == isRequired) {
+                return;
+            }
+            mIsSourceStreamRequired = isRequired;
+            if (mCameraControl != null) {
+                if (mIsSourceStreamRequired) {
+                    mCameraControl.incrementVideoUsage();
+                } else {
+                    mCameraControl.decrementVideoUsage();
+                }
+            } else {
+                Logger.d(TAG,
+                        "SourceStreamRequirementObserver#isSourceStreamRequired: Received"
+                                + " new data despite being closed already");
+            }
+        }
+
+        /**
+         * Closes this object to detach the association with camera and updates recording status if
+         * required.
+         */
+        @MainThread
+        public void close() {
+            checkState(isMainThread(),
+                    "SourceStreamRequirementObserver can be closed from main thread only");
+
+            Logger.d(TAG, "SourceStreamRequirementObserver#close: mIsSourceStreamRequired = "
+                    + mIsSourceStreamRequired);
+
+            if (mCameraControl == null) {
+                Logger.d(TAG, "SourceStreamRequirementObserver#close: Already closed!");
+                return;
+            }
+
+            // Before removing the camera, it should be updated about recording status
+            updateVideoUsageInCamera(false);
+            mCameraControl = null;
+        }
+    }
 
     @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1119,7 +1213,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     private static boolean shouldEnableSurfaceProcessingByQuirk(@NonNull CameraInternal camera) {
         // If there has been a buffer copy, it means the surface processing is already enabled on
         // input stream. Otherwise, enable it as needed.
-        return camera.getHasTransform() && (sEnableSurfaceProcessingByQuirk
+        return camera.getHasTransform() && (workaroundBySurfaceProcessing(DeviceQuirks.getAll())
                 || workaroundBySurfaceProcessing(camera.getCameraInfoInternal().getCameraQuirks()));
     }
 
@@ -1445,16 +1539,6 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
         }
         return sizeLargestVideoEncoderInfo;
-    }
-
-    private static boolean hasVideoQualityQuirkAndWorkaroundBySurfaceProcessing() {
-        List<VideoQualityQuirk> quirks = DeviceQuirks.getAll(VideoQualityQuirk.class);
-        for (VideoQualityQuirk quirk : quirks) {
-            if (quirk.workaroundBySurfaceProcessing()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

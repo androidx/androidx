@@ -38,7 +38,6 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTestJunit)
     androidTestImplementation(libs.mockitoKotlin4)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -52,15 +51,12 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 
     compileSdk = 34
-    compileSdkExtension = 11
+    compileSdkExtension = 12
     namespace "androidx.privacysandbox.ads.adservices"
 }
 

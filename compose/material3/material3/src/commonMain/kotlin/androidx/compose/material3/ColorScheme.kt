@@ -508,7 +508,7 @@ class ColorScheme(
 
     internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
 
-    internal var defaultExpressiveNavigationBarItemColorsCached: NavigationItemColors? = null
+    internal var defaultShortNavigationBarItemColorsCached: NavigationItemColors? = null
 
     internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
 
@@ -935,6 +935,7 @@ internal fun expressiveLightColorScheme() =
         onPrimaryContainer = PaletteTokens.Primary30,
         onSecondaryContainer = PaletteTokens.Secondary30,
         onTertiaryContainer = PaletteTokens.Secondary30,
+        onErrorContainer = PaletteTokens.Error30
     )
 
 /**

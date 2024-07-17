@@ -520,6 +520,63 @@ public class ImageCaptureTest {
         assertThat(resolutionInfo.getCropRect()).isEqualTo(new Rect(0, 60, 640, 420));
     }
 
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void streamSpecZslNotDisabled_zslConfigAdded() {
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
+                ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG).build();
+
+        mInstrumentation.runOnMainSync(() -> {
+                    try {
+                        mCameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+                    } catch (CameraUseCaseAdapter.CameraException e) {
+                    }
+                }
+        );
+
+        FakeCameraControl fakeCameraControl =
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
+
+        assertThat(fakeCameraControl.isZslConfigAdded()).isTrue();
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void streamSpecZslDisabled_zslConfigNotAdded() {
+        FakeCamera fakeCamera = new FakeCamera("fakeCameraId");
+
+        FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
+                new FakeCameraDeviceSurfaceManager();
+        fakeCameraDeviceSurfaceManager.setSuggestedStreamSpec("fakeCameraId",
+                ImageCaptureConfig.class,
+                StreamSpec.builder(new Size(640, 480))
+                        .setZslDisabled(true)
+                        .build());
+
+        UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(
+                fakeCamera,
+                new FakeCameraCoordinator(),
+                fakeCameraDeviceSurfaceManager,
+                useCaseConfigFactory);
+
+        ImageCapture imageCapture = new ImageCapture.Builder().setCaptureMode(
+                ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG).build();
+
+        mInstrumentation.runOnMainSync(() -> {
+                    try {
+                        mCameraUseCaseAdapter.addUseCases(Collections.singletonList(imageCapture));
+                    } catch (CameraUseCaseAdapter.CameraException e) {
+                    }
+                }
+        );
+
+        FakeCameraControl fakeCameraControl =
+                getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
+
+        assertThat(fakeCameraControl.isZslConfigAdded()).isFalse();
+    }
+
     private boolean hasJpegQuality(List<CaptureConfig> captureConfigs, int jpegQuality) {
         for (CaptureConfig captureConfig : captureConfigs) {
             if (jpegQuality == captureConfig.getImplementationOptions().retrieveOption(

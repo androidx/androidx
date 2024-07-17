@@ -225,6 +225,11 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
         void cancelTiles(@NonNull Iterable<Integer> tileIds);
     }
 
+    @NonNull
+    public Rect getBounds() {
+        return mBounds;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         return super.onTouchEvent(event);
@@ -292,11 +297,6 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
             mTileBoard = null;
             mBaseZoom = 0;
         }
-    }
-
-    /** Set value of alwaysRequestPageBitmap to false. */
-    public void setDoNotRequestPageBitmap() {
-        mAlwaysRequestPageBitmap = false;
     }
 
     /** Creates a new tiling for this view. */

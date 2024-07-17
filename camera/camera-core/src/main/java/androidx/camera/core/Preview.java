@@ -95,6 +95,7 @@ import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.processing.Node;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode;
+import androidx.camera.core.processing.util.OutConfig;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
@@ -198,6 +199,8 @@ public final class Preview extends UseCase {
 
     @Nullable
     private SurfaceProcessorNode mNode;
+    @Nullable
+    private SessionConfig.CloseableErrorListener mCloseableErrorListener;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -219,7 +222,6 @@ public final class Preview extends UseCase {
     @NonNull
     @MainThread
     private SessionConfig.Builder createPipeline(
-            @NonNull String cameraId,
             @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         // Check arguments
@@ -246,13 +248,12 @@ public final class Preview extends UseCase {
             // Create nodes and edges.
             mNode = new SurfaceProcessorNode(camera, effect.createSurfaceProcessorInternal());
             mCameraEdge.addOnInvalidatedListener(this::notifyReset);
-            SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
-                    mCameraEdge);
+            OutConfig outConfig = OutConfig.of(mCameraEdge);
             SurfaceProcessorNode.In nodeInput = SurfaceProcessorNode.In.of(mCameraEdge,
                     singletonList(outConfig));
             SurfaceProcessorNode.Out nodeOutput = mNode.transform(nodeInput);
             SurfaceEdge appEdge = requireNonNull(nodeOutput.get(outConfig));
-            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(appEdge, camera));
+            appEdge.addOnInvalidatedListener(() -> onAppEdgeInvalidated(mCameraEdge, camera));
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
             mSessionDeferrableSurface = mCameraEdge.getDeferrableSurface();
         } else {
@@ -274,17 +275,16 @@ public final class Preview extends UseCase {
         if (streamSpec.getImplementationOptions() != null) {
             sessionConfigBuilder.addImplementationOptions(streamSpec.getImplementationOptions());
         }
-        addCameraSurfaceAndErrorListener(sessionConfigBuilder, cameraId, config, streamSpec);
+        addCameraSurfaceAndErrorListener(sessionConfigBuilder, streamSpec);
         return sessionConfigBuilder;
     }
 
     @MainThread
-    private void onAppEdgeInvalidated(@NonNull SurfaceEdge appEdge,
+    private void onAppEdgeInvalidated(@NonNull SurfaceEdge cameraEdge,
             @NonNull CameraInternal camera) {
         checkMainThread();
         if (camera == getCamera()) {
-            mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
-            sendSurfaceRequest();
+            cameraEdge.invalidate();
         }
     }
 
@@ -299,6 +299,12 @@ public final class Preview extends UseCase {
      * Creates previously allocated {@link DeferrableSurface} include those allocated by nodes.
      */
     private void clearPipeline() {
+        // Closes the old error listener
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+            mCloseableErrorListener = null;
+        }
+
         DeferrableSurface cameraSurface = mSessionDeferrableSurface;
         if (cameraSurface != null) {
             cameraSurface.close();
@@ -319,8 +325,6 @@ public final class Preview extends UseCase {
 
     private void addCameraSurfaceAndErrorListener(
             @NonNull SessionConfig.Builder sessionConfigBuilder,
-            @NonNull String cameraId,
-            @NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
         // TODO(b/245309800): Add the Surface if post-processing pipeline is used. Post-processing
         //  pipeline always provide a Surface.
@@ -336,19 +340,22 @@ public final class Preview extends UseCase {
                     getMirrorModeInternal());
         }
 
-        sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
-            // Ensure the attached camera has not changed before resetting.
-            // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
-            //  to this use case so we don't need to do this check.
-            if (isCurrentCamera(cameraId)) {
-                // Only reset the pipeline when the bound camera is the same.
-                SessionConfig.Builder sessionConfigBuilder1 = createPipeline(cameraId, config,
-                        streamSpec);
+        if (mCloseableErrorListener != null) {
+            mCloseableErrorListener.close();
+        }
+        mCloseableErrorListener = new SessionConfig.CloseableErrorListener(
+                (sessionConfig, error) -> {
+                    // Do nothing when the use case has been unbound.
+                    if (getCamera() == null) {
+                        return;
+                    }
 
-                updateSessionConfig(sessionConfigBuilder1.build());
-                notifyReset();
-            }
-        });
+                    updateConfigAndOutput((PreviewConfig) getCurrentConfig(),
+                            getAttachedStreamSpec());
+                    notifyReset();
+                });
+
+        sessionConfigBuilder.setErrorListener(mCloseableErrorListener);
     }
 
     /**
@@ -436,7 +443,7 @@ public final class Preview extends UseCase {
             // case may have been detached from the camera. Either way, try updating session
             // config and let createPipeline() sends a new SurfaceRequest.
             if (getAttachedSurfaceResolution() != null) {
-                updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
+                updateConfigAndOutput((PreviewConfig) getCurrentConfig(),
                         getAttachedStreamSpec());
                 notifyReset();
             }
@@ -482,10 +489,10 @@ public final class Preview extends UseCase {
         setSurfaceProvider(DEFAULT_SURFACE_PROVIDER_EXECUTOR, surfaceProvider);
     }
 
-    private void updateConfigAndOutput(@NonNull String cameraId, @NonNull PreviewConfig config,
+    private void updateConfigAndOutput(@NonNull PreviewConfig config,
             @NonNull StreamSpec streamSpec) {
-        mSessionConfigBuilder = createPipeline(cameraId, config, streamSpec);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        mSessionConfigBuilder = createPipeline(config, streamSpec);
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
     }
 
     /**
@@ -602,10 +609,11 @@ public final class Preview extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    protected StreamSpec onSuggestedStreamSpecUpdated(@NonNull StreamSpec suggestedStreamSpec) {
-        updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
-                suggestedStreamSpec);
-        return suggestedStreamSpec;
+    protected StreamSpec onSuggestedStreamSpecUpdated(
+            @NonNull StreamSpec primaryStreamSpec,
+            @Nullable StreamSpec secondaryStreamSpec) {
+        updateConfigAndOutput((PreviewConfig) getCurrentConfig(), primaryStreamSpec);
+        return primaryStreamSpec;
     }
 
     /**
@@ -616,7 +624,7 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected StreamSpec onSuggestedStreamSpecImplementationOptionsUpdated(@NonNull Config config) {
         mSessionConfigBuilder.addImplementationOptions(config);
-        updateSessionConfig(mSessionConfigBuilder.build());
+        updateSessionConfig(List.of(mSessionConfigBuilder.build()));
         return getAttachedStreamSpec().toBuilder().setImplementationOptions(config).build();
     }
 
@@ -687,7 +695,6 @@ public final class Preview extends UseCase {
      * {@link DynamicRange#UNSPECIFIED}
      *
      * @return the dynamic range set for this {@code Preview} use case.
-     *
      * @see Preview.Builder#setDynamicRange(DynamicRange)
      */
     // Internal implementation note: this method should not be used to retrieve the dynamic range
@@ -1349,7 +1356,6 @@ public final class Preview extends UseCase {
          *
          * @param enabled True if enable, otherwise false.
          * @return the current Builder.
-         *
          * @see PreviewCapabilities#isStabilizationSupported()
          */
         @NonNull

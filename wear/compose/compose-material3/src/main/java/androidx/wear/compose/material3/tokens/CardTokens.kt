@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_32
+// VERSION: v0_65
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.dp
 
 internal object CardTokens {
     val AppImageSize = 16.0.dp
-    val ContainerMinHeight = 64.0.dp
     val AppNameColor = ColorSchemeKeyTokens.OnSurface
     val AppNameTypography = TypographyKeyTokens.TitleSmall
     val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
+    val ContainerMinHeight = 64.0.dp
     val ContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ContentTypography = TypographyKeyTokens.BodyLarge
     val Shape = ShapeKeyTokens.CornerLarge

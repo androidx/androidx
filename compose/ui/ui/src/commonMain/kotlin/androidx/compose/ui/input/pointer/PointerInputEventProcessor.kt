@@ -17,7 +17,6 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.collection.LongSparseArray
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.node.HitTestResult
@@ -163,7 +162,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
 }
 
 /** Produces [InternalPointerEvent]s by tracking changes between [PointerInputEvent]s */
-@OptIn(InternalCoreApi::class, ExperimentalComposeUiApi::class)
+@OptIn(InternalCoreApi::class)
 private class PointerInputChangeEventProducer {
     private val previousPointerInputData: LongSparseArray<PointerInputData> = LongSparseArray()
 

@@ -17,7 +17,7 @@
 package androidx.compose.foundation.text.selection
 
 import android.os.Build
-import androidx.compose.foundation.GOLDEN_UI
+import androidx.compose.foundation.GOLDEN_FOUNDATION
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -60,7 +60,7 @@ class TextSelectionColorsScreenshotTest {
 
     @get:Rule val rule = createComposeRule()
 
-    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_UI)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_FOUNDATION)
 
     @Test
     fun text_defaultSelectionColors() {
