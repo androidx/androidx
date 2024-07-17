@@ -20,12 +20,11 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="Jetpack Compose Macrobenchmark Target"
         android:allowBackup="false"
-        android:supportsRtl="true"
         android:icon="@mipmap/ic_launcher"
+        android:label="Jetpack Compose Macrobenchmark Target"
+        android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
-
         <!-- Profileable to enable macrobenchmark profiling -->
         <profileable android:shell="true"/>
 
@@ -37,8 +36,8 @@
          -->
         <activity
             android:name=".TrivialStartupActivity"
-            android:label="C Trivial"
-            android:exported="true">
+            android:exported="true"
+            android:label="C Trivial">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -50,8 +49,8 @@
         </activity>
         <activity
             android:name=".StaticScrollingContentWithChromeInitialCompositionActivity"
-            android:label="C StaticScrollingWithChrome Init"
-            android:exported="true">
+            android:exported="true"
+            android:label="C StaticScrollingWithChrome Init">
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.STATIC_SCROLLING_CONTENT_WITH_CHROME_INITIAL_COMPOSITION_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -63,8 +62,8 @@
         </activity>
         <activity
             android:name=".TrivialStartupTracingActivity"
-            android:label="C TrivialTracing"
-            android:exported="true">
+            android:exported="true"
+            android:label="C TrivialTracing">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -92,8 +91,8 @@
         </activity>
         <activity
             android:name=".LazyColumnActivity"
-            android:label="C LazyColumn"
-            android:exported="true">
+            android:exported="true"
+            android:label="C LazyColumn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -105,8 +104,8 @@
         </activity>
         <activity
             android:name=".FrameExperimentActivity"
-            android:label="FrameExp"
-            android:exported="true">
+            android:exported="true"
+            android:label="FrameExp">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -176,7 +175,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ViewPagerActivity"
             android:exported="true"
@@ -186,7 +184,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".RecyclerViewAsCarouselActivity"
             android:exported="true"
@@ -196,7 +193,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PagerAsCarouselActivity"
             android:exported="true"
@@ -206,7 +202,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".PagerActivity"
             android:exported="true"
@@ -216,7 +211,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".TrivialTracingActivity"
             android:exported="true">
@@ -225,7 +219,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".AndroidViewListActivity"
+        <activity
+            android:name=".AndroidViewListActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -233,7 +228,8 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name=".RecyclerViewListActivity"
+        <activity
+            android:name=".RecyclerViewListActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
@@ -241,11 +237,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        
-	<activity
+        <activity
             android:name=".VectorsListActivity"
-            android:label="Compose vectors list"
-            android:exported="true">
+            android:exported="true"
+            android:label="Compose vectors list">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -255,11 +250,10 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".CrossfadeActivity"
-            android:label="Compose Crossfade Benchmark"
-            android:exported="true">
+            android:exported="true"
+            android:label="Compose Crossfade Benchmark">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -268,13 +262,28 @@
                 <action android:name="androidx.compose.integration.macrobenchmark.target.CROSSFADE_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-	</activity>
-
-	<activity android:name=".PagerOfLazyGridActivity"
+        </activity>
+        <activity
+            android:name=".PagerOfLazyGridActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="androidx.compose.integration.macrobenchmark.target.PAGER_LAZYGRID_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".FormFillingActivity"
+            android:exported="true"
+            android:label="Compose Form Filling Benchmark"
+            android:launchMode="singleInstance"
+            android:theme="@style/Theme.AppCompat.Light">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="androidx.compose.integration.macrobenchmark.target.FORM_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
