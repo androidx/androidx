@@ -18,6 +18,7 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
@@ -266,6 +267,6 @@ public actual open class NavDestination actual constructor(
         @OptIn(InternalSerializationApi::class)
         @JvmStatic
         public actual fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean =
-            route.serializer().hashCode() == id
+            route.serializer().generateHashCode() == id
     }
 }

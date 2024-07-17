@@ -21,6 +21,7 @@ import androidx.collection.SparseArrayCompat
 import androidx.collection.forEach
 import androidx.collection.size
 import androidx.collection.valueIterator
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRoutePattern
 import androidx.navigation.serialization.generateRouteWithArgs
 import kotlin.jvm.JvmStatic
@@ -141,11 +142,11 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
     }
 
     public actual inline fun <reified T> findNode(): NavDestination? =
-        findNode(serializer<T>().hashCode())
+        findNode(serializer<T>().generateHashCode())
 
     @OptIn(InternalSerializationApi::class)
     public actual fun <T> findNode(route: T?): NavDestination? =
-        route?.let { findNode(it::class.serializer().hashCode()) }
+        route?.let { findNode(it::class.serializer().generateHashCode()) }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun findNode(route: String, searchParents: Boolean): NavDestination? {
@@ -265,7 +266,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
         serializer: KSerializer<T>,
         parseRoute: (NavDestination) -> String,
     ) {
-        val id = serializer.hashCode()
+        val id = serializer.generateHashCode()
         val startDest = findNode(id)
         checkNotNull(startDest) {
             "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
@@ -344,14 +345,16 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
 
     public actual companion object {
         @JvmStatic
-        public actual fun NavGraph.findStartDestination(): NavDestination =
-            generateSequence(findNode(startDestinationId)) {
+        public actual fun NavGraph.findStartDestination(): NavDestination = childHierarchy().last()
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun NavGraph.childHierarchy(): Sequence<NavDestination> =
+            generateSequence(this as NavDestination) {
                     if (it is NavGraph) {
                         it.findNode(it.startDestinationId)
                     } else {
                         null
                     }
                 }
-                .last()
     }
 }

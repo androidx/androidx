@@ -82,7 +82,8 @@ internal actual constructor(
             if (result.range.first > appendPos) {
                 uriRegex.append(Regex.escape(uri.substring(appendPos, result.range.first)))
             }
-            uriRegex.append("([^/]+?)")
+            // allows for empty path arguments
+            uriRegex.append("([^/]*?|)")
             appendPos = result.range.last + 1
             result = result.next()
         }
