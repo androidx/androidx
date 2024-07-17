@@ -69,7 +69,6 @@ androidXMultiplatform {
         }
 
         jvmStubsMain {
-            dependsOn(jvmMain)
             dependsOn(commonStubsMain)
         }
 

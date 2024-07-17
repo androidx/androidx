@@ -53,10 +53,14 @@ androidXMultiplatform {
             }
         }
 
+        commonStubsMain {
+            dependsOn(commonMain)
+        }
         jvmStubsMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
+            dependsOn(commonStubsMain)
+        }
+        linuxx64StubsMain {
+            dependsOn(commonStubsMain)
         }
     }
 }
