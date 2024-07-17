@@ -19,6 +19,7 @@ package androidx.compose.testutils
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,12 +28,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -194,6 +201,26 @@ class AndroidComposeTestCaseRunnerTest {
             .performTestWithEventsControl {
                 doFrame()
                 assertMeasureSizeIsPositive()
+            }
+    }
+
+    @Test
+    fun layout_preservesActiveFocus() {
+        lateinit var focusState: FocusState
+        composeTestRule
+            .forGivenContent {
+                val focusRequester = FocusRequester()
+                Box(
+                    Modifier.fillMaxSize()
+                        .onFocusChanged { focusState = it }
+                        .focusRequester(focusRequester)
+                        .focusTarget()
+                )
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            }
+            .performTestWithEventsControl {
+                doFrame()
+                assertThat(focusState.isFocused).isTrue()
             }
     }
 
