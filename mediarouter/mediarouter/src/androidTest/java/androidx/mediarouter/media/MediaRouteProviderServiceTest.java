@@ -31,7 +31,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
+import android.text.TextUtils;
 
+import androidx.mediarouter.media.MediaRouteProviderService.ClientInfo;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -44,8 +46,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,11 +79,16 @@ public class MediaRouteProviderServiceTest {
 
     private static CountDownLatch sActiveScanCountDownLatch;
     private static CountDownLatch sPassiveScanCountDownLatch;
+    private static CountDownLatch sClientInfoListenerAdditionCountDownLatch;
+    private static CountDownLatch sClientInfoListenerRemovalCountDownLatch;
     private static MediaRouteDiscoveryRequest sLastDiscoveryRequest;
+    private static List<ClientInfo> sLatestClientInfo = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
         resetActiveAndPassiveScanCountDownLatches();
+        resetClientInfoListenerAdditionCountDownLatch(2);
+        resetClientInfoListenerRemovalCountDownLatch(1);
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent =
                 new Intent(context, MediaRouteProviderServiceImpl.class)
@@ -92,6 +101,8 @@ public class MediaRouteProviderServiceTest {
                 .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO).build();
         registerClient(mReceiveMessenger1);
         registerClient(mReceiveMessenger2);
+        assertTrue(sClientInfoListenerAdditionCountDownLatch.await(
+                TIME_OUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @After
@@ -261,6 +272,31 @@ public class MediaRouteProviderServiceTest {
         assertTrue(sPassiveScanCountDownLatch.await(1000 + TIME_OUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @LargeTest
+    @Test
+    public void testRegisterClient_clientRecordListenerCalled() throws Exception {
+        resetClientInfoListenerAdditionCountDownLatch(1);
+        resetClientInfoListenerRemovalCountDownLatch(1);
+        int initialCount = sLatestClientInfo.size();
+        Messenger messenger = new Messenger(new Handler(Looper.getMainLooper()));
+        registerClient(messenger);
+
+        assertTrue(
+                sClientInfoListenerAdditionCountDownLatch.await(
+                        TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, sLatestClientInfo.size() - initialCount);
+        Context context = ApplicationProvider.getApplicationContext();
+        for (ClientInfo clientInfo : sLatestClientInfo) {
+            assertTrue(TextUtils.equals(
+                    context.getPackageName(), clientInfo.getPackageName()));
+        }
+
+        unregisterClient(messenger);
+        assertTrue(
+                sClientInfoListenerRemovalCountDownLatch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(initialCount, sLatestClientInfo.size());
+    }
+
     private void registerClient(Messenger receiveMessenger) throws Exception {
         Message msg = Message.obtain();
         msg.what = MediaRouteProviderProtocol.CLIENT_MSG_REGISTER;
@@ -292,6 +328,23 @@ public class MediaRouteProviderServiceTest {
 
     /** Fake {@link MediaRouteProviderService} implementation. */
     public static final class MediaRouteProviderServiceImpl extends MediaRouteProviderService {
+
+        @Override
+        public void onCreate() {
+            super.onCreate();
+            sLatestClientInfo.clear();
+            addClientInfoListener(Executors.newSingleThreadExecutor(), clients -> {
+                int previousSize = sLatestClientInfo.size();
+                int newSize = clients.size();
+                sLatestClientInfo = clients;
+                if (newSize > previousSize) {
+                    sClientInfoListenerAdditionCountDownLatch.countDown();
+                } else if (previousSize > newSize) {
+                    sClientInfoListenerRemovalCountDownLatch.countDown();
+                }
+            });
+        }
+
         @Override
         public MediaRouteProvider onCreateMediaRouteProvider() {
             return new MediaRouteProviderImpl(this);
@@ -324,5 +377,13 @@ public class MediaRouteProviderServiceTest {
     private void resetActiveAndPassiveScanCountDownLatches() {
         sActiveScanCountDownLatch = new CountDownLatch(1);
         sPassiveScanCountDownLatch = new CountDownLatch(1);
+    }
+
+    private void resetClientInfoListenerAdditionCountDownLatch(int count) {
+        sClientInfoListenerAdditionCountDownLatch = new CountDownLatch(count);
+    }
+
+    private void resetClientInfoListenerRemovalCountDownLatch(int count) {
+        sClientInfoListenerRemovalCountDownLatch = new CountDownLatch(count);
     }
 }
