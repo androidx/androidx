@@ -701,8 +701,9 @@ public final class Recorder implements VideoOutput {
      * create this recorder, or the default value of {@link AudioSpec#SOURCE_AUTO} if no source was
      * set.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @AudioSpec.Source
-    int getAudioSource() {
+    public int getAudioSource() {
         return getObservableData(mMediaSpec).getAudioSpec().getSource();
     }
 
@@ -3553,8 +3554,9 @@ public final class Recorder implements VideoOutput {
          *               {@link AudioSpec#SOURCE_CAMCORDER}. Default is
          *               {@link AudioSpec#SOURCE_AUTO}.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
-        Builder setAudioSource(@AudioSpec.Source int source) {
+        public Builder setAudioSource(@AudioSpec.Source int source) {
             mMediaSpecBuilder.configureAudio(builder -> builder.setSource(source));
             return this;
         }
