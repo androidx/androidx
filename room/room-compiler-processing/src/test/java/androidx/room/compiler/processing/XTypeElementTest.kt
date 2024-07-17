@@ -33,7 +33,6 @@ import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
-import androidx.room.compiler.processing.util.kspProcessingEnv
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -1365,11 +1364,7 @@ class XTypeElementTest(
             val objectMethodNames = invocation.objectMethodNames()
             if (invocation.isKsp) {
                 assertThat(methodNames - objectMethodNames).containsExactly("f1", "f2")
-                if (invocation.kspProcessingEnv.isKsp2 && isPreCompiled) {
-                    assertThat(methodJvmNames - objectMethodNames).containsExactly("f1", "f2")
-                } else {
-                    assertThat(methodJvmNames - objectMethodNames).containsExactly("notF1", "notF2")
-                }
+                assertThat(methodJvmNames - objectMethodNames).containsExactly("notF1", "notF2")
             } else {
                 assertThat(methodNames - objectMethodNames).containsExactly("f1", "f1", "f2")
                 assertThat(methodJvmNames - objectMethodNames)
