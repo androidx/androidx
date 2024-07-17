@@ -26,15 +26,19 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(project(":car:app:app"))
+
     implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation(libs.robolectric)
     implementation("androidx.annotation:annotation-experimental:1.4.1")
+    api(libs.kotlinStdlib)
+    implementation(libs.kotlinStdlibCommon)
 
     testImplementation(project(":car:app:app-projected"))
     testImplementation(libs.junit)

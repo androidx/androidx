@@ -1350,7 +1350,6 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class GridSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.GridItem!,androidx.car.app.model.GridSection.Builder!> {
     ctor public GridSection.Builder();
-    ctor public GridSection.Builder(androidx.car.app.model.GridSection);
     method public androidx.car.app.model.GridSection build();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setItemImageShape(int);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.GridSection.Builder setItemSize(int);
@@ -1694,7 +1693,6 @@ package androidx.car.app.model {
 
   @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class RowSection.Builder extends androidx.car.app.model.Section.BaseBuilder<androidx.car.app.model.Row!,androidx.car.app.model.RowSection.Builder!> {
     ctor public RowSection.Builder();
-    ctor public RowSection.Builder(androidx.car.app.model.RowSection);
     method public androidx.car.app.model.RowSection build();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.RowSection.Builder clearSelectionGroup();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.car.app.model.RowSection.Builder setAsSelectionGroup(int);
@@ -1736,14 +1734,13 @@ package androidx.car.app.model {
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi public abstract class Section<T extends androidx.car.app.model.Item> {
     ctor protected Section();
     ctor protected Section(androidx.car.app.model.Section.BaseBuilder<T!,? extends java.lang.Object!>);
-    method public java.util.List<T!> getItems();
+    method public androidx.car.app.serialization.ListDelegate<T!> getItemsDelegate();
     method public androidx.car.app.model.CarText? getNoItemsMessage();
     method public androidx.car.app.model.CarText? getTitle();
   }
 
   protected abstract static class Section.BaseBuilder<T extends androidx.car.app.model.Item, B> {
     ctor protected Section.BaseBuilder();
-    ctor protected Section.BaseBuilder(androidx.car.app.model.Section<T!>);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B addItem(T);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B clearItems();
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public B setItems(java.util.List<T!>);
@@ -2382,6 +2379,12 @@ package androidx.car.app.serialization {
   public class BundlerException extends java.lang.Exception {
     ctor public BundlerException(String?);
     ctor public BundlerException(String?, Throwable);
+  }
+
+  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public interface ListDelegate<T> {
+    method public int getSize();
+    method public void requestItemRange(int startIndex, int endIndex, androidx.car.app.OnDoneCallback callback);
+    property public abstract int size;
   }
 
 }

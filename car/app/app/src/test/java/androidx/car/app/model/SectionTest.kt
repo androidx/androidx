@@ -18,6 +18,7 @@ package androidx.car.app.model
 
 import android.text.SpannableString
 import android.text.Spanned
+import androidx.car.app.testing.TestDelegateInvoker.requestAllItemsForTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
@@ -27,7 +28,9 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class SectionTest {
     /** An example item containing a uniquely identifying field. */
-    private data class TestItem(val someUniquelyIdentifyingField: Int) : Item
+    private data class TestItem(val someUniquelyIdentifyingField: Int) : Item {
+        constructor() : this(-1)
+    }
 
     /** An empty section implementation to test the base class. */
     private class TestSection(builder: Builder) : Section<TestItem>(builder) {
@@ -42,7 +45,7 @@ class SectionTest {
         val item = TestItem(1)
         val section = TestSection.Builder().addItem(item).build()
 
-        assertThat(section.items).containsExactly(item)
+        assertThat(section.itemsDelegate.requestAllItemsForTest()).containsExactly(item)
     }
 
     @Test

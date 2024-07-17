@@ -160,13 +160,6 @@ public final class GridSection extends Section<GridItem> {
             super();
         }
 
-        /** Create a new {@link GridSection} builder, copying values from an existing instance. */
-        public Builder(@NonNull GridSection gridSection) {
-            super(gridSection);
-            mItemSize = gridSection.mItemSize;
-            mItemImageShape = gridSection.mItemImageShape;
-        }
-
         /** Sets the size of the items within this section. */
         @NonNull
         @CanIgnoreReturnValue
