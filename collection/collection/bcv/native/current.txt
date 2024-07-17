@@ -981,8 +981,6 @@ open class <#A: kotlin/Any?> androidx.collection/SparseArrayCompat { // androidx
 }
 
 sealed class <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/ScatterMap { // androidx.collection/ScatterMap|null[0]
-    constructor <init>() // androidx.collection/ScatterMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/ScatterMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/ScatterMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/ScatterMap.size|{}size[0]
@@ -1024,8 +1022,6 @@ sealed class <#A: kotlin/Any?, #B: kotlin/Any?> androidx.collection/ScatterMap {
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/FloatObjectMap { // androidx.collection/FloatObjectMap|null[0]
-    constructor <init>() // androidx.collection/FloatObjectMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/FloatObjectMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/FloatObjectMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/FloatObjectMap.size|{}size[0]
@@ -1067,8 +1063,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/FloatObjectMap { // androidx.
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/IntObjectMap { // androidx.collection/IntObjectMap|null[0]
-    constructor <init>() // androidx.collection/IntObjectMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/IntObjectMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/IntObjectMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/IntObjectMap.size|{}size[0]
@@ -1110,8 +1104,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/IntObjectMap { // androidx.co
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/LongObjectMap { // androidx.collection/LongObjectMap|null[0]
-    constructor <init>() // androidx.collection/LongObjectMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/LongObjectMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/LongObjectMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/LongObjectMap.size|{}size[0]
@@ -1153,8 +1145,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/LongObjectMap { // androidx.c
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/ObjectFloatMap { // androidx.collection/ObjectFloatMap|null[0]
-    constructor <init>() // androidx.collection/ObjectFloatMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/ObjectFloatMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/ObjectFloatMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/ObjectFloatMap.size|{}size[0]
@@ -1197,8 +1187,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/ObjectFloatMap { // androidx.
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/ObjectIntMap { // androidx.collection/ObjectIntMap|null[0]
-    constructor <init>() // androidx.collection/ObjectIntMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/ObjectIntMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/ObjectIntMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/ObjectIntMap.size|{}size[0]
@@ -1241,8 +1229,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/ObjectIntMap { // androidx.co
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/ObjectList { // androidx.collection/ObjectList|null[0]
-    constructor <init>(kotlin/Int) // androidx.collection/ObjectList.<init>|<init>(kotlin.Int){}[0]
-
     final val indices // androidx.collection/ObjectList.indices|{}indices[0]
         final inline fun <get-indices>(): kotlin.ranges/IntRange // androidx.collection/ObjectList.indices.<get-indices>|<get-indices>(){}[0]
     final val lastIndex // androidx.collection/ObjectList.lastIndex|{}lastIndex[0]
@@ -1301,8 +1287,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/ObjectList { // androidx.coll
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/ObjectLongMap { // androidx.collection/ObjectLongMap|null[0]
-    constructor <init>() // androidx.collection/ObjectLongMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/ObjectLongMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/ObjectLongMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/ObjectLongMap.size|{}size[0]
@@ -1345,8 +1329,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/ObjectLongMap { // androidx.c
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/OrderedScatterSet { // androidx.collection/OrderedScatterSet|null[0]
-    constructor <init>() // androidx.collection/OrderedScatterSet.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/OrderedScatterSet.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/OrderedScatterSet.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/OrderedScatterSet.size|{}size[0]
@@ -1396,8 +1378,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/OrderedScatterSet { // androi
 }
 
 sealed class <#A: kotlin/Any?> androidx.collection/ScatterSet { // androidx.collection/ScatterSet|null[0]
-    constructor <init>() // androidx.collection/ScatterSet.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/ScatterSet.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/ScatterSet.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/ScatterSet.size|{}size[0]
@@ -1432,8 +1412,6 @@ sealed class <#A: kotlin/Any?> androidx.collection/ScatterSet { // androidx.coll
 }
 
 sealed class androidx.collection/DoubleList { // androidx.collection/DoubleList|null[0]
-    constructor <init>(kotlin/Int) // androidx.collection/DoubleList.<init>|<init>(kotlin.Int){}[0]
-
     final val indices // androidx.collection/DoubleList.indices|{}indices[0]
         final inline fun <get-indices>(): kotlin.ranges/IntRange // androidx.collection/DoubleList.indices.<get-indices>|<get-indices>(){}[0]
     final val lastIndex // androidx.collection/DoubleList.lastIndex|{}lastIndex[0]
@@ -1486,8 +1464,6 @@ sealed class androidx.collection/DoubleList { // androidx.collection/DoubleList|
 }
 
 sealed class androidx.collection/FloatFloatMap { // androidx.collection/FloatFloatMap|null[0]
-    constructor <init>() // androidx.collection/FloatFloatMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/FloatFloatMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/FloatFloatMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/FloatFloatMap.size|{}size[0]
@@ -1530,8 +1506,6 @@ sealed class androidx.collection/FloatFloatMap { // androidx.collection/FloatFlo
 }
 
 sealed class androidx.collection/FloatIntMap { // androidx.collection/FloatIntMap|null[0]
-    constructor <init>() // androidx.collection/FloatIntMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/FloatIntMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/FloatIntMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/FloatIntMap.size|{}size[0]
@@ -1574,8 +1548,6 @@ sealed class androidx.collection/FloatIntMap { // androidx.collection/FloatIntMa
 }
 
 sealed class androidx.collection/FloatList { // androidx.collection/FloatList|null[0]
-    constructor <init>(kotlin/Int) // androidx.collection/FloatList.<init>|<init>(kotlin.Int){}[0]
-
     final val indices // androidx.collection/FloatList.indices|{}indices[0]
         final inline fun <get-indices>(): kotlin.ranges/IntRange // androidx.collection/FloatList.indices.<get-indices>|<get-indices>(){}[0]
     final val lastIndex // androidx.collection/FloatList.lastIndex|{}lastIndex[0]
@@ -1628,8 +1600,6 @@ sealed class androidx.collection/FloatList { // androidx.collection/FloatList|nu
 }
 
 sealed class androidx.collection/FloatLongMap { // androidx.collection/FloatLongMap|null[0]
-    constructor <init>() // androidx.collection/FloatLongMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/FloatLongMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/FloatLongMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/FloatLongMap.size|{}size[0]
@@ -1672,8 +1642,6 @@ sealed class androidx.collection/FloatLongMap { // androidx.collection/FloatLong
 }
 
 sealed class androidx.collection/FloatSet { // androidx.collection/FloatSet|null[0]
-    constructor <init>() // androidx.collection/FloatSet.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/FloatSet.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/FloatSet.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/FloatSet.size|{}size[0]
@@ -1707,8 +1675,6 @@ sealed class androidx.collection/FloatSet { // androidx.collection/FloatSet|null
 }
 
 sealed class androidx.collection/IntFloatMap { // androidx.collection/IntFloatMap|null[0]
-    constructor <init>() // androidx.collection/IntFloatMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/IntFloatMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/IntFloatMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/IntFloatMap.size|{}size[0]
@@ -1751,8 +1717,6 @@ sealed class androidx.collection/IntFloatMap { // androidx.collection/IntFloatMa
 }
 
 sealed class androidx.collection/IntIntMap { // androidx.collection/IntIntMap|null[0]
-    constructor <init>() // androidx.collection/IntIntMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/IntIntMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/IntIntMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/IntIntMap.size|{}size[0]
@@ -1795,8 +1759,6 @@ sealed class androidx.collection/IntIntMap { // androidx.collection/IntIntMap|nu
 }
 
 sealed class androidx.collection/IntList { // androidx.collection/IntList|null[0]
-    constructor <init>(kotlin/Int) // androidx.collection/IntList.<init>|<init>(kotlin.Int){}[0]
-
     final val indices // androidx.collection/IntList.indices|{}indices[0]
         final inline fun <get-indices>(): kotlin.ranges/IntRange // androidx.collection/IntList.indices.<get-indices>|<get-indices>(){}[0]
     final val lastIndex // androidx.collection/IntList.lastIndex|{}lastIndex[0]
@@ -1849,8 +1811,6 @@ sealed class androidx.collection/IntList { // androidx.collection/IntList|null[0
 }
 
 sealed class androidx.collection/IntLongMap { // androidx.collection/IntLongMap|null[0]
-    constructor <init>() // androidx.collection/IntLongMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/IntLongMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/IntLongMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/IntLongMap.size|{}size[0]
@@ -1893,8 +1853,6 @@ sealed class androidx.collection/IntLongMap { // androidx.collection/IntLongMap|
 }
 
 sealed class androidx.collection/IntSet { // androidx.collection/IntSet|null[0]
-    constructor <init>() // androidx.collection/IntSet.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/IntSet.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/IntSet.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/IntSet.size|{}size[0]
@@ -1928,8 +1886,6 @@ sealed class androidx.collection/IntSet { // androidx.collection/IntSet|null[0]
 }
 
 sealed class androidx.collection/LongFloatMap { // androidx.collection/LongFloatMap|null[0]
-    constructor <init>() // androidx.collection/LongFloatMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/LongFloatMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/LongFloatMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/LongFloatMap.size|{}size[0]
@@ -1972,8 +1928,6 @@ sealed class androidx.collection/LongFloatMap { // androidx.collection/LongFloat
 }
 
 sealed class androidx.collection/LongIntMap { // androidx.collection/LongIntMap|null[0]
-    constructor <init>() // androidx.collection/LongIntMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/LongIntMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/LongIntMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/LongIntMap.size|{}size[0]
@@ -2016,8 +1970,6 @@ sealed class androidx.collection/LongIntMap { // androidx.collection/LongIntMap|
 }
 
 sealed class androidx.collection/LongList { // androidx.collection/LongList|null[0]
-    constructor <init>(kotlin/Int) // androidx.collection/LongList.<init>|<init>(kotlin.Int){}[0]
-
     final val indices // androidx.collection/LongList.indices|{}indices[0]
         final inline fun <get-indices>(): kotlin.ranges/IntRange // androidx.collection/LongList.indices.<get-indices>|<get-indices>(){}[0]
     final val lastIndex // androidx.collection/LongList.lastIndex|{}lastIndex[0]
@@ -2070,8 +2022,6 @@ sealed class androidx.collection/LongList { // androidx.collection/LongList|null
 }
 
 sealed class androidx.collection/LongLongMap { // androidx.collection/LongLongMap|null[0]
-    constructor <init>() // androidx.collection/LongLongMap.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/LongLongMap.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/LongLongMap.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/LongLongMap.size|{}size[0]
@@ -2114,8 +2064,6 @@ sealed class androidx.collection/LongLongMap { // androidx.collection/LongLongMa
 }
 
 sealed class androidx.collection/LongSet { // androidx.collection/LongSet|null[0]
-    constructor <init>() // androidx.collection/LongSet.<init>|<init>(){}[0]
-
     final val capacity // androidx.collection/LongSet.capacity|{}capacity[0]
         final fun <get-capacity>(): kotlin/Int // androidx.collection/LongSet.capacity.<get-capacity>|<get-capacity>(){}[0]
     final val size // androidx.collection/LongSet.size|{}size[0]
