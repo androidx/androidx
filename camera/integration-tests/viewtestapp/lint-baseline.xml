@@ -517,8 +517,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="OpenGlRenderer.init can only be called from within the same library (androidx.camera:camera-core)"
-        errorLine1="        glExecutor.execute { glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER) }"
-        errorLine2="                                        ~~~~">
+        errorLine1="            glRenderer.init("
+        errorLine2="                       ~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
     </issue>
@@ -526,8 +526,17 @@
     <issue
         id="RestrictedApiAndroidX"
         message="OpenGlRenderer.init can only be called from within the same library (androidx.camera:camera-core)"
-        errorLine1="        glExecutor.execute { glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER) }"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        errorLine1="                DynamicRange.SDR,"
+        errorLine2="                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="InputFormat.DEFAULT can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                mapOf(InputFormat.DEFAULT to TONE_MAPPING_SHADER_PROVIDER)"
+        errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
     </issue>
@@ -535,8 +544,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="OpenGlRenderer.init can only be called from within the same library (androidx.camera:camera-core)"
-        errorLine1="        glExecutor.execute { glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER) }"
-        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                mapOf(InputFormat.DEFAULT to TONE_MAPPING_SHADER_PROVIDER)"
+        errorLine2="                ~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
     </issue>

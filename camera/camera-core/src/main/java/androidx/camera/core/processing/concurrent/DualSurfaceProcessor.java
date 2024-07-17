@@ -38,12 +38,14 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.processing.DefaultSurfaceProcessor;
 import androidx.camera.core.processing.ShaderProvider;
 import androidx.camera.core.processing.SurfaceProcessorInternal;
+import androidx.camera.core.processing.util.GLUtils.InputFormat;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import kotlin.jvm.functions.Function3;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -81,12 +83,12 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
     DualSurfaceProcessor(@NonNull DynamicRange dynamicRange,
             @NonNull LayoutSettings primaryLayoutSettings,
             @NonNull LayoutSettings secondaryLayoutSettings) {
-        this(dynamicRange, ShaderProvider.DEFAULT, primaryLayoutSettings, secondaryLayoutSettings);
+        this(dynamicRange, Collections.emptyMap(), primaryLayoutSettings, secondaryLayoutSettings);
     }
 
     DualSurfaceProcessor(
             @NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider,
+            @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides,
             @NonNull LayoutSettings primaryLayoutSettings,
             @NonNull LayoutSettings secondaryLayoutSettings) {
         mGlThread = new HandlerThread("GL Thread");
@@ -95,7 +97,7 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mGlRenderer = new DualOpenGlRenderer(primaryLayoutSettings, secondaryLayoutSettings);
         try {
-            initGlRenderer(dynamicRange, shaderProvider);
+            initGlRenderer(dynamicRange, shaderProviderOverrides);
         } catch (RuntimeException e) {
             release();
             throw e;
@@ -197,11 +199,11 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
 
     private void initGlRenderer(
             @NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
+            @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
         ListenableFuture<Void> initFuture = CallbackToFutureAdapter.getFuture(completer -> {
             executeSafely(() -> {
                 try {
-                    mGlRenderer.init(dynamicRange, shaderProvider);
+                    mGlRenderer.init(dynamicRange, shaderProviderOverrides);
                     completer.set(null);
                 } catch (RuntimeException e) {
                     completer.setException(e);

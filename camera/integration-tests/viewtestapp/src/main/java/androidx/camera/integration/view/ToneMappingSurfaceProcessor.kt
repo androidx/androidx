@@ -29,6 +29,7 @@ import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.newHandlerExecutor
 import androidx.camera.core.processing.OpenGlRenderer
 import androidx.camera.core.processing.ShaderProvider
+import androidx.camera.core.processing.util.GLUtils.InputFormat
 import androidx.core.util.Preconditions.checkState
 import java.util.concurrent.Executor
 
@@ -85,7 +86,12 @@ class ToneMappingSurfaceProcessor : SurfaceProcessor, OnFrameAvailableListener {
         glThread.start()
         glHandler = Handler(glThread.looper)
         glExecutor = newHandlerExecutor(glHandler)
-        glExecutor.execute { glRenderer.init(DynamicRange.SDR, TONE_MAPPING_SHADER_PROVIDER) }
+        glExecutor.execute {
+            glRenderer.init(
+                DynamicRange.SDR,
+                mapOf(InputFormat.DEFAULT to TONE_MAPPING_SHADER_PROVIDER)
+            )
+        }
     }
 
     override fun onInputSurface(surfaceRequest: SurfaceRequest) {
