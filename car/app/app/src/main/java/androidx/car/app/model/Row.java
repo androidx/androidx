@@ -559,13 +559,13 @@ public final class Row implements Item {
 
         /**
          * Adds an additional action to the end of the row.
+         * Note: From Car API 7 onwards, Rows are allowed to have 2 max actions to be set.
          *
          * @throws NullPointerException     if {@code action} is {@code null}
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
          *                                  exceeds the maximum number of allowed actions or does
          *                                  not contain a valid {@link CarIcon}.
          */
-        //TODO(b/260557014): Update docs when half-list UX is defined
         @NonNull
         @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {

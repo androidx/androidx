@@ -136,15 +136,15 @@ public final class ActionsConstraints {
 
     /**
      * Constraints for additional row actions. Only allows custom actions.
+     * Note: From Car API 7 onwards, Rows are allowed to have 2 max actions to be set.
      */
-    //TODO(b/249225370): Allow multiple actions in the row.
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
             new ActionsConstraints.Builder()
-                    .setMaxActions(1)
-                    .setMaxCustomTitles(1)
+                    .setMaxActions(2)
+                    .setMaxCustomTitles(2)
+                    .setMaxPrimaryActions(1)
                     .addAllowedActionType(Action.TYPE_CUSTOM)
-                    .setRequireActionIcons(true)
                     .setOnClickListenerAllowed(true)
                     .build();
 
