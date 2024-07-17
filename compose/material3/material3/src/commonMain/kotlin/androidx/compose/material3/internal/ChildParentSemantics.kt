@@ -68,12 +68,20 @@ internal class ChildSemanticsNode(var properties: SemanticsPropertyReceiver.() -
     Modifier.Node(), SemanticsModifierNode {
 
     override fun SemanticsPropertyReceiver.applySemantics() {
-        traverseAncestors(ParentSemanticsNodeKey) { node ->
-            with(node as ParentSemanticsNode) {
-                obtainSemantics()
-                false
+        // TODO: A temporary patch for b/353595612 to ignore an IllegalStateException that occurs
+        //  when TalkBack is on traverseAncestors is hitting a node that is no longer attached.
+        try {
+            traverseAncestors(ParentSemanticsNodeKey) { node ->
+                with(node as ParentSemanticsNode) {
+                    obtainSemantics()
+                    false
+                }
             }
+        } catch (e: IllegalStateException) {
+            // ignoring any IllegalStateException that may occur when the traverseAncestors tries
+            // to traverse a node that is no longer attached.
         }
+
         properties()
     }
 
