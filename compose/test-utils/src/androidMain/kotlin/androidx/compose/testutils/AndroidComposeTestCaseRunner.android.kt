@@ -226,7 +226,12 @@ internal class AndroidComposeTestCaseRunner<T : ComposeTestCase>(
             "Layout can be only executed after measure, current state is '$simulationState'"
         }
         val view = getView()
-        view.layout(view.left, view.top, view.right, view.bottom)
+        view.layout(
+            /* l= */ 0,
+            /* t= */ 0,
+            /* r= */ view.measuredWidth,
+            /* b= */ view.measuredHeight
+        )
         simulationState = SimulationState.LayoutDone
     }
 
