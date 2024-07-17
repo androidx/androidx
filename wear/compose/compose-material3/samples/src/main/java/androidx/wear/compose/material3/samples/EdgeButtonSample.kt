@@ -18,16 +18,26 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material3.ButtonDefaults
+import androidx.wear.compose.material3.ButtonDefaults.buttonColors
+import androidx.wear.compose.material3.Card
 import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 
 @Sampled
@@ -45,6 +55,36 @@ fun EdgeButtonSample() {
                 contentDescription = "Check icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun EdgeButtonListSample() {
+    val state = rememberScalingLazyListState()
+    ScreenScaffold(
+        scrollState = state,
+        bottomButton = {
+            EdgeButton(
+                onClick = {},
+                buttonHeight = ButtonDefaults.EdgeButtonHeightLarge,
+                colors = buttonColors(containerColor = Color.DarkGray)
+            ) {
+                Text("Ok", textAlign = TextAlign.Center)
+            }
+        }
+    ) {
+        ScalingLazyColumn(
+            state = state,
+            modifier = Modifier.fillMaxSize(),
+            autoCentering = null,
+            contentPadding = PaddingValues(10.dp, 20.dp, 10.dp, 100.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            items(10) {
+                Card(onClick = {}, modifier = Modifier.fillMaxWidth(0.9f)) { Text("Item #$it") }
+            }
         }
     }
 }

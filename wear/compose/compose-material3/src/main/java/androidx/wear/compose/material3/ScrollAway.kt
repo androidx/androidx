@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
-import androidx.wear.compose.foundation.toScrollAwayInfoProvider
 import androidx.wear.compose.material3.tokens.MotionTokens
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -48,8 +47,8 @@ import kotlinx.coroutines.launch
  *
  * @sample androidx.wear.compose.material3.samples.ScrollAwaySample
  * @param scrollInfoProvider Used as the basis for the scroll-away implementation, based on the
- *   state of the scrollable container. See [toScrollAwayInfoProvider] extension methods for
- *   creating a ScrollAwayInfoProvider from common lists such as [ScalingLazyListState].
+ *   state of the scrollable container. See [ScrollInfoProvider] methods for creating a
+ *   ScrollInfoProvider from common lists such as [ScalingLazyListState].
  * @param screenStage Function that returns the screen stage of the active screen. Scrolled away
  *   items are shown when the screen is new, then scrolled away or hidden when scrolling, and
  *   finally shown again when idle.

@@ -25,10 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.foundation.toScrollAwayInfoProvider
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ScreenStage
@@ -70,7 +70,7 @@ fun ScrollAwaySample() {
             // [Modifier.scrollAway] directly.
             modifier =
                 Modifier.scrollAway(
-                    scrollInfoProvider = state.toScrollAwayInfoProvider(),
+                    scrollInfoProvider = ScrollInfoProvider(state),
                     screenStage = {
                         if (state.isScrollInProgress) ScreenStage.Scrolling else ScreenStage.Idle
                     }
