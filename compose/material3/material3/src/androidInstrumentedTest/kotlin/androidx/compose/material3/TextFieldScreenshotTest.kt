@@ -559,6 +559,35 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_alwaysMinimizeLabel_noPlaceholder() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                alwaysMinimizeLabel = true,
+            )
+        }
+
+        assertAgainstGolden("textField_alwaysMinimizeLabel_noPlaceholder")
+    }
+
+    @Test
+    fun textField_alwaysMinimizeLabel_withPlaceholder() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                alwaysMinimizeLabel = true,
+                placeholder = { Text("Placeholder") },
+            )
+        }
+
+        assertAgainstGolden("textField_alwaysMinimizeLabel_withPlaceholder")
+    }
+
+    @Test
     fun textField_prefixSuffix_withLabelAndInput() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(

@@ -73,6 +73,7 @@ internal fun CommonDecorationBox(
     type: TextFieldType,
     visualText: CharSequence,
     innerTextField: @Composable () -> Unit,
+    alwaysMinimizeLabel: Boolean,
     label: @Composable (() -> Unit)?,
     placeholder: @Composable (() -> Unit)?,
     leadingIcon: @Composable (() -> Unit)?,
@@ -116,7 +117,7 @@ internal fun CommonDecorationBox(
                 if (overrideLabelTextStyleColor) this.takeOrElse { labelColor } else this
             },
         labelColor = labelColor,
-        showLabel = label != null,
+        showExpandedLabel = label != null && !alwaysMinimizeLabel,
     ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlpha, prefixSuffixAlpha
         ->
         val labelProgressValue = labelProgress.value
@@ -315,7 +316,7 @@ private inline fun TextFieldTransitionScope(
     focusedLabelTextStyleColor: Color,
     unfocusedLabelTextStyleColor: Color,
     labelColor: Color,
-    showLabel: Boolean,
+    showExpandedLabel: Boolean,
     content:
         @Composable
         (
@@ -338,7 +339,7 @@ private inline fun TextFieldTransitionScope(
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> 0f
+                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
                 InputPhase.UnfocusedNotEmpty -> 1f
             }
         }
@@ -368,7 +369,7 @@ private inline fun TextFieldTransitionScope(
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showLabel) 0f else 1f
+                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
                 InputPhase.UnfocusedNotEmpty -> 0f
             }
         }
@@ -380,7 +381,7 @@ private inline fun TextFieldTransitionScope(
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
-                InputPhase.UnfocusedEmpty -> if (showLabel) 0f else 1f
+                InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
                 InputPhase.UnfocusedNotEmpty -> 1f
             }
         }

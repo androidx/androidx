@@ -20,6 +20,7 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -142,26 +144,44 @@ fun TextFieldWithIcons() {
 @Sampled
 @Composable
 fun TextFieldWithPlaceholder() {
-    TextField(
-        state = rememberTextFieldState(),
-        lineLimits = TextFieldLineLimits.SingleLine,
-        label = { Text("Email") },
-        placeholder = { Text("example@gmail.com") }
-    )
+    var alwaysMinimizeLabel by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Checkbox(checked = alwaysMinimizeLabel, onCheckedChange = { alwaysMinimizeLabel = it })
+            Text("Show placeholder even when unfocused")
+        }
+        Spacer(Modifier.height(16.dp))
+        TextField(
+            state = rememberTextFieldState(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Email") },
+            alwaysMinimizeLabel = alwaysMinimizeLabel,
+            placeholder = { Text("example@gmail.com") }
+        )
+    }
 }
 
 @Preview
 @Sampled
 @Composable
 fun TextFieldWithPrefixAndSuffix() {
-    TextField(
-        state = rememberTextFieldState(),
-        lineLimits = TextFieldLineLimits.SingleLine,
-        label = { Text("Label") },
-        prefix = { Text("www.") },
-        suffix = { Text(".com") },
-        placeholder = { Text("google") },
-    )
+    var alwaysMinimizeLabel by remember { mutableStateOf(false) }
+    Column {
+        Row {
+            Checkbox(checked = alwaysMinimizeLabel, onCheckedChange = { alwaysMinimizeLabel = it })
+            Text("Show placeholder even when unfocused")
+        }
+        Spacer(Modifier.height(16.dp))
+        TextField(
+            state = rememberTextFieldState(),
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Label") },
+            alwaysMinimizeLabel = alwaysMinimizeLabel,
+            prefix = { Text("www.") },
+            suffix = { Text(".com") },
+            placeholder = { Text("google") },
+        )
+    }
 }
 
 @Preview

@@ -593,6 +593,35 @@ class OutlinedTextFieldScreenshotTest {
     }
 
     @Test
+    fun outlinedTextField_alwaysMinimizeLabel_noPlaceholder() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                alwaysMinimizeLabel = true,
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_alwaysMinimizeLabel_noPlaceholder")
+    }
+
+    @Test
+    fun outlinedTextField_alwaysMinimizeLabel_withPlaceholder() {
+        rule.setMaterialContent(lightColorScheme()) {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                alwaysMinimizeLabel = true,
+                placeholder = { Text("Placeholder") },
+            )
+        }
+
+        assertAgainstGolden("outlinedTextField_alwaysMinimizeLabel_withPlaceholder")
+    }
+
+    @Test
     fun outlinedTextField_prefixSuffix_withLabelAndInput() {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedTextField(

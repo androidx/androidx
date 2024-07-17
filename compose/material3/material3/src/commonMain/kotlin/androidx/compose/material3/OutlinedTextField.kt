@@ -135,6 +135,10 @@ import kotlin.math.roundToInt
  *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
+ * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults to
+ *   `false`, so the label will expand to occupy the input area when the text field is unfocused and
+ *   empty. When `true`, this allows displaying the [placeholder], [prefix], and [suffix] alongside
+ *   the [label] when the text field is unfocused and empty.
  * @param label the optional label to be displayed with this text field. The default text style uses
  *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the input text is empty. The
@@ -197,6 +201,7 @@ fun OutlinedTextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
+    alwaysMinimizeLabel: Boolean = false,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -269,6 +274,7 @@ fun OutlinedTextField(
                     lineLimits = lineLimits,
                     outputTransformation = outputTransformation,
                     interactionSource = interactionSource,
+                    alwaysMinimizeLabel = alwaysMinimizeLabel,
                     label = label,
                     placeholder = placeholder,
                     leadingIcon = leadingIcon,
