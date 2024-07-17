@@ -129,6 +129,28 @@ class ProgressIndicatorScreenshotTest {
         )
     }
 
+    @Test
+    fun segmented_progress_indicator_with_progress() = verifyScreenshot {
+        SegmentedCircularProgressIndicator(
+            progress = { 0.5f },
+            segmentCount = 5,
+            modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+            startAngle = 120f,
+            endAngle = 60f,
+        )
+    }
+
+    @Test
+    fun segmented_progress_indicator_on_off() = verifyScreenshot {
+        SegmentedCircularProgressIndicator(
+            segmentCount = 6,
+            completed = { it % 2 == 0 },
+            modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+            startAngle = 120f,
+            endAngle = 60f,
+        )
+    }
+
     private fun verifyScreenshot(content: @Composable () -> Unit) {
         rule.setContentWithTheme {
             CompositionLocalProvider(

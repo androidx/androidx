@@ -37,14 +37,17 @@ import androidx.test.filters.SdkSuppress
 import org.junit.Rule
 import org.junit.Test
 
-class CircularProgressIndicatorTest {
-
+class SegmentedCircularProgressIndicatorTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
     fun supports_testtag() {
         setContentWithTheme {
-            CircularProgressIndicator(progress = { 0.5f }, modifier = Modifier.testTag(TEST_TAG))
+            SegmentedCircularProgressIndicator(
+                segmentCount = 5,
+                progress = { 0.5f },
+                modifier = Modifier.testTag(TEST_TAG)
+            )
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
@@ -55,12 +58,13 @@ class CircularProgressIndicatorTest {
         val progress = mutableStateOf(0f)
 
         setContentWithTheme {
-            CircularProgressIndicator(
+            SegmentedCircularProgressIndicator(
+                progress = { progress.value },
+                segmentCount = 5,
                 modifier =
                     Modifier.testTag(TEST_TAG).semantics {
                         progressBarRangeInfo = ProgressBarRangeInfo(progress.value, 0f..1f)
                     },
-                progress = { progress.value }
             )
         }
 
@@ -73,11 +77,12 @@ class CircularProgressIndicatorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun contains_progress_color() {
+    fun progress_full_contains_progress_color() {
         setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+            SegmentedCircularProgressIndicator(
                 progress = { 1f },
+                segmentCount = 5,
+                modifier = Modifier.testTag(TEST_TAG),
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -90,17 +95,18 @@ class CircularProgressIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 23f..27f)
+            .assertColorInPercentageRange(Color.Yellow, 20f..25f)
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Red)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun contains_progress_incomplete_color() {
+    fun progress_zero_contains_track_color() {
         setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+            SegmentedCircularProgressIndicator(
                 progress = { 0f },
+                segmentCount = 5,
+                modifier = Modifier.testTag(TEST_TAG),
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -110,20 +116,20 @@ class CircularProgressIndicatorTest {
         }
         rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Yellow)
-        // by default progress track approximately takes 25% of the control.
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 23f..27f)
+            .assertColorInPercentageRange(Color.Red, 20f..25f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun change_start_end_angle() {
         setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+            SegmentedCircularProgressIndicator(
                 progress = { 0.5f },
+                segmentCount = 5,
+                modifier = Modifier.testTag(TEST_TAG),
                 startAngle = 0f,
                 endAngle = 180f,
                 colors =
@@ -148,37 +154,12 @@ class CircularProgressIndicatorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
-    fun set_small_progress_value() {
-        setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
-                progress = { 0.02f },
-                colors =
-                    ProgressIndicatorDefaults.colors(
-                        indicatorColor = Color.Yellow,
-                        trackColor = Color.Red
-                    ),
-            )
-        }
-        rule.waitForIdle()
-        // Small progress values like 2% should be rounded up to at least the stroke width.
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 0.5f..1f)
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 22f..27f)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-    @Test
     fun set_small_stroke_width() {
         setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+            SegmentedCircularProgressIndicator(
                 progress = { 0.5f },
+                segmentCount = 5,
+                modifier = Modifier.testTag(TEST_TAG),
                 strokeWidth = 4.dp,
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -202,9 +183,10 @@ class CircularProgressIndicatorTest {
     @Test
     fun set_large_stroke_width() {
         setContentWithTheme {
-            CircularProgressIndicator(
-                modifier = Modifier.testTag(TEST_TAG),
+            SegmentedCircularProgressIndicator(
                 progress = { 0.5f },
+                segmentCount = 5,
+                modifier = Modifier.testTag(TEST_TAG),
                 strokeWidth = 36.dp,
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -218,7 +200,84 @@ class CircularProgressIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
+            .assertColorInPercentageRange(Color.Yellow, 15f..20f)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertColorInPercentageRange(Color.Red, 15f..20f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun set_segments_on_off() {
+        setContentWithTheme {
+            SegmentedCircularProgressIndicator(
+                segmentCount = 6,
+                completed = { it % 2 != 0 },
+                modifier = Modifier.testTag(TEST_TAG),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
+                strokeWidth = 36.dp,
+            )
+        }
+
+        rule.waitForIdle()
+        // Because of the stroke cap, progress color takes same amount as track color.
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertColorInPercentageRange(Color.Yellow, 15f..20f)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertColorInPercentageRange(Color.Red, 15f..20f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun set_segments_all_on() {
+        setContentWithTheme {
+            SegmentedCircularProgressIndicator(
+                segmentCount = 6,
+                completed = { true },
+                modifier = Modifier.testTag(TEST_TAG),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
+            )
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Red)
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
             .assertColorInPercentageRange(Color.Yellow, 20f..25f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun set_segments_all_off() {
+        setContentWithTheme {
+            SegmentedCircularProgressIndicator(
+                segmentCount = 6,
+                completed = { false },
+                modifier = Modifier.testTag(TEST_TAG),
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red
+                    ),
+            )
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Yellow)
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
