@@ -16,6 +16,7 @@
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.library")
     id("kotlin-android")
 }
@@ -27,13 +28,9 @@ android {
         targetSdkVersion 35
     }
     buildFeatures {
-        compose true
         viewBinding true
     }
     namespace "androidx.window.demo.common"
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.composeCompilerPlugin.get()
-    }
 }
 
 dependencies {
