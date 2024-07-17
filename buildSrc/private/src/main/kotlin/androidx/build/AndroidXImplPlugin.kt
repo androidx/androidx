@@ -670,6 +670,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
         project.setUpCheckDocsTask(androidXExtension)
         project.writeBlankPublicTxtToAar(kotlinMultiplatformAndroidComponentsExtension)
+        kotlinMultiplatformAndroidComponentsExtension.onVariant {
+            project.validateKotlinModuleFiles(it.name, it.artifacts.get(SingleArtifact.AAR))
+        }
     }
 
     private fun Project.writeBlankPublicTxtToAar(
@@ -841,6 +844,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             onVariants { variant ->
                 variant.configureTests()
                 variant.enableLongMethodTracingInMicrobenchmark(project)
+                project.validateKotlinModuleFiles(
+                    variant.name,
+                    variant.artifacts.get(SingleArtifact.AAR)
+                )
             }
         }
 
