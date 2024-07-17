@@ -25,6 +25,8 @@ import android.view.View
 internal const val DefaultPointerInputTimeDelta = 100
 internal const val DefaultPointerInputMoveAmountPx = 10f
 
+internal data class BenchmarkSimplifiedPointerInputPointer(val id: Int, val x: Float, val y: Float)
+
 /**
  * Creates a simple [MotionEvent].
  *
@@ -193,7 +195,7 @@ private fun createDownsOrUps(
                         else MotionEvent.ACTION_POINTER_UP
                     },
                     index + 1,
-                    index,
+                    index, // Used in conjunction with ACTION_POINTER_DOWN/UP
                     pointerProperties.toTypedArray(),
                     pointerCoords.toTypedArray(),
                     rootView
@@ -208,11 +210,11 @@ private fun createDownsOrUps(
 
 /**
  * Creates an array of subsequent [MotionEvent.ACTION_MOVE]s to pair with a
- * [MotionEvent.ACTION_DOWN] and a [MotionEvent.ACTION_UP] to recreate a user input sequence.
+ * [MotionEvent.ACTION_DOWN] and a [MotionEvent.ACTION_UP] to recreate a user input sequence. Note:
+ * We offset pointers/events by time and x only (y stays the same).
  *
- * @param initialX Starting x coordinate for the first [MotionEvent.ACTION_MOVE]
  * @param initialTime Starting time for the first [MotionEvent.ACTION_MOVE]
- * @param y - Y used for all [MotionEvent.ACTION_MOVE]s (only x is updated for each moves).
+ * @param initialPointers Starting coordinates for all [MotionEvent.ACTION_MOVE] pointers
  * @param rootView - [View] that the [MotionEvent] is dispatched to.
  * @param numberOfMoveEvents Number of [MotionEvent.ACTION_MOVE]s to create.
  * @param enableFlingStyleHistory - Adds a history of [MotionEvent.ACTION_MOVE]s to each
@@ -222,17 +224,26 @@ private fun createDownsOrUps(
  * @param moveDelta - Amount to move in pixels for each [MotionEvent.ACTION_MOVE]
  */
 internal fun createMoveMotionEvents(
-    initialX: Float,
     initialTime: Int,
-    y: Float, // Same Y used for all moves
+    initialPointers: Array<BenchmarkSimplifiedPointerInputPointer>,
     rootView: View,
     numberOfMoveEvents: Int,
     enableFlingStyleHistory: Boolean = false,
     timeDelta: Int = 100,
     moveDelta: Float = DefaultPointerInputMoveAmountPx
 ): Array<MotionEvent> {
+
     var time = initialTime
-    var x = initialX
+
+    // Creates a list of pointer properties and coordinates from initialPointers to represent
+    // all pointers/fingers in the [MotionEvent] we create.
+    val pointerProperties = mutableListOf<PointerProperties>()
+    val pointerCoords = mutableListOf<PointerCoords>()
+
+    for ((index, initialPointer) in initialPointers.withIndex()) {
+        pointerProperties.add(index, PointerProperties(initialPointer.id))
+        pointerCoords.add(index, PointerCoords(initialPointer.x, initialPointer.y))
+    }
 
     val moveMotionEvents =
         Array(numberOfMoveEvents) { index ->
@@ -240,73 +251,103 @@ internal fun createMoveMotionEvents(
                 if (enableFlingStyleHistory) {
                     val historicalEventCount = numberOfHistoricalEventsBasedOnArrayLocation(index)
 
-                    // Move the time and x to the last known time (to start the historical time)
-                    // and offset them so they do not conflict with the last Down or Move event.
+                    // Set the time to the previous event time (either a down or move event) and
+                    // offset it, so it doesn't conflict with that previous event.
                     var historicalTime: Int = time - timeDelta + 10
 
                     var accountForMoveOffset = -1
-                    var historicalX =
+
+                    // Creates starting x values for all historical pointers (takes ending x of
+                    // all pointers and subtracts a delta and offset).
+                    val historicalPointerCoords = mutableListOf<PointerCoords>()
+
+                    for ((historicalIndex, historicalPointer) in pointerCoords.withIndex()) {
                         if (moveDelta > 0) {
                             // accountForMoveOffset stays -1 (to account for +1 offset [below])
-                            x - moveDelta + 1
+                            historicalPointerCoords.add(
+                                historicalIndex,
+                                PointerCoords(
+                                    historicalPointer.x - moveDelta + 1,
+                                    historicalPointer.y
+                                )
+                            )
                         } else {
-                            // accountForMoveOffset changes to 1 (to account for -1 offset
-                            // [below])
+                            // accountForMoveOffset changes to 1 (to account for -1 offset [below])
                             accountForMoveOffset = 1
-                            x - moveDelta - 1
+                            historicalPointerCoords.add(
+                                historicalIndex,
+                                PointerCoords(
+                                    historicalPointer.x - moveDelta - 1,
+                                    historicalPointer.y
+                                )
+                            )
                         }
+                    }
 
                     val historicalTimeDelta: Int = (timeDelta - 10) / historicalEventCount
                     val historicalXDelta: Float =
                         (moveDelta + accountForMoveOffset) / historicalEventCount
 
-                    // First "historical" event (it will be pushed into history once another is
-                    // added via `addBatch()`).
+                    // Next section of code creates "historical" events by
+                    // 1. Creating [MotionEvent] with oldest historical event.
+                    // 2. Adding each subsequent historical event one at a time via `addBatch()`.
+                    // 3. Finishes by adding the main/end pointers via `addBatch()`.
+
+                    // Executes step 1 -> Creates [MotionEvent] with oldest historical event.
                     val moveWithHistory =
                         MotionEvent(
                             historicalTime,
                             MotionEvent.ACTION_MOVE,
-                            1,
+                            pointerProperties.size,
                             0,
-                            arrayOf(PointerProperties(0)),
-                            arrayOf(PointerCoords(historicalX, y)),
+                            pointerProperties.toTypedArray(), // ids always the same
+                            historicalPointerCoords.toTypedArray(),
                             rootView
                         )
 
-                    // Start on the second historical event (1), since the event added when we
-                    // created the [MotionEvent] above will be pushed into the history and will
-                    // then become the first historical event.
+                    // Executes step 2 -> Adds each subsequent historical event one at a time via
+                    // `addBatch()`.
+                    // Starts with the second historical event (1), since we've already added the
+                    // first when we created the [MotionEvent] above.
                     for (historyIndex in 1 until historicalEventCount) {
+                        // Update historical time
                         historicalTime += historicalTimeDelta
-                        historicalX += historicalXDelta
 
+                        // Update historical x
+                        for (historicalPointerCoord in historicalPointerCoords) {
+                            historicalPointerCoord.x += historicalXDelta
+                        }
+
+                        // Add to [MotionEvent] history
                         moveWithHistory.addBatch(
                             historicalTime.toLong(),
-                            arrayOf(PointerCoords(historicalX, y)),
+                            historicalPointerCoords.toTypedArray(),
                             0
                         )
                     }
 
-                    // Since The event's current location, position and size are updated to
-                    // the last values added via `addBatch()`, we need to add the main
-                    // [MotionEvent] time, x, and y values last.
-                    moveWithHistory.addBatch(time.toLong(), arrayOf(PointerCoords(x, y)), 0)
+                    // Executes step 3 -> Finishes by adding the main/end pointers via `addBatch()`,
+                    // so it will show up as the current event for the [MotionEvent].
+                    moveWithHistory.addBatch(time.toLong(), pointerCoords.toTypedArray(), 0)
                     // return move event with history added
                     moveWithHistory
                 } else {
                     MotionEvent(
                         time,
                         MotionEvent.ACTION_MOVE,
-                        1,
+                        pointerProperties.size,
                         0,
-                        arrayOf(PointerProperties(0)),
-                        arrayOf(PointerCoords(x, y)),
+                        pointerProperties.toTypedArray(),
+                        pointerCoords.toTypedArray(),
                         rootView
                     )
                 }
 
             time += timeDelta
-            x += moveDelta
+            // Update all pointer's x by move delta for next iteration
+            for (pointerCoord in pointerCoords) {
+                pointerCoord.x += moveDelta
+            }
             move
         }
     return moveMotionEvents
