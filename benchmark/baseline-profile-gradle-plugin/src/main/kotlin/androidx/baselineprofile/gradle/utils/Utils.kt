@@ -31,7 +31,7 @@ fun camelCase(vararg strings: String): String {
         .toString()
 }
 
-internal fun CharSequence.capitalized(): String =
+private fun CharSequence.capitalized(): String =
     when {
         isEmpty() -> ""
         else ->
