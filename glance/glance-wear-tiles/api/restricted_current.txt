@@ -19,6 +19,7 @@ package androidx.glance.wear.tiles {
   }
 
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
+    ctor public GlanceTileService();
     ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
     method public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object?>? getStateDefinition();
@@ -37,6 +38,7 @@ package androidx.glance.wear.tiles {
   }
 
   public final class TimeInterval {
+    ctor public TimeInterval();
     ctor public TimeInterval(optional java.time.Instant start, optional java.time.Instant end);
     method public java.time.Instant component1();
     method public java.time.Instant component2();
@@ -124,6 +126,7 @@ package androidx.glance.wear.tiles.curved {
   }
 
   @androidx.compose.runtime.Immutable public final class CurvedTextStyle {
+    ctor public CurvedTextStyle();
     ctor public CurvedTextStyle(optional androidx.glance.unit.ColorProvider? color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle);
     method public androidx.glance.unit.ColorProvider? getColor();
     method public androidx.compose.ui.unit.TextUnit? getFontSize();

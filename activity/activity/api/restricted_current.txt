@@ -412,6 +412,7 @@ package androidx.activity.result.contract {
   }
 
   public static class ActivityResultContracts.PickMultipleVisualMedia extends androidx.activity.result.contract.ActivityResultContract<androidx.activity.result.PickVisualMediaRequest,java.util.List<android.net.Uri>> {
+    ctor public ActivityResultContracts.PickMultipleVisualMedia();
     ctor public ActivityResultContracts.PickMultipleVisualMedia(optional int maxItems);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<java.util.List<android.net.Uri>>? getSynchronousResult(android.content.Context context, androidx.activity.result.PickVisualMediaRequest input);

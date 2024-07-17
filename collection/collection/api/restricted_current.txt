@@ -1283,6 +1283,7 @@ package androidx.collection {
   }
 
   public final class MutableDoubleList extends androidx.collection.DoubleList {
+    ctor public MutableDoubleList();
     ctor public MutableDoubleList(optional int initialCapacity);
     method public boolean add(double element);
     method public void add(@IntRange(from=0L) int index, double element);
@@ -1314,6 +1315,7 @@ package androidx.collection {
   }
 
   public final class MutableFloatFloatMap extends androidx.collection.FloatFloatMap {
+    ctor public MutableFloatFloatMap();
     ctor public MutableFloatFloatMap(optional int initialCapacity);
     method public void clear();
     method public inline float getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
@@ -1334,6 +1336,7 @@ package androidx.collection {
   }
 
   public final class MutableFloatIntMap extends androidx.collection.FloatIntMap {
+    ctor public MutableFloatIntMap();
     ctor public MutableFloatIntMap(optional int initialCapacity);
     method public void clear();
     method public inline int getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
@@ -1354,6 +1357,7 @@ package androidx.collection {
   }
 
   public final class MutableFloatList extends androidx.collection.FloatList {
+    ctor public MutableFloatList();
     ctor public MutableFloatList(optional int initialCapacity);
     method public boolean add(float element);
     method public void add(@IntRange(from=0L) int index, float element);
@@ -1385,6 +1389,7 @@ package androidx.collection {
   }
 
   public final class MutableFloatLongMap extends androidx.collection.FloatLongMap {
+    ctor public MutableFloatLongMap();
     ctor public MutableFloatLongMap(optional int initialCapacity);
     method public void clear();
     method public inline long getOrPut(float key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
@@ -1405,6 +1410,7 @@ package androidx.collection {
   }
 
   public final class MutableFloatObjectMap<V> extends androidx.collection.FloatObjectMap<V> {
+    ctor public MutableFloatObjectMap();
     ctor public MutableFloatObjectMap(optional int initialCapacity);
     method public void clear();
     method public inline V getOrPut(float key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
@@ -1424,6 +1430,7 @@ package androidx.collection {
   }
 
   public final class MutableFloatSet extends androidx.collection.FloatSet {
+    ctor public MutableFloatSet();
     ctor public MutableFloatSet(optional int initialCapacity);
     method public boolean add(float element);
     method public boolean addAll(androidx.collection.FloatSet elements);
@@ -1442,6 +1449,7 @@ package androidx.collection {
   }
 
   public final class MutableIntFloatMap extends androidx.collection.IntFloatMap {
+    ctor public MutableIntFloatMap();
     ctor public MutableIntFloatMap(optional int initialCapacity);
     method public void clear();
     method public inline float getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
@@ -1462,6 +1470,7 @@ package androidx.collection {
   }
 
   public final class MutableIntIntMap extends androidx.collection.IntIntMap {
+    ctor public MutableIntIntMap();
     ctor public MutableIntIntMap(optional int initialCapacity);
     method public void clear();
     method public inline int getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
@@ -1482,6 +1491,7 @@ package androidx.collection {
   }
 
   public final class MutableIntList extends androidx.collection.IntList {
+    ctor public MutableIntList();
     ctor public MutableIntList(optional int initialCapacity);
     method public boolean add(int element);
     method public void add(@IntRange(from=0L) int index, int element);
@@ -1513,6 +1523,7 @@ package androidx.collection {
   }
 
   public final class MutableIntLongMap extends androidx.collection.IntLongMap {
+    ctor public MutableIntLongMap();
     ctor public MutableIntLongMap(optional int initialCapacity);
     method public void clear();
     method public inline long getOrPut(int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
@@ -1533,6 +1544,7 @@ package androidx.collection {
   }
 
   public final class MutableIntObjectMap<V> extends androidx.collection.IntObjectMap<V> {
+    ctor public MutableIntObjectMap();
     ctor public MutableIntObjectMap(optional int initialCapacity);
     method public void clear();
     method public inline V getOrPut(int key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
@@ -1552,6 +1564,7 @@ package androidx.collection {
   }
 
   public final class MutableIntSet extends androidx.collection.IntSet {
+    ctor public MutableIntSet();
     ctor public MutableIntSet(optional int initialCapacity);
     method public boolean add(int element);
     method public boolean addAll(androidx.collection.IntSet elements);
@@ -1570,6 +1583,7 @@ package androidx.collection {
   }
 
   public final class MutableLongFloatMap extends androidx.collection.LongFloatMap {
+    ctor public MutableLongFloatMap();
     ctor public MutableLongFloatMap(optional int initialCapacity);
     method public void clear();
     method public inline float getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
@@ -1590,6 +1604,7 @@ package androidx.collection {
   }
 
   public final class MutableLongIntMap extends androidx.collection.LongIntMap {
+    ctor public MutableLongIntMap();
     ctor public MutableLongIntMap(optional int initialCapacity);
     method public void clear();
     method public inline int getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
@@ -1610,6 +1625,7 @@ package androidx.collection {
   }
 
   public final class MutableLongList extends androidx.collection.LongList {
+    ctor public MutableLongList();
     ctor public MutableLongList(optional int initialCapacity);
     method public void add(@IntRange(from=0L) int index, long element);
     method public boolean add(long element);
@@ -1641,6 +1657,7 @@ package androidx.collection {
   }
 
   public final class MutableLongLongMap extends androidx.collection.LongLongMap {
+    ctor public MutableLongLongMap();
     ctor public MutableLongLongMap(optional int initialCapacity);
     method public void clear();
     method public inline long getOrPut(long key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
@@ -1661,6 +1678,7 @@ package androidx.collection {
   }
 
   public final class MutableLongObjectMap<V> extends androidx.collection.LongObjectMap<V> {
+    ctor public MutableLongObjectMap();
     ctor public MutableLongObjectMap(optional int initialCapacity);
     method public void clear();
     method public inline V getOrPut(long key, kotlin.jvm.functions.Function0<? extends V> defaultValue);
@@ -1680,6 +1698,7 @@ package androidx.collection {
   }
 
   public final class MutableLongSet extends androidx.collection.LongSet {
+    ctor public MutableLongSet();
     ctor public MutableLongSet(optional int initialCapacity);
     method public boolean add(long element);
     method public boolean addAll(androidx.collection.LongSet elements);
@@ -1698,6 +1717,7 @@ package androidx.collection {
   }
 
   public final class MutableObjectFloatMap<K> extends androidx.collection.ObjectFloatMap<K> {
+    ctor public MutableObjectFloatMap();
     ctor public MutableObjectFloatMap(optional int initialCapacity);
     method public void clear();
     method public inline float getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Float> defaultValue);
@@ -1719,6 +1739,7 @@ package androidx.collection {
   }
 
   public final class MutableObjectIntMap<K> extends androidx.collection.ObjectIntMap<K> {
+    ctor public MutableObjectIntMap();
     ctor public MutableObjectIntMap(optional int initialCapacity);
     method public void clear();
     method public inline int getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Integer> defaultValue);
@@ -1740,6 +1761,7 @@ package androidx.collection {
   }
 
   public final class MutableObjectList<E> extends androidx.collection.ObjectList<E> {
+    ctor public MutableObjectList();
     ctor public MutableObjectList(optional int initialCapacity);
     method public boolean add(E element);
     method public void add(@IntRange(from=0L) int index, E element);
@@ -1792,6 +1814,7 @@ package androidx.collection {
   }
 
   public final class MutableObjectLongMap<K> extends androidx.collection.ObjectLongMap<K> {
+    ctor public MutableObjectLongMap();
     ctor public MutableObjectLongMap(optional int initialCapacity);
     method public void clear();
     method public inline long getOrPut(K key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
@@ -1813,6 +1836,7 @@ package androidx.collection {
   }
 
   public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
+    ctor public MutableScatterMap();
     ctor public MutableScatterMap(optional int initialCapacity);
     method public java.util.Map<K,V> asMutableMap();
     method public void clear();
@@ -1846,6 +1870,7 @@ package androidx.collection {
   }
 
   public final class MutableScatterSet<E> extends androidx.collection.ScatterSet<E> {
+    ctor public MutableScatterSet();
     ctor public MutableScatterSet(optional int initialCapacity);
     method public boolean add(E element);
     method public boolean addAll(androidx.collection.ObjectList<E> elements);

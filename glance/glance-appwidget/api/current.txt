@@ -53,6 +53,7 @@ package androidx.glance.appwidget {
   }
 
   public abstract class GlanceAppWidget {
+    ctor public GlanceAppWidget();
     ctor public GlanceAppWidget(optional @LayoutRes int errorUiLayout);
     method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object?>? getStateDefinition();

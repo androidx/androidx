@@ -1762,6 +1762,7 @@ package androidx.compose.ui.input.pointer {
   }
 
   @Deprecated public final class ConsumedData {
+    ctor @Deprecated public ConsumedData();
     ctor @Deprecated public ConsumedData(optional @Deprecated boolean positionChange, optional @Deprecated boolean downChange);
     method @Deprecated public boolean getDownChange();
     method @Deprecated public boolean getPositionChange();
@@ -3783,6 +3784,7 @@ package androidx.compose.ui.window {
   }
 
   @androidx.compose.runtime.Immutable public final class DialogProperties {
+    ctor public DialogProperties();
     ctor @Deprecated public DialogProperties(optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy);
     ctor public DialogProperties(optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean usePlatformDefaultWidth, optional boolean decorFitsSystemWindows);
     ctor public DialogProperties(optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional boolean usePlatformDefaultWidth);

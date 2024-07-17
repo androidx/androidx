@@ -3,14 +3,8 @@ AutoBoxing: androidx.compose.material3.DatePickerState#setSelectedDateMillis(Lon
     Must avoid boxed primitives (`java.lang.Long`)
 
 
-ExecutorRegistration: androidx.compose.material3.TextDefaults#Clickable(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
-    Registration methods should have overload that accepts delivery Executor: `Clickable`
-ExecutorRegistration: androidx.compose.material3.TextDefaults#Url(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
-    Registration methods should have overload that accepts delivery Executor: `Url`
-ExecutorRegistration: androidx.compose.material3.TextDefaults#fromHtml(String, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.SpanStyle, androidx.compose.ui.text.LinkInteractionListener):
-    Registration methods should have overload that accepts delivery Executor: `fromHtml`
-
-
+GetterSetterNames: androidx.compose.material3.ModalBottomSheetProperties#getShouldDismissOnBackPress():
+    Getter for boolean property `shouldDismissOnBackPress` is named `getShouldDismissOnBackPress` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.material3.SheetState#getHasExpandedState():
     Getter for boolean property `hasExpandedState` is named `getHasExpandedState` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.compose.material3.SheetState#getHasPartiallyExpandedState():

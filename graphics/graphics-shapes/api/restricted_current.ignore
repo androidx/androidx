@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.graphics.shapes.CornerRounding#CornerRounding():
+    Added constructor androidx.graphics.shapes.CornerRounding()

@@ -177,10 +177,12 @@ package androidx.benchmark.macro {
   }
 
   public static final class PowerMetric.Type.Energy extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Energy();
     ctor public PowerMetric.Type.Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> energyCategories);
   }
 
   public static final class PowerMetric.Type.Power extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Power();
     ctor public PowerMetric.Type.Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> powerCategories);
   }
 

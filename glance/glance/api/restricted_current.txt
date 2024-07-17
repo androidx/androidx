@@ -545,6 +545,7 @@ package androidx.glance.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextStyle {
+    ctor public TextStyle();
     ctor public TextStyle(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
     method public androidx.glance.text.TextStyle copy(optional androidx.glance.unit.ColorProvider color, optional androidx.compose.ui.unit.TextUnit? fontSize, optional androidx.glance.text.FontWeight? fontWeight, optional androidx.glance.text.FontStyle? fontStyle, optional androidx.glance.text.TextAlign? textAlign, optional androidx.glance.text.TextDecoration? textDecoration, optional androidx.glance.text.FontFamily? fontFamily);
     method public androidx.glance.unit.ColorProvider getColor();
