@@ -26,6 +26,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.gson.Gson
 import java.time.LocalDate
@@ -51,7 +52,7 @@ class SecurityPatchStateTest {
     private val updateInfo =
         UpdateInfo.Builder()
             .setUri("content://example.com/updateinfo")
-            .setComponent(SecurityPatchState.Component.SYSTEM.toString())
+            .setComponent(SecurityPatchState.COMPONENT_SYSTEM.toString())
             .setSecurityPatchLevel("2022-01-01")
             .setPublishedDate(Date.from(LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC)))
             .build()
@@ -121,8 +122,8 @@ class SecurityPatchStateTest {
     @Test
     fun testGetSecurityPatchLevelWithDateBasedComponent() {
         val spl =
-            securityState.getSecurityPatchLevelString(
-                SecurityPatchState.Component.SYSTEM,
+            securityState.getComponentSecurityPatchLevel(
+                SecurityPatchState.COMPONENT_SYSTEM,
                 "2022-01-01"
             )
         assertTrue(spl is SecurityPatchState.DateBasedSecurityPatchLevel)
@@ -132,8 +133,8 @@ class SecurityPatchStateTest {
     @Test
     fun testGetSecurityPatchLevelWithVersionedComponent() {
         val spl =
-            securityState.getSecurityPatchLevelString(
-                SecurityPatchState.Component.KERNEL,
+            securityState.getComponentSecurityPatchLevel(
+                SecurityPatchState.COMPONENT_KERNEL,
                 "1.2.3.4"
             )
         assertTrue(spl is SecurityPatchState.VersionedSecurityPatchLevel)
@@ -142,24 +143,25 @@ class SecurityPatchStateTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetSecurityPatchLevelWithInvalidDateBasedInput() {
-        securityState.getSecurityPatchLevelString(
-            SecurityPatchState.Component.SYSTEM,
+        securityState.getComponentSecurityPatchLevel(
+            SecurityPatchState.COMPONENT_SYSTEM,
             "invalid-date"
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetSecurityPatchLevelWithInvalidVersionedInput() {
-        securityState.getSecurityPatchLevelString(
-            SecurityPatchState.Component.KERNEL,
+        securityState.getComponentSecurityPatchLevel(
+            SecurityPatchState.COMPONENT_KERNEL,
             "invalid-version"
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Config(maxSdk = Build.VERSION_CODES.N_MR1)
     @Test(expected = IllegalArgumentException::class)
     fun testGetVulnerabilityReportUrl_withUnsupportedSdk_throwsException() {
-        securityState.getVulnerabilityReportUrl("https://example.com")
+        securityState.getVulnerabilityReportUrl(Uri.parse("https://example.com"))
     }
 
     @Test
@@ -185,12 +187,12 @@ class SecurityPatchStateTest {
 
         val fixes =
             securityState.getPatchedCves(
-                SecurityPatchState.Component.SYSTEM,
+                SecurityPatchState.COMPONENT_SYSTEM,
                 SecurityPatchState.DateBasedSecurityPatchLevel(2022, 1, 1)
             )
 
         assertEquals(1, fixes[SecurityPatchState.Severity.HIGH]?.size)
-        assertEquals(listOf("CVE-2020-1234"), fixes[SecurityPatchState.Severity.HIGH])
+        assertEquals(setOf("CVE-2020-1234"), fixes[SecurityPatchState.Severity.HIGH])
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -199,6 +201,7 @@ class SecurityPatchStateTest {
         securityState.loadVulnerabilityReport(invalidJson)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun testGetVulnerabilityReportUrl_validSdkVersion_returnsCorrectUrl() {
         val sdkVersion = 34 // Android 14
@@ -207,7 +210,7 @@ class SecurityPatchStateTest {
 
         doReturn(sdkVersion).`when`(mockSecurityStateManager).getAndroidSdkInt()
 
-        val actualUrl = securityState.getVulnerabilityReportUrl(baseUrl).toString()
+        val actualUrl = securityState.getVulnerabilityReportUrl(Uri.parse(baseUrl)).toString()
         assertEquals(expectedUrl, actualUrl)
     }
 
@@ -220,7 +223,7 @@ class SecurityPatchStateTest {
         `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
 
         val spl =
-            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.Component.SYSTEM)
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
                 as SecurityPatchState.DateBasedSecurityPatchLevel
         assertEquals(2020, spl.getYear())
         assertEquals(1, spl.getMonth())
@@ -234,12 +237,12 @@ class SecurityPatchStateTest {
         doReturn("").`when`(mockSecurityStateManager).getPackageVersion(Mockito.anyString())
         doReturn(bundle).`when`(mockSecurityStateManager).getGlobalSecurityState(anyString())
 
-        securityState.getDeviceSecurityPatchLevel(SecurityPatchState.Component.SYSTEM)
+        securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
     }
 
     @Test(expected = IllegalStateException::class)
     fun testGetPublishedSpl_ThrowsWhenNoVulnerabilityReportLoaded() {
-        securityState.getPublishedSecurityPatchLevel(SecurityPatchState.Component.SYSTEM)
+        securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM)
     }
 
     @Test
@@ -286,7 +289,7 @@ class SecurityPatchStateTest {
             .thenReturn("2024-05-01")
 
         val spl =
-            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.Component.SYSTEM_MODULES)
+            securityState.getDeviceSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM_MODULES)
                 as SecurityPatchState.DateBasedSecurityPatchLevel
 
         assertEquals(2022, spl.getYear())
@@ -316,7 +319,7 @@ class SecurityPatchStateTest {
 
         val spl =
             securityState
-                .getPublishedSecurityPatchLevel(SecurityPatchState.Component.SYSTEM_MODULES)[0]
+                .getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_SYSTEM_MODULES)[0]
                 as SecurityPatchState.DateBasedSecurityPatchLevel
 
         assertEquals(2023, spl.getYear())
@@ -345,7 +348,7 @@ class SecurityPatchStateTest {
         securityState.loadVulnerabilityReport(jsonInput)
 
         val spl =
-            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.Component.VENDOR)[0]
+            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_VENDOR)[0]
                 as SecurityPatchState.DateBasedSecurityPatchLevel
 
         assertEquals(2023, spl.getYear())
@@ -374,7 +377,7 @@ class SecurityPatchStateTest {
         securityState.loadVulnerabilityReport(jsonInput)
 
         val versions =
-            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.Component.KERNEL)
+            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL)
         val version0 = versions[0] as SecurityPatchState.VersionedSecurityPatchLevel
         val version1 = versions[1] as SecurityPatchState.VersionedSecurityPatchLevel
 
@@ -390,7 +393,7 @@ class SecurityPatchStateTest {
     @Test
     fun testGetAvailableSpl_ReturnsUpdateWhenHigherThanCurrent() {
         val availableSpl = SecurityPatchState.DateBasedSecurityPatchLevel(2023, 2, 1)
-        val component = SecurityPatchState.Component.SYSTEM
+        val component = SecurityPatchState.COMPONENT_SYSTEM
         val availableUpdateJson =
             """
             {
@@ -410,7 +413,7 @@ class SecurityPatchStateTest {
         `when`(mockCursor.getString(0)).thenReturn(availableUpdateJson)
         securityState.loadVulnerabilityReport(generateMockReport("system", "2023-02-01"))
 
-        val result = securityState.getAvailableSecurityPatchLevel(component, null)
+        val result = securityState.getAvailableSecurityPatchLevel(component)
 
         assertEquals(availableSpl.toString(), result.toString())
     }
@@ -418,7 +421,7 @@ class SecurityPatchStateTest {
     @Test
     fun testGetAvailableSpl_FallsBackToCurrentWhenNoHigherUpdate() {
         val currentSpl = SecurityPatchState.DateBasedSecurityPatchLevel(2023, 5, 15)
-        val component = SecurityPatchState.Component.SYSTEM
+        val component = SecurityPatchState.COMPONENT_SYSTEM
         val bundle = Bundle()
         bundle.putString("system_spl", "2023-05-15")
 
@@ -426,7 +429,7 @@ class SecurityPatchStateTest {
         `when`(mockSecurityStateManager.getGlobalSecurityState(anyString())).thenReturn(bundle)
         securityState.loadVulnerabilityReport(generateMockReport("system", "2023-04-01"))
 
-        val result = securityState.getAvailableSecurityPatchLevel(component, null)
+        val result = securityState.getAvailableSecurityPatchLevel(component)
 
         assertEquals(currentSpl.toString(), result.toString())
     }
@@ -453,7 +456,7 @@ class SecurityPatchStateTest {
         securityState.loadVulnerabilityReport(generateMockReport("vendor", "2023-01-01"))
 
         val spl = SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2023-01-01")
-        val fixes = securityState.getPatchedCves(SecurityPatchState.Component.SYSTEM, spl)
+        val fixes = securityState.getPatchedCves(SecurityPatchState.COMPONENT_SYSTEM, spl)
 
         assertEquals(null, fixes[SecurityPatchState.Severity.CRITICAL])
         assertEquals(null, fixes[SecurityPatchState.Severity.HIGH])
@@ -461,7 +464,7 @@ class SecurityPatchStateTest {
         assertEquals(null, fixes[SecurityPatchState.Severity.LOW])
 
         val spl2 = SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2022-01-01")
-        val fixes2 = securityState.getPatchedCves(SecurityPatchState.Component.VENDOR, spl2)
+        val fixes2 = securityState.getPatchedCves(SecurityPatchState.COMPONENT_VENDOR, spl2)
 
         assertEquals(null, fixes2[SecurityPatchState.Severity.CRITICAL])
         assertEquals(null, fixes2[SecurityPatchState.Severity.HIGH])
@@ -495,11 +498,11 @@ class SecurityPatchStateTest {
                 .trimIndent()
         securityState.loadVulnerabilityReport(jsonInput)
 
-        val fixes = securityState.getPatchedCves(SecurityPatchState.Component.SYSTEM, spl)
+        val fixes = securityState.getPatchedCves(SecurityPatchState.COMPONENT_SYSTEM, spl)
 
         assertEquals(2, fixes[SecurityPatchState.Severity.HIGH]?.size)
         assertEquals(
-            listOf("CVE-2023-0001", "CVE-2023-0002"),
+            setOf("CVE-2023-0001", "CVE-2023-0002"),
             fixes[SecurityPatchState.Severity.HIGH]
         )
 
@@ -510,7 +513,7 @@ class SecurityPatchStateTest {
     fun testGetSecurityFixes_ThrowsExceptionForInvalidComponent() {
         val spl = SecurityPatchState.DateBasedSecurityPatchLevel.fromString("2023-01-01")
 
-        securityState.getPatchedCves(SecurityPatchState.Component.WEBVIEW, spl)
+        securityState.getPatchedCves(SecurityPatchState.COMPONENT_WEBVIEW, spl)
     }
 
     @Test

@@ -30,10 +30,25 @@ import com.google.gson.Gson
  * via a content URI. It only supports querying data; insert, delete, and update operations are not
  * supported.
  *
- * This provider is typically used to expose update information to other applications or components
- * within the system that need access to the latest security updates data. An OTA update client
- * calls registerUpdate() and unregisterUpdate() to add or remove update information to a local
- * store, from which the content provider serves the data to the applications.
+ * This provider is typically used by OTA or other update client to expose update information to
+ * other applications or components within the system that need access to the latest security
+ * updates data. The client calls registerUpdate() and unregisterUpdate() to add or remove update
+ * information to a local store, from which the content provider serves the data to the
+ * applications. To setup the content provider add following snippet to the client's manifest,
+ * replacing com.example with correct namespace:
+ * <pre>
+ * <permission
+ * android:name="com.example.updateinfoprovider.WRITE_UPDATES_INFO"
+ * android:label="@string/write_permission_label"
+ * android:description="@string/write_permission_description"
+ * android:protectionLevel="signature" />
+ *
+ * <provider
+ * android:name=".UpdateInfoProvider"
+ * android:authorities="com.example.updateinfoprovider"
+ * android:exported="true"
+ * android:writePermission="com.example.updateinfoprovider.WRITE_UPDATES_INFO"/>
+ * </pre>
  *
  * @param context The [Context] of the calling application.
  * @param authority The authority for this content provider, used to construct the base URI.
@@ -222,16 +237,19 @@ public open class UpdateInfoProvider(
         val editor = sharedPreferences?.edit() ?: return
 
         allUpdates.forEach { updateInfo ->
-            val component: SecurityPatchState.Component
+            val component = updateInfo.component
+            val currentSpl: SecurityPatchState.SecurityPatchLevel
             try {
-                component = SecurityPatchState.Component.valueOf(updateInfo.component)
+                currentSpl = securityState.getDeviceSecurityPatchLevel(component)
             } catch (e: IllegalArgumentException) {
                 // Ignore unknown components.
                 return@forEach
             }
-            val currentSpl = securityState.getDeviceSecurityPatchLevel(component)
             val updateSpl =
-                securityState.getSecurityPatchLevelString(component, updateInfo.securityPatchLevel)
+                securityState.getComponentSecurityPatchLevel(
+                    component,
+                    updateInfo.securityPatchLevel
+                )
 
             if (updateSpl <= currentSpl) {
                 val key = getKeyForUpdateInfo(updateInfo)
