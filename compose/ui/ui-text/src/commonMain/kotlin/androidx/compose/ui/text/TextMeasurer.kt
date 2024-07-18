@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text
 
-import androidx.collection.LruCache
+import androidx.collection.SieveCache
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.font.FontFamily
@@ -80,8 +80,7 @@ private const val DefaultCacheSize = 8
  *   would miss the cache.
  */
 @Immutable
-class TextMeasurer
-constructor(
+class TextMeasurer(
     private val defaultFontFamilyResolver: FontFamily.Resolver,
     private val defaultDensity: Density,
     private val defaultLayoutDirection: LayoutDirection,
@@ -352,18 +351,18 @@ constructor(
 }
 
 /**
- * Keeps an LRU layout cache of TextLayoutInput, TextLayoutResult pairs. Any non-layout affecting
- * change in TextLayoutInput (color, brush, shadow, TextDecoration) is ignored by this cache.
+ * Keeps a layout cache of TextLayoutInput, TextLayoutResult pairs. Any non-layout affecting change
+ * in TextLayoutInput (color, brush, shadow, TextDecoration) is ignored by this cache.
  *
- * @param capacity Maximum size of LRU cache. Size unit is the number of [CacheTextLayoutInput] and
+ * @param capacity Maximum size of the cache. Size unit is the number of [CacheTextLayoutInput] and
  *   [TextLayoutResult] pairs.
  * @throws IllegalArgumentException if capacity is not a positive integer.
  */
 internal class TextLayoutCache(capacity: Int = DefaultCacheSize) {
-    private val lruCache = LruCache<CacheTextLayoutInput, TextLayoutResult>(capacity)
+    private val cache = SieveCache<CacheTextLayoutInput, TextLayoutResult>(capacity, capacity)
 
     fun get(key: TextLayoutInput): TextLayoutResult? {
-        val resultFromCache = lruCache.get(CacheTextLayoutInput(key)) ?: return null
+        val resultFromCache = cache[CacheTextLayoutInput(key)] ?: return null
 
         if (resultFromCache.multiParagraph.intrinsics.hasStaleResolvedFonts) {
             // one of the resolved fonts has updated, and this MeasuredText is no longer valid for
@@ -375,11 +374,11 @@ internal class TextLayoutCache(capacity: Int = DefaultCacheSize) {
     }
 
     fun put(key: TextLayoutInput, value: TextLayoutResult): TextLayoutResult? {
-        return lruCache.put(CacheTextLayoutInput(key), value)
+        return cache.put(CacheTextLayoutInput(key), value)
     }
 
     fun remove(key: TextLayoutInput): TextLayoutResult? {
-        return lruCache.remove(CacheTextLayoutInput(key))
+        return cache.remove(CacheTextLayoutInput(key))
     }
 }
 
