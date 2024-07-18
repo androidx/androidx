@@ -16,6 +16,8 @@
 
 package androidx.compose.material3.samples
 
+import android.content.Context
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,15 +59,21 @@ import androidx.compose.ui.Alignment.Companion.BottomCenter
 import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
 fun HorizontalFloatingAppBar() {
+    val context = LocalContext.current
+    val isTouchExplorationEnabled = remember {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        am.isEnabled && am.isTouchExplorationEnabled
+    }
     val listState = rememberLazyListState()
     var currentItem = 0
-    val expanded = remember {
+    val expanded by remember {
         derivedStateOf {
             val temp = currentItem
             currentItem = listState.firstVisibleItemIndex
@@ -95,7 +103,7 @@ fun HorizontalFloatingAppBar() {
                 }
                 HorizontalFloatingAppBar(
                     modifier = Modifier.align(BottomCenter).offset(y = -ScreenOffset),
-                    expanded = expanded.value,
+                    expanded = expanded || isTouchExplorationEnabled,
                     trailingContent = { trailingContent() },
                     leadingContent = {
                         leadingContent()
@@ -117,7 +125,9 @@ fun HorizontalFloatingAppBar() {
                             )
                         }
                     },
-                    scrollBehavior = if (!anchored) exitAlwaysScrollBehavior else null
+                    scrollBehavior =
+                        if (!anchored && !isTouchExplorationEnabled) exitAlwaysScrollBehavior
+                        else null,
                 )
             }
         }
@@ -128,9 +138,14 @@ fun HorizontalFloatingAppBar() {
 @Sampled
 @Composable
 fun VerticalFloatingAppBar() {
+    val context = LocalContext.current
+    val isTouchExplorationEnabled = remember {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        am.isEnabled && am.isTouchExplorationEnabled
+    }
     val listState = rememberLazyListState()
     var currentItem = 0
-    val expanded = remember {
+    val expanded by remember {
         derivedStateOf {
             val temp = currentItem
             currentItem = listState.firstVisibleItemIndex
@@ -159,7 +174,7 @@ fun VerticalFloatingAppBar() {
                 }
                 VerticalFloatingAppBar(
                     modifier = Modifier.align(CenterEnd).offset(x = -ScreenOffset),
-                    expanded = expanded.value,
+                    expanded = expanded || isTouchExplorationEnabled,
                     trailingContent = { trailingContent() },
                     leadingContent = {
                         leadingContent()
@@ -181,7 +196,9 @@ fun VerticalFloatingAppBar() {
                             )
                         }
                     },
-                    scrollBehavior = if (!anchored) exitAlwaysScrollBehavior else null
+                    scrollBehavior =
+                        if (!anchored && !isTouchExplorationEnabled) exitAlwaysScrollBehavior
+                        else null,
                 )
             }
         }

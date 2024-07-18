@@ -380,6 +380,9 @@ object FloatingAppBarDefaults {
      */
     val ScreenOffset = 16.dp
 
+    // TODO: note that this scroll behavior may impact assistive technologies making the component
+    //  inaccessible. See @sample androidx.compose.material3.samples.HorizontalFloatingAppBar on how
+    //  to disable scrolling when touch exploration is enabled.
     /**
      * Returns a [FloatingAppBarScrollBehavior]. A floating app bar that is set up with this
      * [FloatingAppBarScrollBehavior] will immediately collapse when the content is pulled up, and
