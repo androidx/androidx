@@ -80,21 +80,13 @@ public class DataTest {
                 .putIntArray(KEY2, expectedValue2)
                 .build();
 
-        byte[] byteArray = Data.toByteArrayInternalV1(data);
+        byte[] byteArray = Data.toByteArrayInternal(data);
         Data restoredData = Data.fromByteArray(byteArray);
 
         assertThat(restoredData, is(notNullValue()));
         assertThat(restoredData.size(), is(2));
         assertThat(restoredData.getIntArray(KEY1), is(equalTo(expectedValue1)));
         assertThat(restoredData.getIntArray(KEY2), is(equalTo(expectedValue2)));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testSerializeMigration() {
-        Data data = createData();
-        Data restored = Data.fromByteArray(Data.toByteArrayInternalV0(data));
-        assertThat(restored, is(data));
     }
 
     @Test
@@ -127,7 +119,7 @@ public class DataTest {
     public void testToString() {
         Data data = createData();
         String result = data.toString();
-        for (String key : data.getKeyValueMap().keySet()) {
+        for (String key : data.mValues.keySet()) {
             assertThat(result, containsString(key));
         }
     }
@@ -200,7 +192,6 @@ public class DataTest {
         Data first = createData();
         Data second = createData();
         assertThat(first.equals(second), is(true));
-        assertThat(first.hashCode() == second.hashCode(), is(true));
     }
 
     @Test
@@ -242,20 +233,12 @@ public class DataTest {
     @NonNull
     private Data createData() {
         Map<String, Object> map = new HashMap<>();
-        map.put("boolean", true);
         map.put("byte", (byte) 1);
         map.put("int", 1);
-        map.put("long", 99L);
         map.put("float", 99f);
-        map.put("double", 99d);
         map.put("String", "two");
-        map.put("boolean array", new boolean[] { false, true, false });
         map.put("byte array", new byte[] { 1, 2, 3 });
-        map.put("int array", new long[] { 1, 2, 3 });
         map.put("long array", new long[] { 1L, 2L, 3L });
-        map.put("float array", new float[] { 1f, 2f, 3f });
-        map.put("double array", new double[] { 1d, 2d, 3d });
-        map.put("string array", new String[] { "one", "two", "three", null, "" });
         map.put("null", null);
         Data.Builder dataBuilder = new Data.Builder();
         dataBuilder.putAll(map);

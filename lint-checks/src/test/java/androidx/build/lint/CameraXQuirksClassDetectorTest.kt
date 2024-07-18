@@ -18,7 +18,6 @@
 
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.TestMode.Companion.PARTIAL
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -43,6 +42,7 @@ class CameraXQuirksClassDetectorTest : AbstractLintDetectorTest(
             *     Bug Id:
             *     Description:
             *     Device(s):
+
              [CameraXQuirksClassDetector]
             public class CameraXMissingQuirkSummaryJava implements Quirk {
                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,13 +50,6 @@ class CameraXQuirksClassDetectorTest : AbstractLintDetectorTest(
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        lint()
-            .files(
-                *stubs,
-                *input
-            )
-            .allowDuplicates()
-            .skipTestModes(PARTIAL) // b/324629808
-            .run().expect(expected)
+        check(*input).expect(expected)
     }
 }

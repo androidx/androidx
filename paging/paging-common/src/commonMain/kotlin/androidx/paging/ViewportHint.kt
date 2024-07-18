@@ -87,7 +87,7 @@ internal sealed class ViewportHint(
     /**
      * [ViewportHint] reporting presenter state after receiving initial page. An [Initial] hint
      * should never take precedence over an [Access] hint and is only used to inform
-     * [PageFetcher] how many items from the initial page load were presented by [PagingDataPresenter]
+     * [PageFetcher] how many items from the initial page load were presented by [PagingDataDiffer]
      */
     class Initial(
         presentedItemsBefore: Int,

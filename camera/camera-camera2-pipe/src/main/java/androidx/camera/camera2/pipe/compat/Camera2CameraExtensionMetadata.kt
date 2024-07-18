@@ -50,9 +50,6 @@ internal class Camera2CameraExtensionMetadata(
     @GuardedBy("supportedExtensionSizesByClass")
     private val supportedExtensionSizesByClass = mutableMapOf<Class<*>, Lazy<Set<Size>>>()
 
-    @GuardedBy("supportedPostviewSizes")
-    private val supportedPostviewSizes = mutableMapOf<Size, Lazy<Set<Size>>>()
-
     // TODO: b/299356087 - this here may need a switch statement on the key
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
@@ -67,9 +64,6 @@ internal class Camera2CameraExtensionMetadata(
             CameraExtensionCharacteristics::class -> extensionCharacteristics as T
             else -> null
         }
-
-    override val isPostviewSupported: Boolean
-        get() = _isPostviewSupported.value
 
     override val requestKeys: Set<CaptureRequest.Key<*>>
         get() = _requestKeys.value
@@ -104,28 +98,6 @@ internal class Camera2CameraExtensionMetadata(
             }
         }
         return supportedExtensionSizes.value
-    }
-
-    override fun getPostviewSizes(
-        captureSize: Size,
-        format: Int
-    ): Set<Size> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val supportedPostviewSizes = synchronized(supportedPostviewSizes) {
-                supportedPostviewSizes.getOrPut(captureSize) {
-                    lazy(LazyThreadSafetyMode.PUBLICATION) {
-                        Api34Compat.getPostviewSupportedSizes(
-                            extensionCharacteristics,
-                            cameraExtension,
-                            captureSize,
-                            format
-                        ).toSet()
-                    }
-                }
-            }
-            return supportedPostviewSizes.value
-        }
-        return emptySet()
     }
 
     private val _requestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
@@ -167,24 +139,6 @@ internal class Camera2CameraExtensionMetadata(
                     "Failed to getAvailableCaptureResultKeys from Camera-$camera"
                 }
                 emptySet()
-            }
-        }
-
-    private val _isPostviewSupported: Lazy<Boolean> =
-        lazy(LazyThreadSafetyMode.PUBLICATION) {
-            try {
-                Debug.trace("Camera-$camera#isPostviewSupported") {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        Api34Compat.isPostviewAvailable(extensionCharacteristics, cameraExtension)
-                    } else {
-                        false
-                    }
-                }
-            } catch (e: AssertionError) {
-                Log.warn(e) {
-                    "Failed to get isPostviewSupported from Camera-$camera"
-                }
-                false
             }
         }
 }

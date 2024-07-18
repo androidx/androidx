@@ -33,7 +33,7 @@
     <string name="mr_controller_stop" msgid="5497722768305745508">"متوقف کردن"</string>
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"بزرگ کردن"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"کوچک کردن"</string>
-    <string name="mr_controller_album_art" msgid="3330502667672708728">"جلد آلبوم"</string>
+    <string name="mr_controller_album_art" msgid="3330502667672708728">"عکس روی جلد آلبوم"</string>
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"لغزنده میزان صدا"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"رسانه‌ای انتخاب نشده است"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"اطلاعاتی در دسترس نیست"</string>

@@ -23,8 +23,9 @@ import androidx.health.platform.client.impl.ipc.ClientConfiguration
  * Entry point for connecting to Health Data Provider on the device and creating instances of
  * [HealthDataAsyncClient].
  *
+ * @suppress
  */
-internal object HealthDataService {
+object HealthDataService {
 
     private const val ANDROID_HEALTH_PLATFORM_CLIENT_NAME = "HealthData"
     private const val ANDROID_HEALTH_PLATFORM_PROVIDER_PACKAGE =
@@ -35,6 +36,7 @@ internal object HealthDataService {
     /**
      * Creates an IPC-backed [HealthDataAsyncClient] instance binding to the default implementation.
      */
+    @SuppressWarnings("RestrictedApi")
     fun getClient(context: Context): HealthDataAsyncClient {
         val configuration =
             ClientConfiguration(
@@ -58,6 +60,7 @@ internal object HealthDataService {
      *             "com.google.android.apps.healthdata.service.HealthCoreService")
      * ```
      */
+    @SuppressWarnings("RestrictedApi")
     fun getClient(
         context: Context,
         clientName: String,

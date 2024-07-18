@@ -254,10 +254,10 @@ class PageFetcherSnapshotStateTest {
         state.insert(0, PREPEND, pages[0])
         state.insert(0, APPEND, pages[2])
 
-        val storage = pages.toPageStore(1)
-        val storageMissingPrepend = pages.drop(1).toPageStore(0)
-        val storageMissingAppend = pages.dropLast(1).toPageStore(1)
-        val storageExtraPrepend = pages.toMutableList().apply {
+        val presenter = pages.toPresenter(1)
+        val presenterMissingPrepend = pages.drop(1).toPresenter(0)
+        val presenterMissingAppend = pages.dropLast(1).toPresenter(1)
+        val presenterExtraPrepend = pages.toMutableList().apply {
             add(
                 0,
                 Page(
@@ -266,8 +266,8 @@ class PageFetcherSnapshotStateTest {
                     nextKey = 2
                 )
             )
-        }.toPageStore(2)
-        val storageExtraAppend = pages.toMutableList().apply {
+        }.toPresenter(2)
+        val presenterExtraAppend = pages.toMutableList().apply {
             add(
                 Page(
                     data = listOf(8, 9),
@@ -275,10 +275,10 @@ class PageFetcherSnapshotStateTest {
                     nextKey = null
                 )
             )
-        }.toPageStore(1)
+        }.toPresenter(1)
 
-        // Hint in loaded items, fetcher state == storage state.
-        assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(4)))
+        // Hint in loaded items, fetcher state == presenter state.
+        assertThat(state.currentPagingState(presenter.accessHintForPresenterIndex(4)))
             .isEqualTo(
                 PagingState(
                     pages = pages,
@@ -288,8 +288,8 @@ class PageFetcherSnapshotStateTest {
                 )
             )
 
-        // Hint in placeholders before, fetcher state == storage state.
-        assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(0)))
+        // Hint in placeholders before, fetcher state == presenter state.
+        assertThat(state.currentPagingState(presenter.accessHintForPresenterIndex(0)))
             .isEqualTo(
                 PagingState(
                     pages = pages,
@@ -299,8 +299,8 @@ class PageFetcherSnapshotStateTest {
                 )
             )
 
-        // Hint in placeholders after, fetcher state == storage state.
-        assertThat(state.currentPagingState(storage.accessHintForPresenterIndex(9)))
+        // Hint in placeholders after, fetcher state == presenter state.
+        assertThat(state.currentPagingState(presenter.accessHintForPresenterIndex(9)))
             .isEqualTo(
                 PagingState(
                     pages = pages,
@@ -312,7 +312,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in loaded items, fetcher state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(4))
+            state.currentPagingState(presenterMissingPrepend.accessHintForPresenterIndex(4))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -324,7 +324,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in placeholders before, fetcher state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(0))
+            state.currentPagingState(presenterMissingPrepend.accessHintForPresenterIndex(0))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -336,7 +336,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in placeholders after, fetcher state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageMissingPrepend.accessHintForPresenterIndex(9))
+            state.currentPagingState(presenterMissingPrepend.accessHintForPresenterIndex(9))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -348,7 +348,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in loaded items, fetcher state has an extra appended page.
         assertThat(
-            state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(4))
+            state.currentPagingState(presenterMissingAppend.accessHintForPresenterIndex(4))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -360,7 +360,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in placeholders before, fetcher state has an extra appended page.
         assertThat(
-            state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(0))
+            state.currentPagingState(presenterMissingAppend.accessHintForPresenterIndex(0))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -372,7 +372,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in placeholders after, fetcher state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageMissingAppend.accessHintForPresenterIndex(9))
+            state.currentPagingState(presenterMissingAppend.accessHintForPresenterIndex(9))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -382,9 +382,9 @@ class PageFetcherSnapshotStateTest {
             )
         )
 
-        // Hint in loaded items, storage state has an extra prepended page.
+        // Hint in loaded items, presenter state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(4))
+            state.currentPagingState(presenterExtraPrepend.accessHintForPresenterIndex(4))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -394,9 +394,9 @@ class PageFetcherSnapshotStateTest {
             )
         )
 
-        // Hint in placeholders before, storage state has an extra prepended page.
+        // Hint in placeholders before, presenter state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(0))
+            state.currentPagingState(presenterExtraPrepend.accessHintForPresenterIndex(0))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -406,9 +406,9 @@ class PageFetcherSnapshotStateTest {
             )
         )
 
-        // Hint in placeholders after, storage state has an extra prepended page.
+        // Hint in placeholders after, presenter state has an extra prepended page.
         assertThat(
-            state.currentPagingState(storageExtraPrepend.accessHintForPresenterIndex(9))
+            state.currentPagingState(presenterExtraPrepend.accessHintForPresenterIndex(9))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -418,9 +418,9 @@ class PageFetcherSnapshotStateTest {
             )
         )
 
-        // Hint in loaded items, storage state has an extra appended page.
+        // Hint in loaded items, presenter state has an extra appended page.
         assertThat(
-            state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(4))
+            state.currentPagingState(presenterExtraAppend.accessHintForPresenterIndex(4))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -430,9 +430,9 @@ class PageFetcherSnapshotStateTest {
             )
         )
 
-        // Hint in placeholders before, storage state has an extra appended page.
+        // Hint in placeholders before, presenter state has an extra appended page.
         assertThat(
-            state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(0))
+            state.currentPagingState(presenterExtraAppend.accessHintForPresenterIndex(0))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -444,7 +444,7 @@ class PageFetcherSnapshotStateTest {
 
         // Hint in placeholders after, fetcher state has an extra appended page.
         assertThat(
-            state.currentPagingState(storageExtraAppend.accessHintForPresenterIndex(9))
+            state.currentPagingState(presenterExtraAppend.accessHintForPresenterIndex(9))
         ).isEqualTo(
             PagingState(
                 pages = pages,
@@ -483,10 +483,10 @@ class PageFetcherSnapshotStateTest {
         assertThat(state.sourceLoadStates.get(APPEND)).isEqualTo(NotLoading.Complete)
     }
 
-    private fun List<Page<Int, Int>>.toPageStore(initialPageIndex: Int): PageStore<Int> {
+    private fun List<Page<Int, Int>>.toPresenter(initialPageIndex: Int): PagePresenter<Int> {
         val pageSize = 2
         val initialPage = get(initialPageIndex)
-        val storage = PageStore(
+        val presenter = PagePresenter(
             insertEvent = localRefresh(
                 pages = listOf(TransformablePage(initialPage.data)),
                 placeholdersBefore = initialPage.itemsBefore,
@@ -496,28 +496,30 @@ class PageFetcherSnapshotStateTest {
 
         for (i in 0 until initialPageIndex) {
             val offset = i + 1
-            storage.processEvent(
+            presenter.processEvent(
                 localPrepend(
                     pages = listOf(
                         TransformablePage(originalPageOffset = -offset, data = get(i).data)
                     ),
                     placeholdersBefore = initialPage.itemsBefore - (offset * pageSize),
-                )
+                ),
+                ProcessPageEventCallbackCapture()
             )
         }
 
         for (i in (initialPageIndex + 1)..lastIndex) {
             val offset = i - initialPageIndex
-            storage.processEvent(
+            presenter.processEvent(
                 localAppend(
                     pages = listOf(
                         TransformablePage(originalPageOffset = offset, data = get(i).data)
                     ),
                     placeholdersAfter = initialPage.itemsAfter - (offset * pageSize),
-                )
+                ),
+                ProcessPageEventCallbackCapture()
             )
         }
 
-        return storage
+        return presenter
     }
 }

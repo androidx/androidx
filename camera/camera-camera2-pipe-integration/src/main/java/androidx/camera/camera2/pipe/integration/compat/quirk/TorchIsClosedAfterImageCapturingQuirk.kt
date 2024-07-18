@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -27,6 +28,7 @@ import androidx.camera.core.impl.Quirk
  * - Device(s): Redmi 4X, Redmi 5A, Redmi Note 5 (Pro), Mi A1, Mi A2, Mi A2 lite and Redmi 6 Pro.
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class TorchIsClosedAfterImageCapturingQuirk : Quirk {
 
     companion object {

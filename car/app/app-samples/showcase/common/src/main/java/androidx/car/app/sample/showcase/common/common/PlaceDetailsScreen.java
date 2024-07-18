@@ -17,6 +17,7 @@
 package androidx.car.app.sample.showcase.common.common;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
+import static androidx.car.app.model.Action.BACK;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -28,7 +29,6 @@ import androidx.car.app.HostException;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
@@ -79,10 +79,8 @@ public class PlaceDetailsScreen extends Screen {
                                         .build());
 
         return new PaneTemplate.Builder(paneBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(mPlace.title)
-                        .setStartHeaderAction(Action.BACK)
-                        .build())
+                .setTitle(mPlace.title)
+                .setHeaderAction(BACK)
                 .build();
     }
 

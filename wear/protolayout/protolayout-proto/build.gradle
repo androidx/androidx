@@ -13,32 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.LibraryType
 import androidx.build.RunApiTasks
-
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXRepackagePlugin")
     id("java-library")
     id("com.google.protobuf")
+    id("com.github.johnrengelman.shadow")
 }
-
-repackage {
-    // Must match what is in wear/protolayout/protolayout-external-protobuf/build.gradle
-    addRelocation {
-        sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.wear.protolayout.protobuf"
-    }
+configurations {
+    shadowed
+    compileOnly.extendsFrom(shadowed)
+    testCompile.extendsFrom(shadowed)
+    // for downstream tests, provide a configuration that includes the shadow output + other
+    // dependencies that are not shadowed
+    shadowAndImplementation.extendsFrom(shadow)
+    shadowAndImplementation.extendsFrom(implementation)
 }
-
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    api(project(":wear:protolayout:protolayout-external-protobuf"))
-    // Must be compileOnly to not bring in protobufLite in runtime
-    // Repackaged protobufLite brought in by
-    // project(":wear:protolayout:protolayout-external-protobuf") is used at runtime
-    compileOnly(libs.protobufLite)
+    shadowed(libs.protobufLite)
+}
+
+// HACK: Move standard JAR to have another suffix and build a shadowJar with
+// no classifier (so it's picked up as the primary artifact).
+jar {
+    archiveClassifier = 'before-shadow'
+}
+
+shadowJar {
+    archiveClassifier = ''
+    configurations = [project.configurations.shadowed]
+
+    relocate "com.google.protobuf", "androidx.wear.protolayout.protobuf"
+    exclude("**/*.proto")
+}
+
+configurations {
+    apiElements.outgoing.artifacts.clear()
+    apiElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
+    runtimeElements.outgoing.artifacts.clear()
+    runtimeElements.outgoing.artifact(shadowJar) {
+        builtBy shadowJar
+    }
 }
 
 protobuf {

@@ -2,8 +2,8 @@
 package androidx.glance {
 
   public final class BackgroundKt {
-    method @Deprecated public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale);
-    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale, optional androidx.glance.ColorFilter? colorFilter);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, androidx.glance.ColorFilter? colorFilter, optional int contentScale);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.unit.ColorProvider colorProvider);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, @ColorRes int color);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long color);
@@ -49,11 +49,11 @@ package androidx.glance {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> getLocalContext();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> getLocalGlanceId();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> getLocalSize();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object?> getLocalState();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> getLocalState();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<android.content.Context> LocalContext;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.GlanceId> LocalGlanceId;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.DpSize> LocalSize;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object?> LocalState;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> LocalState;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceApi {
@@ -109,6 +109,8 @@ package androidx.glance {
   }
 
   public enum Visibility {
+    method public static androidx.glance.Visibility valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.glance.Visibility[] values();
     enum_constant public static final androidx.glance.Visibility Gone;
     enum_constant public static final androidx.glance.Visibility Invisible;
     enum_constant public static final androidx.glance.Visibility Visible;
@@ -215,7 +217,6 @@ package androidx.glance.color {
     method public final androidx.glance.unit.ColorProvider getSurfaceVariant();
     method public final androidx.glance.unit.ColorProvider getTertiary();
     method public final androidx.glance.unit.ColorProvider getTertiaryContainer();
-    method public final androidx.glance.unit.ColorProvider getWidgetBackground();
     property public final androidx.glance.unit.ColorProvider background;
     property public final androidx.glance.unit.ColorProvider error;
     property public final androidx.glance.unit.ColorProvider errorContainer;
@@ -242,12 +243,10 @@ package androidx.glance.color {
     property public final androidx.glance.unit.ColorProvider surfaceVariant;
     property public final androidx.glance.unit.ColorProvider tertiary;
     property public final androidx.glance.unit.ColorProvider tertiaryContainer;
-    property public final androidx.glance.unit.ColorProvider widgetBackground;
   }
 
   public final class ColorProvidersKt {
     method public static androidx.glance.color.ColorProviders colorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary);
-    method public static androidx.glance.color.ColorProviders colorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary, androidx.glance.unit.ColorProvider widgetBackground);
   }
 
   public final class DayNightColorProvidersKt {
@@ -399,7 +398,7 @@ package androidx.glance.semantics {
   public final class SemanticsConfiguration implements androidx.glance.semantics.SemanticsPropertyReceiver {
     ctor public SemanticsConfiguration();
     method public operator <T> T get(androidx.glance.semantics.SemanticsPropertyKey<T> key);
-    method public <T> T? getOrElseNullable(androidx.glance.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T?> defaultValue);
+    method public <T> T? getOrElseNullable(androidx.glance.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public <T> T? getOrNull(androidx.glance.semantics.SemanticsPropertyKey<T> key);
     method public <T> void set(androidx.glance.semantics.SemanticsPropertyKey<T> key, T value);
   }
@@ -424,7 +423,7 @@ package androidx.glance.semantics {
   }
 
   public final class SemanticsPropertyKey<T> {
-    ctor public SemanticsPropertyKey(String name, optional kotlin.jvm.functions.Function2<? super T?,? super T,? extends T?> mergePolicy);
+    ctor public SemanticsPropertyKey(String name, optional kotlin.jvm.functions.Function2<? super T,? super T,? extends T> mergePolicy);
     method public String getName();
     method public T? merge(T? parentValue, T childValue);
     property public final String name;

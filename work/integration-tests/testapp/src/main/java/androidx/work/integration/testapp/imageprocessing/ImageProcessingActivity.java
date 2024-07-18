@@ -18,6 +18,7 @@ package androidx.work.integration.testapp.imageprocessing;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -71,7 +72,9 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 Intent chooseIntent = new Intent(
                         Intent.ACTION_PICK,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                chooseIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                if (Build.VERSION.SDK_INT >= 18) {
+                    chooseIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                }
                 startActivityForResult(chooseIntent, IMAGE_REQUEST_CODE);
             }
         });
@@ -89,7 +92,7 @@ public class ImageProcessingActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_OK
-                && data.getClipData() != null) {
+                && Build.VERSION.SDK_INT >= 16 && data.getClipData() != null) {
             Log.d(TAG, "Image Selection Complete");
             int count = data.getClipData().getItemCount();
             OneTimeWorkRequest[] processingWork = new OneTimeWorkRequest[count];

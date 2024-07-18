@@ -15,7 +15,7 @@
  */
 package androidx.stableaidl.internal.process
 
-import androidx.stableaidl.internal.LoggerWrapper
+import com.android.build.gradle.internal.LoggerWrapper
 import com.android.ide.common.process.ProcessException
 import com.android.ide.common.process.ProcessExecutor
 import com.android.ide.common.process.ProcessInfo

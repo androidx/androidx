@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XTypeVariableType
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import com.google.devtools.ksp.symbol.Nullability
 import com.squareup.javapoet.TypeName
 import kotlin.reflect.KClass
 
@@ -54,16 +53,7 @@ internal class KspMethodTypeVariableType(
         )
     }
 
-    override val upperBounds: List<XType> = ksTypeVariable.bounds.map {
-        val type = it.resolve().let {
-            if (it.nullability == Nullability.PLATFORM) {
-                it.withNullability(XNullability.NULLABLE)
-            } else {
-                it
-            }
-        }
-        env.wrap(it, type)
-    }.toList()
+    override val upperBounds: List<XType> = ksTypeVariable.bounds.map(env::wrap).toList()
 
     override fun annotations(): Sequence<KSAnnotation> {
         return ksTypeVariable.annotations

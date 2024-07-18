@@ -16,15 +16,14 @@
 
 package androidx.bluetooth
 
-import com.google.common.truth.Truth.assertThat
+import junit.framework.TestCase.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-/**
- * Test cases for [BluetoothAddress]
- */
 @RunWith(JUnit4::class)
 class BluetoothAddressTest {
 
@@ -41,8 +40,8 @@ class BluetoothAddressTest {
 
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_PUBLIC, addressType)
 
-        assertThat(bluetoothAddress.address).isEqualTo(TEST_ADDRESS_PUBLIC)
-        assertThat(bluetoothAddress.addressType).isEqualTo(addressType)
+        assertEquals(TEST_ADDRESS_PUBLIC, bluetoothAddress.address)
+        assertEquals(addressType, bluetoothAddress.addressType)
     }
 
     @Test
@@ -51,8 +50,8 @@ class BluetoothAddressTest {
 
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_RANDOM_STATIC, addressType)
 
-        assertThat(bluetoothAddress.address).isEqualTo(TEST_ADDRESS_RANDOM_STATIC)
-        assertThat(bluetoothAddress.addressType).isEqualTo(addressType)
+        assertEquals(TEST_ADDRESS_RANDOM_STATIC, bluetoothAddress.address)
+        assertEquals(addressType, bluetoothAddress.addressType)
     }
 
     @Test
@@ -61,17 +60,17 @@ class BluetoothAddressTest {
 
         val bluetoothAddress = BluetoothAddress(TEST_ADDRESS_UNKNOWN, addressType)
 
-        assertThat(bluetoothAddress.address).isEqualTo(TEST_ADDRESS_UNKNOWN)
-        assertThat(bluetoothAddress.addressType).isEqualTo(addressType)
+        assertEquals(TEST_ADDRESS_UNKNOWN, bluetoothAddress.address)
+        assertEquals(addressType, bluetoothAddress.addressType)
     }
 
     @Test
     fun constructorWithInvalidAddressType() {
         val invalidAddressType = -1
 
-        assertFailsWith<IllegalArgumentException> {
-            BluetoothAddress(TEST_ADDRESS_UNKNOWN, invalidAddressType)
-        }
+        val result = runCatching { BluetoothAddress(TEST_ADDRESS_UNKNOWN, invalidAddressType) }
+
+        assertTrue(result.exceptionOrNull() is IllegalArgumentException)
     }
 
     @Test
@@ -98,9 +97,9 @@ class BluetoothAddressTest {
             BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC
         )
 
-        assertThat(sameAddress).isEqualTo(publicAddress)
-        assertThat(sameAddress.hashCode()).isEqualTo(publicAddress.hashCode())
-        assertThat(publicAddress).isNotEqualTo(addressWithDifferentAddress)
-        assertThat(publicAddress).isNotEqualTo(addressWithDifferentType)
+        assertEquals(publicAddress, sameAddress)
+        assertEquals(publicAddress.hashCode(), sameAddress.hashCode())
+        assertNotEquals(publicAddress, addressWithDifferentAddress)
+        assertNotEquals(publicAddress, addressWithDifferentType)
     }
 }

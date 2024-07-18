@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -273,54 +273,135 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            return if (canDeviceWriteToMediaStore()) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
+        errorLine2="                   ~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    generateVideoMediaStoreOptions(context.contentResolver, fileName)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
+        errorLine2="                     ~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    generateVideoMediaStoreOptions(context.contentResolver, fileName)"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    generateVideoMediaStoreOptions(context.contentResolver, fileName)"
-        errorLine2="                                                                            ~~~~~~~~">
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Camera binding failed&quot;, exception)"
+        errorLine2="                                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    generateVideoFileOutputOptions(fileName)"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
+        errorLine1="        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null"
+        errorLine2="                            ~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
     </issue>
 
     <issue
         id="RestrictedApiAndroidX"
-        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                    generateVideoFileOutputOptions(fileName)"
-        errorLine2="                                                   ~~~~~~~~">
+        message="DeviceQuirks.get can only be called from within the same library (androidx.camera:camera-video)"
+        errorLine1="        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to create directory: $videoFolder&quot;)"
+        errorLine2="                   ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to create directory: $videoFolder&quot;)"
+        errorLine2="                     ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            Logger.e(TAG, &quot;Failed to create directory: $videoFolder&quot;)"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Logger.d(TAG, &quot;Video saved to: $uri&quot;)"
+        errorLine2="                           ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Logger.d(TAG, &quot;Video saved to: $uri&quot;)"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.d can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Logger.d(TAG, &quot;Video saved to: $uri&quot;)"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Logger.e(TAG, &quot;Failed to save video: $msg&quot;)"
+        errorLine2="                           ~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Logger.e(TAG, &quot;Failed to save video: $msg&quot;)"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Logger.e can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    Logger.e(TAG, &quot;Failed to save video: $msg&quot;)"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
     </issue>

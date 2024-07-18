@@ -18,8 +18,6 @@ package androidx.baselineprofile.gradle.apptarget.task
 
 import androidx.baselineprofile.gradle.utils.INTERMEDIATES_BASE_FOLDER
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
@@ -32,7 +30,6 @@ import org.gradle.work.DisableCachingByDefault
  * This task generates a fixed keep rule file that disables obfuscation.
  */
 @DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class GenerateKeepRulesForBaselineProfilesTask : DefaultTask() {
 
     companion object {

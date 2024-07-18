@@ -136,7 +136,7 @@ class SelectableChipShape internal constructor(
             "focusedSelectedDisabledShape=$focusedSelectedDisabledShape)"
     }
 
-    internal fun toSelectableSurfaceShape() = SelectableSurfaceShape(
+    internal fun toToggleableSurfaceShape() = ToggleableSurfaceShape(
         shape = shape,
         focusedShape = focusedShape,
         pressedShape = pressedShape,
@@ -278,7 +278,7 @@ class SelectableChipColors internal constructor(
         return result
     }
 
-    internal fun toSelectableSurfaceColors() = SelectableSurfaceColors(
+    internal fun toToggleableSurfaceColors() = ToggleableSurfaceColors(
         containerColor = containerColor,
         contentColor = contentColor,
         focusedContainerColor = focusedContainerColor,
@@ -459,7 +459,7 @@ class SelectableChipScale internal constructor(
         )
     }
 
-    internal fun toSelectableSurfaceScale() = SelectableSurfaceScale(
+    internal fun toToggleableSurfaceScale() = ToggleableSurfaceScale(
         scale = scale,
         focusedScale = focusedScale,
         pressedScale = pressedScale,
@@ -587,7 +587,7 @@ class SelectableChipBorder internal constructor(
             "focusedSelectedDisabledBorder=$focusedSelectedDisabledBorder)"
     }
 
-    internal fun toSelectableSurfaceBorder() = SelectableSurfaceBorder(
+    internal fun toToggleableSurfaceBorder() = ToggleableSurfaceBorder(
         border = border,
         focusedBorder = focusedBorder,
         pressedBorder = pressedBorder,
@@ -690,7 +690,7 @@ class SelectableChipGlow internal constructor(
             "pressedSelectedGlow=$pressedSelectedGlow)"
     }
 
-    internal fun toSelectableSurfaceGlow() = SelectableSurfaceGlow(
+    internal fun toToggleableSurfaceGlow() = ToggleableSurfaceGlow(
         glow = glow,
         focusedGlow = focusedGlow,
         pressedGlow = pressedGlow,

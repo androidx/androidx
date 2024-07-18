@@ -42,48 +42,46 @@ import org.gradle.work.InputChanges
 private const val MAPPING_FILE = "file_mappings.json"
 
 @CacheableTask
-abstract class ArgumentsGenerationTask @Inject constructor(
-    private val projectLayout: ProjectLayout
-) : DefaultTask() {
-    @get:Input
-    abstract val rFilePackage: Property<String>
+abstract class ArgumentsGenerationTask
+@Inject
+constructor(private val projectLayout: ProjectLayout) : DefaultTask() {
+    @get:Input abstract val rFilePackage: Property<String>
 
-    @get:Input
-    abstract val applicationId: Property<String>
+    @get:Input abstract val applicationId: Property<String>
 
-    @get:Input
-    abstract val useAndroidX: Property<Boolean>
+    @get:Input abstract val useAndroidX: Property<Boolean>
 
-    @get:Input
-    abstract val generateKotlin: Property<Boolean>
+    @get:Input abstract val generateKotlin: Property<Boolean>
 
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:Incremental
     @get:InputFiles
     abstract val navigationFiles: ConfigurableFileCollection
 
-    @get:OutputDirectory
-    abstract val incrementalFolder: DirectoryProperty
+    @get:OutputDirectory abstract val incrementalFolder: DirectoryProperty
 
-    private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
-        val output = SafeArgsGenerator(
-            rFilePackage = rFilePackage.get(),
-            applicationId = applicationId.orNull ?: "",
-            navigationXml = file,
-            outputDir = out,
-            useAndroidX = useAndroidX.get(),
-            generateKotlin = generateKotlin.get()
-        ).generate()
-        Mapping(
-            file.relativeTo(
-                projectLayout.projectDirectory.asFile
-            ).path,
-            output.fileNames
-        ) to output.errors
-    }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
+    private fun generateArgs(navFiles: Collection<File>, out: File) =
+        navFiles
+            .map { file ->
+                val output =
+                    SafeArgsGenerator(
+                            rFilePackage = rFilePackage.get(),
+                            applicationId = applicationId.orNull ?: "",
+                            navigationXml = file,
+                            outputDir = out,
+                            useAndroidX = useAndroidX.get(),
+                            generateKotlin = generateKotlin.get()
+                        )
+                        .generate()
+                Mapping(
+                    file.relativeTo(projectLayout.projectDirectory.asFile).path,
+                    output.fileNames
+                ) to output.errors
+            }
+            .unzip()
+            .let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
     private fun writeMappings(mappings: List<Mapping>) {
         File(incrementalFolder.asFile.get(), MAPPING_FILE).writer().use {
@@ -139,15 +137,21 @@ abstract class ArgumentsGenerationTask @Inject constructor(
         val (newMapping, errors) = generateArgs(modifiedFiles, outputDir.asFile.get())
         val newJavaFiles = newMapping.flatMap { it.javaFiles }.toSet()
         val changedInputs = removedFiles + modifiedFiles
-        val (modified, unmodified) = oldMapping.partition {
-            File(projectLayout.projectDirectory.asFile, it.navFile) in changedInputs
-        }
-        modified.flatMap { it.javaFiles }
+        val (modified, unmodified) =
+            oldMapping.partition {
+                File(projectLayout.projectDirectory.asFile, it.navFile) in changedInputs
+            }
+        modified
+            .flatMap { it.javaFiles }
             .filter { name -> name !in newJavaFiles }
             .forEach { javaName ->
-                val fileExtension = if (generateKotlin.get()) { ".kt" } else { ".java" }
-                val fileName =
-                    "${javaName.replace('.', File.separatorChar)}$fileExtension"
+                val fileExtension =
+                    if (generateKotlin.get()) {
+                        ".kt"
+                    } else {
+                        ".java"
+                    }
+                val fileName = "${javaName.replace('.', File.separatorChar)}$fileExtension"
                 val file = File(outputDir.asFile.get(), fileName)
                 if (file.exists()) {
                     file.delete()
@@ -168,8 +172,7 @@ abstract class ArgumentsGenerationTask @Inject constructor(
     }
 }
 
-private fun ErrorMessage.toClickableText() = "$path:$line:$column " +
-    "(${File(path).name}:$line): \n" +
-    "error: $message"
+private fun ErrorMessage.toClickableText() =
+    "$path:$line:$column " + "(${File(path).name}:$line): \n" + "error: $message"
 
 private data class Mapping(val navFile: String, val javaFiles: List<String>)

@@ -142,7 +142,7 @@ class SuggestionsAdapter extends ResourceCursorAdapter implements OnClickListene
     public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
         if (DBG) Log.d(LOG_TAG, "runQueryOnBackgroundThread(" + constraint + ")");
         String query = (constraint == null) ? "" : constraint.toString();
-        /*
+        /**
          * for in app search we show the progress spinner until the cursor is returned with
          * the results.
          */

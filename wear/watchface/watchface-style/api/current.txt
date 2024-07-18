@@ -305,6 +305,8 @@ package androidx.wear.watchface.style {
   }
 
   public enum WatchFaceLayer {
+    method public static androidx.wear.watchface.style.WatchFaceLayer valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.wear.watchface.style.WatchFaceLayer[] values();
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer BASE;
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer COMPLICATIONS;
     enum_constant public static final androidx.wear.watchface.style.WatchFaceLayer COMPLICATIONS_OVERLAY;

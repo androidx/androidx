@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -32,31 +25,33 @@ plugins {
 }
 
 dependencies {
-    api("androidx.compose.foundation:foundation:1.6.0")
-    api("androidx.compose.ui:ui:1.6.0")
-    api("androidx.compose.ui:ui-text:1.6.0")
-    api("androidx.compose.runtime:runtime:1.6.0")
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:ui:ui-text"))
+    api(project(":compose:runtime:runtime"))
     api(project(":wear:compose:compose-foundation"))
 
     implementation(libs.kotlinStdlib)
-    implementation("androidx.compose.animation:animation:1.6.0")
-    implementation("androidx.compose.material:material-icons-core:1.6.0")
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:material:material-icons-core"))
     implementation(project(":compose:material:material-ripple"))
-    implementation("androidx.compose.ui:ui-util:1.6.0")
+    implementation(project(":compose:ui:ui-util"))
     implementation(project(":wear:compose:compose-material-core"))
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
+
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":wear:compose:compose-material3-samples"))
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
+
+    samples(project(":wear:compose:compose-material-samples"))
 }
 
 android {
@@ -67,7 +62,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material3"
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.wear.compose.material3"
@@ -78,14 +73,14 @@ android {
 
 androidx {
     name = "Android Wear Compose Material 3"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.WEAR_COMPOSE_MATERIAL3
     inceptionYear = "2022"
     description = "WearOS Compose Material 3 Library. This library makes it easier for " +
             "developers to write Jetpack Compose applications for Wearable devices that " +
             "implement Wear Material 3 Design UX guidelines and specifications. It builds upon " +
             "the Jetpack Compose libraries."
-    samples(project(":wear:compose:compose-material3-samples"))
+    targetsJavaConsumers = false
 }
 
 tasks.withType(KotlinCompile).configureEach {

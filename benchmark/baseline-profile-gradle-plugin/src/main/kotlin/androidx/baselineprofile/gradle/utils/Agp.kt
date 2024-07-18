@@ -19,9 +19,9 @@ package androidx.baselineprofile.gradle.utils
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.TestVariant
+import kotlin.reflect.full.memberFunctions
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
 
 internal fun Project.agpVersion(): AndroidPluginVersion {
     return project
@@ -42,20 +42,11 @@ internal enum class AgpFeature(
     internal val version: AndroidPluginVersion
 ) {
 
-    APPLICATION_VARIANT_HAS_UNIT_TEST_BUILDER(
-        AndroidPluginVersion(8, 1, 0)
-    ),
     TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES(
         AndroidPluginVersion(8, 1, 0).alpha(7)
     ),
     TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS(
         AndroidPluginVersion(8, 2, 0).alpha(3)
-    ),
-    LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS(
-        AndroidPluginVersion(8, 3, 0).alpha(15)
-    ),
-    TEST_VARIANT_TESTED_APKS(
-        AndroidPluginVersion(8, 3, 0)
     )
 }
 
@@ -66,31 +57,35 @@ internal enum class AgpFeature(
  */
 internal object InstrumentationTestRunnerArgumentsAgp82 {
     fun set(variant: TestVariant, arguments: List<Pair<String, String>>) {
-        arguments.forEach { (k, v) -> set(variant, k, v) }
-    }
+        arguments.forEach { (k, v) ->
 
-    fun set(variant: TestVariant, key: String, value: String) {
-        variant.instrumentationRunnerArguments.put(key, value)
-    }
+            // What follows here is some reflection code to achieve the following:
+            // `variant.instrumentationRunnerArguments.put(k, v)`
+            // Note that once androidx is on Agp 8.2 this reflection code can be substituted with
+            // the above line.
 
-    fun set(variant: TestVariant, key: String, value: Provider<String>) {
-        variant.instrumentationRunnerArguments.put(key, value)
-    }
-}
-
-/**
- * This class should be referenced only in AGP 8.3, as the utilized api doesn't exist in
- * previous versions. Keeping it as a separate class instead of accessing the api directly
- * allows previous version of AGP to be compatible with this code base.
- */
-@Suppress("UnstableApiUsage")
-internal object TestedApksAgp83 {
-    fun getTargetAppApplicationId(variant: TestVariant): Provider<String> {
-        // Note that retrieving the BuildArtifactsLoader from within the lambda causes an issue
-        // with serialization (see b/325886853#comment13).
-        val buildArtifactLoader = variant.artifacts.getBuiltArtifactsLoader()
-        return variant.testedApks.map {
-            buildArtifactLoader.load(it)?.applicationId ?: ""
+            val instrumentationRunnerArgumentsFieldMember = variant::class
+                .members
+                .firstOrNull { it.name == "instrumentationRunnerArguments" }
+                ?: throw IllegalStateException(
+                    "`TestVariant#instrumentationRunnerArguments` not found."
+                )
+            val instrumentationRunnerArgumentsMap = instrumentationRunnerArgumentsFieldMember
+                .call(variant)
+                ?: throw IllegalStateException(
+                    "Failed to acquire `TestVariant#instrumentationRunnerArguments`."
+                )
+            val putMethod = instrumentationRunnerArgumentsMap::class
+                .memberFunctions
+                .firstOrNull {
+                    it.name == "put" &&
+                        it.parameters[1].name == "key" &&
+                        it.parameters[2].name == "value"
+                }
+                ?: throw IllegalStateException(
+                    "`instrumentationRunnerArguments` does not have a `put(key, value)` method."
+                )
+            putMethod.call(instrumentationRunnerArgumentsMap, k, v)
         }
     }
 }

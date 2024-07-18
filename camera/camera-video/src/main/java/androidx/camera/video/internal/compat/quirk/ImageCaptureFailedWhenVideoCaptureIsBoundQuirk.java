@@ -16,7 +16,6 @@
 
 package androidx.camera.video.internal.compat.quirk;
 
-import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -24,21 +23,16 @@ import androidx.camera.core.impl.Quirk;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/239369953, b/331754902, b/338869048, b/339555742
+ *     Bug Id: b/239369953
  *     Description: When taking image with VideoCapture is bound, the capture result is returned
- *                  but the resulting image can not be obtained. On Pixel 4XL API29, taking image
- *                  with VideoCapture UHD is bound, camera HAL returns error. Pixel 4XL starts
- *                  from API29 and API30+ work fine.
- *                  On Moto E13, taking picture will time out after recording is started, even if
- *                  the recording is stopped.
- *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805, Pixel 4XL API29, Moto E13
+ *                  but the resulting image can not be obtained.
+ *     Device(s): BLU Studio X10, Itel w6004, Twist 2 Pro, and Vivo 1805.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
 
     static boolean load() {
-        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
-                || isPixel4XLApi29() || isMotoE13();
+        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro();
     }
 
     public static boolean isBluStudioX10() {
@@ -56,28 +50,5 @@ public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk implements Quirk {
     public static boolean isPositivoTwist2Pro() {
         return "positivo".equalsIgnoreCase(Build.BRAND) && "twist 2 pro".equalsIgnoreCase(
                 Build.MODEL);
-    }
-
-    private static boolean isPixel4XLApi29() {
-        return "pixel 4 xl".equalsIgnoreCase(Build.MODEL) && Build.VERSION.SDK_INT == 29;
-    }
-
-    public static boolean isMotoE13() {
-        return "motorola".equalsIgnoreCase(Build.BRAND) && "moto e13".equalsIgnoreCase(
-                Build.MODEL);
-    }
-
-    /**
-     * Returns if the workaround needs to use {@link CameraDevice#TEMPLATE_PREVIEW} instead of
-     * {@link CameraDevice#TEMPLATE_RECORD}.
-     */
-    public boolean workaroundByTemplatePreview() {
-        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro();
-    }
-
-    /** Returns if the workaround needs to enable OpenGL pipeline. */
-    public boolean workaroundBySurfaceProcessing() {
-        return isBluStudioX10() || isItelW6004() || isVivo1805() || isPositivoTwist2Pro()
-                || isPixel4XLApi29() || isMotoE13();
     }
 }

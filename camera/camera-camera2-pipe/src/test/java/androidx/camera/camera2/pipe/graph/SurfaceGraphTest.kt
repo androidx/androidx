@@ -41,14 +41,13 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class SurfaceGraphTest {
     private val config = FakeGraphConfigs
-    private val controller = FakeCameraController()
 
     private val streamMap = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
-
+    private val controller = FakeCameraController()
     private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
     private val cameraSurfaceManager =
         CameraSurfaceManager().also { it.addListener(fakeSurfaceListener) }
-    private val surfaceGraph = SurfaceGraph(streamMap, controller, cameraSurfaceManager, emptyMap())
+    private val surfaceGraph = SurfaceGraph(streamMap, controller, cameraSurfaceManager)
 
     private val stream1 = streamMap[config.streamConfig1]!!
     private val stream2 = streamMap[config.streamConfig2]!!

@@ -19,7 +19,6 @@ package androidx.room.solver
 import androidx.kruth.assertThat
 import androidx.room.RoomKspProcessor
 import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -35,7 +34,6 @@ import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
 import androidx.room.vo.BuiltInConverterFlags
 import androidx.room.writer.DaoWriter
-import androidx.room.writer.TypeWriter
 import javax.tools.Diagnostic
 import org.junit.Rule
 import org.junit.Test
@@ -404,11 +402,7 @@ class NullabilityAwareTypeConverterStoreTest {
                 dao = daoProcessor.process(),
                 dbElement = invocation.processingEnv
                     .requireTypeElement("androidx.room.RoomDatabase"),
-                writerContext = TypeWriter.WriterContext(
-                    codeLanguage = CodeLanguage.JAVA,
-                    javaLambdaSyntaxAvailable = false,
-                    targetPlatforms = setOf(XProcessingEnv.Platform.JVM)
-                )
+                codeLanguage = CodeLanguage.JAVA
             ).write(invocation.processingEnv)
             invocation.assertCompilationResult {
                 generatedSourceFileWithPath("MyDao_Impl.java").let {

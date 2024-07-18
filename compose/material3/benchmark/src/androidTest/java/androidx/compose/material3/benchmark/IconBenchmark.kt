@@ -37,13 +37,10 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class IconBenchmark(private val type: IconType) {
     companion object {
-        @Parameterized.Parameters(name = "{0}")
-        @JvmStatic
-        fun parameters() = IconType.values()
+        @Parameterized.Parameters(name = "{0}") @JvmStatic fun parameters() = IconType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val iconTestCaseFactory = { IconTestCase(type) }
 
@@ -53,32 +50,28 @@ class IconBenchmark(private val type: IconType) {
     }
 }
 
-private class IconTestCase(
-    private val type: IconType
-) : LayeredComposeTestCase() {
+private class IconTestCase(private val type: IconType) : LayeredComposeTestCase() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
         when (type) {
-            IconType.FilledIcon ->
-                Icon(Icons.Filled.Lock, contentDescription = null)
-
+            IconType.FilledIcon -> Icon(Icons.Filled.Lock, contentDescription = null)
             IconType.FilledTintedIcon ->
                 Icon(
                     rememberVectorPainter(image = Icons.Filled.Lock),
                     contentDescription = null,
-                    tint = { Color.Blue })
+                    tint = { Color.Blue }
+                )
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class IconType {
-    FilledIcon, FilledTintedIcon
+    FilledIcon,
+    FilledTintedIcon
 }

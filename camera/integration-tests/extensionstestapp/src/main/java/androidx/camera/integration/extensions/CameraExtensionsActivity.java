@@ -15,8 +15,6 @@
  */
 package androidx.camera.integration.extensions;
 
-import static android.os.Environment.getExternalStoragePublicDirectory;
-
 import static androidx.camera.core.ImageCapture.ERROR_CAMERA_CLOSED;
 import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
@@ -28,23 +26,13 @@ import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_CAMERA_ID;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_DELETE_CAPTURED_IMAGE;
 import static androidx.camera.integration.extensions.IntentExtraKey.INTENT_EXTRA_KEY_EXTENSION_MODE;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_DURATION_LIMIT_REACHED;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_FILE_SIZE_LIMIT_REACHED;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_INSUFFICIENT_STORAGE;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
-import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
-import static androidx.core.util.Preconditions.checkNotNull;
-
-import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.graphics.Bitmap;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureRequest;
 import android.net.Uri;
@@ -60,12 +48,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.View;
 import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -74,13 +60,13 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
-import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
+import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.MeteringPoint;
@@ -94,19 +80,11 @@ import androidx.camera.integration.extensions.utils.ExtensionModeUtil;
 import androidx.camera.integration.extensions.utils.FpsRecorder;
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity;
 import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.camera.video.MediaStoreOutputOptions;
-import androidx.camera.video.PendingRecording;
-import androidx.camera.video.Recorder;
-import androidx.camera.video.Recording;
-import androidx.camera.video.RecordingStats;
-import androidx.camera.video.VideoCapture;
-import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.PreviewView;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
-import androidx.core.util.Consumer;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.espresso.idling.CountingIdlingResource;
 
@@ -131,9 +109,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
-    public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
-    public static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
-    public static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
 
     private CameraSelector mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
@@ -146,12 +121,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @Nullable
     private ImageCapture mImageCapture;
 
-    @Nullable
-    private VideoCapture<Recorder> mVideoCapture = null;
-
-    @Nullable
-    private Recording mActiveRecording = null;
-
     @ExtensionMode.Mode
     private int mCurrentExtensionMode = ExtensionMode.BOKEH;
 
@@ -161,9 +130,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     private final CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource(
             "TakePicture");
-
-    private final CountingIdlingResource mPostviewIdlingResource = new CountingIdlingResource(
-            "Postview");
 
     private final CountingIdlingResource mPreviewViewStreamingStateIdlingResource =
             new CountingIdlingResource("PreviewView-Streaming");
@@ -183,16 +149,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     // < Sensor timestamp,  current timestamp >
     Map<Long, Long> mFrameTimestampMap = new HashMap<>();
-
-    @Nullable
-    String mFrameInfo = null;
-
-    @Nullable
-    String mRecordingInfo = null;
+    TextView mFrameInfo;
 
     String mCurrentCameraId = null;
-
-    private ToggleButton mToggleVideoCapture;
 
     /**
      * Saves the error message of the last take picture action if any error occurs. This will be
@@ -208,23 +167,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
         Button btnSwitchCamera = findViewById(R.id.Switch);
         btnToggleMode.setOnClickListener(view -> bindUseCasesWithNextExtensionMode());
         btnSwitchCamera.setOnClickListener(view -> switchCameras());
-
-        // Setup video capture related buttons.
-        mToggleVideoCapture.setVisibility(View.VISIBLE);
-        mToggleVideoCapture.setOnCheckedChangeListener(
-                (button, isChecked) -> {
-                    updateRecordingButton();
-                    bindUseCasesWithCurrentExtensionMode();
-                }
-        );
-        Button btnRecord = findViewById(R.id.record);
-        btnRecord.setOnClickListener(view -> {
-            if (mActiveRecording != null) {
-                stopRecording();
-            } else {
-                startRecording();
-            }
-        });
     }
 
     void switchCameras() {
@@ -275,22 +217,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
             return false;
         }
 
-        mCameraProvider.unbindAll();
-
-        CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
-                mCurrentCameraSelector, mCurrentExtensionMode);
-
-        mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector);
-
-        final boolean isPostviewSupported = ImageCapture.getImageCaptureCapabilities(
-                mCamera.getCameraInfo()).isPostviewSupported();
-
         resetPreviewViewStreamingStateIdlingResource();
         resetPreviewViewIdleStateIdlingResource();
 
-        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder()
-                .setTargetName("ImageCapture")
-                .setPostviewEnabled(isPostviewSupported);
+        ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
+                "ImageCapture");
         mImageCapture = imageCaptureBuilder.build();
 
         mFrameTimestampMap.clear();
@@ -336,22 +267,26 @@ public class CameraExtensionsActivity extends AppCompatActivity
             String fpsText = String.format("%1$s",
                     (Double.isNaN(fps) || Double.isInfinite(fps)) ? "---" :
                             String.format(Locale.US, "%.0f", fps));
-            mFrameInfo = "Latency:" + latency + " ms\n" + "FPS: " + fpsText;
-            updateInfoBlock();
+            mFrameInfo.setText("Latency:" + latency + " ms\n" + "FPS: " + fpsText);
         });
+
+        CameraSelector cameraSelector = mExtensionsManager.getExtensionEnabledCameraSelector(
+                mCurrentCameraSelector, mCurrentExtensionMode);
+
+        mCameraProvider.unbindAll();
 
         UseCaseGroup.Builder useCaseGroupBuilder =
                 new UseCaseGroup.Builder()
                         .addUseCase(mPreview)
                         .addUseCase(mImageCapture);
 
-        // Setup VideoCapture.
-        stopRecording();
-        mVideoCapture = null;
-        if (mToggleVideoCapture.isChecked()) {
-            Recorder recorder = new Recorder.Builder().build();
-            mVideoCapture = VideoCapture.withOutput(recorder);
-            useCaseGroupBuilder.addUseCase(checkNotNull(mVideoCapture));
+        if (mExtensionsManager.isImageAnalysisSupported(cameraSelector,
+                mCurrentExtensionMode)) {
+            ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+            imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor(),  img -> {
+                img.close();
+            });
+            useCaseGroupBuilder.addUseCase(imageAnalysis);
         }
 
         mCamera = mCameraProvider.bindToLifecycle(this, cameraSelector,
@@ -367,17 +302,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
         Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS", Locale.US);
         File dir = new File(
-                getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "ExtensionsPictures");
 
         captureButton.setOnClickListener((view) -> {
             resetTakePictureIdlingResource();
-            resetPostviewIdlingResource();
-
-            // Makes the postview idling resource idle when it is not supported.
-            if (!isPostviewSupported && !mPostviewIdlingResource.isIdleNow()) {
-                mPostviewIdlingResource.decrement();
-            }
 
             String fileName = "[" + formatter.format(Calendar.getInstance().getTime())
                     + "][CameraX]" + extensionModeString + ".jpg";
@@ -456,123 +385,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 mTakePictureIdlingResource.decrement();
                             }
                         }
-
-                        @Override
-                        public void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
-                            if (!mPostviewIdlingResource.isIdleNow()) {
-                                mPostviewIdlingResource.decrement();
-                            }
-                        }
                     });
         });
 
         return true;
-    }
-
-    private void updateRecordingButton() {
-        Button btnRecord = findViewById(R.id.record);
-        if (mToggleVideoCapture.isChecked()) {
-            btnRecord.setVisibility(View.VISIBLE);
-            if (mActiveRecording != null) {
-                btnRecord.setText(R.string.button_record_stop);
-            } else {
-                btnRecord.setText(R.string.button_record_start);
-            }
-        } else {
-            mRecordingInfo = null;
-            updateInfoBlock();
-            btnRecord.setVisibility(View.GONE);
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void startRecording() {
-        if (mVideoCapture != null) {
-            Recorder recorder = mVideoCapture.getOutput();
-            mActiveRecording = prepareRecording(recorder).withAudioEnabled().start(
-                    ContextCompat.getMainExecutor(this),
-                    generateVideoRecordEventListener()
-            );
-        }
-        updateRecordingButton();
-    }
-
-    private void stopRecording() {
-        if (mActiveRecording != null) {
-            mActiveRecording.stop();
-            mActiveRecording = null;
-        }
-        updateRecordingButton();
-    }
-
-    @NonNull
-    private PendingRecording prepareRecording(@NonNull Recorder recorder) {
-        return recorder.prepareRecording(this, generateVideoMediaStoreOptions());
-    }
-
-    @NonNull
-    private MediaStoreOutputOptions generateVideoMediaStoreOptions() {
-        return new MediaStoreOutputOptions.Builder(getContentResolver(),
-                MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-                .setContentValues(generateVideoContentValues())
-                .build();
-    }
-
-    private ContentValues generateVideoContentValues() {
-        String fileName = "video_" + System.currentTimeMillis();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
-        contentValues.put(MediaStore.Video.Media.TITLE, fileName);
-        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, fileName);
-        contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
-        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
-        return contentValues;
-    }
-
-    private Consumer<VideoRecordEvent> generateVideoRecordEventListener() {
-        return event -> {
-            updateRecordingStats(event.getRecordingStats());
-            if (event instanceof VideoRecordEvent.Finalize) {
-                VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) event;
-                Uri uri = finalizeEvent.getOutputResults().getOutputUri();
-                String message;
-                switch (finalizeEvent.getError()) {
-                    case ERROR_NONE:
-                    case ERROR_FILE_SIZE_LIMIT_REACHED:
-                    case ERROR_DURATION_LIMIT_REACHED:
-                    case ERROR_INSUFFICIENT_STORAGE:
-                    case ERROR_SOURCE_INACTIVE:
-                        message = "Video saved to: " + uri;
-                        break;
-                    default:
-                        message = "Failed to save video: uri " + uri + " with code ("
-                                        + finalizeEvent.getError() + ")";
-                        break;
-                }
-                Toast.makeText(CameraExtensionsActivity.this, message, Toast.LENGTH_LONG).show();
-            }
-        };
-    }
-
-    private void updateRecordingStats(@NonNull RecordingStats stats) {
-        double durationSec = NANOSECONDS.toMillis(stats.getRecordedDurationNanos()) / 1000d;
-        double sizeMb = stats.getNumBytesRecorded() / (1000d * 1000d);
-        mRecordingInfo = String.format("Duration: %.2f s\nSize: %.2f MB", durationSec, sizeMb);
-
-        updateInfoBlock();
-    }
-
-    private void updateInfoBlock() {
-        List<String> infoToDisplay = new ArrayList<>();
-        if (mFrameInfo != null) {
-            infoToDisplay.add(mFrameInfo);
-        }
-        if (mRecordingInfo != null) {
-            infoToDisplay.add(mRecordingInfo);
-        }
-
-        TextView infoBlock = findViewById(R.id.infoBlock);
-        infoBlock.setText(String.join("\n", infoToDisplay));
     }
 
     @SuppressWarnings("UnstableApiUsage")
@@ -580,7 +396,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_extensions);
-        setTitle(R.string.camerax_extensions);
 
         mInitializationIdlingResource.increment();
 
@@ -610,14 +425,12 @@ public class CameraExtensionsActivity extends AppCompatActivity
         StrictMode.VmPolicy policy =
                 new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
         StrictMode.setVmPolicy(policy);
-        mToggleVideoCapture = findViewById(R.id.videoToggle);
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         viewFinderStub.setLayoutResource(R.layout.full_previewview);
         mPreviewView = (PreviewView) viewFinderStub.inflate();
+        mFrameInfo = findViewById(R.id.frameInfo);
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         setupPinchToZoomAndTapToFocus(mPreviewView);
-        String cameraImplementation =
-                getIntent().getStringExtra(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
         Futures.addCallback(setupPermissions(), new FutureCallback<Boolean>() {
             @Override
             public void onSuccess(@Nullable Boolean result) {
@@ -631,11 +444,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
                     return;
                 }
 
-                if (cameraImplementation != null
-                        && cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
-                    ((ExtensionsApplication) getApplication()).setCameraXConfig(
-                            CameraPipeConfig.defaultConfig());
-                }
                 ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                         ProcessCameraProvider.getInstance(CameraExtensionsActivity.this);
 
@@ -679,20 +487,20 @@ public class CameraExtensionsActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        int itemId = item.getItemId();
-        if (itemId == R.id.menu_camera2_extensions) {
-            if (Build.VERSION.SDK_INT >= 31) {
-                mCameraProvider.unbindAll();
-                intent.setClassName(this, Camera2ExtensionsActivity.class.getName());
+        switch (item.getItemId()) {
+            case R.id.menu_camera2_extensions:
+                if (Build.VERSION.SDK_INT >= 31) {
+                    mCameraProvider.unbindAll();
+                    intent.setClassName(this, Camera2ExtensionsActivity.class.getName());
+                    startActivity(intent);
+                    finish();
+                }
+                return true;
+            case R.id.menu_validation_tool:
+                intent.setClassName(this, CameraValidationResultActivity.class.getName());
                 startActivity(intent);
                 finish();
-            }
-            return true;
-        } else if (itemId == R.id.menu_validation_tool) {
-            intent.setClassName(this, CameraValidationResultActivity.class.getName());
-            startActivity(intent);
-            finish();
-            return true;
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -742,7 +550,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     ScaleGestureDetector.SimpleOnScaleGestureListener mScaleGestureListener =
             new ScaleGestureDetector.SimpleOnScaleGestureListener() {
                 @Override
-                public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                public boolean onScale(ScaleGestureDetector detector) {
                     if (mCamera == null) {
                         return true;
                     }
@@ -765,7 +573,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         }
 
                         @Override
-                        public void onFailure(@NonNull Throwable t) {
+                        public void onFailure(Throwable t) {
                             Log.d(TAG, "setZoomRatio failed, " + t);
                         }
                     }, ContextCompat.getMainExecutor(CameraExtensionsActivity.this));
@@ -979,12 +787,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
     }
 
     @VisibleForTesting
-    @NonNull
-    public CountingIdlingResource getPostviewIdlingResource() {
-        return mPostviewIdlingResource;
-    }
-
-    @VisibleForTesting
     public void resetPreviewViewStreamingStateIdlingResource() {
         if (mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
             mPreviewViewStreamingStateIdlingResource.increment();
@@ -1002,13 +804,6 @@ public class CameraExtensionsActivity extends AppCompatActivity
     void resetTakePictureIdlingResource() {
         if (mTakePictureIdlingResource.isIdleNow()) {
             mTakePictureIdlingResource.increment();
-        }
-    }
-
-    @VisibleForTesting
-    void resetPostviewIdlingResource() {
-        if (mPostviewIdlingResource.isIdleNow()) {
-            mPostviewIdlingResource.increment();
         }
     }
 

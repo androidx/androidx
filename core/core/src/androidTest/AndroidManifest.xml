@@ -118,16 +118,6 @@
             android:theme="@android:style/Theme.Light.NoTitleBar" />
 
         <activity
-            android:name="androidx.core.view.LightSystemBarsActivity"
-            android:exported="true"
-            android:theme="@style/LightSystemBarsTheme" />
-
-        <activity
-            android:name="androidx.core.view.DarkSystemBarsActivity"
-            android:exported="true"
-            android:theme="@style/DarkSystemBarsTheme" />
-
-        <activity
             android:name="androidx.core.view.WindowInsetsCompatActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />

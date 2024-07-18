@@ -33,9 +33,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -82,15 +79,10 @@ class HiltNavGraphViewModelLazyTest {
             val viewModel = withActivity { firstFragment.viewModel }
             val savedStateViewModel = withActivity { firstFragment.savedStateViewModel }
             val hiltSavedStateViewModel = withActivity { firstFragment.hiltSavedStateViewModel }
-            val hiltAssistedInjectViewModel = withActivity {
-                firstFragment.hiltAssistedInjectViewModel
-            }
             assertThat(viewModel).isNotNull()
             assertThat(savedStateViewModel).isNotNull()
             assertThat(hiltSavedStateViewModel).isNotNull()
             assertThat(hiltSavedStateViewModel.otherDep).isNotNull()
-            assertThat(hiltAssistedInjectViewModel).isNotNull()
-            assertThat(hiltAssistedInjectViewModel.id).isEqualTo("test")
 
             // First assert that the initial value is null. Note that we won't get the
             // default value from nav args passed to the destination as this viewmodel
@@ -120,8 +112,6 @@ class HiltNavGraphViewModelLazyTest {
                 .isSameInstanceAs(savedStateViewModel)
             assertThat(secondFragment.hiltSavedStateViewModel)
                 .isSameInstanceAs(hiltSavedStateViewModel)
-            assertThat(secondFragment.hiltAssistedInjectViewModel)
-                .isSameInstanceAs(hiltAssistedInjectViewModel)
             val savedValue: String? = secondFragment.savedStateViewModel
                 .savedStateHandle["test"]
             assertThat(savedValue).isEqualTo("test")
@@ -142,8 +132,6 @@ class HiltNavGraphViewModelLazyTest {
                 .isSameInstanceAs(savedStateViewModel)
             assertThat(recreatedFragment.hiltSavedStateViewModel)
                 .isSameInstanceAs(hiltSavedStateViewModel)
-            assertThat(recreatedFragment.hiltAssistedInjectViewModel)
-                .isSameInstanceAs(hiltAssistedInjectViewModel)
             val recreatedValue: String? = recreatedFragment.savedStateViewModel
                 .savedStateHandle["test"]
             assertThat(recreatedValue).isEqualTo("test")
@@ -160,11 +148,6 @@ class TestVMFragment : Fragment() {
     val savedStateViewModel: TestSavedStateViewModel by navGraphViewModels(R.id.vm_graph)
     val hiltSavedStateViewModel: TestHiltSavedStateViewModel
             by hiltNavGraphViewModels(R.id.vm_graph)
-    val hiltAssistedInjectViewModel: TestHiltAssistedInjectViewModel
-            by hiltNavGraphViewModels(R.id.vm_graph) {
-                    factory: TestHiltAssistedInjectViewModel.Factory ->
-                factory.create(id = "test")
-            }
     // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is resolved
     @Inject @ApplicationContext
     lateinit var applicationContext: Context
@@ -190,17 +173,5 @@ class TestHiltSavedStateViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     val otherDep: OtherDep
 ) : ViewModel()
-
-@HiltViewModel(assistedFactory = TestHiltAssistedInjectViewModel.Factory::class)
-class TestHiltAssistedInjectViewModel @AssistedInject constructor(
-    val savedStateHandle: SavedStateHandle,
-    val otherDep: OtherDep,
-    @Assisted val id: String
-) : ViewModel() {
-    @AssistedFactory
-    interface Factory {
-        fun create(id: String): TestHiltAssistedInjectViewModel
-    }
-}
 
 class OtherDep @Inject constructor()

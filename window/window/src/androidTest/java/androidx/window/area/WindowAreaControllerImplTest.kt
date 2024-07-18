@@ -32,7 +32,6 @@ import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_P
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_ACTIVITY_TO_AREA
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
-import androidx.window.area.adapter.WindowAreaAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
 import androidx.window.extensions.area.ExtensionWindowAreaStatus
@@ -548,8 +547,10 @@ class WindowAreaControllerImplTest {
         }
 
         override fun endRearDisplayPresentationSession() {
-            rearDisplayPresentationSessionConsumer?.accept(SESSION_STATE_ACTIVE)
-            rearDisplayPresentationSessionConsumer?.accept(SESSION_STATE_INACTIVE)
+            rearDisplayPresentationSessionConsumer?.accept(
+                WindowAreaComponent.SESSION_STATE_ACTIVE)
+            rearDisplayPresentationSessionConsumer?.accept(
+                WindowAreaComponent.SESSION_STATE_INACTIVE)
         }
 
         override fun getRearDisplayPresentation(): ExtensionWindowAreaPresentation? {

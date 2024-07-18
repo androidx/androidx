@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_45
+// VERSION: v0_7
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -29,7 +29,7 @@ internal object ShapeTokens {
     val CornerExtraSmall = RoundedCornerShape(4.0.dp)
     val CornerFull = CircleShape
     val CornerLarge = RoundedCornerShape(26.0.dp)
-    val CornerMedium = RoundedCornerShape(18.0.dp)
+    val CornerMedium = RoundedCornerShape(16.0.dp)
     val CornerNone = RectangleShape
     val CornerSmall = RoundedCornerShape(8.0.dp)
 }

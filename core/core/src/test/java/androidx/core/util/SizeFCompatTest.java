@@ -31,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(sdk = 21)
+@Config(sdk = {19, 21})
 public class SizeFCompatTest {
 
     @Test

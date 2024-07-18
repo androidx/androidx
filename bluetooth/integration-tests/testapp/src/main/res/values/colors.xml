@@ -15,11 +15,10 @@
   limitations under the License.
   -->
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="green_500">#4CAF50</color>
-    <color name="grey_200">#EEEEEE</color>
+    <color name="white">#FFFFFF</color>
     <color name="indigo_500">#3F51B5</color>
     <color name="indigo_700">#303F9F</color>
+    <color name="green_500">#4CAF50</color>
     <color name="red_500">#F44336</color>
-    <color name="white">#FFFFFF</color>
+    <color name="black">#FF000000</color>
 </resources>

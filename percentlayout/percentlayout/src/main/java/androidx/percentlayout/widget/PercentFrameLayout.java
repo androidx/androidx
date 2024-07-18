@@ -22,6 +22,8 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.RequiresApi;
+
 /**
  * Subclass of {@link android.widget.FrameLayout} that supports percentage based dimensions and
  * margins.
@@ -203,6 +205,7 @@ public class PercentFrameLayout extends FrameLayout {
             gravity = source.gravity;
         }
 
+        @RequiresApi(19)
         public LayoutParams(LayoutParams source) {
             // The copy constructor used here is only supported on API 19+.
             this((FrameLayout.LayoutParams) source);

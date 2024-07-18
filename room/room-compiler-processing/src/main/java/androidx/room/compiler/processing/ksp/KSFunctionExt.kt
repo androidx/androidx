@@ -34,10 +34,22 @@ internal fun KSFunctionDeclaration.returnKspType(
     env: KspProcessingEnv,
     containing: KspType?
 ): KspType {
-    return env.wrap(
-        originatingReference = checkNotNull(getOriginatingReference()),
-        ksType = returnTypeAsMemberOf(ksType = containing?.ksType)
-    )
+    return if (containing?.typeElement?.isAnnotationClass() == true) {
+        // Calling #getOriginatingReference() or #returnTypeAsMemberOf() currently fails for
+        // annotation classes due to https://github.com/google/ksp/issues/1004. Thus, we avoid
+        // calling those methods and just return the return type directly. This should be safe for
+        // annotation classes since they can't extend other types or use generics.
+        val returnTypeReference = checkNotNull(returnType)
+        env.wrap(
+            originatingReference = returnTypeReference,
+            ksType = returnTypeReference.resolve()
+        )
+    } else {
+        env.wrap(
+            originatingReference = checkNotNull(getOriginatingReference()),
+            ksType = returnTypeAsMemberOf(ksType = containing?.ksType)
+        )
+    }
 }
 
 private fun KSFunctionDeclaration.getOriginatingReference(): KSTypeReference? {

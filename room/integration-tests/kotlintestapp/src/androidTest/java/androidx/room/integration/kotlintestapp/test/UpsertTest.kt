@@ -437,22 +437,4 @@ class UpsertTest : TestDatabaseTest() {
             TestUtil.BOOK_1.copy(title = "changed title")).get())
             .isEqualTo(updatedResult)
     }
-
-    @Test
-    fun upsertConditional() {
-        database.openHelper.writableDatabase.execSQL(
-            "INSERT INTO Counter (id, value) VALUES (1, 10)")
-        database.openHelper.writableDatabase.execSQL(
-            "CREATE TEMP TABLE ModifiedCounter " +
-                "(id INTEGER NOT NULL, value INTEGER NOT NULL, PRIMARY KEY(id))")
-        database.openHelper.writableDatabase.execSQL(
-            "INSERT INTO ModifiedCounter (id, value) VALUES (1, 10)")
-        database.openHelper.writableDatabase.execSQL(
-            "INSERT INTO ModifiedCounter (id, value) VALUES (2, 20)")
-        val counterDao = database.counterDao()
-        // Will cause a REPLACE whose ROWID is the same row being replaced.
-        assertThat(counterDao.conditionalInsert(1)).isEqualTo(1)
-        // Will not cause the INSERT to modified the table, hence no row id.
-        assertThat(counterDao.conditionalInsert(5)).isEqualTo(-1)
-    }
 }

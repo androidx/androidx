@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
 import androidx.build.AndroidXConfig
@@ -44,8 +37,6 @@ dependencies {
 
     testImplementation(project(":privacysandbox:tools:tools-testing"))
     testImplementation(project(":room:room-compiler-processing-testing"))
-    testImplementationAarAsJar(project(":privacysandbox:activity:activity-core"))
-    testImplementationAarAsJar(project(":privacysandbox:activity:activity-provider"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-core"))
     testImplementationAarAsJar(project(":privacysandbox:ui:ui-provider"))
     testImplementationAarAsJar(project(":privacysandbox:sdkruntime:sdkruntime-core"))
@@ -58,20 +49,20 @@ dependencies {
 
 // Get AIDL compiler path and framework.aidl path and pass to tests for code generation.
 def aidlCompilerPath = "${SdkHelperKt.getSdkPath(project)}/build-tools/$buildToolsVersion/aidl"
-def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/android-$compileSdk/framework.aidl"
+def frameworkAidlPath = "${SdkHelperKt.getSdkPath(project)}/platforms/$compileSdk/framework.aidl"
 def testGeneratedSourcesPath = "${project.buildDir}/testGeneratedSources"
-tasks.withType(Test).configureEach { test ->
-    test.inputs.files(aidlCompilerPath)
+test {
+    inputs.files(aidlCompilerPath)
             .withPropertyName("aidl_compiler_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
-    test.inputs.files(frameworkAidlPath)
+    inputs.files(frameworkAidlPath)
             .withPropertyName("framework_aidl_path")
             .withPathSensitivity(PathSensitivity.NAME_ONLY)
-    test.inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
-    test.doFirst {
-        systemProperty("aidl_compiler_path", aidlCompilerPath)
-        systemProperty("framework_aidl_path", frameworkAidlPath)
-        systemProperty("test_output_dir", testGeneratedSourcesPath)
+    inputs.dir("src/test/test-data").withPathSensitivity(PathSensitivity.RELATIVE)
+    doFirst {
+        systemProperty "aidl_compiler_path", aidlCompilerPath
+        systemProperty "framework_aidl_path", frameworkAidlPath
+        systemProperty "test_output_dir", testGeneratedSourcesPath
     }
 }
 

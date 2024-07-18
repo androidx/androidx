@@ -16,8 +16,6 @@
 
 package androidx.work.impl.background.systemjob;
 
-import static androidx.work.impl.background.systemjob.SystemJobInfoConverterExtKt.setRequiredNetworkRequest;
-
 import android.annotation.SuppressLint;
 import android.app.job.JobInfo;
 import android.content.ComponentName;
@@ -54,14 +52,11 @@ class SystemJobInfoConverter {
 
     private final ComponentName mWorkServiceComponent;
     private final Clock mClock;
-    private final boolean mMarkImportantWhileForeground;
 
-    SystemJobInfoConverter(@NonNull Context context,
-            Clock clock, boolean markImportantWhileForeground) {
+    SystemJobInfoConverter(@NonNull Context context, Clock clock) {
         mClock = clock;
         Context appContext = context.getApplicationContext();
         mWorkServiceComponent = new ComponentName(appContext, SystemJobService.class);
-        mMarkImportantWhileForeground = markImportantWhileForeground;
     }
 
     /**
@@ -83,12 +78,8 @@ class SystemJobInfoConverter {
                 .setRequiresCharging(constraints.requiresCharging())
                 .setRequiresDeviceIdle(constraints.requiresDeviceIdle())
                 .setExtras(extras);
-        NetworkRequest networkRequest = constraints.getRequiredNetworkRequest();
-        if (Build.VERSION.SDK_INT >= 28 && networkRequest != null) {
-            setRequiredNetworkRequest(builder, networkRequest);
-        } else {
-            setRequiredNetwork(builder, constraints.getRequiredNetworkType());
-        }
+
+        setRequiredNetwork(builder, constraints.getRequiredNetworkType());
 
         if (!constraints.requiresDeviceIdle()) {
             // Device Idle and Backoff Criteria cannot be set together
@@ -110,7 +101,7 @@ class SystemJobInfoConverter {
             if (offset > 0) {
                 // Only set a minimum latency when applicable.
                 builder.setMinimumLatency(offset);
-            } else if (!workSpec.expedited && mMarkImportantWhileForeground) {
+            } else if (!workSpec.expedited) {
                 // Only set this if the workSpec is not expedited.
                 builder.setImportantWhileForeground(true);
             }

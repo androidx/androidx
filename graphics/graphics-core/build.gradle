@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -32,8 +25,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation(libs.kotlinCoroutinesAndroid)
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     implementation("androidx.core:core:1.8.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -42,13 +34,14 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.5.0-alpha01")
     androidTestImplementation("androidx.test:core:1.4.0@aar")
     androidTestImplementation(project(":core:core"))
+
+    samples(project(":graphics:graphics-core:graphics-core-samples"))
 }
 
 android {
     namespace 'androidx.graphics.core'
 
     defaultConfig {
-        minSdkVersion 21
         externalNativeBuild {
             def versionScript = file("src/main/cpp/jni.lds").getAbsolutePath()
 
@@ -77,5 +70,4 @@ androidx {
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"
     metalavaK2UastEnabled = true
-    samples(project(":graphics:graphics-core:graphics-core-samples"))
 }

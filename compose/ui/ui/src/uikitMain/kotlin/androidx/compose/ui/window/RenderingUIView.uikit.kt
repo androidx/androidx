@@ -19,7 +19,6 @@ package androidx.compose.ui.window
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropTransaction
 import kotlin.math.floor
 import kotlin.math.roundToLong
@@ -35,8 +34,8 @@ import platform.QuartzCore.CAMetalLayer
 import platform.UIKit.*
 
 internal class RenderingUIView(
-    private val interopContext: UIKitInteropContext,
     private val renderDelegate: SkikoRenderDelegate,
+    private val retrieveInteropTransaction: () -> UIKitInteropTransaction,
 ) : UIView(
     frame = CGRectMake(
         x = 0.0,
@@ -67,7 +66,7 @@ internal class RenderingUIView(
             }
 
             override fun retrieveInteropTransaction(): UIKitInteropTransaction =
-                interopContext.retrieve()
+                this@RenderingUIView.retrieveInteropTransaction()
         }
     )
 

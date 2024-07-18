@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -20,7 +13,6 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.1.1")
     api(project(":glance:glance"))
     implementation("androidx.compose.material3:material3:1.0.0")
-    implementation("androidx.core:core:1.12.0")
 }
 
 android {
@@ -32,7 +24,7 @@ android {
 
 androidx {
     name = "Glance Material"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Glance Material integration library." +
             " This library provides interop APIs with Material 3."

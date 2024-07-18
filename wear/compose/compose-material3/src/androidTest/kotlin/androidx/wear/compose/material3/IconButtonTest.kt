@@ -361,7 +361,7 @@ class IconButtonTest {
             colors = { IconButtonDefaults.iconButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
+                alpha = ContentAlpha.disabled
             ) }
         )
     }
@@ -387,7 +387,7 @@ class IconButtonTest {
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
+                alpha = ContentAlpha.disabled
             ) }
         )
     }
@@ -398,7 +398,7 @@ class IconButtonTest {
         rule.verifyIconButtonColors(
             status = Status.Enabled,
             colors = { IconButtonDefaults.filledTonalIconButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
+            expectedContainerColor = { MaterialTheme.colorScheme.surface },
             expectedContentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
         )
     }
@@ -413,7 +413,7 @@ class IconButtonTest {
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
+                alpha = ContentAlpha.disabled
             ) }
         )
     }
@@ -437,7 +437,7 @@ class IconButtonTest {
             colors = { IconButtonDefaults.outlinedIconButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledContentAlpha
+                alpha = ContentAlpha.disabled
             ) }
         )
     }
@@ -536,9 +536,9 @@ private fun ComposeContentTestRule.isShape(
     val padding = 0.dp
 
     setContentWithTheme {
-        background = MaterialTheme.colorScheme.surfaceContainer
+        background = MaterialTheme.colorScheme.surface
         Box(Modifier.background(background)) {
-            buttonColor = colors().containerColor(true)
+            buttonColor = colors().containerColor(true).value
             if (buttonColor == Color.Transparent) {
                 buttonColor = background
             }

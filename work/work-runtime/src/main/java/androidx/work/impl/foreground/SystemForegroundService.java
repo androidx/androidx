@@ -24,6 +24,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
@@ -46,6 +48,7 @@ public class SystemForegroundService extends LifecycleService implements
     @Nullable
     private static SystemForegroundService sForegroundService = null;
 
+    private Handler mHandler;
     private boolean mIsShutdown;
 
     // Synthetic access
@@ -91,12 +94,14 @@ public class SystemForegroundService extends LifecycleService implements
 
     @MainThread
     private void initializeDispatcher() {
+        mHandler = new Handler(Looper.getMainLooper());
         mNotificationManager = (NotificationManager)
                 getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         mDispatcher = new SystemForegroundDispatcher(getApplicationContext());
         mDispatcher.setCallback(this);
     }
 
+    @SuppressWarnings("deprecation")
     @MainThread
     @Override
     public void stop() {
@@ -111,34 +116,47 @@ public class SystemForegroundService extends LifecycleService implements
         stopSelf();
     }
 
-    @MainThread
     @Override
     public void startForeground(
             final int notificationId,
             final int notificationType,
             @NonNull final Notification notification) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            Api31Impl.startForeground(SystemForegroundService.this, notificationId,
-                    notification, notificationType);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Api29Impl.startForeground(SystemForegroundService.this, notificationId,
-                    notification, notificationType);
-        } else {
-            startForeground(notificationId, notification);
-        }
+
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    Api31Impl.startForeground(SystemForegroundService.this, notificationId,
+                            notification, notificationType);
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    Api29Impl.startForeground(SystemForegroundService.this, notificationId,
+                            notification, notificationType);
+                } else {
+                    startForeground(notificationId, notification);
+                }
+            }
+        });
     }
 
-    @MainThread
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     @Override
     public void notify(final int notificationId, @NonNull final Notification notification) {
-        mNotificationManager.notify(notificationId, notification);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mNotificationManager.notify(notificationId, notification);
+            }
+        });
     }
 
     @Override
-    @MainThread
     public void cancelNotification(final int notificationId) {
-        mNotificationManager.cancel(notificationId);
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mNotificationManager.cancel(notificationId);
+            }
+        });
     }
 
     /**

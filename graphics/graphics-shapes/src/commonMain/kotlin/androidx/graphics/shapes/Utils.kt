@@ -29,8 +29,6 @@ import kotlin.math.sqrt
 
 internal fun distance(x: Float, y: Float) = sqrt(x * x + y * y)
 
-internal fun distanceSquared(x: Float, y: Float) = x * x + y * y
-
 /**
  * Returns unit vector representing the direction to this point from (0, 0)
  */
@@ -106,6 +104,45 @@ internal fun findMinimum(
  */
 internal fun interface FindMinimumFunction {
     fun invoke(value: Float): Float
+}
+
+internal fun verticesFromNumVerts(
+    numVertices: Int,
+    radius: Float,
+    centerX: Float,
+    centerY: Float
+): FloatArray {
+    val result = FloatArray(numVertices * 2)
+    var arrayIndex = 0
+    for (i in 0 until numVertices) {
+        val vertex = radialToCartesian(radius, (FloatPi / numVertices * 2 * i)) +
+            Point(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+    }
+    return result
+}
+
+internal fun starVerticesFromNumVerts(
+    numVerticesPerRadius: Int,
+    radius: Float,
+    innerRadius: Float,
+    centerX: Float,
+    centerY: Float
+): FloatArray {
+    val result = FloatArray(numVerticesPerRadius * 4)
+    var arrayIndex = 0
+    for (i in 0 until numVerticesPerRadius) {
+        var vertex = radialToCartesian(radius, (FloatPi / numVerticesPerRadius * 2 * i)) +
+            Point(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+        vertex = radialToCartesian(innerRadius, (FloatPi / numVerticesPerRadius * (2 * i + 1))) +
+            Point(centerX, centerY)
+        result[arrayIndex++] = vertex.x
+        result[arrayIndex++] = vertex.y
+    }
+    return result
 }
 
 internal const val DEBUG = false

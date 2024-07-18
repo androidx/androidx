@@ -18,6 +18,7 @@ package androidx.profileinstaller;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.util.zip.Inflater;
 /**
  * A set of utilities on top of InputStream / OutputStream that are used by [ProfileTranscoder].
  */
+@RequiresApi(19)
 class Encoding {
     private Encoding() {}
 

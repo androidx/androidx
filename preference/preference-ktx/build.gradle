@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -51,7 +44,7 @@ dependencies {
 
 androidx {
     name = "Preferences KTX"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for preferences"
     metalavaK2UastEnabled = true

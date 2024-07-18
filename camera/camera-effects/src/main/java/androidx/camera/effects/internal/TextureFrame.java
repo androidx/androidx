@@ -40,7 +40,7 @@ class TextureFrame {
 
     private final int mTextureId;
 
-    private long mTimestampNanos = NO_VALUE;
+    private long mTimestampNs = NO_VALUE;
     @Nullable
     private Surface mSurface;
 
@@ -61,7 +61,7 @@ class TextureFrame {
      * with new content.
      */
     boolean isEmpty() {
-        return mTimestampNanos == NO_VALUE;
+        return mTimestampNs == NO_VALUE;
     }
 
     /**
@@ -71,7 +71,7 @@ class TextureFrame {
      */
     void markEmpty() {
         checkState(!isEmpty(), "Frame is already empty");
-        mTimestampNanos = NO_VALUE;
+        mTimestampNs = NO_VALUE;
         mSurface = null;
     }
 
@@ -88,7 +88,7 @@ class TextureFrame {
      */
     void markFilled(long timestampNs, @NonNull float[] transform, @NonNull Surface surface) {
         checkState(isEmpty(), "Frame is already filled");
-        mTimestampNanos = timestampNs;
+        mTimestampNs = timestampNs;
         System.arraycopy(transform, 0, mTransform, 0, transform.length);
         mSurface = surface;
     }
@@ -98,8 +98,8 @@ class TextureFrame {
      *
      * <p>This value is used in {@link GlRenderer#renderQueueTextureToSurface}.
      */
-    long getTimestampNanos() {
-        return mTimestampNanos;
+    long getTimestampNs() {
+        return mTimestampNs;
     }
 
     /**

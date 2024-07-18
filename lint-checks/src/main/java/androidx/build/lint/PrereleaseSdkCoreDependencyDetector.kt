@@ -69,11 +69,7 @@ class PrereleaseSdkCoreDependencyDetector : Detector(), Detector.UastScanner {
             val coordinates = library.resolvedCoordinates
             return coordinates.artifactId == "core" &&
                 coordinates.groupId == "androidx.core" &&
-                // The dependency is invalid if it was listed using a versioned instead of project
-                // dependency. The coordinates of a project dependency may have been resolved to the
-                // current version in the coordinates, but the identifier describing this dependency
-                // won't contain the version (it will be something like ":@@:core:core::debug").
-                (coordinates.version != "unspecified" && coordinates.version in identifier)
+                coordinates.version != "unspecified"
         }
     }
 

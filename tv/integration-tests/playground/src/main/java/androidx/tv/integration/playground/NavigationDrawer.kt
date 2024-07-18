@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
@@ -58,7 +59,7 @@ fun StandardNavigationDrawer() {
 
     CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
         Row(Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.height(400.dp)) {
                 NavigationDrawer(drawerContent = { Sidebar(direction = direction) }) {
                     CommonBackground()
                 }
@@ -74,7 +75,7 @@ fun ModalNavigationDrawer() {
 
     CompositionLocalProvider(LocalLayoutDirection provides direction.value) {
         Row(Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.weight(1f)) {
+            Box(modifier = Modifier.height(400.dp)) {
                 androidx.tv.material3.ModalNavigationDrawer(
                     drawerContent = { Sidebar(direction = direction) },
                     scrimBrush = Brush.verticalGradient(

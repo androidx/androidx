@@ -40,9 +40,9 @@ internal class TestConsumer<T>(count: Int) : Consumer<T> {
     /**
      * Appends the new value at the end of the mutable list values.
      */
-    override fun accept(value: T) {
+    override fun accept(numLayoutFeatures: T) {
         valueLock.withLock {
-            values.add(value)
+            values.add(numLayoutFeatures)
         }
         countDownLock.withLock {
             valueLatch.countDown()

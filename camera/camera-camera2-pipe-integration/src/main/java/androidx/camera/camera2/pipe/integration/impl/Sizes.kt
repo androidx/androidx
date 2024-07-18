@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.graphics.Point
 import android.util.Size
+import androidx.annotation.RequiresApi
 
 fun Size.area(): Int = this.width * this.height
 fun Size.asLandscape(): Size =

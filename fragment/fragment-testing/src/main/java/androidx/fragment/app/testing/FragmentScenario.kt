@@ -16,6 +16,7 @@
 
 package androidx.fragment.app.testing
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
@@ -497,6 +498,7 @@ public class FragmentScenario<F : Fragment> private constructor(
             android.R.id.content
         )
 
+        @SuppressLint("RestrictedApi")
         internal fun <F : Fragment> internalLaunch(
             fragmentClass: Class<F>,
             fragmentArgs: Bundle?,

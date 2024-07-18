@@ -29,9 +29,9 @@ abstract class WorkerFactory {
      * Override this method to implement your custom worker-creation logic.  Use
      * [Configuration.Builder.setWorkerFactory] to use your custom class.
      *
-     * Throwing an [Exception] here and no [ListenableWorker] will be created. If a
-     * [WorkerFactory] is unable to create an instance of the [ListenableWorker], it should
-     * return `null` so it can delegate to the default [WorkerFactory].
+     * Throwing an [Exception] here will crash the application. If a [WorkerFactory]
+     * is unable to create an instance of the [ListenableWorker], it should return `null` so
+     * it can delegate to the default [WorkerFactory].
      *
      * Returns a new instance of the specified `workerClassName` given the arguments.  The
      * returned worker must be a newly-created instance and must not have been previously returned
@@ -61,41 +61,36 @@ abstract class WorkerFactory {
      * @param workerParameters Parameters for worker initialization
      * @return A new [ListenableWorker] instance of type `workerClassName`, or
      * `null` if the worker could not be created
-     * @throws IllegalStateException when `workerClassName` cannot be instantiated or the
-     * [WorkerFactory] returns an instance of the [ListenableWorker] which is used.
+     * @throws IllegalStateException when the [WorkerFactory] returns an instance
+     * of the [ListenableWorker] which is used.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun createWorkerWithDefaultFallback(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters
-    ): ListenableWorker {
-        fun getWorkerClass(workerClassName: String): Class<out ListenableWorker> {
-            return try {
+    ): ListenableWorker? {
+        var worker = createWorker(appContext, workerClassName, workerParameters)
+
+        if (worker == null) {
+            // Fallback to reflection
+            try {
                 Class.forName(workerClassName).asSubclass(ListenableWorker::class.java)
             } catch (throwable: Throwable) {
                 Logger.get().error(TAG, "Invalid class: $workerClassName", throwable)
-                throw throwable
+                null
+            }?.let { clazz ->
+                try {
+                    val constructor = clazz.getDeclaredConstructor(
+                        Context::class.java, WorkerParameters::class.java
+                    )
+                    worker = constructor.newInstance(appContext, workerParameters)
+                } catch (e: Throwable) {
+                    Logger.get().error(TAG, "Could not instantiate $workerClassName", e)
+                }
             }
         }
-        fun fallbackToReflection(
-            workerClassName: String,
-            workerParameters: WorkerParameters
-        ): ListenableWorker {
-            val clazz = getWorkerClass(workerClassName)
-            return try {
-                val constructor = clazz.getDeclaredConstructor(
-                    Context::class.java, WorkerParameters::class.java
-                )
-                constructor.newInstance(appContext, workerParameters)
-            } catch (e: Throwable) {
-                Logger.get().error(TAG, "Could not instantiate $workerClassName", e)
-                throw e
-            }
-        }
-        val worker = createWorker(appContext, workerClassName, workerParameters)
-                ?: fallbackToReflection(workerClassName, workerParameters)
-        if (worker.isUsed) {
+        if (worker?.isUsed == true) {
             val message = "WorkerFactory (${javaClass.name}) returned an instance of" +
                 " a ListenableWorker ($workerClassName) which has already been invoked. " +
                 "createWorker() must always return a new instance of a ListenableWorker."

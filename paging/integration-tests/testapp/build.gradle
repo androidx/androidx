@@ -44,16 +44,13 @@ dependencies {
     // Only needed to ensure version of annotation:annotation matches in impl
     // and androidTestImpl, for both AOSP and playground builds.
     implementation(project(":annotation:annotation"))
-    implementation(project(":annotation:annotation-experimental"))
 
-    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation(project(":annotation:annotation"))
-    androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":annotation:annotation"))
 }
 
 android {
@@ -67,8 +64,4 @@ android {
 // See b/198431380
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters"
-}
-
-ksp {
-    arg('room.generateKotlin', 'false')
 }

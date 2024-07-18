@@ -17,11 +17,6 @@
 
     <application android:name="androidx.multidex.MultiDexApplication">
         <service android:name="androidx.work.multiprocess.RemoteWorkerService" />
-
-        <service
-            android:name="androidx.work.multiprocess.RemoteWorkerService2"
-            android:exported="false"
-            android:process=":worker2"/>
     </application>
 
 </manifest>

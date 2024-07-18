@@ -100,7 +100,6 @@ public final class ImageViewStyle extends ViewStyle {
     /**
      * Builder for the {@link ImageViewStyle}.
      */
-    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder extends BaseBuilder<ImageViewStyle, Builder> {
 
         public Builder() {

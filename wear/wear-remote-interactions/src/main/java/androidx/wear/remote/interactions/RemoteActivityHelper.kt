@@ -18,12 +18,10 @@ package androidx.wear.remote.interactions
 import android.content.Context
 import android.content.Intent
 import android.content.res.Resources.NotFoundException
-import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.ResultReceiver
 import androidx.annotation.IntDef
-import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.wear.remote.interactions.RemoteInteractionsUtil.isCurrentDeviceAWatch
@@ -32,11 +30,6 @@ import com.google.android.gms.wearable.Wearable
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
-import java.util.function.Consumer
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flowOf
 
 // Disabling max line length is needed for the link to work properly in the KDoc.
 /* ktlint-disable max-line-length */
@@ -50,11 +43,11 @@ import kotlinx.coroutines.flow.flowOf
  * val remoteActivityHelper = RemoteActivityHelper(context, executor)
  *
  * val result = remoteActivityHelper.startRemoteActivity(
- *     Intent(Intent.ACTION_VIEW)
- *         .setData(
- *             Uri.parse("http://play.google.com/store/apps/details?id=com.example.myapp"))
- *         .addCategory(Intent.CATEGORY_BROWSABLE),
- *     nodeId)
+ *     new Intent(Intent.ACTION_VIEW).setData(
+ *         Uri.parse("http://play.google.com/store/apps/details?id=com.example.myapp")
+ *     ),
+ *     nodeId
+ * )
  * ```
  *
  * [startRemoteActivity] returns a [ListenableFuture], which is completed after the intent has
@@ -72,8 +65,7 @@ import kotlinx.coroutines.flow.flowOf
  * specified, default will be `Executors.newSingleThreadExecutor()`.
  */
 /* ktlint-enable max-line-length */
-public class RemoteActivityHelper
-    @JvmOverloads constructor(
+public class RemoteActivityHelper(
     private val context: Context,
     private val executor: Executor = Executors.newSingleThreadExecutor()
 ) {
@@ -81,33 +73,6 @@ public class RemoteActivityHelper
         @SuppressWarnings("ActionValue")
         public const val ACTION_REMOTE_INTENT: String =
             "com.google.android.wearable.intent.action.REMOTE_INTENT"
-
-        /** The remote activity's availability is unknown. */
-        public const val STATUS_UNKNOWN = 0
-
-        /**
-         * The remote auth's availability is unknown.
-         *
-         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability states. To preserve
-         * compatibility with existing devices behavior, try [startRemoteActivity] and handle
-         * error codes accordingly.
-         */
-        public const val STATUS_UNAVAILABLE = 1
-
-        /**
-         * Indicates that remote activity is temporarily unavailable.
-         *
-         * There is a known paired device, but it is not currently connected or reachable to handle
-         * the remote interaction.
-         */
-        public const val STATUS_TEMPORARILY_UNAVAILABLE = 2
-
-        /**
-         * Indicates that remote activity is available.
-         *
-         * There is a connected device capable to handle the remote interaction.
-         */
-        public const val STATUS_AVAILABLE = 3
 
         private const val EXTRA_INTENT: String = "com.google.android.wearable.intent.extra.INTENT"
 
@@ -175,60 +140,6 @@ public class RemoteActivityHelper
      */
     @VisibleForTesting
     internal var nodeClient: NodeClient = Wearable.getNodeClient(context)
-
-    /** Used for testing only, so we can mock wear sdk dependency. */
-    @VisibleForTesting internal var remoteInteractionsManager: IRemoteInteractionsManager = RemoteInteractionsManagerCompat(context)
-
-    /**
-     * Status of whether [RemoteActivityHelper] can [startRemoteActivity], if known.
-     *
-     * In scenarios of restricted connection or temporary disconnection with a paired device,
-     * [startRemoteActivity] will not be available. Please check [availabilityStatus] before calling [startRemoteActivity] to
-     * provide better experience for the user.
-     *
-     * Wear devices start to support determining the availability status from Wear Sdk WEAR_TIRAMISU_4.
-     * On older wear devices, it will always return [STATUS_UNKNOWN].
-     * On phone devices, it will always return [STATUS_UNKNOWN].
-     *
-     * @sample androidx.wear.remote.interactions.samples.RemoteActivityAvailabilitySample
-     *
-     * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
-     *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
-     */
-    public val availabilityStatus: Flow<Int> get() {
-        if (!isCurrentDeviceAWatch(context)) {
-            // Currently, we do not support knowing the startRemoteActivity's availability on a non-watch device.
-            return flowOf(STATUS_UNKNOWN)
-        }
-        if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
-            return flowOf(STATUS_UNKNOWN)
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            // This should never be reached as the check above wouldn't pass below T.
-            // `Consumer<Int>` requires min API 25 but library min API is 23, this hints to lint that the code below
-            // only executes on T+.
-            return flowOf(STATUS_UNKNOWN)
-        }
-
-        return getRemoteActivityHelperStatusInternal()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun getRemoteActivityHelperStatusInternal(): Flow<Int> {
-        return callbackFlow {
-            val callback =
-                object : Consumer<Int> {
-                    override fun accept(value: Int) {
-                        // Emit WearSDK values through AndroidX with 1:1 mapping.
-                        trySend(value)
-                    }
-                }
-
-            remoteInteractionsManager.registerRemoteActivityHelperStatusListener(executor, callback)
-
-            awaitClose { remoteInteractionsManager.unregisterRemoteActivityHelperStatusListener(callback) }
-        }
-    }
 
     /**
      * Start an activity on another device. This api currently supports sending intents with

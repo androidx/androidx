@@ -53,7 +53,7 @@ class TextTests : OnCanvasTests {
                         "Heading",
                         modifier = Modifier.alignByBaseline()
                             .onGloballyPositioned {
-                                headingOnPositioned.trySend(it[FirstBaseline] / density)
+                                headingOnPositioned.sendFromScope(it[FirstBaseline] / density)
                             },
                         style = MaterialTheme.typography.h4
                     )
@@ -61,7 +61,7 @@ class TextTests : OnCanvasTests {
                         " — Subtitle",
                         modifier = Modifier.alignByBaseline()
                             .onGloballyPositioned {
-                                subtitleOnPositioned.trySend(it[FirstBaseline] / density)
+                                subtitleOnPositioned.sendFromScope(it[FirstBaseline] / density)
                             },
                         style = MaterialTheme.typography.subtitle1
                     )

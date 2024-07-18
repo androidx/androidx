@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -49,7 +50,6 @@ import androidx.compose.ui.unit.Dp
  *
  * @param selected defines whether this ListItem is selected or not
  * @param onClick called when this ListItem is clicked
- * @param headlineContent the [Composable] headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param enabled controls the enabled state of this list item. When `false`, this component will
  * not respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -70,16 +70,17 @@ import androidx.compose.ui.unit.Dp
  * states. See [ListItemDefaults.border]
  * @param glow [ListItemGlow] defines a shadow to be shown behind the list item for different
  * interaction states. See [ListItemDefaults.glow]
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this list item. You can use this to change the list item's appearance
- * or preview the list item in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
+ * to observe [Interaction]s and customize the appearance / behavior of this list item in different
+ * states.
+ * @param headlineContent the [Composable] headline content of the list item
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun ListItem(
     selected: Boolean,
     onClick: () -> Unit,
-    headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -87,13 +88,14 @@ fun ListItem(
     supportingContent: (@Composable () -> Unit)? = null,
     leadingContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
-    tonalElevation: Dp = ListItemDefaults.TonalElevation,
+    tonalElevation: Dp = ListItemDefaults.ListItemElevation,
     shape: ListItemShape = ListItemDefaults.shape(),
     colors: ListItemColors = ListItemDefaults.colors(),
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    headlineContent: @Composable () -> Unit
 ) {
     BaseListItem(
         selected = selected,
@@ -140,7 +142,6 @@ fun ListItem(
  *
  * @param selected defines whether this ListItem is selected or not
  * @param onClick called when this ListItem is clicked
- * @param headlineContent the [Composable] headline content of the list item
  * @param modifier [Modifier] to be applied to the list item
  * @param enabled controls the enabled state of this list item. When `false`, this component will
  * not respond to user input, and it will appear visually disabled and disabled to accessibility
@@ -161,16 +162,17 @@ fun ListItem(
  * states. See [ListItemDefaults.border]
  * @param glow [ListItemGlow] defines a shadow to be shown behind the list item for different
  * interaction states. See [ListItemDefaults.glow]
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this list item. You can use this to change the list item's appearance
- * or preview the list item in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
+ * to observe [Interaction]s and customize the appearance / behavior of this list item in different
+ * states.
+ * @param headlineContent the [Composable] headline content of the list item
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun DenseListItem(
     selected: Boolean,
     onClick: () -> Unit,
-    headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onLongClick: (() -> Unit)? = null,
@@ -178,13 +180,14 @@ fun DenseListItem(
     supportingContent: (@Composable () -> Unit)? = null,
     leadingContent: (@Composable BoxScope.() -> Unit)? = null,
     trailingContent: (@Composable () -> Unit)? = null,
-    tonalElevation: Dp = ListItemDefaults.TonalElevation,
+    tonalElevation: Dp = ListItemDefaults.ListItemElevation,
     shape: ListItemShape = ListItemDefaults.shape(),
     colors: ListItemColors = ListItemDefaults.colors(),
     scale: ListItemScale = ListItemDefaults.scale(),
     border: ListItemBorder = ListItemDefaults.border(),
     glow: ListItemGlow = ListItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    headlineContent: @Composable () -> Unit
 ) {
     BaseListItem(
         selected = selected,
@@ -248,11 +251,12 @@ fun DenseListItem(
  * @param minIconSize defines the minimum icon size [Dp] to be used in leading content.
  * @param headlineTextStyle defines the [TextStyle] for the headline content.
  * @param trailingTextStyle defines the [TextStyle] for the trailing content.
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this list item. You can use this to change the list item's appearance
- * or preview the list item in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
+ * to observe [Interaction]s and customize the appearance / behavior of this list item in different
+ * states.
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun BaseListItem(
     selected: Boolean,
@@ -276,7 +280,7 @@ private fun BaseListItem(
     minIconSize: Dp,
     headlineTextStyle: TextStyle,
     trailingTextStyle: TextStyle,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource
 ) {
     val semanticModifier = Modifier
         .semantics(mergeDescendants = true) {
@@ -285,17 +289,17 @@ private fun BaseListItem(
         .then(modifier)
 
     Surface(
-        selected = selected,
-        onClick = onClick,
+        checked = selected,
+        onCheckedChange = { onClick.invoke() },
         modifier = semanticModifier,
         enabled = enabled,
         onLongClick = onLongClick,
         tonalElevation = tonalElevation,
-        shape = shape.toSelectableSurfaceShape(),
-        colors = colors.toSelectableSurfaceColors(),
-        scale = scale.toSelectableSurfaceScale(),
-        border = border.toSelectableSurfaceBorder(),
-        glow = glow.toSelectableSurfaceGlow(),
+        shape = shape.toToggleableSurfaceShape(),
+        colors = colors.toToggleableSurfaceColors(),
+        scale = scale.toToggleableSurfaceScale(),
+        border = border.toToggleableSurfaceBorder(),
+        glow = glow.toToggleableSurfaceGlow(),
         interactionSource = interactionSource
     ) {
         Row(
@@ -392,6 +396,7 @@ private fun BaseListItem(
  * @return The minimum container height for the given list item (to be used with
  * [Modifier.defaultMinSize]).
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 private fun listItemMinHeight(
     hasLeadingContent: Boolean,
     hasSupportingContent: Boolean,
@@ -421,8 +426,9 @@ private fun listItemMinHeight(
     }
 }
 
-internal fun ListItemShape.toSelectableSurfaceShape() =
-    SelectableSurfaceShape(
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ListItemShape.toToggleableSurfaceShape() =
+    ToggleableSurfaceShape(
         shape = shape,
         focusedShape = focusedShape,
         pressedShape = pressedShape,
@@ -435,8 +441,9 @@ internal fun ListItemShape.toSelectableSurfaceShape() =
         focusedSelectedDisabledShape = focusedDisabledShape
     )
 
-internal fun ListItemColors.toSelectableSurfaceColors() =
-    SelectableSurfaceColors(
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ListItemColors.toToggleableSurfaceColors() =
+    ToggleableSurfaceColors(
         containerColor = containerColor,
         contentColor = contentColor,
         focusedContainerColor = focusedContainerColor,
@@ -453,8 +460,9 @@ internal fun ListItemColors.toSelectableSurfaceColors() =
         pressedSelectedContentColor = pressedSelectedContentColor
     )
 
-internal fun ListItemScale.toSelectableSurfaceScale() =
-    SelectableSurfaceScale(
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ListItemScale.toToggleableSurfaceScale() =
+    ToggleableSurfaceScale(
         scale = scale,
         focusedScale = focusedScale,
         pressedScale = pressedScale,
@@ -467,8 +475,9 @@ internal fun ListItemScale.toSelectableSurfaceScale() =
         focusedSelectedDisabledScale = focusedDisabledScale
     )
 
-internal fun ListItemBorder.toSelectableSurfaceBorder() =
-    SelectableSurfaceBorder(
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ListItemBorder.toToggleableSurfaceBorder() =
+    ToggleableSurfaceBorder(
         border = border,
         focusedBorder = focusedBorder,
         pressedBorder = pressedBorder,
@@ -481,8 +490,9 @@ internal fun ListItemBorder.toSelectableSurfaceBorder() =
         focusedSelectedDisabledBorder = focusedDisabledBorder
     )
 
-internal fun ListItemGlow.toSelectableSurfaceGlow() =
-    SelectableSurfaceGlow(
+@OptIn(ExperimentalTvMaterial3Api::class)
+internal fun ListItemGlow.toToggleableSurfaceGlow() =
+    ToggleableSurfaceGlow(
         glow = glow,
         focusedGlow = focusedGlow,
         pressedGlow = pressedGlow,

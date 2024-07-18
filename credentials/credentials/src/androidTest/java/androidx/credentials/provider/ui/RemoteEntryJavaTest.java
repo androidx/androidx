@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
@@ -76,19 +75,5 @@ public class RemoteEntryJavaTest {
 
         assertThat(fromSlice).isNotNull();
         assertThat(fromSlice.getPendingIntent()).isEqualTo(mPendingIntent);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    public void fromRemoteEntry_success() {
-        RemoteEntry originalEntry = new RemoteEntry(mPendingIntent);
-        Slice slice = RemoteEntry.toSlice(originalEntry);
-        assertNotNull(slice);
-
-        RemoteEntry remoteEntry = RemoteEntry.fromRemoteEntry(
-                new android.service.credentials.RemoteEntry(slice));
-
-        assertThat(remoteEntry).isNotNull();
-        assertThat(remoteEntry.getPendingIntent()).isEqualTo(mPendingIntent);
     }
 }

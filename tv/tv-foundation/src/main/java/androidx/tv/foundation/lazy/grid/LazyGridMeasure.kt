@@ -41,6 +41,7 @@ import kotlin.math.sign
  * Measures and calculates the positions for the currently visible items. The result is produced
  * as a [TvLazyGridMeasureResult] which contains all the calculations.
  */
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyGrid(
     itemsCount: Int,
@@ -303,6 +304,7 @@ internal fun measureLazyGrid(
     }
 }
 
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 private inline fun calculateExtraItems(
     pinnedItems: List<Int>,

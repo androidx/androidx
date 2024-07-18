@@ -17,10 +17,12 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.os.Binder;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.window.extensions.WindowExtensions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +33,9 @@ import java.util.Objects;
  * container, all within the same task.
  */
 public class ActivityStack {
+
+    /** Only used for compatibility with the deprecated constructor. */
+    private static final IBinder INVALID_ACTIVITY_STACK_TOKEN = new Binder();
 
     @NonNull
     private final List<Activity> mActivities;
@@ -48,6 +53,7 @@ public class ActivityStack {
      * @param isEmpty Indicates whether there's any {@link Activity} running in this
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
      */
     ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull IBinder token) {
         Objects.requireNonNull(activities);
@@ -55,6 +61,15 @@ public class ActivityStack {
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
         mToken = token;
+    }
+
+    /**
+     * @deprecated Use the {@link WindowExtensions#VENDOR_API_LEVEL_3} version.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_1}
+     */
+    @Deprecated
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty) {
+        this(activities, isEmpty, INVALID_ACTIVITY_STACK_TOKEN);
     }
 
     /**

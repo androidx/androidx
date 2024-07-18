@@ -28,11 +28,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.app.job.JobInfo;
-import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
@@ -73,7 +71,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Before
     public void setUp() {
         mConverter = new SystemJobInfoConverter(
-                ApplicationProvider.getApplicationContext(), new SystemClock(), true);
+                ApplicationProvider.getApplicationContext(), new SystemClock());
     }
 
     @Test
@@ -241,18 +239,6 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 29)
-    public void testConvert_setImportantWhileForeground_respectFlag() {
-        mConverter = new SystemJobInfoConverter(
-                ApplicationProvider.getApplicationContext(), new SystemClock(), false);
-        WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder().build());
-        workSpec.lastEnqueueTime = System.currentTimeMillis();
-        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
-        assertThat(jobInfo.isImportantWhileForeground(), is(false));
-    }
-
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = 29)
     public void testConvert_setImportantWhileForeground_withTimingConstraints() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
@@ -380,25 +366,6 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         NetworkRequest networkRequest = jobInfo.getRequiredNetwork();
         assertTrue(networkRequest.hasCapability(NET_CAPABILITY_TEMPORARILY_NOT_METERED));
-    }
-
-    @Test
-    @SmallTest
-    public void testNetworkRequest() {
-        NetworkRequest networkRequest = new NetworkRequest.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_WIFI_P2P)
-                .build();
-        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
-        workSpec.constraints = (new Constraints.Builder())
-                .setRequiredNetworkRequest(networkRequest, METERED)
-                .build();
-        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
-        if (Build.VERSION.SDK_INT >= 28) {
-            assertEquals(networkRequest, jobInfo.getRequiredNetwork());
-        } else {
-            assertEquals(jobInfo.getNetworkType(), JobInfo.NETWORK_TYPE_METERED);
-        }
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {

@@ -1,6 +1,6 @@
 package com.sdkwithcallbacks
 
-import androidx.privacysandbox.activity.core.SdkActivityLauncher
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 
 public interface SdkCallback {
     public fun onCompleteInterface(myInterface: MyInterface)
@@ -12,6 +12,4 @@ public interface SdkCallback {
     public fun onSdkActivityLauncherReceived(myLauncher: SdkActivityLauncher)
 
     public fun onValueReceived(response: Response)
-
-    public suspend fun testing(): Response
 }

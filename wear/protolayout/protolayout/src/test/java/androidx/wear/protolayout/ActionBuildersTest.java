@@ -20,17 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.ComponentName;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.proto.ActionProto;
-
-import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
 import java.util.Map;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class ActionBuildersTest {
     private static final ComponentName LAUNCH_COMPONENT =
             new ComponentName("com.package", "launchClass");
@@ -57,8 +55,7 @@ public class ActionBuildersTest {
 
         ActionBuilders.LaunchAction launchAction =
                 ActionBuilders.launchAction(
-                        LAUNCH_COMPONENT,
-                        ImmutableMap.of(keyInt, intExtra, keyString, stringExtra));
+                        LAUNCH_COMPONENT, Map.of(keyInt, intExtra, keyString, stringExtra));
 
         ActionProto.LaunchAction launchActionProto = launchAction.toActionProto().getLaunchAction();
         assertThat(launchActionProto.getAndroidActivity().getPackageName())

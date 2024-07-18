@@ -31,6 +31,7 @@ internal fun Translations.am() = mapOf(
     Strings.Dialog to "መገናኛ",
     Strings.MenuExpanded to "ተዘርግቷል",
     Strings.MenuCollapsed to "ተሰብስቧል",
+    Strings.ToggleDropdownMenu to "ተቆልቋይ ምናሌ ይቀያይሩ",
     Strings.SnackbarDismiss to "አሰናብት",
     Strings.SearchBarSearch to "ፈልግ",
     Strings.SuggestionsAvailable to "የአስተያየት ጥቆማዎች ከታች",

@@ -20,11 +20,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.CancellationSignal;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContentResolverCompat;
+import androidx.core.os.CancellationSignal;
 import androidx.core.os.OperationCanceledException;
 import androidx.loader.app.LoaderManager;
 

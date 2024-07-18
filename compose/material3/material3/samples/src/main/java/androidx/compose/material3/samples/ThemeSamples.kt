@@ -55,40 +55,29 @@ fun MaterialThemeSample() {
     val isDarkTheme = isSystemInDarkTheme()
     val supportsDynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    val lightColorScheme = lightColorScheme(
-        primary = Color(0xFF1EB980)
-    )
+    val lightColorScheme = lightColorScheme(primary = Color(0xFF1EB980))
 
-    val darkColorScheme = darkColorScheme(
-        primary = Color(0xFF66ffc7)
-    )
+    val darkColorScheme = darkColorScheme(primary = Color(0xFF66ffc7))
 
-    val colorScheme = when {
-        supportsDynamicColor && isDarkTheme -> {
-            dynamicDarkColorScheme(LocalContext.current)
+    val colorScheme =
+        when {
+            supportsDynamicColor && isDarkTheme -> {
+                dynamicDarkColorScheme(LocalContext.current)
+            }
+            supportsDynamicColor && !isDarkTheme -> {
+                dynamicLightColorScheme(LocalContext.current)
+            }
+            isDarkTheme -> darkColorScheme
+            else -> lightColorScheme
         }
-        supportsDynamicColor && !isDarkTheme -> {
-            dynamicLightColorScheme(LocalContext.current)
-        }
-        isDarkTheme -> darkColorScheme
-        else -> lightColorScheme
-    }
 
-    val typography = Typography(
-        displaySmall = TextStyle(
-            fontWeight = FontWeight.W100,
-            fontSize = 96.sp
-        ),
-        labelLarge = TextStyle(
-            fontWeight = FontWeight.W600,
-            fontSize = 14.sp
+    val typography =
+        Typography(
+            displaySmall = TextStyle(fontWeight = FontWeight.W100, fontSize = 96.sp),
+            labelLarge = TextStyle(fontWeight = FontWeight.W600, fontSize = 14.sp)
         )
-    )
 
-    val shapes = Shapes(
-        extraSmall = RoundedCornerShape(3.0.dp),
-        small = RoundedCornerShape(6.0.dp)
-    )
+    val shapes = Shapes(extraSmall = RoundedCornerShape(3.0.dp), small = RoundedCornerShape(6.0.dp))
 
     MaterialTheme(colorScheme = colorScheme, typography = typography, shapes = shapes) {
         val currentTheme = if (!isSystemInDarkTheme()) "light" else "dark"
@@ -105,11 +94,7 @@ fun MaterialThemeSample() {
 @Composable
 fun ThemeColorSample() {
     val colorScheme = MaterialTheme.colorScheme
-    Box(
-        Modifier
-            .aspectRatio(1f)
-            .fillMaxSize()
-            .background(color = colorScheme.primary))
+    Box(Modifier.aspectRatio(1f).fillMaxSize().background(color = colorScheme.primary))
 }
 
 @Preview
@@ -125,10 +110,5 @@ fun ThemeTextStyleSample() {
 @Composable
 fun ThemeShapeSample() {
     val shape = MaterialTheme.shapes
-    Button(
-        shape = shape.small,
-        onClick = {}
-    ) {
-        Text("FAB with ${shape.small} shape")
-    }
+    Button(shape = shape.small, onClick = {}) { Text("FAB with ${shape.small} shape") }
 }

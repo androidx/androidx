@@ -448,11 +448,6 @@ class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     }
 
     internal fun update(surfaceView: SurfaceView, width: Int, height: Int) {
-        if (width <= 0 || height <= 0) {
-            Log.w(TAG, "Invalid dimensions provided, width and height must be > 0. " +
-                "width: $width height: $height")
-            return
-        }
         val transformHint = BufferTransformHintResolver()
             .getBufferTransformHint(surfaceView)
         if ((mTransform != transformHint || mWidth != width || mHeight != height) && isValid()) {

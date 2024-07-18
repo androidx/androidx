@@ -16,17 +16,19 @@
 
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public actual class NoOpNavigator : Navigator<NavDestination>("NoOp") {
-    actual override fun createDestination(): NavDestination = NavDestination(this)
+    public actual override fun createDestination(): NavDestination = NavDestination(this)
 
-    actual override fun navigate(
+    public actual override fun navigate(
         destination: NavDestination,
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ): NavDestination = destination
 
-    actual override fun popBackStack(): Boolean = true
+    public actual override fun popBackStack(): Boolean = true
 }

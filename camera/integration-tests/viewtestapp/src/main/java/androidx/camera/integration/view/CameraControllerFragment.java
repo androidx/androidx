@@ -21,6 +21,7 @@ import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThre
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -91,6 +92,7 @@ import java.util.concurrent.Executors;
 /**
  * {@link Fragment} for testing {@link LifecycleCameraController}.
  */
+@SuppressLint("RestrictedAPI")
 public class CameraControllerFragment extends Fragment {
 
     private static final String TAG = "CameraCtrlFragment";

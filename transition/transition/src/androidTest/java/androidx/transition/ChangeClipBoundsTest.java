@@ -32,6 +32,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.view.ViewCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -49,6 +50,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         return new ChangeClipBounds();
     }
 
+    @SdkSuppress(minSdkVersion = 18)
     @Test
     public void testChangeClipBounds() throws Throwable {
         final View redSquare = spy(new View(rule.getActivity()));
@@ -65,9 +67,9 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                assertNull(redSquare.getClipBounds());
+                assertNull(ViewCompat.getClipBounds(redSquare));
                 TransitionManager.beginDelayedTransition(mRoot, mTransition);
-                redSquare.setClipBounds(newClip);
+                ViewCompat.setClipBounds(redSquare, newClip);
             }
         });
         waitForStart();
@@ -78,7 +80,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                final Rect endRect = redSquare.getClipBounds();
+                final Rect endRect = ViewCompat.getClipBounds(redSquare);
                 assertNotNull(endRect);
                 assertEquals(newClip, endRect);
             }
@@ -90,7 +92,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
             @Override
             public void run() {
                 TransitionManager.beginDelayedTransition(mRoot, mTransition);
-                redSquare.setClipBounds(null);
+                ViewCompat.setClipBounds(redSquare, null);
             }
         });
         waitForStart();
@@ -101,7 +103,7 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                assertNull(redSquare.getClipBounds());
+                assertNull(ViewCompat.getClipBounds(redSquare));
             }
         });
 

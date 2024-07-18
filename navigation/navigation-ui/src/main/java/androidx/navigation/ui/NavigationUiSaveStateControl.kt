@@ -16,9 +16,7 @@
 
 package androidx.navigation.ui
 
-/**
- * @see NavigationUI
- */
+/** @see NavigationUI */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 @RequiresOptIn(level = RequiresOptIn.Level.WARNING)

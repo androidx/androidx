@@ -71,7 +71,6 @@ public final class ViewGroupCompat {
      * @deprecated Use {@link ViewGroup#onRequestSendAccessibilityEvent(View, AccessibilityEvent)}
      * directly.
      */
-    @androidx.annotation.ReplaceWith(expression = "group.onRequestSendAccessibilityEvent(child, event)")
     @Deprecated
     public static boolean onRequestSendAccessibilityEvent(ViewGroup group, View child,
             AccessibilityEvent event) {
@@ -96,7 +95,6 @@ public final class ViewGroupCompat {
      *
      * @deprecated Use {@link ViewGroup#setMotionEventSplittingEnabled(boolean)} directly.
      */
-    @androidx.annotation.ReplaceWith(expression = "group.setMotionEventSplittingEnabled(split)")
     @Deprecated
     public static void setMotionEventSplittingEnabled(ViewGroup group, boolean split) {
         group.setMotionEventSplittingEnabled(split);
@@ -113,12 +111,12 @@ public final class ViewGroupCompat {
      * @return the layout mode to use during layout operations
      *
      * @see #setLayoutMode(ViewGroup, int)
-     * @deprecated Call {@link ViewGroup#getLayoutMode()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "group.getLayoutMode()")
     public static int getLayoutMode(@NonNull ViewGroup group) {
-        return group.getLayoutMode();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return Api18Impl.getLayoutMode(group);
+        }
+        return LAYOUT_MODE_CLIP_BOUNDS;
     }
 
     /**
@@ -130,12 +128,11 @@ public final class ViewGroupCompat {
      * @param mode the layout mode to use during layout operations
      *
      * @see #getLayoutMode(ViewGroup)
-     * @deprecated Call {@link ViewGroup#setLayoutMode()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "group.setLayoutMode(mode)")
     public static void setLayoutMode(@NonNull ViewGroup group, int mode) {
-        group.setLayoutMode(mode);
+        if (Build.VERSION.SDK_INT >= 18) {
+            Api18Impl.setLayoutMode(group, mode);
+        }
     }
 
     /**
@@ -192,6 +189,23 @@ public final class ViewGroupCompat {
             return ((NestedScrollingParent) group).getNestedScrollAxes();
         }
         return ViewCompat.SCROLL_AXIS_NONE;
+    }
+
+    @RequiresApi(18)
+    static class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getLayoutMode(ViewGroup viewGroup) {
+            return viewGroup.getLayoutMode();
+        }
+
+        @DoNotInline
+        static void setLayoutMode(ViewGroup viewGroup, int layoutMode) {
+            viewGroup.setLayoutMode(layoutMode);
+        }
     }
 
     @RequiresApi(21)

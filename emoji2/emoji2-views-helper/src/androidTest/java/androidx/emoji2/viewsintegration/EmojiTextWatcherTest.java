@@ -49,6 +49,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19) // class is not instantiated prior to API19
 public class EmojiTextWatcherTest {
 
     private EmojiTextWatcher mTextWatcher;

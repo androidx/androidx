@@ -44,6 +44,7 @@ import androidx.compose.runtime.remember
  * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The composable content that will be displayed with this theme
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
@@ -73,6 +74,7 @@ fun MaterialTheme(
  * Contains functions to access the current theme values provided at the call site's position in
  * the hierarchy.
  */
+@ExperimentalTvMaterial3Api
 object MaterialTheme {
     /**
      * Retrieves the current [ColorScheme] at the call site's position in the hierarchy.
@@ -100,6 +102,7 @@ object MaterialTheme {
         get() = LocalShapes.current
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 /*@VisibleForTesting*/
 internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {

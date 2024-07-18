@@ -37,14 +37,7 @@ import kotlinx.coroutines.async
  */
 public object SuspendToFutureAdapter {
 
-    // the CoroutineScope() factory function is not used here as it adds a Job by default;
-    // we don't want one as a failed task shouldn't fail a root Job.
-    // To make SuspendToFutureAdapter behave as much like a "regular" ListenableFuture-returning
-    // task as possible we don't want to hold additional references to child jobs from a global/root
-    // scope, hence no SupervisorJob either.
-    private val GlobalListenableFutureScope = object : CoroutineScope {
-        override val coroutineContext: CoroutineContext = Dispatchers.Main
-    }
+    private val GlobalListenableFutureScope = CoroutineScope(Dispatchers.Main)
     private val GlobalListenableFutureAwaitContext = Dispatchers.Unconfined
 
     /**

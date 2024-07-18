@@ -17,6 +17,7 @@
 package androidx.camera.integration.extensions
 
 import android.content.Context
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback
@@ -24,12 +25,10 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -67,22 +66,17 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensionTestParams) {
+class ClientVersionBackwardCompatibilityTest(private val config: CameraIdExtensionModePair) {
     companion object {
         @JvmStatic
         @get:Parameterized.Parameters(name = "config = {0}")
-        val parameters: Collection<CameraXExtensionTestParams>
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
-
-    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(config.cameraXConfig)
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -95,7 +89,6 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
 
     @Before
     fun setUp(): Unit = runBlocking(Dispatchers.Main) {
-        ProcessCameraProvider.configureInstance(config.cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         lifecycleOwner = FakeLifecycleOwner()
         lifecycleOwner.startAndResume()
@@ -117,17 +110,6 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
         }
     }
 
-    private suspend fun isCaptureProcessProgressSupported(
-        extensionsCameraSelector: CameraSelector
-    ): Boolean {
-        return withContext(Dispatchers.Main) {
-            cameraProvider.unbindAll()
-            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, extensionsCameraSelector)
-            ImageCapture
-                .getImageCaptureCapabilities(camera.cameraInfo).isCaptureProcessProgressSupported
-        }
-    }
-
     private suspend fun assertPreviewAndImageCaptureWorking(clientVersion: String) {
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -138,12 +120,8 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
         extensionCameraSelector = extensionsManager
             .getExtensionEnabledCameraSelector(baseCameraSelector, config.extensionMode)
 
-        val expectCaptureProcessProgress =
-            isCaptureProcessProgressSupported(extensionCameraSelector)
-
         val previewFrameLatch = CountDownLatch(1)
         val captureLatch = CountDownLatch(1)
-        var captureProcessProgressInvoked = false
 
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -166,21 +144,14 @@ class ClientVersionBackwardCompatibilityTest(private val config: CameraXExtensio
                 override fun onCaptureSuccess(image: ImageProxy) {
                     captureLatch.countDown()
                 }
-
-                override fun onCaptureProcessProgressed(progress: Int) {
-                    captureProcessProgressInvoked = true
-                }
-            }
-        )
+            })
         assertThat(captureLatch.await(10, TimeUnit.SECONDS)).isTrue()
-        assertThat(captureProcessProgressInvoked).isEqualTo(expectCaptureProcessProgress)
     }
 
     @Test
     fun previewImageCaptureWork_clientVersion_1_0_0() = runBlocking {
         assertPreviewAndImageCaptureWorking(clientVersion = "1.0.0")
     }
-
     @Test
     fun previewImageCaptureWork_clientVersion_1_1_0() = runBlocking {
         assertPreviewAndImageCaptureWorking(clientVersion = "1.1.0")

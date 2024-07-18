@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.MarginLayoutParamsCompat;
+import androidx.core.view.ViewCompat;
 import androidx.percentlayout.R;
 
 /**
@@ -548,7 +549,7 @@ public class PercentLayoutHelper {
                 // Force the resolve pass so that start / end margins are propagated to the
                 // matching left / right fields
                 MarginLayoutParamsCompat.resolveLayoutDirection(params,
-                        view.getLayoutDirection());
+                        ViewCompat.getLayoutDirection(view));
             }
             if (DEBUG) {
                 Log.d(TAG, "after fillMarginLayoutParams: (" + params.width + ", " + params.height

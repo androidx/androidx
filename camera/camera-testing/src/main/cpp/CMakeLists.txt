@@ -14,22 +14,17 @@
 # the License.
 #
 
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.4.1)
 
 project(camera_testing_jni)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror")
 
 add_library(
-        testing_surface_jni SHARED
+        testing_surface_format_jni SHARED
         jni_hooks.cpp
-        surface_jni.cpp)
+        surface_format_jni.cpp)
 
 find_library(android-lib android)
 
-target_link_libraries(testing_surface_jni  ${android-lib})
-target_link_options(
-        testing_surface_jni
-        PRIVATE
-        "-Wl,-z,max-page-size=16384"
-)
+target_link_libraries(testing_surface_format_jni  ${android-lib})

@@ -25,7 +25,6 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.RestrictedCameraInfo;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
@@ -133,8 +132,7 @@ final class LifecycleCameraRepository {
      */
     @Nullable
     LifecycleCamera getLifecycleCamera(LifecycleOwner lifecycleOwner,
-            @NonNull CameraUseCaseAdapter.CameraId cameraId
-    ) {
+            CameraUseCaseAdapter.CameraId cameraId) {
         synchronized (mLock) {
             return mCameraMap.get(Key.create(lifecycleOwner, cameraId));
         }
@@ -176,9 +174,7 @@ final class LifecycleCameraRepository {
         synchronized (mLock) {
             LifecycleOwner lifecycleOwner = lifecycleCamera.getLifecycleOwner();
             Key key = Key.create(lifecycleOwner,
-                    CameraUseCaseAdapter.generateCameraId(
-                            (RestrictedCameraInfo) lifecycleCamera.getCameraInfo()));
-
+                    lifecycleCamera.getCameraUseCaseAdapter().getCameraId());
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
             Set<Key> lifecycleCameraKeySet;
@@ -303,7 +299,7 @@ final class LifecycleCameraRepository {
                 lifecycleCamera.getCameraUseCaseAdapter().setEffects(effects);
                 lifecycleCamera.bind(useCases);
             } catch (CameraUseCaseAdapter.CameraException e) {
-                throw new IllegalArgumentException(e);
+                throw new IllegalArgumentException(e.getMessage());
             }
 
             // The target LifecycleCamera has use case bound. If the target LifecycleOwner has been
@@ -499,15 +495,14 @@ final class LifecycleCameraRepository {
     }
 
     /**
-     * A key for mapping a {@link LifecycleOwner} and a {@link CameraUseCaseAdapter.CameraId} to a
+     * A key for mapping a {@link LifecycleOwner} and set of {@link CameraInternal} to a
      * {@link LifecycleCamera}.
      */
     @AutoValue
     abstract static class Key {
         static Key create(@NonNull LifecycleOwner lifecycleOwner,
                 @NonNull CameraUseCaseAdapter.CameraId cameraId) {
-            return new AutoValue_LifecycleCameraRepository_Key(
-                    lifecycleOwner, cameraId);
+            return new AutoValue_LifecycleCameraRepository_Key(lifecycleOwner, cameraId);
         }
 
         @NonNull

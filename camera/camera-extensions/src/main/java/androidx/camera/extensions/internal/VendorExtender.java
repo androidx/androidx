@@ -124,46 +124,6 @@ public interface VendorExtender {
     }
 
     /**
-     * Returns supported output format/size map for postview image.
-     *
-     * <p>The returned sizes must be smaller than or equal to the provided capture size and have the
-     * same aspect ratio as the given capture size. If no supported resolution exists for the
-     * provided capture size then an empty map is returned.
-     */
-    @NonNull
-    default Map<Integer, List<Size>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
-        return Collections.emptyMap();
-    }
-
-    /**
-     * Returns if postview is supported or not.
-     */
-    default boolean isPostviewAvailable() {
-        return false;
-    }
-
-    /**
-     * Returns if the capture process progress is supported or not.
-     */
-    default boolean isCaptureProcessProgressAvailable() {
-        return false;
-    }
-
-    /**
-     * Returns if extension strength is supported or not.
-     */
-    default boolean isExtensionStrengthAvailable() {
-        return false;
-    }
-
-    /**
-     * Returns if reporting current extension mode is supported or not.
-     */
-    default boolean isCurrentExtensionModeAvailable() {
-        return false;
-    }
-
-    /**
      * Creates a {@link SessionProcessor} that is responsible for (1) determining the stream
      * configuration based on given output surfaces (2) Requesting OEM implementation to start
      * repeating request and performing a still image capture.

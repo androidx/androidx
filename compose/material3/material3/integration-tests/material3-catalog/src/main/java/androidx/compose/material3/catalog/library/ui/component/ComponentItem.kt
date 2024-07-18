@@ -36,28 +36,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ComponentItem(
-    component: Component,
-    onClick: (component: Component) -> Unit
-) {
+fun ComponentItem(component: Component, onClick: (component: Component) -> Unit) {
     OutlinedCard(
         onClick = { onClick(component) },
-        modifier = Modifier
-            .height(ComponentItemHeight)
-            .padding(ComponentItemOuterPadding)
+        modifier = Modifier.height(ComponentItemHeight).padding(ComponentItemOuterPadding)
     ) {
         Box(modifier = Modifier.fillMaxSize().padding(ComponentItemInnerPadding)) {
             Image(
                 painter = painterResource(id = component.icon),
                 contentDescription = null,
-                modifier = Modifier
-                    .size(ComponentItemIconSize)
-                    .align(Alignment.Center),
-                colorFilter = if (component.tintIcon) {
-                    ColorFilter.tint(LocalContentColor.current)
-                } else {
-                    null
-                },
+                modifier = Modifier.size(ComponentItemIconSize).align(Alignment.Center),
+                colorFilter =
+                    if (component.tintIcon) {
+                        ColorFilter.tint(LocalContentColor.current)
+                    } else {
+                        null
+                    },
                 contentScale = ContentScale.Inside
             )
             Text(

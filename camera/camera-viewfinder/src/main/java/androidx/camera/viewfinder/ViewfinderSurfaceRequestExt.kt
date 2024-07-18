@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("DEPRECATION")
 @file:JvmName("ViewfinderSurfaceRequestUtil")
 
 package androidx.camera.viewfinder
@@ -31,10 +30,6 @@ import androidx.camera.viewfinder.CameraViewfinder.ImplementationMode
  * sensor orientation and [ImplementationMode]. If the hardware level is legacy,
  * the [ImplementationMode] will be set to [ImplementationMode.COMPATIBLE].
  */
-@Deprecated(message = "Use androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest as argument",
-    replaceWith = ReplaceWith(
-    "populateFromCharacteristics returning " +
-        "androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder"))
 @SuppressLint("ClassVerificationFailure")
 @RequiresApi(21)
 fun ViewfinderSurfaceRequest.Builder.populateFromCharacteristics(

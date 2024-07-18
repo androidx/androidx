@@ -57,28 +57,27 @@ public class ServiceConnectionTest {
     private final FakeConnectionCallback mConnectionCallback = new FakeConnectionCallback();
     private final VersionQueueOperation mVersionOperation = new VersionQueueOperation();
 
-    private ConnectionConfiguration mClientConfiguration;
     private ServiceConnection mConnection;
 
     @Before
     public void setUp() {
-        mClientConfiguration =
+        ConnectionConfiguration clientConfiguration =
                 new ConnectionConfiguration("", "client_name", "bind_action", mVersionOperation);
         Intent bindIntent =
                 new Intent()
-                        .setPackage(mClientConfiguration.getPackageName())
-                        .setAction(mClientConfiguration.getBindAction());
+                        .setPackage(clientConfiguration.getPackageName())
+                        .setAction(clientConfiguration.getBindAction());
         shadowOf((Application) getApplicationContext())
                 .setComponentNameAndServiceForBindServiceForIntent(
                         bindIntent,
                         new ComponentName(
-                                mClientConfiguration.getPackageName(),
-                                mClientConfiguration.getClientName()),
+                                clientConfiguration.getPackageName(),
+                                clientConfiguration.getClientName()),
                         mBinder);
         mConnection =
                 new ServiceConnection(
                         ApplicationProvider.getApplicationContext(),
-                        mClientConfiguration,
+                        clientConfiguration,
                         mTracker,
                         mConnectionCallback);
     }
@@ -157,22 +156,6 @@ public class ServiceConnectionTest {
         shadowOf(getMainLooper()).idle();
 
         assertThat(mConnectionCallback.mOnConnectedCalled).isTrue();
-    }
-
-    @Test
-    public void enqueueOperation_unbindableService_throwsRemoteException() {
-        shadowOf((Application) getApplicationContext())
-                .declareComponentUnbindable(new ComponentName(mClientConfiguration.getPackageName(),
-                        mClientConfiguration.getClientName()
-                ));
-
-        FakeQueueOperation queueOperation = new FakeQueueOperation(mClientConfiguration);
-
-        mConnection.enqueue(queueOperation);
-        shadowOf(getMainLooper()).idle();
-
-        assertThat(queueOperation.isExecuted()).isFalse();
-        assertThat(queueOperation.mThrowable).isInstanceOf(RemoteException.class);
     }
 
     @Test

@@ -18,7 +18,5 @@ package androidx.compose.material3.internal
 
 import androidx.compose.ui.text.PlatformTextStyle
 
-/**
- * Returns Default [PlatformTextStyle].
- */
+/** Returns Default [PlatformTextStyle]. */
 internal expect fun defaultPlatformTextStyle(): PlatformTextStyle?

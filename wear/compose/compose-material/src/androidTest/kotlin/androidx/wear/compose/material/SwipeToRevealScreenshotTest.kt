@@ -31,7 +31,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
-import androidx.wear.compose.foundation.RevealScope
 import androidx.wear.compose.foundation.RevealState
 import androidx.wear.compose.foundation.RevealValue
 import androidx.wear.compose.foundation.rememberRevealState
@@ -164,40 +163,23 @@ class SwipeToRevealScreenshotTest {
     @Composable
     private fun swipeToRevealCard(
         revealState: RevealState = rememberRevealState(),
-        secondaryAction: (@Composable RevealScope.() -> Unit)? = {
-            SwipeToRevealSecondaryAction(
-                revealState = revealState,
-                onClick = {},
-                content = { Icon(SwipeToRevealDefaults.MoreOptions, "More Options") }
-            )
-        },
-        undoPrimaryAction: (@Composable RevealScope.() -> Unit)? = {
-            SwipeToRevealUndoAction(
-                revealState = revealState,
-                onClick = {},
-                label = { Text("Undo") }
-            )
-        },
-        undoSecondaryAction: (@Composable RevealScope.() -> Unit)? = {
-            SwipeToRevealUndoAction(
-                revealState = revealState,
-                onClick = {},
-                label = { Text("Undo") }
-            )
-        }
+        secondaryAction: SwipeToRevealAction? = SwipeToRevealDefaults.secondaryAction(
+            icon = { Icon(SwipeToRevealDefaults.MoreOptions, "More Options") }
+        ),
+        undoPrimaryAction: SwipeToRevealAction? = SwipeToRevealDefaults.undoAction(
+            label = { Text("Undo") }
+        ),
+        undoSecondaryAction: SwipeToRevealAction? = SwipeToRevealDefaults.undoAction(
+            label = { Text("Undo") }
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
             SwipeToRevealCard(
                 modifier = Modifier.testTag(TEST_TAG),
-                primaryAction = {
-                    SwipeToRevealPrimaryAction(
-                        revealState = revealState,
-                        onClick = {},
-                        icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
-                        label = { Text("Delete") }
-                    )
-                },
-                onFullSwipe = {},
+                primaryAction = SwipeToRevealDefaults.primaryAction(
+                    icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
+                    label = { Text("Delete") }
+                ),
                 secondaryAction = secondaryAction,
                 undoPrimaryAction = undoPrimaryAction,
                 undoSecondaryAction = undoSecondaryAction,
@@ -217,40 +199,23 @@ class SwipeToRevealScreenshotTest {
     @Composable
     private fun swipeToRevealChip(
         revealState: RevealState = rememberRevealState(),
-        secondaryAction: (@Composable RevealScope.() -> Unit)? = {
-            SwipeToRevealSecondaryAction(
-                revealState = revealState,
-                onClick = {},
-                content = { Icon(SwipeToRevealDefaults.MoreOptions, "More Options") }
-            )
-        },
-        undoPrimaryAction: (@Composable RevealScope.() -> Unit)? = {
-            SwipeToRevealUndoAction(
-                revealState = revealState,
-                onClick = {},
-                label = { Text("Undo") }
-            )
-        },
-        undoSecondaryAction: (@Composable RevealScope.() -> Unit)? = {
-            SwipeToRevealUndoAction(
-                revealState = revealState,
-                onClick = {},
-                label = { Text("Undo") }
-            )
-        }
+        secondaryAction: SwipeToRevealAction? = SwipeToRevealDefaults.secondaryAction(
+            icon = { Icon(SwipeToRevealDefaults.MoreOptions, "More Options") }
+        ),
+        undoPrimaryAction: SwipeToRevealAction? = SwipeToRevealDefaults.undoAction(
+            label = { Text("Undo") }
+        ),
+        undoSecondaryAction: SwipeToRevealAction? = SwipeToRevealDefaults.undoAction(
+            label = { Text("Undo") }
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colors.background)) {
             SwipeToRevealChip(
                 modifier = Modifier.testTag(TEST_TAG),
-                primaryAction = {
-                    SwipeToRevealPrimaryAction(
-                        revealState = revealState,
-                        onClick = {},
-                        icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
-                        label = { Text("Delete") }
-                    )
-                },
-                onFullSwipe = {},
+                primaryAction = SwipeToRevealDefaults.primaryAction(
+                    icon = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
+                    label = { Text("Delete") }
+                ),
                 secondaryAction = secondaryAction,
                 undoPrimaryAction = undoPrimaryAction,
                 undoSecondaryAction = undoSecondaryAction,

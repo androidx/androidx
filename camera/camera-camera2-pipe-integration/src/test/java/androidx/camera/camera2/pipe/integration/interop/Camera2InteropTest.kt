@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CameraCaptureSession
@@ -22,6 +24,7 @@ import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
 import android.util.Range
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.impl.CAPTURE_REQUEST_ID_STEM
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig

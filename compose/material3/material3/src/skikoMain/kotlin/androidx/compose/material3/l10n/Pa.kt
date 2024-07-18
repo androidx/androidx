@@ -31,6 +31,7 @@ internal fun Translations.pa() = mapOf(
     Strings.Dialog to "ਡਾਇਲੌਗ",
     Strings.MenuExpanded to "ਵਿਸਤਾਰ ਕੀਤਾ ਗਿਆ",
     Strings.MenuCollapsed to "ਸਮੇਟਿਆ ਗਿਆ",
+    Strings.ToggleDropdownMenu to "ਡ੍ਰੌਪ-ਡਾਊਨ ਮੀਨੂ ਨੂੰ ਟੌਗਲ ਕਰੋ",
     Strings.SnackbarDismiss to "ਖਾਰਜ ਕਰੋ",
     Strings.SearchBarSearch to "ਖੋਜੋ",
     Strings.SuggestionsAvailable to "ਸੁਝਾਅ ਹੇਠਾਂ ਹਨ",

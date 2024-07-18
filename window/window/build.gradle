@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -34,7 +27,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
     sourceSets {
@@ -93,7 +86,7 @@ dependencies {
 
 androidx {
     name = "WindowManager"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "WindowManager Jetpack library. Currently only provides additional " +
             "functionality on foldable devices."
@@ -101,5 +94,4 @@ androidx {
     // Suppressing deprecation warnings, since there is a need to maintain compatibility with old
     // Sidecar interface.
     failOnDeprecationWarnings = false
-    samples(project(":window:window-samples"))
 }

@@ -178,7 +178,7 @@ private class RecursiveMethodVisitor(
             ) {
                 val argType = PsiTypesUtil.getPsiClass(arg.getExpressionType())
                 if (argType == call.getContainingUClass()?.javaPsi) {
-                    val methodFix = if (isKotlin(call.lang)) {
+                    val methodFix = if (isKotlin(context.psiFile)) {
                         "viewLifecycleOwner"
                     } else {
                         "getViewLifecycleOwner()"

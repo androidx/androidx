@@ -51,7 +51,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.impl.CameraUtil;
 import androidx.camera.testing.impl.CameraXUtil;
-import androidx.camera.testing.impl.WakelockEmptyActivityRule;
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -95,9 +94,6 @@ public final class Camera2ImplCameraXTest {
     public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
             new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     );
-
-    @Rule
-    public TestRule wakelockEmptyActivityRule = new WakelockEmptyActivityRule();
 
     private CameraDevice.StateCallback mDeviceStateCallback;
     private FakeLifecycleOwner mLifecycle;

@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -32,9 +25,8 @@ plugins {
 dependencies {
     api(project(":work:work-runtime"))
 
-    implementation("androidx.lifecycle:lifecycle-livedata-core:2.6.2")
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
+    implementation("androidx.room:room-runtime:2.5.0")
 
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(libs.testExtJunit)
@@ -56,7 +48,7 @@ dependencies {
 
 androidx {
     name = "WorkManager Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android WorkManager testing library"
     metalavaK2UastEnabled = true

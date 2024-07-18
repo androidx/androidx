@@ -17,62 +17,62 @@
 package androidx.sqlite.inspection;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.inspection.ArtTooling;
+import androidx.inspection.InspectorEnvironment;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 
-class SqlDelightInvalidation implements Invalidation {
-    public static final String TAG = "StudioInspectors";
-    public static final String HIDDEN_TAG = "studio.inspectors";
-
+class SqlDelightInvalidation {
     private static final String SQLDELIGHT_QUERY_CLASS_NAME = "com.squareup.sqldelight.Query";
     private static final String SQLDELIGHT_NOTIFY_METHOD_NAME = "notifyDataChanged";
 
-    private final @NonNull ArtTooling mArtTooling;
-    private final @NonNull Class<?> mQueryClass;
-    private final @NonNull Method mNotifyDataChangeMethod;
+    private final InspectorEnvironment mEnvironment;
+    private final Class<?> mQueryClass;
+    private final Method mNotifyDataChangeMethod;
+
+    SqlDelightInvalidation(InspectorEnvironment environment, Class<?> queryClass,
+            Method notifyDataChangeMethod) {
+        mQueryClass = queryClass;
+        mEnvironment = environment;
+        mNotifyDataChangeMethod = notifyDataChangeMethod;
+    }
 
     @NonNull
-    static Invalidation create(@NonNull ArtTooling artTooling) {
+    static SqlDelightInvalidation create(@NonNull InspectorEnvironment environment) {
         ClassLoader classLoader = SqlDelightInvalidation.class.getClassLoader();
         Objects.requireNonNull(classLoader);
         try {
             Class<?> queryClass = classLoader.loadClass(SQLDELIGHT_QUERY_CLASS_NAME);
             Method notifyMethod = queryClass.getMethod(SQLDELIGHT_NOTIFY_METHOD_NAME);
-            return new SqlDelightInvalidation(artTooling, queryClass, notifyMethod);
-        } catch (ClassNotFoundException e) {
-            Log.v(HIDDEN_TAG, "SqlDelight not found", e);
-            return () -> {
-            };
-        } catch (Exception e) {
-            Log.w(TAG, "Error setting up SqlDelight invalidation", e);
-            return () -> {
-            };
+            return new SqlDelightInvalidation(environment, queryClass, notifyMethod);
+        } catch (ClassNotFoundException | NoSuchMethodException e) {
+            return new SqlDelightInvalidation(environment, null, null);
         }
     }
 
-    private SqlDelightInvalidation(@NonNull ArtTooling artTooling, @NonNull Class<?> queryClass,
-            @NonNull Method notifyDataChangeMethod) {
-        mArtTooling = artTooling;
-        mQueryClass = queryClass;
-        mNotifyDataChangeMethod = notifyDataChangeMethod;
+    void triggerInvalidations() {
+        if (mQueryClass == null || mNotifyDataChangeMethod == null) {
+            return;
+        }
+        // invalidating all queries because we can't say which ones were actually affected.
+        List<?> queries = mEnvironment.artTooling().findInstances(mQueryClass);
+        for (Object query: queries) {
+            notifyDataChanged(query);
+        }
     }
 
-    @SuppressLint("BanUncheckedReflection")
-    @Override
-    public void triggerInvalidations() {
-        // invalidating all queries because we can't say which ones were actually affected.
-        for (Object query: mArtTooling.findInstances(mQueryClass)) {
-            try {
-                mNotifyDataChangeMethod.invoke(query);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                Log.w(TAG, "Error calling notifyDataChanged", e);
-            }
+    @SuppressLint("BanUncheckedReflection") // Not a platform method.
+    private void notifyDataChanged(Object query) {
+        try {
+            mNotifyDataChangeMethod.invoke(query);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            // ok it didn't work out for us,
+            // in first version we don't have a special UI around it,
+            // so we can't do much about it.
         }
     }
 }

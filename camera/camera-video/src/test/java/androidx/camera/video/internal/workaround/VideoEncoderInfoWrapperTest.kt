@@ -133,21 +133,6 @@ object VideoEncoderInfoWrapperTest {
         }
 
         @Test
-        fun addValidSizeToWrapper() {
-            val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
-            val sizeToBeValid = Size(Int.MAX_VALUE, Int.MAX_VALUE)
-            assertThat(videoEncoderInfo.isSizeSupported(sizeToBeValid.width, sizeToBeValid.height))
-                .isFalse()
-            val videoEncoderInfo2 = createFakeVideoEncoderInfoWrapper(
-                videoEncoderInfo,
-                validSizeToCheck = sizeToBeValid
-            )
-            assertThat(videoEncoderInfo2).isSameInstanceAs(videoEncoderInfo)
-            assertThat(videoEncoderInfo2.isSizeSupported(sizeToBeValid.width, sizeToBeValid.height))
-                .isTrue()
-        }
-
-        @Test
         fun getSupportedWidths() {
             val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
             assertThat(videoEncoderInfo.supportedWidths).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)

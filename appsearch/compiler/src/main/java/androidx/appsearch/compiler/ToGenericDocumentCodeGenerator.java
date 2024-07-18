@@ -24,11 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.compiler.AnnotatedGetterOrField.ElementTypeCategory;
 import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation;
-import androidx.appsearch.compiler.annotationwrapper.LongPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
-import androidx.appsearch.compiler.annotationwrapper.SerializerClass;
-import androidx.appsearch.compiler.annotationwrapper.StringPropertyAnnotation;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -174,11 +171,6 @@ class ToGenericDocumentCodeGenerator {
         //       Collection contains a class which is annotated with @Document.
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
-        //
-        //   1d: CollectionForLoopCallSerialize
-        //       Collection contains a custom type for which we have a serializer.
-        //       We have to convert this into an array of String[]|long[], by reading each element
-        //       one-by-one and passing it to serializerClass.serialize(customType).
 
         // Scenario 2: field is an Array
         //   2a: ArrayForLoopAssign
@@ -197,12 +189,7 @@ class ToGenericDocumentCodeGenerator {
         //       We have to convert this into an array of GenericDocument[], by reading each element
         //       one-by-one and converting it through the standard conversion machinery.
         //
-        //   2d: ArrayForLoopCallSerialize
-        //       Array is of a custom type for which we have a serializer.
-        //       We have to convert this into an array of String[]|long[], by reading each element
-        //       one-by-one and passing it to serializerClass.serialize(customType).
-        //
-        //   2e: Array is of class byte[]. This is actually a single-valued field as byte arrays are
+        //   2d: Array is of class byte[]. This is actually a single-valued field as byte arrays are
         //       natively supported by Icing, and is handled as Scenario 3a.
 
         // Scenario 3: Single valued fields
@@ -219,37 +206,16 @@ class ToGenericDocumentCodeGenerator {
         //       Field is of a class which is annotated with @Document.
         //       We have to convert this into a GenericDocument through the standard conversion
         //       machinery.
-        //
-        //   3d: FieldCallSerialize
-        //       Field is of a some custom type for which we have a serializer.
-        //       We have to convert this into a String|long by calling
-        //       serializeClass.serialize(customType).
         ElementTypeCategory typeCategory = getterOrField.getElementTypeCategory();
         switch (annotation.getDataPropertyKind()) {
             case STRING_PROPERTY:
-                SerializerClass stringSerializer =
-                        ((StringPropertyAnnotation) annotation).getCustomSerializer();
                 switch (typeCategory) {
-                    case COLLECTION:
-                        if (stringSerializer != null) { // List<CustomType>: 1d
-                            return collectionForLoopCallSerialize(
-                                    annotation, getterOrField, stringSerializer);
-                        } else { // List<String>: 1b
-                            return collectionCallToArray(annotation, getterOrField);
-                        }
-                    case ARRAY:
-                        if (stringSerializer != null) { // CustomType[]: 2d
-                            return arrayForLoopCallToSerialize(
-                                    annotation, getterOrField, stringSerializer);
-                        } else { // String[]: 2b
-                            return arrayUseDirectly(annotation, getterOrField);
-                        }
-                    case SINGLE:
-                        if (stringSerializer != null) { // CustomType: 3d
-                            return fieldCallSerialize(annotation, getterOrField, stringSerializer);
-                        } else { // String: 3a
-                            return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
-                        }
+                    case COLLECTION: // List<String>: 1b
+                        return collectionCallToArray(annotation, getterOrField);
+                    case ARRAY: // String[]: 2b
+                        return arrayUseDirectly(annotation, getterOrField);
+                    case SINGLE: // String: 3a
+                        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
                     default:
                         throw new IllegalStateException("Unhandled type-category: " + typeCategory);
                 }
@@ -268,38 +234,28 @@ class ToGenericDocumentCodeGenerator {
                         throw new IllegalStateException("Unhandled type-category: " + typeCategory);
                 }
             case LONG_PROPERTY:
-                SerializerClass longSerializer =
-                        ((LongPropertyAnnotation) annotation).getCustomSerializer();
                 switch (typeCategory) {
-                    case COLLECTION:
-                        if (longSerializer != null) { // List<CustomType>: 1d
-                            return collectionForLoopCallSerialize(
-                                    annotation, getterOrField, longSerializer);
-                        } else { // List<Long>|List<Integer>: 1a
-                            return collectionForLoopAssign(
-                                    annotation,
-                                    getterOrField,
-                                    /* targetArrayComponentType= */mHelper.mLongPrimitiveType);
-                        }
+                    case COLLECTION: // List<Long>|List<Integer>: 1a
+                        return collectionForLoopAssign(
+                                annotation,
+                                getterOrField,
+                                /* targetArrayComponentType= */mHelper.mLongPrimitiveType);
                     case ARRAY:
-                        if (longSerializer != null) { // CustomType[]: 2d
-                            return arrayForLoopCallToSerialize(
-                                    annotation, getterOrField, longSerializer);
-                        } else if (mHelper.isPrimitiveLongArray(getterOrField.getJvmType())) {
+                        if (mHelper.isPrimitiveLongArray(getterOrField.getJvmType())) {
                             return arrayUseDirectly(annotation, getterOrField); // long[]: 2b
-                        } else { // Long[]|Integer[]|int[]: 2a
+                        } else {
+                            // Long[]|Integer[]|int[]: 2a
                             return arrayForLoopAssign(
                                     annotation,
                                     getterOrField,
                                     /* targetArrayComponentType= */mHelper.mLongPrimitiveType);
                         }
                     case SINGLE:
-                        if (longSerializer != null) { // CustomType: 3d
-                            return fieldCallSerialize(annotation, getterOrField, longSerializer);
-                        } else if (getterOrField.getJvmType() instanceof PrimitiveType) {
+                        if (getterOrField.getJvmType() instanceof PrimitiveType) {
                             // long|int: 3b
                             return fieldUseDirectlyWithoutNullCheck(annotation, getterOrField);
-                        } else { // Long|Integer: 3a
+                        } else {
+                            // Long|Integer: 3a
                             return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
                         }
                     default:
@@ -370,7 +326,7 @@ class ToGenericDocumentCodeGenerator {
                                 /* targetArrayComponentType= */mHelper.mBytePrimitiveArrayType);
                     case ARRAY: // byte[][]: 2b
                         return arrayUseDirectly(annotation, getterOrField);
-                    case SINGLE: // byte[]: 2e
+                    case SINGLE: // byte[]: 2d
                         return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
                     default:
                         throw new IllegalStateException("Unhandled type-category: " + typeCategory);
@@ -470,37 +426,6 @@ class ToGenericDocumentCodeGenerator {
                 .build();
     }
 
-    // 1d: CollectionForLoopCallSerialize
-    //     Collection contains a custom type for which we have a serializer.
-    //     We have to convert this into an array of String[]|long[], by reading each element
-    //     one-by-one and passing it to serializerClass.serialize(customType).
-    @NonNull
-    private CodeBlock collectionForLoopCallSerialize(
-            @NonNull DataPropertyAnnotation annotation,
-            @NonNull AnnotatedGetterOrField getterOrField,
-            @NonNull SerializerClass serializerClass) {
-        TypeMirror jvmType = getterOrField.getJvmType(); // e.g. List<CustomType>
-        TypeMirror customType = getterOrField.getComponentType(); // e.g. CustomType
-        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
-        TypeMirror propType = annotation.getUnderlyingTypeWithinGenericDoc(mHelper); // e.g. String
-        return CodeBlock.builder()
-                .addStatement("$T $NCopy = $L",
-                        jvmType, jvmName, createReadExpr(getterOrField))
-                .beginControlFlow("if ($NCopy != null)", jvmName)
-                .addStatement("$T[] $NConv = new $T[$NCopy.size()]",
-                        propType, jvmName, propType, jvmName)
-                .addStatement("$T serializer = new $T()",
-                        serializerClass.getElement(), serializerClass.getElement())
-                .addStatement("int i = 0")
-                .beginControlFlow("for ($T item : $NCopy)", customType, jvmName)
-                .addStatement("$NConv[i++] = serializer.serialize(item)", jvmName)
-                .endControlFlow() // for (...) {
-                .addStatement("builder.$N($S, $NConv)",
-                        annotation.getGenericDocSetterName(), annotation.getName(), jvmName)
-                .endControlFlow() //  if ($NCopy != null) {
-                .build();
-    }
-
     // 2a: ArrayForLoopAssign
     //     Array is of type Long[], Integer[], int[], Double[], Float[], float[], Boolean[].
     //     We have to pack it into a primitive array of type long[], double[], boolean[]
@@ -583,35 +508,6 @@ class ToGenericDocumentCodeGenerator {
                 .build();
     }
 
-    // 2d: ArrayForLoopCallSerialize
-    //     Array is of a custom type for which we have a serializer.
-    //     We have to convert this into an array of String[]|long[], by reading each element
-    //     one-by-one and passing it to serializerClass.serialize(customType).
-    @NonNull
-    private CodeBlock arrayForLoopCallToSerialize(
-            @NonNull DataPropertyAnnotation annotation,
-            @NonNull AnnotatedGetterOrField getterOrField,
-            @NonNull SerializerClass serializerClass) {
-        TypeMirror jvmType = getterOrField.getJvmType(); // e.g. CustomType[]
-        TypeMirror propType = annotation.getUnderlyingTypeWithinGenericDoc(mHelper); // e.g. String
-        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
-        return CodeBlock.builder()
-                .addStatement("$T $NCopy = $L",
-                        jvmType, jvmName, createReadExpr(getterOrField))
-                .beginControlFlow("if ($NCopy != null)", jvmName)
-                .addStatement("$T[] $NConv = new $T[$NCopy.length]",
-                        propType, jvmName, propType, jvmName)
-                .addStatement("$T serializer = new $T()",
-                        serializerClass.getElement(), serializerClass.getElement())
-                .beginControlFlow("for (int i = 0; i < $NConv.length; i++)", jvmName)
-                .addStatement("$NConv[i] = serializer.serialize($NCopy[i])", jvmName, jvmName)
-                .endControlFlow() // for (...) {
-                .addStatement("builder.$N($S, $NConv)",
-                        annotation.getGenericDocSetterName(), annotation.getName(), jvmName)
-                .endControlFlow() //  if ($NCopy != null) {
-                .build();
-    }
-
     // 3a: FieldUseDirectlyWithNullCheck
     //     Field is of type String, Long, Integer, Double, Float, Boolean.
     //     We can use this field directly, after testing for null. The java compiler will box
@@ -680,30 +576,6 @@ class ToGenericDocumentCodeGenerator {
                 .addStatement("builder.setPropertyDocument($S, $NConv)",
                         annotation.getName(), jvmName)
                 .endControlFlow() // if ($NCopy != null) {
-                .build();
-    }
-
-    // 3d: FieldCallSerialize
-    //     Field is of a some custom type for which we have a serializer.
-    //     We have to convert this into a String|long by calling
-    //     serializeClass.serialize(customType).
-    @NonNull
-    private CodeBlock fieldCallSerialize(
-            @NonNull DataPropertyAnnotation annotation,
-            @NonNull AnnotatedGetterOrField getterOrField,
-            @NonNull SerializerClass serializerClass) {
-        TypeMirror customType = getterOrField.getJvmType();
-        String jvmName = getterOrField.getJvmName(); // e.g. mProp|getProp
-        return CodeBlock.builder()
-                .addStatement("$T $NCopy = $L", customType, jvmName, createReadExpr(getterOrField))
-                .beginControlFlow("if ($NCopy != null)", jvmName)
-                .addStatement("$T serializer = new $T()",
-                        serializerClass.getElement(), serializerClass.getElement())
-                .addStatement("$T $NConv = serializer.serialize($NCopy)",
-                        annotation.getUnderlyingTypeWithinGenericDoc(mHelper), jvmName, jvmName)
-                .addStatement("builder.$N($S, $NConv)",
-                        annotation.getGenericDocSetterName(), annotation.getName(), jvmName)
-                .endControlFlow() // if ($NCopy != null)
                 .build();
     }
 

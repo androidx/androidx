@@ -28,6 +28,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.widget.ImageView;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -40,6 +41,7 @@ import java.util.Set;
 /**
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public class ShortcutView extends SliceChildView {
 

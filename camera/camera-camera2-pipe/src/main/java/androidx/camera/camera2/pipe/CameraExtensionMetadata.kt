@@ -40,12 +40,10 @@ interface CameraExtensionMetadata : Metadata, UnsafeWrapper {
     val camera: CameraId
     val isRedacted: Boolean
     val cameraExtension: Int
-    val isPostviewSupported: Boolean
 
     val requestKeys: Set<CaptureRequest.Key<*>>
     val resultKeys: Set<CaptureResult.Key<*>>
 
     fun getOutputSizes(imageFormat: Int): Set<Size>
     fun getOutputSizes(klass: Class<*>): Set<Size>
-    fun getPostviewSizes(captureSize: Size, format: Int): Set<Size>
 }

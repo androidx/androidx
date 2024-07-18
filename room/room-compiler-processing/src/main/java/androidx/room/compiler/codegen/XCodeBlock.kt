@@ -193,29 +193,6 @@ interface XCodeBlock : TargetLanguage {
         }
 
         /**
-         * Convenience code block of a Kotlin class literal.
-         */
-        fun ofKotlinClassLiteral(
-            language: CodeLanguage,
-            typeName: XClassName,
-        ): XCodeBlock {
-            return when (language) {
-                CodeLanguage.JAVA -> of(
-                    language,
-                    "%T.getKotlinClass(%T.class)",
-                    XClassName.get("kotlin.jvm", "JvmClassMappingKt"),
-                    typeName
-                )
-
-                CodeLanguage.KOTLIN -> of(
-                    language,
-                    "%T::class",
-                    typeName
-                )
-            }
-        }
-
-        /**
          * Convenience code block of a conditional expression representing a ternary if.
          *
          * For Java this will emit: ` <condition> ? <leftExpr> : <rightExpr>)`
@@ -233,27 +210,6 @@ interface XCodeBlock : TargetLanguage {
                     of(language, "%L ? %L : %L", condition, leftExpr, rightExpr)
                 CodeLanguage.KOTLIN ->
                     of(language, "if (%L) %L else %L", condition, leftExpr, rightExpr)
-            }
-        }
-
-        /**
-         * Convenience code block of an extension function call.
-         *
-         * For Java this will emit: ` <memberName>(<receiverVariableName>, <args>)`
-         *
-         * For Kotlin this will emit: `<receiverVarName>.<memberName>(<args>)`
-         */
-        fun ofExtensionCall(
-            language: CodeLanguage,
-            memberName: XMemberName,
-            receiverVarName: String,
-            args: XCodeBlock
-        ): XCodeBlock {
-            return when (language) {
-                CodeLanguage.JAVA ->
-                    of(language, "%M(%L, %L)", memberName, receiverVarName, args)
-                CodeLanguage.KOTLIN ->
-                    of(language, "%L.%M(%L)", receiverVarName, memberName, args)
             }
         }
     }

@@ -70,8 +70,7 @@ public expect open class NavigatorProvider() {
      */
     @CallSuper
     public open fun addNavigator(
-        name: String,
-        navigator: Navigator<out NavDestination>
+        name: String, navigator: Navigator<out NavDestination>
     ): Navigator<out NavDestination>?
 }
 
@@ -95,15 +94,14 @@ public expect inline operator fun <T : Navigator<out NavDestination>> NavigatorP
 ): T
 
 /**
- * Register a [Navigator] by name. If a navigator by this name is already
- * registered, this new navigator will replace it.
+ * Register a [Navigator] by name. If a navigator by this name is already registered, this new
+ * navigator will replace it.
  *
  * @return the previously added [Navigator] for the given name, if any
  */
 @Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 public inline operator fun NavigatorProvider.set(
-    name: String,
-    navigator: Navigator<out NavDestination>
+    name: String, navigator: Navigator<out NavDestination>
 ): Navigator<out NavDestination>? = addNavigator(name, navigator)
 
 /**

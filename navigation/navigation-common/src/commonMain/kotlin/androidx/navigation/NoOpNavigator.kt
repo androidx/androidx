@@ -15,11 +15,11 @@
  */
 package androidx.navigation
 
+import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
 
-/**
- * A [Navigator] that only supports creating destinations.
- */
+/** A [Navigator] that only supports creating destinations. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public expect class NoOpNavigator : Navigator<NavDestination> {
     override fun createDestination(): NavDestination
 

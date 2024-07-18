@@ -33,7 +33,7 @@
     <string name="mr_controller_stop" msgid="5497722768305745508">"Arrêt"</string>
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"Développer"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"Réduire"</string>
-    <string name="mr_controller_album_art" msgid="3330502667672708728">"Pochette de l\'album"</string>
+    <string name="mr_controller_album_art" msgid="3330502667672708728">"Image de l\'album"</string>
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"Curseur de volume"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"Aucun contenu multimédia sélectionné"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"Aucune information disponible"</string>

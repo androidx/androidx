@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("deprecation")
-
 package androidx.security.crypto
 
 import android.annotation.SuppressLint
@@ -36,7 +34,6 @@ import java.io.File
  * [EncryptedFile].
  */
 @SuppressLint("StreamFiles")
-@Deprecated("Use java.io.File instead")
 public fun EncryptedFile(
     context: Context,
     file: File,

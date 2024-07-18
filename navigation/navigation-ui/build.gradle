@@ -21,9 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import androidx.build.Publish
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,11 +30,8 @@ plugins {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
-    }
-    defaultConfig {
-        multiDexEnabled true
     }
     namespace "androidx.navigation.ui"
 }
@@ -58,13 +53,13 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
 }
 
 androidx {
     name = "Navigation UI"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Navigation-UI"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

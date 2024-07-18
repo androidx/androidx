@@ -46,10 +46,6 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
             if (Types.primitiveTypes.contains(type.asNonNull())) {
                 return CodeBlock.of("%L.firstOrNull()", expression)
             }
-            // AIDL and parcelables support Bundles as is, without transformation.
-            if (type.asNonNull() == Types.bundle) {
-                return CodeBlock.of(expression)
-            }
             return CodeBlock.of(
                 "%L?.let { notNullValue -> %L }",
                 expression,
@@ -116,10 +112,6 @@ abstract class BinderCodeConverter(private val api: ParsedApi) {
                     createBinderListFunction,
                     expression
                 )
-            }
-            // AIDL and parcelables support Bundles as is, without transformation.
-            if (nonNullType == Types.bundle) {
-                return CodeBlock.of(expression)
             }
             return CodeBlock.of(
                 "%L?.let { notNullValue -> %L }",

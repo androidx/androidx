@@ -18,18 +18,15 @@ package androidx.core.os;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Static library support version of the framework's {@link android.os.CancellationSignal}.
  * Used to write apps that run on platforms prior to Android 4.1.  See the framework SDK
  * documentation for a class overview.
- *
- * @deprecated This class was added to the platform in SDK 16, which is below Jetpack's
- * minimum SDK requirement. Use the platform-supplied version of this class:
- * {@link android.os.CancellationSignal}
  */
-@Deprecated
 public final class CancellationSignal {
     private boolean mIsCanceled;
     private OnCancelListener mOnCancelListener;
@@ -85,8 +82,8 @@ public final class CancellationSignal {
             if (listener != null) {
                 listener.onCancel();
             }
-            if (obj != null) {
-                ((android.os.CancellationSignal) obj).cancel();
+            if (obj != null && Build.VERSION.SDK_INT >= 16) {
+                Api16Impl.cancel(obj);
             }
         } finally {
             synchronized (this) {
@@ -140,11 +137,14 @@ public final class CancellationSignal {
      */
     @Nullable
     public Object getCancellationSignalObject() {
+        if (Build.VERSION.SDK_INT < 16) {
+            return null;
+        }
         synchronized (this) {
             if (mCancellationSignalObj == null) {
-                mCancellationSignalObj = new android.os.CancellationSignal();
+                mCancellationSignalObj = Api16Impl.createCancellationSignal();
                 if (mIsCanceled) {
-                    ((android.os.CancellationSignal) mCancellationSignalObj).cancel();
+                    Api16Impl.cancel(mCancellationSignalObj);
                 }
             }
             return mCancellationSignalObj;
@@ -169,5 +169,22 @@ public final class CancellationSignal {
          * Called when {@link CancellationSignal#cancel} is invoked.
          */
         void onCancel();
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void cancel(Object cancellationSignal) {
+            ((android.os.CancellationSignal) cancellationSignal).cancel();
+        }
+
+        @DoNotInline
+        static android.os.CancellationSignal createCancellationSignal() {
+            return new android.os.CancellationSignal();
+        }
     }
 }

@@ -101,7 +101,6 @@ public class ForceDarkStrategyActivity extends AppCompatActivity {
                     + "</html>"
     ).getBytes(), Base64.NO_PADDING);
 
-    @SuppressWarnings("deprecation") /* b/180503860 */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

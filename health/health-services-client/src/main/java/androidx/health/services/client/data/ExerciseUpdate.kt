@@ -72,11 +72,6 @@ public class ExerciseUpdate internal constructor(
     public val startTime: Instant? = null,
 
     internal val activeDurationLegacy: Duration,
-
-    /**
-     * Returns the latest [DebouncedGoal]s that have been achieved.
-     */
-    public val latestAchievedDebouncedGoals: Set<DebouncedGoal<out Number>> = setOf(),
 ) {
     @RestrictTo(Scope.LIBRARY)
     public constructor(
@@ -103,7 +98,6 @@ public class ExerciseUpdate internal constructor(
         },
         if (proto.hasStartTimeEpochMs()) Instant.ofEpochMilli(proto.startTimeEpochMs) else null,
         Duration.ofMillis(proto.activeDurationMs),
-        proto.latestAchievedDebouncedGoalsList.map { DebouncedGoal.fromProto(it) }.toSet(),
     )
 
     /**
@@ -213,9 +207,7 @@ public class ExerciseUpdate internal constructor(
                     .sortedBy { entry -> entry.cumulativeDataPoint.dataType.name })
                 .addAllLatestAchievedGoals(latestAchievedGoals.map {
                     AchievedExerciseGoal.newBuilder().setExerciseGoal(it.proto).build()
-                })
-                .addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
-                .addAllLatestAchievedDebouncedGoals(latestAchievedDebouncedGoals.map { it.proto })
+                }).addAllMileStoneMarkerSummaries(latestMilestoneMarkerSummaries.map { it.proto })
                 .setExerciseEndReason((exerciseStateInfo.endReason).toProto())
 
         startTime?.let { builder.setStartTimeEpochMs(startTime.toEpochMilli()) }
@@ -293,7 +285,7 @@ public class ExerciseUpdate internal constructor(
 
     override fun toString(): String =
         "ExerciseUpdate(" +
-            "state=${exerciseStateInfo.state}, " +
+            "state=$exerciseStateInfo.state, " +
             "startTime=$startTime, " +
             "updateDurationFromBoot=$updateDurationFromBoot, " +
             "latestMetrics=$latestMetrics, " +
@@ -302,7 +294,6 @@ public class ExerciseUpdate internal constructor(
             "exerciseConfig=$exerciseConfig, " +
             "activeDurationCheckpoint=$activeDurationCheckpoint, " +
             "exerciseEndReason=${exerciseStateInfo.endReason}" +
-            "latestAchievedDebouncedGoals=$latestAchievedDebouncedGoals, " +
             ")"
 
     override fun equals(other: Any?): Boolean {
@@ -312,7 +303,6 @@ public class ExerciseUpdate internal constructor(
         if (startTime != other.startTime) return false
         if (latestMetrics != other.latestMetrics) return false
         if (latestAchievedGoals != other.latestAchievedGoals) return false
-        if (latestAchievedDebouncedGoals != other.latestAchievedDebouncedGoals) return false
         if (latestMilestoneMarkerSummaries != other.latestMilestoneMarkerSummaries) return false
         if (exerciseConfig != other.exerciseConfig) return false
         if (activeDurationCheckpoint != other.activeDurationCheckpoint) return false
@@ -331,7 +321,6 @@ public class ExerciseUpdate internal constructor(
         result = 31 * result + (activeDurationCheckpoint?.hashCode() ?: 0)
         result = 31 * result + exerciseStateInfo.hashCode()
         result = 31 * result + (updateDurationFromBoot?.hashCode() ?: 0)
-        result = 31 * result + latestAchievedDebouncedGoals.hashCode()
         return result
     }
 

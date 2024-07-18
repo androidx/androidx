@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+NotCloseable: androidx.camera.viewfinder.ViewfinderSurfaceRequest:
+    Classes that release resources (finalize()) should implement AutoCloseable and CloseGuard: class androidx.camera.viewfinder.ViewfinderSurfaceRequest

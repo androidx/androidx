@@ -17,10 +17,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <application
-        android:name=".DemoApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/demos_label"
+        android:name=".DemoApplication"
         android:supportsRtl="true">
 
         <activity
@@ -38,7 +38,7 @@
             android:name=".SimpleWidgetViewer"
             android:exported="true"
             android:label="@string/demo_widget_viewer"
-            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -46,24 +46,19 @@
         </activity>
 
         <activity android:name=".ActionDemoActivity" />
+        <service
+            android:name=".ActionDemoService"
+            tools:ignore="MissingServiceExportedEqualsTrue" />
 
-        <activity
-            android:name=".ListClickDestinationActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ErrorUiAppWidgetConfigurationActivity"
-            android:exported="false">
+        <activity android:name=".ListClickDestinationActivity" android:exported="false" />
+        <activity android:name=".ErrorUiAppWidgetConfigurationActivity"
+            android:exported="false"
+            >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="androidx.glance.appwidget.demos.ImageAppWidgetImageContentProvider"
-            android:authorities="androidx.glance.appwidget.demos"
-            android:enabled="true"
-            android:exported="true" />
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
@@ -136,9 +131,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ErrorUiAppWidgetReceiver"
+            android:label="@string/error_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/error_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
@@ -150,9 +145,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.FontDemoAppWidgetReceiver"
+            android:label="@string/font_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/font_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
@@ -164,9 +159,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.TypographyDemoAppWidgetReceiver"
+            android:label="@string/typography_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/typography_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -177,9 +172,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ScrollableAppWidgetReceiver"
+            android:label="@string/scrollable_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/scrollable_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -190,9 +185,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ImageAppWidgetReceiver"
+            android:label="@string/image_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/image_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -203,9 +198,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.RippleAppWidgetReceiver"
+            android:label="@string/ripple_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/ripple_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -216,9 +211,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.RemoteViewsWidgetReceiver"
+            android:label="@string/remote_views_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/remote_views_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -229,9 +224,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.VerticalGridAppWidgetReceiver"
+            android:label="@string/grid_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/grid_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -242,9 +237,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.DefaultStateAppWidgetReceiver"
+            android:label="@string/default_state_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/default_state_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -255,22 +250,22 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ProgressIndicatorAppWidgetReceiver"
+            android:label="@string/progress_indicator_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/progress_indicator_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/progress_indicator_demo_widget_info" />
+                android:resource="@xml/default_app_widget_info" />
         </receiver>
 
         <receiver
             android:name="androidx.glance.appwidget.demos.DefaultColorsAppWidgetReceiver"
+            android:label="@string/default_color_widget_name"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/default_color_widget_name">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -295,9 +290,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.BackgroundTintWidgetBroadcastReceiver"
+            android:label="@string/tint_widget"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/tint_widget">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -308,9 +303,9 @@
 
         <receiver
             android:name="androidx.glance.appwidget.demos.TitleBarWidgetBroadcastReceiver"
+            android:label="@string/title_bar_widget"
             android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/title_bar_widget">
+            android:exported="false">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -318,22 +313,5 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/default_app_widget_info" />
         </receiver>
-
-        <receiver
-            android:name="androidx.glance.appwidget.demos.ContentDescriptionAppWidgetReceiver"
-            android:enabled="@bool/glance_appwidget_available"
-            android:exported="false"
-            android:label="@string/content_description_widget_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
-        </receiver>
-
-        <service
-            android:name=".ActionDemoService"
-            android:exported="true" />
     </application>
 </manifest>

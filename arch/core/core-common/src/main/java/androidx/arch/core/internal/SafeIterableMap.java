@@ -363,7 +363,6 @@ public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public abstract static class SupportRemove<K, V> {
-        @SuppressWarnings("HiddenAbstractMethod")
         abstract void supportRemove(@NonNull Entry<K, V> entry);
     }
 

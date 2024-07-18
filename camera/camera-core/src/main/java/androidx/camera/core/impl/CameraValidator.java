@@ -22,10 +22,8 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalLensFacing;
 import androidx.camera.core.Logger;
 
 /**
@@ -33,15 +31,11 @@ import androidx.camera.core.Logger;
  * b/167201193.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@OptIn(markerClass = ExperimentalLensFacing.class)
 public final class CameraValidator {
     private CameraValidator() {
     }
 
     private static final String TAG = "CameraValidator";
-    private static final CameraSelector EXTERNAL_LENS_FACING =
-            new CameraSelector.Builder().requireLensFacing(
-                    CameraSelector.LENS_FACING_EXTERNAL).build();
 
     /**
      * Verifies the initialized camera instance in the CameraRepository
@@ -80,8 +74,6 @@ public final class CameraValidator {
                         + lensFacing);
 
         PackageManager pm = context.getPackageManager();
-        Throwable exception = null;
-        int availableCameraCount = 0;
         try {
             if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
                 if (availableCamerasSelector == null
@@ -89,56 +81,27 @@ public final class CameraValidator {
                     // Only verify the main camera if it is NOT specifying the available lens
                     // facing or it required the LENS_FACING_BACK camera.
                     CameraSelector.DEFAULT_BACK_CAMERA.select(cameraRepository.getCameras());
-                    availableCameraCount++;
                 }
             }
-        } catch (IllegalArgumentException e) {
-            Logger.w(TAG, "Camera LENS_FACING_BACK verification failed", e);
-            exception = e;
-        }
-        try {
             if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
                 if (availableCamerasSelector == null
                         || lensFacing.intValue() == CameraSelector.LENS_FACING_FRONT) {
                     // Only verify the front camera if it is NOT specifying the available lens
                     // facing or it required the LENS_FACING_FRONT camera.
                     CameraSelector.DEFAULT_FRONT_CAMERA.select(cameraRepository.getCameras());
-                    availableCameraCount++;
                 }
             }
         } catch (IllegalArgumentException e) {
-            Logger.w(TAG, "Camera LENS_FACING_FRONT verification failed", e);
-            exception = e;
-        }
-        try {
-            // Verifies the EXTERNAL camera.
-            EXTERNAL_LENS_FACING.select(cameraRepository.getCameras());
-            Logger.d(TAG, "Found a LENS_FACING_EXTERNAL camera");
-            availableCameraCount++;
-        } catch (IllegalArgumentException e) {
-        }
-
-        if (exception != null) {
             Logger.e(TAG, "Camera LensFacing verification failed, existing cameras: "
                     + cameraRepository.getCameras());
-            throw new CameraIdListIncorrectException(
-                    "Expected camera missing from device.", availableCameraCount, exception);
+            throw new CameraIdListIncorrectException("Expected camera missing from device.", e);
         }
     }
 
     /** The exception for the b/167201193: incorrect camera id list. */
     public static class CameraIdListIncorrectException extends Exception {
-
-        private int mAvailableCameraCount;
-
-        public CameraIdListIncorrectException(@Nullable String message,
-                int availableCameraCount, @Nullable Throwable cause) {
+        public CameraIdListIncorrectException(@Nullable String message, @Nullable Throwable cause) {
             super(message, cause);
-            mAvailableCameraCount = availableCameraCount;
-        }
-
-        public int getAvailableCameraCount() {
-            return mAvailableCameraCount;
         }
     }
 }

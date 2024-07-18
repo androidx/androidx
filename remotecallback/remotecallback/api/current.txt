@@ -1,12 +1,12 @@
 // Signature format: 4.0
 package androidx.remotecallback {
 
-  public class AppWidgetProviderWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.appwidget.AppWidgetProvider implements androidx.remotecallback.CallbackReceiver<T!> {
+  public class AppWidgetProviderWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.appwidget.AppWidgetProvider implements androidx.remotecallback.CallbackReceiver<T> {
     ctor public AppWidgetProviderWithCallbacks();
     method public T createRemoteCallback(android.content.Context);
   }
 
-  public abstract class BroadcastReceiverWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.content.BroadcastReceiver implements androidx.remotecallback.CallbackReceiver<T!> {
+  public abstract class BroadcastReceiverWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.content.BroadcastReceiver implements androidx.remotecallback.CallbackReceiver<T> {
     ctor public BroadcastReceiverWithCallbacks();
     method public T createRemoteCallback(android.content.Context);
     method public void onReceive(android.content.Context!, android.content.Intent!);
@@ -18,7 +18,7 @@ package androidx.remotecallback {
     method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.content.Intent);
     method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.os.Bundle);
     method public static <T extends androidx.remotecallback.CallbackReceiver> void registerCallbackHandler(Class<T!>, String, androidx.remotecallback.CallbackHandlerRegistry.CallbackHandler<T!>?);
-    method public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver!>, android.os.Bundle, String?);
+    method public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver>, android.os.Bundle, String?);
   }
 
   public static interface CallbackHandlerRegistry.CallbackHandler<T extends androidx.remotecallback.CallbackReceiver> {
@@ -29,7 +29,7 @@ package androidx.remotecallback {
     method public T createRemoteCallback(android.content.Context);
   }
 
-  public abstract class ContentProviderWithCallbacks<T extends androidx.remotecallback.ContentProviderWithCallbacks> extends android.content.ContentProvider implements androidx.remotecallback.CallbackReceiver<T!> {
+  public abstract class ContentProviderWithCallbacks<T extends androidx.remotecallback.ContentProviderWithCallbacks> extends android.content.ContentProvider implements androidx.remotecallback.CallbackReceiver<T> {
     ctor public ContentProviderWithCallbacks();
     method public T createRemoteCallback(android.content.Context);
   }

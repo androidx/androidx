@@ -126,11 +126,11 @@ fun assertTextTypographyEquals(expectedStyle: TextStyle, actualStyle: TextStyle)
 }
 
 @Composable
-fun TestImage(iconLabel: String = "TestIcon", modifier: Modifier = Modifier) {
+fun TestImage(iconLabel: String = "TestIcon") {
     val testImage = Icons.Outlined.Add
     Image(
         testImage, iconLabel,
-        modifier = modifier.fillMaxSize().testTag(iconLabel),
+        modifier = Modifier.fillMaxSize().testTag(iconLabel),
         contentScale = ContentScale.Fit,
         alignment = Alignment.Center
     )

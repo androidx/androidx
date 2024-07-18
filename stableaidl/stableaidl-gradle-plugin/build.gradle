@@ -14,35 +14,21 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.*
 
 plugins {
-    id("AndroidXPlugin")
-    id("kotlin")
-    id("java-gradle-plugin")
+    id 'AndroidXPlugin'
+    id 'kotlin'
+    id 'java-gradle-plugin'
 }
 
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
-
-configurations {
-    // Config for plugin classpath to be used during tests
-    testPlugin {
-        canBeConsumed = false
-        canBeResolved = true
-    }
-}
 
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
     implementation(libs.androidGradlePluginApi)
+    implementation(libs.androidGradlePluginz) // Needed for BaseExtension, see b/268237729.
     implementation(libs.androidToolsCommon)
     implementation(libs.androidToolsRepository)
     implementation(libs.androidToolsSdkCommon)
@@ -51,9 +37,6 @@ dependencies {
     implementation(libs.guava)
     implementation(libs.kotlinStdlib)
 
-    testPlugin(libs.androidGradlePluginz)
-
-    testImplementation(libs.androidGradlePluginz)
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.androidToolsAnalyticsProtos)
@@ -63,9 +46,7 @@ dependencies {
     testImplementation(libs.truth)
 }
 
-tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
-    it.pluginClasspath.from(configurations.testPlugin)
-}
+SdkResourceGenerator.generateForHostTest(project)
 
 gradlePlugin {
     plugins {
@@ -81,4 +62,11 @@ androidx {
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
+}
+
+tasks {
+    validatePlugins {
+        failOnWarning.set(true)
+        enableStricterValidation.set(true)
+    }
 }

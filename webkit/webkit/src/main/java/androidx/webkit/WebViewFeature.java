@@ -104,9 +104,6 @@ public class WebViewFeature {
             REQUESTED_WITH_HEADER_ALLOW_LIST,
             USER_AGENT_METADATA,
             MULTI_PROFILE,
-            ATTRIBUTION_REGISTRATION_BEHAVIOR,
-            WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
-            MUTE_AUDIO,
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -570,31 +567,6 @@ public class WebViewFeature {
      */
     public static final String ATTRIBUTION_REGISTRATION_BEHAVIOR =
             "ATTRIBUTION_REGISTRATION_BEHAVIOR";
-
-    /**
-     * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebViewMediaIntegrityApiStatusConfig)}
-     * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
-     */
-    public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS =
-            "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
-
-    /**
-     * Feature for {@link #isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#isAudioMuted(WebView)}
-     * {@link androidx.webkit.WebViewCompat#setAudioMuted(WebView, boolean)}
-     */
-    public static final String MUTE_AUDIO = "MUTE_AUDIO";
-
-    /**
-     * Feature for {@link #isFeatureSupported(String)}
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
-     * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
-     */
-    public static final String WEB_AUTHENTICATION = "WEB_AUTHENTICATION";
 
     /**
      * Return whether a feature is supported at run-time. On devices running Android version {@link

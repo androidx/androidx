@@ -20,7 +20,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Binder
 import android.view.Window
-import androidx.core.util.Consumer
 import androidx.privacysandbox.sdkruntime.client.EmptyActivity
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
@@ -50,16 +49,7 @@ class LocalSdkActivityStarterTest {
 
     @Test
     fun tryStart_whenHandlerRegistered_startSdkActivityAndReturnTrue() {
-        val handler = ActivityValidationHandler { activityHolder ->
-            assertThat(activityHolder.getActivity()).isInstanceOf(SdkActivity::class.java)
-
-            val sdkActivity = activityHolder.getActivity() as SdkActivity
-            assertThat(sdkActivity.window.hasFeature(Window.FEATURE_NO_TITLE)).isTrue()
-
-            assertThat(activityHolder.lifecycle).isSameInstanceAs(sdkActivity.lifecycle)
-            assertThat(activityHolder.getOnBackPressedDispatcher())
-                .isSameInstanceAs(sdkActivity.onBackPressedDispatcher)
-        }
+        val handler = TestHandler()
         val registeredToken = LocalSdkActivityHandlerRegistry.register(
             "LocalSdkActivityStarterTest.sdk",
             handler
@@ -73,7 +63,15 @@ class LocalSdkActivityStarterTest {
 
         assertThat(startResult).isTrue()
 
-        handler.waitForValidationResult()
+        val activityHolder = handler.waitForActivity()
+        assertThat(activityHolder.getActivity()).isInstanceOf(SdkActivity::class.java)
+
+        val sdkActivity = activityHolder.getActivity() as SdkActivity
+        assertThat(sdkActivity.window.hasFeature(Window.FEATURE_NO_TITLE)).isTrue()
+
+        assertThat(activityHolder.lifecycle).isSameInstanceAs(sdkActivity.lifecycle)
+        assertThat(activityHolder.getOnBackPressedDispatcher())
+            .isSameInstanceAs(sdkActivity.onBackPressedDispatcher)
     }
 
     @Test
@@ -89,18 +87,18 @@ class LocalSdkActivityStarterTest {
         assertThat(startResult).isFalse()
     }
 
-    private class ActivityValidationHandler(
-        private val validator: Consumer<ActivityHolder>
-    ) : SdkSandboxActivityHandlerCompat {
-        val async = CountDownLatch(1)
+    private class TestHandler : SdkSandboxActivityHandlerCompat {
+        var result: ActivityHolder? = null
+        var async = CountDownLatch(1)
 
         override fun onActivityCreated(activityHolder: ActivityHolder) {
-            validator.accept(activityHolder)
+            result = activityHolder
             async.countDown()
         }
 
-        fun waitForValidationResult() {
+        fun waitForActivity(): ActivityHolder {
             async.await()
+            return result!!
         }
     }
 }

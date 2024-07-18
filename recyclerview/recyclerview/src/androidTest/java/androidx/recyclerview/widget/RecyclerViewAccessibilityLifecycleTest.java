@@ -88,7 +88,8 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
             public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                     int viewType) {
                 TestViewHolder vh = super.onCreateViewHolder(parent, viewType);
-                vh.itemView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                ViewCompat.setImportantForAccessibility(vh.itemView,
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
                 return vh;
             }
         };
@@ -103,10 +104,10 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         lm.waitForLayout(2);
         recyclerView.waitUntilAnimations();
         assertThat(invocations, is(Arrays.asList(
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES,
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES)));
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)));
 
         assertThat(calledA11DuringLayout.get(), is(false));
     }
@@ -228,7 +229,9 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     AccessibilityNodeInfo info = recyclerView.getChildAt(i)
                             .createAccessibilityNodeInfo();
                     assertTrue("custom delegate sets isChecked", info.isChecked());
-                    assertNotNull(info.getCollectionItemInfo());
+                    if (Build.VERSION.SDK_INT >= 19) {
+                        assertNotNull(info.getCollectionItemInfo());
+                    }
                     children.add(view);
                 }
             }
@@ -251,7 +254,9 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertTrue(children.contains(view));
                     AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
                     assertTrue("custom delegate sets isChecked", info.isChecked());
-                    assertNotNull(info.getCollectionItemInfo());
+                    if (Build.VERSION.SDK_INT >= 19) {
+                        assertNotNull(info.getCollectionItemInfo());
+                    }
                 }
             }
         });
@@ -302,7 +307,9 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertEquals(i, recyclerView.getChildAdapterPosition(view));
                     assertTrue(accessibiltyDelegateIsItemDelegate(recyclerView, view));
                     AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
-                    assertNotNull(info.getCollectionItemInfo());
+                    if (Build.VERSION.SDK_INT >= 19) {
+                        assertNotNull(info.getCollectionItemInfo());
+                    }
                 }
             }
         });
@@ -436,7 +443,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     @Override
                     public void run() {
                         View itemView = mRecyclerView.getChildAt(0);
-                        assertTrue(itemView.performAccessibilityAction(42, null));
+                        assertTrue(ViewCompat.performAccessibilityAction(itemView, 42, null));
                     }
                 });
     }
@@ -453,7 +460,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     @Override
                     public void run() {
                         View itemView = mRecyclerView.getChildAt(0);
-                        assertTrue(itemView.performAccessibilityAction(42, null));
+                        assertTrue(ViewCompat.performAccessibilityAction(itemView, 42, null));
                     }
                 },
                 new TextViewCreator() {

@@ -65,10 +65,6 @@ fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmedi
     return ret
 }
 
-inline fun <reified A : FragmentActivity> ActivityScenario<A>.popBackStackImmediate() {
-    withActivity { supportFragmentManager.popBackStackImmediate() }
-}
-
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.popBackStackImmediate(
     id: Int,
@@ -121,26 +117,14 @@ fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findGreen(): View 
     return activity.findViewById(R.id.greenSquare)
 }
 
-inline fun <reified A : FragmentActivity> ActivityScenario<A>.findGreen(): View {
-    return withActivity { findViewById(R.id.greenSquare) }
-}
-
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findBlue(): View {
     return activity.findViewById(R.id.blueSquare)
 }
 
-inline fun <reified A : FragmentActivity> ActivityScenario<A>.findBlue(): View {
-    return withActivity { findViewById(R.id.blueSquare) }
-}
-
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.findRed(): View? {
     return activity.findViewById(R.id.redSquare)
-}
-
-inline fun <reified A : FragmentActivity> ActivityScenario<A>.findRed(): View {
-    return withActivity { findViewById(R.id.redSquare) }
 }
 
 val View.boundsOnScreen: Rect

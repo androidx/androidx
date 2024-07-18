@@ -20,8 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import static java.util.Collections.emptySet;
-
 import android.content.ComponentName;
 import android.os.Bundle;
 
@@ -38,9 +36,6 @@ import java.util.Set;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class GetCustomCredentialOptionJavaTest {
-
-    private static final int EXPECTED_CUSTOM_DEFAULT_PRIORITY =
-            CredentialOption.PRIORITY_DEFAULT;
 
     @Test
     public void constructor_nullType_throws() {
@@ -76,27 +71,6 @@ public class GetCustomCredentialOptionJavaTest {
     }
 
     @Test
-    public void constructor_priorityNotPassedIn_defaultPriorityRetrievedSuccess() {
-        GetCustomCredentialOption customCredentialOption = new GetCustomCredentialOption("T",
-                new Bundle(), new Bundle(), true, false);
-
-        assertThat(customCredentialOption.getTypePriorityHint()).isEqualTo(
-                EXPECTED_CUSTOM_DEFAULT_PRIORITY);
-    }
-
-    @Test
-    public void constructor_priorityPassedIn_setPriorityRetrievedSuccess() {
-        int expectedOverwrittenPriorityHint = CredentialOption.PRIORITY_OIDC_OR_SIMILAR;
-
-        GetCustomCredentialOption customCredentialOption = new GetCustomCredentialOption("T",
-                new Bundle(), new Bundle(), true, false,
-                emptySet(), expectedOverwrittenPriorityHint);
-
-        assertThat(customCredentialOption.getTypePriorityHint()).isEqualTo(
-                expectedOverwrittenPriorityHint);
-    }
-
-    @Test
     public void getter_frameworkProperties() {
         String expectedType = "TYPE";
         Bundle expectedBundle = new Bundle();
@@ -109,9 +83,6 @@ public class GetCustomCredentialOptionJavaTest {
                 new ComponentName("pkg", "cls"),
                 new ComponentName("pkg2", "cls2")
         );
-        int expectedPriorityCategoryValue = EXPECTED_CUSTOM_DEFAULT_PRIORITY;
-        expectedBundle.putInt(
-                CredentialOption.BUNDLE_KEY_TYPE_PRIORITY_VALUE, expectedPriorityCategoryValue);
 
         GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
                 expectedBundle,
@@ -128,7 +99,6 @@ public class GetCustomCredentialOptionJavaTest {
         assertThat(option.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
         assertThat(option.getAllowedProviders())
                 .containsAtLeastElementsIn(expectedAllowedProviders);
-        assertThat(option.getTypePriorityHint()).isEqualTo(EXPECTED_CUSTOM_DEFAULT_PRIORITY);
     }
 
     @Test
@@ -144,14 +114,12 @@ public class GetCustomCredentialOptionJavaTest {
                 new ComponentName("pkg", "cls"),
                 new ComponentName("pkg2", "cls2")
         );
-        int expectedPriorityHint = CredentialOption.PRIORITY_OIDC_OR_SIMILAR;
         GetCustomCredentialOption option = new GetCustomCredentialOption(expectedType,
                 expectedBundle,
                 expectedCandidateQueryDataBundle,
                 expectedSystemProvider,
                 expectedAutoSelectAllowed,
-                expectedAllowedProviders,
-                expectedPriorityHint);
+                expectedAllowedProviders);
 
         CredentialOption convertedOption = CredentialOption.createFrom(
                 option.getType(), option.getRequestData(), option.getCandidateQueryData(),
@@ -167,6 +135,5 @@ public class GetCustomCredentialOptionJavaTest {
         assertThat(actualOption.isSystemProviderRequired()).isEqualTo(expectedSystemProvider);
         assertThat(actualOption.getAllowedProviders())
                 .containsAtLeastElementsIn(expectedAllowedProviders);
-        assertThat(actualOption.getTypePriorityHint()).isEqualTo(expectedPriorityHint);
     }
 }

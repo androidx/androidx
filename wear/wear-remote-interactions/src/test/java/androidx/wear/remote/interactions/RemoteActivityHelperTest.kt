@@ -23,7 +23,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Resources.NotFoundException
 import android.net.Uri
-import android.os.Build.VERSION_CODES
 import android.os.Looper
 import android.os.ResultReceiver
 import androidx.test.core.app.ApplicationProvider
@@ -39,9 +38,6 @@ import com.google.android.gms.wearable.Node
 import com.google.android.gms.wearable.NodeClient
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
-import java.util.function.Consumer
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -49,15 +45,10 @@ import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.reset
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.Implements
@@ -112,13 +103,11 @@ class RemoteActivityHelperTest {
     @Mock private var mockNodeClient: NodeClient = mock()
     @Mock private val mockTestNode: Node = mock()
     @Mock private val mockTestNode2: Node = mock()
-    private val remoteInteractionsManager: IRemoteInteractionsManager = mock()
 
     @Before
     fun setUp() {
         mRemoteActivityHelper = RemoteActivityHelper(context, SyncExecutor())
         mRemoteActivityHelper.nodeClient = mockNodeClient
-        mRemoteActivityHelper.remoteInteractionsManager = remoteInteractionsManager
     }
 
     private fun setSystemFeatureWatch(isWatch: Boolean) {
@@ -464,62 +453,6 @@ class RemoteActivityHelperTest {
         }
 
         assertTrue(actualException.cause is NotFoundException)
-    }
-
-    @Test
-    fun remoteActivityHelperStatus_notWatch_unknown() {
-        setSystemFeatureWatch(false)
-        val remoteActivityHelperStatus = runBlocking {
-            mRemoteActivityHelper.availabilityStatus.first()
-        }
-
-        assertEquals(remoteActivityHelperStatus, RemoteActivityHelper.STATUS_UNKNOWN)
-        verify(remoteInteractionsManager, never())
-            .registerRemoteActivityHelperStatusListener(any(), any())
-    }
-
-    @Test
-    @Config(minSdk = VERSION_CODES.TIRAMISU)
-    fun remoteActivityHelperStatus_notSupported_unknown() {
-        setSystemFeatureWatch(true)
-            whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(false)
-        val remoteActivityHelperStatus = runBlocking {
-            mRemoteActivityHelper.availabilityStatus.first()
-        }
-
-        assertEquals(remoteActivityHelperStatus, RemoteActivityHelper.STATUS_UNKNOWN)
-        verify(remoteInteractionsManager, never())
-            .registerRemoteActivityHelperStatusListener(any(), any())
-    }
-
-    @Test
-    @Config(minSdk = VERSION_CODES.TIRAMISU)
-    fun remoteActivityHelperStatus_supported_propagateStatus() {
-        setSystemFeatureWatch(true)
-
-        for (remoteStatus in listOf(
-            RemoteActivityHelper.STATUS_AVAILABLE,
-            RemoteActivityHelper.STATUS_UNAVAILABLE,
-            RemoteActivityHelper.STATUS_TEMPORARILY_UNAVAILABLE)) {
-            whenever(remoteInteractionsManager.isAvailabilityStatusApiSupported).thenReturn(true)
-            doAnswer {
-                    @Suppress("UNCHECKED_CAST")
-                    val consumer: Consumer<Int> = it.arguments[1] as (Consumer<Int>)
-                    consumer.accept(remoteStatus)
-                }
-                .whenever(remoteInteractionsManager)
-                .registerRemoteActivityHelperStatusListener(any(), any())
-
-            val remoteActivityHelperStatus = runBlocking {
-                mRemoteActivityHelper.availabilityStatus.first()
-            }
-
-            assertEquals(remoteActivityHelperStatus, remoteStatus)
-            verify(remoteInteractionsManager)
-                .registerRemoteActivityHelperStatusListener(any(), any())
-            verify(remoteInteractionsManager).unregisterRemoteActivityHelperStatusListener(any())
-            reset(remoteInteractionsManager)
-        }
     }
 }
 

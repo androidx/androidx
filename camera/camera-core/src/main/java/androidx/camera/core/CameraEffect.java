@@ -20,7 +20,6 @@ import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.graphics.ImageFormat;
-import android.view.Display;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -85,16 +84,6 @@ import java.util.concurrent.Executor;
 public abstract class CameraEffect {
 
     /**
-     * Options for the transformation handled by the effect.
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(flag = true, value = {TRANSFORMATION_ARBITRARY,
-            TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION, TRANSFORMATION_PASSTHROUGH})
-    public @interface Transformations {
-    }
-
-    /**
      * Bitmask options for the effect targets.
      */
     @Retention(RetentionPolicy.SOURCE)
@@ -104,16 +93,7 @@ public abstract class CameraEffect {
     }
 
     /**
-     * Options for how many outputs the effect handles.
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @IntDef(value = {OUTPUT_OPTION_ONE_FOR_ALL_TARGETS, OUTPUT_OPTION_ONE_FOR_EACH_TARGET})
-    public @interface OutputOptions {
-    }
-
-    /**
-     * Bitmask options for the effect buffer formats.
+     * Bitmask options for the effect targets.
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -143,75 +123,8 @@ public abstract class CameraEffect {
             PREVIEW | VIDEO_CAPTURE,
             PREVIEW | VIDEO_CAPTURE | IMAGE_CAPTURE);
 
-    /**
-     * Flag to indicate that the implementation will handle arbitrary transformation.
-     *
-     * <p>When this flag is used, CameraX may suggest arbitrary transformation via
-     * {@link SurfaceOutput#updateTransformMatrix} for the {@link SurfaceProcessor} to handle,
-     * including mirroring, rotating, cropping and/or scaling.
-     *
-     * <p>Use this flag if the {@link CameraEffect} implementation can handle arbitrary
-     * transformation.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int TRANSFORMATION_ARBITRARY = 0;
-
-    /**
-     * Flag to indicate that the implementation will handle the camera and the Surface rotation.
-     *
-     * <p>When this flag is used, the value of {@link SurfaceOutput#updateTransformMatrix} will
-     * be a combination of the camera sensor orientation and the Surface rotation. The camera
-     * rotation is the value written by camera framework, which can be retrieved via
-     * {@link android.graphics.SurfaceTexture#getTransformMatrix(float[])} if the consumer is a
-     * {@link android.graphics.SurfaceTexture}. The Surface rotation is the value of the default
-     * {@link Display#getRotation()}.
-     *
-     * <p>Use this flag if the {@link CameraEffect} implementation handles the camera and the
-     * Surface rotation.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION = 1;
-
-    /**
-     * Flag to indicate that the surface processor should be ignored, so no transformation is
-     * required.
-     *
-     * <p>Use this flag if the {@link CameraEffect} only intends to specify the targets of buffer
-     * sharing.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int TRANSFORMATION_PASSTHROUGH = 2;
-
-    /**
-     * Use this option to receive one output Surface for all the output targets.
-     *
-     * <p>When the effect targets multiple UseCases, e.g. Preview, VideoCapture, the effect will
-     * only receive one output Surface for all the outputs. CameraX is responsible for copying the
-     * processed frames to different output Surfaces.
-     *
-     * <p>Use this option if all UseCases receive the same content.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int OUTPUT_OPTION_ONE_FOR_ALL_TARGETS = 0;
-
-    /**
-     * Use this option to receive one output Surface for each corresponding output target.
-     *
-     * <p>When the effect targets multiple UseCases, e.g. Preview, VideoCapture, the effect will
-     * receive two output Surfaces, one for Preview and one for VideoCapture. The effect is
-     * responsible for drawing the processed frames to the corresponding output Surfaces.
-     *
-     * <p>Use this option if each UseCase receives different content.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int OUTPUT_OPTION_ONE_FOR_EACH_TARGET = 1;
-
     @Targets
     private final int mTargets;
-    @OutputOptions
-    private final int mOutputOption;
-    @Transformations
-    private final int mTransformation;
     @NonNull
     private final Executor mExecutor;
     @Nullable
@@ -242,25 +155,12 @@ public abstract class CameraEffect {
         checkArgument(targets == IMAGE_CAPTURE,
                 "Currently ImageProcessor can only target IMAGE_CAPTURE.");
         mTargets = targets;
-        mTransformation = TRANSFORMATION_ARBITRARY;
-        mOutputOption = OUTPUT_OPTION_ONE_FOR_ALL_TARGETS;
         mExecutor = executor;
         mSurfaceProcessor = null;
         mImageProcessor = imageProcessor;
         mErrorListener = errorListener;
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected CameraEffect(
-            @Targets int targets,
-            @Transformations int transformation,
-            @NonNull Executor executor,
-            @NonNull SurfaceProcessor surfaceProcessor,
-            @NonNull Consumer<Throwable> errorListener) {
-        this(targets, OUTPUT_OPTION_ONE_FOR_ALL_TARGETS, transformation, executor, surfaceProcessor,
-                errorListener);
-    }
-
     /**
      * @param targets          the target {@link UseCase} to which this effect should be applied.
      *                         Currently {@link SurfaceProcessor} can target the following
@@ -273,8 +173,6 @@ public abstract class CameraEffect {
      *                         </ul>
      *                         Targeting other {@link UseCase} combinations will throw
      *                         {@link IllegalArgumentException}.
-     * @param outputOption     the option to specify how many output Surface the effect will handle.
-     * @param transformation   the transformation that the {@link SurfaceProcessor} will handle.
      * @param executor         the {@link Executor} on which the {@param imageProcessor} and
      *                         {@param errorListener} will be invoked.
      * @param surfaceProcessor a {@link SurfaceProcessor} implementation. Once the effect is
@@ -286,54 +184,17 @@ public abstract class CameraEffect {
      *                         {@link CameraEffect}. For example, {@link ProcessingException}.
      *                         This is invoked on the provided {@param executor}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected CameraEffect(
             @Targets int targets,
-            @OutputOptions int outputOption,
-            @Transformations int transformation,
             @NonNull Executor executor,
             @NonNull SurfaceProcessor surfaceProcessor,
             @NonNull Consumer<Throwable> errorListener) {
         checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
         mTargets = targets;
-        mOutputOption = outputOption;
-        mTransformation = transformation;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;
         mImageProcessor = null;
         mErrorListener = errorListener;
-    }
-
-    /**
-     * @param targets          the target {@link UseCase} to which this effect should be applied.
-     *                         Currently {@link SurfaceProcessor} can target the following
-     *                         combinations:
-     *                         <ul>
-     *                         <li>{@link #PREVIEW}
-     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE}
-     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE} |
-     *                         {@link #IMAGE_CAPTURE}
-     *                         </ul>
-     *                         Targeting other {@link UseCase} combinations will throw
-     *                         {@link IllegalArgumentException}.
-     * @param executor         the {@link Executor} on which the {@param imageProcessor} and
-     *                         {@param errorListener} will be invoked.
-     * @param surfaceProcessor a {@link SurfaceProcessor} implementation. Once the effect is
-     *                         active, CameraX will send frames to the {@link SurfaceProcessor}
-     *                         on the {@param executor}, and deliver the processed frames to the
-     *                         app.
-     * @param errorListener    invoked if the effect runs into unrecoverable errors. The
-     *                         {@link Throwable} will be the error thrown by this
-     *                         {@link CameraEffect}. For example, {@link ProcessingException}.
-     *                         This is invoked on the provided {@param executor}.
-     */
-    protected CameraEffect(
-            @Targets int targets,
-            @NonNull Executor executor,
-            @NonNull SurfaceProcessor surfaceProcessor,
-            @NonNull Consumer<Throwable> errorListener) {
-        this(targets, OUTPUT_OPTION_ONE_FOR_ALL_TARGETS, TRANSFORMATION_ARBITRARY, executor,
-                surfaceProcessor, errorListener);
     }
 
     /**
@@ -342,24 +203,6 @@ public abstract class CameraEffect {
     @Targets
     public int getTargets() {
         return mTargets;
-    }
-
-    /**
-     * Gets the transformation that the {@link SurfaceProcessor} will handle.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Transformations
-    public int getTransformation() {
-        return mTransformation;
-    }
-
-    /**
-     * Gets the target option.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @OutputOptions
-    public int getOutputOption() {
-        return mOutputOption;
     }
 
     /**

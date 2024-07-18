@@ -16,17 +16,17 @@
 
 package androidx.camera.integration.extensions.validation
 
-import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraCharacteristics.LENS_FACING
 import android.os.Build
 import android.os.Environment.DIRECTORY_DOCUMENTS
 import android.provider.MediaStore
 import android.util.Log
-import androidx.camera.core.impl.CameraInfoInternal
+import androidx.annotation.OptIn
+import androidx.camera.camera2.interop.Camera2CameraInfo
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION
 import androidx.camera.integration.extensions.ExtensionTestType.TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY
@@ -74,7 +74,6 @@ private const val TEST_RESULT_STRING_FAILED = "FAILED"
 /**
  * A class to load, save and export the test results.
  */
-@SuppressLint("RestrictedApiAndroidX")
 class TestResults private constructor(val context: Context) {
 
     /**
@@ -201,6 +200,7 @@ class TestResults private constructor(val context: Context) {
         initTestResult(cameraProvider, extensionsManager)
     }
 
+    @OptIn(ExperimentalCamera2Interop::class)
     private fun initTestResult(
         cameraProvider: ProcessCameraProvider,
         extensionsManager: ExtensionsManager
@@ -208,7 +208,7 @@ class TestResults private constructor(val context: Context) {
         val availableCameraIds = mutableListOf<String>()
 
         cameraProvider.availableCameraInfos.forEach {
-            val cameraId = (it as CameraInfoInternal).cameraId
+            val cameraId = Camera2CameraInfo.from(it).cameraId
             availableCameraIds.add(cameraId)
             cameraLensFacingMap[cameraId] = cameraProvider.getLensFacingById(cameraId)
         }
@@ -299,14 +299,14 @@ class TestResults private constructor(val context: Context) {
         fileInputStream.close()
     }
 
+    @OptIn(ExperimentalCamera2Interop::class)
     private fun ProcessCameraProvider.getLensFacingById(cameraId: String): Int {
         availableCameraInfos.forEach {
-            val cameraInfoInternal = it as CameraInfoInternal
+            val camera2CameraInfo = Camera2CameraInfo.from(it)
 
-            if (cameraInfoInternal.cameraId == cameraId) {
-                return (cameraInfoInternal.cameraCharacteristics as CameraCharacteristics).get(
-                    LENS_FACING
-                )!!
+            if (camera2CameraInfo.cameraId == cameraId) {
+                return camera2CameraInfo.getCameraCharacteristic(
+                    CameraCharacteristics.LENS_FACING)!!
             }
         }
 
@@ -345,8 +345,7 @@ class TestResults private constructor(val context: Context) {
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeStringFromId(extensionMode)
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
-                Build.VERSION.SDK_INT >= 31
-            ) {
+                Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeStringFromId(extensionMode)
             } else {
                 throw RuntimeException(
@@ -361,8 +360,7 @@ class TestResults private constructor(val context: Context) {
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION && Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeIdFromString(extensionModeString)
             } else if (testType == TEST_TYPE_CAMERA2_EXTENSION_STREAM_CONFIG_LATENCY &&
-                Build.VERSION.SDK_INT >= 31
-            ) {
+                Build.VERSION.SDK_INT >= 31) {
                 getCamera2ExtensionModeIdFromString(extensionModeString)
             } else {
                 throw RuntimeException(

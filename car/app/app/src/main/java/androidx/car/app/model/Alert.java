@@ -23,9 +23,9 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -42,12 +42,6 @@ public final class Alert {
 
     /* Maximum number of actions allowed on the alert. */
     private static final int MAX_ACTION_COUNT = 2;
-
-    /**
-     * By setting the alert duration to this value, the progress bar (timer) on the
-     * alert will not be shown.
-     */
-    public static final int DURATION_SHOW_INDEFINITELY = Integer.MAX_VALUE;
 
     private final int mId;
     @Nullable

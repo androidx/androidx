@@ -27,6 +27,8 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH;
 import static androidx.camera.core.ImageCapture.FlashMode;
 import static androidx.camera.core.ImageCapture.FlashType;
+import static androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
+import static androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -45,7 +47,6 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture;
-import androidx.camera.camera2.internal.compat.workaround.UseFlashModeTorchFor3aUpdate;
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
@@ -54,10 +55,11 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
+import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
+import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureConfig;
-import androidx.camera.core.impl.ConvergenceUtils;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -68,8 +70,11 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -82,6 +87,46 @@ import java.util.concurrent.atomic.AtomicReference;
 class Camera2CapturePipeline {
 
     private static final String TAG = "Camera2CapturePipeline";
+
+    private static final Set<AfState> AF_CONVERGED_STATE_SET =
+            Collections.unmodifiableSet(EnumSet.of(
+                    AfState.PASSIVE_FOCUSED,
+                    AfState.PASSIVE_NOT_FOCUSED,
+                    AfState.LOCKED_FOCUSED,
+                    AfState.LOCKED_NOT_FOCUSED
+            ));
+
+    private static final Set<AwbState> AWB_CONVERGED_STATE_SET =
+            Collections.unmodifiableSet(EnumSet.of(
+                    AwbState.CONVERGED,
+                    // Unknown means cannot get valid state from CaptureResult
+                    AwbState.UNKNOWN
+            ));
+
+    private static final Set<AeState> AE_CONVERGED_STATE_SET =
+            Collections.unmodifiableSet(EnumSet.of(
+                    AeState.CONVERGED,
+                    AeState.FLASH_REQUIRED,
+                    // Unknown means cannot get valid state from CaptureResult
+                    AeState.UNKNOWN
+            ));
+
+    private static final Set<AeState> AE_TORCH_AS_FLASH_CONVERGED_STATE_SET;
+
+    static {
+        EnumSet<AeState> aeStateSet = EnumSet.copyOf(AE_CONVERGED_STATE_SET);
+
+        // Some devices always show FLASH_REQUIRED when the torch is opened, so it cannot be
+        // treated as the AE converge signal.
+        aeStateSet.remove(AeState.FLASH_REQUIRED);
+
+        // AeState.UNKNOWN means it doesn't have valid AE info. For this kind of device, we tend
+        // to wait for a few more seconds for the auto exposure update. So the UNKNOWN state
+        // should not be treated as the AE converge signal.
+        aeStateSet.remove(AeState.UNKNOWN);
+
+        AE_TORCH_AS_FLASH_CONVERGED_STATE_SET = Collections.unmodifiableSet(aeStateSet);
+    }
 
     @NonNull
     private final Camera2CameraControlImpl mCameraControl;
@@ -145,33 +190,20 @@ class Camera2CapturePipeline {
             @NonNull List<CaptureConfig> captureConfigs, @CaptureMode int captureMode,
             @FlashMode int flashMode, @FlashType int flashType) {
 
-        Pipeline pipeline = createPipeline(captureMode, flashMode, flashType);
-        return Futures.nonCancellationPropagating(
-                pipeline.executeCapture(captureConfigs, flashMode));
-    }
-
-    /**
-     * Creates a {@link Pipeline} for the current capture request based on the parameters.
-     */
-    @VisibleForTesting
-    Pipeline createPipeline(@CaptureMode int captureMode, @FlashMode int flashMode,
-            @FlashType int flashType) {
         OverrideAeModeForStillCapture aeQuirk = new OverrideAeModeForStillCapture(mCameraQuirk);
-        Pipeline pipeline = new Pipeline(mTemplate, mExecutor, mScheduler, mCameraControl,
-                mIsLegacyDevice, aeQuirk);
+        Pipeline pipeline = new Pipeline(mTemplate, mExecutor, mCameraControl, mIsLegacyDevice,
+                aeQuirk);
 
         if (captureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             pipeline.addTask(new AfTask(mCameraControl));
         }
 
         if (flashMode == FLASH_MODE_SCREEN) {
-            pipeline.addTask(new ScreenFlashTask(mCameraControl, mExecutor, mScheduler,
-                    new UseFlashModeTorchFor3aUpdate(mCameraQuirk)));
+            pipeline.addTask(new ScreenFlashTask(mCameraControl, mExecutor, mScheduler));
         } else {
             if (mHasFlashUnit) {
                 if (isTorchAsFlash(flashType)) {
-                    pipeline.addTask(
-                            new TorchTask(mCameraControl, flashMode, mExecutor, mScheduler));
+                    pipeline.addTask(new TorchTask(mCameraControl, flashMode, mExecutor));
                 } else {
                     pipeline.addTask(new AePreCaptureTask(mCameraControl, flashMode, aeQuirk));
                 }
@@ -180,7 +212,8 @@ class Camera2CapturePipeline {
             // pipeline.
         }
 
-        return pipeline;
+        return Futures.nonCancellationPropagating(
+                pipeline.executeCapture(captureConfigs, flashMode));
     }
 
     /**
@@ -193,7 +226,6 @@ class Camera2CapturePipeline {
 
         private final int mTemplate;
         private final Executor mExecutor;
-        private final ScheduledExecutorService mScheduler;
         private final Camera2CameraControlImpl mCameraControl;
         private final OverrideAeModeForStillCapture mOverrideAeModeForStillCapture;
         private final boolean mIsLegacyDevice;
@@ -234,12 +266,10 @@ class Camera2CapturePipeline {
         };
 
         Pipeline(int template, @NonNull Executor executor,
-                @NonNull ScheduledExecutorService scheduler,
                 @NonNull Camera2CameraControlImpl cameraControl, boolean isLegacyDevice,
                 @NonNull OverrideAeModeForStillCapture overrideAeModeForStillCapture) {
             mTemplate = template;
             mExecutor = executor;
-            mScheduler = scheduler;
             mCameraControl = cameraControl;
             mIsLegacyDevice = isLegacyDevice;
             mOverrideAeModeForStillCapture = overrideAeModeForStillCapture;
@@ -272,8 +302,9 @@ class Camera2CapturePipeline {
             ListenableFuture<TotalCaptureResult> preCapture = Futures.immediateFuture(null);
             if (!mTasks.isEmpty()) {
                 ListenableFuture<TotalCaptureResult> getResult =
-                        mPipelineSubTask.isCaptureResultNeeded() ? waitForResult(mCameraControl,
-                                null) : Futures.immediateFuture(null);
+                        mPipelineSubTask.isCaptureResultNeeded() ? waitForResult(
+                                ResultListener.NO_TIMEOUT, mCameraControl, null) :
+                                Futures.immediateFuture(null);
 
                 preCapture = FutureChain.from(getResult).transformAsync(captureResult -> {
                     if (isFlashRequired(flashMode, captureResult)) {
@@ -282,7 +313,7 @@ class Camera2CapturePipeline {
                     return mPipelineSubTask.preCapture(captureResult);
                 }, mExecutor).transformAsync(is3aConvergeRequired -> {
                     if (Boolean.TRUE.equals(is3aConvergeRequired)) {
-                        return waitForResult(mTimeout3A, mScheduler, mCameraControl,
+                        return waitForResult(mTimeout3A, mCameraControl,
                                 (result) -> is3AConverged(result, false));
                     }
                     return Futures.immediateFuture(null);
@@ -340,14 +371,12 @@ class Camera2CapturePipeline {
                 futureList.add(CallbackToFutureAdapter.getFuture(completer -> {
                     configBuilder.addCameraCaptureCallback(new CameraCaptureCallback() {
                         @Override
-                        public void onCaptureCompleted(int captureConfigId,
-                                @NonNull CameraCaptureResult result) {
+                        public void onCaptureCompleted(@NonNull CameraCaptureResult result) {
                             completer.set(null);
                         }
 
                         @Override
-                        public void onCaptureFailed(int captureConfigId,
-                                @NonNull CameraCaptureFailure failure) {
+                        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
                             String msg =
                                     "Capture request failed with reason " + failure.getReason();
                             completer.setException(
@@ -355,7 +384,7 @@ class Camera2CapturePipeline {
                         }
 
                         @Override
-                        public void onCaptureCancelled(int captureConfigId) {
+                        public void onCaptureCancelled() {
                             String msg = "Capture request is cancelled because camera is closed";
                             completer.setException(
                                     new ImageCaptureException(ERROR_CAMERA_CLOSED, msg, null));
@@ -399,53 +428,14 @@ class Camera2CapturePipeline {
         }
     }
 
-    /**
-     * Waits, with a timeout, for a camera capture result satisfying some criteria defined with the
-     * {@code checker} parameter.
-     *
-     * @param timeoutNanos             The timeout for waiting in nanoseconds.
-     * @param scheduledExecutorService The executor service to enforce the timeout.
-     * @param cameraControl            The {@link Camera2CameraControlImpl} instance used to
-     *                                 listen for capture results.
-     * @param checker                  Defines the criteria of camera capture result for which
-     *                                 the returned future will be waiting.
-     * @return A {@link ListenableFuture} providing the first capture result that satisfies the
-     * {@code checker} parameter.
-     */
     @ExecutedBy("mExecutor")
     @NonNull
-    static ListenableFuture<TotalCaptureResult> waitForResult(long timeoutNanos,
-            @NonNull ScheduledExecutorService scheduledExecutorService,
+    static ListenableFuture<TotalCaptureResult> waitForResult(long waitTimeout,
             @NonNull Camera2CameraControlImpl cameraControl,
             @Nullable ResultListener.Checker checker) {
-        return Futures.makeTimeoutFuture(TimeUnit.NANOSECONDS.toMillis(timeoutNanos),
-                scheduledExecutorService, null, true, waitForResult(cameraControl, checker));
-    }
-
-    /**
-     * Waits indefinitely for a camera capture result satisfying some criteria defined with the
-     * {@code checker} parameter.
-     *
-     * @param cameraControl The {@link Camera2CameraControlImpl} instance used to listen for
-     *                      capture results.
-     * @param checker       Defines the criteria of camera capture result for which the returned
-     *                      future will be waiting.
-     * @return A {@link ListenableFuture} providing the first capture result that satisfies the
-     * {@code checker} parameter.
-     */
-    @ExecutedBy("mExecutor")
-    @NonNull
-    static ListenableFuture<TotalCaptureResult> waitForResult(
-            @NonNull Camera2CameraControlImpl cameraControl,
-            @Nullable ResultListener.Checker checker) {
-        ResultListener resultListener = new ResultListener(checker);
+        ResultListener resultListener = new ResultListener(waitTimeout, checker);
         cameraControl.addCaptureResultListener(resultListener);
-
-        ListenableFuture<TotalCaptureResult> future = resultListener.getFuture();
-        future.addListener(() -> cameraControl.removeCaptureResultListener(resultListener),
-                cameraControl.mExecutor);
-
-        return  future;
+        return resultListener.getFuture();
     }
 
     static boolean is3AConverged(@Nullable TotalCaptureResult totalCaptureResult,
@@ -456,7 +446,32 @@ class Camera2CapturePipeline {
 
         Camera2CameraCaptureResult captureResult = new Camera2CameraCaptureResult(
                 totalCaptureResult);
-        return ConvergenceUtils.is3AConverged(captureResult, isTorchAsFlash);
+
+        // If afMode is OFF or UNKNOWN , no need for waiting.
+        // otherwise wait until af is locked or focused.
+        boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
+                || captureResult.getAfMode() == AfMode.UNKNOWN
+                || AF_CONVERGED_STATE_SET.contains(captureResult.getAfState());
+
+        boolean isAeReady;
+        boolean isAeModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AE_MODE)
+                == CaptureResult.CONTROL_AE_MODE_OFF;
+        if (isTorchAsFlash) {
+            isAeReady = isAeModeOff
+                    || AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
+        } else {
+            isAeReady = isAeModeOff || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
+        }
+
+        boolean isAwbModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AWB_MODE)
+                == CaptureResult.CONTROL_AWB_MODE_OFF;
+        boolean isAwbReady = isAwbModeOff
+                || AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
+
+        Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
+                + " AF =" + captureResult.getAfState()
+                + " AWB=" + captureResult.getAwbState());
+        return isAfReady && isAeReady && isAwbReady;
     }
 
     interface PipelineTask {
@@ -556,14 +571,12 @@ class Camera2CapturePipeline {
         private boolean mIsExecuted = false;
         @CameraExecutor
         private final Executor mExecutor;
-        private final ScheduledExecutorService mScheduler;
 
         TorchTask(@NonNull Camera2CameraControlImpl cameraControl, @FlashMode int flashMode,
-                @NonNull Executor executor, ScheduledExecutorService scheduler) {
+                @NonNull Executor executor) {
             mCameraControl = cameraControl;
             mFlashMode = flashMode;
             mExecutor = executor;
-            mScheduler = scheduler;
         }
 
         @ExecutedBy("mExecutor")
@@ -582,7 +595,7 @@ class Camera2CapturePipeline {
                         return "TorchOn";
                     });
                     return FutureChain.from(future).transformAsync(
-                            input -> waitForResult(CHECK_3A_WITH_TORCH_TIMEOUT_IN_NS, mScheduler,
+                            input -> waitForResult(CHECK_3A_WITH_TORCH_TIMEOUT_IN_NS,
                                     mCameraControl, (result) -> is3AConverged(result, true)),
                             mExecutor).transform(input -> false, CameraXExecutors.directExecutor());
                 }
@@ -671,18 +684,16 @@ class Camera2CapturePipeline {
         private final Camera2CameraControlImpl mCameraControl;
         private final Executor mExecutor;
         private final ScheduledExecutorService mScheduler;
-        private final ImageCapture.ScreenFlash mScreenFlash;
-        private final UseFlashModeTorchFor3aUpdate mUseFlashModeTorchFor3aUpdate;
+        private final ImageCapture.ScreenFlashUiControl mScreenFlashUiControl;
 
-        ScreenFlashTask(@NonNull Camera2CameraControlImpl cameraControl, @NonNull Executor executor,
-                @NonNull ScheduledExecutorService scheduler,
-                @NonNull UseFlashModeTorchFor3aUpdate useFlashModeTorchFor3aUpdate) {
+        ScreenFlashTask(@NonNull Camera2CameraControlImpl cameraControl,
+                @NonNull Executor executor, @NonNull ScheduledExecutorService scheduler) {
             mCameraControl = cameraControl;
             mExecutor = executor;
             mScheduler = scheduler;
-            mUseFlashModeTorchFor3aUpdate = useFlashModeTorchFor3aUpdate;
 
-            mScreenFlash = Objects.requireNonNull(mCameraControl.getScreenFlash());
+            mScreenFlashUiControl =
+                    Objects.requireNonNull(mCameraControl.getScreenFlashUiControl());
         }
 
         @ExecutedBy("mExecutor")
@@ -691,12 +702,12 @@ class Camera2CapturePipeline {
         public ListenableFuture<Boolean> preCapture(@Nullable TotalCaptureResult captureResult) {
             Logger.d(TAG, "ScreenFlashTask#preCapture");
 
-            AtomicReference<ImageCapture.ScreenFlashListener> screenFlashListener =
+            AtomicReference<ImageCapture.ScreenFlashUiCompleter> screenFlashUiCompleter =
                     new AtomicReference<>();
 
             ListenableFuture<Void> uiAppliedFuture = CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        screenFlashListener.set(() -> {
+                        screenFlashUiCompleter.set(() -> {
                             Logger.d(TAG, "ScreenFlashTask#preCapture: UI change applied");
                             completer.set(null);
                         });
@@ -705,10 +716,7 @@ class Camera2CapturePipeline {
 
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
                 CameraXExecutors.mainThreadExecutor().execute(() -> {
-                    Logger.d(TAG, "ScreenFlashTask#preCapture: invoking applyScreenFlashUi");
-                    mScreenFlash.apply(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
-                            screenFlashListener.get());
+                    mScreenFlashUiControl.applyScreenFlashUi(screenFlashUiCompleter.get());
                     completer.set(null);
                 });
                 return "OnScreenFlashStart";
@@ -719,32 +727,28 @@ class Camera2CapturePipeline {
                             true),
                     mExecutor
             ).transformAsync(
+                    input -> Futures.makeTimeoutFuture(TimeUnit.SECONDS.toMillis(
+                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
+                            mScheduler, null,
+                            uiAppliedFuture),
+                    mExecutor
+            ).transformAsync(
+                    // Won't have any effect if CONTROL_AE_MODE_ON_EXTERNAL_FLASH is supported
                     input -> CallbackToFutureAdapter.getFuture(
                             completer -> {
-                                if (!mUseFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
-                                    completer.set(null);
-                                    return "EnableTorchInternal";
-                                }
                                 Logger.d(TAG, "ScreenFlashTask#preCapture: enable torch");
+                                // TODO: Enable torch only if actual flash unit doesn't exist
                                 mCameraControl.enableTorchInternal(true);
                                 completer.set(null);
                                 return "EnableTorchInternal";
                             }),
                     mExecutor
             ).transformAsync(
-                    input -> Futures.makeTimeoutFuture(
-                            // Not using the previous timestamp here gives users a bit more grace
-                            // time before CameraX stops waiting.
-                            TimeUnit.SECONDS.toMillis(
-                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
-                            mScheduler, null, true, uiAppliedFuture),
-                    mExecutor
-            ).transformAsync(
                     input -> mCameraControl.getFocusMeteringControl().triggerAePrecapture(),
                     mExecutor
             ).transformAsync(
-                    input -> waitForResult(CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS, mScheduler,
-                            mCameraControl, (result) -> is3AConverged(result, false)), mExecutor
+                    input -> waitForResult(CHECK_3A_WITH_SCREEN_FLASH_TIMEOUT_IN_NS, mCameraControl,
+                            (result) -> is3AConverged(result, false)), mExecutor
             ).transform(input -> false, CameraXExecutors.directExecutor());
         }
 
@@ -758,14 +762,13 @@ class Camera2CapturePipeline {
         @Override
         public void postCapture() {
             Logger.d(TAG, "ScreenFlashTask#postCapture");
-            if (mUseFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
-                mCameraControl.enableTorchInternal(false);
-            }
+            mCameraControl.enableTorchInternal(false);
             mCameraControl.getFocusMeteringControl().enableExternalFlashAeMode(false).addListener(
                     () -> Log.d(TAG, "enableExternalFlashAeMode disabled"), mExecutor
             );
             mCameraControl.getFocusMeteringControl().cancelAfAeTrigger(false, true);
-            CameraXExecutors.mainThreadExecutor().execute(mScreenFlash::clear);
+            CameraXExecutors.mainThreadExecutor().execute(
+                    mScreenFlashUiControl::clearScreenFlashUi);
         }
     }
 
@@ -798,19 +801,25 @@ class Camera2CapturePipeline {
             boolean check(@NonNull TotalCaptureResult totalCaptureResult);
         }
 
+        static final long NO_TIMEOUT = 0L;
+
         private CallbackToFutureAdapter.Completer<TotalCaptureResult> mCompleter;
         private final ListenableFuture<TotalCaptureResult> mFuture =
                 CallbackToFutureAdapter.getFuture(completer -> {
                     mCompleter = completer;
                     return "waitFor3AResult";
                 });
+        private final long mTimeLimitNs;
         private final Checker mChecker;
+        private volatile Long mTimestampOfFirstUpdateNs = null;
 
         /**
+         * @param timeLimitNs timeout threshold in Nanos
          * @param checker     the checker to define the condition to complete the mFuture, set null
          *                    will complete the mFuture once it receives any totalCaptureResults.
          */
-        ResultListener(@Nullable Checker checker) {
+        ResultListener(long timeLimitNs, @Nullable Checker checker) {
+            mTimeLimitNs = timeLimitNs;
             mChecker = checker;
         }
 
@@ -821,6 +830,21 @@ class Camera2CapturePipeline {
 
         @Override
         public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
+            Long currentTimestampNs = captureResult.get(CaptureResult.SENSOR_TIMESTAMP);
+            if (currentTimestampNs != null && mTimestampOfFirstUpdateNs == null) {
+                mTimestampOfFirstUpdateNs = currentTimestampNs;
+            }
+
+            Long timestampOfFirstUpdateNs = mTimestampOfFirstUpdateNs;
+            if (NO_TIMEOUT != mTimeLimitNs && timestampOfFirstUpdateNs != null
+                    && currentTimestampNs != null
+                    && currentTimestampNs - timestampOfFirstUpdateNs > mTimeLimitNs) {
+                mCompleter.set(null);
+                Logger.d(TAG, "Wait for capture result timeout, current:" + currentTimestampNs
+                        + " first: " + timestampOfFirstUpdateNs);
+                return true;
+            }
+
             if (mChecker != null && !mChecker.check(captureResult)) {
                 return false;
             }

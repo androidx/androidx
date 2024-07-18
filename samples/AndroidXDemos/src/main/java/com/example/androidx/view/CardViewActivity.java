@@ -170,19 +170,21 @@ public class CardViewActivity extends AppCompatActivity {
     }
 
     private int getColorId(int id) {
-        if (id == R.id.yellow) {
-            return R.color.card_yellow;
-        } else if (id == R.id.aquatic) {
-            return R.color.card_aquatic;
-        } else if (id == R.id.classic) {
-            return R.color.card_classic;
-        } else if (id == R.id.sunbrite) {
-            return R.color.card_sunbrite;
-        } else if (id == R.id.tropical) {
-            return R.color.card_tropical;
-        } else if (id == R.id.selector) {
-            return R.color.card_selector;
+        switch (id) {
+            case R.id.yellow:
+                return R.color.card_yellow;
+            case R.id.aquatic:
+                return R.color.card_aquatic;
+            case R.id.classic:
+                return R.color.card_classic;
+            case R.id.sunbrite:
+                return R.color.card_sunbrite;
+            case R.id.tropical:
+                return R.color.card_tropical;
+            case R.id.selector:
+                return R.color.card_selector;
+            default:
+                return androidx.cardview.R.color.cardview_light_background;
         }
-        return androidx.cardview.R.color.cardview_light_background;
     }
 }

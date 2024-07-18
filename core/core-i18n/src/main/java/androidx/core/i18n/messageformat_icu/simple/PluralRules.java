@@ -9,9 +9,6 @@ package androidx.core.i18n.messageformat_icu.simple;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.RestrictTo;
-import androidx.core.i18n.messageformat_icu.util.Output;
-
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
@@ -29,6 +26,9 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
+
+import androidx.annotation.RestrictTo;
+import androidx.core.i18n.messageformat_icu.util.Output;
 
 /**
  * <p>
@@ -258,7 +258,7 @@ public class PluralRules implements Serializable {
             return PluralRulesLoader.loader;
         }
 
-        /*
+        /**
          * Returns whether or not there are overrides.
          * icu_annot::internal CLDR
          * This API is ICU internal only.

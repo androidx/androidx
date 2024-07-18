@@ -27,7 +27,7 @@ import android.hardware.camera2.params.DynamicRangeProfiles.STANDARD
 import androidx.annotation.RequiresApi
 
 val HLG10_UNCONSTRAINED by lazy {
-    DynamicRangeProfiles(longArrayOf(HLG10, CONSTRAINTS_NONE, LATENCY_NONE))
+    DynamicRangeProfiles(longArrayOf(HLG10, 0, 0))
 }
 
 val HLG10_CONSTRAINED by lazy {

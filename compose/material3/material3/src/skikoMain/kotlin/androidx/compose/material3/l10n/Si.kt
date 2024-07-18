@@ -31,6 +31,7 @@ internal fun Translations.si() = mapOf(
     Strings.Dialog to "සංවාදය",
     Strings.MenuExpanded to "දිග හරින ලදි",
     Strings.MenuCollapsed to "හකුළන ලදි",
+    Strings.ToggleDropdownMenu to "පතන මෙනුව ටොගල් කරන්න",
     Strings.SnackbarDismiss to "අස් කරන්න",
     Strings.SearchBarSearch to "සෙවීම",
     Strings.SuggestionsAvailable to "පහත යෝජනා",

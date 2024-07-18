@@ -40,8 +40,9 @@ public class ButtonColorsTest {
     public void testCreateButtonColorsFromArgb() {
         ButtonColors buttonColors = new ButtonColors(ARGB_BACKGROUND_COLOR, ARGB_CONTENT_COLOR);
 
-        assertThat(buttonColors.getBackgroundColor().getArgb()).isEqualTo(ARGB_BACKGROUND_COLOR);
-        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(ARGB_CONTENT_COLOR);
+        assertThat(buttonColors.getBackgroundColor().getArgb())
+                .isEqualTo(BACKGROUND_COLOR.getArgb());
+        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(CONTENT_COLOR.getArgb());
     }
 
     @Test

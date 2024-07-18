@@ -43,9 +43,6 @@ function usage() {
   echo " g, glance"
   echo "  Open the project subset for glance projects"
   echo
-  echo " x, xr"
-  echo "  Open the project subset for XR projects"
-  echo
   echo
   echo " native"
   echo "  Open the project subset for native projects"
@@ -125,9 +122,6 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "wm" -o "$subsetArg" == "window" ]; then
     newSubset=window
-  fi
-  if [ "$subsetArg" == "x" -o "$subsetArg" == "xr" ]; then
-      newSubset=xr
   fi
   if [ "$newSubset" == "" ]; then
     echo "Unrecognized argument: '$subsetArg'"

@@ -26,10 +26,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.samples.PreRotaryEventSample
 import androidx.compose.ui.samples.RotaryEventSample
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material.Text
 
+internal val RotaryInputDemos = listOf(
+    ComposableDemo("Scroll With Crown") { ScrollUsingRotatingCrownDemo() },
+    ComposableDemo("Intercept Scroll") { InterceptScrollDemo() }
+)
+
 @Composable
-fun ScrollUsingRotatingCrownDemo() {
+private fun ScrollUsingRotatingCrownDemo() {
     Column {
         CenteredText("Use")
         CenteredText("the rotating")
@@ -39,7 +45,7 @@ fun ScrollUsingRotatingCrownDemo() {
 }
 
 @Composable
-fun InterceptScrollDemo() {
+private fun InterceptScrollDemo() {
     Column {
         Spacer(modifier = Modifier.height(20.dp))
         CenteredText("Scroll Target: ")

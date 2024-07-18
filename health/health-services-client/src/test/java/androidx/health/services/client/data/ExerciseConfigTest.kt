@@ -19,7 +19,6 @@ package androidx.health.services.client.data
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
 import androidx.health.services.client.data.DataType.Companion.DISTANCE_TOTAL
 import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM
-import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM_STATS
 import androidx.health.services.client.data.DataType.Companion.LOCATION
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -50,26 +49,6 @@ class ExerciseConfigTest {
             ),
             batchingModeOverrides = setOf(BatchingMode.HEART_RATE_5_SECONDS),
             exerciseEventTypes = setOf(ExerciseEventType.GOLF_SHOT_EVENT),
-            debouncedGoals = listOf(
-                DebouncedGoal.createSampleDebouncedGoal(
-                    DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                        HEART_RATE_BPM,
-                        120.0,
-                        GREATER_THAN,
-                        /* initialDelay= */ 60,
-                        /* durationAtThreshold= */ 5
-                    )
-                ),
-                DebouncedGoal.createAggregateDebouncedGoal(
-                    DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                        HEART_RATE_BPM_STATS,
-                        120.0,
-                        GREATER_THAN,
-                        /* initialDelay= */60,
-                        /* durationAtThreshold= */ 5
-                    )
-                ),
-            ),
         ).toProto()
 
         val config = ExerciseConfig(proto)
@@ -92,27 +71,6 @@ class ExerciseConfigTest {
             .GolfShotTrackingPlaceInfo.GOLF_SHOT_TRACKING_PLACE_INFO_FAIRWAY)
         assertThat(config.batchingModeOverrides).containsExactly(BatchingMode.HEART_RATE_5_SECONDS)
         assertThat(config.exerciseEventTypes).containsExactly(ExerciseEventType.GOLF_SHOT_EVENT)
-        assertThat(config.isGpsEnabled).isEqualTo(true)
-        assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.dataType)
-            .isEqualTo(HEART_RATE_BPM)
-        assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.threshold)
-            .isEqualTo(120.0)
-        assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.comparisonType)
-            .isEqualTo(GREATER_THAN)
-        assertThat(config.debouncedGoals[0].debouncedDataTypeCondition.initialDelaySeconds)
-            .isEqualTo(60)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.durationAtThresholdSeconds)
-            .isEqualTo(5)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.dataType)
-            .isEqualTo(HEART_RATE_BPM_STATS)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.threshold)
-            .isEqualTo(120.0)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.comparisonType)
-            .isEqualTo(GREATER_THAN)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.initialDelaySeconds)
-            .isEqualTo(60)
-        assertThat(config.debouncedGoals[1].debouncedDataTypeCondition.durationAtThresholdSeconds)
-            .isEqualTo(5)
     }
 
     @Test

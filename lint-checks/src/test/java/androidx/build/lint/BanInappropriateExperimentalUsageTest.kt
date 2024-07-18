@@ -23,6 +23,7 @@ import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.isAnnotat
 import androidx.build.lint.Stubs.Companion.JetpackOptIn
 import androidx.build.lint.Stubs.Companion.JetpackRequiresOptIn
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -130,7 +131,8 @@ No warnings.
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(provider).expect(expected)
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, testModes = listOf(TestMode.DEFAULT)).expect(expected)
     }
 
     @Test
@@ -203,57 +205,7 @@ No warnings.
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(provider, consumer).expect(expected)
-    }
-
-    @Test
-    fun `Test cross-module Experimental usage in alpha via Gradle model`() {
-
-        /* ktlint-disable max-line-length */
-        val provider = project()
-            .name("provider")
-            .type(ProjectDescription.Type.LIBRARY)
-            .report(false)
-            .files(
-                JetpackRequiresOptIn,
-                ktSample("sample.annotation.provider.ExperimentalSampleAnnotation"),
-                javaSample("sample.annotation.provider.ExperimentalSampleAnnotationJava"),
-                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJava"),
-                javaSample("sample.annotation.provider.RequiresOptInSampleAnnotationJavaDuplicate"),
-                javaSample("sample.annotation.provider.RequiresAndroidXOptInSampleAnnotationJava"),
-                javaSample("sample.annotation.provider.RequiresAndroidXOptInSampleAnnotationJavaDuplicate"),
-                gradle(
-                    """
-                    apply plugin: 'com.android.library'
-                    group=sample.annotation.provider
-                    version=1.0.0-beta02
-                    """
-                ).indented(),
-            )
-        /* ktlint-enable max-line-length */
-
-        val consumer = project()
-            .name("consumer")
-            .type(ProjectDescription.Type.LIBRARY)
-            .dependsOn(provider)
-            .files(
-                JetpackOptIn,
-                ktSample("androidx.sample.consumer.OutsideGroupExperimentalAnnotatedClass"),
-                gradle(
-                    """
-                    apply plugin: 'com.android.library'
-                    group=androidx.sample.consumer
-                    version=1.0.0-alpha01
-                    """
-                ).indented(),
-            )
-
-        /* ktlint-disable max-line-length */
-        val expected = """
-No warnings.
-        """.trimIndent()
-        /* ktlint-enable max-line-length */
-
-        check(provider, consumer).expect(expected)
+        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
+        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
     }
 }

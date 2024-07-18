@@ -30,6 +30,7 @@ import androidx.activity.BackEventCompat
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
+import androidx.core.os.CancellationSignal
 import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
@@ -338,13 +339,6 @@ internal class DefaultSpecialEffectsController(
                 if (sharedElementNameMapping.isEmpty()) {
                     // We couldn't find any valid shared element mappings, so clear out
                     // the shared element transition information entirely
-                    Log.i(FragmentManager.TAG,
-                        "Ignoring shared elements transition $sharedElementTransition between " +
-                            "$firstOut and $lastIn as there are no matching elements " +
-                            "in both the entering and exiting fragment. In order to run a " +
-                            "SharedElementTransition, both fragments involved must have the " +
-                            "element."
-                    )
                     sharedElementTransition = null
                     sharedElementFirstOutViews.clear()
                     sharedElementLastInViews.clear()
@@ -712,8 +706,7 @@ internal class DefaultSpecialEffectsController(
         val lastInViews: ArrayMap<String, View>,
         val isPop: Boolean
     ) : Effect() {
-        @Suppress("DEPRECATION")
-        val transitionSignal = androidx.core.os.CancellationSignal()
+        val transitionSignal = CancellationSignal()
 
         var controller: Any? = null
 
@@ -723,9 +716,7 @@ internal class DefaultSpecialEffectsController(
                     Build.VERSION.SDK_INT >= 34 &&
                         it.transition != null &&
                         transitionImpl.isSeekingSupported(it.transition)
-                } &&
-                (sharedElementTransition == null ||
-                transitionImpl.isSeekingSupported(sharedElementTransition))
+                }
 
         val transitioning: Boolean
             get() = transitionInfos.all {
@@ -735,7 +726,7 @@ internal class DefaultSpecialEffectsController(
         override fun onStart(container: ViewGroup) {
             // If the container has never been laid out, transitions will not start so
             // so lets instantly complete them.
-            if (!container.isLaidOut()) {
+            if (!ViewCompat.isLaidOut(container)) {
                 transitionInfos.forEach { transitionInfo: TransitionInfo ->
                     val operation: Operation = transitionInfo.operation
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -745,16 +736,6 @@ internal class DefaultSpecialEffectsController(
                     }
                 }
                 return
-            }
-            if (transitioning && sharedElementTransition != null && !isSeekingSupported) {
-                Log.i(FragmentManager.TAG,
-                    "Ignoring shared elements transition $sharedElementTransition between " +
-                        "$firstOut and $lastIn as neither fragment has set a Transition. In " +
-                        "order to run a SharedElementTransition, you must also set either an " +
-                        "enter or exit transition on a fragment involved in the transaction. The " +
-                        "sharedElementTransition will run after the back gesture has been " +
-                        "committed."
-                )
             }
             if (isSeekingSupported && transitioning) {
                 // We need to set the listener before we create the controller, but we need the
@@ -803,6 +784,9 @@ internal class DefaultSpecialEffectsController(
                                     operation.finalState.applyState(view, container)
                                 }
                             }
+                            transitionInfos.map { it.operation }.forEach { operation ->
+                                operation.completeEffect(this)
+                            }
                         }
                     }
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -820,7 +804,7 @@ internal class DefaultSpecialEffectsController(
         override fun onCommit(container: ViewGroup) {
             // If the container has never been laid out, transitions will not start so
             // so lets instantly complete them.
-            if (!container.isLaidOut()) {
+            if (!ViewCompat.isLaidOut(container)) {
                 transitionInfos.forEach { transitionInfo: TransitionInfo ->
                     val operation: Operation = transitionInfo.operation
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {

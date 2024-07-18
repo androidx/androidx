@@ -31,6 +31,7 @@ import androidx.tv.material3.tokens.ShapeTokens
  * @param inset defines how far (in dp) should the border be from the component it's applied to
  * @param shape defines the [Shape] of the border
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class Border(
     val border: BorderStroke,

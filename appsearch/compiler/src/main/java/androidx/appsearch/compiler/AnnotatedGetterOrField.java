@@ -20,17 +20,14 @@ import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATIO
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
 import static androidx.appsearch.compiler.IntrospectionHelper.validateIsGetter;
-
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
-import androidx.appsearch.compiler.annotationwrapper.LongPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
-import androidx.appsearch.compiler.annotationwrapper.SerializerClass;
 import androidx.appsearch.compiler.annotationwrapper.StringPropertyAnnotation;
 
 import com.google.auto.value.AutoValue;
@@ -476,34 +473,19 @@ public abstract class AnnotatedGetterOrField {
         IntrospectionHelper helper = new IntrospectionHelper(env);
         switch (annotation.getDataPropertyKind()) {
             case STRING_PROPERTY:
-                SerializerClass stringSerializer =
-                        ((StringPropertyAnnotation) annotation).getCustomSerializer();
-                if (stringSerializer != null) {
-                    requireComponentTypeMatchesWithSerializer(getterOrField, stringSerializer, env);
-                } else {
-                    requireTypeIsOneOf(
-                            getterOrField,
-                            List.of(helper.mStringType),
-                            env,
-                            /* allowRepeated= */true);
-                }
+                requireTypeIsOneOf(
+                        getterOrField, List.of(helper.mStringType), env, /* allowRepeated= */true);
                 break;
             case DOCUMENT_PROPERTY:
                 requireTypeIsSomeDocumentClass(getterOrField, env);
                 break;
             case LONG_PROPERTY:
-                SerializerClass longSerializer =
-                        ((LongPropertyAnnotation) annotation).getCustomSerializer();
-                if (longSerializer != null) {
-                    requireComponentTypeMatchesWithSerializer(getterOrField, longSerializer, env);
-                } else {
-                    requireTypeIsOneOf(
-                            getterOrField,
-                            List.of(helper.mLongPrimitiveType, helper.mIntPrimitiveType,
-                                    helper.mLongBoxType, helper.mIntegerBoxType),
-                            env,
-                            /* allowRepeated= */true);
-                }
+                requireTypeIsOneOf(
+                        getterOrField,
+                        List.of(helper.mLongPrimitiveType, helper.mIntPrimitiveType,
+                                helper.mLongBoxType, helper.mIntegerBoxType),
+                        env,
+                        /* allowRepeated= */true);
                 break;
             case DOUBLE_PROPERTY:
                 requireTypeIsOneOf(
@@ -559,34 +541,6 @@ public abstract class AnnotatedGetterOrField {
     }
 
     /**
-     * Makes sure the getter/field's component type is consistent with the serializer class.
-     *
-     * @throws ProcessingException If the getter/field is of a different type than what the
-     *                             serializer class serializes to/from.
-     */
-    private static void requireComponentTypeMatchesWithSerializer(
-            @NonNull AnnotatedGetterOrField getterOrField,
-            @NonNull SerializerClass serializerClass,
-            @NonNull ProcessingEnvironment env) throws ProcessingException {
-        // The component type must exactly match the type for which we have a serializer.
-        // Subtypes do not work e.g.
-        // @StringProperty(serializer = ParentSerializer.class) Child mField;
-        // because ParentSerializer.deserialize(String) would return a Parent, which we won't be
-        // able to assign to mField.
-        if (!env.getTypeUtils().isSameType(
-                getterOrField.getComponentType(), serializerClass.getCustomType())) {
-            throw new ProcessingException(
-                    ("@%s with serializer = %s must only be placed on a getter/field of type or "
-                            + "array or collection of %s")
-                            .formatted(
-                                    getterOrField.getAnnotation().getClassName().simpleName(),
-                                    serializerClass.getElement().getSimpleName(),
-                                    serializerClass.getCustomType()),
-                    getterOrField.getElement());
-        }
-    }
-
-    /**
      * Makes sure the getter/field is assigned a type annotated with {@code @Document}.
      *
      * <p>Allows for arrays and collections of such a type as well.
@@ -597,7 +551,7 @@ public abstract class AnnotatedGetterOrField {
         TypeMirror componentType = annotatedGetterOrField.getComponentType();
         if (componentType.getKind() == TypeKind.DECLARED) {
             Element element = env.getTypeUtils().asElement(componentType);
-            if (getDocumentAnnotation(element) != null) {
+            if (element.getKind() == ElementKind.CLASS && getDocumentAnnotation(element) != null) {
                 return;
             }
         }

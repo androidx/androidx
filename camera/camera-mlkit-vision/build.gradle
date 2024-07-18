@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -58,8 +59,9 @@ android {
 
 androidx {
     name = "Camera MLKit Vision"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
+    runApiTasks = new RunApiTasks.Yes()
     description = "MLKit vision components for the Jetpack Camera Library, a library providing a " +
             "seamless integration that enables camera driven computer vision features " +
             "across all of Android."

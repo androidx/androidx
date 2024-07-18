@@ -123,7 +123,7 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
         CreatePasswordRequest request = new CreatePasswordRequest(expectedUserId, "password");
 
         CreateCredentialRequest.DisplayInfo displayInfo =
-                CreateCredentialRequest.DisplayInfo.createFrom(
+                CreateCredentialRequest.DisplayInfo.parseFromCredentialDataBundle(
                         getFinalCreateCredentialData(
                                 request, mContext)
                 );

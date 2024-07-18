@@ -25,10 +25,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.TargetTracking
-import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.runOnUiThreadRethrow
-import androidx.testutils.withActivity
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -51,12 +49,6 @@ fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.executePendingTran
     var ret = false
     runOnUiThreadRethrow { ret = fm.executePendingTransactions() }
     return ret
-}
-
-inline fun <reified A : FragmentActivity> ActivityScenario<A>.executePendingTransactions(
-    fm: FragmentManager = withActivity { supportFragmentManager }
-) {
-    onActivity { fm.executePendingTransactions() }
 }
 
 @Suppress("DEPRECATION")

@@ -412,7 +412,7 @@ public final class SearchSpecToProtoConverter {
                     joinSpec.getMaxJoinedResultCount());
         }
 
-        // Add result groupings for the available prefixes
+        // Rewrites the typePropertyMasks that exist in {@code prefixes}.
         int groupingType = mSearchSpec.getResultGroupingTypeFlags();
         ResultSpecProto.ResultGroupingType resultGroupingType =
                 ResultSpecProto.ResultGroupingType.NONE;
@@ -466,18 +466,17 @@ public final class SearchSpecToProtoConverter {
                 TypePropertyPathToProtoConverter
                         .toTypePropertyMaskBuilderList(mSearchSpec.getProjections());
         // Rewrite filters to include a database prefix.
+        resultSpecBuilder.clearTypePropertyMasks();
         for (int i = 0; i < typePropertyMaskBuilders.size(); i++) {
             String unprefixedType = typePropertyMaskBuilders.get(i).getSchemaType();
-            if (unprefixedType.equals(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD)) {
-                resultSpecBuilder.addTypePropertyMasks(typePropertyMaskBuilders.get(i).build());
-            } else {
-                // Qualify the given schema types
-                for (String prefix : mCurrentSearchSpecPrefixFilters) {
-                    String prefixedType = prefix + unprefixedType;
-                    if (mTargetPrefixedSchemaFilters.contains(prefixedType)) {
-                        resultSpecBuilder.addTypePropertyMasks(typePropertyMaskBuilders.get(i)
-                                .setSchemaType(prefixedType).build());
-                    }
+            boolean isWildcard =
+                    unprefixedType.equals(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD);
+            // Qualify the given schema types
+            for (String prefix : mCurrentSearchSpecPrefixFilters) {
+                String prefixedType = isWildcard ? unprefixedType : prefix + unprefixedType;
+                if (isWildcard || mTargetPrefixedSchemaFilters.contains(prefixedType)) {
+                    resultSpecBuilder.addTypePropertyMasks(typePropertyMaskBuilders.get(i)
+                            .setSchemaType(prefixedType).build());
                 }
             }
         }

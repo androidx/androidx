@@ -14,37 +14,17 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
-import androidx.build.RunApiTasks
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("java-library")
-    id("AndroidXRepackagePlugin")
     id("com.google.protobuf")
 }
 
-repackage {
-    // Must match what is in core/core-location-altitiude-external-protobuf/build.gradle
-    addRelocation {
-        sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.core.location.altitude.impl.proto"
-    }
-}
-
 dependencies {
-    // Must be compileOnly to not bring in protobufLite in runtime
-    // Repackaged protobufLite brought in by
-    // project(":core:core-location-altitude-external-protobuf") and used at runtime
-    compileOnly(libs.protobufLite)
-    api(project(":core:core-location-altitude-external-protobuf"))}
+    implementation(libs.protobufLite)
+}
 
 protobuf {
     protoc {
@@ -71,11 +51,8 @@ afterEvaluate {
 }
 
 androidx {
-    name = "Location Altitude Protos"
-    type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
+    name = "Location Altitude Compatibility Library Protos"
+    publish = Publish.NONE
     inceptionYear = "2022"
     description = "Implementation protos for core-location-altitude artifact."
-    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
-            "(b/180579063)")
 }

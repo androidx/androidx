@@ -19,14 +19,10 @@ AutoBoxing: androidx.kruth.Kruth#assertThat(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.Kruth#assertThat(Double) parameter #0:
     Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.kruth.Kruth#assertThat(Float) parameter #0:
-    Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
     Must avoid boxed primitives (`java.lang.Double`)
-AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Float) parameter #0:
-    Must avoid boxed primitives (`java.lang.Float`)
 
 
 BuilderSetStyle: androidx.kruth.SimpleSubjectBuilder#that(T):
@@ -41,8 +37,6 @@ BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Boolean)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Double):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Double)
-BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Float):
-    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Float)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Iterable<? extends T>)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(String):

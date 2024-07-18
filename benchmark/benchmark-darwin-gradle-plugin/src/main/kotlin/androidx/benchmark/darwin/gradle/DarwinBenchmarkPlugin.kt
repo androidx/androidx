@@ -40,7 +40,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         project.plugins.withType(KotlinMultiplatformPluginWrapper::class.java) {
             val multiplatformExtension: KotlinMultiplatformExtension =
                 project.extensions.getByType(it.projectExtensionClass.java)
-            multiplatformExtension.targets.configureEach { kotlinTarget ->
+            multiplatformExtension.targets.all { kotlinTarget ->
                 if (kotlinTarget is KotlinNativeTarget) {
                     if (kotlinTarget.konanTarget.family.isAppleFamily) {
                         // We want to apply the plugin only once.

@@ -56,8 +56,7 @@ public class PrimaryLayoutTest {
             new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
     private static final LayoutElement CONTENT = new Box.Builder().build();
     private static final CompactChip PRIMARY_CHIP =
-            new CompactChip.Builder(CONTEXT, "Compact", CLICKABLE, DEVICE_PARAMETERS)
-                    .build();
+            new CompactChip.Builder(CONTEXT, "Compact", CLICKABLE, DEVICE_PARAMETERS).build();
     private static final Text PRIMARY_LABEL = new Text.Builder(CONTEXT, "Primary label").build();
     private static final Text SECONDARY_LABEL =
             new Text.Builder(CONTEXT, "Secondary label").build();
@@ -67,14 +66,7 @@ public class PrimaryLayoutTest {
         PrimaryLayout layout =
                 new PrimaryLayout.Builder(DEVICE_PARAMETERS).setContent(CONTENT).build();
 
-        assertLayout(
-                DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
-                layout,
-                CONTENT,
-                /* expectedPrimaryChip= */ null,
-                /* expectedPrimaryLabel= */ null,
-                /* expectedSecondaryLabel= */ null,
-                /* isResponsive= */ false);
+        assertLayout(DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(), layout, CONTENT, null, null, null);
     }
 
     @Test
@@ -90,9 +82,8 @@ public class PrimaryLayoutTest {
                 layout,
                 CONTENT,
                 PRIMARY_CHIP,
-                /* expectedPrimaryLabel= */ null,
-                /* expectedSecondaryLabel= */ null,
-                /* isResponsive= */ false);
+                null,
+                null);
     }
 
     @Test
@@ -107,10 +98,9 @@ public class PrimaryLayoutTest {
                 DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
                 layout,
                 CONTENT,
-                /* expectedPrimaryChip= */ null,
+                null,
                 PRIMARY_LABEL,
-                /* expectedSecondaryLabel= */ null,
-                /* isResponsive= */ false);
+                null);
     }
 
     @Test
@@ -125,29 +115,9 @@ public class PrimaryLayoutTest {
                 DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
                 layout,
                 CONTENT,
-                /* expectedPrimaryChip= */ null,
-                /* expectedPrimaryLabel= */ null,
-                SECONDARY_LABEL,
-                /* isResponsive= */ false);
-    }
-
-    @Test
-    public void testContentSecondaryLabel_responsiveSecondaryLabel() {
-        PrimaryLayout layout =
-                new PrimaryLayout.Builder(DEVICE_PARAMETERS)
-                        .setContent(CONTENT)
-                        .setSecondaryLabelTextContent(SECONDARY_LABEL)
-                        .setResponsiveContentInsetEnabled(true)
-                        .build();
-
-        assertLayout(
-                DEFAULT_VERTICAL_SPACER_HEIGHT.getValue(),
-                layout,
-                CONTENT,
-                /* expectedPrimaryChip= */ null,
-                /* expectedPrimaryLabel= */ null,
-                SECONDARY_LABEL,
-                /* isResponsive= */ true);
+                null,
+                null,
+                SECONDARY_LABEL);
     }
 
     @Test
@@ -160,43 +130,9 @@ public class PrimaryLayoutTest {
                         .setPrimaryLabelTextContent(PRIMARY_LABEL)
                         .setSecondaryLabelTextContent(SECONDARY_LABEL)
                         .setVerticalSpacerHeight(height)
-                        .setResponsiveContentInsetEnabled(true)
-                        // Test that the bit was flipped correctly.
-                        .setResponsiveContentInsetEnabled(false)
                         .build();
 
-        assertLayout(
-                height,
-                layout,
-                CONTENT,
-                PRIMARY_CHIP,
-                PRIMARY_LABEL,
-                SECONDARY_LABEL,
-                /* isResponsive= */ false);
-    }
-
-    @Test
-    public void testAll_responsive() {
-        float height = 12;
-        PrimaryLayout layout =
-                new PrimaryLayout.Builder(DEVICE_PARAMETERS)
-                        .setContent(CONTENT)
-                        .setPrimaryChipContent(PRIMARY_CHIP)
-                        .setPrimaryLabelTextContent(PRIMARY_LABEL)
-                        .setSecondaryLabelTextContent(SECONDARY_LABEL)
-                        .setVerticalSpacerHeight(height)
-                        .setResponsiveContentInsetEnabled(true)
-                        .build();
-
-        // Secondary label doesn't have extra padding.
-        assertLayout(
-                height,
-                layout,
-                CONTENT,
-                PRIMARY_CHIP,
-                PRIMARY_LABEL,
-                SECONDARY_LABEL,
-                /* isResponsive= */ true);
+        assertLayout(height, layout, CONTENT, PRIMARY_CHIP, PRIMARY_LABEL, SECONDARY_LABEL);
     }
 
     @Test
@@ -253,16 +189,14 @@ public class PrimaryLayoutTest {
             @Nullable LayoutElement expectedContent,
             @Nullable LayoutElement expectedPrimaryChip,
             @Nullable LayoutElement expectedPrimaryLabel,
-            @Nullable LayoutElement expectedSecondaryLabel,
-            boolean isResponsive) {
+            @Nullable LayoutElement expectedSecondaryLabel) {
         assertLayoutIsEqual(
                 height,
                 actualLayout,
                 expectedContent,
                 expectedPrimaryChip,
                 expectedPrimaryLabel,
-                expectedSecondaryLabel,
-                isResponsive);
+                expectedSecondaryLabel);
 
         Box box = new Box.Builder().addContent(actualLayout).build();
 
@@ -275,8 +209,7 @@ public class PrimaryLayoutTest {
                 expectedContent,
                 expectedPrimaryChip,
                 expectedPrimaryLabel,
-                expectedSecondaryLabel,
-                isResponsive);
+                expectedSecondaryLabel);
 
         assertThat(PrimaryLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
@@ -287,8 +220,7 @@ public class PrimaryLayoutTest {
             @Nullable LayoutElement expectedContent,
             @Nullable LayoutElement expectedPrimaryChip,
             @Nullable LayoutElement expectedPrimaryLabel,
-            @Nullable LayoutElement expectedSecondaryLabel,
-            boolean isResponsive) {
+            @Nullable LayoutElement expectedSecondaryLabel) {
         byte[] expectedMetadata = PrimaryLayout.METADATA_TAG_BASE.clone();
 
         if (expectedContent == null) {
@@ -337,13 +269,6 @@ public class PrimaryLayoutTest {
                                     | PrimaryLayout.SECONDARY_LABEL_PRESENT);
         }
 
-        if (isResponsive) {
-            expectedMetadata[PrimaryLayout.FLAG_INDEX] =
-                    (byte) (expectedMetadata[PrimaryLayout.FLAG_INDEX]
-                            | PrimaryLayout.CONTENT_INSET_USED);
-        }
-
         assertThat(actualLayout.getMetadataTag()).isEqualTo(expectedMetadata);
-        assertThat(actualLayout.isResponsiveContentInsetEnabled()).isEqualTo(isResponsive);
     }
 }

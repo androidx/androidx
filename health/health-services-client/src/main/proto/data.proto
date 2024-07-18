@@ -163,23 +163,6 @@ message DataTypeCondition {
   reserved 4 to max;  // Next ID
 }
 
-message DebouncedDataTypeCondition {
-  oneof dataType {
-    DataType delta = 1;
-    DataType aggregate = 2;
-  }
-  optional Value threshold = 3;
-  optional ComparisonType comparison_type = 4;
-  optional int32 initial_delay_seconds = 5;
-  optional int32 duration_at_threshold_seconds = 6;
-  reserved 7 to max;  // Next ID
-}
-
-message DebouncedGoal {
-  optional DebouncedDataTypeCondition debounced_data_type_condition = 1;
-  reserved 2 to max;  // Next ID
-}
-
 message ExerciseCapabilities {
   message TypeToCapabilitiesEntry {
     optional ExerciseType type = 1;
@@ -218,12 +201,12 @@ message ExerciseConfig {
   optional bool is_gps_usage_enabled = 5;
   repeated ExerciseGoal exercise_goals = 6;
   optional Bundle exercise_params = 7; // TODO(b/241015676): Deprecate
-  optional float swimming_pool_length_meters = 8;
+  optional float swimming_pool_length = 8;
   optional ExerciseTypeConfig exercise_type_config = 10;
   repeated BatchingMode batching_mode_overrides = 11 [packed = true];
   repeated ExerciseEventType exercise_event_types = 12 [packed = true];
-  repeated DebouncedGoal debounced_goals = 15;
-  reserved 9, 13, 14, 16 to max;
+  reserved 9;
+  reserved 13 to max;  // Next ID
 }
 
 message ExerciseInfo {
@@ -458,9 +441,8 @@ message ExerciseTypeCapabilities {
   optional bool is_auto_pause_and_resume_supported = 4;
   optional bool is_laps_supported = 5;
   repeated ExerciseEventCapabilities supported_exercise_events = 7;
-  repeated SupportedGoalEntry supported_delta_debounced_goals = 8;
-  repeated SupportedGoalEntry supported_aggregate_debounced_goals = 9;
-  reserved 6, 10 to max;
+  reserved 6;
+  reserved 8 to max;  // Next ID
 }
 
 message ExerciseUpdate {
@@ -487,9 +469,8 @@ message ExerciseUpdate {
   optional ExerciseConfig exercise_config = 7;
   optional ActiveDurationCheckpoint active_duration_checkpoint = 10;
   optional ExerciseEndReason exercise_end_reason = 11;
-  repeated DebouncedGoal latest_achieved_debounced_goals = 13;
 
-  reserved 12, 14 to max;
+  reserved 12 to max;  // Next ID
 }
 
 enum ExerciseEndReason {
@@ -518,7 +499,7 @@ message HealthEvent {
     reserved 3 to max;  // Next ID
   }
 
-  optional int32 health_event_type_id = 1;
+  optional HealthEventType type = 1;
   optional int64 event_time_epoch_ms = 2;
   repeated MetricsEntry metrics = 3;
   reserved 4 to max;  // Next ID
@@ -580,7 +561,7 @@ message PassiveMonitoringCapabilities {
   repeated DataType supported_data_types_passive_monitoring = 1;
   repeated DataType supported_data_types_passive_goals = 2;
   repeated int32 supported_hr_sampling_intervals_seconds = 3 [packed = true];
-  repeated int32 supported_health_event_types = 4
+  repeated HealthEvent.HealthEventType supported_health_event_types = 4
       [packed = true];
   repeated UserActivityState supported_user_activity_states = 5 [packed = true];
   reserved 6 to max;  // Next ID
@@ -590,7 +571,7 @@ message PassiveListenerConfig {
   repeated DataType data_types = 1;
   optional bool include_user_activity_state = 2;
   repeated PassiveGoal passive_goals = 3;
-  repeated int32 health_event_types = 4;
+  repeated HealthEvent.HealthEventType health_event_types = 4;
   reserved 5 to max;  // Next ID
 }
 

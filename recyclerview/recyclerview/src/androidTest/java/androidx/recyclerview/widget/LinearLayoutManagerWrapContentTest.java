@@ -22,8 +22,8 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.Gravity;
-import android.view.View;
 
+import androidx.core.view.ViewCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -167,7 +167,7 @@ public class LinearLayoutManagerWrapContentTest extends BaseWrapContentTest {
 
     @Override
     protected int getHorizontalGravity(RecyclerView.LayoutManager layoutManager) {
-        boolean rtl = layoutManager.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        boolean rtl = layoutManager.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
         if (mConfig.mOrientation == VERTICAL) {
             if (rtl) {
                 return Gravity.RIGHT;

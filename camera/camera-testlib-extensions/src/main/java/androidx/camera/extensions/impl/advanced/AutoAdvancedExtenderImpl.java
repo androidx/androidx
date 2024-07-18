@@ -42,12 +42,13 @@ public class AutoAdvancedExtenderImpl implements AdvancedExtenderImpl {
     @Override
     public boolean isExtensionAvailable(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
-        return false;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public void init(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override

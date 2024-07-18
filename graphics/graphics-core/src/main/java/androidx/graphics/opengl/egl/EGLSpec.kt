@@ -111,7 +111,6 @@ interface EGLSpec {
      * See https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglMakeCurrent.xhtml for more
      * information
      *
-     * @param context EGL rendering context to be attached to the surfaces
      * @param drawSurface EGLSurface to draw pixels into.
      * @param readSurface EGLSurface used for read/copy operations.
      */

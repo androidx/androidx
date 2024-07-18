@@ -54,9 +54,6 @@ internal data class CheckBoxColorsImpl(
  * checked is provided to this action in its ActionParameters, and can be retrieved using the
  * [ToggleableStateKey]. If this action launches an activity, the current value of checked will be
  * passed as an intent extra with the name [RemoteViews.EXTRA_CHECKED].
- * In order to allow the Launcher to provide this extra on Android version S and later, we use a
- * mutable PendingIntent ([android.app.PendingIntent.FLAG_MUTABLE]) when this action is not a
- * lambda. Before S, and for lambda actions, this will be an immutable PendingIntent.
  * @param modifier the modifier to apply to the check box
  * @param text the text to display to the end of the check box
  * @param style the style to apply to [text]

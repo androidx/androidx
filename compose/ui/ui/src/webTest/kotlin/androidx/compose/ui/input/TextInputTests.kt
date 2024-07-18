@@ -29,6 +29,7 @@ import androidx.compose.ui.events.createTouchEvent
 import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.sendFromScope
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -67,7 +68,7 @@ class TextInputTests : OnCanvasTests  {
             TextField(
                 value = "",
                 onValueChange = { value ->
-                    textInputChannel.trySend(value)
+                    textInputChannel.sendFromScope(value)
                 },
                 modifier = Modifier.focusRequester(firstFocusRequester)
             )
@@ -75,7 +76,7 @@ class TextInputTests : OnCanvasTests  {
             TextField(
                 value = "",
                 onValueChange = { value ->
-                    textInputChannel.trySend(value)
+                    textInputChannel.sendFromScope(value)
                 },
                 modifier = Modifier.focusRequester(secondFocusRequester)
             )

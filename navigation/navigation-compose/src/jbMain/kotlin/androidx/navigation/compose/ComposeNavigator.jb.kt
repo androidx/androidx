@@ -31,9 +31,11 @@ import androidx.navigation.compose.ComposeNavigator.Destination
 import kotlin.jvm.JvmSuppressWildcards
 
 public actual class ComposeNavigator : Navigator<Destination>(NAME) {
-    internal actual val transitionsInProgress get() = state.transitionsInProgress
+    internal actual val transitionsInProgress
+        get() = state.transitionsInProgress
 
-    public actual val backStack get() = state.backStack
+    public actual val backStack
+        get() = state.backStack
 
     internal actual val isPop = mutableStateOf(false)
 
@@ -42,14 +44,12 @@ public actual class ComposeNavigator : Navigator<Destination>(NAME) {
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) {
-        entries.forEach { entry ->
-            state.pushWithTransition(entry)
-        }
+        entries.forEach { entry -> state.pushWithTransition(entry) }
         isPop.value = false
     }
 
     override fun createDestination(): Destination {
-        return Destination(this) { }
+        return Destination(this) {}
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
@@ -68,22 +68,33 @@ public actual class ComposeNavigator : Navigator<Destination>(NAME) {
     public actual class Destination actual constructor(
         navigator: ComposeNavigator,
         internal actual val content:
-            @Composable AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
+            @Composable
+            AnimatedContentScope.(@JvmSuppressWildcards NavBackStackEntry) -> Unit
     ) : NavDestination(navigator) {
-        internal actual var enterTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+        internal actual var enterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+            null
 
-        internal actual var exitTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+        internal actual var exitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+            null
 
-        internal actual var popEnterTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? = null
+        internal actual var popEnterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+            null
 
-        internal actual var popExitTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? = null
+        internal actual var popExitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+            null
 
-        internal actual var sizeTransform: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? = null
+        internal actual var sizeTransform:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)? =
+            null
     }
 
     internal actual companion object {

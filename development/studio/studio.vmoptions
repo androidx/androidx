@@ -5,8 +5,6 @@
 -Djdk.attach.allowAttachSelf=true
 # b/297379481
 -Dprofiler.trace.open.mode.web=true
-# b/331398285
--Dprofiler.task.based.ux=false
 # https://github.com/google/google-java-format#intellij-jre-config
 --add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED
 --add-exports=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED

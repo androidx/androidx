@@ -17,7 +17,6 @@
 package androidx.work.testutils
 
 import android.content.Context
-import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.work.Configuration
 import androidx.work.impl.Processor
@@ -30,10 +29,8 @@ import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 
 class TestEnv(
-    configuration: Configuration
+    val configuration: Configuration
 ) {
-    val configuration: Configuration =
-        Configuration.Builder(configuration).setMinimumLoggingLevel(Log.VERBOSE).build()
     val context = ApplicationProvider.getApplicationContext<Context>()
     val taskExecutor = WorkManagerTaskExecutor(configuration.taskExecutor)
     val db = WorkDatabase.create(

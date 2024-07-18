@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -46,7 +39,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
 
         stableAidl {
@@ -58,7 +51,7 @@ android {
 
 androidx {
     name = "VersionedParcelable"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VERSIONED_PARCELABLE
     inceptionYear = "2018"
     description = "Provides a stable but relatively compact binary serialization format that can be passed across processes or persisted safely."

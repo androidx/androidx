@@ -41,8 +41,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class NavigationRailBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { NavigationRailTestCase() }
 
@@ -83,9 +82,7 @@ internal class NavigationRailTestCase : LayeredComposeTestCase(), ToggleableTest
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

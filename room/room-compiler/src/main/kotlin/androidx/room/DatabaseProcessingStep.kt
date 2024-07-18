@@ -16,7 +16,6 @@
 
 package androidx.room
 
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XProcessingEnvConfig
@@ -32,8 +31,6 @@ import androidx.room.vo.Warning
 import androidx.room.writer.AutoMigrationWriter
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
-import androidx.room.writer.InstantiateImplWriter
-import androidx.room.writer.TypeWriter
 import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
@@ -53,7 +50,6 @@ class DatabaseProcessingStep : XProcessingStep {
                 "configuration: ${env.config}"
         }
         val context = Context(env)
-        validateLanguageAndTarget(context)
 
         val rejectedElements = mutableSetOf<XTypeElement>()
         val databases = elementsByAnnotation[Database::class.qualifiedName]
@@ -95,18 +91,15 @@ class DatabaseProcessingStep : XProcessingStep {
             prepareDaosForWriting(databases, it.keys.toList())
             it.forEach { (daoMethod, db) ->
                 DaoWriter(
-                    dao = daoMethod.dao,
-                    dbElement = db.element,
-                    writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
+                    daoMethod.dao,
+                    db.element,
+                    context.codeLanguage
                 ).write(context.processingEnv)
             }
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(
-                database = db,
-                writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
-            ).write(context.processingEnv)
+            DatabaseWriter(db, context.codeLanguage).write(context.processingEnv)
             if (db.exportSchema) {
                 val qName = db.element.qualifiedName
                 val filename = "${db.version}.json"
@@ -135,27 +128,12 @@ class DatabaseProcessingStep : XProcessingStep {
                 }
             }
             db.autoMigrations.forEach { autoMigration ->
-                AutoMigrationWriter(
-                    autoMigration = autoMigration,
-                    dbElement = db.element,
-                    writerContext = TypeWriter.WriterContext.fromProcessingContext(context)
-                ).write(context.processingEnv)
-            }
-
-            if (context.codeLanguage == CodeLanguage.KOTLIN) {
-                InstantiateImplWriter(db).write(context.processingEnv)
+                AutoMigrationWriter(db.element, autoMigration, context.codeLanguage)
+                    .write(context.processingEnv)
             }
         }
 
         return rejectedElements
-    }
-
-    private fun validateLanguageAndTarget(context: Context) {
-        val onlyAndroidInTargets = context.isAndroidOnlyTarget()
-        if (context.codeLanguage == CodeLanguage.JAVA && !onlyAndroidInTargets) {
-            // The list of target platforms should only contain Android if we're generating Java.
-            context.logger.e(ProcessorErrors.JAVA_CODEGEN_ON_NON_ANDROID_TARGET)
-        }
     }
 
     /**

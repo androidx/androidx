@@ -74,17 +74,11 @@ package androidx.wear.phone.interactions.authentication {
     method @UiThread public void close();
     method public static androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
     method protected void finalize();
-    method public kotlinx.coroutines.flow.Flow<java.lang.Integer> getAvailabilityStatus();
     method @UiThread public void sendAuthorizationRequest(androidx.wear.phone.interactions.authentication.OAuthRequest request, java.util.concurrent.Executor executor, androidx.wear.phone.interactions.authentication.RemoteAuthClient.Callback clientCallback);
-    property public final kotlinx.coroutines.flow.Flow<java.lang.Integer> availabilityStatus;
     field public static final androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion Companion;
     field public static final int ERROR_PHONE_UNAVAILABLE = 1; // 0x1
     field public static final int ERROR_UNSUPPORTED = 0; // 0x0
     field public static final int NO_ERROR = -1; // 0xffffffff
-    field public static final int STATUS_AVAILABLE = 3; // 0x3
-    field public static final int STATUS_TEMPORARILY_UNAVAILABLE = 2; // 0x2
-    field public static final int STATUS_UNAVAILABLE = 1; // 0x1
-    field public static final int STATUS_UNKNOWN = 0; // 0x0
   }
 
   public abstract static class RemoteAuthClient.Callback {

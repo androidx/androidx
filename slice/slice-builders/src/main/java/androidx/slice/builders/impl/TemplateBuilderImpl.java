@@ -30,6 +30,7 @@ import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SHOW_LABEL;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Clock;
 import androidx.slice.Slice;
@@ -41,6 +42,7 @@ import java.util.ArrayList;
 /**
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public abstract class TemplateBuilderImpl {
 

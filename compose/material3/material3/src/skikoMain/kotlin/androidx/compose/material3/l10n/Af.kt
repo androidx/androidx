@@ -31,6 +31,7 @@ internal fun Translations.af() = mapOf(
     Strings.Dialog to "Dialoog",
     Strings.MenuExpanded to "Uitgevou",
     Strings.MenuCollapsed to "Ingevou",
+    Strings.ToggleDropdownMenu to "Wissel aftrekkieslys",
     Strings.SnackbarDismiss to "Maak toe",
     Strings.SearchBarSearch to "Soek",
     Strings.SuggestionsAvailable to "Voorstelle hieronder",

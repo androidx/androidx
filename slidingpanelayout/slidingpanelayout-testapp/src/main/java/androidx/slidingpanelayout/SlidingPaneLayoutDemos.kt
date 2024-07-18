@@ -34,11 +34,6 @@ class SlidingPaneLayoutDemos : Activity() {
                     SlidingPaneLayoutSample::class.java,
                     "SlidingPaneLayoutSample",
                     "Basic SlidingPaneLayoutSample"
-                ),
-                DemoItem(
-                    SlidingPaneLayoutResizeSample::class.java,
-                    "SlidingPaneLayoutResizeSample",
-                    "SlidingPaneLayout with user resizing"
                 )
             )
         )

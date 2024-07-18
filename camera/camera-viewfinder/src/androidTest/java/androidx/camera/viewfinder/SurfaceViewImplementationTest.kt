@@ -21,8 +21,6 @@ import android.hardware.camera2.CameraManager
 import android.util.Size
 import android.view.View
 import android.widget.FrameLayout
-import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
-import androidx.camera.viewfinder.surface.populateFromCharacteristics
 import androidx.camera.viewfinder.utils.CoreAppTestUtil
 import androidx.camera.viewfinder.utils.FakeActivity
 import androidx.test.core.app.ActivityScenario
@@ -83,7 +81,7 @@ class SurfaceViewImplementationTest {
     @After
     fun tearDown() {
         if (::mSurfaceRequest.isInitialized) {
-            mSurfaceRequest.markSurfaceSafeToRelease();
+            mSurfaceRequest.viewfinderSurface.close()
         }
     }
 
@@ -95,8 +93,8 @@ class SurfaceViewImplementationTest {
             mImplementation.onSurfaceRequested(mSurfaceRequest)
         }
 
-        mSurfaceRequest.getSurfaceAsync().get(1000, TimeUnit.MILLISECONDS)
-        mSurfaceRequest.markSurfaceSafeToRelease();
+        mSurfaceRequest.viewfinderSurface.surface.get(1000, TimeUnit.MILLISECONDS)
+        mSurfaceRequest.viewfinderSurface.close()
     }
 
     @Throws(Throwable::class)

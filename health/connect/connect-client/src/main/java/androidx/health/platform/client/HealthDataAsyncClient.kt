@@ -27,8 +27,9 @@ import com.google.common.util.concurrent.ListenableFuture
  *
  * Like [HealthConnectClient] but expose ListenableFuture instead of kotlin coroutines.
  *
+ * @suppress
  */
-internal interface HealthDataAsyncClient {
+interface HealthDataAsyncClient {
     /**
      * Returns a set of [Permission] granted by the user to this app, out of the input [Permission]
      * set.

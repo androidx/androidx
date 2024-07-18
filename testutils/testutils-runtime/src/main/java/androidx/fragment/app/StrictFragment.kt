@@ -17,6 +17,7 @@
 package androidx.fragment.app
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.AttributeSet
 import androidx.annotation.LayoutRes
@@ -52,7 +53,9 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
     }
 
     fun checkActivityNotDestroyed() {
-        check(!requireActivity().isDestroyed)
+        if (Build.VERSION.SDK_INT >= 17) {
+            check(!requireActivity().isDestroyed)
+        }
     }
 
     fun checkState(caller: String, vararg expected: State) {

@@ -29,6 +29,24 @@ abstract class InsertOrUpsertMethodBinder(val adapter: InsertOrUpsertMethodAdapt
     /**
      * Received an insert or upsert method parameters, their adapters and generations the code that
      * runs the insert or upsert and returns the result.
+     *
+     * For example, for the DAO method:
+     * ```
+     * @Upsert
+     * fun addPublishers(vararg publishers: Publisher): List<Long>
+     * ```
+     * The following code will be generated:
+     *
+     * ```
+     * __db.beginTransaction();
+     * try {
+     *  List<Long> _result = __upsertionAdapterOfPublisher.upsertAndReturnIdsList(publishers);
+     *  __db.setTransactionSuccessful();
+     *  return _result;
+     * } finally {
+     *  __db.endTransaction();
+     * }
+     * ```
      */
     abstract fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
@@ -36,14 +54,4 @@ abstract class InsertOrUpsertMethodBinder(val adapter: InsertOrUpsertMethodAdapt
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     )
-
-    abstract fun convertAndReturnCompat(
-        parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
-        dbProperty: XPropertySpec,
-        scope: CodeGenScope
-    )
-
-    // TODO(b/319660042): Remove once migration to driver API is done.
-    open fun isMigratedToDriver(): Boolean = false
 }

@@ -226,7 +226,6 @@ final class RemoteProxyInputConnection implements InputConnection {
         mServiceDispatcher.dispatch("closeConnection", mProxyInputConnection::closeConnection);
     }
 
-    @SuppressWarnings("NullAway") // b/316639429
     @Override
     public boolean commitContent(@NonNull InputContentInfo inputContentInfo, int flags,
             @Nullable Bundle bundle) {

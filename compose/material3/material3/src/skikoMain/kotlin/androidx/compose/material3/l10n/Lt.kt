@@ -31,6 +31,7 @@ internal fun Translations.lt() = mapOf(
     Strings.Dialog to "Dialogo langas",
     Strings.MenuExpanded to "Išskleista",
     Strings.MenuCollapsed to "Sutraukta",
+    Strings.ToggleDropdownMenu to "Perjungti išskleidžiamąjį meniu",
     Strings.SnackbarDismiss to "Atsisakyti",
     Strings.SearchBarSearch to "Paieška",
     Strings.SuggestionsAvailable to "Pasiūlymai pateikti toliau",

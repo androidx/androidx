@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
  * @param elevation defines how strong should be the shadow. Larger its value, further the
  * shadow goes from the center of the component.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class Glow(
     val elevationColor: Color,

@@ -18,6 +18,11 @@ package androidx.compose.ui
 
 import kotlin.math.abs
 import kotlinx.browser.document
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.asList
 
@@ -47,4 +52,8 @@ internal interface OnCanvasTests {
             throw AssertionError("Expected $expected but got $actual. Difference is more than the allowed delta $tolerance")
         }
     }
+}
+
+internal fun <T> Channel<T>.sendFromScope(value: T, scope: CoroutineScope = GlobalScope) {
+    scope.launch(Dispatchers.Unconfined) { send(value) }
 }

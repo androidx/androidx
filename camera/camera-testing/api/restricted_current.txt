@@ -52,7 +52,7 @@ package androidx.camera.testing.fakes {
     method public androidx.camera.core.impl.Config getInteropConfig();
     method public androidx.camera.core.FocusMeteringAction? getLastSubmittedFocusMeteringAction();
     method public float getLinearZoom();
-    method public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
+    method public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
     method public android.graphics.Rect getSensorRect();
     method public androidx.camera.core.impl.SessionConfig getSessionConfig();
     method public boolean getTorchEnabled();
@@ -67,7 +67,7 @@ package androidx.camera.testing.fakes {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setLinearZoom(float);
     method public void setOnNewCaptureRequestListener(androidx.camera.testing.fakes.FakeCameraControl.OnNewCaptureRequestListener);
     method public void setOnNewCaptureRequestListener(java.util.concurrent.Executor, androidx.camera.testing.fakes.FakeCameraControl.OnNewCaptureRequestListener);
-    method public void setScreenFlash(androidx.camera.core.ImageCapture.ScreenFlash?);
+    method public void setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl?);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setZoomRatio(float);
     method public void setZslDisabledByUserCaseConfig(boolean);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.camera.core.FocusMeteringResult!> startFocusAndMetering(androidx.camera.core.FocusMeteringAction);

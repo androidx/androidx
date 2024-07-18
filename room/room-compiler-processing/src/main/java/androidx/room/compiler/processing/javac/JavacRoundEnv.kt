@@ -18,14 +18,23 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XRoundEnv
+import com.google.auto.common.MoreElements
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.Element
 import kotlin.reflect.KClass
 
+@Suppress("UnstableApiUsage")
 internal class JavacRoundEnv(
     private val env: JavacProcessingEnv,
     val delegate: RoundEnvironment
 ) : XRoundEnv {
+    override val rootElements: Set<XElement> by lazy {
+        delegate.rootElements.map {
+            check(MoreElements.isType(it))
+            env.wrapTypeElement(MoreElements.asType(it))
+        }.toSet()
+    }
+
     override val isProcessingOver: Boolean
         get() = delegate.processingOver()
 

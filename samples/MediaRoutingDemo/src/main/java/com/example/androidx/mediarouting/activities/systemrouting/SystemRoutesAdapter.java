@@ -104,7 +104,8 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
 
         void bind(SystemRoutesSourceItem systemRoutesSourceItem) {
-            mHeaderTitleTextView.setText(systemRoutesSourceItem.getSourceName());
+            mHeaderTitleTextView.setText(
+                    SystemRouteUtils.getDescriptionForSource(systemRoutesSourceItem.getType()));
         }
     }
 
@@ -149,7 +150,8 @@ class SystemRoutesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                         ((SystemRouteItem) newItem).getId());
             } else if (oldItem instanceof SystemRoutesSourceItem
                     && newItem instanceof SystemRoutesSourceItem) {
-                return oldItem.equals(newItem);
+                return ((SystemRoutesSourceItem) oldItem).getType()
+                        == ((SystemRoutesSourceItem) newItem).getType();
             } else {
                 return false;
             }

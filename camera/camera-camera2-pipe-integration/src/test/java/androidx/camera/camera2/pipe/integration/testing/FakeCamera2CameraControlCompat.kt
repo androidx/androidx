@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.Camera2CameraControlCompat
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
@@ -24,6 +25,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
 @OptIn(ExperimentalCamera2Interop::class)
+@RequiresApi(21)
 class FakeCamera2CameraControlCompat : Camera2CameraControlCompat {
     override fun addRequestOption(bundle: CaptureRequestOptions) {
         // No-op

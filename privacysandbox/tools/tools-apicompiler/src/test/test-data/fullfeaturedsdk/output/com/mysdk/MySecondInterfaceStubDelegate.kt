@@ -1,7 +1,6 @@
 package com.mysdk
 
 import android.content.Context
-import android.os.Bundle
 import com.mysdk.PrivacySandboxThrowableParcelConverter.toThrowableParcel
 import kotlin.Array
 import kotlin.BooleanArray
@@ -26,20 +25,6 @@ public class MySecondInterfaceStubDelegate internal constructor(
       try {
         val result = delegate.doIntStuff(x.toList())
         transactionCallback.onSuccess(result.toIntArray())
-      }
-      catch (t: Throwable) {
-        transactionCallback.onFailure(toThrowableParcel(t))
-      }
-    }
-    val cancellationSignal = TransportCancellationCallback() { job.cancel() }
-    transactionCallback.onCancellable(cancellationSignal)
-  }
-
-  public override fun doBundleStuff(x: Bundle, transactionCallback: IBundleTransactionCallback) {
-    val job = coroutineScope.launch {
-      try {
-        val result = delegate.doBundleStuff(x)
-        transactionCallback.onSuccess(result)
       }
       catch (t: Throwable) {
         transactionCallback.onFailure(toThrowableParcel(t))

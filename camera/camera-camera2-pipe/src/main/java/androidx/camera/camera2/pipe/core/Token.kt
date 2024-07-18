@@ -16,10 +16,11 @@
 
 package androidx.camera.camera2.pipe.core
 
-/** A token is used to track access to underlying resources. Implementations must be thread-safe. */
-internal interface Token {
-    val released: Boolean
+import androidx.annotation.RequiresApi
 
+/** A token is used to track access to underlying resources. Implementations must be thread-safe. */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+internal interface Token {
     /**
      * Release this token instance. Return true if this is the first time release has been called on
      * this token.

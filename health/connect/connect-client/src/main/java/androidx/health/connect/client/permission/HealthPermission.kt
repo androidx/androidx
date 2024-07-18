@@ -48,6 +48,7 @@ import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -148,7 +149,8 @@ internal constructor(
         /**
          * A permission to read data in background.
          *
-         * An attempt to read data in background without this permission may result in an error.
+         * An attempt to read data in background without this permission may result
+         * in an error.
          *
          * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
          * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
@@ -338,6 +340,7 @@ internal constructor(
                 SexualActivityRecord::class to
                     READ_SEXUAL_ACTIVITY.substringAfter(READ_PERMISSION_PREFIX),
                 SleepSessionRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
+                SleepStageRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
                 SpeedRecord::class to READ_SPEED.substringAfter(READ_PERMISSION_PREFIX),
                 StepsCadenceRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
                 StepsRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),

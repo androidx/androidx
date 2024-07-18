@@ -94,8 +94,8 @@ public class ForwardingCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void setScreenFlash(@Nullable ImageCapture.ScreenFlash screenFlash) {
-        mCameraControlInternal.setScreenFlash(screenFlash);
+    public void setScreenFlashUiControl(@Nullable ImageCapture.ScreenFlashUiControl callback) {
+        mCameraControlInternal.setScreenFlashUiControl(callback);
     }
 
     @Override

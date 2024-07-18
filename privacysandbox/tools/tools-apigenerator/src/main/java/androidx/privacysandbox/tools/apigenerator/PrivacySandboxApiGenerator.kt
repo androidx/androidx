@@ -31,7 +31,6 @@ import androidx.privacysandbox.tools.core.generator.SdkActivityLauncherProxyGene
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
 import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFileGenerator
-import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.generator.ValueFileGenerator
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -250,10 +249,8 @@ class PrivacySandboxApiGenerator {
         output: File
     ) {
         if (!api.hasSuspendFunctions()) return
-        ThrowableParcelConverterFileGenerator(basePackageName)
+        ThrowableParcelConverterFileGenerator(basePackageName, GenerationTarget.CLIENT)
             .generate().writeTo(output)
-        TransportCancellationGenerator(api.getOnlyService().type.packageName).generate()
-            .writeTo(output)
         PrivacySandboxExceptionFileGenerator(basePackageName).generate().writeTo(output)
         PrivacySandboxCancellationExceptionFileGenerator(basePackageName).generate().writeTo(output)
     }

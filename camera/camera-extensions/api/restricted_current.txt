@@ -1,17 +1,6 @@
 // Signature format: 4.0
 package androidx.camera.extensions {
 
-  public interface CameraExtensionsControl {
-    method public default void setExtensionStrength(@IntRange(from=0, to=100) int);
-  }
-
-  public interface CameraExtensionsInfo {
-    method public default androidx.lifecycle.LiveData<java.lang.Integer!>? getCurrentExtensionMode();
-    method public default androidx.lifecycle.LiveData<java.lang.Integer!>? getExtensionStrength();
-    method public default boolean isCurrentExtensionModeAvailable();
-    method public default boolean isExtensionStrengthAvailable();
-  }
-
   @RequiresApi(21) public final class ExtensionMode {
     field public static final int AUTO = 5; // 0x5
     field public static final int BOKEH = 1; // 0x1
@@ -22,8 +11,6 @@ package androidx.camera.extensions {
   }
 
   @RequiresApi(21) public final class ExtensionsManager {
-    method public androidx.camera.extensions.CameraExtensionsControl? getCameraExtensionsControl(androidx.camera.core.CameraControl);
-    method public androidx.camera.extensions.CameraExtensionsInfo getCameraExtensionsInfo(androidx.camera.core.CameraInfo);
     method public android.util.Range<java.lang.Long!>? getEstimatedCaptureLatencyRange(androidx.camera.core.CameraSelector, int);
     method public androidx.camera.core.CameraSelector getExtensionEnabledCameraSelector(androidx.camera.core.CameraSelector, int);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.camera.extensions.ExtensionsManager!> getInstanceAsync(android.content.Context, androidx.camera.core.CameraProvider);

@@ -21,13 +21,11 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
-import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.work.Configuration
-import androidx.work.RunnableScheduler
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
 import org.junit.Assert.assertNotNull
@@ -37,8 +35,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.ArgumentMatchers.eq
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.anyInt
 import org.mockito.Mockito.atLeastOnce
 import org.mockito.Mockito.mock
@@ -54,7 +51,6 @@ public class RemoteWorkManagerClientTest {
     private lateinit var mWorkManager: WorkManagerImpl
     private lateinit var mExecutor: Executor
     private lateinit var mClient: RemoteWorkManagerClient
-    private lateinit var mRunnableScheduler: RunnableScheduler
 
     @Before
     public fun setUp() {
@@ -62,18 +58,17 @@ public class RemoteWorkManagerClientTest {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
         }
-        mRunnableScheduler = mock(RunnableScheduler::class.java)
+
         mContext = mock(Context::class.java)
         mWorkManager = mock(WorkManagerImpl::class.java)
         `when`(mContext.applicationContext).thenReturn(mContext)
         mExecutor = Executor {
             it.run()
         }
+
         val taskExecutor = mock(TaskExecutor::class.java)
         `when`(taskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
         `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
-        val conf = Configuration.Builder().setRunnableScheduler(mRunnableScheduler).build()
-        `when`(mWorkManager.configuration).thenReturn(conf)
         mClient = spy(RemoteWorkManagerClient(mContext, mWorkManager))
     }
 
@@ -116,27 +111,28 @@ public class RemoteWorkManagerClientTest {
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
         val remoteStub = mock(IWorkManagerImpl::class.java)
+        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
         val message = "Something bad happened"
-        `when`(remoteDispatcher.execute(eq(remoteStub), any(IWorkManagerImplCallback::class.java)))
-            .thenThrow(RuntimeException(message))
+        `when`(remoteDispatcher.execute(remoteStub, callback)).thenThrow(RuntimeException(message))
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = getFuture { it.set(remoteStub) }
+        val session = SettableFuture.create<IWorkManagerImpl>()
+        session.set(remoteStub)
         var exception: Throwable? = null
         try {
-            mClient.execute(session, remoteDispatcher).get()
+            mClient.execute(session, remoteDispatcher, callback).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
         assertNotNull(exception)
+        verify(callback).onFailure(message)
         verify(mClient, never()).cleanUp()
-        verify(mRunnableScheduler, atLeastOnce())
-            .scheduleWithDelay(anyLong(), any(Runnable::class.java))
+        verify(callback, atLeastOnce()).onRequestCompleted()
     }
 
     @Test
     @MediumTest
     @Suppress("UNCHECKED_CAST")
-    public fun executeWhenSessionIsInvalid() {
+    public fun cleanUpWhenSessionIsInvalid() {
         if (Build.VERSION.SDK_INT <= 27) {
             // Exclude <= API 27, from tests because it causes a SIGSEGV.
             return
@@ -144,19 +140,19 @@ public class RemoteWorkManagerClientTest {
 
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IWorkManagerImpl>
-        val session = getFuture<IWorkManagerImpl> {
-            it.setException(RuntimeException("Something bad happened"))
-        }
+        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
+        val session = SettableFuture.create<IWorkManagerImpl>()
+        session.setException(RuntimeException("Something bad happened"))
         var exception: Throwable? = null
         try {
-            mClient.execute(session, remoteDispatcher).get()
+            mClient.execute(session, remoteDispatcher, callback).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
         assertNotNull(exception)
-        assertTrue(exception!!.message!!.contains("Something bad happened"))
-        verify(mRunnableScheduler, atLeastOnce())
-            .scheduleWithDelay(anyLong(), any(Runnable::class.java))
+        verify(callback).onFailure(anyString())
+        verify(mClient).cleanUp()
+        verify(callback, atLeastOnce()).onRequestCompleted()
     }
 
     @Test
@@ -172,17 +168,19 @@ public class RemoteWorkManagerClientTest {
             callback.onSuccess(ByteArray(0))
         }
         val remoteStub = mock(IWorkManagerImpl::class.java)
+        val callback = spy(RemoteWorkManagerClient.SessionRemoteCallback(mClient))
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = getFuture { it.set(remoteStub) }
+        val session = SettableFuture.create<IWorkManagerImpl>()
+        session.set(remoteStub)
         var exception: Throwable? = null
         try {
-            mClient.execute(session, remoteDispatcher).get()
+            mClient.execute(session, remoteDispatcher, callback).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
         assertNull(exception)
+        verify(callback).onSuccess(any())
         verify(mClient, never()).cleanUp()
-        verify(mRunnableScheduler, atLeastOnce())
-            .scheduleWithDelay(anyLong(), any(Runnable::class.java))
+        verify(callback, atLeastOnce()).onRequestCompleted()
     }
 }

@@ -537,7 +537,7 @@ package androidx.constraintlayout.motion.widget {
     method public java.util.ArrayList<androidx.constraintlayout.motion.widget.MotionScene.Transition!>! getDefinedTransitions();
     method public androidx.constraintlayout.motion.widget.DesignTool! getDesignTool();
     method public int getEndState();
-    method public int[]! getMatchingConstraintSetIds(java.lang.String!...!);
+    method public int[]! getMatchingConstraintSetIds(java.lang.String!...);
     method protected long getNanoTime();
     method public float getProgress();
     method public androidx.constraintlayout.motion.widget.MotionScene! getScene();
@@ -563,7 +563,7 @@ package androidx.constraintlayout.motion.widget {
     method @Deprecated public void rebuildMotion();
     method public void rebuildScene();
     method public boolean removeTransitionListener(androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener!);
-    method public void rotateTo(int, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public void rotateTo(int, int);
     method public void scheduleTransitionTo(int);
     method public void setDebugMode(int);
     method public void setDelayedApplicationOfInitialState(boolean);
@@ -593,7 +593,7 @@ package androidx.constraintlayout.motion.widget {
     method public void updateState();
     method public void updateState(int, androidx.constraintlayout.widget.ConstraintSet!);
     method public void updateStateAnimate(int, androidx.constraintlayout.widget.ConstraintSet!, int);
-    method public void viewTransition(int, android.view.View!...!);
+    method public void viewTransition(int, android.view.View!...);
     field public static final int DEBUG_SHOW_NONE = 0; // 0x0
     field public static final int DEBUG_SHOW_PATH = 2; // 0x2
     field public static final int DEBUG_SHOW_PROGRESS = 1; // 0x1
@@ -647,7 +647,7 @@ package androidx.constraintlayout.motion.widget {
     method public int getDuration();
     method public android.view.animation.Interpolator! getInterpolator();
     method public void getKeyFrames(androidx.constraintlayout.motion.widget.MotionController!);
-    method public int[]! getMatchingStateLabels(java.lang.String!...!);
+    method public int[]! getMatchingStateLabels(java.lang.String!...);
     method public float getPathPercent(android.view.View!, int);
     method public float getStaggered();
     method public androidx.constraintlayout.motion.widget.MotionScene.Transition! getTransitionById(int);
@@ -664,7 +664,7 @@ package androidx.constraintlayout.motion.widget {
     method public void setTransition(androidx.constraintlayout.motion.widget.MotionScene.Transition!);
     method public static String! stripID(String!);
     method public boolean validateLayout(androidx.constraintlayout.motion.widget.MotionLayout!);
-    method public void viewTransition(int, android.view.View!...!);
+    method public void viewTransition(int, android.view.View!...);
     field public static final int LAYOUT_CALL_MEASURE = 2; // 0x2
     field public static final int LAYOUT_HONOR_REQUEST = 1; // 0x1
     field public static final int LAYOUT_IGNORE_REQUEST = 0; // 0x0
@@ -1302,10 +1302,10 @@ package androidx.constraintlayout.widget {
 
   public class ConstraintSet {
     ctor public ConstraintSet();
-    method public void addColorAttributes(java.lang.String!...!);
-    method public void addFloatAttributes(java.lang.String!...!);
-    method public void addIntAttributes(java.lang.String!...!);
-    method public void addStringAttributes(java.lang.String!...!);
+    method public void addColorAttributes(java.lang.String!...);
+    method public void addFloatAttributes(java.lang.String!...);
+    method public void addIntAttributes(java.lang.String!...);
+    method public void addStringAttributes(java.lang.String!...);
     method public void addToHorizontalChain(int, int, int);
     method public void addToHorizontalChainRTL(int, int, int);
     method public void addToVerticalChain(int, int, int);
@@ -1345,11 +1345,11 @@ package androidx.constraintlayout.widget {
     method public void constrainedHeight(int, boolean);
     method public void constrainedWidth(int, boolean);
     method public void create(int, int);
-    method public void createBarrier(int, int, int, int...!);
+    method public void createBarrier(int, int, int, int...);
     method public void createHorizontalChain(int, int, int, int, int[]!, float[]!, int);
     method public void createHorizontalChainRtl(int, int, int, int, int[]!, float[]!, int);
     method public void createVerticalChain(int, int, int, int, int[]!, float[]!, int);
-    method public void dump(androidx.constraintlayout.motion.widget.MotionScene!, int...!);
+    method public void dump(androidx.constraintlayout.motion.widget.MotionScene!, int...);
     method public boolean getApplyElevation(int);
     method public androidx.constraintlayout.widget.ConstraintSet.Constraint! getConstraint(int);
     method public java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>! getCustomAttributeSet();
@@ -1365,7 +1365,7 @@ package androidx.constraintlayout.widget {
     method public boolean isValidateOnParse();
     method public void load(android.content.Context!, int);
     method public void load(android.content.Context!, org.xmlpull.v1.XmlPullParser!);
-    method public boolean matchesLabels(java.lang.String!...!);
+    method public boolean matchesLabels(java.lang.String!...);
     method public void parseColorAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
     method public void parseFloatAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
     method public void parseIntAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
@@ -1395,14 +1395,14 @@ package androidx.constraintlayout.widget {
     method public void setIntValue(int, String!, int);
     method public void setLayoutWrapBehavior(int, int);
     method public void setMargin(int, int, int);
-    method public void setReferencedIds(int, int...!);
+    method public void setReferencedIds(int, int...);
     method public void setRotation(int, float);
     method public void setRotationX(int, float);
     method public void setRotationY(int, float);
     method public void setScaleX(int, float);
     method public void setScaleY(int, float);
     method public void setStateLabels(String!);
-    method public void setStateLabelsList(java.lang.String!...!);
+    method public void setStateLabelsList(java.lang.String!...);
     method public void setStringValue(int, String!, String!);
     method public void setTransformPivot(int, float, float);
     method public void setTransformPivotX(int, float);

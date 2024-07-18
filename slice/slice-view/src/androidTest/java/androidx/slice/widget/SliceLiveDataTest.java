@@ -45,6 +45,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -62,6 +63,7 @@ import java.util.concurrent.CountDownLatch;
 @SuppressWarnings("unchecked")
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@SdkSuppress(minSdkVersion = 19)
 public class SliceLiveDataTest {
 
     private static final Uri URI = Uri.parse("content://test/something");

@@ -25,20 +25,7 @@ data class Slice(
     val dur: Long
 ) {
     val endTs: Long = ts + dur
-
-    val frameId: Int?
-
-    init {
-        val firstSpaceIndex = name.indexOf(" ")
-        frameId = if (firstSpaceIndex >= 0) {
-            // if see a space, check for id from end of first space to next space (or end of String)
-            val secondSpaceIndex = name.indexOf(" ", firstSpaceIndex + 1)
-            val endFrameIdIndex = if (secondSpaceIndex < 0) name.length else secondSpaceIndex
-            name.substring(firstSpaceIndex + 1, endFrameIdIndex).toIntOrNull()
-        } else {
-            null
-        }
-    }
+    val frameId = name.substringAfterLast(" ").toIntOrNull()
 
     fun contains(targetTs: Long): Boolean {
         return targetTs >= ts && targetTs <= (ts + dur)

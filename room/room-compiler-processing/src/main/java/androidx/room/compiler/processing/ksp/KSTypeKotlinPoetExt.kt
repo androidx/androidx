@@ -26,7 +26,6 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.Nullability
 import com.google.devtools.ksp.symbol.Variance
 import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.KModifier
@@ -93,10 +92,8 @@ private fun KSTypeParameter.asKTypeName(
     val mutableBounds = mutableListOf(ANY.copy(nullable = true))
     val typeName = createModifiableTypeVariableName(name = name.asString(), bounds = mutableBounds)
     typeArgumentTypeLookup[name] = typeName
-    val resolvedBounds = bounds.map { typeReference ->
-        val ksType = typeReference.resolve()
-        typeReference.asKTypeName(resolver, typeArgumentTypeLookup)
-            .copy(nullable = ksType.isMarkedNullable || ksType.nullability == Nullability.PLATFORM)
+    val resolvedBounds = bounds.map {
+        it.asKTypeName(resolver, typeArgumentTypeLookup)
     }.toList()
     if (resolvedBounds.isNotEmpty()) {
         mutableBounds.addAll(resolvedBounds)
@@ -158,7 +155,7 @@ private fun KSType.asKTypeName(
         typeName.parameterizedBy(args)
     } else {
         this.declaration.asKTypeName(resolver, typeArgumentTypeLookup)
-    }.copy(nullable = isMarkedNullable || nullability == Nullability.PLATFORM)
+    }.copy(nullable = isMarkedNullable)
 }
 
 /**

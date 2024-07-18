@@ -58,7 +58,7 @@ package androidx.preference {
     method public void onBindEditText(android.widget.EditText);
   }
 
-  public static final class EditTextPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.EditTextPreference!> {
+  public static final class EditTextPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.EditTextPreference> {
     method public static androidx.preference.EditTextPreference.SimpleSummaryProvider getInstance();
     method public CharSequence? provideSummary(androidx.preference.EditTextPreference);
   }
@@ -94,7 +94,7 @@ package androidx.preference {
     method public void setValueIndex(int);
   }
 
-  public static final class ListPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.ListPreference!> {
+  public static final class ListPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.ListPreference> {
     method public static androidx.preference.ListPreference.SimpleSummaryProvider getInstance();
     method public CharSequence? provideSummary(androidx.preference.ListPreference);
   }
@@ -142,7 +142,7 @@ package androidx.preference {
     method public void onDialogClosed(boolean);
   }
 
-  public class Preference implements java.lang.Comparable<androidx.preference.Preference!> {
+  public class Preference implements java.lang.Comparable<androidx.preference.Preference> {
     ctor public Preference(android.content.Context);
     ctor public Preference(android.content.Context, android.util.AttributeSet?);
     ctor public Preference(android.content.Context, android.util.AttributeSet?, int);
@@ -485,7 +485,7 @@ package androidx.preference {
   }
 
   public class PreferenceViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
-    method public android.view.View? findViewById(@IdRes int);
+    method public android.view.View! findViewById(@IdRes int);
     method public boolean isDividerAllowedAbove();
     method public boolean isDividerAllowedBelow();
     method public void setDividerAllowedAbove(boolean);

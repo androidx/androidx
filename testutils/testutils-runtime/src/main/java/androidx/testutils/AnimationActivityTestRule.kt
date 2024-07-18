@@ -19,6 +19,7 @@ package androidx.testutils
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.os.Build
 import androidx.test.runner.intercepting.SingleActivityFactory
 import java.lang.RuntimeException
 import java.lang.reflect.Method
@@ -72,7 +73,6 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
         launchActivity: Boolean
     ) : super(singleActivityFactory, initialTouchMode, launchActivity)
 
-    @SuppressLint("BanUncheckedReflection")
     override fun afterActivityLaunched() {
         // make sure "apply()" is invoked
         if (!::testType.isInitialized) {
@@ -85,14 +85,16 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
 
     override fun apply(base: Statement, description: Description): Statement {
         testType = TestType.NORMAL
-        if (description.annotations.any { it.annotationClass == AnimationTest::class } ||
-            description.testClass.annotations.any
-            { it.annotationClass == AnimationTest::class }
+        if (Build.VERSION.SDK_INT >= 16 &&
+            (
+                description.annotations.any { it.annotationClass == AnimationTest::class } ||
+                    description.testClass.annotations.any
+                    { it.annotationClass == AnimationTest::class }
+                )
         ) {
             testType = TestType.ANIMATION
             val wrappedStatement = super.apply(base, description)
             return object : Statement() {
-                @SuppressLint("BanUncheckedReflection")
                 override fun evaluate() {
                     val savedScale = durationGetter.invoke(null) as Float
                     try {

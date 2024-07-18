@@ -34,7 +34,7 @@ internal object TypeScaleTokens {
     val BodySmallFont = TypefaceTokens.Plain
     val BodySmallLineHeight = 16.0.sp
     val BodySmallSize = 12.sp
-    val BodySmallTracking = 0.2.sp
+    val BodySmallTracking = 0.4.sp
     val BodySmallWeight = TypefaceTokens.WeightRegular
     val DisplayLargeFont = TypefaceTokens.Brand
     val DisplayLargeLineHeight = 64.0.sp

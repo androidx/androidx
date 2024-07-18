@@ -39,13 +39,11 @@ abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
     private lateinit var storage: Storage<Byte>
     private lateinit var testScope: TestScope
     private lateinit var dataStoreScope: TestScope
-    protected lateinit var testFile: F
 
     @BeforeTest
     fun setUp() {
         testScope = TestScope(UnconfinedTestDispatcher())
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
-        testFile = testIO.newTempFile()
     }
 
     fun doTest(test: suspend TestScope.() -> Unit) {
@@ -144,12 +142,10 @@ abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
             cleanUpFunction = { cleanUpFinished.complete(Unit) }
         )
 
-        val testFile = testIO.newTempFile()
-
         val storage = testIO.getStorage(
             TestingSerializerConfig(failingWrite = true),
-            { createSingleProcessCoordinator(testFile.path()) }
-        ) { testFile }
+            { createSingleProcessCoordinator() }
+        ) { testIO.newTempFile() }
         val store = newDataStore(
             initTasksList = listOf(
                 DataMigrationInitializer.getInitializer(listOf(noOpMigration))
@@ -200,8 +196,7 @@ abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         storage: Storage<Byte> = testIO.getStorage(
             TestingSerializerConfig(),
-            { createSingleProcessCoordinator(testFile.path()) },
-            { testFile }
+            { createSingleProcessCoordinator() }
         )
     ): DataStore<Byte> {
         return DataStoreImpl(

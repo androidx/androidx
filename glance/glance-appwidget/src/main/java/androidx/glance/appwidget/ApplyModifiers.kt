@@ -128,9 +128,9 @@ internal fun applyModifiers(
             absolutePadding.bottom.toPixels(displayMetrics)
         )
     }
-    clipToOutline?.let { clipModifier ->
+    clipToOutline?.let {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            rv.setBoolean(viewDef.mainViewId, "setClipToOutline", clipModifier.clip)
+            rv.setBoolean(viewDef.mainViewId, "setClipToOutline", true)
         }
     }
     enabled?.let {

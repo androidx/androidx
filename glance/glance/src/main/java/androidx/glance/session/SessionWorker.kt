@@ -34,13 +34,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Options to configure [SessionWorker] timeouts.
@@ -103,14 +101,12 @@ internal class SessionWorker(
                     if (DEBUG) Log.d(TAG, "Received idle event, session timeout $timeLeft")
                 }
             ) {
-                val session = sessionManager.runWithLock {
-                    getSession(key)
-                } ?: if (params.runAttemptCount == 0) {
+                val session = sessionManager.getSession(key) ?: if (params.runAttemptCount == 0) {
                     error("No session available for key $key")
                 } else {
-                    // If this is a retry because the process was restarted (e.g. on app upgrade
-                    // or reinstall), the Session object won't be available because it's not
-                    // persistable.
+                    // If this is a retry because the process was restarted (e.g. on app upgrade or
+                    // reinstall), the Session object won't be available because it's not persistable
+                    // at the moment.
                     Log.w(
                         TAG,
                         "SessionWorker attempted restart but Session is not available for $key"
@@ -118,34 +114,14 @@ internal class SessionWorker(
                     return@observeIdleEvents Result.success()
                 }
 
-                try {
-                    runSession(
-                        applicationContext,
-                        session,
-                        timeouts,
-                        effectJobFactory = {
-                            Job().also { effectJob = it }
-                        }
-                    )
-                } finally {
-                    // Get session manager lock to close session to prevent a race where an observer
-                    // who is checking session state (e.g. GlanceAppWidget.update) sees this session
-                    // as running before trying to send an event. Without the lock, it may happen
-                    // that we close right after they see us as running, which will cause an error
-                    // when they try to send an event.
-                    // With the lock, if they see us as running and send an event right before this
-                    // block, then the event will be unhandled.
-                    // After this block, observers will see this session as closed, so they will
-                    // start a new one instead of trying to send events to this one.
-                    // We must use NonCancellable here because it provides a Job that has not been
-                    // cancelled. The withTimerOrNull Job that the session runs in has already been
-                    // cancelled, so suspending with that Job would throw a CancellationException.
-                    withContext(NonCancellable) {
-                        sessionManager.runWithLock {
-                            closeSession(session.key)
-                        }
+                runSession(
+                    applicationContext,
+                    session,
+                    timeouts,
+                    effectJobFactory = {
+                        Job().also { effectJob = it }
                     }
-                }
+                )
                 Result.success()
             }
         } ?: Result.success(Data.Builder().putBoolean(TimeoutExitReason, true).build())
@@ -171,7 +147,8 @@ private suspend fun TimerScope.runSession(
     val effectExceptionHandler = CoroutineExceptionHandler { _, throwable ->
         launch {
             session.onCompositionError(context, throwable)
-            this@runSession.cancel("Error in composition effect coroutine", throwable);
+            session.close()
+            uiReady.emit(true)
         }
     }
     val effectCoroutineContext = effectJobFactory().let { job ->
@@ -181,69 +158,68 @@ private suspend fun TimerScope.runSession(
     val recomposer = Recomposer(effectCoroutineContext)
     val composition = Composition(Applier(root), recomposer)
 
-    try {
-        launch(frameClock) {
-            try {
-                composition.setContent(session.provideGlance(context))
-                recomposer.runRecomposeAndApplyChanges()
-            } catch (e: CancellationException) {
-                // do nothing if we are cancelled.
-            } catch (throwable: Throwable) {
-                session.onCompositionError(context, throwable)
-                this@runSession.cancel("Error in recomposition coroutine", throwable);
-            }
+    launch(frameClock) {
+        try {
+            composition.setContent(session.provideGlance(context))
+            recomposer.runRecomposeAndApplyChanges()
+        } catch (e: CancellationException) {
+            // do nothing if we are cancelled.
+        } catch (throwable: Throwable) {
+            session.onCompositionError(context, throwable)
+            session.close()
+            // Set uiReady to true to resume coroutine waiting on it.
+            uiReady.emit(true)
         }
-        launch {
-            var lastRecomposeCount = recomposer.changeCount
-            recomposer.currentState.collectLatest { state ->
-                if (SessionWorker.DEBUG)
-                    Log.d(SessionWorker.TAG, "Recomposer(${session.key}): currentState=$state")
-                when (state) {
-                    Recomposer.State.Idle -> {
-                        // Only update the session when a change has actually occurred. The
-                        // Recomposer may sometimes wake up due to changes in other
-                        // compositions. Also update the session if we have not sent an initial
-                        // tree yet.
-                        if (recomposer.changeCount > lastRecomposeCount || !uiReady.value) {
-                            if (SessionWorker.DEBUG)
-                                Log.d(SessionWorker.TAG, "UI tree updated (${session.key})")
-                            val processed = session.processEmittableTree(
-                                context,
-                                root.copy() as EmittableWithChildren
-                            )
-                            // If the UI has been processed for the first time, set uiReady to true
-                            // and start the timeout.
-                            if (!uiReady.value && processed) {
-                                uiReady.emit(true)
-                                startTimer(timeouts.initialTimeout)
-                            }
-                        }
-                        lastRecomposeCount = recomposer.changeCount
-                    }
-                    Recomposer.State.ShutDown -> cancel()
-                    else -> {}
-                }
-            }
-        }
-
-        // Wait until the Emittable tree has been processed at least once before receiving events.
-        uiReady.first { it }
-        // receiveEvents will suspend until the session is closed (usually due to widget deletion)
-        // or it is cancelled (in case of composition errors or timeout).
-        session.receiveEvents(context) {
-            // If time is running low, add time to make sure that we have time to respond to this
-            // event.
-            if (timeLeft < timeouts.additionalTime) addTime(timeouts.additionalTime)
-            if (SessionWorker.DEBUG)
-                Log.d(SessionWorker.TAG, "processing event for ${session.key}; $timeLeft left")
-            launch { frameClock.startInteractive() }
-        }
-    } finally {
-        composition.dispose()
-        frameClock.stopInteractive()
-        snapshotMonitor.cancel()
-        recomposer.cancel()
     }
+    launch {
+        var lastRecomposeCount = recomposer.changeCount
+        recomposer.currentState.collectLatest { state ->
+            if (SessionWorker.DEBUG)
+                Log.d(SessionWorker.TAG, "Recomposer(${session.key}): currentState=$state")
+            when (state) {
+                Recomposer.State.Idle -> {
+                    // Only update the session when a change has actually occurred. The
+                    // Recomposer may sometimes wake up due to changes in other
+                    // compositions. Also update the session if we have not sent an initial
+                    // tree yet.
+                    if (recomposer.changeCount > lastRecomposeCount || !uiReady.value) {
+                        if (SessionWorker.DEBUG)
+                            Log.d(SessionWorker.TAG, "UI tree updated (${session.key})")
+                        val processed = session.processEmittableTree(
+                            context,
+                            root.copy() as EmittableWithChildren
+                        )
+                        // If the UI has been processed for the first time, set uiReady to true
+                        // and start the timeout.
+                        if (!uiReady.value && processed) {
+                            uiReady.emit(true)
+                            startTimer(timeouts.initialTimeout)
+                        }
+                    }
+                    lastRecomposeCount = recomposer.changeCount
+                }
+                Recomposer.State.ShutDown -> cancel()
+                else -> {}
+            }
+        }
+    }
+
+    // Wait until the Emittable tree has been processed at least once before receiving events.
+    uiReady.first { it }
+    session.receiveEvents(context) {
+        // If time is running low, add time to make sure that we have time to respond to this
+        // event.
+        if (timeLeft < timeouts.additionalTime) addTime(timeouts.additionalTime)
+        if (SessionWorker.DEBUG)
+            Log.d(SessionWorker.TAG, "processing event for ${session.key}; $timeLeft left")
+        launch { frameClock.startInteractive() }
+    }
+
+    composition.dispose()
+    frameClock.stopInteractive()
+    snapshotMonitor.cancel()
+    recomposer.close()
+    recomposer.join()
 }
 
 /**

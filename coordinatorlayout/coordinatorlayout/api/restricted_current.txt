@@ -73,7 +73,7 @@ package androidx.coordinatorlayout.widget {
   }
 
   @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public static @interface CoordinatorLayout.DefaultBehavior {
-    method @Deprecated public abstract Class<? extends androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior!> value();
+    method @Deprecated public abstract Class<? extends androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior> value();
   }
 
   @IntDef({0x0, 0x1, 0x2}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CoordinatorLayout.DispatchChangeEvent {

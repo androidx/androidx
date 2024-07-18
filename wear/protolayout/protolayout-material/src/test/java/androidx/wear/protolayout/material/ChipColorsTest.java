@@ -44,10 +44,11 @@ public class ChipColorsTest {
     public void testCreateChipColorsFromArgb() {
         ChipColors chipColors = new ChipColors(ARGB_BACKGROUND_COLOR, ARGB_CONTENT_COLOR);
 
-        assertThat(chipColors.getBackgroundColor().getArgb()).isEqualTo(ARGB_BACKGROUND_COLOR);
-        assertThat(chipColors.getIconColor().getArgb()).isEqualTo(ARGB_CONTENT_COLOR);
-        assertThat(chipColors.getContentColor().getArgb()).isEqualTo(ARGB_CONTENT_COLOR);
-        assertThat(chipColors.getSecondaryContentColor().getArgb()).isEqualTo(ARGB_CONTENT_COLOR);
+        assertThat(chipColors.getBackgroundColor().getArgb()).isEqualTo(BACKGROUND_COLOR.getArgb());
+        assertThat(chipColors.getIconColor().getArgb()).isEqualTo(CONTENT_COLOR.getArgb());
+        assertThat(chipColors.getContentColor().getArgb()).isEqualTo(CONTENT_COLOR.getArgb());
+        assertThat(chipColors.getSecondaryContentColor().getArgb())
+                .isEqualTo(CONTENT_COLOR.getArgb());
     }
 
     @Test
@@ -70,11 +71,11 @@ public class ChipColorsTest {
                         ARGB_CONTENT_COLOR,
                         ARGB_SECONDARY_CONTENT_COLOR);
 
-        assertThat(chipColors.getBackgroundColor().getArgb()).isEqualTo(ARGB_BACKGROUND_COLOR);
-        assertThat(chipColors.getIconColor().getArgb()).isEqualTo(ARGB_ICON_COLOR);
-        assertThat(chipColors.getContentColor().getArgb()).isEqualTo(ARGB_CONTENT_COLOR);
+        assertThat(chipColors.getBackgroundColor().getArgb()).isEqualTo(BACKGROUND_COLOR.getArgb());
+        assertThat(chipColors.getIconColor().getArgb()).isEqualTo(ICON_COLOR.getArgb());
+        assertThat(chipColors.getContentColor().getArgb()).isEqualTo(CONTENT_COLOR.getArgb());
         assertThat(chipColors.getSecondaryContentColor().getArgb())
-                .isEqualTo(ARGB_SECONDARY_CONTENT_COLOR);
+                .isEqualTo(SECONDARY_CONTENT_COLOR.getArgb());
     }
 
     @Test

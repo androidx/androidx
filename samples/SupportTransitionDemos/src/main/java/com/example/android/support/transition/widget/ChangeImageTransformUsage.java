@@ -52,23 +52,29 @@ public class ChangeImageTransformUsage extends TransitionUsageBase {
             @Override
             public void onClick(View v) {
                 TransitionManager.beginDelayedTransition(mRoot, TRANSITION);
-                int id = v.getId();
-                if (id == R.id.fit_xy) {
-                    mPhoto.setScaleType(ImageView.ScaleType.FIT_XY);
-                } else if (id == R.id.center) {
-                    mPhoto.setScaleType(ImageView.ScaleType.CENTER);
-                } else if (id == R.id.center_crop) {
-                    mPhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                } else if (id == R.id.fit_start) {
-                    mPhoto.setScaleType(ImageView.ScaleType.FIT_START);
-                } else if (id == R.id.fit_end) {
-                    mPhoto.setScaleType(ImageView.ScaleType.FIT_END);
-                } else if (id == R.id.matrix) {
-                    mPhoto.setScaleType(ImageView.ScaleType.MATRIX);
-                    final Matrix matrix = new Matrix();
-                    matrix.setRotate(45.f);
-                    matrix.postTranslate(200, 10);
-                    mPhoto.setImageMatrix(matrix);
+                switch (v.getId()) {
+                    case R.id.fit_xy:
+                        mPhoto.setScaleType(ImageView.ScaleType.FIT_XY);
+                        break;
+                    case R.id.center:
+                        mPhoto.setScaleType(ImageView.ScaleType.CENTER);
+                        break;
+                    case R.id.center_crop:
+                        mPhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                        break;
+                    case R.id.fit_start:
+                        mPhoto.setScaleType(ImageView.ScaleType.FIT_START);
+                        break;
+                    case R.id.fit_end:
+                        mPhoto.setScaleType(ImageView.ScaleType.FIT_END);
+                        break;
+                    case R.id.matrix:
+                        mPhoto.setScaleType(ImageView.ScaleType.MATRIX);
+                        final Matrix matrix = new Matrix();
+                        matrix.setRotate(45.f);
+                        matrix.postTranslate(200, 10);
+                        mPhoto.setImageMatrix(matrix);
+                        break;
                 }
             }
         };

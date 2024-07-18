@@ -17,9 +17,11 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.app.sdksandbox.SandboxedSdk
 import android.os.IBinder
+import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.Keep
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
@@ -71,10 +73,10 @@ class SandboxedSdkCompat private constructor(
      *
      * @param sandboxedSdk SandboxedSdk object. All calls will be delegated to that object.
      */
-    @RequiresApi(34)
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
     @RestrictTo(LIBRARY_GROUP)
     constructor(sandboxedSdk: SandboxedSdk) : this(
-        Api34Impl(sandboxedSdk)
+        SdkImplFactory.createSdkImpl(sandboxedSdk)
     )
 
     /**
@@ -102,7 +104,7 @@ class SandboxedSdkCompat private constructor(
      *
      * @return Platform SandboxedSdk
      */
-    @RequiresApi(34)
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
     @RestrictTo(LIBRARY_GROUP)
     fun toSandboxedSdk() = sdkImpl.toSandboxedSdk()
 
@@ -111,13 +113,13 @@ class SandboxedSdkCompat private constructor(
 
         fun getSdkInfo(): SandboxedSdkInfo?
 
-        @RequiresApi(34)
+        @RequiresExtension(extension = AD_SERVICES, version = 4)
         @DoNotInline
         fun toSandboxedSdk(): SandboxedSdk
     }
 
-    @RequiresApi(34)
-    private open class Api34Impl(
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
+    private open class ApiAdServicesV4Impl(
         protected val sandboxedSdk: SandboxedSdk
     ) : SandboxedSdkImpl {
 
@@ -126,14 +128,7 @@ class SandboxedSdkCompat private constructor(
             return sandboxedSdk.getInterface()
         }
 
-        @DoNotInline
-        override fun getSdkInfo(): SandboxedSdkInfo {
-            val sharedLibraryInfo = sandboxedSdk.sharedLibraryInfo
-            return SandboxedSdkInfo(
-                name = sharedLibraryInfo.name,
-                version = sharedLibraryInfo.longVersion,
-            )
-        }
+        override fun getSdkInfo(): SandboxedSdkInfo? = null
 
         @DoNotInline
         override fun toSandboxedSdk(): SandboxedSdk {
@@ -144,6 +139,32 @@ class SandboxedSdkCompat private constructor(
             @DoNotInline
             fun createSandboxedSdk(sdkInterface: IBinder): SandboxedSdk {
                 return SandboxedSdk(sdkInterface)
+            }
+        }
+    }
+
+    @RequiresApi(33)
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
+    private class ApiAdServicesV5Impl(
+        sandboxedSdk: SandboxedSdk
+    ) : ApiAdServicesV4Impl(sandboxedSdk) {
+
+        override fun getSdkInfo(): SandboxedSdkInfo {
+            val sharedLibraryInfo = sandboxedSdk.sharedLibraryInfo
+            return SandboxedSdkInfo(
+                name = sharedLibraryInfo.name,
+                version = sharedLibraryInfo.longVersion,
+            )
+        }
+    }
+
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
+    private object SdkImplFactory {
+        fun createSdkImpl(sandboxedSdk: SandboxedSdk): SandboxedSdkImpl {
+            return if (AdServicesInfo.isAtLeastV5()) {
+                ApiAdServicesV5Impl(sandboxedSdk)
+            } else {
+                ApiAdServicesV4Impl(sandboxedSdk)
             }
         }
     }
@@ -161,10 +182,10 @@ class SandboxedSdkCompat private constructor(
 
         override fun getSdkInfo(): SandboxedSdkInfo? = sdkInfo
 
-        @RequiresApi(34)
+        @RequiresExtension(extension = AD_SERVICES, version = 4)
         override fun toSandboxedSdk(): SandboxedSdk {
             // avoid class verifications errors
-            return Api34Impl.createSandboxedSdk(sdkInterface)
+            return ApiAdServicesV4Impl.createSandboxedSdk(sdkInterface)
         }
     }
 }

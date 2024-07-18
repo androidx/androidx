@@ -16,7 +16,8 @@
 
 package androidx.camera.core.processing;
 
-import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
+import static android.graphics.ImageFormat.JPEG;
+
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.graphics.Bitmap;
@@ -88,8 +89,7 @@ public abstract class Packet<T> {
      *
      * <p>This value must match the format of the image in {@link #getData()}.
      *
-     * <p>For {@link Bitmap} type, the value is {@link ImageFormat#FLEX_RGBA_8888}. If the Bitmap
-     * has a gainmap, it can be converted to JPEG_R format on API level 34+
+     * <p>For {@link Bitmap} type, the value is {@link ImageFormat#FLEX_RGBA_8888}.
      */
     public abstract int getFormat();
 
@@ -174,7 +174,7 @@ public abstract class Packet<T> {
             @NonNull Size size, @NonNull Rect cropRect, int rotationDegrees,
             @NonNull Matrix sensorToBufferTransform,
             @NonNull CameraCaptureResult cameraCaptureResult) {
-        if (isJpegFormats(data.getFormat())) {
+        if (data.getFormat() == JPEG) {
             checkNotNull(exif, "JPEG image must have Exif.");
         }
         return new AutoValue_Packet<>(data, exif, data.getFormat(), size, cropRect, rotationDegrees,

@@ -68,7 +68,7 @@ class SdkActivityLauncherWrapperGenerator(private val basePackageName: String) {
             CodeBlock.of(
                 "%T.fromLauncherInfo(launcherInfo)",
                 ClassName(
-                    "androidx.privacysandbox.activity.provider",
+                    "androidx.privacysandbox.ui.provider",
                     "SdkActivityLauncherFactory"
                 ),
             ),

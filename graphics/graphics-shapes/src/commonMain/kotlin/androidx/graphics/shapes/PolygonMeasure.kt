@@ -114,33 +114,34 @@ internal class MeasuredPolygon : AbstractList<MeasuredPolygon.MeasuredCubic> {
          * Cut this MeasuredCubic into two MeasuredCubics at the given outline progress value.
          */
         fun cutAtProgress(cutOutlineProgress: Float): Pair<MeasuredCubic, MeasuredCubic> {
-            // Floating point errors further up can cause cutOutlineProgress to land just
-            // slightly outside of the start/end progress for this cubic, so we limit it
-            // to those bounds to avoid further errors later
-            val boundedCutOutlineProgress =
-                cutOutlineProgress.coerceIn(startOutlineProgress, endOutlineProgress)
             val outlineProgressSize = endOutlineProgress - startOutlineProgress
-            val progressFromStart = boundedCutOutlineProgress - startOutlineProgress
+            val progressFromStart = positiveModulo(cutOutlineProgress - startOutlineProgress, 1f)
+            // progressFromStart should be in the [0 .. outlineProgressSize] range.
+            // If it's not, cap to that range.
+            val mid = if (progressFromStart > (1 + outlineProgressSize) / 2)
+                0f
+            else
+                progressFromStart.coerceAtMost(outlineProgressSize)
 
             // Note that in earlier parts of the computation, we have empty MeasuredCubics (cubics
             // with progressSize == 0f), but those cubics are filtered out before this method is
             // called.
-            val relativeProgress = progressFromStart / outlineProgressSize
-            val t = measurer.findCubicCutPoint(cubic, relativeProgress * measuredSize)
+            val relativeMidProgress = mid / outlineProgressSize
+            val t = measurer.findCubicCutPoint(cubic, relativeMidProgress * measuredSize)
             require(t in 0f..1f) {
                 "Cubic cut point is expected to be between 0 and 1"
             }
 
             debugLog(LOG_TAG) {
-                "cutAtProgress: progress = $boundedCutOutlineProgress / " +
+                "cutAtProgress: progress = $cutOutlineProgress / " +
                     "this = [$startOutlineProgress .. $endOutlineProgress] / " +
-                    "ps = $progressFromStart / rp = $relativeProgress / t = $t"
+                    "pp = $mid / rp = $relativeMidProgress / t = $t"
             }
 
             // c1/c2 are the two new cubics, then we return MeasuredCubics created from them
             val (c1, c2) = cubic.split(t)
-            return MeasuredCubic(c1, startOutlineProgress, boundedCutOutlineProgress) to
-                MeasuredCubic(c2, boundedCutOutlineProgress, endOutlineProgress)
+            return MeasuredCubic(c1, startOutlineProgress, cutOutlineProgress) to
+                MeasuredCubic(c2, cutOutlineProgress, endOutlineProgress)
         }
 
         override fun toString(): String {

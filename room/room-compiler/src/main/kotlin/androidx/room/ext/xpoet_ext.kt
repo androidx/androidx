@@ -22,14 +22,12 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.apply
-import androidx.room.compiler.codegen.XMemberName
 import androidx.room.compiler.codegen.XMemberName.Companion.companionMember
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
-import androidx.room.solver.CodeGenScope
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import java.util.concurrent.Callable
 
@@ -44,31 +42,22 @@ object SupportDbTypeNames {
     val QUERY = XClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteQuery")
 }
 
-object SQLiteDriverTypeNames {
-    val SQLITE_KT = XClassName.get(SQLITE_PACKAGE, "SQLiteKt")
-    val DRIVER = XClassName.get(SQLITE_PACKAGE, "SQLiteDriver")
-    val CONNECTION = XClassName.get(SQLITE_PACKAGE, "SQLiteConnection")
-    val STATEMENT = XClassName.get(SQLITE_PACKAGE, "SQLiteStatement")
-}
-
 object RoomTypeNames {
     val STRING_UTIL = XClassName.get("$ROOM_PACKAGE.util", "StringUtil")
     val ROOM_DB = XClassName.get(ROOM_PACKAGE, "RoomDatabase")
     val ROOM_DB_KT = XClassName.get(ROOM_PACKAGE, "RoomDatabaseKt")
     val ROOM_DB_CALLBACK = XClassName.get(ROOM_PACKAGE, "RoomDatabase", "Callback")
     val ROOM_DB_CONFIG = XClassName.get(ROOM_PACKAGE, "DatabaseConfiguration")
-    val INSERT_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertAdapter")
-    val UPSERT_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertAdapter")
-    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeleteOrUpdateAdapter")
-    val INSERT_ADAPTER_COMPAT = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
-    val UPSERT_ADAPTER_COMPAT = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
-    val DELETE_OR_UPDATE_ADAPTER_COMPAT = XClassName.get(
-        ROOM_PACKAGE,
-        "EntityDeletionOrUpdateAdapter"
-    )
+    val INSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityInsertionAdapter")
+    val UPSERTION_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityUpsertionAdapter")
+    val DELETE_OR_UPDATE_ADAPTER = XClassName.get(ROOM_PACKAGE, "EntityDeletionOrUpdateAdapter")
     val SHARED_SQLITE_STMT = XClassName.get(ROOM_PACKAGE, "SharedSQLiteStatement")
     val INVALIDATION_TRACKER = XClassName.get(ROOM_PACKAGE, "InvalidationTracker")
     val ROOM_SQL_QUERY = XClassName.get(ROOM_PACKAGE, "RoomSQLiteQuery")
+    val OPEN_HELPER = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
+    val OPEN_HELPER_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "Delegate")
+    val OPEN_HELPER_VALIDATION_RESULT =
+        XClassName.get(ROOM_PACKAGE, "RoomOpenHelper", "ValidationResult")
     val TABLE_INFO = XClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN = XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "Column")
     val TABLE_INFO_FOREIGN_KEY = XClassName.get("$ROOM_PACKAGE.util", "TableInfo", "ForeignKey")
@@ -84,12 +73,6 @@ object RoomTypeNames {
     val UUID_UTIL = XClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
     val AMBIGUOUS_COLUMN_RESOLVER = XClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
     val RELATION_UTIL = XClassName.get("androidx.room.util", "RelationUtil")
-    val ROOM_OPEN_DELEGATE = XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate")
-    val ROOM_OPEN_DELEGATE_VALIDATION_RESULT =
-        XClassName.get(ROOM_PACKAGE, "RoomOpenDelegate", "ValidationResult")
-    val STATEMENT_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteStatementUtil")
-    val CONNECTION_UTIL = XClassName.get("$ROOM_PACKAGE.util", "SQLiteConnectionUtil")
-    val FLOW_UTIL = XClassName.get("$ROOM_PACKAGE.coroutines", "FlowUtil")
 }
 
 object RoomAnnotationTypeNames {
@@ -138,9 +121,6 @@ object CollectionTypeNames {
 object KotlinCollectionMemberNames {
     val ARRAY_OF_NULLS = XClassName.get("kotlin", "LibraryKt")
         .packageMember("arrayOfNulls")
-    val MUTABLE_LIST_OF = KotlinTypeNames.COLLECTIONS_KT.packageMember("mutableListOf")
-    val MUTABLE_SET_OF = KotlinTypeNames.SETS_KT.packageMember("mutableSetOf")
-    val MUTABLE_MAP_OF = KotlinTypeNames.MAPS_KT.packageMember("mutableMapOf")
 }
 
 object CommonTypeNames {
@@ -165,16 +145,13 @@ object CommonTypeNames {
     val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
-    val KOTLIN_CLASS = XClassName.get("kotlin.reflect", "KClass")
     val CALLABLE = Callable::class.asClassName()
     val DATE = XClassName.get("java.util", "Date")
 }
 
 object ExceptionTypeNames {
-    val JAVA_ILLEGAL_STATE_EXCEPTION = XClassName.get("java.lang", "IllegalStateException")
-    val JAVA_ILLEGAL_ARG_EXCEPTION = XClassName.get("java.lang", "IllegalArgumentException")
-    val KOTLIN_ILLEGAL_STATE_EXCEPTION = XClassName.get("kotlin", "IllegalStateException")
-    val KOTLIN_ILLEGAL_ARG_EXCEPTION = XClassName.get("kotlin", "IllegalArgumentException")
+    val ILLEGAL_STATE_EXCEPTION = IllegalStateException::class.asClassName()
+    val ILLEGAL_ARG_EXCEPTION = IllegalArgumentException::class.asClassName()
 }
 
 object GuavaTypeNames {
@@ -294,11 +271,6 @@ object KotlinTypeNames {
     val SEND_CHANNEL = XClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = XClassName.get("kotlinx.coroutines.flow", "Flow")
     val LAZY = XClassName.get("kotlin", "Lazy")
-    val COLLECTIONS_KT = XClassName.get("kotlin.collections", "CollectionsKt")
-    val SETS_KT = XClassName.get("kotlin.collections", "SetsKt")
-    val MAPS_KT = XClassName.get("kotlin.collections", "MapsKt")
-    val STRING_BUILDER = XClassName.get("kotlin.text", "StringBuilder")
-    val LINKED_HASH_MAP = XClassName.get("kotlin.collections", "LinkedHashMap")
 }
 
 object RoomMemberNames {
@@ -320,10 +292,6 @@ object RoomMemberNames {
         RoomTypeNames.FTS_TABLE_INFO.companionMember("read", isJvmStatic = true)
     val VIEW_INFO_READ =
         RoomTypeNames.VIEW_INFO.companionMember("read", isJvmStatic = true)
-}
-
-object SQLiteDriverMemberNames {
-    val CONNECTION_EXEC_SQL = SQLiteDriverTypeNames.SQLITE_KT.packageMember("execSQL")
 }
 
 val DEFERRED_TYPES = listOf(
@@ -405,126 +373,6 @@ fun Function1TypeSpec(
         }.build()
     )
 }.build()
-
-/**
- * Generates a code block that invokes a function with a functional type as last parameter.
- *
- * For Java (jvmTarget >= 8) it will generate:
- * ```
- * <functionName>(<args>, (<lambdaSpec.paramName>) -> <lambdaSpec.body>);
- * ```
- * For Java (jvmTarget < 8) it will generate:
- * ```
- * <functionName>(<args>, new Function1<>() { <lambdaSpec.body> });
- * ```
- * For Kotlin it will generate:
- * ```
- * <functionName>(<args>) { <lambdaSpec.body> }
- * ```
- *
- * The ideal usage of this utility function is to generate code that invokes the various
- * `DBUtil.perform*()` APIs for interacting with the database connection in DAOs.
- */
-fun InvokeWithLambdaParameter(
-    scope: CodeGenScope,
-    functionName: XMemberName,
-    argFormat: List<String>,
-    args: List<Any>,
-    continuationParamName: String? = null,
-    lambdaSpec: LambdaSpec
-): XCodeBlock = XCodeBlock.builder(scope.language).apply {
-    check(argFormat.size == args.size)
-    when (language) {
-        CodeLanguage.JAVA -> {
-            if (lambdaSpec.javaLambdaSyntaxAvailable) {
-                val argsFormatString = argFormat.joinToString(separator = ", ")
-                add(
-                    "%M($argsFormatString, (%L) -> {\n",
-                    functionName,
-                    *args.toTypedArray(),
-                    lambdaSpec.parameterName
-                )
-                indent()
-                val bodyScope = scope.fork()
-                with(lambdaSpec) { bodyScope.builder.body(bodyScope) }
-                add(bodyScope.generate())
-                unindent()
-                add("}")
-                if (continuationParamName != null) {
-                    add(", %L", continuationParamName)
-                }
-                add(");\n")
-            } else {
-                val adjustedArgsFormatString = buildList {
-                    addAll(argFormat)
-                    add("%L") // the anonymous function
-                    if (continuationParamName != null) {
-                        add("%L")
-                    }
-                }.joinToString(separator = ", ")
-                val adjustedArgs = buildList {
-                    addAll(args)
-                    add(
-                        Function1TypeSpec(
-                            language = language,
-                            parameterTypeName = lambdaSpec.parameterTypeName,
-                            parameterName = lambdaSpec.parameterName,
-                            returnTypeName = lambdaSpec.returnTypeName,
-                            callBody = {
-                                val bodyScope = scope.fork()
-                                with(lambdaSpec) { bodyScope.builder.body(bodyScope) }
-                                addCode(bodyScope.generate())
-                            }
-                        )
-                    )
-                    if (continuationParamName != null) {
-                        add(continuationParamName)
-                    }
-                }
-                add(
-                    "%M($adjustedArgsFormatString);\n",
-                    functionName,
-                    *adjustedArgs.toTypedArray(),
-                )
-            }
-        }
-        CodeLanguage.KOTLIN -> {
-            val argsFormatString = argFormat.joinToString(separator = ", ")
-            if (lambdaSpec.parameterTypeName.rawTypeName != KotlinTypeNames.CONTINUATION) {
-                add(
-                    "%M($argsFormatString) { %L ->\n",
-                    functionName,
-                    *args.toTypedArray(),
-                    lambdaSpec.parameterName
-                )
-            } else {
-                add(
-                    "%M($argsFormatString) {\n",
-                    functionName,
-                    *args.toTypedArray(),
-                )
-            }
-            indent()
-            val bodyScope = scope.fork()
-            with(lambdaSpec) { bodyScope.builder.body(bodyScope) }
-            add(bodyScope.generate())
-            unindent()
-            add("}\n")
-        }
-    }
-}.build()
-
-/**
- * Describes the lambda to be generated with [InvokeWithLambdaParameter].
- */
-abstract class LambdaSpec(
-    val parameterTypeName: XTypeName,
-    val parameterName: String,
-    val returnTypeName: XTypeName,
-    val javaLambdaSyntaxAvailable: Boolean
-) {
-    abstract fun XCodeBlock.Builder.body(scope: CodeGenScope)
-}
 
 /**
  * Generates an array literal with the given [values]

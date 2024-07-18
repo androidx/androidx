@@ -117,10 +117,13 @@ def shorten_uninteresting_stack_frames(lines):
     result = []
     prev_line_is_boring = False
     for line in lines:
-        if line.startswith("\tat ") and not line.startswith("\tat androidx"):
-            # non-androidx stack frame
+        if line.startswith("\tat org.gradle"):
             if not prev_line_is_boring:
-                result.append(line.replace("\n", "...\n"))
+                result.append("\tat org.gradle...\n")
+            prev_line_is_boring = True
+        elif line.startswith("\tat java.base"):
+            if not prev_line_is_boring:
+                result.append("\tat java.base...\n")
             prev_line_is_boring = True
         else:
             result.append(line)
@@ -201,11 +204,6 @@ def collapse_consecutive_blank_lines(lines):
             prev_blank = False
     return result
 
-def remove_trailing_blank_lines(lines):
-    while len(lines) > 0 and lines[-1].strip() == "":
-        del lines[-1]
-    return lines
-
 def extract_task_name(line):
     prefix = "> Task "
     if line.startswith(prefix):
@@ -276,21 +274,6 @@ control_character_regex = re.compile(r"""
 
 def remove_control_characters(line):
     return control_character_regex.sub("", line)
-
-# Removes strings from the input wherever they are found
-# This list is less convenient than the .ignore files:
-#   This list doesn't get autosuggested additions
-#   This list isn't automatically garbage collected
-#   Users interested in seeing the exemption history probably won't think to look here
-# This list does allow removing part of the text from a line and still validating the remainder of the line
-# If this list eventually gets long we might want to make it easier to update
-inline_ignores_regex = re.compile(
-    # b/300072778
-    "Sharing is only supported for boot loader classes because bootstrap classpath has been appended"
-)
-
-def remove_inline_ignores(line):
-    return re.sub(inline_ignores_regex, "", line)
 
 # Normalizes some filepaths to more easily simplify/skip some messages
 def normalize_paths(lines):
@@ -507,7 +490,6 @@ def main():
     for log_path in log_paths:
         lines = readlines(log_path)
         lines = [remove_control_characters(line) for line in lines]
-        lines = [remove_inline_ignores(line) for line in lines]
         lines = normalize_paths(lines)
         all_lines += lines
     # load configuration
@@ -524,7 +506,6 @@ def main():
     interesting_lines = remove_by_regexes(interesting_lines, exemption_regexes, validate)
     interesting_lines = collapse_tasks_having_no_output(interesting_lines)
     interesting_lines = collapse_consecutive_blank_lines(interesting_lines)
-    interesting_lines = remove_trailing_blank_lines(interesting_lines)
 
     # process results
     if update:

@@ -26,26 +26,8 @@ import androidx.annotation.RequiresApi;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoEncoderInfo extends EncoderInfo {
-    /** Return if the supported width height can be swapped. */
-    boolean canSwapWidthHeight();
-
     /** Returns if the size is supported. */
     boolean isSizeSupported(int width, int height);
-
-    /**
-     * Returns if the size is supported when the width height is allowed swapping.
-     *
-     * <p>This is basically equivalent to
-     * <pre>{@code
-     * isSizeSupport(width, height)
-     *         || (canSwapWidthHeight() && isSizeSupported(height, width))
-     * }</pre>
-     */
-    default boolean isSizeSupportedAllowSwapping(int width, int height) {
-        //noinspection SuspiciousNameCombination
-        return isSizeSupported(width, height)
-                || (canSwapWidthHeight() && isSizeSupported(height, width));
-    }
 
     /** Returns the range of supported video widths. */
     @NonNull

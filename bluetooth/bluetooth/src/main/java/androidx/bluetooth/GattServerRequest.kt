@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * Represents a request to be handled as a GATT server role.
  *
- * @see GattServerConnectRequest.accept
+ * @see BluetoothLe.GattServerConnectRequest.accept
  */
 open class GattServerRequest private constructor() {
     private val handled = AtomicBoolean(false)

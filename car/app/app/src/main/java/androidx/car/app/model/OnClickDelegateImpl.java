@@ -64,7 +64,7 @@ public class OnClickDelegateImpl implements OnClickDelegate {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnClickDelegate create(@NonNull OnClickListener listener) {
+    static OnClickDelegate create(@NonNull OnClickListener listener) {
         return new OnClickDelegateImpl(
                 listener,
                 listener instanceof ParkedOnlyOnClickListener);

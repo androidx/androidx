@@ -23,16 +23,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedBool;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedColor;
-import androidx.wear.protolayout.expression.FixedValueBuilders.FixedDuration;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedFloat;
-import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInstant;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedInt32;
 import androidx.wear.protolayout.expression.FixedValueBuilders.FixedString;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto;
@@ -41,16 +38,17 @@ import androidx.wear.protolayout.protobuf.CodedOutputStream;
 import androidx.wear.protolayout.protobuf.ExtensionRegistryLite;
 
 import java.io.IOException;
-import java.time.Duration;
-import java.time.Instant;
 
 /** Builders for dynamic data value of a provider. */
 public final class DynamicDataBuilders {
     private DynamicDataBuilders() {}
 
-    /** Interface defining a dynamic data value. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
-    public interface DynamicDataValue<T extends DynamicBuilders.DynamicType> {
+    /**
+     * Interface defining a dynamic data value.
+     *
+     * @since 1.2
+     */
+    public interface DynamicDataValue<T extends DynamicType> {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -129,58 +127,39 @@ public final class DynamicDataBuilders {
 
         /** Creates a boolean {@link DynamicDataValue}. */
         @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicBool> fromBool(boolean constant) {
             return new FixedBool.Builder().setValue(constant).build();
         }
 
         /** Creates a int {@link DynamicDataValue}. */
         @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicInt32> fromInt(int constant) {
             return new FixedInt32.Builder().setValue(constant).build();
         }
 
         /** Creates a float {@link DynamicDataValue}. */
         @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicFloat> fromFloat(float constant) {
             return new FixedFloat.Builder().setValue(constant).build();
         }
 
         /** Creates a color {@link DynamicDataValue}. */
         @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicColor> fromColor(@ColorInt int constant) {
             return new FixedColor.Builder().setArgb(constant).build();
         }
 
         /** Creates a string {@link DynamicDataValue}. */
         @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicString> fromString(@NonNull String constant) {
             return new FixedString.Builder().setValue(constant).build();
-        }
-
-        /** Creates an {@link Instant} {@link DynamicDataValue}. */
-        @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 300)
-        static DynamicDataValue<DynamicInstant> fromInstant(@NonNull Instant constant) {
-            return new FixedInstant.Builder().setEpochSeconds(constant.getEpochSecond()).build();
-        }
-
-        /** Creates a {@link Duration} {@link DynamicDataValue}. */
-        @NonNull
-        @RequiresSchemaVersion(major = 1, minor = 300)
-        static DynamicDataValue<DynamicDuration> fromDuration(@NonNull Duration constant) {
-            return new FixedDuration.Builder().setSeconds(constant.getSeconds()).build();
         }
 
         /**
          * Returns true if the {@link DynamicDataValue} contains an int value. Otherwise returns
          * false.
          */
-        default boolean hasIntValue() {
+        default boolean hasIntValue(){
             return false;
         }
 
@@ -198,7 +177,7 @@ public final class DynamicDataBuilders {
          * Returns true if the {@link DynamicDataValue} contains a color value. Otherwise returns
          * false.
          */
-        default boolean hasColorValue() {
+        default boolean hasColorValue(){
             return false;
         }
 
@@ -216,7 +195,7 @@ public final class DynamicDataBuilders {
          * Returns true if the {@link DynamicDataValue} contains a boolean value. Otherwise returns
          * false.
          */
-        default boolean hasBoolValue() {
+        default boolean hasBoolValue(){
             return false;
         }
 
@@ -234,7 +213,7 @@ public final class DynamicDataBuilders {
          * Returns true if the {@link DynamicDataValue} contains a float value. Otherwise returns
          * false.
          */
-        default boolean hasFloatValue() {
+        default boolean hasFloatValue(){
             return false;
         }
 
@@ -252,7 +231,7 @@ public final class DynamicDataBuilders {
          * Returns true if the {@link DynamicDataValue} contains a String value. Otherwise returns
          * false.
          */
-        default boolean hasStringValue() {
+        default boolean hasStringValue(){
             return false;
         }
 
@@ -266,42 +245,6 @@ public final class DynamicDataBuilders {
             throw new IllegalStateException("Type mismatch.");
         }
 
-        /**
-         * Returns true if the {@link DynamicDataValue} contains an {@link Instant} value. Otherwise
-         * returns false.
-         */
-        default boolean hasInstantValue() {
-            return false;
-        }
-
-        /**
-         * Returns the {@link Instant} value stored in this {@link DynamicDataValue}.
-         *
-         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain an {@link
-         *     Instant} value.
-         */
-        default @NonNull Instant getInstantValue() {
-            throw new IllegalStateException("Type mismatch.");
-        }
-
-        /**
-         * Returns true if the {@link DynamicDataValue} contains an {@link Duration} value.
-         * Otherwise returns false.
-         */
-        default boolean hasDurationValue() {
-            return false;
-        }
-
-        /**
-         * Returns the {@link Duration} value stored in this {@link DynamicDataValue}.
-         *
-         * @throws IllegalStateException if the {@link DynamicDataValue} doesn't contain an {@link
-         *     Duration} value.
-         */
-        default @NonNull Duration getDurationValue() {
-            throw new IllegalStateException("Type mismatch.");
-        }
-
         /** Get the fingerprint for this object or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -309,7 +252,7 @@ public final class DynamicDataBuilders {
 
         /** Builder to create {@link DynamicDataValue} objects. */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        interface Builder<T extends DynamicBuilders.DynamicType> {
+        interface Builder<T extends DynamicType> {
 
             /** Builds an instance with values accumulated in this Builder. */
             @NonNull
@@ -347,12 +290,6 @@ public final class DynamicDataBuilders {
         }
         if (proto.hasColorVal()) {
             return FixedColor.fromProto(proto.getColorVal(), fingerprint);
-        }
-        if (proto.hasInstantVal()) {
-            return FixedInstant.fromProto(proto.getInstantVal(), fingerprint);
-        }
-        if (proto.hasDurationVal()) {
-            return FixedDuration.fromProto(proto.getDurationVal(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicDataValue");
     }

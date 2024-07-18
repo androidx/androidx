@@ -38,13 +38,16 @@ class EmojiRepo {
     }
 
     static synchronized void load(final Context context) {
-        new Thread(() -> {
-            try {
-                read(context);
-            } catch (Throwable t) {
-                Log.e(TAG, "Cannot load emojis", t);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    read(context);
+                } catch (Throwable t) {
+                    Log.e(TAG, "Cannot load emojis", t);
+                }
             }
-        }).start();
+        }).run();
     }
 
     private static void read(Context context) throws IOException {

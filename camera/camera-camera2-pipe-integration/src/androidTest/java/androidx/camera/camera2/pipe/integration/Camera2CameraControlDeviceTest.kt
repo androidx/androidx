@@ -33,7 +33,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AWB_MODE
 import android.hardware.camera2.CaptureRequest.CONTROL_AWB_MODE_OFF
 import android.hardware.camera2.CaptureRequest.CONTROL_AWB_REGIONS
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
-import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW
+import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL
 import android.hardware.camera2.CaptureRequest.Key
 import android.hardware.camera2.CaptureRequest.SCALER_CROP_REGION
 import android.hardware.camera2.TotalCaptureResult
@@ -137,7 +137,7 @@ class Camera2CameraControlDeviceTest {
             CaptureRequestOptions.Builder()
                 .setCaptureRequestOption<Int>(
                     CONTROL_CAPTURE_INTENT,
-                    CONTROL_CAPTURE_INTENT_PREVIEW
+                    CONTROL_CAPTURE_INTENT_MANUAL
                 )
                 .setCaptureRequestOption<Int>(
                     COLOR_CORRECTION_MODE,
@@ -152,7 +152,7 @@ class Camera2CameraControlDeviceTest {
                 CONTROL_CAPTURE_INTENT, null
             )
         ).isEqualTo(
-            CONTROL_CAPTURE_INTENT_PREVIEW
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         Truth.assertThat(
             camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
@@ -167,7 +167,7 @@ class Camera2CameraControlDeviceTest {
     fun canSubmitCaptureRequestOptions_beforeBinding() = runBlocking {
         val future = updateCamera2Option<Int>(
             CONTROL_CAPTURE_INTENT,
-            CONTROL_CAPTURE_INTENT_PREVIEW
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         bindUseCase()
         assertFutureCompletes(future)
@@ -175,7 +175,7 @@ class Camera2CameraControlDeviceTest {
         // Assert.
         registerListener().verify(
             { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_MANUAL
             },
         )
     }
@@ -188,14 +188,14 @@ class Camera2CameraControlDeviceTest {
         // Act.
         val future = updateCamera2Option(
             CONTROL_CAPTURE_INTENT,
-            CONTROL_CAPTURE_INTENT_PREVIEW
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         assertFutureCompletes(future)
 
         // Assert.
         registerListener().verify(
             { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_MANUAL
             },
         )
     }
@@ -208,7 +208,7 @@ class Camera2CameraControlDeviceTest {
             CaptureRequestOptions.Builder()
                 .setCaptureRequestOption<Int>(
                     CONTROL_CAPTURE_INTENT,
-                    CONTROL_CAPTURE_INTENT_PREVIEW
+                    CONTROL_CAPTURE_INTENT_MANUAL
                 )
                 .setCaptureRequestOption<Int>(
                     COLOR_CORRECTION_MODE,
@@ -226,7 +226,7 @@ class Camera2CameraControlDeviceTest {
                 CONTROL_CAPTURE_INTENT, null
             )
         ).isEqualTo(
-            CONTROL_CAPTURE_INTENT_PREVIEW
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
         Truth.assertThat(
             camera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
@@ -236,7 +236,7 @@ class Camera2CameraControlDeviceTest {
 
         registerListener().verify(
             { requestMetadata: RequestMetadata, _ ->
-                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_PREVIEW &&
+                requestMetadata.request[CONTROL_CAPTURE_INTENT] == CONTROL_CAPTURE_INTENT_MANUAL &&
                     requestMetadata.request[COLOR_CORRECTION_MODE] != COLOR_CORRECTION_MODE_FAST
             },
         )
@@ -373,7 +373,7 @@ class Camera2CameraControlDeviceTest {
         // Arrange.
         val future = updateCamera2Option(
             CONTROL_CAPTURE_INTENT,
-            CONTROL_CAPTURE_INTENT_PREVIEW
+            CONTROL_CAPTURE_INTENT_MANUAL
         )
 
         // Act.

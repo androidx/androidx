@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
@@ -53,10 +52,6 @@ import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performSemanticsAction
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.LayoutDirection
@@ -133,15 +128,6 @@ fun ComposeContentTestRule.setContentWithThemeForSizeAssertions(
     return onNodeWithTag("containerForSizeAssertion", useUnmergedTree)
 }
 
-fun ComposeContentTestRule.textStyleOf(text: String): TextStyle {
-    val textLayoutResults = mutableListOf<TextLayoutResult>()
-    onNodeWithText(text, useUnmergedTree = true)
-        .performSemanticsAction(SemanticsActions.GetTextLayoutResult) {
-            it(textLayoutResults)
-        }
-    return textLayoutResults[0].layoutInput.style
-}
-
 fun ComposeContentTestRule.setContentWithTheme(
     modifier: Modifier = Modifier,
     composable: @Composable BoxScope.() -> Unit
@@ -198,13 +184,13 @@ internal fun ComposeContentTestRule.verifyColors(
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContainerColor()
             } else {
-                expectedContainerColor().copy(DisabledContentAlpha)
+                expectedContainerColor().copy(ContentAlpha.disabled)
             }.compositeOver(testBackgroundColor)
         finalExpectedContent =
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContentColor()
             } else {
-                expectedContentColor().copy(DisabledContentAlpha)
+                expectedContentColor().copy(ContentAlpha.disabled)
             }
         Box(
             Modifier

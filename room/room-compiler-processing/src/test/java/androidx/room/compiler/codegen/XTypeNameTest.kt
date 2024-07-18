@@ -17,7 +17,6 @@
 package androidx.room.compiler.codegen
 
 import androidx.kruth.assertThat
-import androidx.kruth.assertThrows
 import androidx.room.compiler.processing.XNullability
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.SHORT
@@ -176,26 +175,5 @@ class XTypeNameTest {
             .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
         assertThat(XTypeName.getProducerExtendsName(typeName).kotlin)
             .isEqualTo(XTypeName.UNAVAILABLE_KTYPE_NAME)
-    }
-
-    @Test
-    fun arrays() {
-        XTypeName.getArrayName(Number::class.asClassName()).let {
-            assertThat(it.toString(CodeLanguage.JAVA))
-                .isEqualTo("java.lang.Number[]")
-            assertThat(it.toString(CodeLanguage.KOTLIN))
-                .isEqualTo("kotlin.Array<kotlin.Number>")
-        }
-        XTypeName.getArrayName(
-            XTypeName.getProducerExtendsName(Number::class.asClassName())).let {
-            assertThat(it.toString(CodeLanguage.JAVA))
-                .isEqualTo("java.lang.Number[]")
-            assertThat(it.toString(CodeLanguage.KOTLIN))
-                .isEqualTo("kotlin.Array<out kotlin.Number>")
-        }
-        assertThrows<IllegalArgumentException> {
-            XTypeName.getArrayName(XTypeName.getConsumerSuperName(Number::class.asClassName()))
-        }.hasMessageThat().isEqualTo("Can't have contra-variant component types in Java " +
-            "arrays. Found '? super java.lang.Number'.")
     }
 }

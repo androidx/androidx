@@ -38,7 +38,6 @@ import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -507,7 +506,7 @@ public final class Camera2CameraControlImplDeviceTest {
         future.get(10, TimeUnit.SECONDS);
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(captureCallback, timeout(3000).times(1))
-                .onCaptureCompleted(anyInt(), any(CameraCaptureResult.class));
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     private Camera2CameraControlImpl createCamera2CameraControlWithPhysicalCamera() {
@@ -1045,8 +1044,7 @@ public final class Camera2CameraControlImplDeviceTest {
         private CountDownLatch mLatchForOnCaptureCompleted;
 
         @Override
-        public void onCaptureCompleted(int captureConfigId,
-                @NonNull CameraCaptureResult cameraCaptureResult) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
             synchronized (this) {
                 if (mLatchForOnCaptureCompleted != null) {
                     mLatchForOnCaptureCompleted.countDown();

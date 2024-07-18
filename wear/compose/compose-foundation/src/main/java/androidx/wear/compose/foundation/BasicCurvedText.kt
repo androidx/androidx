@@ -49,15 +49,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
-import kotlin.math.abs
-import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * [basicCurvedText] can be only created within a [CurvedLayout] since it's not a composable.
+ * [basicCurvedText] can be only created within the [CurvedLayout] since it's not a not a
+ * composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
@@ -87,7 +86,8 @@ public fun CurvedScope.basicCurvedText(
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * [basicCurvedText] can be only created within a [CurvedLayout] since it's not a composable.
+ * [basicCurvedText] can be only created within the [CurvedLayout] since it's not a not a
+ * composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
@@ -146,23 +146,10 @@ internal class CurvedTextChild(
         )
 
         // Size the compose-ui node reasonably.
-
-        // Heuristic calculations of maxWidth:
-        // 1. Find the text's center point. This is offset from the circle's center by a distance
-        //    equal to:
-        //    radius - (textHeight / 2)
-        // 2. Construct a perpendicular line from the text's center point, extending it until it
-        //    intersects the circle's circumference.
-        // 3. Using the Pythagorean theorem, we can determine half of the desired width. We know:
-        //    * The circle's radius
-        //    * The distance of the text from the circle's center (calculated in step 1)
-        // 4. The Pythagorean equation in this context is:
-        //    radius^2 = (radius - textHeight/2)^2 + (maxWidth/2)^2
-        // 5. Solving for maxWidth, we get:
-        //    maxWidth = 2 * sqrt( textHeight * (radius - textHeight/4) )
-
+        // We make the bounding rectangle sizes as the text, but cut the width (if needed) to the
+        // point at which the circle crosses the middle of the side
         val height = delegate.textHeight.roundToInt()
-        val maxWidth = 2 * sqrt(height * (radius - height / 4))
+        val maxWidth = sqrt(height * (radius - height / 4))
         val width = delegate.textWidth.coerceAtMost(maxWidth).roundToInt()
 
         // Measure the corresponding measurable.
@@ -233,7 +220,6 @@ internal class CurvedTextDelegate {
     private val textPath = android.graphics.Path()
 
     var lastLayoutInfo: CurvedLayoutInfo? = null
-    var lastParentSweepRadians: Float = 0f
 
     fun updateIfNeeded(
         text: String,
@@ -294,17 +280,13 @@ internal class CurvedTextDelegate {
         }
     }
 
-    private fun updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo, parentSweepRadians: Float) {
-        if (layoutInfo != lastLayoutInfo ||
-            abs(lastParentSweepRadians - parentSweepRadians) > 1e-4) {
+    private fun updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo) {
+        if (layoutInfo != lastLayoutInfo) {
             lastLayoutInfo = layoutInfo
-            lastParentSweepRadians = parentSweepRadians
-
             with(layoutInfo) {
                 val clockwiseFactor = if (clockwise) 1f else -1f
 
-                val sweepDegree = min(sweepRadians, parentSweepRadians)
-                    .toDegrees().coerceAtMost(360f)
+                val sweepDegree = sweepRadians.toDegrees().coerceAtMost(360f)
 
                 val centerX = centerOffset.x
                 val centerY = centerOffset.y
@@ -351,7 +333,7 @@ internal class CurvedTextDelegate {
         background: Color
     ) {
         updateTypeFace()
-        updatePathsIfNeeded(layoutInfo, parentSweepRadians)
+        updatePathsIfNeeded(layoutInfo)
 
         drawIntoCanvas { canvas ->
             if (background.isSpecified && background != Color.Transparent) {

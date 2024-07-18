@@ -25,9 +25,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Scope for the panes of pane scaffolds.
- */
+/** Scope for the panes of pane scaffolds. */
 sealed interface PaneScaffoldScope {
     /**
      * This modifier specifies the preferred width for a pane, and the pane scaffold implementation
@@ -100,8 +98,7 @@ private object AnimatedPaneElement : ModifierNodeElement<AnimatedPaneNode>() {
         return AnimatedPaneNode()
     }
 
-    override fun update(node: AnimatedPaneNode) {
-    }
+    override fun update(node: AnimatedPaneNode) {}
 
     override fun InspectorInfo.inspectableProperties() {
         inspectorInfo()

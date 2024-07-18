@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.graphics.opengl.egl.EGLConfigAttributes.Builder#Builder():
-    Added constructor androidx.graphics.opengl.egl.EGLConfigAttributes.Builder()

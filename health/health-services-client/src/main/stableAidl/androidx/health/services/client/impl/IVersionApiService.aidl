@@ -29,14 +29,14 @@ import androidx.health.services.client.impl.response.MeasureCapabilitiesResponse
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IVersionApiService {
     /**
-     * Deprecated. Now defined within VersionApiService.kt due to stable AIDL preventing this from
-      being modified.
+     * API version of _this_ AIDL interface. Should be incremented every time a
+     * new method is added.
      */
     const int VERSION_API_SERVICE_VERSION = 1;
 
     /**
-     * Deprecated. Now defined within VersionApiService.kt due to stable AIDL preventing this from
-      being modified.
+     * Version of the SDK as a whole. Should be incremented on each release,
+     * regardless of whether the API surface has changed.
      */
     const int CANONICAL_SDK_VERSION = 27;
 

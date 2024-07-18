@@ -39,8 +39,10 @@ public final class ProcessCompat {
      * Compatibility behavior:
      * <ul>
      * <li>SDK 24 and above, this method matches platform behavior.
-     * <li>SDK 23 and earlier, this method is a best-effort to match platform behavior, but may
+     * <li>SDK 16 through 23, this method is a best-effort to match platform behavior, but may
      * default to returning {@code true} if an accurate result is not available.
+     * <li>SDK 15 and below, this method always returns {@code true} as application UIDs and
+     * isolated processes did not exist yet.
      * </ul>
      *
      * @param uid a kernel uid
@@ -52,8 +54,12 @@ public final class ProcessCompat {
     public static boolean isApplicationUid(int uid) {
         if (Build.VERSION.SDK_INT >= 24) {
             return Api24Impl.isApplicationUid(uid);
+        } else if (Build.VERSION.SDK_INT >= 17) {
+            return Api17Impl.isApplicationUid(uid);
+        } else if (Build.VERSION.SDK_INT == 16) {
+            return Api16Impl.isApplicationUid(uid);
         } else {
-            return Api19Impl.isApplicationUid(uid);
+            return true;
         }
     }
 
@@ -70,20 +76,21 @@ public final class ProcessCompat {
         }
     }
 
-    static class Api19Impl {
+    @RequiresApi(17)
+    static class Api17Impl {
         private static final Object sResolvedLock = new Object();
 
         private static Method sMethodUserHandleIsAppMethod;
         private static boolean sResolved;
 
-        private Api19Impl() {
+        private Api17Impl() {
             // This class is non-instantiable.
         }
 
         @SuppressWarnings({"JavaReflectionMemberAccess", "CatchAndPrintStackTrace"})
         @SuppressLint("DiscouragedPrivateApi")
         static boolean isApplicationUid(int uid) {
-            // Prior to API 24, the equivalent isApp(int) hidden method moved to public class
+            // In JELLY_BEAN_MR2, the equivalent isApp(int) hidden method moved to public class
             // android.os.UserHandle.
             try {
                 synchronized (sResolvedLock) {
@@ -95,6 +102,45 @@ public final class ProcessCompat {
                 }
                 if (sMethodUserHandleIsAppMethod != null) {
                     Boolean result = (Boolean) sMethodUserHandleIsAppMethod.invoke(null, uid);
+                    if (result == null) {
+                        // This should never happen, as the method returns a boolean primitive.
+                        throw new NullPointerException();
+                    }
+                    return result;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return true;
+        }
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private static final Object sResolvedLock = new Object();
+
+        private static Method sMethodUserIdIsAppMethod;
+        private static boolean sResolved;
+
+        private Api16Impl() {
+            // This class is non-instantiable.
+        }
+
+        @SuppressLint("PrivateApi")
+        @SuppressWarnings("CatchAndPrintStackTrace")
+        static boolean isApplicationUid(int uid) {
+            // In JELLY_BEAN_MR1, the equivalent isApp(int) hidden method was available on hidden
+            // class android.os.UserId.
+            try {
+                synchronized (sResolvedLock) {
+                    if (!sResolved) {
+                        sResolved = true;
+                        sMethodUserIdIsAppMethod = Class.forName("android.os.UserId")
+                                .getDeclaredMethod("isApp", int.class);
+                    }
+                }
+                if (sMethodUserIdIsAppMethod != null) {
+                    Boolean result = (Boolean) sMethodUserIdIsAppMethod.invoke(null, uid);
                     if (result == null) {
                         // This should never happen, as the method returns a boolean primitive.
                         throw new NullPointerException();

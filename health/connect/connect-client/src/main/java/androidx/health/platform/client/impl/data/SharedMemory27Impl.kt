@@ -25,9 +25,11 @@ import androidx.annotation.RequiresApi
 
 /**
  * Internal class to ensure calls to shared memory are guarded, so that
+ *
+ * @suppress
  */
 @RequiresApi(api = Build.VERSION_CODES.O_MR1)
-internal object SharedMemory27Impl {
+object SharedMemory27Impl {
     /** Flattens `bytes` into `dest` using [SharedMemory]. */
     @DoNotInline
     fun writeToParcelUsingSharedMemory(name: String, bytes: ByteArray, dest: Parcel, flags: Int) {

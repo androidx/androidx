@@ -22,7 +22,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.Header;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -77,16 +77,15 @@ public class PagedListTemplate extends Screen {
             }
         }
 
-        Header.Builder headerBuilder = new Header.Builder()
-                .setStartHeaderAction(Action.BACK)
-                .setTitle(mRowList.getTemplateTitle());
-
         ListTemplate.Builder builder = new ListTemplate.Builder()
-                .setSingleList(listBuilder.build());
+                .setSingleList(listBuilder.build())
+                .setTitle(mRowList.getTemplateTitle())
+                .setHeaderAction(Action.BACK);
 
         // If the current page does not cover the last item, we will show a More button
         if ((mPage + 1) * listLimit < screenList.size() && mPage + 1 < MAX_PAGES) {
-            headerBuilder.addEndHeaderAction(new Action.Builder()
+            builder.setActionStrip(new ActionStrip.Builder()
+                    .addAction(new Action.Builder()
                             .setTitle(getCarContext().getString(R.string.more_action_title))
                             .setOnClickListener(() -> {
                                 getScreenManager().push(
@@ -97,10 +96,11 @@ public class PagedListTemplate extends Screen {
                                         )
                                 );
                             })
-                            .build());
+                            .build())
+                    .build());
         }
 
-        return builder.setHeader(headerBuilder.build()).build();
+        return builder.build();
     }
 
     /** A list of rows, used to populate a {@link PagedListTemplate} */

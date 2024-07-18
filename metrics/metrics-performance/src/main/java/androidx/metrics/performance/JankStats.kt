@@ -100,8 +100,14 @@ class JankStats private constructor(
                 Build.VERSION.SDK_INT >= 24 -> {
                     JankStatsApi24Impl(this, decorView, window)
                 }
-                else -> {
+                Build.VERSION.SDK_INT >= 22 -> {
+                    JankStatsApi22Impl(this, decorView)
+                }
+                Build.VERSION.SDK_INT >= 16 -> {
                     JankStatsApi16Impl(this, decorView)
+                }
+                else -> {
+                    JankStatsBaseImpl(this)
                 }
             }
         implementation.setupFrameTimer(true)
@@ -120,10 +126,8 @@ class JankStats private constructor(
          */
         @UiThread
         set(value) {
-            if (value != field) {
-                implementation.setupFrameTimer(value)
-                field = value
-            }
+            implementation.setupFrameTimer(value)
+            field = value
         }
 
     /**

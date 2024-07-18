@@ -81,9 +81,7 @@ public expect abstract class Navigator<D : NavDestination>() {
      * @param navigatorExtras extras unique to your Navigator.
      */
     public open fun navigate(
-        entries: List<NavBackStackEntry>,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        entries: List<NavBackStackEntry>, navOptions: NavOptions?, navigatorExtras: Extras?
     )
 
     /**
@@ -111,10 +109,7 @@ public expect abstract class Navigator<D : NavDestination>() {
      */
     // TODO Deprecate this method once all call sites are removed
     public open fun navigate(
-        destination: D,
-        args: Bundle?,
-        navOptions: NavOptions?,
-        navigatorExtras: Extras?
+        destination: D, args: Bundle?, navOptions: NavOptions?, navigatorExtras: Extras?
     ): NavDestination?
 
     /**

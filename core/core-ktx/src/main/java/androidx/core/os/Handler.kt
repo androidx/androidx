@@ -54,10 +54,7 @@ public inline fun Handler.postDelayed(
  * }
  * ```
  *
- * @param uptimeMillis The absolute time at which the callback should run, using the
- * [android.os.SystemClock#uptimeMillis] time-base.
  * @param token An optional object with which the posted message will be associated.
- * @param action The action that will be executed.
  * @return the created Runnable
  */
 public inline fun Handler.postAtTime(

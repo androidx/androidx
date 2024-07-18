@@ -16,26 +16,47 @@
 
 package com.example.androidx.mediarouting.activities.systemrouting;
 
-import android.text.TextUtils;
-
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
 
 /**
  * A model that holds data about a system routes source.
  */
 public final class SystemRoutesSourceItem implements SystemRoutesAdapterItem {
+    public static final int ROUTE_SOURCE_MEDIA_ROUTER = 0;
+    public static final int ROUTE_SOURCE_MEDIA_ROUTER2 = 1;
+    public static final int ROUTE_SOURCE_ANDROIDX_ROUTER = 2;
+    public static final int ROUTE_SOURCE_BLUETOOTH_MANAGER = 3;
+    public static final int ROUTE_SOURCE_AUDIO_MANAGER = 4;
 
-    @NonNull private final String mName;
-
-    public SystemRoutesSourceItem(@NonNull String name) {
-        mName = name;
+    @IntDef({
+            ROUTE_SOURCE_MEDIA_ROUTER,
+            ROUTE_SOURCE_MEDIA_ROUTER2,
+            ROUTE_SOURCE_ANDROIDX_ROUTER,
+            ROUTE_SOURCE_BLUETOOTH_MANAGER,
+            ROUTE_SOURCE_AUDIO_MANAGER
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Type {
     }
 
-    @NonNull
-    public String getSourceName() {
-        return mName;
+    @Type
+    private final int mType;
+
+    private SystemRoutesSourceItem(@NonNull Builder builder) {
+        mType = builder.mType;
+    }
+
+    /**
+     * Returns a route source item type.
+     * see {@link SystemRoutesSourceItem.Type}
+     */
+    public int getType() {
+        return mType;
     }
 
     @Override
@@ -43,11 +64,32 @@ public final class SystemRoutesSourceItem implements SystemRoutesAdapterItem {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SystemRoutesSourceItem that = (SystemRoutesSourceItem) o;
-        return TextUtils.equals(mName, that.mName);
+        return mType == that.mType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mName);
+        return Objects.hash(mType);
+    }
+
+    /**
+     * Helps to construct {@link SystemRoutesSourceItem}.
+     */
+    public static final class Builder {
+
+        @Type
+        private final int mType;
+
+        public Builder(@Type int type) {
+            mType = type;
+        }
+
+        /**
+         * Builds {@link SystemRoutesSourceItem}.
+         */
+        @NonNull
+        public SystemRoutesSourceItem build() {
+            return new SystemRoutesSourceItem(this);
+        }
     }
 }

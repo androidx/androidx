@@ -187,7 +187,7 @@ class TestSchedulerRealExecutorTest {
         }
 
         drainSerialExecutor()
-        assertThat(wm.getWorkInfoById(request.id).get()!!.state).isEqualTo(ENQUEUED)
+        assertThat(wm.getWorkInfoById(request.id).get().state).isEqualTo(ENQUEUED)
         assertThat(CountingTestWorker.COUNT.get()).isEqualTo(1)
     }
 

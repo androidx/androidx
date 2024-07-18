@@ -19,7 +19,6 @@ package androidx.camera.core;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
-import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RANGE;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
@@ -38,6 +37,8 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
+import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DISABLED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
@@ -62,6 +63,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -76,7 +78,6 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
-import androidx.camera.core.impl.ImageInputConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -288,6 +289,20 @@ public final class Preview extends UseCase {
         }
     }
 
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    @IntRange(from = 0, to = 359)
+    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal,
+            boolean requireMirroring) {
+        if (cameraInternal.getHasTransform()) {
+            return super.getRelativeRotation(cameraInternal, requireMirroring);
+        } else {
+            // If there is a virtual parent camera, the buffer is already rotated because
+            // SurfaceView cannot handle additional rotation.
+            return 0;
+        }
+    }
+
     private boolean shouldMirror(@NonNull CameraInternal camera) {
         // Since PreviewView cannot mirror, we will always mirror preview stream during buffer
         // copy. If there has been a buffer copy, it means it's already mirrored. Otherwise,
@@ -331,8 +346,7 @@ public final class Preview extends UseCase {
         // output target for these two cases.
         if (mSurfaceProvider != null) {
             sessionConfigBuilder.addSurface(mSessionDeferrableSurface,
-                    streamSpec.getDynamicRange(),
-                    getPhysicalCameraId());
+                    streamSpec.getDynamicRange());
         }
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -518,7 +532,7 @@ public final class Preview extends UseCase {
     /**
      * Returns the resolution selector setting.
      *
-     * <p>This setting is set when constructing a Preview using
+     * <p>This setting is set when constructing an ImageCapture using
      * {@link Builder#setResolutionSelector(ResolutionSelector)}.
      */
     @Nullable
@@ -660,36 +674,6 @@ public final class Preview extends UseCase {
     }
 
     /**
-     * Returns the dynamic range.
-     *
-     * <p>The dynamic range is set by {@link Preview.Builder#setDynamicRange(DynamicRange)}.
-     * If the dynamic range set is not a fully defined dynamic range, such as
-     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}, then it will be returned just as provided,
-     * and will not be returned as a fully defined dynamic range. The fully defined dynamic
-     * range, which is determined by resolving the combination of requested dynamic ranges from
-     * other use cases according to the device capabilities, will be
-     * communicated to the {@link Preview.SurfaceProvider} via
-     * {@link SurfaceRequest#getDynamicRange()}}.
-     *
-     * <p>If the dynamic range was not provided to
-     * {@link Preview.Builder#setDynamicRange(DynamicRange)}, this will return the default of
-     * {@link DynamicRange#UNSPECIFIED}
-     *
-     * @return the dynamic range set for this {@code Preview} use case.
-     *
-     * @see Preview.Builder#setDynamicRange(DynamicRange)
-     */
-    // Internal implementation note: this method should not be used to retrieve the dynamic range
-    // that will be sent to the SurfaceProvider. That should always be retrieved from the StreamSpec
-    // since that will be the final DynamicRange chosen by the camera based on other use case
-    // combinations.
-    @NonNull
-    public DynamicRange getDynamicRange() {
-        return getCurrentConfig().hasDynamicRange() ? getCurrentConfig().getDynamicRange() :
-                Defaults.DEFAULT_DYNAMIC_RANGE;
-    }
-
-    /**
      * Returns {@link PreviewCapabilities} to query preview stream related device capability.
      *
      * @return {@link PreviewCapabilities}
@@ -793,19 +777,11 @@ public final class Preview extends UseCase {
 
         private static final PreviewConfig DEFAULT_CONFIG;
 
-        /**
-         * Preview uses an UNSPECIFIED dynamic range by default. This means the dynamic range can be
-         * inherited from other use cases during dynamic range resolution when the use case is
-         * bound.
-         */
-        private static final DynamicRange DEFAULT_DYNAMIC_RANGE = DynamicRange.UNSPECIFIED;
-
         static {
             Builder builder = new Builder()
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
-                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
+                    .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
@@ -817,11 +793,10 @@ public final class Preview extends UseCase {
     }
 
     /** Builder for a {@link Preview}. */
-    @SuppressWarnings({"ObjectToString", "HiddenSuperclass"})
+    @SuppressWarnings("ObjectToString")
     public static final class Builder
             implements UseCaseConfig.Builder<Preview, PreviewConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
-            ImageInputConfig.Builder<Builder>,
             ThreadConfig.Builder<Builder> {
 
         private final MutableOptionsBundle mMutableConfig;
@@ -1151,88 +1126,6 @@ public final class Preview extends UseCase {
             return this;
         }
 
-        // Implementations of ImageInputConfig.Builder default methods
-
-        /**
-         * Sets the {@link DynamicRange}.
-         *
-         * <p>Dynamic range specifies how the range of colors, highlights and shadows captured by
-         * the frame producer are represented on a display. Some dynamic ranges allow the preview
-         * surface to make full use of the extended range of brightness of the display.
-         *
-         * <p>The supported dynamic ranges for preview depend on the capabilities of the
-         * camera and the ability of the {@link Surface} provided by the
-         * {@link Preview.SurfaceProvider} to consume the dynamic range. The supported dynamic
-         * ranges of the camera can be queried using
-         * {@link CameraInfo#querySupportedDynamicRanges(Set)}.
-         *
-         * <p>As an example, having written an OpenGL frame processing pipeline that can properly
-         * handle input dynamic ranges {@link DynamicRange#SDR}, {@link DynamicRange#HLG_10_BIT} and
-         * {@link DynamicRange#HDR10_10_BIT}, it's possible to filter those dynamic
-         * ranges based on which dynamic ranges the camera can produce via the {@link Preview}
-         * use case:
-         * <pre>
-         *   <code>
-         *
-         *        // Constant defining the dynamic ranges supported as input for
-         *        // my OpenGL processing pipeline. These will either be outputted
-         *        // in the same dynamic range as the input or will be tone-mapped
-         *        // to another dynamic range by my pipeline.
-         *        List&lt;DynamicRange&gt; MY_SUPPORTED_DYNAMIC_RANGES = Set.of(
-         *                DynamicRange.SDR,
-         *                DynamicRange.HLG_10_BIT,
-         *                DynamicRange.HDR10_10_BIT);
-         *        ...
-         *
-         *        // Query dynamic ranges supported by the camera from the
-         *        // dynamic ranges supported by my processing pipeline.
-         *        mSupportedHighDynamicRanges =
-         *                mCameraInfo.querySupportedDynamicRanges(
-         *                        mySupportedDynamicRanges);
-         *
-         *        // Update our UI picker for dynamic range.
-         *        ...
-         *
-         *
-         *        // Create the Preview use case from the dynamic range
-         *        // selected by the UI picker.
-         *        mPreview = new Preview.Builder()
-         *                .setDynamicRange(mSelectedDynamicRange)
-         *                .build();
-         *   </code>
-         * </pre>
-         *
-         * <p>If the dynamic range is not provided, the returned {@code Preview} use case will use
-         * a default of {@link DynamicRange#UNSPECIFIED}. When a {@code Preview} is bound with
-         * other use cases that specify a dynamic range, such as
-         * {@link androidx.camera.video.VideoCapture}, and the preview dynamic range is {@code
-         * UNSPECIFIED}, the resulting dynamic range of the preview will usually match the other
-         * use case's dynamic range. If no other use cases are bound with the preview, an
-         * {@code UNSPECIFIED} dynamic range will resolve to {@link DynamicRange#SDR}. When
-         * using a {@code Preview} with another use case, it is recommended to leave the dynamic
-         * range of the {@code Preview} as {@link DynamicRange#UNSPECIFIED}, so the camera can
-         * choose the best supported dynamic range that satisfies the requirements of both use
-         * cases.
-         *
-         * <p>If an unspecified dynamic range is used, the resolved fully-defined dynamic range of
-         * frames sent from the camera will be communicated to the
-         * {@link Preview.SurfaceProvider} via {@link SurfaceRequest#getDynamicRange()}, and the
-         * provided {@link Surface} should be configured to use that dynamic range.
-         *
-         * <p>It is possible to choose a high dynamic range (HDR) with unspecified encoding by
-         * providing {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}.
-         *
-         * @return The current Builder.
-         * @see DynamicRange
-         * @see CameraInfo#querySupportedDynamicRanges(Set)
-         */
-        @NonNull
-        @Override
-        public Builder setDynamicRange(@NonNull DynamicRange dynamicRange) {
-            getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
-            return this;
-        }
-
         // Implementations of ThreadConfig.Builder default methods
 
         /**
@@ -1368,6 +1261,23 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setSurfaceOccupancyPriority(int priority) {
             getMutableConfig().insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY, priority);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setCameraSelector(@NonNull CameraSelector cameraSelector) {
+            getMutableConfig().insertOption(OPTION_CAMERA_SELECTOR, cameraSelector);
+            return this;
+        }
+
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        @NonNull
+        public Builder setUseCaseEventCallback(
+                @NonNull UseCase.EventCallback useCaseEventCallback) {
+            getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
         }
 

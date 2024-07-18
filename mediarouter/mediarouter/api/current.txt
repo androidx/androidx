@@ -14,7 +14,7 @@ package androidx.mediarouter.app {
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
 
-  public class MediaRouteButton extends android.view.View {
+  public class MediaRouteButton extends androidx.appcompat.widget.AppCompatImageView {
     ctor public MediaRouteButton(android.content.Context);
     ctor public MediaRouteButton(android.content.Context, android.util.AttributeSet?);
     ctor public MediaRouteButton(android.content.Context, android.util.AttributeSet?, int);
@@ -457,30 +457,16 @@ package androidx.mediarouter.media {
     field public static final int CONNECTION_STATE_CONNECTING = 1; // 0x1
     field public static final int CONNECTION_STATE_DISCONNECTED = 0; // 0x0
     field public static final int DEVICE_TYPE_AUDIO_VIDEO_RECEIVER = 4; // 0x4
-    field public static final int DEVICE_TYPE_BLE_HEADSET = 22; // 0x16
-    field public static final int DEVICE_TYPE_BLUETOOTH_A2DP = 3; // 0x3
-    field public static final int DEVICE_TYPE_BUILTIN_SPEAKER = 12; // 0xc
     field public static final int DEVICE_TYPE_CAR = 9; // 0x9
     field public static final int DEVICE_TYPE_COMPUTER = 7; // 0x7
-    field public static final int DEVICE_TYPE_DOCK = 19; // 0x13
     field public static final int DEVICE_TYPE_GAME_CONSOLE = 8; // 0x8
     field public static final int DEVICE_TYPE_GROUP = 1000; // 0x3e8
-    field public static final int DEVICE_TYPE_HDMI = 16; // 0x10
-    field public static final int DEVICE_TYPE_HDMI_ARC = 23; // 0x17
-    field public static final int DEVICE_TYPE_HDMI_EARC = 24; // 0x18
-    field public static final int DEVICE_TYPE_HEARING_AID = 21; // 0x15
-    field public static final int DEVICE_TYPE_REMOTE_SPEAKER = 2; // 0x2
     field public static final int DEVICE_TYPE_SMARTPHONE = 11; // 0xb
     field public static final int DEVICE_TYPE_SMARTWATCH = 10; // 0xa
-    field @Deprecated public static final int DEVICE_TYPE_SPEAKER = 2; // 0x2
+    field public static final int DEVICE_TYPE_SPEAKER = 2; // 0x2
     field public static final int DEVICE_TYPE_TABLET = 5; // 0x5
     field public static final int DEVICE_TYPE_TABLET_DOCKED = 6; // 0x6
     field public static final int DEVICE_TYPE_TV = 1; // 0x1
-    field public static final int DEVICE_TYPE_USB_ACCESSORY = 18; // 0x12
-    field public static final int DEVICE_TYPE_USB_DEVICE = 17; // 0x11
-    field public static final int DEVICE_TYPE_USB_HEADSET = 20; // 0x14
-    field public static final int DEVICE_TYPE_WIRED_HEADPHONES = 14; // 0xe
-    field public static final int DEVICE_TYPE_WIRED_HEADSET = 13; // 0xd
     field public static final int PLAYBACK_TYPE_LOCAL = 0; // 0x0
     field public static final int PLAYBACK_TYPE_REMOTE = 1; // 0x1
     field public static final int PLAYBACK_VOLUME_FIXED = 0; // 0x0

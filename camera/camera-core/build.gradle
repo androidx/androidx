@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -33,13 +27,11 @@ dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
     api(libs.guavaListenableFuture)
-    api("androidx.annotation:annotation-experimental:1.4.0")
+    api("androidx.annotation:annotation-experimental:1.1.0")
     api(libs.kotlinStdlib) // Added for annotation-experimental
     api("androidx.core:core:1.1.0")
-    implementation(libs.kotlinCoroutinesAndroid)
     implementation("androidx.exifinterface:exifinterface:1.3.2")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
     implementation(libs.autoValueAnnotations)
     androidTestImplementation project(path: ':camera:camera-camera2')
@@ -48,7 +40,6 @@ dependencies {
     annotationProcessor(libs.autoValue)
 
     testImplementation(libs.kotlinCoroutinesAndroid)
-    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -62,7 +53,6 @@ dependencies {
     testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     })
-    testImplementation(project(":camera:camera-lifecycle"))
     testImplementation("androidx.exifinterface:exifinterface:1.3.2")
 
     androidTestImplementation(libs.multidex)
@@ -98,7 +88,7 @@ android {
         }
     }
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 
@@ -130,13 +120,13 @@ tasks.withType(Test).configureEach { test ->
 
 androidx {
     name = "Camera Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Core components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
     metalavaK2UastEnabled = true
-    extraLicense {
+    license {
         name = "BSD License"
         url = "https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/main/README.chromium"
     }

@@ -17,8 +17,8 @@
 package androidx.room.parser.expansion
 
 import androidx.room.parser.QueryType
+import androidx.room.parser.SQLiteBaseVisitor
 import androidx.room.parser.SQLiteParser
-import androidx.room.parser.SQLiteParserBaseVisitor
 import androidx.room.parser.SingleQuerySqlParser
 import androidx.room.parser.Table
 import org.antlr.v4.runtime.RuleContext
@@ -33,7 +33,7 @@ class ExpandableQueryVisitor(
     private val syntaxErrors: List<String>,
     statement: ParseTree,
     private val forRuntimeQuery: Boolean
-) : SQLiteParserBaseVisitor<Void?>() {
+) : SQLiteBaseVisitor<Void?>() {
     private val resultColumns = arrayListOf<SectionInfo>()
     private val explicitColumns = arrayListOf<String>()
     private val bindingExpressions = arrayListOf<SectionInfo>()
@@ -197,8 +197,8 @@ private fun RuleContext.ancestors(): Sequence<RuleContext> = generateSequence(pa
  */
 internal val RuleContext.isCoreSelect: Boolean
     get() {
-        return this is SQLiteParser.Select_coreContext &&
-            ancestors().none { it is SQLiteParser.Select_coreContext }
+        return this is SQLiteParser.Select_or_valuesContext &&
+            ancestors().none { it is SQLiteParser.Select_or_valuesContext }
     }
 
 class ExpandableSqlParser {

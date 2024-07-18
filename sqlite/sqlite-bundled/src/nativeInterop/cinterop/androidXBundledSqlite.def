@@ -1,9 +1,0 @@
-package = androidx.sqlite3.bundled
-headers = sqlite3.h
-
-linkerOpts.linux_x64 = -lpthread -ldl
-linkerOpts.macos_x64 = -lpthread -ldl
-
-noStringConversion = sqlite3_prepare_v2 sqlite3_prepare_v3
-
-# Static library and path for SQLite is added by AndroidX Multiplatform plugin.

@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget
 
-import androidx.annotation.RestrictTo
 import androidx.glance.GlanceModifier
 
 /**
@@ -31,7 +30,5 @@ internal data class ClipToOutlineModifier(val clip: Boolean) : GlanceModifier.El
  * An internal to AppWidget specific modifier used to specify that the item should be "enabled" in
  * the Android View meaning of enabled.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun GlanceModifier.enabled(enabled: Boolean) = this.then(EnabledModifier(enabled))
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class EnabledModifier(val enabled: Boolean) : GlanceModifier.Element
+internal fun GlanceModifier.enabled(enabled: Boolean) = this.then(EnabledModifier(enabled))
+internal data class EnabledModifier(val enabled: Boolean) : GlanceModifier.Element

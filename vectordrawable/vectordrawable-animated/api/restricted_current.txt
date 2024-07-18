@@ -42,7 +42,7 @@ package androidx.vectordrawable.graphics.drawable {
     method public static android.animation.Animator! loadAnimator(android.content.Context!, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ArgbEvaluator implements android.animation.TypeEvaluator<java.lang.Object!> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ArgbEvaluator implements android.animation.TypeEvaluator<java.lang.Object> {
     ctor public ArgbEvaluator();
     method public Object! evaluate(float, Object!, Object!);
     method public static androidx.vectordrawable.graphics.drawable.ArgbEvaluator getInstance();

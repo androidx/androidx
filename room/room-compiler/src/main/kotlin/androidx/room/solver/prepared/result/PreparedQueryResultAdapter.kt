@@ -18,7 +18,6 @@ package androidx.room.solver.prepared.result
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isInt
@@ -27,7 +26,6 @@ import androidx.room.compiler.processing.isLong
 import androidx.room.compiler.processing.isVoid
 import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.KotlinTypeNames
-import androidx.room.ext.RoomTypeNames
 import androidx.room.parser.QueryType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
@@ -108,40 +106,6 @@ class PreparedQueryResultAdapter(
                 nextControlFlow("finally")
                 addStatement("%N.release(%L)", preparedStmtProperty, stmtQueryVal)
                 endControlFlow()
-            }
-        }
-    }
-
-    fun executeAndReturn(
-        connectionVar: String,
-        statementVar: String,
-        scope: CodeGenScope
-    ) {
-        scope.builder.apply {
-            addStatement("%L.step()", statementVar)
-            if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
-                if (returnType.isVoidObject()) {
-                    addStatement("return null")
-                } else if (returnType.isVoid() && language == CodeLanguage.JAVA) {
-                    addStatement("return null")
-                } else if (returnType.isKotlinUnit() && language == CodeLanguage.JAVA) {
-                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
-                }
-            } else {
-                val returnPrefix = when (language) {
-                    CodeLanguage.JAVA -> "return "
-                    CodeLanguage.KOTLIN -> ""
-                }
-                val returnFunctionName = when (queryType) {
-                    QueryType.INSERT -> "getLastInsertedRowId"
-                    QueryType.UPDATE, QueryType.DELETE -> "getTotalChangedRows"
-                    else -> error("No return function name for query type $queryType")
-                }
-                addStatement(
-                    "$returnPrefix%M(%L)",
-                    RoomTypeNames.CONNECTION_UTIL.packageMember(returnFunctionName),
-                    connectionVar
-                )
             }
         }
     }

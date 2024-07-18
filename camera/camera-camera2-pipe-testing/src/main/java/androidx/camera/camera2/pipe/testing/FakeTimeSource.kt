@@ -16,9 +16,11 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FakeTimeSource : TimeSource {
     public var currentTimestamp = TimestampNs(0L)
 

@@ -231,14 +231,6 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
 
-        <Button android:text="@string/run_foreground_worker_network_request"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/run_foreground_worker_network_request"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"/>
-
         <Button android:text="@string/cancel_foreground_worker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -355,14 +347,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/stress_test"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="16dp"
-            android:layout_marginStart="16dp"/>
-
-        <Button android:text="@string/enqueue_network_request"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/enqueue_network_request"
             android:layout_marginTop="12dp"
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>

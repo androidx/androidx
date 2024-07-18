@@ -37,7 +37,6 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.impl.AndroidUtil
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
@@ -146,11 +145,6 @@ class VideoEncoderTest(
             "Skip test for devices with ExtraSupportedResolutionQuirk, since the extra" +
                 " resolutions cannot be used when the provided surface is an encoder surface.",
             DeviceQuirks.get(ExtraSupportedResolutionQuirk::class.java) != null
-        )
-        // Skip for b/331618729
-        assumeFalse(
-            "Emulator API 28 crashes running this test.",
-            Build.VERSION.SDK_INT == 28 && AndroidUtil.isEmulator()
         )
 
         CameraXUtil.initialize(context, cameraConfig).get()

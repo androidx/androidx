@@ -1,56 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/fragment/app/FragmentContainerView.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/fragment/app/FragmentContainerView.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 20"
-        errorLine1="    @RequiresApi(20)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/fragment/app/FragmentContainerView.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) FragmentTransitionCompat21() else null"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/fragment/app/FragmentTransition.kt"/>
+            file="src/main/java/androidx/fragment/app/Fragment.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/fragment/app/FragmentTransitionCompat21.java"/>
+            file="src/main/java/androidx/fragment/app/Fragment.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `anim`.">
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 18) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/anim-v21"/>
+            file="src/main/java/androidx/fragment/app/FragmentContainerView.kt"/>
     </issue>
 
 </issues>

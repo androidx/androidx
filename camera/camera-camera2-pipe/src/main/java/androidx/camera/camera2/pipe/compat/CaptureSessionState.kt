@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
 import android.view.Surface
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBehavior
 import androidx.camera.camera2.pipe.CameraSurfaceManager
@@ -56,6 +59,7 @@ internal val captureSessionDebugIds = atomic(0)
  *
  * This class is thread safe.
  */
+@RequiresApi(21)
 internal class CaptureSessionState(
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
@@ -308,12 +312,6 @@ internal class CaptureSessionState(
                     captureSession.close()
                 }
             }
-            Debug.traceStop()
-        } else {
-            // We still need to indicate the stop signal because the graph state would transition to
-            // GraphStateStarting when the graph is being started.
-            Debug.traceStart { "$graphListener#onGraphStopped" }
-            graphListener.onGraphStopped(null)
             Debug.traceStop()
         }
 

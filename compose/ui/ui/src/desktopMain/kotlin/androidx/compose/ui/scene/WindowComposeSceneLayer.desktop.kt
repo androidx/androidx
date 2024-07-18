@@ -18,6 +18,7 @@ package androidx.compose.ui.scene
 
 import org.jetbrains.skia.Rect as SkRect
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.awt.getTransparentWindowBackground
 import androidx.compose.ui.awt.setTransparent
 import androidx.compose.ui.awt.toAwtRectangle
@@ -52,7 +53,8 @@ internal class WindowComposeSceneLayer(
     density: Density,
     layoutDirection: LayoutDirection,
     focusable: Boolean,
-    compositionContext: CompositionContext
+    compositionContext: CompositionContext,
+    private val renderSettings: RenderSettings
 ) : DesktopComposeSceneLayer(composeContainer, density, layoutDirection) {
     private val window get() = requireNotNull(composeContainer.window)
     private val windowContext = PlatformWindowContext().also {
@@ -193,14 +195,15 @@ internal class WindowComposeSceneLayer(
             mediator = mediator,
             windowContext = windowContext,
             renderDelegate = renderDelegate,
-            skiaLayerAnalytics = skiaLayerAnalytics
+            skiaLayerAnalytics = skiaLayerAnalytics,
+            renderSettings = renderSettings,
         )
     }
 
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
         val layoutDirection = layoutDirectionFor(container)
-        return SingleLayerComposeScene(
+        return PlatformLayersComposeScene(
             coroutineContext = mediator.coroutineContext,
             density = density,
             invalidate = mediator::onComposeInvalidation,

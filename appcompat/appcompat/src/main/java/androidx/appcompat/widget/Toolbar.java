@@ -67,6 +67,7 @@ import androidx.appcompat.view.menu.MenuPresenter;
 import androidx.appcompat.view.menu.MenuView;
 import androidx.appcompat.view.menu.SubMenuBuilder;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.MarginLayoutParamsCompat;
 import androidx.core.view.MenuHost;
 import androidx.core.view.MenuHostHelper;
 import androidx.core.view.MenuProvider;
@@ -558,10 +559,12 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
-        super.onRtlPropertiesChanged(layoutDirection);
+        if (Build.VERSION.SDK_INT >= 17) {
+            super.onRtlPropertiesChanged(layoutDirection);
+        }
 
         ensureContentInsets();
-        mContentInsets.setDirection(layoutDirection == View.LAYOUT_DIRECTION_RTL);
+        mContentInsets.setDirection(layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL);
     }
 
     /**
@@ -1570,7 +1573,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * @see #getContentInsetEndWithActions()
      */
     public int getCurrentContentInsetLeft() {
-        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
                 ? getCurrentContentInsetEnd()
                 : getCurrentContentInsetStart();
     }
@@ -1585,7 +1588,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * @see #getContentInsetEndWithActions()
      */
     public int getCurrentContentInsetRight() {
-        return getLayoutDirection() == View.LAYOUT_DIRECTION_RTL
+        return ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
                 ? getCurrentContentInsetStart()
                 : getCurrentContentInsetEnd();
     }
@@ -1952,7 +1955,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final boolean isRtl =  getLayoutDirection() ==  View.LAYOUT_DIRECTION_RTL;
+        final boolean isRtl =  ViewCompat.getLayoutDirection(this) ==  ViewCompat.LAYOUT_DIRECTION_RTL;
         final int width = getWidth();
         final int height = getHeight();
         final int paddingLeft = getPaddingLeft();
@@ -2266,10 +2269,10 @@ public class Toolbar extends ViewGroup implements MenuHost {
      * @param gravity Horizontal gravity to match against
      */
     private void addCustomViewsWithGravity(List<View> views, int gravity) {
-        final boolean isRtl =  getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        final boolean isRtl =  ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
         final int childCount = getChildCount();
         final int absGrav = GravityCompat.getAbsoluteGravity(gravity,
-                getLayoutDirection());
+                ViewCompat.getLayoutDirection(this));
 
         views.clear();
 
@@ -2295,7 +2298,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     }
 
     private int getChildHorizontalGravity(int gravity) {
-        final int ld =  getLayoutDirection();
+        final int ld =  ViewCompat.getLayoutDirection(this);
         final int absGrav = GravityCompat.getAbsoluteGravity(gravity, ld);
         final int hGrav = absGrav & Gravity.HORIZONTAL_GRAVITY_MASK;
         switch (hGrav) {
@@ -2304,7 +2307,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
             case Gravity.CENTER_HORIZONTAL:
                 return hGrav;
             default:
-                return ld == View.LAYOUT_DIRECTION_RTL ? Gravity.RIGHT : Gravity.LEFT;
+                return ld == ViewCompat.LAYOUT_DIRECTION_RTL ? Gravity.RIGHT : Gravity.LEFT;
         }
     }
 
@@ -2314,7 +2317,8 @@ public class Toolbar extends ViewGroup implements MenuHost {
 
     private int getHorizontalMargins(View v) {
         final MarginLayoutParams mlp = (MarginLayoutParams) v.getLayoutParams();
-        return mlp.getMarginStart() + mlp.getMarginEnd();
+        return MarginLayoutParamsCompat.getMarginStart(mlp) +
+                MarginLayoutParamsCompat.getMarginEnd(mlp);
     }
 
     private int getVerticalMargins(View v) {
@@ -2513,7 +2517,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
                     Api33Impl.findOnBackInvokedDispatcher(this);
             boolean shouldBeRegistered = hasExpandedActionView()
                     && currentDispatcher != null
-                    && this.isAttachedToWindow()
+                    && ViewCompat.isAttachedToWindow(this)
                     && mBackInvokedCallbackEnabled;
 
             if (shouldBeRegistered && mBackInvokedDispatcher == null) {

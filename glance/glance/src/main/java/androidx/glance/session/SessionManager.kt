@@ -16,21 +16,18 @@
 
 package androidx.glance.session
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.concurrent.futures.await
 import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.await
 import androidx.work.workDataOf
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 @JvmDefaultWithCompatibility
 /**
@@ -40,27 +37,6 @@ import kotlinx.coroutines.sync.withLock
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface SessionManager {
-    /**
-     * [runWithLock] provides a scope in which to run operations on SessionManager.
-     *
-     * The implementation must ensure that concurrent calls to [runWithLock] are mutually exclusive.
-     * Because this function holds a lock while running [block], clients should not run any
-     * long-running operations in [block]. The client should not maintain a reference to the
-     * [SessionManagerScope] after [block] returns.
-     */
-    suspend fun <T> runWithLock(block: suspend SessionManagerScope.() -> T): T
-
-    /**
-     * The name of the session key parameter, which is used to set the session key in the Worker's
-     * input data.
-     * TODO: consider using a typealias instead
-     */
-    val keyParam: String
-        get() = "KEY"
-}
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface SessionManagerScope {
     /**
      * Start a session for the Glance in [session].
      */
@@ -80,6 +56,9 @@ interface SessionManagerScope {
      * Gets the session corresponding to [key] if it exists
      */
     fun getSession(key: String): Session?
+
+    val keyParam: String
+        get() = "KEY"
 }
 
 @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -88,64 +67,48 @@ val GlanceSessionManager: SessionManager = SessionManagerImpl(SessionWorker::cla
 internal class SessionManagerImpl(
     private val workerClass: Class<out ListenableWorker>
 ) : SessionManager {
-    private companion object {
-        const val TAG = "GlanceSessionManager"
-        const val DEBUG = false
+    private val sessions = mutableMapOf<String, Session>()
+    companion object {
+        private const val TAG = "GlanceSessionManager"
+        private const val DEBUG = false
     }
 
-    // This mutex guards access to the SessionManagerScope, to prevent multiple clients from
-    // performing SessionManagerScope operations at the same time.
-    private val mutex = Mutex()
-
-    // All external access to this object is protected with a mutex, so there is no need for any
-    // internal synchronization.
-    private val scope = object : SessionManagerScope {
-        private val sessions = mutableMapOf<String, Session>()
-
-        override suspend fun startSession(context: Context, session: Session) {
-            if (DEBUG) Log.d(TAG, "startSession(${session.key})")
-            sessions.put(session.key, session)?.let { previousSession ->
-                previousSession.close()
-            }
-            val workRequest = OneTimeWorkRequest.Builder(workerClass)
-                .setInputData(
-                    workDataOf(
-                        keyParam to session.key
-                    )
+    override suspend fun startSession(context: Context, session: Session) {
+        if (DEBUG) Log.d(TAG, "startSession(${session.key})")
+        synchronized(sessions) {
+            sessions.put(session.key, session)
+        }?.close()
+        val workRequest = OneTimeWorkRequest.Builder(workerClass)
+            .setInputData(
+                workDataOf(
+                    keyParam to session.key
                 )
-                .build()
-            WorkManager.getInstance(context)
-                .enqueueUniqueWork(session.key, ExistingWorkPolicy.REPLACE, workRequest)
-                .result.await()
-            enqueueDelayedWorker(context)
-        }
-
-        override fun getSession(key: String): Session? = sessions[key]
-
-        @SuppressLint("ListIterator")
-        override suspend fun isSessionRunning(
-            context: Context,
-            key: String
-        ): Boolean {
-            val workerIsRunningOrEnqueued = WorkManager.getInstance(context)
-                .getWorkInfosForUniqueWork(key)
-                .await()
-                .any { it.state in listOf(WorkInfo.State.RUNNING, WorkInfo.State.ENQUEUED) }
-            val hasOpenSession = sessions[key]?.isOpen ?: false
-            val isRunning = hasOpenSession && workerIsRunningOrEnqueued
-            if (DEBUG) Log.d(TAG, "isSessionRunning($key) == $isRunning")
-            return isRunning
-        }
-
-        override suspend fun closeSession(key: String) {
-            if (DEBUG) Log.d(TAG, "closeSession($key)")
-            sessions.remove(key)?.close()
-        }
+            )
+            .build()
+        WorkManager.getInstance(context)
+            .enqueueUniqueWork(session.key, ExistingWorkPolicy.REPLACE, workRequest)
+            .result.await()
+        enqueueDelayedWorker(context)
     }
 
-    override suspend fun <T> runWithLock(
-        block: suspend SessionManagerScope.() -> T
-    ): T = mutex.withLock { scope.block() }
+    override fun getSession(key: String): Session? = synchronized(sessions) {
+        sessions[key]
+    }
+
+    override suspend fun isSessionRunning(context: Context, key: String) =
+        (WorkManager.getInstance(context).getWorkInfosForUniqueWork(key).await()
+            .any { it.state == WorkInfo.State.RUNNING } && synchronized(sessions) {
+            sessions.containsKey(key)
+        }).also {
+            if (DEBUG) Log.d(TAG, "isSessionRunning($key) == $it")
+        }
+
+    override suspend fun closeSession(key: String) {
+        if (DEBUG) Log.d(TAG, "closeSession($key)")
+        synchronized(sessions) {
+            sessions.remove(key)
+        }?.close()
+    }
 
     /**
      * Workaround worker to fix b/119920965

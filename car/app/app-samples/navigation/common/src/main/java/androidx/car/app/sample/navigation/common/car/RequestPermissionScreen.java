@@ -24,7 +24,6 @@ import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -78,9 +77,7 @@ public class RequestPermissionScreen extends Screen {
                 .setOnClickListener(listener)
                 .build();
 
-        return new MessageTemplate.Builder(message)
-                .setHeader(new Header.Builder()
-                        .setStartHeaderAction(Action.APP_ICON).build())
-                .addAction(action).build();
+        return new MessageTemplate.Builder(message).addAction(action).setHeaderAction(
+                Action.APP_ICON).build();
     }
 }

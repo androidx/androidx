@@ -78,10 +78,6 @@ fun GlanceModifier.background(colorProvider: ColorProvider): GlanceModifier =
  * @param contentScale scaling to apply to the imageProvider.
  *
  */
-@Deprecated(
-    "This method has been deprecated in favor of the one that accepts a colorFilter.",
-    level = DeprecationLevel.HIDDEN
-)
 fun GlanceModifier.background(
     imageProvider: ImageProvider,
     contentScale: ContentScale = ContentScale.FillBounds
@@ -97,9 +93,9 @@ fun GlanceModifier.background(
  */
 fun GlanceModifier.background(
     imageProvider: ImageProvider,
+    colorFilter: ColorFilter?,
     contentScale: ContentScale = ContentScale.FillBounds,
-    colorFilter: ColorFilter? = null,
-): GlanceModifier =
+    ): GlanceModifier =
     this.then(
         BackgroundModifier.Image(
             imageProvider = imageProvider,

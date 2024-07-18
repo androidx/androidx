@@ -309,7 +309,9 @@ public final class AppCompatDrawableManager {
                 }
 
                 private void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
-                    d = d.mutate();
+                    if (DrawableUtils.canSafelyMutateDrawable(d)) {
+                        d = d.mutate();
+                    }
                     d.setColorFilter(getPorterDuffColorFilter(color, mode == null ? DEFAULT_MODE
                             : mode));
                 }
@@ -421,7 +423,9 @@ public final class AppCompatDrawableManager {
                     }
 
                     if (colorAttrSet) {
-                        drawable = drawable.mutate();
+                        if (DrawableUtils.canSafelyMutateDrawable(drawable)) {
+                            drawable = drawable.mutate();
+                        }
 
                         final int color = getThemeAttrColor(context, colorAttr);
                         drawable.setColorFilter(getPorterDuffColorFilter(color, tintMode));

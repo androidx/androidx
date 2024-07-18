@@ -20,9 +20,7 @@ import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
 
-/**
- * NavOptions stores special options for navigate actions
- */
+/** NavOptions stores special options for navigate actions */
 public expect class NavOptions {
     /**
      * Route for the destination to pop up to before navigating. When set, all non-matching
@@ -89,9 +87,7 @@ public expect class NavOptions {
      */
     public fun shouldPopUpToSaveState(): Boolean
 
-    /**
-     * Builder for constructing new instances of NavOptions.
-     */
+    /** Builder for constructing new instances of NavOptions. */
     public class Builder() {
         /**
          * Launch a navigation target as single-top if you are making a lateral navigation
@@ -127,9 +123,7 @@ public expect class NavOptions {
          */
         @JvmOverloads
         public fun setPopUpTo(
-            route: String?,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            route: String?, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
 
@@ -153,17 +147,14 @@ public expect class NavOptions {
         @JvmOverloads
         @Suppress("MissingGetterMatchingBuilder") // no need for getter
         public inline fun <reified T : Any> setPopUpTo(
-            inclusive: Boolean,
-            saveState: Boolean = false
+            inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         // this restricted public is needed so that the public reified [popUpTo] can call
         // private popUpToRouteClass setter
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun setPopUpTo(
-            klass: KClass<*>,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            klass: KClass<*>, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         /**
@@ -187,9 +178,7 @@ public expect class NavOptions {
         @Suppress("MissingGetterMatchingBuilder")
         @OptIn(InternalSerializationApi::class)
         public fun <T : Any> setPopUpTo(
-            route: T,
-            inclusive: Boolean,
-            saveState: Boolean = false
+            route: T, inclusive: Boolean, saveState: Boolean = false
         ): Builder
 
         /**

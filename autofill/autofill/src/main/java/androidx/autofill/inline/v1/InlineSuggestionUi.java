@@ -327,7 +327,6 @@ public final class InlineSuggestionUi {
     /**
      * Style for the V1 inline suggestion UI.
      */
-    @SuppressWarnings("HiddenSuperclass")
     public static final class Style extends BundledStyle implements UiVersions.Style {
         private static final String KEY_STYLE_V1 = "style_v1";
         private static final String KEY_CHIP_STYLE = "chip_style";
@@ -523,7 +522,6 @@ public final class InlineSuggestionUi {
         /**
          * Builder for the {@link Style}.
          */
-        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder extends BundledStyle.Builder<Style> {
 
             /**
@@ -643,7 +641,6 @@ public final class InlineSuggestionUi {
     /**
      * Content for the V1 inline suggestion UI.
      */
-    @SuppressWarnings("HiddenSuperclass")
     public static final class Content extends SlicedContent {
         static final String HINT_INLINE_TITLE = "inline_title";
         static final String HINT_INLINE_SUBTITLE = "inline_subtitle";
@@ -802,7 +799,6 @@ public final class InlineSuggestionUi {
         /**
          * Builder for the {@link Content}.
          */
-        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder extends SlicedContent.Builder<Content> {
             @NonNull
             private final PendingIntent mAttributionIntent;

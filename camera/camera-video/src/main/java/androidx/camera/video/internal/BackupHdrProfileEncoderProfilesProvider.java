@@ -257,8 +257,7 @@ public class BackupHdrProfileEncoderProfilesProvider implements EncoderProfilesP
         VideoEncoderConfig videoEncoderConfig = toVideoEncoderConfig(profile);
         VideoEncoderInfo videoEncoderInfo = videoEncoderInfoFinder.apply(videoEncoderConfig);
         if (videoEncoderInfo == null
-                || !videoEncoderInfo.isSizeSupportedAllowSwapping(profile.getWidth(),
-                profile.getHeight())) {
+                || !videoEncoderInfo.isSizeSupported(profile.getWidth(), profile.getHeight())) {
             return null;
         }
         int baseBitrate = videoEncoderConfig.getBitrate();

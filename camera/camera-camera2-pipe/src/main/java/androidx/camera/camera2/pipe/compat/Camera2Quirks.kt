@@ -18,12 +18,14 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2Quirks @Inject constructor(
     private val metadataProvider: Camera2MetadataProvider,
 ) {

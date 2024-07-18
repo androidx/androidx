@@ -27,14 +27,8 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.ThreadFactory
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.coroutines.ContinuationInterceptor
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.asExecutor
 
 /**
  * The Configuration object used to customize [WorkManager] upon initialization.
@@ -43,17 +37,11 @@ import kotlinx.coroutines.asExecutor
  *
  * To set a custom Configuration for WorkManager, see [WorkManager.initialize].
  */
-@OptIn(ExperimentalConfigurationApi::class)
 class Configuration internal constructor(builder: Builder) {
     /**
      * The [Executor] used by [WorkManager] to execute [Worker]s.
      */
     val executor: Executor
-
-    /**
-     * The [CoroutineContext] used by [WorkManager] to execute [CoroutineWorker]s.
-     */
-    val workerCoroutineContext: CoroutineContext
 
     /**
      * The [Executor] used by [WorkManager] for all its internal business logic
@@ -93,18 +81,6 @@ class Configuration internal constructor(builder: Builder) {
      * caused when trying to schedule [WorkRequest]s.
      */
     val schedulingExceptionHandler: Consumer<Throwable>?
-
-    /**
-     * The exception handler that can be used to intercept exceptions
-     * caused when trying to initialize [ListenableWorker]s.
-     */
-    val workerInitializationExceptionHandler: Consumer<WorkerExceptionInfo>?
-
-    /**
-     * The exception handler that can be used to intercept exceptions
-     * caused when trying to execute [ListenableWorker]s.
-     */
-    val workerExecutionExceptionHandler: Consumer<WorkerExceptionInfo>?
 
     /**
      * The [String] name of the process where work should be scheduled.
@@ -161,37 +137,8 @@ class Configuration internal constructor(builder: Builder) {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val isUsingDefaultTaskExecutor: Boolean
 
-    /**
-     * Specifies whether WorkManager automatically set
-     * [android.app.job.JobInfo.Builder.setImportantWhileForeground] for workers that
-     * are eligible to run immediately.
-     */
-    @get:ExperimentalConfigurationApi
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-    @property:ExperimentalConfigurationApi
-    val isMarkingJobsAsImportantWhileForeground: Boolean
-
-    /**
-     * @return The [Tracer] instance that can be used by [WorkManager] to record trace spans
-     * when executing [WorkRequest]s.
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    val tracer: Tracer
-
     init {
-        val builderWorkerDispatcher = builder.workerContext
-
-        executor = builder.executor ?: builderWorkerDispatcher?.asExecutor()
-            ?: createDefaultExecutor(isTaskExecutor = false)
-
-        workerCoroutineContext = when {
-            builderWorkerDispatcher != null -> builderWorkerDispatcher
-            // we don't want simply always use executor.asCoroutineDispatcher()
-            // as compatibility measure
-            builder.executor != null -> executor.asCoroutineDispatcher()
-            else -> Dispatchers.Default
-        }
-
+        executor = builder.executor ?: createDefaultExecutor(isTaskExecutor = false)
         isUsingDefaultTaskExecutor = builder.taskExecutor == null
         // This executor is used for *both* WorkManager's tasks and Room's query executor.
         // So this should not be a single threaded executor. Writes will still be serialized
@@ -212,12 +159,8 @@ class Configuration internal constructor(builder: Builder) {
         }
         initializationExceptionHandler = builder.initializationExceptionHandler
         schedulingExceptionHandler = builder.schedulingExceptionHandler
-        workerInitializationExceptionHandler = builder.workerInitializationExceptionHandler
-        workerExecutionExceptionHandler = builder.workerExecutionExceptionHandler
         defaultProcessName = builder.defaultProcessName
         contentUriTriggerWorkersLimit = builder.contentUriTriggerWorkersLimit
-        isMarkingJobsAsImportantWhileForeground = builder.markJobsAsImportantWhileForeground
-        tracer = builder.tracer ?: createDefaultTracer()
     }
 
     /**
@@ -225,7 +168,6 @@ class Configuration internal constructor(builder: Builder) {
      */
     class Builder {
         internal var executor: Executor? = null
-        internal var workerContext: CoroutineContext? = null
         internal var workerFactory: WorkerFactory? = null
         internal var inputMergerFactory: InputMergerFactory? = null
         internal var taskExecutor: Executor? = null
@@ -233,16 +175,12 @@ class Configuration internal constructor(builder: Builder) {
         internal var runnableScheduler: RunnableScheduler? = null
         internal var initializationExceptionHandler: Consumer<Throwable>? = null
         internal var schedulingExceptionHandler: Consumer<Throwable>? = null
-        internal var workerInitializationExceptionHandler: Consumer<WorkerExceptionInfo>? = null
-        internal var workerExecutionExceptionHandler: Consumer<WorkerExceptionInfo>? = null
         internal var defaultProcessName: String? = null
         internal var loggingLevel: Int = Log.INFO
         internal var minJobSchedulerId: Int = INITIAL_ID
         internal var maxJobSchedulerId: Int = Int.MAX_VALUE
         internal var maxSchedulerLimit: Int = MIN_SCHEDULER_LIMIT
         internal var contentUriTriggerWorkersLimit: Int = DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT
-        internal var markJobsAsImportantWhileForeground: Boolean = true
-        internal var tracer: Tracer? = null
 
         /**
          * Creates a new [Configuration.Builder].
@@ -271,14 +209,7 @@ class Configuration internal constructor(builder: Builder) {
             runnableScheduler = configuration.runnableScheduler
             initializationExceptionHandler = configuration.initializationExceptionHandler
             schedulingExceptionHandler = configuration.schedulingExceptionHandler
-            workerInitializationExceptionHandler =
-                configuration.workerInitializationExceptionHandler
-            workerExecutionExceptionHandler = configuration.workerExecutionExceptionHandler
             defaultProcessName = configuration.defaultProcessName
-            contentUriTriggerWorkersLimit = configuration.contentUriTriggerWorkersLimit
-            markJobsAsImportantWhileForeground =
-                configuration.isMarkingJobsAsImportantWhileForeground
-            tracer = configuration.tracer
         }
 
         /**
@@ -304,31 +235,13 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
-         * Specifies a custom [Executor] to run [Worker.doWork].
-         *
-         * If [setWorkerCoroutineContext] wasn't called then the [executor] will be used as
-         * [CoroutineDispatcher] to run [CoroutineWorker] as well.
+         * Specifies a custom [Executor] for WorkManager.
          *
          * @param executor An [Executor] for running [Worker]s
          * @return This [Builder] instance
          */
         fun setExecutor(executor: Executor): Builder {
             this.executor = executor
-            return this
-        }
-
-        /**
-         * Specifies a custom [CoroutineContext] to run [CoroutineWorker.doWork].
-         * WorkManager will use its own `Job` with the provided [CoroutineContext].
-         *
-         * If [setExecutor] wasn't called then [context] will be used as [Executor]
-         * to run [Worker] as well.
-         *
-         * @param context A [CoroutineContext] for running [CoroutineWorker]s
-         * @return This [Builder] instance
-         */
-        fun setWorkerCoroutineContext(context: CoroutineContext): Builder {
-            this.workerContext = context
             return this
         }
 
@@ -496,40 +409,6 @@ class Configuration internal constructor(builder: Builder) {
         }
 
         /**
-         * Specifies a `WorkerExceptionHandler` that can be used to intercept
-         * exceptions caused when trying to initialize [ListenableWorker]s.
-         *
-         * This exception handler will be invoked on a thread bound to
-         * [Configuration.taskExecutor].
-         *
-         * @param workerExceptionHandler an instance to handle exceptions
-         * @return This [Builder] instance
-         */
-        fun setWorkerInitializationExceptionHandler(
-            workerExceptionHandler: Consumer<WorkerExceptionInfo>
-        ): Builder {
-            this.workerInitializationExceptionHandler = workerExceptionHandler
-            return this
-        }
-
-        /**
-         * Specifies a `WorkerExceptionHandler` that can be used to intercept
-         * exceptions caused when trying to execute [ListenableWorker]s.
-         *
-         * This exception handler will be invoked on a thread bound to
-         * [Configuration.taskExecutor].
-         *
-         * @param workerExceptionHandler an instance to handle exceptions
-         * @return This [Builder] instance
-         */
-        fun setWorkerExecutionExceptionHandler(
-            workerExceptionHandler: Consumer<WorkerExceptionInfo>
-        ): Builder {
-            this.workerExecutionExceptionHandler = workerExceptionHandler
-            return this
-        }
-
-        /**
          * Designates the primary process that [WorkManager] should schedule work in.
          *
          * @param processName The [String] process name.
@@ -537,34 +416,6 @@ class Configuration internal constructor(builder: Builder) {
          */
         fun setDefaultProcessName(processName: String): Builder {
             defaultProcessName = processName
-            return this
-        }
-
-        /**
-         * Regulates whether WorkManager should automatically set
-         * [android.app.job.JobInfo.Builder.setImportantWhileForeground] for workers that
-         * are eligible to run immediately.
-         *
-         * It will have effects only on API levels >= 23.
-         *
-         * @param markAsImportant whether to mark jobs as important
-         * @return This [Builder] instance
-         */
-        @ExperimentalConfigurationApi
-        fun setMarkingJobsAsImportantWhileForeground(markAsImportant: Boolean): Builder {
-            this.markJobsAsImportantWhileForeground = markAsImportant
-            return this
-        }
-
-        /**
-         * Specifies the [Tracer] that can be used by [WorkManager] to record trace spans.
-         *
-         * @param tracer The [Tracer] instance to be used.
-         * @return This [Builder] instance
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        fun setTracer(tracer: Tracer): Builder {
-            this.tracer = tracer
             return this
         }
 
@@ -608,7 +459,7 @@ class Configuration internal constructor(builder: Builder) {
     }
 }
 
-internal const val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
+internal val DEFAULT_CONTENT_URI_TRIGGERS_WORKERS_LIMIT = 8
 
 private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
     val factory = object : ThreadFactory {
@@ -625,21 +476,3 @@ private fun createDefaultExecutor(isTaskExecutor: Boolean): Executor {
         factory
     )
 }
-
-private fun createDefaultTracer(): Tracer {
-    // Delegate to AndroidX Tracing while leaving the implementation open-ended for a pluggable
-    // implementation.
-    val tracer = object : Tracer {
-        override fun beginAsyncSection(methodName: String, cookie: Int) {
-            androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
-        }
-
-        override fun endAsyncSection(methodName: String, cookie: Int) {
-            androidx.tracing.Trace.endAsyncSection(methodName, cookie)
-        }
-    }
-    return tracer
-}
-
-private fun CoroutineContext?.asExecutor(): Executor? =
-    (this?.get(ContinuationInterceptor) as? CoroutineDispatcher)?.asExecutor()

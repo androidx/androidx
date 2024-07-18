@@ -25,7 +25,6 @@ import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
 import androidx.work.worker.FailureWorker
 import androidx.work.worker.TestWorker
 import java.util.UUID
-import kotlinx.coroutines.Dispatchers
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
@@ -99,7 +98,6 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         1,
         0,
         SynchronousExecutor(),
-        Dispatchers.Default,
         WorkManagerTaskExecutor(SynchronousExecutor()),
         factory,
         progressUpdater,

@@ -50,35 +50,36 @@ public object NavigationUI {
     private const val TAG = "NavigationUI"
 
     /**
-     * Attempt to navigate to the [NavDestination] associated with the given MenuItem. This
-     * MenuItem should have been added via one of the helper methods in this class.
+     * Attempt to navigate to the [NavDestination] associated with the given MenuItem. This MenuItem
+     * should have been added via one of the helper methods in this class.
      *
      * Importantly, it assumes the [menu item id][MenuItem.getItemId] matches a valid
-     * [action id][NavDestination.getAction] or [destination id][NavDestination.id] to be
-     * navigated to.
+     * [action id][NavDestination.getAction] or [destination id][NavDestination.id] to be navigated
+     * to.
      *
      * By default, the back stack will be popped back to the navigation graph's start destination.
-     * Menu items that have `android:menuCategory="secondary"` will not pop the back
-     * stack.
+     * Menu items that have `android:menuCategory="secondary"` will not pop the back stack.
      *
      * @param item The selected MenuItem.
      * @param navController The NavController that hosts the destination.
-     * @return True if the [NavController] was able to navigate to the destination
-     * associated with the given MenuItem.
+     * @return True if the [NavController] was able to navigate to the destination associated with
+     *   the given MenuItem.
      */
     @JvmStatic
     public fun onNavDestinationSelected(item: MenuItem, navController: NavController): Boolean {
         val builder = NavOptions.Builder().setLaunchSingleTop(true).setRestoreState(true)
         if (
             navController.currentDestination!!.parent!!.findNode(item.itemId)
-            is ActivityNavigator.Destination
+                is ActivityNavigator.Destination
         ) {
-            builder.setEnterAnim(R.anim.nav_default_enter_anim)
+            builder
+                .setEnterAnim(R.anim.nav_default_enter_anim)
                 .setExitAnim(R.anim.nav_default_exit_anim)
                 .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
                 .setPopExitAnim(R.anim.nav_default_pop_exit_anim)
         } else {
-            builder.setEnterAnim(R.animator.nav_default_enter_anim)
+            builder
+                .setEnterAnim(R.animator.nav_default_enter_anim)
                 .setExitAnim(R.animator.nav_default_exit_anim)
                 .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
                 .setPopExitAnim(R.animator.nav_default_pop_exit_anim)
@@ -109,25 +110,23 @@ public object NavigationUI {
     }
 
     /**
-     * Attempt to navigate to the [NavDestination] associated with the given MenuItem. This
-     * MenuItem should have been added via one of the helper methods in this class.
+     * Attempt to navigate to the [NavDestination] associated with the given MenuItem. This MenuItem
+     * should have been added via one of the helper methods in this class.
      *
      * Importantly, it assumes the [menu item id][MenuItem.getItemId] matches a valid
-     * [action id][NavDestination.getAction] or [destination id][NavDestination.id] to be
-     * navigated to.
+     * [action id][NavDestination.getAction] or [destination id][NavDestination.id] to be navigated
+     * to.
      *
      * By default, the back stack will be popped back to the navigation graph's start destination.
-     * Menu items that have `android:menuCategory="secondary"` will not pop the back
-     * stack.
+     * Menu items that have `android:menuCategory="secondary"` will not pop the back stack.
      *
      * @param item The selected MenuItem.
      * @param navController The NavController that hosts the destination.
-     * @param saveState Whether the NavController should save the back stack state. This must
-     * always be `false`: leave this parameter off entirely to use the non-experimental version
-     * of this API, which saves the state by default.
-     *
-     * @return True if the [NavController] was able to navigate to the destination
-     * associated with the given MenuItem.
+     * @param saveState Whether the NavController should save the back stack state. This must always
+     *   be `false`: leave this parameter off entirely to use the non-experimental version of this
+     *   API, which saves the state by default.
+     * @return True if the [NavController] was able to navigate to the destination associated with
+     *   the given MenuItem.
      */
     @NavigationUiSaveStateControl
     @JvmStatic
@@ -143,23 +142,22 @@ public object NavigationUI {
         val builder = NavOptions.Builder().setLaunchSingleTop(true)
         if (
             navController.currentDestination!!.parent!!.findNode(item.itemId)
-            is ActivityNavigator.Destination
+                is ActivityNavigator.Destination
         ) {
-            builder.setEnterAnim(R.anim.nav_default_enter_anim)
+            builder
+                .setEnterAnim(R.anim.nav_default_enter_anim)
                 .setExitAnim(R.anim.nav_default_exit_anim)
                 .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
                 .setPopExitAnim(R.anim.nav_default_pop_exit_anim)
         } else {
-            builder.setEnterAnim(R.animator.nav_default_enter_anim)
+            builder
+                .setEnterAnim(R.animator.nav_default_enter_anim)
                 .setExitAnim(R.animator.nav_default_exit_anim)
                 .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
                 .setPopExitAnim(R.animator.nav_default_pop_exit_anim)
         }
         if (item.order and Menu.CATEGORY_SECONDARY == 0) {
-            builder.setPopUpTo(
-                navController.graph.findStartDestination().id,
-                inclusive = false
-            )
+            builder.setPopUpTo(navController.graph.findStartDestination().id, inclusive = false)
         }
         val options = builder.build()
         return try {
@@ -183,12 +181,11 @@ public object NavigationUI {
      * Handles the Up button by delegating its behavior to the given NavController. This should
      * generally be called from [AppCompatActivity.onSupportNavigateUp].
      *
-     * If you do not have a [Openable] layout, you should call
-     * [NavController.navigateUp] directly.
+     * If you do not have a [Openable] layout, you should call [NavController.navigateUp] directly.
      *
      * @param navController The NavController that hosts your content.
      * @param openableLayout The Openable layout that should be opened if you are on the topmost
-     * level of the app.
+     *   level of the app.
      * @return True if the [NavController] was able to navigate up.
      */
     @JvmStatic
@@ -201,18 +198,17 @@ public object NavigationUI {
         )
 
     /**
-     * Handles the Up button by delegating its behavior to the given NavController. This is
-     * an alternative to using [NavController.navigateUp] directly when the given
-     * [AppBarConfiguration] needs to be considered when determining what should happen
-     * when the Up button is pressed.
+     * Handles the Up button by delegating its behavior to the given NavController. This is an
+     * alternative to using [NavController.navigateUp] directly when the given [AppBarConfiguration]
+     * needs to be considered when determining what should happen when the Up button is pressed.
      *
      * In cases where no Up action is available, the
-     * [AppBarConfiguration.fallbackOnNavigateUpListener] will be called to provide
-     * additional control.
+     * [AppBarConfiguration.fallbackOnNavigateUpListener] will be called to provide additional
+     * control.
      *
      * @param navController The NavController that hosts your content.
-     * @param configuration Additional configuration options for determining what should happen
-     * when the Up button is pressed.
+     * @param configuration Additional configuration options for determining what should happen when
+     *   the Up button is pressed.
      * @return True if the [NavController] was able to navigate up.
      */
     @JvmStatic
@@ -222,8 +218,10 @@ public object NavigationUI {
     ): Boolean {
         val openableLayout = configuration.openableLayout
         val currentDestination = navController.currentDestination
-        return if (openableLayout != null && currentDestination != null &&
-            configuration.isTopLevelDestination(currentDestination)
+        return if (
+            openableLayout != null &&
+                currentDestination != null &&
+                configuration.isTopLevelDestination(currentDestination)
         ) {
             openableLayout.open()
             true
@@ -235,24 +233,23 @@ public object NavigationUI {
     }
 
     /**
-     * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use
-     * with a [NavController].
+     * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use with a
+     * [NavController].
      *
-     * By calling this method, the title in the action bar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.label]).
+     * By calling this method, the title in the action bar will automatically be updated when the
+     * destination changes (assuming there is a valid [label][NavDestination.label]).
      *
-     * The start destination of your navigation graph is considered the only top level
-     * destination. On the start destination of your navigation graph, the ActionBar will show
-     * the drawer icon if the given Openable layout is non null. On all other destinations,
-     * the ActionBar will show the Up button.
-     * Call [navigateUp] to handle the Up button.
+     * The start destination of your navigation graph is considered the only top level destination.
+     * On the start destination of your navigation graph, the ActionBar will show the drawer icon if
+     * the given Openable layout is non null. On all other destinations, the ActionBar will show the
+     * Up button. Call [navigateUp] to handle the Up button.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param activity The activity hosting the action bar that should be kept in sync with changes
-     * to the NavController.
-     * @param navController The NavController whose navigation actions will be reflected
-     * in the title of the action bar.
+     *   to the NavController.
+     * @param navController The NavController whose navigation actions will be reflected in the
+     *   title of the action bar.
      * @param openableLayout The Openable layout that should be toggled from the home button
      * @see NavigationUI.setupActionBarWithNavController
      */
@@ -271,24 +268,23 @@ public object NavigationUI {
         )
 
     /**
-     * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use
-     * with a [NavController].
+     * Sets up the ActionBar returned by [AppCompatActivity.getSupportActionBar] for use with a
+     * [NavController].
      *
-     * By calling this method, the title in the action bar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.label]).
+     * By calling this method, the title in the action bar will automatically be updated when the
+     * destination changes (assuming there is a valid [label][NavDestination.label]).
      *
-     * The [AppBarConfiguration] you provide controls how the Navigation button is
-     * displayed.
-     * Call [navigateUp] to handle the Up button.
+     * The [AppBarConfiguration] you provide controls how the Navigation button is displayed. Call
+     * [navigateUp] to handle the Up button.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param activity The activity hosting the action bar that should be kept in sync with changes
-     * to the NavController.
-     * @param navController The NavController whose navigation actions will be reflected
-     * in the title of the action bar.
+     *   to the NavController.
+     * @param navController The NavController whose navigation actions will be reflected in the
+     *   title of the action bar.
      * @param configuration Additional configuration options for customizing the behavior of the
-     * ActionBar
+     *   ActionBar
      */
     @JvmStatic
     @JvmOverloads
@@ -305,20 +301,19 @@ public object NavigationUI {
     /**
      * Sets up a [Toolbar] for use with a [NavController].
      *
-     * By calling this method, the title in the Toolbar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.label]).
+     * By calling this method, the title in the Toolbar will automatically be updated when the
+     * destination changes (assuming there is a valid [label][NavDestination.label]).
      *
-     * The start destination of your navigation graph is considered the only top level
-     * destination. On the start destination of your navigation graph, the Toolbar will show
-     * the drawer icon if the given Openable layout is non null. On all other destinations,
-     * the Toolbar will show the Up button. This method will call
-     * [navigateUp] when the Navigation button is clicked.
+     * The start destination of your navigation graph is considered the only top level destination.
+     * On the start destination of your navigation graph, the Toolbar will show the drawer icon if
+     * the given Openable layout is non null. On all other destinations, the Toolbar will show the
+     * Up button. This method will call [navigateUp] when the Navigation button is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
-     * @param navController The NavController whose navigation actions will be reflected
-     * in the title of the Toolbar.
+     * @param navController The NavController whose navigation actions will be reflected in the
+     *   title of the Toolbar.
      * @param openableLayout The Openable layout that should be toggled from the Navigation button
      * @see setupWithNavController
      */
@@ -339,21 +334,20 @@ public object NavigationUI {
     /**
      * Sets up a [Toolbar] for use with a [NavController].
      *
-     * By calling this method, the title in the Toolbar will automatically be updated when
-     * the destination changes (assuming there is a valid [label][NavDestination.label]).
+     * By calling this method, the title in the Toolbar will automatically be updated when the
+     * destination changes (assuming there is a valid [label][NavDestination.label]).
      *
-     * The [AppBarConfiguration] you provide controls how the Navigation button is
-     * displayed and what action is triggered when the Navigation button is tapped. This method
-     * will call [navigateUp] when the Navigation button
-     * is clicked.
+     * The [AppBarConfiguration] you provide controls how the Navigation button is displayed and
+     * what action is triggered when the Navigation button is tapped. This method will call
+     * [navigateUp] when the Navigation button is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
-     * @param navController The NavController whose navigation actions will be reflected
-     * in the title of the Toolbar.
+     * @param navController The NavController whose navigation actions will be reflected in the
+     *   title of the Toolbar.
      * @param configuration Additional configuration options for customizing the behavior of the
-     * Toolbar
+     *   Toolbar
      */
     @JvmStatic
     @JvmOverloads
@@ -370,26 +364,24 @@ public object NavigationUI {
     }
 
     /**
-     * Sets up a [CollapsingToolbarLayout] and [Toolbar] for use with a
-     * [NavController].
+     * Sets up a [CollapsingToolbarLayout] and [Toolbar] for use with a [NavController].
      *
      * By calling this method, the title in the CollapsingToolbarLayout will automatically be
      * updated when the destination changes (assuming there is a valid
      * [label][NavDestination.label]).
      *
-     * The start destination of your navigation graph is considered the only top level
-     * destination. On the start destination of your navigation graph, the Toolbar will show
-     * the drawer icon if the given Openable layout is non null. On all other destinations,
-     * the Toolbar will show the Up button. This method will call
-     * [navigateUp] when the Navigation button is clicked.
+     * The start destination of your navigation graph is considered the only top level destination.
+     * On the start destination of your navigation graph, the Toolbar will show the drawer icon if
+     * the given Openable layout is non null. On all other destinations, the Toolbar will show the
+     * Up button. This method will call [navigateUp] when the Navigation button is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param collapsingToolbarLayout The CollapsingToolbarLayout that should be kept in sync with
-     * changes to the NavController.
+     *   changes to the NavController.
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
-     * @param navController The NavController whose navigation actions will be reflected
-     * in the title of the Toolbar.
+     * @param navController The NavController whose navigation actions will be reflected in the
+     *   title of the Toolbar.
      * @param openableLayout The Openable layout that should be toggled from the Navigation button
      */
     @JvmStatic
@@ -400,34 +392,34 @@ public object NavigationUI {
         openableLayout: Openable?
     ): Unit =
         setupWithNavController(
-            collapsingToolbarLayout, toolbar, navController,
+            collapsingToolbarLayout,
+            toolbar,
+            navController,
             AppBarConfiguration.Builder(navController.graph)
                 .setOpenableLayout(openableLayout)
                 .build()
         )
 
     /**
-     * Sets up a [CollapsingToolbarLayout] and [Toolbar] for use with a
-     * [NavController].
+     * Sets up a [CollapsingToolbarLayout] and [Toolbar] for use with a [NavController].
      *
      * By calling this method, the title in the CollapsingToolbarLayout will automatically be
      * updated when the destination changes (assuming there is a valid
      * [label][NavDestination.label]).
      *
-     * The [AppBarConfiguration] you provide controls how the Navigation button is
-     * displayed and what action is triggered when the Navigation button is tapped. This method
-     * will call [navigateUp] when the Navigation button
-     * is clicked.
+     * The [AppBarConfiguration] you provide controls how the Navigation button is displayed and
+     * what action is triggered when the Navigation button is tapped. This method will call
+     * [navigateUp] when the Navigation button is clicked.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param collapsingToolbarLayout The CollapsingToolbarLayout that should be kept in sync with
-     * changes to the NavController.
+     *   changes to the NavController.
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
-     * @param navController The NavController whose navigation actions will be reflected
-     * in the title of the Toolbar.
+     * @param navController The NavController whose navigation actions will be reflected in the
+     *   title of the Toolbar.
      * @param configuration Additional configuration options for customizing the behavior of the
-     * Toolbar
+     *   Toolbar
      */
     @JvmStatic
     @JvmOverloads
@@ -440,7 +432,9 @@ public object NavigationUI {
     ) {
         navController.addOnDestinationChangedListener(
             CollapsingToolbarOnDestinationChangedListener(
-                collapsingToolbarLayout, toolbar, configuration
+                collapsingToolbarLayout,
+                toolbar,
+                configuration
             )
         )
         toolbar.setNavigationOnClickListener { navigateUp(navController, configuration) }
@@ -448,24 +442,23 @@ public object NavigationUI {
 
     /**
      * Sets up a [NavigationView] for use with a [NavController]. This will call
-     * [onNavDestinationSelected] when a menu item is selected.
-     * The selected item in the NavigationView will automatically be updated when the destination
-     * changes.
+     * [onNavDestinationSelected] when a menu item is selected. The selected item in the
+     * NavigationView will automatically be updated when the destination changes.
      *
-     * If the [NavigationView] is directly contained with an [Openable] layout,
-     * it will be closed when a menu item is selected.
+     * If the [NavigationView] is directly contained with an [Openable] layout, it will be closed
+     * when a menu item is selected.
      *
-     * Similarly, if the [NavigationView] has a [BottomSheetBehavior] associated with
-     * it (as is the case when using a [com.google.android.material.bottomsheet.BottomSheetDialog]),
-     * the bottom sheet will be hidden when a menu item is selected.
+     * Similarly, if the [NavigationView] has a [BottomSheetBehavior] associated with it (as is the
+     * case when using a [com.google.android.material.bottomsheet.BottomSheetDialog]), the bottom
+     * sheet will be hidden when a menu item is selected.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param navigationView The NavigationView that should be kept in sync with changes to the
-     * NavController.
+     *   NavController.
      * @param navController The NavController that supplies the primary and secondary menu.
-     * Navigation actions on this NavController will be reflected in the
-     * selected item in the NavigationView.
+     *   Navigation actions on this NavController will be reflected in the selected item in the
+     *   NavigationView.
      */
     @JvmStatic
     public fun setupWithNavController(
@@ -507,33 +500,33 @@ public object NavigationUI {
                         item.isChecked = destination.matchDestination(item.itemId)
                     }
                 }
-            })
+            }
+        )
     }
 
     /**
      * Sets up a [NavigationView] for use with a [NavController]. This will call
-     * [onNavDestinationSelected] when a menu item is selected.
-     * The selected item in the NavigationView will automatically be updated when the destination
-     * changes.
+     * [onNavDestinationSelected] when a menu item is selected. The selected item in the
+     * NavigationView will automatically be updated when the destination changes.
      *
-     * If the [NavigationView] is directly contained with an [Openable] layout,
-     * it will be closed when a menu item is selected.
+     * If the [NavigationView] is directly contained with an [Openable] layout, it will be closed
+     * when a menu item is selected.
      *
-     * Similarly, if the [NavigationView] has a [BottomSheetBehavior] associated with
-     * it (as is the case when using a [com.google.android.material.bottomsheet.BottomSheetDialog]),
-     * the bottom sheet will be hidden when a menu item is selected.
+     * Similarly, if the [NavigationView] has a [BottomSheetBehavior] associated with it (as is the
+     * case when using a [com.google.android.material.bottomsheet.BottomSheetDialog]), the bottom
+     * sheet will be hidden when a menu item is selected.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param navigationView The NavigationView that should be kept in sync with changes to the
-     * NavController.
+     *   NavController.
      * @param navController The NavController that supplies the primary and secondary menu.
-     * @param saveState Whether the NavController should save the back stack state. This must
-     * always be `false`: leave this parameter off entirely to use the non-experimental version
-     * of this API, which saves the state by default.
+     * @param saveState Whether the NavController should save the back stack state. This must always
+     *   be `false`: leave this parameter off entirely to use the non-experimental version of this
+     *   API, which saves the state by default.
      *
-     * Navigation actions on this NavController will be reflected in the
-     * selected item in the NavigationView.
+     * Navigation actions on this NavController will be reflected in the selected item in the
+     * NavigationView.
      */
     @NavigationUiSaveStateControl
     @JvmStatic
@@ -581,12 +574,13 @@ public object NavigationUI {
                         item.isChecked = destination.matchDestination(item.itemId)
                     }
                 }
-            })
+            }
+        )
     }
 
     /**
-     * Walks up the view hierarchy, trying to determine if the given View is contained within
-     * a bottom sheet.
+     * Walks up the view hierarchy, trying to determine if the given View is contained within a
+     * bottom sheet.
      */
     @JvmStatic
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -598,8 +592,7 @@ public object NavigationUI {
                 findBottomSheetBehavior(parent as View)
             } else null
         }
-        val behavior = params
-            .behavior
+        val behavior = params.behavior
         return if (behavior !is BottomSheetBehavior<*>) {
             // We hit a CoordinatorLayout, but the View doesn't have the BottomSheetBehavior
             null
@@ -608,18 +601,15 @@ public object NavigationUI {
 
     /**
      * Sets up a [NavigationBarView] for use with a [NavController]. This will call
-     * [onNavDestinationSelected] when a menu item is selected. The
-     * selected item in the NavigationBarView will automatically be updated when the destination
-     * changes.
+     * [onNavDestinationSelected] when a menu item is selected. The selected item in the
+     * NavigationBarView will automatically be updated when the destination changes.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param navigationBarView The NavigationBarView ([BottomNavigationView] or
-     * [NavigationRailView])
-     * that should be kept in sync with changes to the NavController.
-     * @param navController The NavController that supplies the primary menu.
-     * Navigation actions on this NavController will be reflected in the
-     * selected item in the NavigationBarView.
+     *   [NavigationRailView]) that should be kept in sync with changes to the NavController.
+     * @param navController The NavController that supplies the primary menu. Navigation actions on
+     *   this NavController will be reflected in the selected item in the NavigationBarView.
      */
     @JvmStatic
     public fun setupWithNavController(
@@ -627,10 +617,7 @@ public object NavigationUI {
         navController: NavController
     ) {
         navigationBarView.setOnItemSelectedListener { item ->
-            onNavDestinationSelected(
-                item,
-                navController
-            )
+            onNavDestinationSelected(item, navController)
         }
         val weakReference = WeakReference(navigationBarView)
         navController.addOnDestinationChangedListener(
@@ -654,27 +641,26 @@ public object NavigationUI {
                         }
                     }
                 }
-            })
+            }
+        )
     }
 
     /**
      * Sets up a [NavigationBarView] for use with a [NavController]. This will call
-     * [onNavDestinationSelected] when a menu item is selected. The
-     * selected item in the NavigationBarView will automatically be updated when the destination
-     * changes.
+     * [onNavDestinationSelected] when a menu item is selected. The selected item in the
+     * NavigationBarView will automatically be updated when the destination changes.
      *
      * Destinations that implement [androidx.navigation.FloatingWindow] will be ignored.
      *
      * @param navigationBarView The NavigationBarView ([BottomNavigationView] or
-     * [NavigationRailView])
-     * that should be kept in sync with changes to the NavController.
+     *   [NavigationRailView]) that should be kept in sync with changes to the NavController.
      * @param navController The NavController that supplies the primary menu.
-     * @param saveState Whether the NavController should save the back stack state. This must
-     * always be `false`: leave this parameter off entirely to use the non-experimental version
-     * of this API, which saves the state by default.
+     * @param saveState Whether the NavController should save the back stack state. This must always
+     *   be `false`: leave this parameter off entirely to use the non-experimental version of this
+     *   API, which saves the state by default.
      *
-     * Navigation actions on this NavController will be reflected in the
-     * selected item in the NavigationBarView.
+     * Navigation actions on this NavController will be reflected in the selected item in the
+     * NavigationBarView.
      */
     @NavigationUiSaveStateControl
     @JvmStatic
@@ -712,13 +698,14 @@ public object NavigationUI {
                         }
                     }
                 }
-            })
+            }
+        )
     }
 
     /**
-     * Determines whether the given `destId` matches the NavDestination. This handles
-     * both the default case (the destination's id matches the given id) and the nested case where
-     * the given id is a parent/grandparent/etc of the destination.
+     * Determines whether the given `destId` matches the NavDestination. This handles both the
+     * default case (the destination's id matches the given id) and the nested case where the given
+     * id is a parent/grandparent/etc of the destination.
      */
     @JvmStatic
     internal fun NavDestination.matchDestination(@IdRes destId: Int): Boolean =

@@ -14,38 +14,16 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.LibraryType
-import androidx.build.RunApiTasks
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXRepackagePlugin")
     id("java-library")
     id("com.google.protobuf")
 }
 
-repackage {
-    // Must match what is in health/connect/connect-client-external-protobuf/build.gradle
-    addRelocation {
-        sourcePackage = "com.google.protobuf"
-        targetPackage =  "androidx.health.platform.client.proto"
-    }
-}
-
 dependencies {
-    // Must be compileOnly to not bring in protobufLite in runtime
-    // Repackaged protobufLite brought in by
-    // project(":health:connect:connect-client-external-protobuf") and used at runtime
-    compileOnly(libs.protobufLite)
-    api(project(":health:connect:connect-client-external-protobuf"))
+    implementation(libs.protobufLite)
 }
 
 protobuf {
@@ -77,9 +55,7 @@ afterEvaluate {
 
 androidx {
     name = "Health Connect Client Proto"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
     inceptionYear = "2022"
     description = "Proto files for health-connect-client"
-    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
-            "(b/180579063)")
 }

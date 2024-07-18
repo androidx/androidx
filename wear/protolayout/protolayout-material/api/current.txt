@@ -107,7 +107,6 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getProgress();
     method public androidx.wear.protolayout.DimensionBuilders.DegreesProp getStartAngle();
     method public androidx.wear.protolayout.DimensionBuilders.DpProp getStrokeWidth();
-    method public boolean isOuterMarginApplied();
   }
 
   public static final class CircularProgressIndicator.Builder {
@@ -117,7 +116,6 @@ package androidx.wear.protolayout.material {
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setContentDescription(CharSequence);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setEndAngle(float);
-    method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setOuterMarginApplied(boolean);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setProgress(androidx.wear.protolayout.TypeBuilders.FloatProp);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setProgress(@FloatRange(from=0, to=1) float);
     method public androidx.wear.protolayout.material.CircularProgressIndicator.Builder setStartAngle(float);
@@ -138,20 +136,17 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.CompactChip? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
-    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public String? getIconContent();
     method public String getText();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
 
   public static final class CompactChip.Builder {
-    ctor public CompactChip.Builder(android.content.Context, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     ctor public CompactChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.CompactChip build();
     method public androidx.wear.protolayout.material.CompactChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
-    method public androidx.wear.protolayout.material.CompactChip.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
-    method public androidx.wear.protolayout.material.CompactChip.Builder setContentDescription(CharSequence);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.CompactChip.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.CompactChip.Builder setIconContent(String);
-    method public androidx.wear.protolayout.material.CompactChip.Builder setTextContent(String);
   }
 
   public class ProgressIndicatorColors {
@@ -180,6 +175,7 @@ package androidx.wear.protolayout.material {
     method public int getOverflow();
     method public androidx.wear.protolayout.TypeBuilders.StringProp getText();
     method public int getWeight();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
     method public boolean isItalic();
     method public boolean isUnderline();
   }
@@ -189,12 +185,12 @@ package androidx.wear.protolayout.material {
     ctor public Text.Builder(android.content.Context, String);
     method public androidx.wear.protolayout.material.Text build();
     method public androidx.wear.protolayout.material.Text.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.Text.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setItalic(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.material.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
     method public androidx.wear.protolayout.material.Text.Builder setMultilineAlignment(int);
     method public androidx.wear.protolayout.material.Text.Builder setOverflow(int);
-    method public androidx.wear.protolayout.material.Text.Builder setScalable(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setTypography(int);
     method public androidx.wear.protolayout.material.Text.Builder setUnderline(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setWeight(int);
@@ -204,19 +200,18 @@ package androidx.wear.protolayout.material {
     method public static androidx.wear.protolayout.material.TitleChip? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.ChipColors getChipColors();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable getClickable();
-    method public androidx.wear.protolayout.TypeBuilders.StringProp? getContentDescription();
     method public int getHorizontalAlignment();
     method public String? getIconContent();
     method public String getText();
     method public androidx.wear.protolayout.DimensionBuilders.ContainerDimension getWidth();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
   }
 
   public static final class TitleChip.Builder {
     ctor public TitleChip.Builder(android.content.Context, String, androidx.wear.protolayout.ModifiersBuilders.Clickable, androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.TitleChip build();
     method public androidx.wear.protolayout.material.TitleChip.Builder setChipColors(androidx.wear.protolayout.material.ChipColors);
-    method public androidx.wear.protolayout.material.TitleChip.Builder setContentDescription(androidx.wear.protolayout.TypeBuilders.StringProp);
-    method public androidx.wear.protolayout.material.TitleChip.Builder setContentDescription(CharSequence);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.TitleChip.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.TitleChip.Builder setHorizontalAlignment(int);
     method public androidx.wear.protolayout.material.TitleChip.Builder setIconContent(String);
     method public androidx.wear.protolayout.material.TitleChip.Builder setWidth(androidx.wear.protolayout.DimensionBuilders.ContainerDimension);
@@ -245,32 +240,24 @@ package androidx.wear.protolayout.material.layouts {
   public class EdgeContentLayout implements androidx.wear.protolayout.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.protolayout.material.layouts.EdgeContentLayout? fromLayoutElement(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getContent();
-    method @Dimension(unit=androidx.annotation.Dimension.DP) public float getContentAndSecondaryLabelSpacing();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getEdgeContent();
-    method public float getEdgeContentThickness();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
     method public boolean isEdgeContentBehindAllOtherContent();
-    method public boolean isResponsiveContentInsetEnabled();
   }
 
   public static final class EdgeContentLayout.Builder {
     ctor public EdgeContentLayout.Builder(androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout build();
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setContentAndSecondaryLabelSpacing(androidx.wear.protolayout.DimensionBuilders.DpProp);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContentBehindAllOtherContent(boolean);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setEdgeContentThickness(@Dimension(unit=androidx.annotation.Dimension.DP) float);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setResponsiveContentInsetEnabled(boolean);
     method public androidx.wear.protolayout.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
   }
 
   public class LayoutDefaults {
     field public static final androidx.wear.protolayout.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
-    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
-    field public static final androidx.wear.protolayout.DimensionBuilders.DpProp EDGE_CONTENT_LAYOUT_LARGE_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
     field public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
     field public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
     field @Deprecated public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
@@ -319,7 +306,6 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
     method public androidx.wear.protolayout.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getVerticalSpacerHeight();
-    method public boolean isResponsiveContentInsetEnabled();
   }
 
   public static final class PrimaryLayout.Builder {
@@ -328,7 +314,6 @@ package androidx.wear.protolayout.material.layouts {
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setPrimaryChipContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setPrimaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setResponsiveContentInsetEnabled(boolean);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setSecondaryLabelTextContent(androidx.wear.protolayout.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.protolayout.material.layouts.PrimaryLayout.Builder setVerticalSpacerHeight(@Dimension(unit=androidx.annotation.Dimension.DP) float);
   }

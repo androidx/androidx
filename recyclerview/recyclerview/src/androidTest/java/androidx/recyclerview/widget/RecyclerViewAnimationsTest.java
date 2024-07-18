@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.testutils.AnimationDurationScaleRule;
@@ -689,7 +690,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             public boolean canProceed() {
                 View slideInView = mRecyclerView.getChildAt(2);
                 View slideOutView = mRecyclerView.getChildAt(3);
-                return slideInView.hasTransientState() && slideOutView.hasTransientState();
+                return ViewCompat.hasTransientState(slideInView)
+                        && ViewCompat.hasTransientState(slideOutView);
             }
         });
 
@@ -786,7 +788,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             @Override
             public void onBindViewHolder(@NonNull TestViewHolder holder, int position) {
                 super.onBindViewHolder(holder, position);
-                holder.itemView.setImportantForAccessibility(boundImportantForAccessibility);
+                ViewCompat.setImportantForAccessibility(
+                        holder.itemView, boundImportantForAccessibility);
             }
         };
 
@@ -803,7 +806,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 targetChild[0] = mRecyclerView.getChildAt(0);
                 assertEquals(
                         expectedImportantForAccessibility,
-                        targetChild[0].getImportantForAccessibility());
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
             }
         });
 
@@ -821,8 +824,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 // The view is still a child of mRecyclerView, and is invisible for accessibility.
                 assertTrue(targetChild[0].getParent() == mRecyclerView);
                 assertEquals(
-                        View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
-                        targetChild[0].getImportantForAccessibility());
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
             }
         });
 
@@ -836,7 +839,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 assertTrue(targetChild[0].getParent() == null);
                 assertEquals(
                         expectedImportantForAccessibility,
-                        targetChild[0].getImportantForAccessibility());
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
             }
         });
 
@@ -853,7 +856,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                         "the item must be reused", targetChild[0] == mRecyclerView.getChildAt(0));
                 assertEquals(
                         expectedImportantForAccessibility,
-                        targetChild[0].getImportantForAccessibility());
+                        ViewCompat.getImportantForAccessibility(targetChild[0]));
             }
         });
     }
@@ -861,29 +864,29 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     @Test
     public void importantForAccessibilityWhileDetelingAuto() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                View.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     @Test
     public void importantForAccessibilityWhileDetelingNo() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO,
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     @Test
     public void importantForAccessibilityWhileDetelingNoHideDescandants() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS);
     }
 
     @Test
     public void importantForAccessibilityWhileDetelingYes() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES,
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     @Test
@@ -1580,7 +1583,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             @Override
             public void onViewDetachedFromWindow(TestViewHolder holder) {
                 if ((addedView[0] == holder.itemView || addedView[1] == holder.itemView)
-                        && holder.itemView.hasTransientState()) {
+                        && ViewCompat.hasTransientState(holder.itemView)) {
                     holder.itemView.animate().cancel();
                 }
                 super.onViewDetachedFromWindow(holder);
@@ -1604,11 +1607,11 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 public void run() {
                     if (mRecyclerView.getChildCount() == 3) {
                         View view = mRecyclerView.getChildAt(0);
-                        if (view.hasTransientState()) {
+                        if (ViewCompat.hasTransientState(view)) {
                             addedView[0] = view;
                         }
                         view = mRecyclerView.getChildAt(1);
-                        if (view.hasTransientState()) {
+                        if (ViewCompat.hasTransientState(view)) {
                             addedView[1] = view;
                         }
                     }

@@ -581,7 +581,7 @@ def insert_new_group_id_into_library_versions_toml(group_id):
     new_group_id_variable_name = group_id.replace("androidx.","").replace(".","_").upper()
 
     # Open toml file
-    library_versions = toml.load(LIBRARY_VERSIONS_FP, decoder=toml.TomlPreserveCommentDecoder())
+    library_versions = toml.load(LIBRARY_VERSIONS_FP)
     if not new_group_id_variable_name in library_versions["versions"]:
         library_versions["versions"][new_group_id_variable_name] = "1.0.0-alpha01"
     if not new_group_id_variable_name in library_versions["groups"]:
@@ -597,11 +597,8 @@ def insert_new_group_id_into_library_versions_toml(group_id):
 
     # Open file for writing and update toml
     with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        # Encoder arg enables preservation of inline dicts.
-        versions_toml_file_string = toml.dumps(library_versions,
-                                               encoder=toml.TomlPreserveCommentEncoder(preserve=True))
+        versions_toml_file_string = toml.dumps(library_versions, encoder=toml.TomlPreserveInlineDictEncoder())
         versions_toml_file_string_new = re.sub(",]", " ]", versions_toml_file_string)
-        versions_toml_file_string_new
         f.write(versions_toml_file_string_new)
 
 

@@ -24,7 +24,6 @@ import androidx.hilt.navigation.HiltViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.fragment.findNavController
-import dagger.hilt.android.lifecycle.withCreationCallback
 
 /**
  * Returns a property delegate to access a
@@ -32,7 +31,7 @@ import dagger.hilt.android.lifecycle.withCreationCallback
  * -annotated [ViewModel] scoped to a navigation graph present on the [NavController] back stack:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MainViewModel by hiltNavGraphViewModels(R.navigation.main)
+ *     val viewmodel: MainViewModel by androidx.hilt.navigation.fragment.hiltNavGraphViewModels(R.navigation.main)
  * }
  * ```
  *
@@ -58,48 +57,5 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
             HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
         },
         extrasProducer = { backStackEntry.defaultViewModelCreationExtras }
-    )
-}
-
-/**
- * Returns a property delegate to access a
- * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] with an [@AssistedInject]-annotated constructor that is scoped to a
- * navigation graph present on the [NavController] back stack:
- * ```
- * class MyFragment : Fragment() {
- *     val viewmodel: MainViewModel by hiltNavGraphViewModels(R.navigation.main) { factory: MainViewModelFactory ->
- *         factory.create(...)
- *     }
- * }
- * ```
- *
- * This property can be accessed only after this NavGraph is on the NavController back stack,
- * and an attempt access prior to that will result in an IllegalArgumentException.
- *
- * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
- * @param creationCallback callback that takes an @AssistedFactory-annotated factory and creates a HiltViewModel using @AssistedInject-annotated constructor.
- */
-@MainThread
-@Suppress("MissingNullability") // Due to https://youtrack.jetbrains.com/issue/KT-39209
-public inline fun <reified VM : ViewModel, reified VMF : Any> Fragment.hiltNavGraphViewModels(
-    @IdRes navGraphId: Int,
-    noinline creationCallback: (VMF) -> VM
-): Lazy<VM> {
-    val backStackEntry by lazy {
-        findNavController().getBackStackEntry(navGraphId)
-    }
-    val storeProducer: () -> ViewModelStore = {
-        backStackEntry.viewModelStore
-    }
-    return createViewModelLazy(
-        viewModelClass = VM::class,
-        storeProducer = storeProducer,
-        factoryProducer = {
-            HiltViewModelFactory(requireActivity(), backStackEntry.defaultViewModelProviderFactory)
-        },
-        extrasProducer = {
-            backStackEntry.defaultViewModelCreationExtras.withCreationCallback(creationCallback)
-        }
     )
 }

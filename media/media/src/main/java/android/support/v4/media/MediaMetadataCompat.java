@@ -425,9 +425,13 @@ public final class MediaMetadataCompat implements Parcelable {
     public RatingCompat getRating(@RatingKey String key) {
         RatingCompat rating = null;
         try {
-            // On platform version 19 or higher, mBundle stores a Rating object. Convert it to
-            // RatingCompat.
-            rating = RatingCompat.fromRating(mBundle.getParcelable(key));
+            if (Build.VERSION.SDK_INT >= 19) {
+                // On platform version 19 or higher, mBundle stores a Rating object. Convert it to
+                // RatingCompat.
+                rating = RatingCompat.fromRating(mBundle.getParcelable(key));
+            } else {
+                rating = mBundle.getParcelable(key);
+            }
         } catch (Exception e) {
             // ignore, value was not a bitmap
             Log.w(TAG, "Failed to retrieve a key as Rating.", e);
@@ -815,9 +819,13 @@ public final class MediaMetadataCompat implements Parcelable {
                             + " key cannot be used to put a Rating");
                 }
             }
-            // On platform version 19 or higher, use Rating instead of RatingCompat so mBundle
-            // can be unmarshalled.
-            mBundle.putParcelable(key, (Parcelable) value.getRating());
+            if (Build.VERSION.SDK_INT >= 19) {
+                // On platform version 19 or higher, use Rating instead of RatingCompat so mBundle
+                // can be unmarshalled.
+                mBundle.putParcelable(key, (Parcelable) value.getRating());
+            } else {
+                mBundle.putParcelable(key, value);
+            }
             return this;
         }
 

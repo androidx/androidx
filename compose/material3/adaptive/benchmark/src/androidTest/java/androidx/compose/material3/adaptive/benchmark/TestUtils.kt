@@ -36,15 +36,15 @@ import androidx.compose.ui.unit.dp
 
 val singlePaneDirective = PaneScaffoldDirective.Default
 
-val dualPaneDirective = PaneScaffoldDirective.Default.copy(
-    maxHorizontalPartitions = 2,
-    horizontalPartitionSpacerSize = 24.dp,
-)
+val dualPaneDirective =
+    PaneScaffoldDirective.Default.copy(
+        maxHorizontalPartitions = 2,
+        horizontalPartitionSpacerSize = 24.dp,
+    )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal abstract class ThreePaneScaffoldTestCase(
-    private val animated: Boolean
-) : LayeredComposeTestCase(), ToggleableTestCase {
+internal abstract class ThreePaneScaffoldTestCase(private val animated: Boolean) :
+    LayeredComposeTestCase(), ToggleableTestCase {
     var currentScaffoldDirective by mutableStateOf(singlePaneDirective)
     abstract var currentDestination: ThreePaneScaffoldDestinationItem<Int>
 
@@ -52,13 +52,9 @@ internal abstract class ThreePaneScaffoldTestCase(
 
     @Composable
     fun ThreePaneScaffoldScope.TestPane(color: Color) {
-        val content = @Composable {
-            Box(modifier = Modifier.fillMaxSize().background(color))
-        }
+        val content = @Composable { Box(modifier = Modifier.fillMaxSize().background(color)) }
         if (animated) {
-            AnimatedPane(Modifier) {
-                content()
-            }
+            AnimatedPane(Modifier) { content() }
         } else {
             content()
         }

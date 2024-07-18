@@ -6,7 +6,7 @@ package androidx.wear.compose.navigation {
   }
 
   public final class SwipeDismissableNavHostControllerKt {
-    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.navigation.NavBackStackEntry?> currentBackStackEntryAsState(androidx.navigation.NavController);
+    method @androidx.compose.runtime.Composable public static androidx.compose.runtime.State<androidx.navigation.NavBackStackEntry> currentBackStackEntryAsState(androidx.navigation.NavController);
     method @androidx.compose.runtime.Composable public static androidx.navigation.NavHostController rememberSwipeDismissableNavController();
   }
 

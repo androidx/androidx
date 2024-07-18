@@ -14,21 +14,18 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
 }
+
+def enableNative = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     jvm()
@@ -77,9 +74,11 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
-            dependencies {
-                implementation(libs.atomicFu)
+        if (enableNative) {
+            nativeMain {
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
             }
         }
 

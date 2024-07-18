@@ -29,22 +29,6 @@ import androidx.core.telecom.CallEndpointCompat
 internal class EndpointUtils {
 
     companion object {
-        fun getSpeakerEndpoint(endpoints: List<CallEndpointCompat>): CallEndpointCompat? {
-            for (e in endpoints) {
-                if (e.type == CallEndpointCompat.TYPE_SPEAKER) {
-                    return e
-                }
-            }
-            return null
-        }
-
-        fun isEarpieceEndpoint(endpoint: CallEndpointCompat?): Boolean {
-            if (endpoint == null) {
-                return false
-            }
-           return endpoint.type == CallEndpointCompat.TYPE_EARPIECE
-        }
-
         fun toCallEndpointCompat(state: CallAudioState): CallEndpointCompat {
             val type: Int = mapRouteToType(state.route)
             return if (type == CallEndpointCompat.TYPE_BLUETOOTH && SDK_INT >= P) {

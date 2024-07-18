@@ -1,10 +1,4 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -13,7 +7,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 plugins {
     id("AndroidXPlugin")
 }
-
+def enableNative = KmpPlatformsKt.enableNative(project)
 androidXMultiplatform {
     // needed for snapshot publishing to trigger component creation
     jvm()
@@ -36,14 +30,18 @@ androidXMultiplatform {
             embedBitcode = BitcodeEmbeddingMode.DISABLE
         }
     }
-    sourceSets {
-        // Need a source file to force a klib creation.
-        // see: https://youtrack.jetbrains.com/issue/KT-52344
-        darwinMain {}
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(darwinMain)
+    // put mac configuration inside an if to avoid warnings due to unused source sets
+    // when building on linux
+    if (enableNative) {
+        sourceSets {
+            // Need a source file to force a klib creation.
+            // see: https://youtrack.jetbrains.com/issue/KT-52344
+            darwinMain {}
+            targets.all { target ->
+                if (target.platformType == KotlinPlatformType.native) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(darwinMain)
+                    }
                 }
             }
         }

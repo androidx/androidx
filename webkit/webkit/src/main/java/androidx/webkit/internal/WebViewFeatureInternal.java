@@ -42,7 +42,6 @@ import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebResourceRequestCompat;
-import androidx.webkit.WebSettingsCompat;
 import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
@@ -579,39 +578,10 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
      * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final ApiFeature.NoFramework ATTRIBUTION_REGISTRATION_BEHAVIOR =
             new ApiFeature.NoFramework(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
                     Features.ATTRIBUTION_BEHAVIOR);
-
-    /**
-     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebSettingsCompat.WebViewMediaIntegrityApiStatusConfig)}
-     * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
-     */
-    public static final ApiFeature.NoFramework WEBVIEW_MEDIA_INTEGRITY_API_STATUS =
-            new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
-                    Features.WEBVIEW_MEDIA_INTEGRITY_API_STATUS);
-
-    /**
-     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#isAudioMuted(WebView)}
-     * {@link androidx.webkit.WebViewCompat#setAudioMuted(WebView, boolean)}
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final ApiFeature.NoFramework MUTE_AUDIO =
-            new ApiFeature.NoFramework(WebViewFeature.MUTE_AUDIO,
-                    Features.MUTE_AUDIO);
-
-    /**
-     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#setWebAuthenticationSupport(WebSettings, int)}
-     * {@link androidx.webkit.WebSettingsCompat#getWebAuthenticationSupport(WebSettings)}
-     */
-    public static final ApiFeature.NoFramework WEB_AUTHENTICATION = new ApiFeature.NoFramework(
-            WebViewFeature.WEB_AUTHENTICATION, Features.WEB_AUTHENTICATION);
 
     // --- Add new feature constants above this line ---
 

@@ -27,25 +27,31 @@ import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicAc
 import androidx.recyclerview.widget.RecyclerView
 
 class DeviceServicesAdapter(
-    private val deviceConnection: DeviceConnection,
+    var deviceConnection: DeviceConnection? = null,
     private val onCharacteristicActionClick: OnCharacteristicActionClick,
 ) : RecyclerView.Adapter<DeviceServicesAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_device_service, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(deviceConnection, deviceConnection.services[position])
+        return ViewHolder(view, onCharacteristicActionClick)
     }
 
     override fun getItemCount(): Int {
-        return deviceConnection.services.size
+        return deviceConnection?.services.orEmpty().size
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        deviceConnection?.let {
+            val service = it.services[position]
+            holder.bind(it, service)
+        }
+    }
+
+    inner class ViewHolder(
+        itemView: View,
+        private val onCharacteristicActionClick: OnCharacteristicActionClick,
+    ) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
 

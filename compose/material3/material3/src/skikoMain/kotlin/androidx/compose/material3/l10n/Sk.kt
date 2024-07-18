@@ -31,6 +31,7 @@ internal fun Translations.sk() = mapOf(
     Strings.Dialog to "Dialógové okno",
     Strings.MenuExpanded to "Rozbalené",
     Strings.MenuCollapsed to "Zbalené",
+    Strings.ToggleDropdownMenu to "Prepnutie rozbaľovacieho zoznamu",
     Strings.SnackbarDismiss to "Zavrieť",
     Strings.SearchBarSearch to "Hľadať",
     Strings.SuggestionsAvailable to "Návrhy sú nižšie",

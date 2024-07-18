@@ -24,13 +24,14 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 
 /**
  * Compatibility utilities for platform features of {@link View}.
  */
 class ViewUtils {
 
-    private static final ViewUtilsApi19 IMPL;
+    private static final ViewUtilsBase IMPL;
     private static final String TAG = "ViewUtils";
 
     static {
@@ -42,8 +43,10 @@ class ViewUtils {
             IMPL = new ViewUtilsApi22();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IMPL = new ViewUtilsApi21();
-        } else {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             IMPL = new ViewUtilsApi19();
+        } else {
+            IMPL = new ViewUtilsBase();
         }
     }
 
@@ -70,15 +73,35 @@ class ViewUtils {
 
                 @Override
                 public Rect get(View view) {
-                    return view.getClipBounds();
+                    return ViewCompat.getClipBounds(view);
                 }
 
                 @Override
                 public void set(View view, Rect clipBounds) {
-                    view.setClipBounds(clipBounds);
+                    ViewCompat.setClipBounds(view, clipBounds);
                 }
 
             };
+
+    /**
+     * Backward-compatible {@link View#getOverlay()}.
+     */
+    static ViewOverlayImpl getOverlay(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            return new ViewOverlayApi18(view);
+        }
+        return ViewOverlayApi14.createFrom(view);
+    }
+
+    /**
+     * Backward-compatible {@link View#getWindowId()}.
+     */
+    static @NonNull WindowIdImpl getWindowId(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            return new WindowIdApi18(view);
+        }
+        return new WindowIdApi14(view.getWindowToken());
+    }
 
     static void setTransitionAlpha(@NonNull View view, float alpha) {
         IMPL.setTransitionAlpha(view, alpha);

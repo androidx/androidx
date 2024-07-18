@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import com.google.common.io.Files
 import org.apache.commons.compress.utils.IOUtils
 
@@ -58,11 +51,9 @@ abstract class PrepareAssetsTask extends DefaultTask {
                 Files.copy(file, outputDir.file(file.name).get().asFile)
 
                 // Extract the profile in the apk and places it in the assets
-                if (file.getName().endsWith("-release.apk")) {
-                    ZipFile zipFile = new ZipFile(file)
-                    extractZipEntry(zipFile, "assets/dexopt/baseline.prof", "${file.name}_baseline.prof")
-                    extractZipEntry(zipFile, "assets/dexopt/baseline.profm", "${file.name}_baseline.profm")
-                }
+                ZipFile zipFile = new ZipFile(file)
+                extractZipEntry(zipFile, "assets/dexopt/baseline.prof", "${file.name}_baseline.prof")
+                extractZipEntry(zipFile, "assets/dexopt/baseline.profm", "${file.name}_baseline.profm")
             }
         }
     }

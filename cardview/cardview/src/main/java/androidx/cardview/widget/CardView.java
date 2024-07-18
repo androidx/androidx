@@ -86,6 +86,8 @@ public class CardView extends FrameLayout {
     static {
         if (Build.VERSION.SDK_INT >= 21) {
             IMPL = new CardViewApi21Impl();
+        } else if (Build.VERSION.SDK_INT >= 17) {
+            IMPL = new CardViewApi17Impl();
         } else {
             IMPL = new CardViewBaseImpl();
         }

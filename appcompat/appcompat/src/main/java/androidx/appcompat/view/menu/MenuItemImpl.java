@@ -25,6 +25,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
@@ -470,7 +471,17 @@ public final class MenuItemImpl implements SupportMenuItem {
 
     @Override
     public CharSequence getTitleCondensed() {
-        return mTitleCondensed != null ? mTitleCondensed : mTitle;
+        final CharSequence ctitle = mTitleCondensed != null ? mTitleCondensed : mTitle;
+
+        if (Build.VERSION.SDK_INT < 18 && ctitle != null && !(ctitle instanceof String)) {
+            // For devices pre-JB-MR2, where we have a non-String CharSequence, we need to
+            // convert this to a String so that EventLog.writeEvent() does not throw an exception
+            // in Activity.onMenuItemSelected()
+            return ctitle.toString();
+        } else {
+            // Else, we just return the condensed title
+            return ctitle;
+        }
     }
 
     @Override

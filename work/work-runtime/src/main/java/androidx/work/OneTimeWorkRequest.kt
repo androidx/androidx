@@ -36,13 +36,6 @@ class OneTimeWorkRequest internal constructor(builder: Builder) :
         WorkRequest.Builder<Builder, OneTimeWorkRequest>(workerClass) {
 
         /**
-         * Creates a builder for [OneTimeWorkRequest]s.
-         *
-         * @param workerClass The [ListenableWorker] class to run for this work
-         */
-        constructor(workerClass: KClass<out ListenableWorker>) : this(workerClass.java)
-
-        /**
          * Specifies the [InputMerger] class name for this [OneTimeWorkRequest].
          *
          * Before workers run, they receive input [Data] from their parent workers, as well as

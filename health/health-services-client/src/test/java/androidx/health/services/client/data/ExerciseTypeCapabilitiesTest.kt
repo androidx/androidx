@@ -16,9 +16,6 @@
 
 package androidx.health.services.client.data
 
-import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN
-import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM
-import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM_STATS
 import androidx.health.services.client.proto.DataProto
 import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
@@ -51,30 +48,5 @@ class ExerciseTypeCapabilitiesTest {
 
         assertThat(capabilitiesReturned.exerciseEventCapabilities).isEmpty()
         assertThat(capabilitiesReturned.supportedExerciseEvents).isEmpty()
-    }
-
-    @Test
-    fun debouncedGoalCapabilities_roundTrip() {
-        val testingCapabilities = ExerciseTypeCapabilities(
-            supportedDataTypes = emptySet(),
-            supportedGoals = emptyMap(),
-            supportedMilestones = emptyMap(),
-            supportsAutoPauseAndResume = true,
-            exerciseEventCapabilities = emptyMap(),
-            supportedDebouncedGoals = mapOf(
-                HEART_RATE_BPM to setOf(GREATER_THAN),
-                HEART_RATE_BPM_STATS to setOf(GREATER_THAN),
-            ),
-        )
-
-        val proto = testingCapabilities.proto
-        val capabilitiesReturned = ExerciseTypeCapabilities(proto)
-
-        assertThat(capabilitiesReturned.supportedDebouncedGoals).isEqualTo(
-            mapOf(
-                HEART_RATE_BPM to setOf(GREATER_THAN),
-                HEART_RATE_BPM_STATS to setOf(GREATER_THAN),
-            )
-        )
     }
 }

@@ -84,9 +84,6 @@ open class StandardSubjectBuilder internal constructor(
     fun that(actual: Double?): DoubleSubject =
         DoubleSubject(actual = actual, metadata = metadata)
 
-    fun that(actual: Float?): FloatSubject =
-        FloatSubject(actual = actual, metadata = metadata)
-
     fun that(actual: Int): IntegerSubject =
         IntegerSubject(actual = actual, metadata = metadata)
 

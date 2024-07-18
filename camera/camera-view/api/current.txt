@@ -11,7 +11,6 @@ package androidx.camera.view {
     method @MainThread public java.util.concurrent.Executor? getImageAnalysisBackgroundExecutor();
     method @MainThread public int getImageAnalysisBackpressureStrategy();
     method @MainThread public int getImageAnalysisImageQueueDepth();
-    method @MainThread public int getImageAnalysisOutputImageFormat();
     method @MainThread public androidx.camera.core.resolutionselector.ResolutionSelector? getImageAnalysisResolutionSelector();
     method @Deprecated @MainThread public androidx.camera.view.CameraController.OutputSize? getImageAnalysisTargetSize();
     method @MainThread public int getImageCaptureFlashMode();
@@ -43,7 +42,6 @@ package androidx.camera.view {
     method @MainThread public void setImageAnalysisBackgroundExecutor(java.util.concurrent.Executor?);
     method @MainThread public void setImageAnalysisBackpressureStrategy(int);
     method @MainThread public void setImageAnalysisImageQueueDepth(int);
-    method @MainThread public void setImageAnalysisOutputImageFormat(int);
     method @MainThread public void setImageAnalysisResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
     method @Deprecated @MainThread public void setImageAnalysisTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setImageCaptureFlashMode(int);
@@ -66,7 +64,7 @@ package androidx.camera.view {
     method @MainThread public androidx.camera.video.Recording startRecording(androidx.camera.video.MediaStoreOutputOptions, androidx.camera.view.video.AudioConfig, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
     method @MainThread public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
     method @MainThread public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
-    field @Deprecated public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1; // 0x1
+    field public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1; // 0x1
     field public static final int IMAGE_ANALYSIS = 2; // 0x2
     field public static final int IMAGE_CAPTURE = 1; // 0x1
     field public static final int TAP_TO_FOCUS_FAILED = 4; // 0x4
@@ -103,7 +101,6 @@ package androidx.camera.view {
     method @SuppressCompatibility public androidx.camera.view.transform.OutputTransform? getOutputTransform();
     method public androidx.lifecycle.LiveData<androidx.camera.view.PreviewView.StreamState!> getPreviewStreamState();
     method @UiThread public androidx.camera.view.PreviewView.ScaleType getScaleType();
-    method @UiThread public android.graphics.Matrix? getSensorToViewTransform();
     method @UiThread public androidx.camera.core.Preview.SurfaceProvider getSurfaceProvider();
     method @UiThread public androidx.camera.core.ViewPort? getViewPort();
     method @UiThread public androidx.camera.core.ViewPort? getViewPort(int);
@@ -147,7 +144,7 @@ package androidx.camera.view {
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?);
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int);
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int, int);
-    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
+    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }

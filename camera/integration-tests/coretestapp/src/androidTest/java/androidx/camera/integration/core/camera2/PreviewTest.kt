@@ -39,7 +39,6 @@ import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.core.resolutionselector.ResolutionStrategy
-import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
@@ -47,7 +46,6 @@ import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
-import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -90,9 +88,6 @@ class PreviewTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraConfig)
     )
-
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         private const val ANY_THREAD_NAME = "any-thread-name"
@@ -562,12 +557,8 @@ class PreviewTest(
         //  ResolutionSelector logic
         assumeTrue(implName != CameraPipeConfig::class.simpleName)
 
-        val cameraInfo = CameraUtil.createCameraUseCaseAdapter(
-            context!!,
-            CameraSelector.DEFAULT_BACK_CAMERA
-        ).cameraInfo
-        val maxHighResolutionOutputSize = CameraInfoUtil.getMaxHighResolutionOutputSize(
-            cameraInfo,
+        val maxHighResolutionOutputSize = CameraUtil.getMaxHighResolutionOutputSizeWithLensFacing(
+            cameraSelector.lensFacing!!,
             ImageFormat.PRIVATE
         )
         // Only runs the test when the device has high resolution output sizes

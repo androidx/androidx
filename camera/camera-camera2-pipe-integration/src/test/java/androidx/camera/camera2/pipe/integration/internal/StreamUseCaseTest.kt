@@ -48,7 +48,6 @@ import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.ResolvableFuture
-import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import junit.framework.TestCase
 import org.junit.After
@@ -157,47 +156,6 @@ class StreamUseCaseTest() {
             streamUseCaseMap[mMockSurface2] ==
                 CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong()
         )
-    }
-
-    @Test
-    fun populateSurfaceToStreamUseCaseMapping_previewAndNoSurfaceVideoCapture() {
-        val streamUseCaseMap: MutableMap<DeferrableSurface, Long> = mutableMapOf()
-        val previewOptionsBundle = MutableOptionsBundle.create()
-        previewOptionsBundle.insertOption(
-            StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION,
-            CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong()
-        )
-        val previewSessionConfig = SessionConfig.Builder()
-            .addSurface(mMockSurface1)
-            .addImplementationOptions(Camera2ImplConfig(previewOptionsBundle))
-            .build()
-        val videoCaptureOptionsBundle = MutableOptionsBundle.create()
-        videoCaptureOptionsBundle.insertOption(
-            StreamUseCaseUtil.STREAM_USE_CASE_STREAM_SPEC_OPTION,
-            CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_VIDEO_RECORD.toLong()
-        )
-        // VideoCapture doesn't contain a surface
-        val videoCaptureSessionConfig = SessionConfig.Builder()
-            .addImplementationOptions(Camera2ImplConfig(videoCaptureOptionsBundle))
-            .build()
-        val previewConfig = getFakeUseCaseConfigWithOptions(
-            camera2InteropOverride = true, isZslDisabled = false, isZslCaptureMode = false,
-            captureType = CaptureType.PREVIEW, imageFormat = ImageFormat.PRIVATE
-        )
-        val videoCaptureConfig = getFakeUseCaseConfigWithOptions(
-            camera2InteropOverride = true, isZslDisabled = false, isZslCaptureMode = false,
-            captureType = CaptureType.VIDEO_CAPTURE, imageFormat = ImageFormat.PRIVATE
-        )
-        val sessionConfigs =
-            mutableListOf(previewSessionConfig, videoCaptureSessionConfig)
-        val useCaseConfigs = mutableListOf(previewConfig, videoCaptureConfig)
-        StreamUseCaseUtil.populateSurfaceToStreamUseCaseMapping(
-            sessionConfigs, useCaseConfigs,
-            streamUseCaseMap
-        )
-        assertThat(streamUseCaseMap.size).isEqualTo(1)
-        assertThat(streamUseCaseMap[mMockSurface1])
-            .isEqualTo(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW.toLong())
     }
 
     @Test

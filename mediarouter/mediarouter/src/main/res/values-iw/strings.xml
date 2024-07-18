@@ -18,11 +18,11 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"מערכת"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"מכשירים"</string>
-    <string name="mr_button_content_description" msgid="2939063992730535343">"‏הפעלת Cast"</string>
-    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"‏הפעלת Cast. אין מכשיר מחובר"</string>
-    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"‏הפעלת Cast. מתחברים למכשיר"</string>
-    <string name="mr_cast_button_connected" msgid="6073720094880410356">"‏הפעלת Cast. יש מכשיר מחובר"</string>
-    <string name="mr_chooser_title" msgid="1419936397646839840">"‏הפעלת Cast אל"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"‏העברה (cast)"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"‏העברה (cast). אין חיבור"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"‏העברה (cast). מתבצעת התחברות"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"‏העברה (cast). מחובר"</string>
+    <string name="mr_chooser_title" msgid="1419936397646839840">"העברה אל"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"מתבצע חיפוש מכשירים"</string>
     <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"מתבצע חיפוש מכשירים…"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"ניתוק"</string>
@@ -50,5 +50,5 @@
     <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"‏מוודאים שהמכשיר השני והרכב מחוברים לאותה רשת Wi-Fi"</string>
     <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"‏מוודאים ששני המכשירים מחוברים לאותה רשת Wi-Fi"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"מידע נוסף"</a></string>
-    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"‏איך להפעיל Cast"</string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"‏איך להעביר (cast)"</string>
 </resources>

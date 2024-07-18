@@ -499,6 +499,8 @@ internal class LayoutNodeLayoutDelegate(
             if (isPlaced) {
                 isPlaced = false
                 layoutNode.forEachCoordinatorIncludingInner {
+                    it.onUnplaced()
+
                     // nodes are not placed with a layer anymore, so the layers should be released
                     it.releaseLayer()
                 }

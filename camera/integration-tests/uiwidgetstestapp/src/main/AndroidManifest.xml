@@ -52,7 +52,7 @@
         <activity
             android:exported="false"
             android:name=".rotations.OrientationConfigChangesOverriddenActivity"
-            android:configChanges="orientation|screenSize|screenLayout"
+            android:configChanges="orientation|screenSize"
             android:label="Rotation - ConfigChanges overridden" />
 
         <activity

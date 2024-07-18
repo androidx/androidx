@@ -1,16 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.sqlite.SQLiteConnection:
-    Acronyms should not be capitalized in class names: was `SQLiteConnection`, should this be `SqLiteConnection`?
-AcronymName: androidx.sqlite.SQLiteDriver:
-    Acronyms should not be capitalized in class names: was `SQLiteDriver`, should this be `SqLiteDriver`?
-AcronymName: androidx.sqlite.SQLiteKt:
-    Acronyms should not be capitalized in class names: was `SQLiteKt`, should this be `SqLiteKt`?
-AcronymName: androidx.sqlite.SQLiteKt#execSQL(androidx.sqlite.SQLiteConnection, String):
-    Acronyms should not be capitalized in method names: was `execSQL`, should this be `execSql`?
-AcronymName: androidx.sqlite.SQLiteKt#throwSQLiteException(int, String):
-    Acronyms should not be capitalized in method names: was `throwSQLiteException`, should this be `throwSqLiteException`?
-AcronymName: androidx.sqlite.SQLiteStatement:
-    Acronyms should not be capitalized in class names: was `SQLiteStatement`, should this be `SqLiteStatement`?
 AcronymName: androidx.sqlite.db.SimpleSQLiteQuery:
     Acronyms should not be capitalized in class names: was `SimpleSQLiteQuery`, should this be `SimpleSqLiteQuery`?
 AcronymName: androidx.sqlite.db.SupportSQLiteDatabase:

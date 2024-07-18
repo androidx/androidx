@@ -19,24 +19,19 @@ package androidx.camera.camera2.internal;
 import android.media.CamcorderProfile;
 import android.media.EncoderProfiles;
 import android.os.Build;
-import android.util.Size;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.internal.compat.quirk.CamcorderProfileResolutionQuirk;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.InvalidVideoProfilesQuirk;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
-import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
-import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.compat.EncoderProfilesProxyCompat;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /** An implementation that provides the {@link EncoderProfilesProxy}. */
@@ -49,9 +44,8 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
     private final String mCameraId;
     private final int mIntCameraId;
     private final Map<Integer, EncoderProfilesProxy> mEncoderProfilesCache = new HashMap<>();
-    private final Quirks mCameraQuirks;
 
-    public Camera2EncoderProfilesProvider(@NonNull String cameraId, @NonNull Quirks cameraQuirks) {
+    public Camera2EncoderProfilesProvider(@NonNull String cameraId) {
         mCameraId = cameraId;
         boolean hasValidCameraId = false;
         int intCameraId = -1;
@@ -64,7 +58,6 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
         }
         mHasValidCameraId = hasValidCameraId;
         mIntCameraId = intCameraId;
-        mCameraQuirks = cameraQuirks;
     }
 
     /** {@inheritDoc} */
@@ -74,7 +67,7 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
             return false;
         }
 
-        return getAll(quality) != null;
+        return CamcorderProfile.hasProfile(mIntCameraId, quality);
     }
 
     /** {@inheritDoc} */
@@ -94,9 +87,6 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
             return mEncoderProfilesCache.get(quality);
         } else {
             EncoderProfilesProxy profiles = getProfilesInternal(quality);
-            if (profiles != null && !isEncoderProfilesResolutionValidInQuirk(profiles)) {
-                profiles = null;
-            }
             mEncoderProfilesCache.put(quality, profiles);
             return profiles;
         }
@@ -141,25 +131,6 @@ public class Camera2EncoderProfilesProvider implements EncoderProfilesProvider {
             Logger.w(TAG, "Unable to get CamcorderProfile by quality: " + quality, e);
         }
         return profile != null ? EncoderProfilesProxyCompat.from(profile) : null;
-    }
-
-    private boolean isEncoderProfilesResolutionValidInQuirk(
-            @NonNull EncoderProfilesProxy profiles) {
-        CamcorderProfileResolutionQuirk camcorderProfileResolutionQuirk =
-                mCameraQuirks.get(CamcorderProfileResolutionQuirk.class);
-        if (camcorderProfileResolutionQuirk == null) {
-            return true;
-        }
-        List<VideoProfileProxy> videoProfiles = profiles.getVideoProfiles();
-        if (videoProfiles.isEmpty()) {
-            // Empty video profiles is valid according to the doc.
-            return true;
-        }
-        // cts/CamcorderProfileTest.java ensures all video profiles have the same size so we just
-        // need to check the first video profile.
-        VideoProfileProxy videoProfile = videoProfiles.get(0);
-        return camcorderProfileResolutionQuirk.getSupportedResolutions()
-                .contains(new Size(videoProfile.getWidth(), videoProfile.getHeight()));
     }
 
     @RequiresApi(31)

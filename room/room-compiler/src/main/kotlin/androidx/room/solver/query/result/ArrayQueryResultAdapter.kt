@@ -18,106 +18,103 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.beginForEachControlFlow
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XNullability
+import androidx.room.ext.KotlinCollectionMemberNames.ARRAY_OF_NULLS
 import androidx.room.ext.getToArrayFunction
 import androidx.room.solver.CodeGenScope
 
 class ArrayQueryResultAdapter(
     private val arrayType: XArrayType,
-    private val listResultAdapter: ListQueryResultAdapter
-) : QueryResultAdapter(listResultAdapter.rowAdapters) {
-    private val componentTypeName: XTypeName = arrayType.componentType.asTypeName()
-    private val arrayTypeName = XTypeName.getArrayName(componentTypeName)
-
+    private val rowAdapter: RowAdapter
+) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder.apply {
-            val listVarName = scope.getTmpVar("_listResult")
-            // Delegate to the ListQueryResultAdapter to convert query result to a List.
-            listResultAdapter.convert(listVarName, cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+            val componentTypeName: XTypeName = arrayType.componentType.asTypeName()
+            val arrayTypeName = XTypeName.getArrayName(componentTypeName)
 
-            // Initialize _result to be returned, using the list result we have.
-            val tmpArrayResult = scope.getTmpVar("_tmpArrayResult")
+            // For Java, instantiate a new array of a size using the bracket syntax, for Kotlin
+            // create the array using the std-lib function arrayOfNulls.
+            val tmpResultName = scope.getTmpVar("_tmpResult")
+            addLocalVariable(
+                name = tmpResultName,
+                typeName = XTypeName.getArrayName(componentTypeName.copy(nullable = true)),
+                assignExpr = when (language) {
+                    CodeLanguage.KOTLIN ->
+                        XCodeBlock.of(
+                            language = language,
+                            format = "%M<%T>(%L.getCount())",
+                            ARRAY_OF_NULLS,
+                            componentTypeName,
+                            cursorVarName
+                        )
+                    CodeLanguage.JAVA ->
+                        XCodeBlock.of(
+                            language = language,
+                            format = "new %T[%L.getCount()]",
+                            componentTypeName,
+                            cursorVarName
+                        )
+                }
+            )
 
+            val tmpVarName = scope.getTmpVar("_item")
+            val indexVar = scope.getTmpVar("_index")
+            addLocalVariable(
+                name = indexVar,
+                typeName = XTypeName.PRIMITIVE_INT,
+                assignExpr = XCodeBlock.of(language, "0"),
+                isMutable = true
+            )
+            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+                addLocalVariable(
+                    name = tmpVarName,
+                    typeName = componentTypeName
+                )
+                rowAdapter.convert(tmpVarName, cursorVarName, scope)
+                addStatement("%L[%L] = %L", tmpResultName, indexVar, tmpVarName)
+                addStatement("%L++", indexVar)
+            }
+            endControlFlow()
+
+            // Finally initialize _result to be returned. Will avoid an unnecessary cast in
+            // Kotlin if the Entity was already nullable.
             val assignCode = XCodeBlock.of(
                 language = language,
                 format = "%L",
-                listVarName
+                tmpResultName
             ).let {
-                when (language) {
-                    CodeLanguage.KOTLIN -> {
-                        if (componentTypeName.isPrimitive) {
-                            // If we have a primitive array like LongArray or ShortArray,
-                            // we use conversion functions like toLongArray() or toShortArray().
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L.%L",
-                                it,
-                                getToArrayFunction(componentTypeName)
-                            )
-                        } else {
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L.%L",
-                                it,
-                                "toTypedArray()"
-                            )
-                        }
-                    }
-                    CodeLanguage.JAVA -> {
-                        if (componentTypeName.isPrimitive) {
-                            // In Java, initializing an Array using a List is not
-                            // straightforward, and requires we create an empty array that will be
-                            // initialized using the list contents.
-                            addLocalVariable(
-                                name = tmpArrayResult,
-                                typeName = arrayTypeName,
-                                assignExpr = XCodeBlock.of(
-                                    language = language,
-                                    format = "new %T[%L.size()]",
-                                    componentTypeName,
-                                    listVarName
-                                )
-                            )
-                            // If the array is primitive, we have to loop over the list to copy
-                            // contents, as we cannot use toArray() on primitive array types.
-                            val indexVarName = scope.getTmpVar("_index")
-                            addLocalVariable(
-                                name = indexVarName,
-                                typeName = componentTypeName,
-                                isMutable = true,
-                                assignExpr = XCodeBlock.of(language, "0")
-                            )
-                            val itrVar = scope.getTmpVar("_listItem")
-                            beginForEachControlFlow(
-                                iteratorVarName = listVarName,
-                                typeName = componentTypeName,
-                                itemVarName = itrVar
-                            ).apply {
-                                addStatement(
-                                    "%L[%L] = %L",
-                                    tmpArrayResult,
-                                    indexVarName,
-                                    itrVar
-                                )
-                                addStatement("%L++", indexVarName)
-                            }.endControlFlow()
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L",
-                                tmpArrayResult
-                            )
-                        } else {
-                            // If the array is not primitive, we use the List.toArray() utility.
-                            XCodeBlock.of(
-                                language = language,
-                                format = "%L.toArray(new %T[0])",
-                                listVarName,
-                                componentTypeName
-                            )
-                        }
-                    }
+                if (
+                    language == CodeLanguage.KOTLIN &&
+                    componentTypeName.nullability == XNullability.NONNULL
+                ) {
+                    XCodeBlock.ofCast(
+                        language = language,
+                        typeName = XTypeName.getArrayName(componentTypeName.box()),
+                        expressionBlock = it
+                    )
+                } else {
+                    it
+                }
+            }.let {
+                // If the component is a primitive type and the language is Kotlin, we need to use
+                // an additional built-in function to cast from the boxed to the primitive array
+                // type, i.e. Array<Int> to IntArray.
+                if (
+                    language == CodeLanguage.KOTLIN &&
+                    componentTypeName.isPrimitive
+                ) {
+                    XCodeBlock.of(
+                        language = language,
+                        format = "(%L).%L",
+                        it,
+                        getToArrayFunction(componentTypeName)
+                    )
+                } else {
+                    it
                 }
             }
             addLocalVariable(
@@ -127,6 +124,4 @@ class ArrayQueryResultAdapter(
             )
         }
     }
-
-    override fun isMigratedToDriver(): Boolean = true
 }

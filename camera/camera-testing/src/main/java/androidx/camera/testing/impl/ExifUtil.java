@@ -21,13 +21,10 @@ import static androidx.camera.core.impl.utils.Exif.createFromInputStream;
 
 import static java.io.File.createTempFile;
 
-import android.graphics.ImageFormat;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.core.util.Consumer;
 
@@ -37,7 +34,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
  * Utility class for creating fake {@link Exif}s for testing.
@@ -94,24 +90,5 @@ public class ExifUtil {
             }
             return out.toByteArray();
         }
-    }
-
-    /**
-     * Gets the {@link Exif} instance from the {@link ImageProxy}.
-     */
-    @Nullable
-    public static Exif getExif(@NonNull ImageProxy image) {
-        if (image.getFormat() == ImageFormat.JPEG) {
-            ImageProxy.PlaneProxy[] planes = image.getPlanes();
-            ByteBuffer buffer = planes[0].getBuffer();
-            byte[] data = new byte[buffer.capacity()];
-            buffer.get(data);
-            try {
-                return Exif.createFromInputStream(new ByteArrayInputStream(data));
-            } catch (IOException e) {
-                return null;
-            }
-        }
-        return null;
     }
 }

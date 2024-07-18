@@ -83,14 +83,26 @@ public class ContentPagerDemoActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.action_load) {
-            onLoadContent();
+
+        switch (item.getItemId()) {
+            case R.id.action_load:
+                onLoadContent();
+                break;
+            case R.id.action_previous:
+                onLoadPreviousPage();
+                break;
+            case R.id.action_next:
+                onLoadNextPage();
+                break;
+        }
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_load) {
             return true;
-        } else if (itemId == R.id.action_previous) {
-            onLoadPreviousPage();
-        } else if (itemId == R.id.action_next) {
-            onLoadNextPage();
         }
 
         return super.onOptionsItemSelected(item);

@@ -75,20 +75,17 @@ public class TitleChipTest {
     @Test
     public void testTitleChipCustom() {
         DpProp width = dp(150);
-        String description = "Test description";
         TitleChip titleChip =
                 new TitleChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setChipColors(COLORS)
                         .setWidth(width)
-                        .setContentDescription(description)
                         .build();
 
         assertChip(titleChip, COLORS, width, /* iconId= */ null);
-        assertThat(titleChip.getContentDescription().getValue()).isEqualTo(description);
     }
 
     @Test
-    public void testTitleChipIconCustomColor() {
+    public void testIconChipIconCustomColor() {
         String iconId = "icon_id";
         TitleChip titleChip =
                 new TitleChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)

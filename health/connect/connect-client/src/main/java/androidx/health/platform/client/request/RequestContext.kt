@@ -17,14 +17,13 @@
 package androidx.health.platform.client.request
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
 /**
  * Data object holding context data for IPC calls.
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class RequestContext(
     val callingPackage: String,
     val sdkVersion: Int,

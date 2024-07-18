@@ -18,17 +18,14 @@ package androidx.wear.protolayout;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.StateBuilders.State;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class StateBuildersTest {
     @Test
     public void emptyState() {
@@ -58,28 +55,5 @@ public class StateBuildersTest {
                                 .get(new AppDataKey<>("stringValue"))
                                 .toDynamicDataValueProto())
                 .isEqualTo(DynamicDataValue.fromString("string").toDynamicDataValueProto());
-    }
-
-    @Test
-    public void buildState_stateTooLarge_throws() {
-        State.Builder builder = new State.Builder();
-        int maxStateEntryCount = State.getMaxStateEntryCount();
-        for (int i = 0; i < maxStateEntryCount; i++) {
-            builder.addKeyToValueMapping(
-                    new AppDataKey<>(Integer.toString(i)), DynamicDataValue.fromInt(0));
-        }
-        assertThrows(IllegalStateException.class, () -> builder.addKeyToValueMapping(
-                new AppDataKey<>(Integer.toString(maxStateEntryCount + 1)),
-                DynamicDataValue.fromInt(0)));
-    }
-
-    @Test
-    public void buildState_stateSizeIsMaximum_buildSuccessfully() {
-        State.Builder builder = new State.Builder();
-        for (int i = 0; i < StateBuilders.State.getMaxStateEntryCount(); i++) {
-            builder.addKeyToValueMapping(
-                    new AppDataKey<>(Integer.toString(i)), DynamicDataValue.fromInt(0));
-        }
-        assertThat(builder.build().getKeyToValueMapping()).hasSize(30);
     }
 }

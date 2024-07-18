@@ -19,24 +19,18 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
-import android.os.Looper
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashAEModeDisabler
-import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
-import androidx.camera.camera2.pipe.integration.compat.workaround.UseFlashModeTorchFor3aUpdateImpl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraControl
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.TorchState
-import androidx.camera.testing.impl.mocks.MockScreenFlash
-import androidx.testutils.MainDispatcherRule
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors
@@ -44,17 +38,11 @@ import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -65,12 +53,6 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class FlashControlTest {
-    private val testScope = TestScope()
-    private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
-
-    @get:Rule
-    val mainDispatcherRule = MainDispatcherRule(testDispatcher)
-
     private val fakeUseCaseThreads by lazy {
         val executor = MoreExecutors.directExecutor()
         val dispatcher = executor.asCoroutineDispatcher()
@@ -82,6 +64,16 @@ class FlashControlTest {
             dispatcher,
         )
     }
+    private val metadata = FakeCameraMetadata(
+        mapOf(
+            CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to intArrayOf(
+                CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                CaptureRequest.CONTROL_AE_MODE_ON,
+                CaptureRequest.CONTROL_AE_MODE_OFF,
+                CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
+            ),
+        ),
+    )
     private val fakeRequestControl = FakeUseCaseCameraRequestControl()
     private val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
     private val aeFpsRange = AeFpsRange(
@@ -96,68 +88,23 @@ class FlashControlTest {
             )
         )
     )
-    private lateinit var state3AControl: State3AControl
-    private lateinit var torchControl: TorchControl
+    private val state3AControl =
+        State3AControl(
+            FakeCameraProperties(metadata),
+            NoOpAutoFlashAEModeDisabler,
+            aeFpsRange
+            ).apply {
+            useCaseCamera = fakeUseCaseCamera
+        }
     private lateinit var flashControl: FlashControl
-
-    private val screenFlash = MockScreenFlash()
 
     @Before
     fun setUp() {
-        createFlashControl()
-    }
-
-    private fun createFlashControl(
-        addExternalFlashAeMode: Boolean = false,
-        useFlashModeTorch: Boolean = false,
-    ) {
-        val aeAvailableModes = mutableListOf(
-            CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
-            CaptureRequest.CONTROL_AE_MODE_ON,
-            CaptureRequest.CONTROL_AE_MODE_OFF,
-            CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH,
-        ).apply {
-            if (addExternalFlashAeMode) {
-                add(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
-            }
-        }
-
-        val metadata = FakeCameraMetadata(
-            mapOf(
-                CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES to aeAvailableModes.toIntArray()
-            )
-        )
-        val cameraProperties = FakeCameraProperties(metadata)
-
-        state3AControl = State3AControl(
-            cameraProperties,
-            NoOpAutoFlashAEModeDisabler,
-            aeFpsRange,
-        ).apply {
-            useCaseCamera = fakeUseCaseCamera
-        }
-
-        torchControl = TorchControl(
-            cameraProperties,
-            state3AControl,
-            fakeUseCaseThreads
-        ).apply {
-            useCaseCamera = fakeUseCaseCamera
-        }
-
         flashControl = FlashControl(
-            cameraProperties = cameraProperties,
             state3AControl = state3AControl,
             threads = fakeUseCaseThreads,
-            torchControl = torchControl,
-            useFlashModeTorchFor3aUpdate = if (useFlashModeTorch) {
-                UseFlashModeTorchFor3aUpdateImpl
-            } else {
-                NotUseFlashModeTorchFor3aUpdate
-            },
         )
         flashControl.useCaseCamera = fakeUseCaseCamera
-        flashControl.setScreenFlash(screenFlash)
     }
 
     @Test
@@ -166,21 +113,14 @@ class FlashControlTest {
         val fakeCameraProperties = FakeCameraProperties()
 
         val flashControl = FlashControl(
-            fakeCameraProperties,
             State3AControl(
                 fakeCameraProperties,
                 NoOpAutoFlashAEModeDisabler,
-                aeFpsRange,
+                aeFpsRange
             ).apply {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeUseCaseThreads,
-            TorchControl(
-                fakeCameraProperties,
-                state3AControl,
-                fakeUseCaseThreads
-            ),
-            NotUseFlashModeTorchFor3aUpdate
         )
 
         assertThrows<CameraControl.OperationCanceledException> {
@@ -320,129 +260,5 @@ class FlashControlTest {
         timeMillis: Long = TimeUnit.SECONDS.toMillis(5)
     ) = withTimeout(timeMillis) {
         await()
-    }
-
-    @Test
-    fun canSetScreenFlash() {
-        val newScreenFlash = MockScreenFlash()
-        flashControl.setScreenFlash(newScreenFlash)
-        assertThat(flashControl.screenFlash).isEqualTo(newScreenFlash)
-    }
-
-    // 3s timeout is hardcoded in ImageCapture.ScreenFlash.apply documentation
-    @Test
-    fun screenFlashApplyInvokedWithAtLeast3sTimeout_whenStarted() = runTest {
-        val initialTime = System.currentTimeMillis()
-
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(screenFlash.lastApplyExpirationTimeMillis).isAtLeast(
-            initialTime + TimeUnit.SECONDS.toMillis(3)
-        )
-    }
-
-    @Test
-    fun screenFlashApplyInvokedWithLessThan4sTimeout_whenStarted() = runTest {
-        val initialTime = System.currentTimeMillis()
-
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(screenFlash.lastApplyExpirationTimeMillis).isLessThan(
-            initialTime + TimeUnit.SECONDS.toMillis(4)
-        )
-    }
-
-    @Test
-    fun screenFlashApplyInvokedInMainThread_whenStarted() = runTest {
-        withContext(Dispatchers.IO) { // ensures initial call is not from main thread
-            flashControl.startScreenFlashCaptureTasks()
-        }
-
-        assertThat(screenFlash.lastApplyThreadLooper).isEqualTo(Looper.getMainLooper())
-    }
-
-    @Test
-    fun externalFlashAeModeNotAttemptedAtScreenFlashCapture_whenNotSupported() = runTest {
-        createFlashControl(addExternalFlashAeMode = false)
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(state3AControl.tryExternalFlashAeMode).isFalse()
-    }
-
-    @Config(minSdk = 28)
-    @Test
-    fun externalFlashAeModeAttemptedAtScreenFlashCapture_whenSupported() = runTest {
-        createFlashControl(addExternalFlashAeMode = true)
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(state3AControl.tryExternalFlashAeMode).isTrue()
-    }
-
-    @Config(minSdk = 28)
-    @Test
-    fun externalFlashAeModeAttempted_whenScreenFlashCaptureApplyNotCompleted() = runTest {
-        createFlashControl(addExternalFlashAeMode = true)
-        screenFlash.setApplyCompletedInstantly(false)
-
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(state3AControl.tryExternalFlashAeMode).isTrue()
-    }
-
-    @Test
-    fun externalFlashAeModeDisabled_whenScreenFlashCaptureStopped() = runTest {
-        createFlashControl(addExternalFlashAeMode = true)
-        flashControl.startScreenFlashCaptureTasks()
-
-        flashControl.stopScreenFlashCaptureTasks()
-
-        assertThat(state3AControl.tryExternalFlashAeMode).isFalse()
-    }
-
-    @Test
-    fun torchNotEnabledAtScreenFlashCapture_whenNotRequired() = runTest {
-        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = false)
-
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.OFF)
-    }
-
-    @Test
-    fun torchEnabledAtScreenFlashCapture_whenRequired() = runTest {
-        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = true)
-
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
-    }
-
-    @Test
-    fun torchEnabled_whenScreenFlashCaptureApplyNotCompleted() = runTest {
-        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = true)
-        screenFlash.setApplyCompletedInstantly(false)
-
-        flashControl.startScreenFlashCaptureTasks()
-
-        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.ON)
-    }
-
-    @Test
-    fun torchDisabledAtScreenFlashCaptureStop_whenRequired() = runTest {
-        createFlashControl(addExternalFlashAeMode = false, useFlashModeTorch = true)
-        flashControl.startScreenFlashCaptureTasks()
-
-        flashControl.stopScreenFlashCaptureTasks()
-
-        assertThat(torchControl.torchStateLiveData.value).isEqualTo(TorchState.OFF)
-    }
-
-    @Test
-    fun screenFlashClearInvokedInMainThread_whenStopped() = runTest {
-        withContext(Dispatchers.IO) { // ensures initial call is not from main thread
-            flashControl.stopScreenFlashCaptureTasks()
-        }
-
-        assertThat(screenFlash.lastClearThreadLooper).isEqualTo(Looper.getMainLooper())
     }
 }

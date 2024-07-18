@@ -16,7 +16,6 @@
 
 package androidx.camera.video.internal.compat.quirk;
 
-import static androidx.camera.core.CameraSelector.LENS_FACING_BACK;
 import static androidx.camera.core.CameraSelector.LENS_FACING_FRONT;
 
 import android.media.CamcorderProfile;
@@ -37,7 +36,7 @@ import java.util.Locale;
  * does not work on the device, and should not be used.
  *
  * <p>QuirkSummary
- *      Bug Id: 202080832, 242526718, 250807400, 317935034
+ *      Bug Id: 202080832, 242526718, 250807400
  *      Description:
  *                   <ul>
  *                       <li>See b/202080832#comment8. On devices exhibiting this quirk,
@@ -47,7 +46,8 @@ import java.util.Locale;
  *                       corresponding format. However, the camera is unable to produce video
  *                       frames when configured with a {@link MediaCodec} surface at the
  *                       specified resolution. On these devices, the capture session is opened
- *                       and configured, but an error occurs in the HAL.</li>
+ *                       and configured, but an error occurs in the HAL.  for details of this
+ *                       error.</li>
  *                  </ul>
  *                  <ul>
  *                      <li>See b/242526718#comment2. On Vivo Y91i, {@link CamcorderProfile}
@@ -59,17 +59,12 @@ import java.util.Locale;
  *                      <li>See b/250807400. On Huawei P40 Lite, it fails to record video on
  *                      front camera and FHD/HD quality.</li>
  *                  </ul>
- *                  <ul>
- *                      <li>See b/317935034#comment2. On Oppo pht110, it fails to record video
- *                      on back camera and UHD quality.</li>
- *                  </ul>
- *      Device(s):   Huawei Mate 20, Huawei Mate 20 Pro, Vivo Y91i, Huawei P40 Lite, Oppo pht110
+ *      Device(s):   Huawei Mate 20, Huawei Mate 20 Pro, Vivo Y91i, Huawei P40 Lite
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk {
     static boolean load() {
-        return isHuaweiMate20() || isHuaweiMate20Pro() || isVivoY91i() || isHuaweiP40Lite()
-                || isOppoPht110();
+        return isHuaweiMate20() || isHuaweiMate20Pro() || isVivoY91i() || isHuaweiP40Lite();
     }
 
     private static boolean isHuaweiMate20() {
@@ -90,10 +85,6 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk 
                 "JNY-L22B", "JNY-LX1").contains(Build.MODEL.toUpperCase(Locale.US));
     }
 
-    private static boolean isOppoPht110() {
-        return "OPPO".equalsIgnoreCase(Build.BRAND) && "PHT110".equalsIgnoreCase(Build.MODEL);
-    }
-
     /** Checks if the given mime type is a problematic quality. */
     @Override
     public boolean isProblematicVideoQuality(@NonNull CameraInfoInternal cameraInfo,
@@ -107,8 +98,6 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk 
         } else if (isHuaweiP40Lite()) {
             return cameraInfo.getLensFacing() == LENS_FACING_FRONT
                     && (quality == Quality.FHD || quality == Quality.HD);
-        } else if (isOppoPht110()) {
-            return cameraInfo.getLensFacing() == LENS_FACING_BACK && quality == Quality.UHD;
         }
         return false;
     }
@@ -116,6 +105,6 @@ public class ReportedVideoQualityNotSupportedQuirk implements VideoQualityQuirk 
     @Override
     public boolean workaroundBySurfaceProcessing() {
         // VivoY91i can't be workaround.
-        return isHuaweiMate20() || isHuaweiMate20Pro() || isHuaweiP40Lite() || isOppoPht110();
+        return isHuaweiMate20() || isHuaweiMate20Pro() || isHuaweiP40Lite();
     }
 }

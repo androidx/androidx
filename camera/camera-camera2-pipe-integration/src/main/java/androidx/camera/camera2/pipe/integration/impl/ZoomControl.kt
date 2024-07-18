@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.ZoomValue
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
@@ -42,6 +43,7 @@ import kotlinx.coroutines.withContext
 
 const val DEFAULT_ZOOM_RATIO = 1.0f
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class ZoomControl @Inject constructor(
     private val threads: UseCaseThreads,

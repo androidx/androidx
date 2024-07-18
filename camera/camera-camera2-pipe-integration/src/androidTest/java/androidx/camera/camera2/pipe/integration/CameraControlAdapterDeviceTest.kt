@@ -101,7 +101,6 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeThat
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -375,11 +374,6 @@ class CameraControlAdapterDeviceTest {
 
     @Test
     fun setTemplatePreview_afModeToContinuousPicture() = runBlocking {
-        assumeTrue(
-            "Device does not support continuous picture AF mode, ignore the test",
-            characteristics.isAfModeSupported(CONTROL_AF_MODE_CONTINUOUS_PICTURE),
-        )
-
         bindUseCase(createPreview())
 
         // Assert. Verify the afMode.
@@ -393,11 +387,6 @@ class CameraControlAdapterDeviceTest {
 
     @Test
     fun setTemplateRecord_afModeToContinuousVideo() = runBlocking {
-        assumeTrue(
-            "Device does not support continuous video AF mode, ignore the test",
-            characteristics.isAfModeSupported(CONTROL_AF_MODE_CONTINUOUS_VIDEO),
-        )
-
         bindUseCase(createFakeRecordingUseCase())
 
         // Assert. Verify the afMode.

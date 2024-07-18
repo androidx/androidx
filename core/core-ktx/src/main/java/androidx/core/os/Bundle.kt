@@ -91,8 +91,8 @@ public fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle = Bundle(pairs.siz
             is Serializable -> putSerializable(key, value)
 
             else -> {
-                if (value is IBinder) {
-                    this.putBinder(key, value)
+                if (Build.VERSION.SDK_INT >= 18 && value is IBinder) {
+                    BundleApi18ImplKt.putBinder(this, key, value)
                 } else if (Build.VERSION.SDK_INT >= 21 && value is Size) {
                     BundleApi21ImplKt.putSize(this, key, value)
                 } else if (Build.VERSION.SDK_INT >= 21 && value is SizeF) {
@@ -110,6 +110,13 @@ public fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle = Bundle(pairs.siz
  * Returns a new empty [Bundle].
  */
 public fun bundleOf(): Bundle = Bundle(0)
+
+@RequiresApi(18)
+private object BundleApi18ImplKt {
+    @DoNotInline
+    @JvmStatic
+    fun putBinder(bundle: Bundle, key: String, value: IBinder?) = bundle.putBinder(key, value)
+}
 
 @RequiresApi(21)
 private object BundleApi21ImplKt {

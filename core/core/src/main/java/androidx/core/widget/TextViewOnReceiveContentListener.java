@@ -22,6 +22,7 @@ import static androidx.core.view.ContentInfoCompat.SOURCE_INPUT_METHOD;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.os.Build;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.Spanned;
@@ -31,6 +32,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ContentInfoCompat;
 import androidx.core.view.ContentInfoCompat.Flags;
@@ -88,11 +90,10 @@ public final class TextViewOnReceiveContentListener implements OnReceiveContentL
 
     private static CharSequence coerceToText(@NonNull Context context, @NonNull ClipData.Item item,
             @Flags int flags) {
-        if ((flags & FLAG_CONVERT_TO_PLAIN_TEXT) != 0) {
-            CharSequence text = item.coerceToText(context);
-            return (text instanceof Spanned) ? text.toString() : text;
+        if (Build.VERSION.SDK_INT >= 16) {
+            return Api16Impl.coerce(context, item, flags);
         } else {
-            return item.coerceToStyledText(context);
+            return ApiImpl.coerce(context, item, flags);
         }
     }
 
@@ -104,5 +105,33 @@ public final class TextViewOnReceiveContentListener implements OnReceiveContentL
         final int end = Math.max(0, Math.max(selStart, selEnd));
         Selection.setSelection(editable, end);
         editable.replace(start, end, replacement);
+    }
+
+    @RequiresApi(16) // For ClipData.Item.coerceToStyledText()
+    private static final class Api16Impl {
+        private Api16Impl() {}
+
+        static CharSequence coerce(@NonNull Context context, @NonNull ClipData.Item item,
+                @Flags int flags) {
+            if ((flags & FLAG_CONVERT_TO_PLAIN_TEXT) != 0) {
+                CharSequence text = item.coerceToText(context);
+                return (text instanceof Spanned) ? text.toString() : text;
+            } else {
+                return item.coerceToStyledText(context);
+            }
+        }
+    }
+
+    private static final class ApiImpl {
+        private ApiImpl() {}
+
+        static CharSequence coerce(@NonNull Context context, @NonNull ClipData.Item item,
+                @Flags int flags) {
+            CharSequence text = item.coerceToText(context);
+            if ((flags & FLAG_CONVERT_TO_PLAIN_TEXT) != 0 && text instanceof Spanned) {
+                text = text.toString();
+            }
+            return text;
+        }
     }
 }

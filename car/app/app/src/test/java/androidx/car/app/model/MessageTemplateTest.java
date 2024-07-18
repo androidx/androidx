@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.car.app.TestUtils;
-import androidx.car.app.annotations.RequiresCarApi;
 import androidx.core.graphics.drawable.IconCompat;
 
 import org.junit.Test;
@@ -42,7 +41,6 @@ import java.util.List;
 /** Tests for {@link MessageTemplate}. */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@SuppressWarnings("deprecation")
 public class MessageTemplateTest {
 
     private final String mTitle = "header";
@@ -52,10 +50,6 @@ public class MessageTemplateTest {
     private final Action mAction = Action.BACK;
     private final CarIcon mIcon = CarIcon.ALERT;
     private final ActionStrip mActionStrip = new ActionStrip.Builder().addAction(mAction).build();
-    @RequiresCarApi(5)
-    private final Header mHeader =
-            new Header.Builder().setStartHeaderAction(Action.BACK).setTitle("header")
-                    .addEndHeaderAction(Action.BACK).build();
 
     @Test
     public void emptyMessage_throws() {
@@ -146,19 +140,6 @@ public class MessageTemplateTest {
         assertThat(template.getActions()).isEmpty();
         assertThat(template.getActionStrip()).isNull();
         assertThat(template.getDebugMessage()).isNull();
-    }
-
-    @Test
-    public void createInstance_WithHeader_valuesAreBackFilled() {
-        MessageTemplate template = new MessageTemplate.Builder(mMessage).setHeader(mHeader).build();
-
-        // Verify newly set Header
-        assertThat(template.getHeader()).isEqualTo(mHeader);
-
-        // Verify back filled values
-        assertThat(template.getTitle().toString()).isEqualTo("header");
-        assertThat(template.getHeaderAction()).isEqualTo(mAction);
-        assertThat(template.getActionStrip()).isEqualTo(mActionStrip);
     }
 
     @Test

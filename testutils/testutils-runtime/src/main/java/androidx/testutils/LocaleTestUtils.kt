@@ -200,8 +200,11 @@ class LocaleTestUtils(private val mContext: Context) {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.N ->
                 newConfig.setLocales(locales.unwrap() as LocaleList)
-
-            else -> newConfig.setLocale(locales.get(0))
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1 ->
+                newConfig.setLocale(locales.get(0))
+            else ->
+                @Suppress("DEPRECATION")
+                newConfig.locale = locales.get(0)
         }
         @Suppress("DEPRECATION")
         resources.updateConfiguration(newConfig, resources.displayMetrics)

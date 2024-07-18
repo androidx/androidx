@@ -43,10 +43,8 @@ import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
-import androidx.glance.state.GlanceStateDefinition
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableJob
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -101,7 +99,6 @@ internal class AppWidgetSession(
     private var glanceState by mutableStateOf(initialGlanceState, neverEqualPolicy())
     private var options by mutableStateOf(initialOptions, neverEqualPolicy())
     private var lambdas = mapOf<String, List<LambdaAction>>()
-    private val parentJob = Job()
 
     internal val lastRemoteViews = MutableStateFlow<RemoteViews?>(null)
 
@@ -116,14 +113,6 @@ internal class AppWidgetSession(
         ) {
             var minSize by remember { mutableStateOf(DpSize.Zero) }
             val configIsReady by produceState(false) {
-                // Only get a Glance state value if we did not receive an initial value.
-                val newGlanceState = if (glanceState == null) {
-                    widget.stateDefinition
-                        ?.let { stateDefinition: GlanceStateDefinition<*> ->
-                            configManager.getValue(context, stateDefinition, key)
-                        }
-                } else null
-
                 Snapshot.withMutableSnapshot {
                     if (id.isRealId) {
                         // Only get sizing info from app widget manager if we are composing for
@@ -138,7 +127,13 @@ internal class AppWidgetSession(
                             options = manager.getAppWidgetOptions(id.appWidgetId)
                         }
                     }
-                    newGlanceState?.let { glanceState = it }
+                    // Only get a Glance state value if we did not receive an initial value.
+                    widget.stateDefinition
+                        ?.takeIf { glanceState == null }
+                        ?.let { stateDefinition ->
+                            glanceState =
+                                configManager.getValue(context, stateDefinition, key)
+                        }
                     value = true
                 }
             }
@@ -228,25 +223,13 @@ internal class AppWidgetSession(
                     lambdas[event.key]?.forEach { it.block() }
                 } ?: Log.w(TAG, "Triggering Action(${event.key}) for session($key) failed")
             }
-            is WaitForReady -> {
-                event.job.apply { if (isActive) complete() }
-            }
+            is WaitForReady -> event.resume.send(Unit)
             else -> {
                 throw IllegalArgumentException(
                     "Sent unrecognized event type ${event.javaClass} to AppWidgetSession"
                 )
             }
         }
-    }
-
-    override fun onClosed() {
-        // Normally when we are closed, any pending events are processed before the channel is
-        // shutdown. However, it is possible that the Worker for this session will die before
-        // processing the remaining events. So when this session is closed, we will immediately
-        // resume all waiters without waiting for their events to be processed. If the Worker lives
-        // long enough to process their events, it will have no effect because their Jobs are no
-        // longer active.
-        parentJob.cancel()
     }
 
     suspend fun updateGlance() {
@@ -261,17 +244,11 @@ internal class AppWidgetSession(
         sendEvent(RunLambda(key))
     }
 
-    /**
-     * Returns a Job that can be used to wait until the session is ready (i.e. has finished
-     * processEmittableTree for the first time and is now receiving events). You can wait on the
-     * session to be ready by calling [Job.join] on the returned [Job]. When the session is ready,
-     * join will resume successfully (Job is completed). If the session is closed before it is
-     * ready, we call [Job.cancel] and the call to join resumes with [CancellationException].
-     */
-    suspend fun waitForReady(): Job {
-        val event = WaitForReady(Job(parentJob))
-        sendEvent(event)
-        return event.job
+    suspend fun waitForReady() {
+        WaitForReady().let {
+            sendEvent(it)
+            it.resume.receive()
+        }
     }
 
     private fun notifyWidgetOfError(context: Context, throwable: Throwable) {
@@ -296,5 +273,7 @@ internal class AppWidgetSession(
     @VisibleForTesting
     internal class RunLambda(val key: String)
     @VisibleForTesting
-    internal class WaitForReady(val job: CompletableJob)
+    internal class WaitForReady(
+        val resume: Channel<Unit> = Channel(Channel.CONFLATED)
+    )
 }

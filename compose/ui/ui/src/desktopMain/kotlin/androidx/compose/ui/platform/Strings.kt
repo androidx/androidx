@@ -31,6 +31,8 @@ internal value class Strings private constructor(@Suppress("unused") private val
         val Cut = Strings(1)
         val Paste = Strings(2)
         val SelectAll = Strings(3)
+        // When adding values here, make sure to also add them in ui/build.gradle,
+        // updateTranslations task (stringByResourceName parameter), and re-run the task
     }
 }
 

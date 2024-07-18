@@ -20,12 +20,14 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -40,6 +42,7 @@ import java.util.Map;
 /**
  * Base class for dark mode related test.
  */
+@RequiresApi(Build.VERSION_CODES.KITKAT)
 public class WebSettingsCompatDarkModeTestBase<T extends WebViewTestActivity> {
 
     // The size of WebViews to use in the app.

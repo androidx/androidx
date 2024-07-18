@@ -7,17 +7,15 @@ package androidx.camera.viewfinder {
     ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?, int);
     ctor @UiThread public CameraViewfinder(android.content.Context, android.util.AttributeSet?, int, int);
     method @UiThread public android.graphics.Bitmap? getBitmap();
-    method @Deprecated @UiThread public androidx.camera.viewfinder.CameraViewfinder.ImplementationMode getImplementationMode();
+    method @UiThread public androidx.camera.viewfinder.CameraViewfinder.ImplementationMode getImplementationMode();
     method @UiThread public androidx.camera.viewfinder.CameraViewfinder.ScaleType getScaleType();
-    method @UiThread public androidx.camera.viewfinder.surface.ImplementationMode getSurfaceImplementationMode();
-    method @UiThread public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> requestSurfaceAsync(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest);
-    method @Deprecated @UiThread public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> requestSurfaceAsync(androidx.camera.viewfinder.ViewfinderSurfaceRequest);
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<android.view.Surface!> requestSurfaceAsync(androidx.camera.viewfinder.ViewfinderSurfaceRequest);
     method @UiThread public void setScaleType(androidx.camera.viewfinder.CameraViewfinder.ScaleType);
   }
 
-  @Deprecated @RequiresApi(21) public enum CameraViewfinder.ImplementationMode {
-    enum_constant @Deprecated public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode COMPATIBLE;
-    enum_constant @Deprecated public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode PERFORMANCE;
+  @RequiresApi(21) public enum CameraViewfinder.ImplementationMode {
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode COMPATIBLE;
+    enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ImplementationMode PERFORMANCE;
   }
 
   @RequiresApi(21) public enum CameraViewfinder.ScaleType {
@@ -30,31 +28,30 @@ package androidx.camera.viewfinder {
   }
 
   @RequiresApi(21) public final class CameraViewfinderExt {
-    method public suspend Object? requestSurface(androidx.camera.viewfinder.CameraViewfinder, androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest viewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super android.view.Surface>);
-    method @Deprecated public suspend Object? requestSurface(androidx.camera.viewfinder.CameraViewfinder, androidx.camera.viewfinder.ViewfinderSurfaceRequest viewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super android.view.Surface>);
+    method public suspend Object? requestSurface(androidx.camera.viewfinder.CameraViewfinder, androidx.camera.viewfinder.ViewfinderSurfaceRequest viewfinderSurfaceRequest, kotlin.coroutines.Continuation<? super android.view.Surface>);
     field public static final androidx.camera.viewfinder.CameraViewfinderExt INSTANCE;
   }
 
-  @Deprecated @RequiresApi(21) public class ViewfinderSurfaceRequest {
-    method @Deprecated public androidx.camera.viewfinder.CameraViewfinder.ImplementationMode? getImplementationMode();
-    method @Deprecated public int getLensFacing();
-    method @Deprecated public android.util.Size getResolution();
-    method @Deprecated public int getSensorOrientation();
-    method @Deprecated public void markSurfaceSafeToRelease();
+  @RequiresApi(21) public class ViewfinderSurfaceRequest {
+    method public androidx.camera.viewfinder.CameraViewfinder.ImplementationMode? getImplementationMode();
+    method public int getLensFacing();
+    method public android.util.Size getResolution();
+    method public int getSensorOrientation();
+    method public void markSurfaceSafeToRelease();
   }
 
-  @Deprecated public static final class ViewfinderSurfaceRequest.Builder {
-    ctor @Deprecated public ViewfinderSurfaceRequest.Builder(android.util.Size);
-    ctor @Deprecated public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest);
-    ctor @Deprecated public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder);
-    method @Deprecated public androidx.camera.viewfinder.ViewfinderSurfaceRequest build();
-    method @Deprecated public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setImplementationMode(androidx.camera.viewfinder.CameraViewfinder.ImplementationMode?);
-    method @Deprecated public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setLensFacing(int);
-    method @Deprecated public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setSensorOrientation(int);
+  public static final class ViewfinderSurfaceRequest.Builder {
+    ctor public ViewfinderSurfaceRequest.Builder(android.util.Size);
+    ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest);
+    ctor public ViewfinderSurfaceRequest.Builder(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder);
+    method public androidx.camera.viewfinder.ViewfinderSurfaceRequest build();
+    method public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setImplementationMode(androidx.camera.viewfinder.CameraViewfinder.ImplementationMode?);
+    method public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setLensFacing(int);
+    method public androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder setSensorOrientation(int);
   }
 
   public final class ViewfinderSurfaceRequestUtil {
-    method @Deprecated @RequiresApi(21) public static androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
+    method @RequiresApi(21) public static androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
   }
 
 }

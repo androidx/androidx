@@ -37,7 +37,6 @@ class TestConsumer<T> : Consumer<T> {
      * Records the value in the order it was received.
      * @param t the input argument.
      */
-    @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE") /* Avoid breaking named parameter compat */
     override fun accept(t: T) {
         lock.withLock {
             values.add(t)

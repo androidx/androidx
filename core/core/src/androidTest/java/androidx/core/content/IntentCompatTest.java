@@ -296,15 +296,4 @@ public class IntentCompatTest {
         intent.readFromParcel(p);
         p.recycle();
     }
-
-    @Test
-    public void getSerializableExtra() {
-        Intent intent = new Intent();
-        String s = "Hello World";
-        intent.putExtra("serializable", s);
-        parcelAndUnparcel(intent);
-
-        assertEquals(s, Objects.requireNonNull(
-                IntentCompat.getSerializableExtra(intent, "serializable", String.class)));
-    }
 }

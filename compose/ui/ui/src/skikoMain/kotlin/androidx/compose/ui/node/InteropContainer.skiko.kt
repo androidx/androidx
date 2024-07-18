@@ -31,7 +31,7 @@ internal interface InteropContainer<T> {
     val interopViews: Set<T>
 
     fun placeInteropView(nativeView: T)
-    fun removeInteropView(nativeView: T)
+    fun unplaceInteropView(nativeView: T)
 }
 
 /**
@@ -99,8 +99,8 @@ private data class RootTrackInteropModifierElement<T>(
  * @see ModifierNodeElement
  */
 internal data class TrackInteropModifierElement<T>(
-    var container: InteropContainer<T>,
-    var nativeView: T,
+    val container: InteropContainer<T>,
+    val nativeView: T,
 ) : ModifierNodeElement<TrackInteropModifierNode<T>>() {
     override fun create() = TrackInteropModifierNode(
         container = container,
@@ -127,11 +127,21 @@ private const val TRAVERSAL_NODE_KEY =
 internal class TrackInteropModifierNode<T>(
     var container: InteropContainer<T>?,
     var nativeView: T?,
-) : Modifier.Node(), TraversableNode, LayoutAwareModifierNode {
+) : Modifier.Node(), TraversableNode, LayoutAwareModifierNode, OnUnplacedModifierNode {
     override val traverseKey = TRAVERSAL_NODE_KEY
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
         val nativeView = nativeView ?: return
         container?.placeInteropView(nativeView)
+    }
+
+    override fun onUnplaced() {
+        val nativeView = nativeView ?: return
+        container?.unplaceInteropView(nativeView)
+    }
+
+    override fun onDetach() {
+        onUnplaced()
+        super.onDetach()
     }
 }

@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -58,7 +51,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         stableAidl {
             version 1
         }
@@ -87,5 +80,4 @@ androidx {
     mavenVersion = LibraryVersions.HEALTH_SERVICES_CLIENT
     inceptionYear = "2021"
     description = "This library helps developers create performant health applications in a platform agnostic way"
-    metalavaK2UastEnabled = true
 }

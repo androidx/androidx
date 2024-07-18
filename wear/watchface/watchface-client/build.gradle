@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -64,7 +57,7 @@ android {
         minSdkVersion 26
     }
     sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/../../golden/wear/wear-watchface-client"
+            project.rootDir.absolutePath + "/golden/wear/wear-watchface-client"
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
@@ -73,7 +66,7 @@ android {
 
 androidx {
     name = "Android Wear Watchface Client"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Client library for controlling androidx watchfaces"
     metalavaK2UastEnabled = true

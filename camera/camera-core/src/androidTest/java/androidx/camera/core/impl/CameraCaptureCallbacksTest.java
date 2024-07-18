@@ -44,26 +44,13 @@ public final class CameraCaptureCallbacksTest {
         CameraCaptureResult result = mock(CameraCaptureResult.class);
         CameraCaptureFailure failure = new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
 
-        int captureConfigId = 10;
-        comboCallback.onCaptureCompleted(captureConfigId, result);
-        verify(callback0, times(1)).onCaptureCompleted(captureConfigId, result);
-        verify(callback1, times(1)).onCaptureCompleted(captureConfigId, result);
+        comboCallback.onCaptureCompleted(result);
+        verify(callback0, times(1)).onCaptureCompleted(result);
+        verify(callback1, times(1)).onCaptureCompleted(result);
 
-        comboCallback.onCaptureFailed(captureConfigId, failure);
-        verify(callback0, times(1)).onCaptureFailed(captureConfigId, failure);
-        verify(callback1, times(1)).onCaptureFailed(captureConfigId, failure);
-
-        comboCallback.onCaptureCancelled(captureConfigId);
-        verify(callback0, times(1)).onCaptureCancelled(captureConfigId);
-        verify(callback1, times(1)).onCaptureCancelled(captureConfigId);
-
-        comboCallback.onCaptureStarted(captureConfigId);
-        verify(callback0, times(1)).onCaptureStarted(captureConfigId);
-        verify(callback1, times(1)).onCaptureStarted(captureConfigId);
-
-        comboCallback.onCaptureProcessProgressed(captureConfigId, 100);
-        verify(callback0, times(1)).onCaptureProcessProgressed(captureConfigId, 100);
-        verify(callback1, times(1)).onCaptureProcessProgressed(captureConfigId, 100);
+        comboCallback.onCaptureFailed(failure);
+        verify(callback0, times(1)).onCaptureFailed(failure);
+        verify(callback1, times(1)).onCaptureFailed(failure);
     }
 
     @Test

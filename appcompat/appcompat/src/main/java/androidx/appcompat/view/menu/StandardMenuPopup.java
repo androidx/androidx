@@ -35,6 +35,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.R;
 import androidx.appcompat.widget.MenuPopupWindow;
+import androidx.core.view.ViewCompat;
 
 /**
  * A standard menu popup in which when a submenu is opened, it replaces its parent menu in the
@@ -279,7 +280,7 @@ final class StandardMenuPopup extends MenuPopup implements OnDismissListener, On
             // As xOffset of parent menu popup is subtracted with Anchor width for Gravity.RIGHT,
             // So, again to display sub-menu popup in same xOffset, add the Anchor width.
             final int hgrav = Gravity.getAbsoluteGravity(mDropDownGravity,
-                    mAnchorView.getLayoutDirection()) & Gravity.HORIZONTAL_GRAVITY_MASK;
+                    ViewCompat.getLayoutDirection(mAnchorView)) & Gravity.HORIZONTAL_GRAVITY_MASK;
             if (hgrav == Gravity.RIGHT) {
                 horizontalOffset += mAnchorView.getWidth();
             }

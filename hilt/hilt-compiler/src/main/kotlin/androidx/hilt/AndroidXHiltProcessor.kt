@@ -18,11 +18,17 @@ package androidx.hilt
 
 import androidx.hilt.work.WorkerStep
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import com.google.auto.service.AutoService
+import javax.annotation.processing.Processor
 import javax.lang.model.SourceVersion
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessor
+import net.ltgt.gradle.incap.IncrementalAnnotationProcessorType.ISOLATING
 
 /**
  * Annotation processor for the various AndroidX Hilt extensions.
  */
+@AutoService(Processor::class)
+@IncrementalAnnotationProcessor(ISOLATING)
 class AndroidXHiltProcessor : JavacBasicAnnotationProcessor(
     config = WorkerStep.ENV_CONFIG
 ) {

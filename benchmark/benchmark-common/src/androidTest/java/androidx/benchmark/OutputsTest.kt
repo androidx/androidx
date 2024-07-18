@@ -22,7 +22,6 @@ import androidx.test.filters.SmallTest
 import java.io.File
 import java.util.Date
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.Assert
@@ -85,17 +84,6 @@ public class OutputsTest {
             "testFilename_one_Thing_two_other_",
             Outputs.sanitizeFilename("testFilename[one=Thing( ),two:other]")
         )
-    }
-
-    @Test
-    public fun sanitizeFilename_tooLong() {
-        assertEquals(
-            "a".repeat(199),
-            Outputs.sanitizeFilename("a".repeat(199))
-        )
-        assertFailsWith<IllegalArgumentException> {
-            Outputs.sanitizeFilename("a".repeat(200))
-        }
     }
 
     @Test

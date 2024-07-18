@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.os.Handler
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Threads
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
@@ -26,6 +27,7 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 
+@RequiresApi(21)
 object FakeThreads {
     fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
         val scope = CoroutineScope(dispatcher.plus(CoroutineName("CXCP-TestScope")))

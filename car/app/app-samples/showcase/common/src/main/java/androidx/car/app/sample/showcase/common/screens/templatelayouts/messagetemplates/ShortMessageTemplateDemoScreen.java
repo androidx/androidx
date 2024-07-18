@@ -25,9 +25,9 @@ import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
@@ -71,10 +71,7 @@ public class ShortMessageTemplateDemoScreen extends Screen {
 
         return new MessageTemplate.Builder(
                 getCarContext().getString(R.string.msg_template_demo_text))
-                .setHeader(new Header.Builder().setTitle(getCarContext()
-                                .getString(R.string.msg_template_demo_title))
-                        .setStartHeaderAction(BACK)
-                        .addEndHeaderAction(settings).build())
+                .setTitle(getCarContext().getString(R.string.msg_template_demo_title))
                 .setIcon(
                         new CarIcon.Builder(
                                 IconCompat.createWithResource(
@@ -82,6 +79,7 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                                         R.drawable.ic_emoji_food_beverage_white_48dp))
                                 .setTint(CarColor.GREEN)
                                 .build())
+                .setHeaderAction(BACK)
                 .addAction(primaryActionBuilder.build())
                 .addAction(
                         new Action.Builder()
@@ -91,6 +89,11 @@ public class ShortMessageTemplateDemoScreen extends Screen {
                                         () -> {
                                             throw new RuntimeException("Error");
                                         })
+                                .build())
+
+                .setActionStrip(
+                        new ActionStrip.Builder()
+                                .addAction(settings)
                                 .build())
                 .build();
     }

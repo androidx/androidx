@@ -16,8 +16,6 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.gridtemplates;
 
-import static androidx.car.app.model.Action.BACK;
-
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.annotation.SuppressLint;
@@ -38,11 +36,11 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.model.Action;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridTemplate;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Template;
 import androidx.car.app.notification.CarAppExtender;
@@ -182,10 +180,8 @@ public final class NotificationDemoScreen extends Screen implements DefaultLifec
 
         return new GridTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext().getString(R.string.notification_demo))
-                        .setStartHeaderAction(BACK)
-                        .build())
+                .setTitle(getCarContext().getString(R.string.notification_demo))
+                .setHeaderAction(Action.BACK)
                 .build();
     }
 

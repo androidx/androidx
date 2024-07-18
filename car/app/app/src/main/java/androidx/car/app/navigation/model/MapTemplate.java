@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -43,6 +42,7 @@ import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
+import androidx.car.app.annotations.KeepFields;
 
 import java.util.List;
 import java.util.Objects;
@@ -61,34 +61,10 @@ import java.util.Objects;
  *       spans) of each row between the previous and new {@link Pane}s or {@link ItemList}s have
  *       not changed.
  * </ul>
- *
- * For instance, using the deprecated {@link MapTemplate}, if the template was:
- *  <pre>
- *  <code>MapTemplate.Builder builder = new MapTemplate.Builder()
- *          .setPane(paneBuilder.build())
- *          .setActionStrip(actionStrip)
- *          .setHeader(header)
- *          .setMapController(mapController)
- *          .build();
- * </code>
- * </pre>
- * Using the new {@link MapWithContentTemplate}, the template would be:
- * <pre>
- * <code>MapWithContentTemplate template = new MapWithContentTemplate.Builder()
- *            .setContentTemplate(new PaneTemplate.Builder(paneBuilder.build())
- *                   .setHeader(header)
- *                   .build())
- *            .setActionStrip(actionStrip)
- *            .setMapController(mapController)
- *            .build();
- * </code>
- * </pre>
- * @deprecated with API 7. Use the {@link MapWithContentTemplate} API instead.
  */
 @RequiresCarApi(5)
 @CarProtocol
 @KeepFields
-@Deprecated
 public final class MapTemplate implements Template {
     @Nullable
     private final MapController mMapController;

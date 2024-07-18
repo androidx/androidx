@@ -98,23 +98,6 @@ class SurfaceEdgeTest {
     }
 
     @Test
-    fun closeProviderAfterInvalidate_newConnectionNotAffected() {
-        // Arrange: set provider and keep a copy of the old connection.
-        surfaceEdge.setProvider(provider)
-        val oldConnection = surfaceEdge.deferrableSurfaceForTesting
-
-        // Act: invalidate to reset, then close the provider.
-        surfaceEdge.invalidate()
-        provider.close()
-        shadowOf(getMainLooper()).idle()
-
-        // Assert: the new connection is not affected.
-        val newConnection = surfaceEdge.deferrableSurfaceForTesting
-        assertThat(oldConnection.isClosed).isTrue()
-        assertThat(newConnection.isClosed).isFalse()
-    }
-
-    @Test
     fun closeEdgeThenInvalidate_callbackNotInvoked() {
         // Arrange.
         var invalidated = false

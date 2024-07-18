@@ -46,7 +46,7 @@ public class Camera2CaptureRequestBuilderTest {
         CaptureConfig captureConfig = new CaptureConfig.Builder().build();
 
         CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(captureConfig,
-                cameraDevice, new HashMap<DeferrableSurface, Surface>(), true);
+                cameraDevice, new HashMap<DeferrableSurface, Surface>());
 
         assertThat(captureRequest).isNull();
     }

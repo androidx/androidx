@@ -18,7 +18,6 @@ package androidx.health.services.client
 import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
-import androidx.health.services.client.data.DebouncedGoal
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseEndReason
@@ -280,33 +279,3 @@ public suspend fun ExerciseClient.getCapabilities() = getCapabilitiesAsync().awa
 public suspend fun ExerciseClient.updateExerciseTypeConfig(
     exerciseTypeConfig: ExerciseTypeConfig
 ) = updateExerciseTypeConfigAsync(exerciseTypeConfig).awaitWithException()
-
-/**
- * Adds a [DebouncedGoal] for an active exercise.
- *
- * [DebouncedGoal]s apply to only sample data types (e.g. HeartRate, Speed) for active exercises
- * owned by the client, and will be invalidated once the exercise is complete. Note: To add goals
- * for Cumulative DataTypes (i.e. steps, distance...) please see [addGoalToActiveExerciseAsync].
- *
- * Before adding, [DebouncedGoal] should be checked for support against
- * [ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one [DebouncedGoal] is
- * allowed per [DataType]+[ComparisonType] pair.
- *
- * @param debouncedGoal the [DebouncedGoal] to add to this exercise
- * @throws HealthServicesException if Health Service fails to process the call
- */
-@kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.addDebouncedGoalToActiveExercise(
-    debouncedGoal: DebouncedGoal<*>
-) = addDebouncedGoalToActiveExerciseAsync(debouncedGoal).awaitWithException()
-
-/**
- * Removes a debounced goal from an active exercise.
- *
- * @param debouncedGoal the [DebouncedGoal] to remove from this exercise
- * @throws HealthServicesException if Health Service fails to process the call
- */
-@kotlin.jvm.Throws(HealthServicesException::class)
-public suspend fun ExerciseClient.removeDebouncedGoalFromActiveExercise(
-    debouncedGoal: DebouncedGoal<*>
-) = removeDebouncedGoalFromActiveExerciseAsync(debouncedGoal).awaitWithException()

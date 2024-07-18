@@ -41,7 +41,7 @@ class GhostViewHolder extends FrameLayout {
         setClipChildren(false);
         mParent = parent;
         mParent.setTag(R.id.ghost_view_holder, this);
-        mParent.getOverlay().add(this);
+        ViewGroupUtils.getOverlay(mParent).add(this);
         mAttached = true;
     }
 
@@ -62,7 +62,7 @@ class GhostViewHolder extends FrameLayout {
         if ((getChildCount() == 1 && getChildAt(0) == child)
                 || getChildCount() == 0) {
             mParent.setTag(R.id.ghost_view_holder, null);
-            mParent.getOverlay().remove(this);
+            ViewGroupUtils.getOverlay(mParent).remove(this);
             mAttached = false;
         }
     }
@@ -77,8 +77,8 @@ class GhostViewHolder extends FrameLayout {
         }
         // we can't reuse the overlay object as this method can return another object after
         // calling remove as it was cleaned up because of no overlay view (in backport impl.)
-        mParent.getOverlay().remove(this);
-        mParent.getOverlay().add(this);
+        ViewGroupUtils.getOverlay(mParent).remove(this);
+        ViewGroupUtils.getOverlay(mParent).add(this);
     }
 
 

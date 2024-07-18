@@ -345,7 +345,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     }
 
     override fun isAvailableOnDevice(): Boolean {
-        return Build.VERSION.SDK_INT >= 34 && credentialManager != null
+        return Build.VERSION.SDK_INT >= 34
     }
 
     override fun onClearCredential(
@@ -364,9 +364,9 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
                 )
             }) return
 
-        val outcome = object : OutcomeReceiver<Void?,
+        val outcome = object : OutcomeReceiver<Void,
             android.credentials.ClearCredentialStateException> {
-            override fun onResult(response: Void?) {
+            override fun onResult(response: Void) {
                 Log.i(TAG, "Clear result returned from framework: ")
                 callback.onResult(response)
             }

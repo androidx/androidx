@@ -31,6 +31,7 @@ internal fun Translations.tl() = mapOf(
     Strings.Dialog to "Dialog",
     Strings.MenuExpanded to "Naka-expand",
     Strings.MenuCollapsed to "Naka-collapse",
+    Strings.ToggleDropdownMenu to "I-toggle ang dropdown menu",
     Strings.SnackbarDismiss to "I-dismiss",
     Strings.SearchBarSearch to "Maghanap",
     Strings.SuggestionsAvailable to "Mga suhestyon sa ibaba",

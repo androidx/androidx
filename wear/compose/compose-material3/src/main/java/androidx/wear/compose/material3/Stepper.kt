@@ -89,11 +89,12 @@ fun Stepper(
         backgroundColor = backgroundColor,
         enabledButtonProviderValues = arrayOf(
             LocalContentColor provides iconColor,
+            LocalContentAlpha provides iconColor.alpha
         ),
         disabledButtonProviderValues = arrayOf(
-            LocalContentColor provides iconColor.copy(alpha = DisabledContentAlpha),
-        ),
-        buttonRipple = rippleOrFallbackImplementation(bounded = false)
+            LocalContentColor provides iconColor.copy(alpha = ContentAlpha.disabled),
+            LocalContentAlpha provides iconColor.copy(alpha = ContentAlpha.disabled).alpha
+        )
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor
@@ -176,14 +177,14 @@ fun Stepper(
  * Defaults used by stepper.
  */
 @ExperimentalWearMaterial3Api
-object StepperDefaults {
+public object StepperDefaults {
     /**
      * Decrease [ImageVector].
      */
-    val Decrease = androidx.wear.compose.materialcore.RangeIcons.Minus
+    public val Decrease = androidx.wear.compose.materialcore.RangeIcons.Minus
 
     /**
      * Increase [ImageVector].
      */
-    val Increase = Icons.Filled.Add
+    public val Increase = Icons.Filled.Add
 }

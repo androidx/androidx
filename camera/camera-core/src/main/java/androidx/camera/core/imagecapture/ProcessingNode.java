@@ -21,7 +21,6 @@ import static android.graphics.ImageFormat.YUV_420_888;
 
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
-import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkState;
 
@@ -39,11 +38,8 @@ import androidx.annotation.WorkerThread;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.Logger;
-import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.core.internal.compat.quirk.IncorrectJpegMetadataQuirk;
 import androidx.camera.core.internal.compat.quirk.LowMemoryQuirk;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.InternalImageProcessor;
@@ -63,7 +59,7 @@ import java.util.concurrent.Executor;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class ProcessingNode implements Node<ProcessingNode.In, Void> {
-    private static final String TAG = "ProcessingNode";
+
     @NonNull
     final Executor mBlockingExecutor;
     @Nullable
@@ -77,10 +73,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     private Operation<Packet<byte[]>, Packet<Bitmap>> mJpegBytes2CroppedBitmap;
     private Operation<Packet<ImageProxy>, ImageProxy> mJpegImage2Result;
     private Operation<Packet<byte[]>, Packet<ImageProxy>> mJpegBytes2Image;
-    private Operation<Packet<ImageProxy>, Bitmap> mImage2Bitmap;
     private Operation<Packet<Bitmap>, Packet<Bitmap>> mBitmapEffect;
-    private final Quirks mQuirks;
-    private final boolean mHasIncorrectJpegMetadataQuirk;
 
     /**
      * @param blockingExecutor a executor that can be blocked by long running tasks. e.g.
@@ -88,17 +81,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     @VisibleForTesting
     ProcessingNode(@NonNull Executor blockingExecutor) {
-        this(blockingExecutor, /*imageProcessor=*/null, DeviceQuirks.getAll());
-    }
-
-    @VisibleForTesting
-    ProcessingNode(@NonNull Executor blockingExecutor, @NonNull Quirks quirks) {
-        this(blockingExecutor, /*imageProcessor=*/null, quirks);
-    }
-
-    ProcessingNode(@NonNull Executor blockingExecutor,
-            @Nullable InternalImageProcessor imageProcessor) {
-        this(blockingExecutor, imageProcessor, DeviceQuirks.getAll());
+        this(blockingExecutor, /*imageProcessor=*/null);
     }
 
     /**
@@ -107,8 +90,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      * @param imageProcessor   external effect for post-processing.
      */
     ProcessingNode(@NonNull Executor blockingExecutor,
-            @Nullable InternalImageProcessor imageProcessor,
-            @NonNull Quirks quirks) {
+            @Nullable InternalImageProcessor imageProcessor) {
         boolean isLowMemoryDevice = DeviceQuirks.get(LowMemoryQuirk.class) != null;
         if (isLowMemoryDevice) {
             mBlockingExecutor = CameraXExecutors.newSequentialExecutor(blockingExecutor);
@@ -116,8 +98,6 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             mBlockingExecutor = blockingExecutor;
         }
         mImageProcessor = imageProcessor;
-        mQuirks = quirks;
-        mHasIncorrectJpegMetadataQuirk = quirks.contains(IncorrectJpegMetadataQuirk.class);
     }
 
     @NonNull
@@ -129,31 +109,18 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
                 inputPacket -> {
                     if (inputPacket.getProcessingRequest().isAborted()) {
                         // No-ops if the request is aborted.
-                        inputPacket.getImageProxy().close();
                         return;
                     }
                     mBlockingExecutor.execute(() -> processInputPacket(inputPacket));
                 });
-        inputEdge.getPostviewEdge().setListener(
-                inputPacket ->  {
-                    if (inputPacket.getProcessingRequest().isAborted()) {
-                        // No-ops if the request is aborted.
-                        inputPacket.getImageProxy().close();
-                        return;
-                    }
-                    mBlockingExecutor.execute(() -> processPostviewInputPacket(inputPacket));
-                }
-        );
 
         mInput2Packet = new ProcessingInput2Packet();
-        mImage2JpegBytes = new Image2JpegBytes(mQuirks);
+        mImage2JpegBytes = new Image2JpegBytes();
         mJpegBytes2CroppedBitmap = new JpegBytes2CroppedBitmap();
         mBitmap2JpegBytes = new Bitmap2JpegBytes();
         mJpegBytes2Disk = new JpegBytes2Disk();
         mJpegImage2Result = new JpegImage2Result();
-        mImage2Bitmap = new Image2Bitmap();
-        if (inputEdge.getInputFormat() == YUV_420_888 || mImageProcessor != null
-                || mHasIncorrectJpegMetadataQuirk) {
+        if (inputEdge.getInputFormat() == YUV_420_888 || mImageProcessor != null) {
             // Convert JPEG bytes to ImageProxy for:
             // - YUV input: YUV -> JPEG -> ImageProxy
             // - Effects: JPEG -> Bitmap -> effect -> Bitmap -> JPEG -> ImageProxy
@@ -195,30 +162,13 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         }
     }
 
-    @WorkerThread
-    void processPostviewInputPacket(@NonNull InputPacket inputPacket) {
-        int format = mInputEdge.getOutputFormat();
-        checkArgument(format == YUV_420_888 || format == JPEG,
-                String.format("Postview only support YUV and JPEG output formats. "
-                        + "Output format: %s", format));
-        ProcessingRequest request = inputPacket.getProcessingRequest();
-        try {
-            Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
-            Bitmap bitmap = mImage2Bitmap.apply(image);
-            mainThreadExecutor().execute(() -> request.onPostviewBitmapAvailable(bitmap));
-        } catch (Exception e) {
-            inputPacket.getImageProxy().close();
-            Logger.e(TAG, "process postview input packet failed.", e);
-        }
-    }
-
     @NonNull
     @WorkerThread
     ImageCapture.OutputFileResults processOnDiskCapture(@NonNull InputPacket inputPacket)
             throws ImageCaptureException {
-        int format = mInputEdge.getOutputFormat();
-        checkArgument(isJpegFormats(format), String.format("On-disk capture only support JPEG and"
-                + " JPEG/R output formats. Output format: %s", format));
+        checkArgument(mInputEdge.getOutputFormat() == JPEG,
+                String.format("On-disk capture only support JPEG output format. Output format: %s",
+                        mInputEdge.getOutputFormat()));
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> originalImage = mInput2Packet.apply(inputPacket);
         Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
@@ -236,10 +186,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
-        // TODO(b/322311893): Update to handle JPEG/R as output format in the if-statement when YUV
-        //  to JPEG/R and effect with JPEG/R are supported.
-        if ((image.getFormat() == YUV_420_888 || mBitmapEffect != null
-                || mHasIncorrectJpegMetadataQuirk)
+        if ((image.getFormat() == YUV_420_888 || mBitmapEffect != null)
                 && mInputEdge.getOutputFormat() == JPEG) {
             Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
                     Image2JpegBytes.In.of(image, request.getJpegQuality()));
@@ -256,7 +203,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     private Packet<byte[]> cropAndMaybeApplyEffect(Packet<byte[]> jpegPacket, int jpegQuality)
             throws ImageCaptureException {
-        checkState(isJpegFormats(jpegPacket.getFormat()));
+        checkState(jpegPacket.getFormat() == JPEG);
         Packet<Bitmap> bitmapPacket = mJpegBytes2CroppedBitmap.apply(jpegPacket);
         if (mBitmapEffect != null) {
             // Apply effect if present.
@@ -299,15 +246,9 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     abstract static class In {
 
         /**
-         * Get the main input edge that contains a {@link InputPacket} flow.
+         * Get the single input edge that contains a {@link InputPacket} flow.
          */
         abstract Edge<InputPacket> getEdge();
-
-
-        /**
-         * Get the postview input edge.
-         */
-        abstract Edge<InputPacket> getPostviewEdge();
 
         /**
          * Gets the format of the image in {@link InputPacket}.
@@ -317,14 +258,13 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         /**
          * The output format of the pipeline.
          *
-         * <p> For public users, only {@link ImageFormat#JPEG} and {@link ImageFormat#JPEG_R} are
-         * supported. Other formats are only used by in-memory capture in tests.
+         * <p> For public users, only {@link ImageFormat#JPEG} is supported. Other formats are
+         * only used by in-memory capture in tests.
          */
         abstract int getOutputFormat();
 
         static In of(int inputFormat, int outputFormat) {
-            return new AutoValue_ProcessingNode_In(new Edge<>(), new Edge<>(),
-                    inputFormat, outputFormat);
+            return new AutoValue_ProcessingNode_In(new Edge<>(), inputFormat, outputFormat);
         }
     }
 

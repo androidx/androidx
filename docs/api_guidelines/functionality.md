@@ -20,13 +20,3 @@ client as part of a documented API contract.
 For example, the `compat` library *may* post notifications as the result of a
 client calling `NotificationsCompat` APIs. However, the `compat` library **must
 not** post notifications to advertise a feature in the library.
-
-### Logging {#functionality-logging}
-
-Jetpack libraries should do no logging (`android.util.Log.v`,
-`android.util.Log.d`, `android.util.Log.i`, `System.out.println`, etc) in
-production library code by default. All error states must be handled through
-standard error return methanisms like return codes and exceptions with detailed
-messages instead of relying on logging. Logging is easy to miss and hard to
-build around. A library *may* provide an optional API to enable debug logging
-when library has complex state management.

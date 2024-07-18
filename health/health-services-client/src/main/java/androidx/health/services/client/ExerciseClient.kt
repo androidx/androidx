@@ -19,7 +19,6 @@ package androidx.health.services.client
 import androidx.health.services.client.data.BatchingMode
 import androidx.health.services.client.data.DataPoint
 import androidx.health.services.client.data.DataType
-import androidx.health.services.client.data.DebouncedGoal
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseEndReason
@@ -311,52 +310,4 @@ public interface ExerciseClient {
     public fun updateExerciseTypeConfigAsync(
         exerciseTypeConfig: ExerciseTypeConfig
     ): ListenableFuture<Void>
-
-    /**
-     * Adds a [DebouncedGoal] for an active exercise.
-     *
-     * [DebouncedGoal]s apply to only sample data types (e.g. HeartRate, Speed) for active exercises
-     * owned by the client, and will be invalidated once the exercise is complete. Note: To add
-     * goals for Cumulative DataTypes (i.e. steps, distance...) please see
-     * [addGoalToActiveExerciseAsync].
-     *
-     * Before adding, [DebouncedGoal] should be checked for support against
-     * [ExerciseTypeCapabilities.supportedDebouncedGoals]. Only one [DebouncedGoal] is
-     * allowed per [DataType]+[ComparisonType] combination.
-     *
-     * @param debouncedGoal the [DebouncedGoal] to add to this exercise
-     * @return a [ListenableFuture] that completes when WHS received the request to add the
-     *   [DebouncedGoal]. This [ListenableFuture] fails if any of the following occur:
-     *   1. the calling app does not own the active exercise
-     *   2. the [debouncedGoal] is not supported for the given [ExerciseType]
-     * @throws [NotImplementedError] if there is an existing [ExerciseClient] that has not
-     * implemented this method. Developers should use
-     * [HealthServices.getClient(context).exerciseClient], which is guaranteed to have this method
-     * implemented.
-     * @see HealthServices.getClient(context).exerciseClient
-     */
-    public fun addDebouncedGoalToActiveExerciseAsync(
-        debouncedGoal: DebouncedGoal<*>
-    ): ListenableFuture<Void> {
-        throw NotImplementedError()
-    }
-
-    /**
-     * Removes a debounced goal from an active exercise.
-     *
-     * @param debouncedGoal the [DebouncedGoal] to remove from this exercise
-     * @return a [ListenableFuture] that completes once the debounced goal has been removed. This
-     *   returned [ListenableFuture] fails if the exercise is not active, and will be a no-op if
-     *   [debouncedGoal] has not been added in the past.
-     * @throws [NotImplementedError] if there is an existing [ExerciseClient] that has not
-     * implemented this method. Developers should use
-     * [HealthServices.getClient(context).exerciseClient], which is guaranteed to have this method
-     * implemented.
-     * @see HealthServices.getClient(context).exerciseClient
-     */
-    public fun removeDebouncedGoalFromActiveExerciseAsync(
-        debouncedGoal: DebouncedGoal<*>
-    ): ListenableFuture<Void> {
-        throw NotImplementedError()
-    }
 }

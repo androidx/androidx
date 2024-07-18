@@ -27,6 +27,7 @@ import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.emoji2.text.flatbuffer.MetadataItem;
@@ -49,6 +50,7 @@ import java.lang.annotation.RetentionPolicy;
  *
  */
 @AnyThread
+@RequiresApi(19)
 public class TypefaceEmojiRasterizer {
     /**
      * Defines whether the system can render the emoji.

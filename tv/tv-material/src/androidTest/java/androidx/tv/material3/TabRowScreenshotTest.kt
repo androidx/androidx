@@ -70,7 +70,7 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
             Surface(
                 modifier = wrapperModifier,
-                colors = SurfaceDefaults.colors(
+                colors = NonInteractiveSurfaceDefaults.colors(
                     containerColor = Color.Transparent
                 ),
                 shape = RectangleShape
@@ -108,7 +108,7 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
             Surface(
                 modifier = wrapperModifier.focusRequester(focusRequester),
-                colors = SurfaceDefaults.colors(
+                colors = NonInteractiveSurfaceDefaults.colors(
                     containerColor = Color.Transparent
                 ),
                 shape = RectangleShape
@@ -152,7 +152,7 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
             Surface(
                 modifier = wrapperModifier.focusRequester(focusRequester),
-                colors = SurfaceDefaults.colors(
+                colors = NonInteractiveSurfaceDefaults.colors(
                     containerColor = Color.Transparent
                 ),
                 shape = RectangleShape
@@ -195,7 +195,7 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
             Surface(
                 modifier = wrapperModifier,
-                colors = SurfaceDefaults.colors(
+                colors = NonInteractiveSurfaceDefaults.colors(
                     containerColor = Color.Transparent
                 ),
                 shape = RectangleShape
@@ -239,7 +239,7 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
             Surface(
                 modifier = wrapperModifier.focusRequester(focusRequester),
-                colors = SurfaceDefaults.colors(
+                colors = NonInteractiveSurfaceDefaults.colors(
                     containerColor = Color.Transparent
                 ),
                 shape = RectangleShape
@@ -289,7 +289,7 @@ class TabRowScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
             Surface(
                 modifier = wrapperModifier.focusRequester(focusRequester),
-                colors = SurfaceDefaults.colors(
+                colors = NonInteractiveSurfaceDefaults.colors(
                     containerColor = Color.Transparent
                 ),
                 shape = RectangleShape

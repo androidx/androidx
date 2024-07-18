@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.Publish
 import androidx.build.LibraryType
 
@@ -54,7 +47,6 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.robolectric)
     testImplementation(libs.truth)
-    testImplementation(files("../../wear_sdk/wear-sdk.jar"))
 }
 
 android {
@@ -70,6 +62,7 @@ android {
 androidx {
     name = "Android Wear Tiles Testing Utilities"
     type = LibraryType.PUBLISHED_TEST_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
     metalavaK2UastEnabled = true

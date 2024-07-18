@@ -24,7 +24,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest;
 
 /**
  * Wraps the underlying handling of the {@link android.view.Surface} used for viewfinder, which is

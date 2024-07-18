@@ -1150,13 +1150,13 @@ class PagerFlowSnapshotTest {
 
     @Test
     fun consecutiveGenerations_nonNullRefreshKey_loadDelay0() =
-        consecutiveGenerations(0)
+        consecutiveGenerations_nonNullRefreshKey(0)
 
     @Test
-    fun consecutiveGenerations_loadDelay10000() =
-        consecutiveGenerations(10000)
+    fun consecutiveGenerations_nonNullRefreshKey_loadDelay10000() =
+        consecutiveGenerations_nonNullRefreshKey(10000)
 
-    private fun consecutiveGenerations(loadDelay: Long) {
+    private fun consecutiveGenerations_nonNullRefreshKey(loadDelay: Long) {
         val dataFlow = flow {
             // first gen
             emit(List(20) { it })
@@ -1187,14 +1187,47 @@ class PagerFlowSnapshotTest {
     }
 
     @Test
-    fun consecutiveGenerations_withInitialKey_loadDelay0() =
-        consecutiveGenerations_withInitialKey(0)
+    fun consecutiveGenerations_withInitialKey_nullRefreshKey_loadDelay0() =
+        consecutiveGenerations_withInitialKey_nullRefreshKey(0)
 
     @Test
-    fun consecutiveGenerations_withInitialKey_loadDelay10000() =
-        consecutiveGenerations_withInitialKey(10000)
+    fun consecutiveGenerations_withInitialKey_nullRefreshKey_loadDelay10000() =
+        consecutiveGenerations_withInitialKey_nullRefreshKey(10000)
 
-    private fun consecutiveGenerations_withInitialKey(loadDelay: Long) {
+    private fun consecutiveGenerations_withInitialKey_nullRefreshKey(loadDelay: Long) {
+        // wait for 500 + loadDelay between each emission
+        val dataFlow = flow {
+            // first gen
+            emit(List(20) { it })
+            delay(500 + loadDelay)
+            // second gen
+            emit(List(20) { it })
+        }
+        val pager = createPagerNoPrefetch(dataFlow, loadDelay, 10)
+            .cachedIn(testScope.backgroundScope)
+        testScope.runTest {
+            val snapshot1 = pager.asSnapshot()
+            assertThat(snapshot1).containsExactlyElementsIn(
+                listOf(10, 11, 12, 13, 14)
+            )
+
+            delay(500)
+            val snapshot2 = pager.asSnapshot()
+            assertThat(snapshot2).containsExactlyElementsIn(
+                listOf(0, 1, 2, 3, 4)
+            )
+        }
+    }
+
+    @Test
+    fun consecutiveGenerations_withInitialKey_nonNullRefreshKey_loadDelay0() =
+        consecutiveGenerations_withInitialKey_nonNullRefreshKey(0)
+
+    @Test
+    fun consecutiveGenerations_withInitialKey_nonNullRefreshKey_loadDelay10000() =
+        consecutiveGenerations_withInitialKey_nonNullRefreshKey(10000)
+
+    private fun consecutiveGenerations_withInitialKey_nonNullRefreshKey(loadDelay: Long) {
         val dataFlow = flow {
             // first gen
             emit(List(20) { it })

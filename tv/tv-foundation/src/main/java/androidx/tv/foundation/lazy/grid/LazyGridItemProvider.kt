@@ -27,6 +27,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.tv.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.tv.foundation.lazy.layout.NearestRangeKeyIndexMap
 
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 internal interface LazyGridItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap

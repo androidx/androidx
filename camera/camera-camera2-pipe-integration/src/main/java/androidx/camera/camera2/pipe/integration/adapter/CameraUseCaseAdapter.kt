@@ -20,6 +20,7 @@ import android.content.Context
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.compat.workaround.setupHDRnet
@@ -29,8 +30,6 @@ import androidx.camera.camera2.pipe.integration.impl.DisplayInfoManager
 import androidx.camera.camera2.pipe.integration.impl.SESSION_PHYSICAL_CAMERA_ID_OPTION
 import androidx.camera.camera2.pipe.integration.impl.STREAM_USE_CASE_OPTION
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
-import androidx.camera.core.ExperimentalZeroShutterLag
-import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
@@ -51,6 +50,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
  * and aspect ratios for the display.
  */
 @Suppress("DEPRECATION")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
     private val displayInfoManager by lazy { DisplayInfoManager(context) }
 
@@ -70,11 +70,10 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
      * Returns the configuration for the given capture type, or `null` if the
      * configuration cannot be produced.
      */
-    @ExperimentalZeroShutterLag
     override fun getConfig(
         captureType: CaptureType,
         captureMode: Int
-    ): Config {
+    ): Config? {
         debug { "Creating config for $captureType" }
 
         val mutableConfig = MutableOptionsBundle.create()
@@ -103,11 +102,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         val captureBuilder = CaptureConfig.Builder()
         when (captureType) {
             CaptureType.IMAGE_CAPTURE ->
-                captureBuilder.templateType =
-                    if (captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG)
-                        CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
-                    else
-                        CameraDevice.TEMPLATE_STILL_CAPTURE
+                captureBuilder.templateType = CameraDevice.TEMPLATE_STILL_CAPTURE
 
             CaptureType.PREVIEW,
             CaptureType.IMAGE_ANALYSIS,
@@ -170,7 +165,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
                 implOptions = defaultCaptureConfig.implementationOptions
 
                 // Also copy these info to the CaptureConfig
-                builder.isUseRepeatingSurface = defaultCaptureConfig.isUseRepeatingSurface
+                builder.setUseRepeatingSurface(defaultCaptureConfig.isUseRepeatingSurface)
                 builder.addAllTags(defaultCaptureConfig.tagBundle)
                 defaultCaptureConfig.surfaces.forEach { builder.addSurface(it) }
             }

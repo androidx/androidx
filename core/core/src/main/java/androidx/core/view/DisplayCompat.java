@@ -75,7 +75,11 @@ public final class DisplayCompat {
         }
 
         displaySize = new Point();
-        display.getRealSize(displaySize);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Api17Impl.getRealSize(display, displaySize);
+        } else {
+            display.getSize(displaySize);
+        }
         return displaySize;
     }
 
@@ -297,6 +301,15 @@ public final class DisplayCompat {
         static boolean physicalSizeEquals(Display.Mode mode, Display.Mode otherMode) {
             return mode.getPhysicalWidth() == otherMode.getPhysicalWidth()
                     && mode.getPhysicalHeight() == otherMode.getPhysicalHeight();
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    static class Api17Impl {
+        private Api17Impl() {}
+
+        static void getRealSize(Display display, Point displaySize) {
+            display.getRealSize(displaySize);
         }
     }
 

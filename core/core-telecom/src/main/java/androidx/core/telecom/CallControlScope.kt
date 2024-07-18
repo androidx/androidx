@@ -21,13 +21,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 
 /**
- * DSL interface to provide and receive updates about a call session. The CallControlScope should be
- * used to provide updates (via the CallControlScope suspend functions) and receive updates
- * (via the lambda functions) about the call.  The CallControlScope will run for the duration of the
- * call. To see an example implementation of the CallControlScope, please refer to the sample app on
- * [github.](https://github.com/android/platform-samples/blob/3856087f7f0fa4901e521f1dc79a30ddfd108f4e/samples/connectivity/telecom/src/main/java/com/example/platform/connectivity/telecom/model/TelecomCallRepository.kt#L122)
- *
- * Example usage:
+ * DSL interface to provide and receive updates about a single call session. The scope should be
+ * used to provide updates to the call state and receive updates about a call state.  Example usage:
  *
  *    // initiate a call and control via the CallControlScope
  *    mCallsManager.addCall(
@@ -36,30 +31,12 @@ import kotlinx.coroutines.flow.Flow
  *        onDisconnectLambda,
  *        onSetActiveLambda,
  *        onSetInActiveLambda
- *        ) {
- *        // This block represents the CallControlScope. Once Telecom has added the call to the
- *        // system, your application can start changing the call state (via setActive(), etc.),
- *        // collect the flows.
+ *        ) { // This block represents the CallControlScope
  *
- *
- *          // Your application should gate ALL CallControlScope suspend functions with UI logic or
- *          // logic that signals the call state is ready to be changed
- *          launch {
- *                 when (val res = setActive() ) {
- *
- *                   is CallControlResult.Success -> {
- *                     // Telecom can place the active
- *                     // update your call state and handle UI
- *                   }
- *
- *                   is CallControlResult.Error -> {
- *                     // Telecom cannot set your VoIP call active. Maybe there is an ongoing
- *                     // active call that cannot be held. Check the failure code to determine the
- *                     // recommended next action
- *                     handleErrorCode( res.errorCode )
- *                   }
- *                  }
- *                }
+ *           // UI flow sends an update to a call state, relay the update to Telecom
+ *           disconnectCallButton.setOnClickListener {
+ *             val wasSuccessful = disconnect(reason) // waits for telecom async. response
+ *             // update UI
  *           }
  *
  *          // Collect updates
@@ -77,7 +54,7 @@ import kotlinx.coroutines.flow.Flow
  *      }
  *
  * **Note:** Each [Flow] must be wrapped in an individual launch block or the [Flow] will not be
- * collected.
+ *  collected.
  */
 interface CallControlScope : CoroutineScope {
     /**

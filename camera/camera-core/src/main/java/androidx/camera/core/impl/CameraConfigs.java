@@ -24,17 +24,17 @@ import androidx.annotation.RequiresApi;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CameraConfigs {
-    private static final CameraConfig DEFAULT_CAMERA_CONFIG = new DefaultCameraConfig();
+    private static final CameraConfig EMPTY_CONFIG = new EmptyCameraConfig();
 
     /**
      * Gets the empty config instance.
      */
     @NonNull
-    public static CameraConfig defaultConfig() {
-        return DEFAULT_CAMERA_CONFIG;
+    public static CameraConfig emptyConfig() {
+        return EMPTY_CONFIG;
     }
 
-    static final class DefaultCameraConfig implements CameraConfig {
+    static final class EmptyCameraConfig implements CameraConfig {
         private final Identifier mIdentifier = Identifier.create(new Object());
 
         @NonNull

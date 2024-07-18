@@ -18,7 +18,6 @@ package androidx.work
 
 import android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP
 import android.app.job.JobParameters.STOP_REASON_CONSTRAINT_CHARGING
-import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -34,7 +33,6 @@ import androidx.work.worker.CompletableWorker
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -69,12 +67,12 @@ class StopReasonTest {
         workManager.enqueue(request).await()
         val worker = workerFactory.await(request.id)
         val tester = launchTester(workManager.getWorkInfoByIdFlow(request.id))
-        val runningWorkInfo = tester.awaitNext()!!
+        val runningWorkInfo = tester.awaitNext()
         assertThat(runningWorkInfo.state).isEqualTo(WorkInfo.State.RUNNING)
         assertThat(runningWorkInfo.stopReason).isEqualTo(WorkInfo.STOP_REASON_NOT_STOPPED)
 
         fakeChargingTracker.constraintState = false
-        val workInfo = tester.awaitNext()!!
+        val workInfo = tester.awaitNext()
         assertThat(worker.isStopped).isTrue()
         assertThat(worker.stopReason).isEqualTo(STOP_REASON_CONSTRAINT_CHARGING)
         assertThat(workInfo.stopReason).isEqualTo(STOP_REASON_CONSTRAINT_CHARGING)
@@ -85,8 +83,7 @@ class StopReasonTest {
         val request = OneTimeWorkRequest.Builder(CompletableWorker::class.java).build()
         workManager.enqueue(request)
         val worker = workerFactory.await(request.id)
-        workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
-            .first { it.state == WorkInfo.State.RUNNING }
+        workManager.getWorkInfoByIdFlow(request.id).first { it.state == WorkInfo.State.RUNNING }
         assertThat(worker.stopReason).isEqualTo(WorkInfo.STOP_REASON_NOT_STOPPED)
     }
 
@@ -95,10 +92,9 @@ class StopReasonTest {
         val request = OneTimeWorkRequest.Builder(CompletableWorker::class.java).build()
         workManager.enqueue(request)
         val worker = workerFactory.await(request.id)
-        workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
-            .first { it.state == WorkInfo.State.RUNNING }
+        workManager.getWorkInfoByIdFlow(request.id).first { it.state == WorkInfo.State.RUNNING }
         workManager.cancelWorkById(request.id)
-        val workInfo = workManager.getWorkInfoByIdFlow(request.id).filterNotNull()
+        val workInfo = workManager.getWorkInfoByIdFlow(request.id)
             .first { it.state == WorkInfo.State.CANCELLED }
         assertThat(worker.isStopped).isTrue()
         assertThat(worker.stopReason).isEqualTo(STOP_REASON_CANCELLED_BY_APP)
@@ -111,7 +107,7 @@ class StopReasonTest {
             .setInitialDelay(10, TimeUnit.DAYS).build()
         workManager.enqueue(request).await()
         workManager.cancelWorkById(request.id).await()
-        val workInfo = workManager.getWorkInfoById(request.id).await()!!
+        val workInfo = workManager.getWorkInfoById(request.id).await()
         assertThat(workInfo.state).isEqualTo(WorkInfo.State.CANCELLED)
         assertThat(workInfo.stopReason).isEqualTo(WorkInfo.STOP_REASON_NOT_STOPPED)
     }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("deprecation")
 package androidx.credentials.playservices.controllers.BeginSignIn
 
 import android.content.Context
@@ -53,6 +52,7 @@ import java.util.concurrent.Executor
 /**
  * A controller to handle the BeginSignIn flow with play services.
  */
+@Suppress("deprecation")
 internal class CredentialProviderBeginSignInController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
@@ -243,9 +243,11 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
 
     companion object {
         private const val TAG = "BeginSignIn"
+        private var controller: CredentialProviderBeginSignInController? = null
 
         /**
-         * Factory method for [CredentialProviderBeginSignInController].
+         * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,
+         * otherwise it generates a new instance.
          *
          * @param context the calling context for this controller
          * @return a credential provider controller for a specific begin sign in credential request
@@ -253,7 +255,10 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         @JvmStatic
         fun getInstance(context: Context):
             CredentialProviderBeginSignInController {
-                return CredentialProviderBeginSignInController(context)
+            if (controller == null) {
+                controller = CredentialProviderBeginSignInController(context)
+            }
+            return controller!!
         }
     }
 }

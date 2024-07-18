@@ -376,8 +376,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
             daoMethods = emptyList(),
             version = -1,
             exportSchema = false,
-            enableForeignKeys = false,
-            overrideClearAllTables = true,
+            enableForeignKeys = false
         )
     }
 

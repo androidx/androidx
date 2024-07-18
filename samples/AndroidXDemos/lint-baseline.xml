@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="OnClick"
@@ -51,7 +51,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 21): `android.os.StrictMode.VmPolicy.Builder#detectImplicitDirectBoot`"
+        message="Call requires API level 29 (current min is 19): `android.os.StrictMode.VmPolicy.Builder#detectImplicitDirectBoot`"
         errorLine1="                        .detectImplicitDirectBoot()"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -60,7 +60,7 @@
 
     <issue
         id="NewApi"
-        message="Custom drawables requires API level 24 (current min is 21)"
+        message="`&lt;class>` requires API level 24 (current min is 19)"
         errorLine1="    class=&quot;com.example.androidx.drawable.MyDrawable&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -213,23 +213,25 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `layout`.">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (SDK_INT >= 16) {"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/SystemUIModes.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `layout`.">
         <location
             file="src/main/res/layout-v11"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v18"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
-        <location
-            file="src/main/res/values-v21"/>
     </issue>
 
     <issue

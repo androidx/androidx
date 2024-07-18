@@ -29,10 +29,6 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property clientDataHash a clientDataHash value to sign over in place of assembling and hashing
  * clientDataJSON during the signature request; meaningful only if you have set the
  * [GetCredentialRequest.origin]
- * @property typePriorityHint always sets the priority of this entry to
- * [CredentialOption.PRIORITY_PASSKEY_OR_SIMILAR], which defines how it appears in the credential
- * selector, with less precedence than account ordering but more precedence than last used time;
- * see [CredentialOption] for more information
  */
 class GetPublicKeyCredentialOption private constructor(
     val requestJson: String,
@@ -40,16 +36,13 @@ class GetPublicKeyCredentialOption private constructor(
     allowedProviders: Set<ComponentName>,
     requestData: Bundle,
     candidateQueryData: Bundle,
-    typePriorityCategory: @PriorityHints Int =
-        PRIORITY_PASSKEY_OR_SIMILAR,
 ) : CredentialOption(
     type = PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL,
     requestData = requestData,
     candidateQueryData = candidateQueryData,
     isSystemProviderRequired = false,
     isAutoSelectAllowed = true,
-    allowedProviders = allowedProviders,
-    typePriorityHint = typePriorityCategory,
+    allowedProviders,
 ) {
 
     /**
@@ -125,8 +118,6 @@ class GetPublicKeyCredentialOption private constructor(
                     allowedProviders,
                     requestData = data,
                     candidateQueryData = candidateQueryData,
-                    typePriorityCategory = data.getInt(BUNDLE_KEY_TYPE_PRIORITY_VALUE,
-                        PRIORITY_PASSKEY_OR_SIMILAR),
                 )
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()

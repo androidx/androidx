@@ -54,12 +54,16 @@ public class DrawableCompatActivity extends Activity {
         rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int id) {
-                if (id == R.id.drawable_compat_no_tint) {
-                    clearTint();
-                } else if (id == R.id.drawable_compat_color) {
-                    setColorTint();
-                } else if (id == R.id.drawable_compat_state_list) {
-                    setColorStateListTint();
+                switch (id) {
+                    case R.id.drawable_compat_no_tint:
+                        clearTint();
+                        break;
+                    case R.id.drawable_compat_color:
+                        setColorTint();
+                        break;
+                    case R.id.drawable_compat_state_list:
+                        setColorStateListTint();
+                        break;
                 }
             }
         });

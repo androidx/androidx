@@ -33,8 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class SliderBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val sliderTestCaseFactory = { SliderTestCase() }
 
@@ -45,9 +44,7 @@ class SliderBenchmark {
 
     @Test
     fun moveThumb() {
-        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
-            caseFactory = sliderTestCaseFactory
-        )
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(caseFactory = sliderTestCaseFactory)
     }
 }
 
@@ -65,9 +62,7 @@ internal class SliderTestCase : LayeredComposeTestCase(), ToggleableTestCase {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

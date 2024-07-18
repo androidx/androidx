@@ -29,14 +29,4 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"ባንዲራዎች"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"ምንም ስሜት ገላጭ ምስሎች አይገኙም"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"ምንም ስሜት ገላጭ ምስሎችን እስካሁን አልተጠቀሙም"</string>
-    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"የስሜት ገላጭ ምስል ባለሁለት አቅጣጫ መቀያየሪያ"</string>
-    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"የስሜት ገላጭ ምስል አቅጣጫ ተቀይሯል"</string>
-    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"የስሜት ገላጭ ምስል ተለዋዋጭ መራጭ"</string>
-    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s እና %2$s"</string>
-    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"ጥላ"</string>
-    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"ነጣ ያለ የቆዳ ቀለም"</string>
-    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"መካከለኛ ነጣ ያለ የቆዳ ቀለም"</string>
-    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"መካከለኛ የቆዳ ቀለም"</string>
-    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"መካከለኛ ጠቆር ያለ የቆዳ ቀለም"</string>
-    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"ጠቆር ያለ የቆዳ ቀለም"</string>
 </resources>

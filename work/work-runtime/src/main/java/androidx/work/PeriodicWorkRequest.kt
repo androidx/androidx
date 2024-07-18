@@ -21,7 +21,6 @@ import androidx.annotation.RequiresApi
 import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.concurrent.TimeUnit
-import kotlin.reflect.KClass
 
 /**
  * A [WorkRequest] for repeating work.  This work executes multiple times until it is
@@ -89,28 +88,6 @@ class PeriodicWorkRequest internal constructor(
          * may run immediately, at the end of the period, or any time in between so long as the
          * other conditions are satisfied at the time. The run time of the
          * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
-         * `#Builder(Class, long, TimeUnit, long, TimeUnit)`).
-         *
-         * @param workerClass The [ListenableWorker] class to run for this work
-         * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
-         * @param repeatIntervalTimeUnit The [TimeUnit] for `repeatInterval`
-         */
-        constructor(
-            workerClass: KClass<out ListenableWorker>,
-            repeatInterval: Long,
-            repeatIntervalTimeUnit: TimeUnit
-        ) : super(workerClass.java) {
-            workSpec.setPeriodic(repeatIntervalTimeUnit.toMillis(repeatInterval))
-        }
-
-        /**
-         * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
-         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
-         * (subject to OS battery optimizations, such as doze mode). The repeat interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It
-         * may run immediately, at the end of the period, or any time in between so long as the
-         * other conditions are satisfied at the time. The run time of the
-         * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
          * `#Builder(Class, Duration, Duration)`).
          *
          * @param workerClass The [ListenableWorker] class to run for this work
@@ -125,27 +102,6 @@ class PeriodicWorkRequest internal constructor(
         }
 
         /**
-         * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
-         * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
-         * (subject to OS battery optimizations, such as doze mode). The repeat interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS]. It
-         * may run immediately, at the end of the period, or any time in between so long as the
-         * other conditions are satisfied at the time. The run time of the
-         * [PeriodicWorkRequest] can be restricted to a flex period within an interval (see
-         * `#Builder(Class, Duration, Duration)`).
-         *
-         * @param workerClass The [ListenableWorker] class to run for this work
-         * @param repeatInterval The repeat interval
-         */
-        @RequiresApi(26)
-        constructor(
-            workerClass: KClass<out ListenableWorker>,
-            repeatInterval: Duration
-        ) : super(workerClass.java) {
-            workSpec.setPeriodic(repeatInterval.toMillisCompat())
-        }
-
-        /**
          * Creates a [PeriodicWorkRequest] to run periodically once within the
          * **flex period** of every interval period. See diagram below.  The flex
          * period begins at `repeatInterval - flexInterval` to the end of the interval.
@@ -186,40 +142,6 @@ class PeriodicWorkRequest internal constructor(
          * The repeat interval must be greater than or equal to
          * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
          * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
-         *  ```
-         * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
-         * [___cannot run work___|_can run work_][___cannot run work___|_can run work_]...
-         * \____________________________________/\____________________________________/...
-         * interval 1                            interval 2             ...(repeat)
-         * ```
-         *
-         * @param workerClass The [ListenableWorker] class to run for this work
-         * @param repeatInterval The repeat interval in `repeatIntervalTimeUnit` units
-         * @param repeatIntervalTimeUnit The [TimeUnit] for `repeatInterval`
-         * @param flexInterval The duration in `flexIntervalTimeUnit` units for which this
-         * work repeats from the end of the `repeatInterval`
-         * @param flexIntervalTimeUnit The [TimeUnit] for `flexInterval`
-         */
-        constructor(
-            workerClass: KClass<out ListenableWorker>,
-            repeatInterval: Long,
-            repeatIntervalTimeUnit: TimeUnit,
-            flexInterval: Long,
-            flexIntervalTimeUnit: TimeUnit
-        ) : super(workerClass.java) {
-            workSpec.setPeriodic(
-                repeatIntervalTimeUnit.toMillis(repeatInterval),
-                flexIntervalTimeUnit.toMillis(flexInterval)
-            )
-        }
-
-        /**
-         * Creates a [PeriodicWorkRequest] to run periodically once within the
-         * **flex period** of every interval period. See diagram below.  The flex
-         * period begins at `repeatInterval - flexInterval` to the end of the interval.
-         * The repeat interval must be greater than or equal to
-         * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
          *
          *  ```
          * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
@@ -239,35 +161,6 @@ class PeriodicWorkRequest internal constructor(
             repeatInterval: Duration,
             flexInterval: Duration
         ) : super(workerClass) {
-            workSpec.setPeriodic(repeatInterval.toMillisCompat(), flexInterval.toMillisCompat())
-        }
-
-        /**
-         * Creates a [PeriodicWorkRequest] to run periodically once within the
-         * **flex period** of every interval period. See diagram below.  The flex
-         * period begins at `repeatInterval - flexInterval` to the end of the interval.
-         * The repeat interval must be greater than or equal to
-         * [PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS] and the flex interval must
-         * be greater than or equal to [PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS].
-         *
-         *  ```
-         * [_____before flex_____|_____flex_____][_____before flex_____|_____flex_____]...
-         * [___cannot run work___|_can run work_][___cannot run work___|_can run work_]...
-         * \____________________________________/\____________________________________/...
-         * interval 1                            interval 2             ...(repeat)
-         * ```
-         *
-         * @param workerClass The [ListenableWorker] class to run for this work
-         * @param repeatInterval The repeat interval
-         * @param flexInterval The duration in for which this work repeats from the end of the
-         * `repeatInterval`
-         */
-        @RequiresApi(26)
-        constructor(
-            workerClass: KClass<out ListenableWorker>,
-            repeatInterval: Duration,
-            flexInterval: Duration
-        ) : super(workerClass.java) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat(), flexInterval.toMillisCompat())
         }
 

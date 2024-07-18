@@ -48,9 +48,11 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.text.AllCapsTransformationMethod;
@@ -1137,7 +1139,9 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
         final float targetPosition = newCheckedState ? 1 : 0;
         mPositionAnimator = ObjectAnimator.ofFloat(this, THUMB_POS, targetPosition);
         mPositionAnimator.setDuration(THUMB_ANIMATION_DURATION);
-        mPositionAnimator.setAutoCancel(true);
+        if (Build.VERSION.SDK_INT >= 18) {
+            Api18Impl.setAutoCancel(mPositionAnimator, true);
+        }
         mPositionAnimator.start();
     }
 
@@ -1188,7 +1192,7 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
             setOffStateDescriptionOnRAndAbove();
         }
 
-        if (getWindowToken() != null && isLaidOut()) {
+        if (getWindowToken() != null && ViewCompat.isLaidOut(this)) {
             animateThumbToCheckedState(checked);
         } else {
             // Immediately move the thumb to the new position.
@@ -1686,6 +1690,18 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
             if (view != null) {
                 view.onEmojiCompatInitializedForSwitchText();
             }
+        }
+    }
+
+    @RequiresApi(18)
+    static class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setAutoCancel(ObjectAnimator objectAnimator, boolean cancel) {
+            objectAnimator.setAutoCancel(cancel);
         }
     }
 }

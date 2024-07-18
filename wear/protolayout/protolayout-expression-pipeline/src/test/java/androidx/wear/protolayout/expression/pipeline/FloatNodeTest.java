@@ -20,7 +20,6 @@ import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HE
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -69,58 +68,21 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class FloatNodeTest {
     private static final AppDataKey<DynamicFloat> KEY_FOO = new AppDataKey<>("foo");
-    @Rule public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock private PlatformDataProvider mMockDataProvider;
-
     @Test
-    public void fixedFloatNodesTest_invalidateNotCalled() {
+    public void fixedFloatNodesTest() {
         List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
         float testValue = 6.6f;
 
         FixedFloat protoNode = FixedFloat.newBuilder().setValue(testValue).build();
-        FixedFloatNode node =
-                new FixedFloatNode(protoNode, new AddToListCallback<>(results, invalidList));
+        FixedFloatNode node = new FixedFloatNode(protoNode, new AddToListCallback<>(results));
 
         node.preInit();
         node.init();
 
         assertThat(results).containsExactly(testValue);
-        assertThat(invalidList).isEmpty();
-    }
-
-    @Test
-    public void fixedFloatNodes_receiveNaN_invalidate() {
-        List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results, invalidList);
-        float testValue = Float.NaN;
-
-        FixedFloat protoNode = FixedFloat.newBuilder().setValue(testValue).build();
-        FixedFloatNode node = new FixedFloatNode(protoNode, addToListCallback);
-
-        node.preInit();
-        node.init();
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
-    }
-
-    @Test
-    public void fixedFloatNodes_receiveInfinite_invalidate() {
-        List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results, invalidList);
-        float testValue = Float.POSITIVE_INFINITY;
-
-        FixedFloat protoNode = FixedFloat.newBuilder().setValue(testValue).build();
-        FixedFloatNode node = new FixedFloatNode(protoNode, addToListCallback);
-
-        node.preInit();
-        node.init();
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
     }
 
     @Test
@@ -143,58 +105,6 @@ public class FloatNodeTest {
         node.init();
 
         assertThat(results).containsExactly(testValue);
-    }
-
-    @Test
-    public void stateFloatSourceNode_receiveNaN_invalidate() {
-        List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-
-        float testValue = Float.NaN;
-        StateStore oss =
-                new StateStore(
-                        ImmutableMap.of(
-                                KEY_FOO,
-                                DynamicDataValue.newBuilder()
-                                        .setFloatVal(FixedFloat.newBuilder().setValue(testValue))
-                                        .build()));
-
-        StateFloatSource protoNode = StateFloatSource.newBuilder().setSourceKey("foo").build();
-        StateFloatSourceNode node =
-                new StateFloatSourceNode(
-                        oss, protoNode, new AddToListCallback<>(results, invalidList));
-
-        node.preInit();
-        node.init();
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
-    }
-
-    @Test
-    public void stateFloatSourceNode_receiveInfinite_invalidate() {
-        List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-
-        float testValue = Float.POSITIVE_INFINITY;
-        StateStore oss =
-                new StateStore(
-                        ImmutableMap.of(
-                                KEY_FOO,
-                                DynamicDataValue.newBuilder()
-                                        .setFloatVal(FixedFloat.newBuilder().setValue(testValue))
-                                        .build()));
-
-        StateFloatSource protoNode = StateFloatSource.newBuilder().setSourceKey("foo").build();
-        StateFloatSourceNode node =
-                new StateFloatSourceNode(
-                        oss, protoNode, new AddToListCallback<>(results, invalidList));
-
-        node.preInit();
-        node.init();
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
     }
 
     @Test
@@ -231,17 +141,22 @@ public class FloatNodeTest {
 
     @Test
     public void stateFloatSource_canSubscribeToHeartRateUpdates() {
-        PlatformDataStore platformDataStore =
-                new PlatformDataStore(Collections.singletonMap(HEART_RATE_BPM, mMockDataProvider));
+        PlatformDataStore platformDataStore = new PlatformDataStore(
+                Collections.singletonMap(
+                        HEART_RATE_BPM,
+                        mMockDataProvider));
         StateFloatSource dailyStepsSource =
                 StateFloatSource.newBuilder()
                         .setSourceKey(HEART_RATE_BPM.getKey())
-                        .setSourceNamespace(HEART_RATE_BPM.getNamespace())
+                        .setSourceNamespace(
+                                HEART_RATE_BPM.getNamespace())
                         .build();
         List<Float> results = new ArrayList<>();
         StateFloatSourceNode dailyStepsSourceNode =
                 new StateFloatSourceNode(
-                        platformDataStore, dailyStepsSource, new AddToListCallback<>(results));
+                        platformDataStore,
+                        dailyStepsSource,
+                        new AddToListCallback<>(results));
 
         dailyStepsSourceNode.preInit();
         dailyStepsSourceNode.init();
@@ -313,7 +228,7 @@ public class FloatNodeTest {
 
         float lhsValue = 6.6f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhsValue).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
         lhsNode.init();
 
         float oldRhsValue = 6.5f;
@@ -326,7 +241,7 @@ public class FloatNodeTest {
                                         .build()));
         StateFloatSource rhsProtoNode = StateFloatSource.newBuilder().setSourceKey("foo").build();
         StateFloatSourceNode rhsNode =
-                new StateFloatSourceNode(oss, rhsProtoNode, node.getRhsUpstreamCallback());
+                new StateFloatSourceNode(oss, rhsProtoNode, node.getRhsIncomingCallback());
 
         rhsNode.preInit();
         rhsNode.init();
@@ -343,56 +258,6 @@ public class FloatNodeTest {
         assertThat(results)
                 .containsExactly(lhsValue + oldRhsValue, lhsValue + newRhsValue)
                 .inOrder();
-    }
-
-    @Test
-    public void arithmeticFloat_unknownOperation_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                /* lhs= */ 1,
-                                /* rhs= */ 1,
-                                ArithmeticOpType.ARITHMETIC_OP_TYPE_UNDEFINED,
-                                new AddToListCallback<>(new ArrayList<>())));
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                /* lhs= */ 1,
-                                /* rhs= */ 1,
-                                -1 /* UNRECOGNIZED */,
-                                new AddToListCallback<>(new ArrayList<>())));
-    }
-
-    @Test
-    public void arithmeticFloat_resultIsNaN_invalidate() {
-        List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-
-        evaluateArithmeticExpression(
-                /* lhs= */ 0,
-                /* rhs= */ 0,
-                ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE,
-                new AddToListCallback<>(results, invalidList));
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
-    }
-
-    @Test
-    public void arithmeticFloat_resultIsInfinite_invalidate() {
-        List<Float> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-
-        evaluateArithmeticExpression(
-                /* lhs= */ 1,
-                /* rhs= */ 0,
-                ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE,
-                new AddToListCallback<>(results, invalidList));
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
     }
 
     @Test
@@ -440,10 +305,9 @@ public class FloatNodeTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
-        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedFloatNode node =
                 new AnimatableFixedFloatNode(
-                        protoNode, addToListCallback, quotaManager);
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -453,7 +317,6 @@ public class FloatNodeTest {
         assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(startValue);
         assertThat(Iterables.getLast(results)).isEqualTo(endValue);
-        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -467,10 +330,9 @@ public class FloatNodeTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
-        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedFloatNode node =
                 new AnimatableFixedFloatNode(
-                        protoNode, addToListCallback, quotaManager);
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -479,7 +341,6 @@ public class FloatNodeTest {
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(endValue);
-        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -521,10 +382,9 @@ public class FloatNodeTest {
                                         .setFloatVal(
                                                 FixedFloat.newBuilder().setValue(value1).build())
                                         .build()));
-        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         DynamicAnimatedFloatNode floatNode =
                 new DynamicAnimatedFloatNode(
-                        addToListCallback,
+                        new AddToListCallback<>(results),
                         AnimationSpec.getDefaultInstance(),
                         quotaManager);
         floatNode.setVisibility(false);
@@ -565,33 +425,5 @@ public class FloatNodeTest {
         assertThat(results.get(0)).isEqualTo(value2);
         assertThat(Iterables.getLast(results)).isEqualTo(value3);
         assertThat(results).isInOrder();
-        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
-    }
-
-    private static void evaluateArithmeticExpression(
-            float lhs,
-            float rhs,
-            ArithmeticOpType op,
-            DynamicTypeValueReceiverWithPreUpdate<Float> receiver) {
-        evaluateArithmeticExpression(lhs, rhs, op.getNumber(), receiver);
-    }
-
-    private static void evaluateArithmeticExpression(
-            float lhs, float rhs, int op, DynamicTypeValueReceiverWithPreUpdate<Float> receiver) {
-        ArithmeticFloatOp protoNode =
-                ArithmeticFloatOp.newBuilder().setOperationTypeValue(op).build();
-
-        ArithmeticFloatNode node = new ArithmeticFloatNode(protoNode, receiver);
-
-        FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhs).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
-
-        FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(rhs).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
-        lhsNode.preInit();
-        rhsNode.preInit();
-
-        lhsNode.init();
-        rhsNode.init();
     }
 }

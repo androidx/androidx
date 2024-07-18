@@ -37,11 +37,8 @@ public class MultiPointerPredictor implements KalmanPredictor {
 
     private final SparseArray<SinglePointerPredictor> mPredictorMap = new SparseArray<>();
     private int mReportRateMs = 0;
-    private final int mStrategy;
 
-    public MultiPointerPredictor(int strategy) {
-        mStrategy = strategy;
-    }
+    public MultiPointerPredictor() {}
 
     @Override
     public void setReportRate(int reportRateMs) {
@@ -63,7 +60,6 @@ public class MultiPointerPredictor implements KalmanPredictor {
         int pointerId = event.getPointerId(actionIndex);
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
             SinglePointerPredictor predictor = new SinglePointerPredictor(
-                    mStrategy,
                     pointerId,
                     event.getToolType(actionIndex)
             );
@@ -186,8 +182,8 @@ public class MultiPointerPredictor implements KalmanPredictor {
         }
         MotionEvent multiPointerEvent =
                 MotionEvent.obtain(
-                        singlePointerEvents[0].getDownTime() /* down time */,
-                        pointerEventTimes[0] /* event time */,
+                        0 /* down time */,
+                        0 /* event time */,
                         MotionEvent.ACTION_MOVE /* action */,
                         pointerCount /* pointer count */,
                         pointerProperties /* pointer properties */,

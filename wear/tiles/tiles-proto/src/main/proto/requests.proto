@@ -12,11 +12,10 @@ option java_outer_classname = "RequestProto";
 // Parameters passed to a Tile Service when the renderer is requesting a new
 // version of the tile.
 message TileRequest {
-  // The DeviceParameters object describing the device requesting the tile
-  // update. If not set, a default empty instance is used.
+  // Parameters describing the device requesting the tile update.
   androidx.wear.protolayout.proto.DeviceParameters device_configuration = 1;
 
-  // The State that should be used when building the tile.
+  // The state that should be used when building the tile.
   androidx.wear.protolayout.proto.State current_state = 2;
 
   // The ID of the tile being requested.
@@ -39,7 +38,7 @@ message ResourcesRequest {
   // similar.
   repeated string resource_ids = 2;
 
-  // The DeviceParameters object describing the device requesting the resources.
+  // Parameters describing the device requesting the resources.
   androidx.wear.protolayout.proto.DeviceParameters device_configuration = 3;
 
   // The ID of the tile for which resources are being requested.

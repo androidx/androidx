@@ -16,11 +16,12 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.util.Range
 import androidx.annotation.GuardedBy
-import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
@@ -40,10 +41,11 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
 @CameraScope
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class State3AControl @Inject constructor(
     val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,
-    private val aeFpsRange: AeFpsRange,
+    private val aeFpsRange: AeFpsRange
 ) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
@@ -70,6 +72,19 @@ class State3AControl @Inject constructor(
         }
     }
 
+    private val afModes = cameraProperties.metadata.getOrDefault(
+        CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
+        intArrayOf(CaptureRequest.CONTROL_AF_MODE_OFF)
+    ).asList()
+    private val aeModes = cameraProperties.metadata.getOrDefault(
+        CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
+        intArrayOf(CaptureRequest.CONTROL_AE_MODE_OFF)
+    ).asList()
+    private val awbModes = cameraProperties.metadata.getOrDefault(
+        CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES,
+        intArrayOf(CaptureRequest.CONTROL_AWB_MODE_OFF)
+    ).asList()
+
     private val lock = Any()
 
     @GuardedBy("lock")
@@ -80,14 +95,12 @@ class State3AControl @Inject constructor(
         private set
     var flashMode by updateOnPropertyChange(DEFAULT_FLASH_MODE)
     var template by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
-    var tryExternalFlashAeMode: Boolean by updateOnPropertyChange(false)
     var preferredAeMode: Int? by updateOnPropertyChange(null)
     var preferredFocusMode: Int? by updateOnPropertyChange(null)
     var preferredAeFpsRange: Range<Int>? by updateOnPropertyChange(aeFpsRange.getTargetAeFpsRange())
 
     override fun reset() {
         synchronized(lock) { updateSignals.toList() }.cancelAll()
-        tryExternalFlashAeMode = false
         preferredAeMode = null
         preferredAeFpsRange = null
         preferredFocusMode = null
@@ -105,8 +118,10 @@ class State3AControl @Inject constructor(
         }
     }
 
-    private fun getFinalPreferredAeMode(): Int {
-        var preferAeMode = preferredAeMode ?: when (flashMode) {
+    fun invalidate() {
+        // TODO(b/276779600): Refactor and move the setting of these parameter to
+        //  CameraGraph.Config(requiredParameters = mapOf(....)).
+        val preferAeMode = preferredAeMode ?: when (flashMode) {
             ImageCapture.FLASH_MODE_OFF -> CaptureRequest.CONTROL_AE_MODE_ON
             ImageCapture.FLASH_MODE_ON -> CaptureRequest.CONTROL_AE_MODE_ON_ALWAYS_FLASH
             ImageCapture.FLASH_MODE_AUTO -> aeModeDisabler.getCorrectedAeMode(
@@ -115,38 +130,13 @@ class State3AControl @Inject constructor(
             else -> CaptureRequest.CONTROL_AE_MODE_ON
         }
 
-        // Overwrite AE mode to ON_EXTERNAL_FLASH only if required and explicitly supported
-        if (tryExternalFlashAeMode) {
-            val isSupported = cameraProperties.metadata.isExternalFlashAeModeSupported()
-            debug { "State3AControl.invalidate: trying external flash AE mode" +
-                ", supported = $isSupported" }
-            if (isSupported) {
-                preferAeMode = CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH
-            }
-        }
-
-        debug { "State3AControl.getFinalPreferredAeMode: preferAeMode = $preferAeMode" }
-
-        return preferAeMode
-    }
-
-    fun invalidate() {
-        // TODO(b/276779600): Refactor and move the setting of these parameter to
-        //  CameraGraph.Config(requiredParameters = mapOf(....)).
-        val preferAeMode = getFinalPreferredAeMode()
         val preferAfMode = preferredFocusMode ?: getDefaultAfMode()
 
         val parameters: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
-            CaptureRequest.CONTROL_AE_MODE to cameraProperties.metadata.getSupportedAeMode(
-                preferAeMode
-            ),
-            CaptureRequest.CONTROL_AF_MODE to cameraProperties.metadata.getSupportedAfMode(
-                preferAfMode
-            ),
-            CaptureRequest.CONTROL_AWB_MODE to cameraProperties.metadata.getSupportedAwbMode(
-                CaptureRequest.CONTROL_AWB_MODE_AUTO
-            )
-        )
+            CaptureRequest.CONTROL_AE_MODE to getSupportedAeMode(preferAeMode),
+            CaptureRequest.CONTROL_AF_MODE to getSupportedAfMode(preferAfMode),
+            CaptureRequest.CONTROL_AWB_MODE to getSupportedAwbMode(
+                CaptureRequest.CONTROL_AWB_MODE_AUTO))
 
         preferredAeFpsRange?.let {
             parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
@@ -175,6 +165,61 @@ class State3AControl @Inject constructor(
         CameraDevice.TEMPLATE_RECORD -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_VIDEO
         CameraDevice.TEMPLATE_PREVIEW -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
         else -> CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+    }
+
+    /**
+     * If preferredMode not available, priority is CONTINUOUS_PICTURE > AUTO > OFF
+     */
+    private fun getSupportedAfMode(preferredMode: Int) = when {
+        afModes.contains(preferredMode) -> {
+            preferredMode
+        }
+
+        afModes.contains(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE) -> {
+            CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE
+        }
+
+        afModes.contains(CaptureRequest.CONTROL_AF_MODE_AUTO) -> {
+            CaptureRequest.CONTROL_AF_MODE_AUTO
+        }
+
+        else -> {
+            CaptureRequest.CONTROL_AF_MODE_OFF
+        }
+    }
+
+    /**
+     * If preferredMode not available, priority is AE_ON > AE_OFF
+     */
+    private fun getSupportedAeMode(preferredMode: Int) = when {
+        aeModes.contains(preferredMode) -> {
+            preferredMode
+        }
+
+        aeModes.contains(CaptureRequest.CONTROL_AE_MODE_ON) -> {
+            CaptureRequest.CONTROL_AE_MODE_ON
+        }
+
+        else -> {
+            CaptureRequest.CONTROL_AE_MODE_OFF
+        }
+    }
+
+    /**
+     * If preferredMode not available, priority is AWB_AUTO > AWB_OFF
+     */
+    private fun getSupportedAwbMode(preferredMode: Int) = when {
+        awbModes.contains(preferredMode) -> {
+            preferredMode
+        }
+
+        awbModes.contains(CaptureRequest.CONTROL_AWB_MODE_AUTO) -> {
+            CaptureRequest.CONTROL_AWB_MODE_AUTO
+        }
+
+        else -> {
+            CaptureRequest.CONTROL_AWB_MODE_OFF
+        }
     }
 
     private fun Collection<UseCase>.updateTemplate() {

@@ -19,6 +19,7 @@ package androidx.work.impl.utils
 import android.content.Context
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.Data
 import androidx.work.WorkInfo
 import androidx.work.impl.WorkDatabase
@@ -35,6 +36,7 @@ import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
 // Mockito tries to class load android.os.CancellationSignal which is only available on API >= 16
+@SdkSuppress(minSdkVersion = 16)
 class WorkProgressUpdaterTest {
     private lateinit var mContext: Context
     private lateinit var mDatabase: WorkDatabase

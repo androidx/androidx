@@ -18,7 +18,6 @@ package androidx.camera.core.imagecapture;
 
 import static java.util.Objects.requireNonNull;
 
-import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -43,7 +42,7 @@ import java.util.List;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 class ProcessingRequest {
-    private final int mRequestId;
+
     @Nullable
     private final ImageCapture.OutputFileOptions mOutputFileOptions;
     @NonNull
@@ -70,20 +69,6 @@ class ProcessingRequest {
             @NonNull Matrix sensorToBufferTransform,
             @NonNull TakePictureCallback callback,
             @NonNull ListenableFuture<Void> captureFuture) {
-        this(captureBundle, outputFileOptions, cropRect, rotationDegrees, jpegQuality,
-                sensorToBufferTransform, callback, captureFuture, 0);
-    }
-    ProcessingRequest(
-            @NonNull CaptureBundle captureBundle,
-            @Nullable ImageCapture.OutputFileOptions outputFileOptions,
-            @NonNull Rect cropRect,
-            int rotationDegrees,
-            int jpegQuality,
-            @NonNull Matrix sensorToBufferTransform,
-            @NonNull TakePictureCallback callback,
-            @NonNull ListenableFuture<Void> captureFuture,
-            int requestId) {
-        mRequestId = requestId;
         mOutputFileOptions = outputFileOptions;
         mJpegQuality = jpegQuality;
         mRotationDegrees = rotationDegrees;
@@ -106,10 +91,6 @@ class ProcessingRequest {
     @NonNull
     List<Integer> getStageIds() {
         return mStageIds;
-    }
-
-    public int getRequestId() {
-        return mRequestId;
     }
 
     @Nullable
@@ -147,11 +128,6 @@ class ProcessingRequest {
         mCallback.onCaptureStarted();
     }
 
-    @MainThread
-    void onCaptureProcessProgressed(int progress) {
-        mCallback.onCaptureProcessProgressed(progress);
-    }
-
     /**
      * @see TakePictureCallback#onImageCaptured()
      */
@@ -166,10 +142,6 @@ class ProcessingRequest {
     @MainThread
     void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
         mCallback.onFinalResult(outputFileResults);
-    }
-
-    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
-        mCallback.onPostviewBitmapAvailable(bitmap);
     }
 
     /**

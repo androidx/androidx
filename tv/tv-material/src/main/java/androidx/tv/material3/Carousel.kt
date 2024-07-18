@@ -22,6 +22,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -48,6 +49,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
@@ -84,13 +86,9 @@ import kotlinx.coroutines.yield
 /**
  * Composes a hero card rotator to highlight a piece of content.
  *
- * Note: The animations and focus management features have been dropped temporarily due to
- * some technical challenges. If you need them, consider using the previous version of the
- * library (1.0.0-alpha10) or kindly wait until the next alpha version (1.1.0-alpha01).
- *
  * Examples:
- * @sample androidx.tv.material3.samples.SimpleCarousel
- * @sample androidx.tv.material3.samples.CarouselIndicatorWithRectangleShape
+ * @sample androidx.tv.samples.SimpleCarousel
+ * @sample androidx.tv.samples.CarouselIndicatorWithRectangleShape
  *
  * @param modifier Modifier applied to the Carousel.
  * @param itemCount total number of items present in the carousel.
@@ -104,7 +102,8 @@ import kotlinx.coroutines.yield
  * @param carouselIndicator indicator showing the position of the current item among all items.
  * @param content defines the items for a given index.
  */
-// @OptIn(ExperimentalComposeUiApi::class)
+@Suppress("IllegalExperimentalApiUsage")
+@OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalTvMaterial3Api
 @Composable
 fun Carousel(
@@ -146,14 +145,14 @@ fun Carousel(
 
     Box(modifier = modifier
         .carouselSemantics(itemCount = itemCount, state = carouselState)
-        // .bringIntoViewIfChildrenAreFocused()
+        .bringIntoViewIfChildrenAreFocused()
         .focusRequester(carouselOuterBoxFocusRequester)
         .onFocusChanged {
             focusState = it
             // When the carousel gains focus for the first time
-//            if (it.isFocused && isAutoScrollActive) {
-//                focusManager.moveFocus(FocusDirection.Enter)
-//            }
+            if (it.isFocused && isAutoScrollActive) {
+                focusManager.moveFocus(FocusDirection.Enter)
+            }
         }
         .handleKeyEvents(
             carouselState = carouselState,
@@ -183,7 +182,7 @@ fun Carousel(
                     // Outer box is focused
                     if (!isAutoScrollActive && focusState?.isFocused == true) {
                         carouselOuterBoxFocusRequester.requestFocus()
-//                        focusManager.moveFocus(FocusDirection.Enter)
+                        focusManager.moveFocus(FocusDirection.Enter)
                     }
                 }
             }
@@ -211,9 +210,10 @@ private fun shouldPerformAutoScroll(
     return !accessibilityManager.isEnabled && !(carouselIsFocused || carouselHasFocus)
 }
 
-// @OptIn(ExperimentalAnimationApi::class)
+@Suppress("IllegalExperimentalApiUsage")
+@OptIn(ExperimentalAnimationApi::class)
 private suspend fun AnimatedVisibilityScope.onAnimationCompletion(action: suspend () -> Unit) {
-//    snapshotFlow { transition.currentState == transition.targetState }.first { it }
+    snapshotFlow { transition.currentState == transition.targetState }.first { it }
     action.invoke()
 }
 
@@ -248,10 +248,8 @@ private fun AutoScrollSideEffect(
     onAutoScrollChange(doAutoScroll)
 }
 
-@OptIn(
-    ExperimentalTvMaterial3Api::class,
-//    ExperimentalComposeUiApi::class
-)
+@Suppress("IllegalExperimentalApiUsage")
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 private fun Modifier.handleKeyEvents(
     carouselState: CarouselState,
     outerBoxFocusRequester: FocusRequester,
@@ -294,7 +292,7 @@ private fun Modifier.handleKeyEvents(
                 }
 
             !focusManager.moveFocus(direction) &&
-                    currentCarouselBoxFocusState()?.hasFocus == true -> {
+                currentCarouselBoxFocusState()?.hasFocus == true -> {
                 // if focus search was unsuccessful, interpret as input for slide change
                 updateItemBasedOnLayout(direction, isLtr)
                 KeyEventPropagation.StopPropagation
@@ -307,7 +305,7 @@ private fun Modifier.handleKeyEvents(
         // Ignore KeyUp action type
         it.type == KeyUp -> KeyEventPropagation.ContinuePropagation
         it.key == Key.Back -> {
-//            focusManager.moveFocus(FocusDirection.Exit)
+            focusManager.moveFocus(FocusDirection.Exit)
             KeyEventPropagation.ContinuePropagation
         }
 
@@ -318,14 +316,14 @@ private fun Modifier.handleKeyEvents(
     }
 }.focusProperties {
     // allow exit along horizontal axis only for first and last slide.
-//    exit = {
-//        when {
-//            shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
-//                FocusRequester.Default
-//
-//            else -> FocusRequester.Cancel
-//        }
-//    }
+    exit = {
+        when {
+            shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
+                FocusRequester.Default
+
+            else -> FocusRequester.Cancel
+        }
+    }
 }
 
 @OptIn(ExperimentalTvMaterial3Api::class)
@@ -495,9 +493,9 @@ object CarouselDefaults {
      * Transition applied when bringing it into view and removing it from the view
      */
     val contentTransform: ContentTransform
-        @Composable get() =
-            fadeIn(animationSpec = tween(100))
-                .togetherWith(fadeOut(animationSpec = tween(100)))
+    @Composable get() =
+        fadeIn(animationSpec = tween(100))
+            .togetherWith(fadeOut(animationSpec = tween(100)))
 
     /**
      * An indicator showing the position of the current active item among the items of the

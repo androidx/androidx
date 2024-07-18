@@ -23,7 +23,10 @@ import androidx.fragment.app.Fragment
  * The CompositionLocal containing the containing [Fragment]. This is sett by default for
  * composables created within a [ComposableFragment].
  */
-val LocalFragment = staticCompositionLocalOf<Fragment> {
-    error("CompositionLocal Fragment not present: are you sure your composable is within a " +
-        "navigation-fragment-compose provided ComposableFragment?")
-}
+val LocalFragment =
+    staticCompositionLocalOf<Fragment> {
+        error(
+            "CompositionLocal Fragment not present: are you sure your composable is within a " +
+                "navigation-fragment-compose provided ComposableFragment?"
+        )
+    }

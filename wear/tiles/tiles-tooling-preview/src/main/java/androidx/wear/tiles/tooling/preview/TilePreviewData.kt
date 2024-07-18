@@ -17,12 +17,9 @@
 package androidx.wear.tiles.tooling.preview
 
 import androidx.wear.protolayout.ResourceBuilders.Resources
-import androidx.wear.protolayout.expression.PlatformDataKey
-import androidx.wear.protolayout.expression.PlatformDataValues
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest
 import androidx.wear.tiles.RequestBuilders.TileRequest
 import androidx.wear.tiles.TileBuilders
-import java.util.Objects
 
 internal const val PERMANENT_RESOURCES_VERSION = "0"
 private val defaultResources = Resources.Builder()
@@ -30,14 +27,12 @@ private val defaultResources = Resources.Builder()
     .build()
 
 /**
- * Container class storing data required to render previews for methods annotated with [Preview].
+ * Container class storing callbacks required to render previews for methods annotated with
+ * [TilePreview].
  *
  * @param onTileResourceRequest callback that provides a [Resources]. It will be called before
  * rendering the preview of the [TileBuilders.Tile]. By default, this callback will return a
  * [Resources] with the version "0".
- * @param platformDataValues allows overriding platform data values for any [PlatformDataKey].
- * Default platform data values will be set for all platform health sources that have not been
- * overridden.
  * @param onTileRequest callback that provides the [TileBuilders.Tile] to be previewed. It will be
  * called before rendering the preview.
  *
@@ -46,12 +41,11 @@ private val defaultResources = Resources.Builder()
 class TilePreviewData
 @JvmOverloads constructor(
     val onTileResourceRequest: (ResourcesRequest) -> Resources = { defaultResources },
-    val platformDataValues: PlatformDataValues? = null,
     val onTileRequest: (TileRequest) -> TileBuilders.Tile,
 ) {
     override fun toString(): String {
-        return "TilePreviewData(onTileResourceRequest=$onTileResourceRequest, " +
-            "platformDataValues=$platformDataValues,  onTileRequest=$onTileRequest)"
+        return "TilePreviewData(onTileResourceRequest=$onTileResourceRequest," +
+            " onTileRequest=$onTileRequest)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -61,15 +55,14 @@ class TilePreviewData
         other as TilePreviewData
 
         if (onTileResourceRequest != other.onTileResourceRequest) return false
-        if (platformDataValues != other.platformDataValues) return false
         if (onTileRequest != other.onTileRequest) return false
 
         return true
     }
 
-    override fun hashCode() = Objects.hash(
-        onTileResourceRequest,
-        platformDataValues,
-        onTileRequest
-    )
+    override fun hashCode(): Int {
+        var result = onTileResourceRequest.hashCode()
+        result = 31 * result + onTileRequest.hashCode()
+        return result
+    }
 }

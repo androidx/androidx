@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import android.hardware.camera2.CaptureResult;
 import android.media.ImageReader;
 import android.util.Pair;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +26,6 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,7 +46,6 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface SessionProcessor {
-
     /**
      * Initializes the session and returns a transformed {@link SessionConfig} which should be
      * used to configure the camera instead of original one.
@@ -57,14 +54,19 @@ public interface SessionProcessor {
      * SessionProcessor is responsible to write the output to this given output surfaces.
      *
      * @param cameraInfo                 cameraInfo for querying the camera info
-     * @param outputSurfaceConfig output surface configuration for preview, image capture,
-     *                                  image analysis and the postview.
+     * @param previewSurfaceConfig       output surface for preview. This is mandatory.
+     * @param imageCaptureSurfaceConfig  output surface for image capture. This is mandatory.
+     * @param imageAnalysisSurfaceConfig output surface for image analysis. This is optional.
+     *                                   Passing null if image analysis output is not needed.
      * @return a {@link SessionConfig} that contains the surfaces and the session parameters and
      * should be used to configure the camera session.
      */
     @NonNull
-    SessionConfig initSession(@NonNull CameraInfo cameraInfo,
-            @NonNull OutputSurfaceConfiguration outputSurfaceConfig);
+    SessionConfig initSession(
+            @NonNull CameraInfo cameraInfo,
+            @NonNull OutputSurface previewSurfaceConfig,
+            @NonNull OutputSurface imageCaptureSurfaceConfig,
+            @Nullable OutputSurface imageAnalysisSurfaceConfig);
 
     /**
      * De-initializes the session. This is called after the camera session is closed.
@@ -109,11 +111,11 @@ public interface SessionProcessor {
      * Requests the SessionProcessor to start the still image capture. The capture task can only
      * perform one at a time.
      *
-     * @param postviewEnabled if postview is enabled or not.
      * @param callback callback to notify the status.
      * @return the id of the capture sequence.
      */
-    int startCapture(boolean postviewEnabled, @NonNull CaptureCallback callback);
+    int startCapture(
+            @NonNull CaptureCallback callback);
 
     /**
      * Aborts the pending capture.
@@ -128,19 +130,10 @@ public interface SessionProcessor {
     }
 
     /**
-     * Returns supported output format/size map for postview image. The API is provided
-     * for camera-core to query the supported postview sizes from SessionProcessor.
-     */
-    @NonNull
-    default Map<Integer, List<Size>> getSupportedPostviewSize(@NonNull Size captureSize) {
-        return Collections.emptyMap();
-    }
-
-    /**
      * Returns the supported camera operations when the SessionProcessor is enabled.
      */
     @NonNull
-    default @RestrictedCameraInfo.CameraOperation Set<Integer> getSupportedCameraOperations() {
+    default @RestrictedCameraControl.CameraOperation Set<Integer> getSupportedCameraOperations() {
         return Collections.emptySet();
     }
 
@@ -248,19 +241,5 @@ public interface SessionProcessor {
          */
         default void onCaptureCompleted(long timestamp, int captureSequenceId,
                 @NonNull Map<CaptureResult.Key, Object> result) {}
-
-        /**
-         * Capture progress callback that needs to be called when the process capture is
-         * ongoing and includes the estimated progress of the processing.
-         *
-         * <p>Extensions must ensure that they always call this callback with monotonically
-         * increasing values.</p>
-         *
-         * <p>Extensions are allowed to trigger this callback multiple times but at the minimum the
-         * callback is expected to be called once when processing is done with value 100.</p>
-         *
-         * @param progress             Value between 0 and 100.
-         */
-        default void onCaptureProcessProgressed(int progress) {}
     }
 }

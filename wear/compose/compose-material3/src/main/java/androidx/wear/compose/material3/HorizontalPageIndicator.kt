@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.material3
 
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -25,20 +27,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedDirection
@@ -53,11 +49,9 @@ import androidx.wear.compose.foundation.radialSize
 import androidx.wear.compose.foundation.size
 import androidx.wear.compose.foundation.weight
 import androidx.wear.compose.material3.PageIndicatorDefaults.MaxNumberOfIndicators
-import androidx.wear.compose.materialcore.BoundsLimiter
 import androidx.wear.compose.materialcore.PagesState
 import androidx.wear.compose.materialcore.isLayoutDirectionRtl
 import androidx.wear.compose.materialcore.isRoundDevice
-import kotlin.math.roundToInt
 
 /**
  * Horizontal page indicator for use with [HorizontalPager], representing
@@ -75,20 +69,14 @@ import kotlin.math.roundToInt
  * on the left and on the right
  * o O O O X O - current page is 9 out of 10, as there're no more items on the right
  *
- * [HorizontalPageIndicator] can be linear or curved, depending on the screen shape
+ * [HorizontalPageIndicator] is linear or curved, depending on the screen shape
  * of the device - for circular screens it will be curved,
  * whilst for square screens it will be linear.
  *
  * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
  *
- * Example usage with HorizontalPager:
- * @sample androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
- *
- * @param pageCount Total number of pages
- * @param currentPage The currently selected page index
- * @param currentPageOffsetFraction The offset fraction of the currently selected page.
- * Represents the offset as a fraction of the transition from the selected page to the next or
- * previous page. Can be positive or negative.
+ * @param pageIndicatorState The state object of a [HorizontalPageIndicator] to be used to
+ * observe the Pager's state.
  * @param modifier Modifier to be applied to the [HorizontalPageIndicator]
  * @param selectedColor The color of the selected [HorizontalPageIndicator] item
  * @param unselectedColor The color of unselected [HorizontalPageIndicator] items.
@@ -98,9 +86,7 @@ import kotlin.math.roundToInt
  **/
 @Composable
 public fun HorizontalPageIndicator(
-    pageCount: Int,
-    currentPage: Int,
-    currentPageOffsetFraction: () -> Float,
+    pageIndicatorState: PageIndicatorState,
     modifier: Modifier = Modifier,
     selectedColor: Color = MaterialTheme.colorScheme.onBackground,
     unselectedColor: Color = selectedColor.copy(alpha = 0.3f),
@@ -108,16 +94,13 @@ public fun HorizontalPageIndicator(
     spacing: Dp = 4.dp
 ) {
     val isScreenRound = isRoundDevice()
+    val selectedPage: Int = pageIndicatorState.selectedPageWithOffset().toInt()
+    val offset = pageIndicatorState.selectedPageWithOffset() - selectedPage
 
-    // Converting offsetFraction into range 0..1f
-    val currentPageOffsetWithFraction = currentPage + currentPageOffsetFraction()
-    val selectedPage: Int = currentPageOffsetWithFraction.toInt()
-    val offset = currentPageOffsetWithFraction - selectedPage
-
-    val pagesOnScreen = Integer.min(MaxNumberOfIndicators, pageCount)
-    val pagesState = remember(pageCount) {
+    val pagesOnScreen = Integer.min(MaxNumberOfIndicators, pageIndicatorState.pageCount)
+    val pagesState = remember(pageIndicatorState.pageCount) {
         PagesState(
-            totalPages = pageCount,
+            totalPages = pageIndicatorState.pageCount,
             pagesOnScreen = pagesOnScreen
         )
     }
@@ -127,58 +110,30 @@ public fun HorizontalPageIndicator(
     val rightSpacerSize = (indicatorSize + spacing) * pagesState.rightSpacerSizeRatio
 
     if (isScreenRound) {
-        var containerSize by remember { mutableStateOf(IntSize.Zero) }
-
-        val boundsSize: Density.() -> IntSize = {
-
-            val size = IntSize(
-                width = ((indicatorSize + spacing).toPx() * pagesOnScreen).roundToInt(),
-                height = (indicatorSize * 2).toPx().roundToInt().coerceAtLeast(0)
-            )
-            size
-        }
-
-        val boundsOffset: Density.() -> IntOffset = {
-            val measuredSize = boundsSize()
-            // Offset here is the distance between top left corner of the outer container to
-            // the top left corner of the indicator. Its placement should look similar to
-            // Alignment.BottomCenter.
-            IntOffset(
-                x = (containerSize.width - measuredSize.width) / 2,
-                y = containerSize.height - measuredSize.height,
-            )
-        }
-
-        BoundsLimiter(
-            offset = boundsOffset,
-            size = boundsSize,
+        CurvedPageIndicator(
             modifier = modifier,
-            onSizeChanged = { containerSize = it }) {
-
-            CurvedPageIndicator(
-                visibleDotIndex = pagesState.visibleDotIndex,
-                pagesOnScreen = pagesOnScreen,
-                indicator = { page ->
-                    curvedIndicator(
-                        page = page,
-                        size = indicatorSize,
-                        unselectedColor = unselectedColor,
-                        pagesState = pagesState
-                    )
-                },
-                itemsSpacer = { curvedSpacer(indicatorSize + spacing) },
-                selectedIndicator = {
-                    curvedSelectedIndicator(
-                        indicatorSize = indicatorSize,
-                        spacing = spacing,
-                        selectedColor = selectedColor,
-                        progress = offset
-                    )
-                },
-                spacerLeft = { curvedSpacer(leftSpacerSize) },
-                spacerRight = { curvedSpacer(rightSpacerSize) }
-            )
-        }
+            visibleDotIndex = pagesState.visibleDotIndex,
+            pagesOnScreen = pagesOnScreen,
+            indicator = { page ->
+                curvedIndicator(
+                    page = page,
+                    size = indicatorSize,
+                    unselectedColor = unselectedColor,
+                    pagesState = pagesState
+                )
+            },
+            itemsSpacer = { curvedSpacer(indicatorSize + spacing) },
+            selectedIndicator = {
+                curvedSelectedIndicator(
+                    indicatorSize = indicatorSize,
+                    spacing = spacing,
+                    selectedColor = selectedColor,
+                    progress = offset
+                )
+            },
+            spacerLeft = { curvedSpacer(leftSpacerSize) },
+            spacerRight = { curvedSpacer(rightSpacerSize) }
+        )
     } else {
         LinearPageIndicator(
             modifier = modifier,
@@ -215,44 +170,90 @@ internal object PageIndicatorDefaults {
     val MaxNumberOfIndicators = 6
 }
 
+// TODO(b/290732498): Add rememberPageIndicatorState for HorizontalPager
+//  once HorizontalPager is stable
+
+/**
+ * Creates and remembers [PageIndicatorState] based on [maxPages] and [selectedPageWithOffset]
+ * parameters.
+ */
+@ExperimentalWearMaterial3Api
+@Composable
+public fun rememberPageIndicatorState(
+    maxPages: Int,
+    @Suppress("PrimitiveInLambda")
+    selectedPageWithOffset: () -> Float
+): PageIndicatorState =
+    remember(maxPages, selectedPageWithOffset) {
+        object : PageIndicatorState {
+
+            override val selectedPageWithOffset: () -> Float
+                get() = selectedPageWithOffset
+
+            override val pageCount: Int
+                get() = maxPages
+        }
+    }
+
+/**
+ * An interface for connection between Pager and [HorizontalPageIndicator].
+ */
+public interface PageIndicatorState {
+    /**
+     * The currently selected page index with offset.
+     * Integer part represents the selected page index and the fractional part represents
+     * the offset as a fraction of the transition from the selected page
+     * to the next page in the range 0f..1f
+     *
+     * For example 5.5f equals to selectedPage = 5, offset 0.5f
+     *
+     * Changes when a scroll (drag, swipe or fling) between pages happens in Pager.
+     */
+    @Suppress("PrimitiveInLambda")
+    @get:FloatRange(from = 0.0)
+    public val selectedPageWithOffset: () -> Float
+
+    /**
+     * Total number of pages
+     */
+    @get:IntRange(from = 0)
+    public val pageCount: Int
+}
+
 @Composable
 private fun LinearPageIndicator(
     modifier: Modifier,
     visibleDotIndex: Int,
     pagesOnScreen: Int,
+    @Suppress("PrimitiveInLambda")
     indicator: @Composable (Int) -> Unit,
     selectedIndicator: @Composable () -> Unit,
     spacerLeft: @Composable () -> Unit,
     spacerRight: @Composable () -> Unit
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize(),
+    Row(
+        modifier = modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
     ) {
-        Row(
-            modifier = modifier.align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            // drawing 1 extra spacer for transition
-            spacerLeft()
-            for (page in 0 until visibleDotIndex) {
-                indicator(page)
-            }
-            Box(contentAlignment = Alignment.Center) {
-                Row(verticalAlignment = Alignment.Bottom) {
-                    indicator(visibleDotIndex)
-                    indicator(visibleDotIndex + 1)
-                }
-                Box {
-                    selectedIndicator()
-                }
-            }
-            for (page in visibleDotIndex + 2..pagesOnScreen) {
-                indicator(page)
-            }
-            spacerRight()
+        // drawing 1 extra spacer for transition
+        spacerLeft()
+        for (page in 0 until visibleDotIndex) {
+            indicator(page)
         }
+        Box(contentAlignment = Alignment.Center) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                indicator(visibleDotIndex)
+                indicator(visibleDotIndex + 1)
+            }
+            Box {
+                selectedIndicator()
+            }
+        }
+        for (page in visibleDotIndex + 2..pagesOnScreen) {
+            indicator(page)
+        }
+        spacerRight()
     }
 }
 
@@ -340,8 +341,10 @@ private fun LinearSpacer(leftSpacerSize: Dp) {
 
 @Composable
 private fun CurvedPageIndicator(
+    modifier: Modifier,
     visibleDotIndex: Int,
     pagesOnScreen: Int,
+    @Suppress("PrimitiveInLambda")
     indicator: CurvedScope.(Int) -> Unit,
     itemsSpacer: CurvedScope.() -> Unit,
     selectedIndicator: CurvedScope.() -> Unit,
@@ -349,7 +352,7 @@ private fun CurvedPageIndicator(
     spacerRight: CurvedScope.() -> Unit
 ) {
     CurvedLayout(
-        modifier = Modifier,
+        modifier = modifier,
         // 90 degrees equals to 6 o'clock position, at the bottom of the screen
         anchor = 90f,
         angularDirection = CurvedDirection.Angular.Reversed

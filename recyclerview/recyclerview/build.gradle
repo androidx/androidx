@@ -1,11 +1,4 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -19,7 +12,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
     implementation("androidx.customview:customview-poolingcontainer:1.0.0")
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -52,7 +45,7 @@ android {
         main.res.srcDirs "res", "res-public"
     }
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
 
@@ -66,7 +59,7 @@ android {
 
 androidx {
     name = "RecyclerView"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW
     inceptionYear = "2014"
     description = "Android Support RecyclerView"

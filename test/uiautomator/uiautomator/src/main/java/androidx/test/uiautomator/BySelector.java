@@ -21,7 +21,6 @@ import static java.util.Objects.requireNonNull;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.test.uiautomator.util.Patterns;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -194,7 +193,7 @@ public class BySelector {
      */
     public @NonNull BySelector descContains(@NonNull String substring) {
         requireNonNull(substring, "substring cannot be null");
-        return desc(Patterns.contains(substring));
+        return desc(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -207,7 +206,7 @@ public class BySelector {
      */
     public @NonNull BySelector descStartsWith(@NonNull String prefix) {
         requireNonNull(prefix, "prefix cannot be null");
-        return desc(Patterns.startsWith(prefix));
+        return desc(RegexHelper.getPatternStartsWith(prefix));
     }
 
     /**
@@ -220,7 +219,7 @@ public class BySelector {
      */
     public @NonNull BySelector descEndsWith(@NonNull String suffix) {
         requireNonNull(suffix, "suffix cannot be null");
-        return desc(Patterns.endsWith(suffix));
+        return desc(RegexHelper.getPatternEndsWith(suffix));
     }
 
     /**
@@ -339,7 +338,7 @@ public class BySelector {
      */
     public @NonNull BySelector textContains(@NonNull String substring) {
         requireNonNull(substring, "substring cannot be null");
-        return text(Patterns.contains(substring));
+        return text(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -352,7 +351,7 @@ public class BySelector {
      */
     public @NonNull BySelector textStartsWith(@NonNull String prefix) {
         requireNonNull(prefix, "prefix cannot be null");
-        return text(Patterns.startsWith(prefix));
+        return text(RegexHelper.getPatternStartsWith(prefix));
     }
 
     /**
@@ -365,7 +364,7 @@ public class BySelector {
      */
     public @NonNull BySelector textEndsWith(@NonNull String suffix) {
         requireNonNull(suffix, "suffix cannot be null");
-        return text(Patterns.endsWith(suffix));
+        return text(RegexHelper.getPatternEndsWith(suffix));
     }
 
     /** Sets the text value criteria for matching. A UI element will be considered a match if its
@@ -411,7 +410,7 @@ public class BySelector {
     @RequiresApi(26)
     public @NonNull BySelector hintContains(@NonNull String substring) {
         requireNonNull(substring, "substring cannot be null");
-        return hint(Patterns.contains(substring));
+        return hint(RegexHelper.getPatternContains(substring));
     }
 
     /**
@@ -426,7 +425,7 @@ public class BySelector {
     @RequiresApi(26)
     public @NonNull BySelector hintStartsWith(@NonNull String prefix) {
         requireNonNull(prefix, "prefix cannot be null");
-        return hint(Patterns.startsWith(prefix));
+        return hint(RegexHelper.getPatternStartsWith(prefix));
     }
 
     /**
@@ -441,7 +440,7 @@ public class BySelector {
     @RequiresApi(26)
     public @NonNull BySelector hintEndsWith(@NonNull String suffix) {
         requireNonNull(suffix, "suffix cannot be null");
-        return hint(Patterns.endsWith(suffix));
+        return hint(RegexHelper.getPatternEndsWith(suffix));
     }
 
     /**

@@ -19,7 +19,6 @@ package androidx.benchmark.darwin.gradle
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.Serializable
 import java.net.URI
 import java.util.zip.ZipInputStream
 import org.gradle.api.DefaultTask
@@ -121,14 +120,8 @@ abstract class FetchXCodeGenTask : DefaultTask() {
     }
 
     fun xcodeGenBinary(): RegularFile {
-        return LocalRegularFile(findXcodeGen())
-    }
-
-    companion object {
-        class LocalRegularFile(private val file: File) : RegularFile, Serializable {
-            override fun getAsFile(): File {
-                return file.absoluteFile
-            }
+        return RegularFile {
+            findXcodeGen()
         }
     }
 }

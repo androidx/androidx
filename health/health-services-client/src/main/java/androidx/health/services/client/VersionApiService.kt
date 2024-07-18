@@ -40,31 +40,12 @@ public class VersionApiService : Service() {
         return stub
     }
 
-    internal class VersionApiServiceStub : IVersionApiService.Stub() {
-        override fun getVersionApiServiceVersion(): Int =
-            VersionApiService.VERSION_API_SERVICE_VERSION
-        override fun getSdkVersion(): Int = VersionApiService.CANONICAL_SDK_VERSION
+    private class VersionApiServiceStub : IVersionApiService.Stub() {
+        override fun getVersionApiServiceVersion(): Int = VERSION_API_SERVICE_VERSION
+        override fun getSdkVersion(): Int = CANONICAL_SDK_VERSION
     }
 
     private companion object {
         private const val TAG = "VersionApiService"
-
-        /**
-         * API version of _this_ service's AIDL interface. Should be incremented every time a new
-         * method is added.
-         *
-         * Note: This is also defined within the IVersionApiService AIDL file. However, we cannot
-         * update the value there due to migrating to stableAidl, so this one must be preferred.
-         */
-        private const val VERSION_API_SERVICE_VERSION = 1
-
-        /**
-         * Version of the SDK as a whole. Should be incremented on each release, regardless of
-         * whether the API surface has changed.
-         *
-         * Note: This is also defined within the IVersionApiService AIDL file. However, we cannot
-         * update the value there due to migrating to stableAidl, so this one should be preferred.
-         */
-        private const val CANONICAL_SDK_VERSION = 28
     }
 }

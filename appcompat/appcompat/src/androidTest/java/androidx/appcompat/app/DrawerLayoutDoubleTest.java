@@ -30,6 +30,7 @@ import android.view.View;
 
 import androidx.appcompat.custom.CustomDrawerLayout;
 import androidx.appcompat.test.R;
+import androidx.core.view.ViewCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -160,7 +161,7 @@ public class DrawerLayoutDoubleTest {
     @LargeTest
     public void testDrawerOpenCloseLtr() {
         onView(withId(R.id.drawer_layout)).perform(
-                setLayoutDirection(View.LAYOUT_DIRECTION_LTR));
+                setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR));
 
         verifyDrawerOpenClose();
     }
@@ -169,7 +170,7 @@ public class DrawerLayoutDoubleTest {
     @LargeTest
     public void testDrawerOpenCloseRtl() {
         onView(withId(R.id.drawer_layout)).perform(
-                setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+                setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
         verifyDrawerOpenClose();
     }
@@ -223,7 +224,7 @@ public class DrawerLayoutDoubleTest {
     @LargeTest
     public void testDrawerLockUnlockLtr() {
         onView(withId(R.id.drawer_layout)).perform(
-                setLayoutDirection(View.LAYOUT_DIRECTION_LTR));
+                setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_LTR));
 
         verifyDrawerLockUnlock();
     }
@@ -232,7 +233,7 @@ public class DrawerLayoutDoubleTest {
     @LargeTest
     public void testDrawerLockUnlockRtl() {
         onView(withId(R.id.drawer_layout)).perform(
-                setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+                setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
         verifyDrawerLockUnlock();
     }

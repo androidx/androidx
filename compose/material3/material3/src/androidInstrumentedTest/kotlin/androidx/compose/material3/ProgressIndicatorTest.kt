@@ -48,8 +48,7 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ProgressIndicatorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun nonMaterialSetContent() {
@@ -75,15 +74,15 @@ class ProgressIndicatorTest {
             LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = { progress.value })
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
 
-        rule.runOnUiThread {
-            progress.value = 0.5f
-        }
+        rule.runOnUiThread { progress.value = 0.5f }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
     }
@@ -97,15 +96,15 @@ class ProgressIndicatorTest {
             LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = { progress.value })
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
 
-        rule.runOnUiThread {
-            progress.value = 1.5f
-        }
+        rule.runOnUiThread { progress.value = 1.5f }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
     }
@@ -113,9 +112,7 @@ class ProgressIndicatorTest {
     @Test
     fun determinateLinearProgressIndicator_Size() {
         rule
-            .setMaterialContentForSizeAssertions {
-                LinearProgressIndicator(progress = { 0f })
-            }
+            .setMaterialContentForSizeAssertions { LinearProgressIndicator(progress = { 0f }) }
             .assertWidthIsEqualTo(LinearIndicatorWidth)
             .assertHeightIsEqualTo(LinearIndicatorHeight)
     }
@@ -131,17 +128,13 @@ class ProgressIndicatorTest {
 
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
 
-        rule.onNodeWithTag(tag)
-            .assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
+        rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
     }
 
     @Test
     fun indeterminateLinearProgressIndicator_Size() {
         rule.mainClock.autoAdvance = false
-        val contentToTest = rule
-            .setMaterialContentForSizeAssertions {
-                LinearProgressIndicator()
-            }
+        val contentToTest = rule.setMaterialContentForSizeAssertions { LinearProgressIndicator() }
 
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
 
@@ -162,15 +155,15 @@ class ProgressIndicatorTest {
             )
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
 
-        rule.runOnUiThread {
-            progress.value = 0.5f
-        }
+        rule.runOnUiThread { progress.value = 0.5f }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0.5f, 0f..1f))
     }
@@ -187,15 +180,15 @@ class ProgressIndicatorTest {
             )
         }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(0f, 0f..1f))
 
-        rule.runOnUiThread {
-            progress.value = 1.5f
-        }
+        rule.runOnUiThread { progress.value = 1.5f }
 
-        rule.onNodeWithTag(tag)
+        rule
+            .onNodeWithTag(tag)
             .assertIsDisplayed()
             .assertRangeInfoEquals(ProgressBarRangeInfo(1f, 0f..1f))
     }
@@ -203,9 +196,7 @@ class ProgressIndicatorTest {
     @Test
     fun determinateCircularProgressIndicator_Size() {
         rule
-            .setMaterialContentForSizeAssertions {
-                CircularProgressIndicator(progress = { 0f })
-            }
+            .setMaterialContentForSizeAssertions { CircularProgressIndicator(progress = { 0f }) }
             .assertIsSquareWithSize(CircularIndicatorDiameter)
     }
 
@@ -220,22 +211,17 @@ class ProgressIndicatorTest {
 
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
 
-        rule.onNodeWithTag(tag)
-            .assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
+        rule.onNodeWithTag(tag).assertRangeInfoEquals(ProgressBarRangeInfo.Indeterminate)
     }
 
     @Test
     fun indeterminateCircularProgressIndicator_Size() {
         rule.mainClock.autoAdvance = false
-        val contentToTest = rule
-            .setMaterialContentForSizeAssertions {
-                CircularProgressIndicator()
-            }
+        val contentToTest = rule.setMaterialContentForSizeAssertions { CircularProgressIndicator() }
 
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
 
-        contentToTest
-            .assertIsSquareWithSize(CircularIndicatorDiameter)
+        contentToTest.assertIsSquareWithSize(CircularIndicatorDiameter)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -243,9 +229,8 @@ class ProgressIndicatorTest {
     fun determinateLinearProgressIndicator_sizeModifier() {
         val expectedWidth = 100.dp
         val expectedHeight = 10.dp
-        val expectedSize = with(rule.density) {
-            IntSize(expectedWidth.roundToPx(), expectedHeight.roundToPx())
-        }
+        val expectedSize =
+            with(rule.density) { IntSize(expectedWidth.roundToPx(), expectedHeight.roundToPx()) }
         val tag = "progress_indicator"
         rule.setContent {
             Box(Modifier.testTag(tag)) {
@@ -256,13 +241,10 @@ class ProgressIndicatorTest {
             }
         }
 
-        rule.onNodeWithTag(tag)
-            .captureToImage()
-            .toPixelMap()
-            .let {
-                assertEquals(expectedSize.width, it.width)
-                assertEquals(expectedSize.height, it.height)
-            }
+        rule.onNodeWithTag(tag).captureToImage().toPixelMap().let {
+            assertEquals(expectedSize.width, it.width)
+            assertEquals(expectedSize.height, it.height)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -270,9 +252,8 @@ class ProgressIndicatorTest {
     fun indeterminateLinearProgressIndicator_sizeModifier() {
         val expectedWidth = 100.dp
         val expectedHeight = 10.dp
-        val expectedSize = with(rule.density) {
-            IntSize(expectedWidth.roundToPx(), expectedHeight.roundToPx())
-        }
+        val expectedSize =
+            with(rule.density) { IntSize(expectedWidth.roundToPx(), expectedHeight.roundToPx()) }
         rule.mainClock.autoAdvance = false
         val tag = "progress_indicator"
         rule.setContent {
@@ -285,13 +266,10 @@ class ProgressIndicatorTest {
 
         rule.mainClock.advanceTimeBy(100)
 
-        rule.onNodeWithTag(tag)
-            .captureToImage()
-            .toPixelMap()
-            .let {
-                assertEquals(expectedSize.width, it.width)
-                assertEquals(expectedSize.height, it.height)
-            }
+        rule.onNodeWithTag(tag).captureToImage().toPixelMap().let {
+            assertEquals(expectedSize.width, it.width)
+            assertEquals(expectedSize.height, it.height)
+        }
     }
 
     @Test
@@ -299,23 +277,17 @@ class ProgressIndicatorTest {
         val padding = 10.dp
         val paddingPx = with(rule.density) { padding.roundToPx() }
 
-        val expectedWidth = with(rule.density) {
-            LinearIndicatorWidth.roundToPx()
-        }
-        val expectedHeight = with(rule.density) {
-            LinearIndicatorHeight.roundToPx() + paddingPx * 2
-        }
+        val expectedWidth = with(rule.density) { LinearIndicatorWidth.roundToPx() }
+        val expectedHeight =
+            with(rule.density) { LinearIndicatorHeight.roundToPx() + paddingPx * 2 }
         val expectedSize = IntSize(expectedWidth, expectedHeight)
 
         // Adding a testTag on the progress bar itself captures the progress bar as well as its
         // padding.
         val tag = "progress_indicator"
-        rule.setContent {
-            LinearProgressIndicator(Modifier.testTag(tag))
-        }
+        rule.setContent { LinearProgressIndicator(Modifier.testTag(tag)) }
 
-        val node = rule.onNodeWithTag(tag)
-            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val node = rule.onNodeWithTag(tag).fetchSemanticsNode("couldn't find node with tag $tag")
         val nodeBounds = node.boundsInRoot
 
         // Check that the SemanticsNode bounds of a LinearProgressIndicator include the padding.
@@ -334,14 +306,9 @@ class ProgressIndicatorTest {
         // The bounds of a testTag on a box that contains the progress indicator are not affected
         // by the padding added on the layout of the progress bar.
         val tag = "progress_indicator"
-        rule.setContent {
-            Box(Modifier.testTag(tag)) {
-                LinearProgressIndicator()
-            }
-        }
+        rule.setContent { Box(Modifier.testTag(tag)) { LinearProgressIndicator() } }
 
-        val node = rule.onNodeWithTag(tag)
-            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val node = rule.onNodeWithTag(tag).fetchSemanticsNode("couldn't find node with tag $tag")
         val nodeBounds = node.boundsInRoot
 
         // Check that the visual bounds of a LinearProgressIndicator are the expected visual size.
@@ -354,12 +321,9 @@ class ProgressIndicatorTest {
         val padding = 10.dp
         val paddingPx = with(rule.density) { padding.roundToPx() }
 
-        val expectedWidth = with(rule.density) {
-            LinearIndicatorWidth.roundToPx()
-        }
-        val expectedHeight = with(rule.density) {
-            LinearIndicatorHeight.roundToPx() + paddingPx * 2
-        }
+        val expectedWidth = with(rule.density) { LinearIndicatorWidth.roundToPx() }
+        val expectedHeight =
+            with(rule.density) { LinearIndicatorHeight.roundToPx() + paddingPx * 2 }
         val expectedSize = IntSize(expectedWidth, expectedHeight)
 
         // Adding a testTag on the progress bar itself captures the progress bar as well as its
@@ -369,8 +333,7 @@ class ProgressIndicatorTest {
             LinearProgressIndicator(modifier = Modifier.testTag(tag), progress = { 1f })
         }
 
-        val node = rule.onNodeWithTag(tag)
-            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val node = rule.onNodeWithTag(tag).fetchSemanticsNode("couldn't find node with tag $tag")
         val nodeBounds = node.boundsInRoot
 
         // Check that the SemanticsNode bounds of a LinearProgressIndicator include the padding.
@@ -390,13 +353,10 @@ class ProgressIndicatorTest {
         // by the padding added on the layout of the progress bar.
         val tag = "progress_indicator"
         rule.setContent {
-            Box(Modifier.testTag(tag)) {
-                LinearProgressIndicator(progress = { 1f })
-            }
+            Box(Modifier.testTag(tag)) { LinearProgressIndicator(progress = { 1f }) }
         }
 
-        val node = rule.onNodeWithTag(tag)
-            .fetchSemanticsNode("couldn't find node with tag $tag")
+        val node = rule.onNodeWithTag(tag).fetchSemanticsNode("couldn't find node with tag $tag")
         val nodeBounds = node.boundsInRoot
 
         // Check that the visual bounds of a LinearProgressIndicator are the expected visual size.
@@ -419,14 +379,9 @@ class ProgressIndicatorTest {
         val withPaddingTag = "with_padding"
         val visualTag = "visual_tag"
         rule.setContent {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-            ) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 // Add some content to the scrollable column
-                repeat(20) {
-                    Text("Item $it")
-                }
+                repeat(20) { Text("Item $it") }
                 // The visual tag will measure the visual bounds of the indicator, while
                 // the withPadding tag will measure with padding.
                 Box(Modifier.testTag(visualTag)) {
@@ -435,21 +390,23 @@ class ProgressIndicatorTest {
                         progress = { 1f },
                     )
                 }
-                repeat(20) {
-                    Text("Item $it")
-                }
+                repeat(20) { Text("Item $it") }
             }
         }
 
-        val indicatorNode = rule.onNodeWithTag(visualTag)
-            .fetchSemanticsNode("couldn't find node with tag $visualTag")
+        val indicatorNode =
+            rule
+                .onNodeWithTag(visualTag)
+                .fetchSemanticsNode("couldn't find node with tag $visualTag")
         val indicatorBounds = indicatorNode.boundsInRoot
         // Check that the visual bounds of a LinearProgressIndicator are the expected visual size.
         assertEquals(expectedSize.width.toFloat(), indicatorBounds.width)
         assertEquals(expectedSize.height.toFloat(), indicatorBounds.height)
 
-        val semanticsNode = rule.onNodeWithTag(withPaddingTag)
-            .fetchSemanticsNode("couldn't find node with tag $withPaddingTag")
+        val semanticsNode =
+            rule
+                .onNodeWithTag(withPaddingTag)
+                .fetchSemanticsNode("couldn't find node with tag $withPaddingTag")
         // Make sure to get the bounds with no clipping applied by
         // using Rect(positionInRoot, size.toSize()).
         val semanticsBound = Rect(semanticsNode.positionInRoot, semanticsNode.size.toSize())

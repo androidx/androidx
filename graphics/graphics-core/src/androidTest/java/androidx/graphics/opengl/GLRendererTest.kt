@@ -36,9 +36,7 @@ import android.os.HandlerThread
 import android.view.PixelCopy
 import android.view.Surface
 import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.TextureView
-import android.view.TextureView.SurfaceTextureListener
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.SurfaceTextureRenderer
@@ -48,7 +46,6 @@ import androidx.graphics.lowlatency.Rectangle
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
-import androidx.graphics.surface.SurfaceControlUtils
 import androidx.graphics.verifyQuadrants
 import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle.State
@@ -56,12 +53,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import java.nio.IntBuffer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -104,6 +99,7 @@ class GLRendererTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testRender() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
@@ -115,7 +111,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = createImageReader(width, height)
+        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -125,9 +121,11 @@ class GLRendererTest {
         }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
-        val targetColor = Color.argb(255, 255, 0, 255)
+        val plane = reader.acquireLatestImage().planes[0]
+        assertEquals(4, plane.pixelStride)
 
-        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
+        val targetColor = Color.argb(255, 255, 0, 255)
+        Api19Helpers.verifyPlaneContent(width, height, plane, targetColor)
 
         target.detach(true)
 
@@ -135,65 +133,7 @@ class GLRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    fun testFrameBufferClose() {
-        val glRenderer = GLRenderer()
-        glRenderer.start()
-        try {
-            var currentFbo = -1
-            val executeLatch = CountDownLatch(1)
-            glRenderer.execute {
-                val buffer = FrameBuffer(
-                    EGLSpec.V14,
-                    HardwareBuffer.create(
-                        10,
-                        10,
-                        HardwareBuffer.RGBA_8888,
-                        1,
-                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
-                    )
-                )
-                buffer.makeCurrent()
-                buffer.close()
-
-                // After the buffer is closed, query which framebuffer is current.
-                // If the previously current FBO is deleted, the current framebuffer should be 0.
-                // As per OpenGL spec, an fbo binding with glBindFrameBuffer will remain active
-                // until a different framebuffer object is bound, or until the bound framebuffer
-                // is deleted with glDeleteFramebuffers
-                val tmp = IntBuffer.wrap(IntArray(1))
-                GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, tmp)
-                currentFbo = tmp.get(0)
-
-                executeLatch.countDown()
-            }
-            assertTrue(executeLatch.await(3000, TimeUnit.MILLISECONDS))
-            assertEquals(0, currentFbo)
-        } finally {
-            glRenderer.stop(true)
-        }
-    }
-
-    @Test
-    fun testExecuteHasEGLContext() {
-        val glRenderer = GLRenderer()
-        glRenderer.start()
-        try {
-            var hasContext = false
-            val contextLatch = CountDownLatch(1)
-            glRenderer.execute {
-                val eglContext = EGL14.eglGetCurrentContext()
-                hasContext = eglContext != null && eglContext != EGL14.EGL_NO_CONTEXT
-                contextLatch.countDown()
-            }
-            assertTrue(contextLatch.await(3000, TimeUnit.MILLISECONDS))
-            assertTrue(hasContext)
-        } finally {
-            glRenderer.stop(true)
-        }
-    }
-
-    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testDetachExecutesPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
@@ -205,7 +145,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = createImageReader(width, height)
+        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -216,14 +156,17 @@ class GLRendererTest {
         target.detach(false) // RequestRender Call should still execute
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+        val plane = reader.acquireLatestImage().planes[0]
+        assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
+        Api19Helpers.verifyPlaneContent(width, height, plane, targetColor)
 
         glRenderer.stop(true)
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testStopExecutesPendingRequests() {
         val latch = CountDownLatch(1)
         val surfaceWidth = 5
@@ -238,7 +181,7 @@ class GLRendererTest {
             }
         }
 
-        val reader = createImageReader(surfaceWidth, surfaceHeight)
+        val reader = ImageReader.newInstance(surfaceWidth, surfaceHeight, PixelFormat.RGBA_8888, 1)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -249,12 +192,15 @@ class GLRendererTest {
         glRenderer.stop(false) // RequestRender call should still execute
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+        val plane = reader.acquireLatestImage().planes[0]
+        assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        verifyImageContent(surfaceWidth, surfaceHeight, reader.acquireLatestImage(), targetColor)
+        Api19Helpers.verifyPlaneContent(surfaceWidth, surfaceHeight, plane, targetColor)
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testDetachExecutesMultiplePendingRequests() {
         val numRenders = 4
         val latch = CountDownLatch(numRenders)
@@ -282,7 +228,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = createImageReader(width, height)
+        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -300,14 +246,17 @@ class GLRendererTest {
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
         assertEquals(numRenders, renderCount.get())
+        val plane = reader.acquireLatestImage().planes[0]
+        assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 0, 0, 255)
-        verifyImageContent(width, height, reader.acquireLatestImage(), targetColor)
+        Api19Helpers.verifyPlaneContent(width, height, plane, targetColor)
 
         glRenderer.stop(true)
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testDetachCancelsPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
@@ -319,7 +268,7 @@ class GLRendererTest {
 
         val width = 5
         val height = 8
-        val reader = createImageReader(width, height)
+        val reader = ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
         val glRenderer = GLRenderer()
         glRenderer.start()
 
@@ -333,6 +282,7 @@ class GLRendererTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testMultipleAttachedSurfaces() {
         val latch = CountDownLatch(2)
         val renderer1 = object : GLRenderer.RenderCallback {
@@ -355,9 +305,9 @@ class GLRendererTest {
 
         val width2 = 11
         val height2 = 23
-        val reader1 = createImageReader(width1, height1)
+        val reader1 = ImageReader.newInstance(width1, height1, PixelFormat.RGBA_8888, 1)
 
-        val reader2 = createImageReader(width2, height2)
+        val reader2 = ImageReader.newInstance(width2, height2, PixelFormat.RGBA_8888, 1)
 
         val glRenderer = GLRenderer()
         glRenderer.start()
@@ -372,19 +322,11 @@ class GLRendererTest {
         }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
+        val plane1 = reader1.acquireLatestImage().planes[0]
+        val plane2 = reader2.acquireLatestImage().planes[0]
 
-        verifyImageContent(
-            width1,
-            height1,
-            reader1.acquireLatestImage(),
-            Color.argb(255, 255, 0, 0)
-        )
-        verifyImageContent(
-            width2,
-            height2,
-            reader2.acquireLatestImage(),
-            Color.argb(255, 0, 0, 255)
-        )
+        Api19Helpers.verifyPlaneContent(width1, height1, plane1, Color.argb(255, 255, 0, 0))
+        Api19Helpers.verifyPlaneContent(width2, height2, plane2, Color.argb(255, 0, 0, 255))
 
         target1.detach(true)
         target2.detach(true)
@@ -397,19 +339,6 @@ class GLRendererTest {
         assertTrue(attachLatch.await(3000, TimeUnit.MILLISECONDS))
     }
 
-    private fun createImageReader(width: Int, height: Int): ImageReader =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            ImageReader.newInstance(
-                width,
-                height,
-                PixelFormat.RGBA_8888,
-                1,
-                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
-            )
-        } else {
-            ImageReader.newInstance(width, height, PixelFormat.RGBA_8888, 1)
-        }
-
     /**
      * Helper class for test methods that refer to APIs that may not exist on earlier API levels.
      * This must be broken out into a separate class instead of being defined within the
@@ -418,33 +347,24 @@ class GLRendererTest {
      * there are corresponding @SdkSuppress and @RequiresApi
      * See https://b.corp.google.com/issues/221485597
      */
-    private fun verifyImageContent(width: Int, height: Int, image: Image, targetColor: Int) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val bitmap = Bitmap.wrapHardwareBuffer(
-                image.hardwareBuffer!!,
-                null
-            )!!.copy(Bitmap.Config.ARGB_8888, false)
-            for (y in 0 until height) {
-                for (x in 0 until width) {
-                    assertEquals("Index: $x, $y", targetColor, bitmap.getPixel(x, y))
+    class Api19Helpers private constructor() {
+        companion object {
+            @RequiresApi(Build.VERSION_CODES.KITKAT)
+            fun verifyPlaneContent(width: Int, height: Int, plane: Image.Plane, targetColor: Int) {
+                val rowPadding = plane.rowStride - plane.pixelStride * width
+                var offset = 0
+                for (y in 0 until height) {
+                    for (x in 0 until width) {
+                        val red = plane.buffer[offset].toInt() and 0xff
+                        val green = plane.buffer[offset + 1].toInt() and 0xff
+                        val blue = plane.buffer[offset + 2].toInt() and 0xff
+                        val alpha = plane.buffer[offset + 3].toInt() and 0xff
+                        val packedColor = Color.argb(alpha, red, green, blue)
+                        assertEquals("Index: $x, $y", targetColor, packedColor)
+                        offset += plane.pixelStride
+                    }
+                    offset += rowPadding
                 }
-            }
-        } else {
-            val plane = image.planes[0]
-            assertEquals(4, plane.pixelStride)
-            val rowPadding = plane.rowStride - plane.pixelStride * width
-            var offset = 0
-            for (y in 0 until height) {
-                for (x in 0 until width) {
-                    val red = plane.buffer[offset].toInt() and 0xff
-                    val green = plane.buffer[offset + 1].toInt() and 0xff
-                    val blue = plane.buffer[offset + 2].toInt() and 0xff
-                    val alpha = plane.buffer[offset + 3].toInt() and 0xff
-                    val packedColor = Color.argb(alpha, red, green, blue)
-                    assertEquals("Index: $x, $y", targetColor, packedColor)
-                    offset += plane.pixelStride
-                }
-                offset += rowPadding
             }
         }
     }
@@ -590,218 +510,6 @@ class GLRendererTest {
             // Assert that targets are detached when the GLRenderer is stopped
             assertFalse(target.isAttached())
         }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
-    fun testSurfaceViewResumeRendersContent() {
-        var surfaceView: SurfaceView? = null
-        var glRenderer: GLRenderer? = null
-        var target: GLRenderer.RenderTarget? = null
-        val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
-        val targetColor = Color.BLUE
-        val scenario = ActivityScenario.launch(GLTestActivity::class.java)
-            .moveToState(State.CREATED)
-            .onActivity {
-                surfaceView = it.surfaceView
-
-                assertNotNull(surfaceView)
-
-                glRenderer = GLRenderer().apply { start() }
-                target = glRenderer!!.attach(it.surfaceView, ColorRenderCallback(targetColor) {
-                    renderLatch.get().countDown()
-                })
-            }
-
-        scenario.moveToState(State.RESUMED)
-
-        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
-
-        val createLatch = CountDownLatch(1)
-        scenario.moveToState(State.CREATED).onActivity {
-            createLatch.countDown()
-        }
-        createLatch.await(3000, TimeUnit.MILLISECONDS)
-
-        renderLatch.set(CountDownLatch(1))
-        scenario.moveToState(State.RESUMED)
-
-        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
-
-        val coords = IntArray(2)
-        surfaceView!!.getLocationOnScreen(coords)
-        val surfaceWidth = surfaceView!!.width
-        val surfaceHeight = surfaceView!!.height
-        SurfaceControlUtils.validateOutput { bitmap ->
-            val pixel = bitmap.getPixel(
-                coords[0] + surfaceWidth / 2,
-                coords[1] + surfaceHeight / 2
-            )
-            val red = Color.red(pixel)
-            val green = Color.green(pixel)
-            val blue = Color.blue(pixel)
-
-            val redExpected = Color.red(targetColor)
-            val greenExpected = Color.green(targetColor)
-            val blueExpected = Color.blue(targetColor)
-
-            Math.abs(red - redExpected) / 255f < 0.2f &&
-                Math.abs(green - greenExpected) / 255f < 0.2f &&
-                Math.abs(blue - blueExpected) / 255f < 0.2f
-        }
-
-        val stopLatch = CountDownLatch(1)
-        glRenderer!!.stop(true) {
-            stopLatch.countDown()
-        }
-
-        assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
-        // Assert that targets are detached when the GLRenderer is stopped
-        assertFalse(target!!.isAttached())
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
-    fun testTextureViewRendersAfterSurfaceTextureAvailableCallback() {
-        var textureView: TextureView? = null
-        var glRenderer: GLRenderer? = null
-        var target: GLRenderer.RenderTarget? = null
-        val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
-        val textureAvailableLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(GLTestActivity::class.java)
-            .moveToState(State.CREATED)
-            .onActivity {
-                textureView = TextureView(it).apply {
-                    it.setContentView(this)
-                }
-
-                assertFalse(textureView!!.isAvailable)
-
-                glRenderer = GLRenderer().apply { start() }
-                target = glRenderer!!.attach(textureView!!, ColorRenderCallback(Color.BLUE) {
-                    renderLatch.get().countDown()
-                })
-
-                val listener = textureView!!.surfaceTextureListener
-                textureView!!.surfaceTextureListener = object : SurfaceTextureListener {
-                    override fun onSurfaceTextureAvailable(
-                        surface: SurfaceTexture,
-                        width: Int,
-                        height: Int
-                    ) {
-                        listener?.onSurfaceTextureAvailable(surface, width, height)
-                        textureAvailableLatch.countDown()
-                    }
-
-                    override fun onSurfaceTextureSizeChanged(
-                        surface: SurfaceTexture,
-                        width: Int,
-                        height: Int
-                    ) {
-                        listener?.onSurfaceTextureSizeChanged(surface, width, height)
-                    }
-
-                    override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                        return listener?.onSurfaceTextureDestroyed(surface) ?: true
-                    }
-
-                    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-                        listener?.onSurfaceTextureUpdated(surface)
-                    }
-                }
-            }
-
-        scenario.moveToState(State.RESUMED)
-
-        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
-
-        assertTrue(textureAvailableLatch.await(3000, TimeUnit.MILLISECONDS))
-
-        val coords = IntArray(2)
-        textureView!!.getLocationOnScreen(coords)
-        SurfaceControlUtils.validateOutput { bitmap ->
-            Color.BLUE == bitmap.getPixel(
-                coords[0] + bitmap.width / 2,
-                coords[1] + bitmap.height / 2
-            )
-        }
-
-        val stopLatch = CountDownLatch(1)
-        glRenderer!!.stop(true) {
-            stopLatch.countDown()
-        }
-
-        assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
-        // Assert that targets are detached when the GLRenderer is stopped
-        assertFalse(target!!.isAttached())
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
-    fun testTextureViewRendersAfterSurfaceTextureAvailable() {
-        var textureView: TextureView? = null
-        var glRenderer: GLRenderer? = null
-        var target: GLRenderer.RenderTarget? = null
-        val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
-        val scenario = ActivityScenario.launch(GLTestActivity::class.java)
-            .moveToState(State.CREATED)
-            .onActivity {
-                textureView = it.textureView
-
-                assertNotNull(textureView)
-
-                glRenderer = GLRenderer().apply { start() }
-                target = glRenderer!!.attach(it.textureView, ColorRenderCallback(Color.BLUE))
-                val listener = textureView!!.surfaceTextureListener
-                textureView!!.surfaceTextureListener = object : SurfaceTextureListener {
-                    override fun onSurfaceTextureAvailable(
-                        surface: SurfaceTexture,
-                        width: Int,
-                        height: Int
-                    ) {
-                        listener?.onSurfaceTextureAvailable(surface, width, height)
-                    }
-
-                    override fun onSurfaceTextureSizeChanged(
-                        surface: SurfaceTexture,
-                        width: Int,
-                        height: Int
-                    ) {
-                        listener?.onSurfaceTextureSizeChanged(surface, width, height)
-                    }
-
-                    override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
-                        return listener?.onSurfaceTextureDestroyed(surface) ?: true
-                    }
-
-                    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
-                        listener?.onSurfaceTextureUpdated(surface)
-                        renderLatch.get().countDown()
-                    }
-                }
-            }
-
-        scenario.moveToState(State.RESUMED)
-
-        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
-
-        val coords = IntArray(2)
-        textureView!!.getLocationOnScreen(coords)
-        SurfaceControlUtils.validateOutput { bitmap ->
-            Color.BLUE == bitmap.getPixel(
-                coords[0] + textureView!!.width / 2,
-                coords[1] + textureView!!.height / 2
-            )
-        }
-
-        val stopLatch = CountDownLatch(1)
-        glRenderer!!.stop(true) {
-            stopLatch.countDown()
-        }
-
-        assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
-        // Assert that targets are detached when the GLRenderer is stopped
-        assertFalse(target!!.isAttached())
     }
 
     @Test
@@ -1597,8 +1305,7 @@ class GLRendererTest {
      * when rendering is complete
      */
     private class ColorRenderCallback(
-        val targetColor: Int,
-        val drawCallback: () -> Unit = {}
+        val targetColor: Int
     ) : GLRenderer.RenderCallback {
 
         override fun onDrawFrame(eglManager: EGLManager) {
@@ -1609,8 +1316,6 @@ class GLRendererTest {
                 Color.alpha(targetColor) / 255f,
             )
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-            GLES20.glFinish()
-            drawCallback.invoke()
         }
     }
 

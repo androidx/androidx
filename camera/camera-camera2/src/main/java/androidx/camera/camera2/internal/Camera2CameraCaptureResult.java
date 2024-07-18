@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal;
 
+import android.graphics.Rect;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
@@ -23,12 +24,9 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
-import androidx.camera.core.impl.CameraCaptureMetaData;
-import androidx.camera.core.impl.CameraCaptureMetaData.AeMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
-import androidx.camera.core.impl.CameraCaptureMetaData.AwbMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -202,66 +200,6 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
         return FlashState.UNKNOWN;
     }
 
-    @NonNull
-    @Override
-    public CameraCaptureMetaData.AeMode getAeMode() {
-        Integer aeMode = mCaptureResult.get(CaptureResult.CONTROL_AE_MODE);
-        if (aeMode == null) {
-            return AeMode.UNKNOWN;
-        }
-        switch (aeMode) {
-            case CaptureResult.CONTROL_AE_MODE_OFF:
-                return AeMode.OFF;
-            case CaptureResult.CONTROL_AE_MODE_ON:
-                return AeMode.ON;
-            case CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH:
-                return AeMode.ON_AUTO_FLASH;
-            case CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH:
-                return AeMode.ON_ALWAYS_FLASH;
-            case CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE:
-                return AeMode.ON_AUTO_FLASH_REDEYE;
-            case CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                    return AeMode.ON_EXTERNAL_FLASH;
-                } else {
-                    return AeMode.UNKNOWN;
-                }
-            default:
-                return AeMode.UNKNOWN;
-        }
-    }
-
-    @NonNull
-    @Override
-    public CameraCaptureMetaData.AwbMode getAwbMode() {
-        Integer awbMode = mCaptureResult.get(CaptureResult.CONTROL_AWB_MODE);
-        if (awbMode == null) {
-            return AwbMode.UNKNOWN;
-        }
-        switch (awbMode) {
-            case CaptureResult.CONTROL_AWB_MODE_OFF:
-                return AwbMode.OFF;
-            case CaptureResult.CONTROL_AWB_MODE_AUTO:
-                return AwbMode.AUTO;
-            case CaptureResult.CONTROL_AWB_MODE_INCANDESCENT:
-                return AwbMode.INCANDESCENT;
-            case CaptureResult.CONTROL_AWB_MODE_FLUORESCENT:
-                return AwbMode.FLUORESCENT;
-            case CaptureResult.CONTROL_AWB_MODE_WARM_FLUORESCENT:
-                return AwbMode.WARM_FLUORESCENT;
-            case CaptureResult.CONTROL_AWB_MODE_DAYLIGHT:
-                return AwbMode.DAYLIGHT;
-            case CaptureResult.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT:
-                return AwbMode.CLOUDY_DAYLIGHT;
-            case CaptureResult.CONTROL_AWB_MODE_TWILIGHT:
-                return AwbMode.TWILIGHT;
-            case CaptureResult.CONTROL_AWB_MODE_SHADE:
-                return AwbMode.SHADE;
-            default:
-                return AwbMode.UNKNOWN;
-        }
-    }
-
     /** {@inheritDoc} */
     @Override
     public long getTimestamp() {
@@ -283,6 +221,13 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
     public void populateExifData(@NonNull ExifData.Builder exifData) {
         // Call interface default to set flash mode
         CameraCaptureResult.super.populateExifData(exifData);
+
+        // Set dimensions
+        Rect cropRegion = mCaptureResult.get(CaptureResult.SCALER_CROP_REGION);
+        if (cropRegion != null) {
+            exifData.setImageWidth(cropRegion.width())
+                    .setImageHeight(cropRegion.height());
+        }
 
         // Set orientation
         try {

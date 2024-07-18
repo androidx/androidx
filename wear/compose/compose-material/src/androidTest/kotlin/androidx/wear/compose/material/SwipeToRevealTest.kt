@@ -34,7 +34,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
-import androidx.wear.compose.foundation.RevealScope
 import androidx.wear.compose.foundation.RevealState
 import androidx.wear.compose.foundation.RevealValue
 import androidx.wear.compose.foundation.rememberRevealState
@@ -44,7 +43,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalWearFoundationApi::class, ExperimentalWearMaterialApi::class)
-class SwipeToRevealTest {
+class SwipeToRevealActionTest {
     @get:Rule
     val rule = createComposeRule()
 
@@ -178,15 +177,11 @@ class SwipeToRevealTest {
     fun onPrimaryActionClick_triggersOnClick_forChip() {
         var clicked = false
         rule.setContentWithTheme {
-            val revealState = rememberRevealState(initialValue = RevealValue.Revealing)
             swipeToRevealChipDefault(
-                revealState = revealState,
-                primaryAction = {
-                    createPrimaryAction(
-                        revealState = revealState,
-                        onClick = { clicked = true }
-                    )
-                }
+                revealState = rememberRevealState(initialValue = RevealValue.Revealing),
+                primaryAction = createPrimaryAction(
+                    onClick = { clicked = true }
+                )
             )
         }
 
@@ -198,15 +193,11 @@ class SwipeToRevealTest {
     fun onSecondaryActionClick_triggersOnClick_forChip() {
         var clicked = false
         rule.setContentWithTheme {
-            val revealState = rememberRevealState(initialValue = RevealValue.Revealing)
             swipeToRevealChipDefault(
-                revealState = revealState,
-                secondaryAction = {
-                    createSecondaryAction(
-                        revealState = revealState,
-                        onClick = { clicked = true }
-                    )
-                }
+                revealState = rememberRevealState(initialValue = RevealValue.Revealing),
+                secondaryAction = createSecondaryAction(
+                    onClick = { clicked = true }
+                )
             )
         }
 
@@ -221,14 +212,11 @@ class SwipeToRevealTest {
             val coroutineScope = rememberCoroutineScope()
             swipeToRevealCardDefault(
                 revealState = revealState,
-                primaryAction = {
-                    createPrimaryAction(
-                        revealState = revealState,
-                        onClick = {
-                            coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
-                        }
-                    )
-                },
+                primaryAction = createPrimaryAction(
+                    onClick = {
+                        coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
+                    }
+                ),
                 undoSecondaryAction = null
             )
         }
@@ -248,26 +236,20 @@ class SwipeToRevealTest {
             val coroutineScope = rememberCoroutineScope()
             swipeToRevealCardDefault(
                 revealState = revealState,
-                primaryAction = {
-                    createPrimaryAction(
-                        revealState = revealState,
-                        onClick = {
-                            coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
+                primaryAction = createPrimaryAction(
+                    onClick = {
+                        coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
+                    }
+                ),
+                undoPrimaryAction = createUndoAction(
+                    onClick = {
+                        coroutineScope.launch {
+                            // reset state when undo is clicked
+                            revealState.animateTo(RevealValue.Covered)
+                            revealState.lastActionType = RevealActionType.None
                         }
-                    )
-                },
-                undoPrimaryAction = {
-                    createUndoAction(
-                        revealState = revealState,
-                        onClick = {
-                            coroutineScope.launch {
-                                // reset state when undo is clicked
-                                revealState.animateTo(RevealValue.Covered)
-                                revealState.lastActionType = RevealActionType.None
-                            }
-                        }
-                    )
-                },
+                    }
+                ),
                 undoSecondaryAction = null
             )
         }
@@ -289,14 +271,11 @@ class SwipeToRevealTest {
             val coroutineScope = rememberCoroutineScope()
             swipeToRevealCardDefault(
                 revealState = revealState,
-                secondaryAction = {
-                    createSecondaryAction(
-                        revealState = revealState,
-                        onClick = {
-                            coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
-                        }
-                    )
-                },
+                secodnaryAction = createSecondaryAction(
+                    onClick = {
+                        coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
+                    }
+                ),
                 undoPrimaryAction = null
             )
         }
@@ -316,29 +295,23 @@ class SwipeToRevealTest {
             val coroutineScope = rememberCoroutineScope()
             swipeToRevealCardDefault(
                 revealState = revealState,
-                secondaryAction = {
-                    createSecondaryAction(
-                        revealState = revealState,
-                        onClick = {
-                            coroutineScope.launch {
-                                revealState.animateTo(RevealValue.Revealed)
-                            }
+                secodnaryAction = createSecondaryAction(
+                    onClick = {
+                        coroutineScope.launch {
+                            revealState.animateTo(RevealValue.Revealed)
                         }
-                    )
-                },
-                undoSecondaryAction = {
-                    createUndoAction(
-                        revealState = revealState,
-                        modifier = Modifier.testTag(UNDO_SECONDARY_ACTION_TAG),
-                        onClick = {
-                            coroutineScope.launch {
-                                // reset state after undo is clicked
-                                revealState.animateTo(RevealValue.Covered)
-                                revealState.lastActionType = RevealActionType.None
-                            }
+                    }
+                ),
+                undoSecondaryAction = createUndoAction(
+                    modifier = Modifier.testTag(UNDO_SECONDARY_ACTION_TAG),
+                    onClick = {
+                        coroutineScope.launch {
+                            // reset state after undo is clicked
+                            revealState.animateTo(RevealValue.Covered)
+                            revealState.lastActionType = RevealActionType.None
                         }
-                    )
-                },
+                    }
+                ),
                 undoPrimaryAction = null
             )
         }
@@ -401,25 +374,17 @@ class SwipeToRevealTest {
     private fun swipeToRevealChipDefault(
         modifier: Modifier = Modifier,
         revealState: RevealState = rememberRevealState(),
-        primaryAction: @Composable RevealScope.() -> Unit = { createPrimaryAction(revealState) },
-        secondaryAction: @Composable RevealScope.() -> Unit =
-            { createSecondaryAction(revealState) },
-        undoPrimaryAction: (@Composable RevealScope.() -> Unit)? =
-            { createUndoAction(revealState) },
-        undoSecondaryAction: (@Composable RevealScope.() -> Unit)? = {
-            createUndoAction(
-                revealState,
-                modifier = Modifier.testTag(UNDO_SECONDARY_ACTION_TAG)
-            )
-        },
-        onFullSwipe: () -> Unit = {},
+        primaryAction: SwipeToRevealAction = createPrimaryAction(),
+        secondaryAction: SwipeToRevealAction = createSecondaryAction(),
+        undoPrimaryAction: SwipeToRevealAction? = createUndoAction(),
+        undoSecondaryAction: SwipeToRevealAction? =
+            createUndoAction(modifier = Modifier.testTag(UNDO_SECONDARY_ACTION_TAG)),
         colors: SwipeToRevealActionColors = SwipeToRevealDefaults.actionColors(),
         content: @Composable () -> Unit = { createContent() }
     ) {
         SwipeToRevealChip(
             modifier = modifier,
             revealState = revealState,
-            onFullSwipe = onFullSwipe,
             primaryAction = primaryAction,
             secondaryAction = secondaryAction,
             undoPrimaryAction = undoPrimaryAction,
@@ -433,27 +398,19 @@ class SwipeToRevealTest {
     private fun swipeToRevealCardDefault(
         modifier: Modifier = Modifier,
         revealState: RevealState = rememberRevealState(),
-        primaryAction: @Composable RevealScope.() -> Unit = { createPrimaryAction(revealState) },
-        secondaryAction: @Composable RevealScope.() -> Unit =
-            { createSecondaryAction(revealState) },
-        undoPrimaryAction: (@Composable RevealScope.() -> Unit)? =
-            { createUndoAction(revealState) },
-        undoSecondaryAction: (@Composable RevealScope.() -> Unit)? = {
-            createUndoAction(
-                revealState,
-                modifier = Modifier.testTag(UNDO_SECONDARY_ACTION_TAG)
-            )
-        },
-        onFullSwipe: () -> Unit = {},
+        primaryAction: SwipeToRevealAction = createPrimaryAction(),
+        secodnaryAction: SwipeToRevealAction = createSecondaryAction(),
+        undoPrimaryAction: SwipeToRevealAction? = createUndoAction(),
+        undoSecondaryAction: SwipeToRevealAction? =
+            createUndoAction(modifier = Modifier.testTag(UNDO_SECONDARY_ACTION_TAG)),
         colors: SwipeToRevealActionColors = SwipeToRevealDefaults.actionColors(),
         content: @Composable () -> Unit = { createContent() }
     ) {
         SwipeToRevealCard(
             modifier = modifier,
             revealState = revealState,
-            onFullSwipe = onFullSwipe,
             primaryAction = primaryAction,
-            secondaryAction = secondaryAction,
+            secondaryAction = secodnaryAction,
             undoPrimaryAction = undoPrimaryAction,
             undoSecondaryAction = undoSecondaryAction,
             colors = colors,
@@ -462,51 +419,39 @@ class SwipeToRevealTest {
     }
 
     @Composable
-    private fun RevealScope.createPrimaryAction(
-        revealState: RevealState,
+    private fun createPrimaryAction(
         icon: @Composable () -> Unit = { Icon(SwipeToRevealDefaults.Delete, "Delete") },
         label: @Composable () -> Unit = { Text("Clear") },
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
-    ) {
-        SwipeToRevealPrimaryAction(
-            revealState = revealState,
-            icon = icon,
-            label = label,
-            modifier = modifier.testTag(PRIMARY_ACTION_TAG),
-            onClick = onClick
-        )
-    }
+    ): SwipeToRevealAction = SwipeToRevealDefaults.primaryAction(
+        icon = icon,
+        label = label,
+        modifier = modifier.testTag(PRIMARY_ACTION_TAG),
+        onClick = onClick
+    )
 
     @Composable
-    private fun RevealScope.createSecondaryAction(
-        revealState: RevealState,
+    private fun createSecondaryAction(
         icon: @Composable () -> Unit = { Icon(SwipeToRevealDefaults.MoreOptions, "More Options") },
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
-    ) {
-        SwipeToRevealSecondaryAction(
-            revealState = revealState,
-            content = icon,
-            modifier = modifier.testTag(SECONDARY_ACTION_TAG),
-            onClick = onClick
-        )
-    }
+    ): SwipeToRevealAction = SwipeToRevealDefaults.secondaryAction(
+        icon = icon,
+        modifier = modifier.testTag(SECONDARY_ACTION_TAG),
+        onClick = onClick
+    )
 
     @Composable
-    private fun RevealScope.createUndoAction(
-        revealState: RevealState,
+    private fun createUndoAction(
         label: @Composable () -> Unit = { Text("Undo") },
         modifier: Modifier = Modifier,
         onClick: () -> Unit = {},
-    ) {
-        SwipeToRevealUndoAction(
-            revealState = revealState,
-            label = label,
-            modifier = modifier.testTag(UNDO_PRIMARY_ACTION_TAG),
-            onClick = onClick
-        )
-    }
+    ) = SwipeToRevealDefaults.undoAction(
+        label = label,
+        modifier = modifier.testTag(UNDO_PRIMARY_ACTION_TAG),
+        onClick = onClick
+    )
 
     @Composable
     private fun createContent(

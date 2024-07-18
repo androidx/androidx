@@ -110,8 +110,7 @@ public abstract class SurfaceConfig {
      * <p> PRIV refers to any target whose available sizes are found using
      * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
      * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
-     * the ImageFormat.JPEG or ImageFormat.JPEG_R format, and RAW refers to the
-     * ImageFormat.RAW_SENSOR format.
+     * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
      */
     @NonNull
     public static SurfaceConfig.ConfigType getConfigType(int imageFormat) {
@@ -119,8 +118,6 @@ public abstract class SurfaceConfig {
             return SurfaceConfig.ConfigType.YUV;
         } else if (imageFormat == ImageFormat.JPEG) {
             return SurfaceConfig.ConfigType.JPEG;
-        } else if (imageFormat == ImageFormat.JPEG_R) {
-            return SurfaceConfig.ConfigType.JPEG_R;
         } else if (imageFormat == ImageFormat.RAW_SENSOR) {
             return SurfaceConfig.ConfigType.RAW;
         } else {
@@ -188,7 +185,6 @@ public abstract class SurfaceConfig {
         PRIV,
         YUV,
         JPEG,
-        JPEG_R,
         RAW
     }
 

@@ -20,14 +20,12 @@ import android.content.Context
 import android.content.Intent
 import androidx.credentials.provider.RemoteEntry
 import androidx.credentials.provider.RemoteEntry.Companion.fromSlice
-import androidx.credentials.provider.RemoteEntry.Companion.toSlice
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertNotNull
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -66,19 +64,5 @@ class RemoteEntryTest {
         if (fromSlice != null) {
             assertThat(fromSlice.pendingIntent).isEqualTo(mPendingIntent)
         }
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    fun fromRemoteEntry_success() {
-        val originalEntry = RemoteEntry(mPendingIntent)
-        val slice = toSlice(originalEntry)
-        Assert.assertNotNull(slice)
-
-        val remoteEntry = RemoteEntry.fromRemoteEntry(
-            android.service.credentials.RemoteEntry(slice))
-
-        assertThat(remoteEntry).isNotNull()
-        assertThat(remoteEntry!!.pendingIntent).isEqualTo(mPendingIntent)
     }
 }

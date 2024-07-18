@@ -30,7 +30,6 @@ import static androidx.work.impl.WorkDatabaseVersions.VERSION_17;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_19;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_20;
-import static androidx.work.impl.WorkDatabaseVersions.VERSION_21;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
 import static androidx.work.impl.WorkDatabaseVersions.VERSION_5;
@@ -663,24 +662,6 @@ public class WorkDatabaseMigrationTest {
         database.close();
     }
 
-    @Test
-    @MediumTest
-    public void testMigrationVersion20_21() throws IOException {
-        SupportSQLiteDatabase database =
-                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_20);
-
-        String id = UUID.randomUUID().toString();
-        database.insert("workspec", CONFLICT_FAIL, contentValuesPre20(id));
-        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_21, true);
-        Cursor workSpecs = database.query("SELECT id, required_network_request FROM WorkSpec");
-        assertThat(workSpecs.getCount(), is(1));
-        assertThat(workSpecs.moveToNext(), is(true));
-        assertThat(workSpecs.getString(workSpecs.getColumnIndex("id")), is(id));
-        byte[] networkRequest = workSpecs.getBlob(
-                workSpecs.getColumnIndex("required_network_request"));
-        assertThat(networkRequest.length, is(0));
-    }
-
     // doesn't have COLUMN_RUN_IN_FOREGROUND
     @NonNull
     private ContentValues contentValuesPre8(String workSpecId) {
@@ -723,14 +704,13 @@ public class WorkDatabaseMigrationTest {
 
     private ContentValues contentValuesPre16(String workSpecId) {
         ContentValues contentValues = contentValuesPre15(workSpecId);
+        contentValues.put(REQUIRED_NETWORK_TYPE, 0);
+        contentValues.put(COLUMN_RUN_IN_FOREGROUND, false);
+        contentValues.put(COLUMN_OUT_OF_QUOTA_POLICY, 0);
+        contentValues.put(TRIGGER_CONTENT_UPDATE_DELAY, -1);
+        contentValues.put(TRIGGER_MAX_CONTENT_DELAY, -1);
         contentValues.remove("period_start_time");
         contentValues.put(LAST_ENQUEUE_TIME, 0L);
-        return contentValues;
-    }
-
-    private ContentValues contentValuesPre20(String workSpecId) {
-        ContentValues contentValues = contentValuesPre16(workSpecId);
-        contentValues.put(LAST_ENQUEUE_TIME, -1L);
         return contentValues;
     }
 

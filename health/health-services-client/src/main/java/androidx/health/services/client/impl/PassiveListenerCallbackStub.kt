@@ -72,35 +72,30 @@ internal class PassiveListenerCallbackStub(
     }
 
     /**
-     * Clients can only have one {@link PassiveListenerCallbackStub} registered at a time. Hold onto
-     * the last one that is registered.
-     *
-     * Note: For PassiveListenerCallback, the {@link ListenerKey} held in the stub is the important
-     * bit that is used, not the stub object itself.
+     * Its important to use the same stub for registration and un-registration, to ensure same
+     * binder object is passed by framework to service side of the IPC.
      */
     internal class PassiveListenerCallbackCache private constructor() {
         private val listenerLock = Any()
 
         @GuardedBy("listenerLock")
-        private var listener: PassiveListenerCallbackStub? = null
+        private val listeners: MutableMap<String, PassiveListenerCallbackStub> = HashMap()
 
-        public fun create(
+        public fun getOrCreate(
             packageName: String,
             executor: Executor,
             callback: PassiveListenerCallback
         ): PassiveListenerCallbackStub {
             synchronized(listenerLock) {
-               val stub = PassiveListenerCallbackStub(packageName, executor, callback)
-               listener = stub
-               return stub
+                return listeners.getOrPut(packageName) {
+                    PassiveListenerCallbackStub(packageName, executor, callback)
+                }
             }
         }
 
-        public fun clear(): PassiveListenerCallbackStub? {
+        public fun remove(packageName: String): PassiveListenerCallbackStub? {
             synchronized(listenerLock) {
-                val prev: PassiveListenerCallbackStub? = listener
-                listener = null
-                return prev
+                return listeners.remove(packageName)
             }
         }
 

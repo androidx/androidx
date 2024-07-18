@@ -159,7 +159,7 @@ internal class SwingComposeSceneLayer(
 
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
-        return SingleLayerComposeScene(
+        return PlatformLayersComposeScene(
             coroutineContext = mediator.coroutineContext,
             density = density,
             invalidate = mediator::onComposeInvalidation,

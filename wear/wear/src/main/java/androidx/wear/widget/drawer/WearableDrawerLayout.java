@@ -40,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.NestedScrollingParent;
 import androidx.core.view.NestedScrollingParentHelper;
+import androidx.core.view.ViewCompat;
 import androidx.customview.widget.ViewDragHelper;
 import androidx.wear.widget.drawer.FlingWatcherFactory.FlingListener;
 import androidx.wear.widget.drawer.FlingWatcherFactory.FlingWatcher;
@@ -531,7 +532,7 @@ public class WearableDrawerLayout extends FrameLayout
         final boolean bottomSettling = mBottomDrawerDragger.continueSettling(true /*
         deferCallbacks */);
         if (topSettling || bottomSettling) {
-            postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 

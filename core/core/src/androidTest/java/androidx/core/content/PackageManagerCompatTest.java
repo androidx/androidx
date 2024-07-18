@@ -48,8 +48,10 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
+import android.os.Build;
 import android.os.UserManager;
 
+import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -315,6 +317,7 @@ public class PackageManagerCompatTest {
      * Setup applications with the verifier role can handle unused app restriction features. In
      * this case, they are permission revocation apps.
      */
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @SuppressWarnings("deprecation")
     static void setupPermissionRevocationApps(
             PackageManager packageManager, List<String> packageNames) {

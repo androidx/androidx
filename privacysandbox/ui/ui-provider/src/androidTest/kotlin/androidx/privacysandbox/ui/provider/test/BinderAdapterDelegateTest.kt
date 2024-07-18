@@ -46,7 +46,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,7 +86,6 @@ class BinderAdapterDelegateTest {
         }
     }
 
-    @Ignore // b/328282434
     @Test
     fun touchFocusTransferredForSwipeUp() {
         onView(withId(R.id.surface_view)).perform(swipeUp())

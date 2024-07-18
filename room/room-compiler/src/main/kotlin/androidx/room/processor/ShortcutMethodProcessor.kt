@@ -46,24 +46,11 @@ class ShortcutMethodProcessor(
 
     fun extractReturnType(): XType {
         val returnType = delegate.extractReturnType()
-        val returnsDeferredType = delegate.returnsDeferredType()
-        val isSuspendFunction = delegate.executableElement.isSuspendFunction()
         context.checker.check(
-            !isSuspendFunction || !returnsDeferredType,
+            !delegate.isSuspendAndReturnsDeferredType(),
             executableElement,
             ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
         )
-
-        if (!isSuspendFunction && !returnsDeferredType && !context.isAndroidOnlyTarget()) {
-            // A blocking function that does not return a deferred return type is not allowed if the
-            // target platforms include non-Android targets.
-            context.logger.e(
-                executableElement,
-                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID
-            )
-            // TODO(b/332781418): Early return to avoid generating redundant code.
-        }
-
         return returnType
     }
 

@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
  * Helper for accessing features in {@link android.os.UserHandle} in a backwards compatible
  * fashion.
  */
+@RequiresApi(17)
 public class UserHandleCompat {
 
     @Nullable

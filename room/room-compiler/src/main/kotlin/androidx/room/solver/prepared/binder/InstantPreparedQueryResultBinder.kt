@@ -16,26 +16,15 @@
 
 package androidx.room.solver.prepared.binder
 
-import androidx.room.compiler.codegen.CodeLanguage
-import androidx.room.compiler.codegen.XCodeBlock
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.XTypeName
-import androidx.room.compiler.codegen.box
-import androidx.room.ext.InvokeWithLambdaParameter
-import androidx.room.ext.LambdaSpec
-import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 
 /**
  * Default binder for prepared queries.
  */
-class InstantPreparedQueryResultBinder(
-    adapter: PreparedQueryResultAdapter?
-) : PreparedQueryResultBinder(adapter) {
+class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
+    PreparedQueryResultBinder(adapter) {
 
     override fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
@@ -52,51 +41,5 @@ class InstantPreparedQueryResultBinder(
             dbProperty = dbProperty,
             scope = scope
         )
-    }
-
-    override fun isMigratedToDriver(): Boolean = true
-
-    override fun executeAndReturn(
-        sqlQueryVar: String,
-        dbProperty: XPropertySpec,
-        bindStatement: CodeGenScope.(String) -> Unit,
-        returnTypeName: XTypeName,
-        scope: CodeGenScope
-    ) {
-        val connectionVar = scope.getTmpVar("_connection")
-        val performBlock = InvokeWithLambdaParameter(
-            scope = scope,
-            functionName = RoomTypeNames.DB_UTIL.packageMember("performBlocking"),
-            argFormat = listOf("%N", "%L", "%L"),
-            args = listOf(dbProperty, /* isReadOnly = */ false, /* inTransaction = */ true),
-            lambdaSpec = object : LambdaSpec(
-                parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
-                parameterName = connectionVar,
-                returnTypeName = returnTypeName.box(),
-                javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
-            ) {
-                override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
-                    val statementVar = scope.getTmpVar("_stmt")
-                    addLocalVal(
-                        statementVar,
-                        SQLiteDriverTypeNames.STATEMENT,
-                        "%L.prepare(%L)",
-                        connectionVar,
-                        sqlQueryVar
-                    )
-                    beginControlFlow("try")
-                    bindStatement(scope, statementVar)
-                    adapter?.executeAndReturn(connectionVar, statementVar, scope)
-                    nextControlFlow("finally")
-                    addStatement("%L.close()", statementVar)
-                    endControlFlow()
-                }
-            }
-        )
-        val returnPrefix = when (scope.language) {
-            CodeLanguage.JAVA -> if (returnTypeName == XTypeName.UNIT_VOID) "" else "return "
-            CodeLanguage.KOTLIN -> "return "
-        }
-        scope.builder.add("$returnPrefix%L", performBlock)
     }
 }

@@ -30,12 +30,8 @@ public class TemplateWrapperTest {
     @Test
     public void createInstance() {
         ListTemplate template =
-                new ListTemplate.Builder()
-                        .setHeader(new Header.Builder()
-                                .setTitle("Title")
-                                .build())
-                        .setSingleList(new ItemList.Builder().build())
-                        .build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
         TemplateWrapper wrapper = TemplateWrapper.wrap(template);
         assertThat(wrapper.getTemplate()).isEqualTo(template);
 
@@ -47,19 +43,11 @@ public class TemplateWrapperTest {
     @Test
     public void createInstance_thenUpdate() {
         ListTemplate template =
-                new ListTemplate.Builder()
-                        .setHeader(new Header.Builder()
-                                .setTitle("Title")
-                                .build())
-                        .setSingleList(new ItemList.Builder().build())
-                        .build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
         ListTemplate template2 =
-                new ListTemplate.Builder()
-                        .setHeader(new Header.Builder()
-                                .setTitle("Title")
-                                .build())
-                        .setSingleList(new ItemList.Builder().build())
-                        .build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
 
         TemplateWrapper wrapper = TemplateWrapper.wrap(template);
         String id = wrapper.getId();
@@ -89,12 +77,8 @@ public class TemplateWrapperTest {
     @Test
     public void copyOf() {
         ListTemplate template =
-                new ListTemplate.Builder()
-                        .setHeader(new Header.Builder()
-                                .setTitle("Title")
-                                .build())
-                        .setSingleList(new ItemList.Builder().build())
-                        .build();
+                new ListTemplate.Builder().setTitle("Title").setSingleList(
+                        new ItemList.Builder().build()).build();
         TemplateWrapper source = TemplateWrapper.wrap(template, "ID");
         source.setCurrentTaskStep(45);
         source.setRefresh(true);

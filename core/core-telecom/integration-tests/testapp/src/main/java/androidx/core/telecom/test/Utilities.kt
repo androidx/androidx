@@ -48,9 +48,7 @@ class Utilities {
         var OUTGOING_CALL_ATTRIBUTES = CallAttributesCompat(
             OUTGOING_NAME,
             OUTGOING_URI,
-            DIRECTION_OUTGOING,
-            CALL_TYPE_VIDEO_CALL,
-            ALL_CALL_CAPABILITIES)
+            DIRECTION_OUTGOING)
 
         // incoming attributes constants
         const val INCOMING_NAME = "Sundar Pichai"
@@ -66,7 +64,7 @@ class Utilities {
 
         // Audio recording config constants
         private const val SAMPLE_RATE = 44100
-        private const val AUDIO_SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+        private const val AUDIO_SOURCE = MediaRecorder.AudioSource.CAMCORDER
         private const val CHANNEL_COUNT = 1
         private const val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
         private const val RECORD_AUDIO_REQUEST_CODE = 200

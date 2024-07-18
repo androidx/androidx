@@ -184,7 +184,7 @@ actual fun DropdownMenu(
             popupPositionProvider = popupPositionProvider,
             properties = properties,
             onKeyEvent = {
-                handlePopupOnKeyEvent(it, focusManager, inputModeManager)
+                handleDropdownOnKeyEvent(it, focusManager, inputModeManager)
             },
         ) {
             focusManager = LocalFocusManager.current
@@ -272,7 +272,7 @@ actual fun DropdownMenuItem(
     enabled: Boolean,
     colors: MenuItemColors,
     contentPadding: PaddingValues,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
 ) {
     DropdownMenuItemContent(
         text = text,
@@ -288,7 +288,7 @@ actual fun DropdownMenuItem(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-private fun handlePopupOnKeyEvent(
+internal fun handleDropdownOnKeyEvent(
     keyEvent: KeyEvent,
     focusManager: FocusManager?,
     inputModeManager: InputModeManager?

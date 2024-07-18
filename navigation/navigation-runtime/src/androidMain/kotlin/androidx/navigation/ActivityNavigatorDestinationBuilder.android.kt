@@ -27,9 +27,7 @@ import androidx.annotation.IdRes
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 
-/**
- * Construct a new [ActivityNavigator.Destination]
- */
+/** Construct a new [ActivityNavigator.Destination] */
 @Suppress("Deprecation")
 @Deprecated(
     "Use routes to build your ActivityDestination instead",
@@ -38,48 +36,39 @@ import kotlin.reflect.KType
 public inline fun NavGraphBuilder.activity(
     @IdRes id: Int,
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    ActivityNavigatorDestinationBuilder(
-        provider[ActivityNavigator::class],
-        id
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        ActivityNavigatorDestinationBuilder(provider[ActivityNavigator::class], id).apply(builder)
+    )
 
-/**
- * Construct a new [ActivityNavigator.Destination]
- */
+/** Construct a new [ActivityNavigator.Destination] */
 public inline fun NavGraphBuilder.activity(
     route: String,
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    ActivityNavigatorDestinationBuilder(
-        provider[ActivityNavigator::class],
-        route
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        ActivityNavigatorDestinationBuilder(provider[ActivityNavigator::class], route)
+            .apply(builder)
+    )
 
 /**
  * Construct a new [ActivityNavigator.Destination]
  *
  * @param T destination's unique route from a [KClass]
  * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
- * [NavType]. May be empty if [T] does not use custom NavTypes.
+ *   [NavType]. May be empty if [T] does not use custom NavTypes.
  * @param builder the builder used to construct the fragment destination
  */
 public inline fun <reified T : Any> NavGraphBuilder.activity(
     typeMap: Map<KType, @JvmSuppressWildcards NavType<*>> = emptyMap(),
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
-): Unit = destination(
-    ActivityNavigatorDestinationBuilder(
-        provider[ActivityNavigator::class],
-        T::class,
-        typeMap
-    ).apply(builder)
-)
+): Unit =
+    destination(
+        ActivityNavigatorDestinationBuilder(provider[ActivityNavigator::class], T::class, typeMap)
+            .apply(builder)
+    )
 
-/**
- * DSL for constructing a new [ActivityNavigator.Destination]
- */
+/** DSL for constructing a new [ActivityNavigator.Destination] */
 @NavDestinationDsl
 public class ActivityNavigatorDestinationBuilder :
     NavDestinationBuilder<ActivityNavigator.Destination> {
@@ -104,7 +93,7 @@ public class ActivityNavigatorDestinationBuilder :
      * @param navigator navigator used to create the destination
      * @param route the route from a [KClass] of the destination
      * @param typeMap map of destination arguments' kotlin type [KType] to its respective custom
-     * [NavType]. May be empty if [route] does not use custom NavTypes.
+     *   [NavType]. May be empty if [route] does not use custom NavTypes.
      */
     public constructor(
         navigator: ActivityNavigator,

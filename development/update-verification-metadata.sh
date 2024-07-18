@@ -25,19 +25,7 @@ while [ "$1" != "" ]; do
     continue
   fi
   task="$arg"
-  break
 done
-
-function usage() {
-  usageError="$1"
-  echo "$usageError"
-  echo "Usage: $0 [--no-dry-run] [<task>]"
-  exit 1
-}
-
-if [ "$1" != "" ]; then
-  usage "Unrecognized argument $1"
-fi
 
 function runGradle() {
   echo running ./gradlew "$@"
@@ -59,7 +47,7 @@ function regenerateVerificationMetadata() {
   if [ "$dryrun" == "true" ]; then
     dryrunArg="--dry-run"
   fi
-  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys $dryrunArg --clean -Pandroid.dependencyResolutionAtConfigurationTime.disallow=false -Pandroidx.enabled.kmp.target.platforms=+native $task
+  runGradle --stacktrace --write-verification-metadata pgp,sha256 --export-keys $dryrunArg --clean -Pandroidx.update.signatures=true -Pandroid.dependencyResolutionAtConfigurationTime.disallow=false -Pandroidx.enabled.kmp.target.platforms=+native $task
 
   # update verification metadata file
 
@@ -72,12 +60,14 @@ function regenerateVerificationMetadata() {
   sed -i 's/\(trusted-key.*\)version="[^"]*"/\1/' gradle/verification-metadata.xml
 
   # rename keyring
-  if [ "$dryrun" == "true" ]; then
-    mv gradle/verification-keyring.dryrun.keys gradle/verification-keyring.keys
-  fi
+  mv gradle/verification-keyring-dryrun.keys gradle/verification-keyring.keys 2>/dev/null || true
+
+  # remove temporary files
+  rm -f gradle/verification-keyring-dryrun.gpg
+  rm -f gradle/verification-keyring.gpg
 }
 regenerateVerificationMetadata
 
 echo
 echo 'Done. Please check that these changes look correct (`git diff`)'
-echo "If Gradle did not make all expected updates to verification-metadata.xml, you can try '--no-dry-run'. This is slow so you may also want to specify a task. Example: $0 --no-dry-run exportSboms"
+echo "If Gradle did not make all expected updates to verification-metadata.xml, you can try '--no-dry-run'. This is slow so you may also want to specify a task. Example: $0 --dry-run exportSboms"

@@ -28,7 +28,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeScenePointer
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.platformContext
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -55,7 +55,7 @@ internal class ComposeLayer(
         }
     }
 
-    private val scene = MultiLayerComposeScene(
+    private val scene = CanvasLayersComposeScene(
         coroutineContext = Dispatchers.Main,
         composeSceneContext = object : ComposeSceneContext {
             override val platformContext get() = platformContext

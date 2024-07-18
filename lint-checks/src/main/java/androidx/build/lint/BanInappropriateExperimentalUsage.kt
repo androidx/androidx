@@ -35,12 +35,11 @@ import java.io.File
 import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
-import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
-import org.jetbrains.uast.UastCallKind
+import org.jetbrains.uast.kotlin.KotlinUVarargExpression
 import org.jetbrains.uast.resolveToUElement
 import org.jetbrains.uast.toUElement
 
@@ -114,14 +113,11 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         private fun getUElementsFromOptInMarkerClass(markerClass: UExpression): List<UElement> {
             val elements = ArrayList<UElement?>()
 
-            when {
-                markerClass is UClassLiteralExpression -> {
-                    // opting in to single annotation
+            when (markerClass) {
+                is UClassLiteralExpression -> { // opting in to single annotation
                     elements.add(markerClass.toUElement())
                 }
-                markerClass is UCallExpression &&
-                    markerClass.kind == UastCallKind.NESTED_ARRAY_INITIALIZER -> {
-                    // opting in to multiple annotations
+                is KotlinUVarargExpression -> { // opting in to multiple annotations
                     val expressions: List<UExpression> = markerClass.valueArguments
                     for (expression in expressions) {
                         val uElement = (expression as UClassLiteralExpression).toUElement()
@@ -219,7 +215,6 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
 
         val annotationGroupId = annotationCoordinates.groupId
 
-        val isUsedInAlpha = usageCoordinates.version.contains("-alpha")
         val isUsedInSameGroup = usageCoordinates.groupId == annotationCoordinates.groupId
         val isUsedInSameArtifact = usageCoordinates.artifactId == annotationCoordinates.artifactId
         val isAtomic = atomicGroupList.contains(usageGroupId)
@@ -227,13 +222,11 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         /**
          * Usage of experimental APIs is allowed in either of the following conditions:
          *
-         * - The usage is in an alpha library
          * - Both the group ID and artifact ID in `usageCoordinates` and
          *   `annotationCoordinates` match
          * - The group IDs match, and that group ID is atomic
          */
-        if (isUsedInAlpha ||
-            (isUsedInSameGroup && isUsedInSameArtifact) ||
+        if ((isUsedInSameGroup && isUsedInSameArtifact) ||
             (isUsedInSameGroup && isAtomic)) return
 
         // Log inappropriate experimental usage

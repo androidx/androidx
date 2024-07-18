@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -42,6 +36,15 @@ dependencies {
     implementation(project(":core:core-splashscreen"))
     implementation(project(":core:core-ktx"))
     implementation(projectOrArtifact(":appcompat:appcompat"))
-    implementation("androidx.annotation:annotation:1.8.0")
+    implementation projectOrArtifact(":annotation:annotation")
     implementation(projectOrArtifact(":interpolator:interpolator"))
+    compileOnly(project(":annotation:annotation-sampled"))
+}
+
+androidx {
+    name = "Splashscreen Samples"
+    type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
+    inceptionYear = "2021"
+    description = "Sample for the AndoridX Splashscreen library"
 }

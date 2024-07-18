@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.SwipeToDismissBox
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
@@ -47,7 +48,6 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Text
 
 /**
@@ -149,7 +149,7 @@ fun NestedSwipeToDismissDemo() {
         state = state,
         backgroundKey = previous ?: SwipeToDismissKeys.Background,
         contentKey = current,
-        hasBackground = previous != null,
+        userSwipeEnabled = previous != null,
         onDismissed = { items.removeLastOrNull() }
     ) { isBackground ->
         val item = if (isBackground) {

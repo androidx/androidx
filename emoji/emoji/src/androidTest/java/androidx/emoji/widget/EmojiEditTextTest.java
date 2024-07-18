@@ -88,6 +88,7 @@ public class EmojiEditTextTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testSetMaxCount() {
         final TestActivity activity = mActivityRule.getActivity();
         final EmojiEditText editText = activity.findViewById(R.id.editTextWithMaxCount);

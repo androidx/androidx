@@ -41,9 +41,6 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     var captureConfigMap: MutableMap<TakePictureRequest, List<CaptureConfig>> = mutableMapOf()
     var queueCapacity: Int = MAX_IMAGES
     var captureErrorReceived: ImageCaptureException? = null
-    companion object {
-        var sNextRequestId = 0
-    }
 
     constructor() : this(
         createEmptyImageCaptureConfig(),
@@ -57,8 +54,7 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
         captureFuture: ListenableFuture<Void>
     ): Pair<CameraRequest, ProcessingRequest> {
         if (responseMap[request] == null) {
-            val captureConfig = captureConfigMap[request]
-                ?: listOf(CaptureConfig.Builder().also { it.setId(sNextRequestId++) }.build())
+            val captureConfig = captureConfigMap[request] ?: listOf()
             responseMap[request] =
                 Pair(
                     CameraRequest(captureConfig, callback),
@@ -76,10 +72,10 @@ class FakeImagePipeline(config: ImageCaptureConfig, cameraSurfaceSize: Size) :
     }
 
     internal override fun notifyCaptureError(
-        error: TakePictureManager.CaptureError
+        e: ImageCaptureException
     ) {
-        captureErrorReceived = error.imageCaptureException
-        currentProcessingRequest!!.onCaptureFailure(error.imageCaptureException)
+        captureErrorReceived = e
+        currentProcessingRequest!!.onCaptureFailure(e)
     }
 
     internal fun getProcessingRequest(takePictureRequest: TakePictureRequest): ProcessingRequest {

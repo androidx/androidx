@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -39,7 +33,7 @@ dependencies {
 }
 
 android {
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.window.extensions.core"
@@ -54,6 +48,7 @@ tasks.withType(KotlinCompile).configureEach {
 androidx {
     name = "WindowManager Core Extensions"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE // Only to generate per-project-zips
     inceptionYear = "2022"
     description = "The Core APIs for Window Manager Library Extensions"
     metalavaK2UastEnabled = true

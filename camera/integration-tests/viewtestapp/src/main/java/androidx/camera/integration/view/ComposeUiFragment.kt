@@ -17,53 +17,45 @@
 package androidx.camera.integration.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.camera.core.CameraEffect
-import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA
-import androidx.camera.core.CameraSelector.DEFAULT_FRONT_CAMERA
-import androidx.camera.core.CameraSelector.LENS_FACING_BACK
-import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
-import androidx.camera.view.CameraController
-import androidx.camera.view.LifecycleCameraController
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.FocusMeteringResult
+import androidx.camera.core.MeteringPointFactory
+import androidx.camera.core.Preview
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_BACK
+import androidx.camera.integration.view.MainActivity.CAMERA_DIRECTION_FRONT
+import androidx.camera.integration.view.MainActivity.INTENT_EXTRA_CAMERA_DIRECTION
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.FutureCallback
+import com.google.common.util.concurrent.Futures
 
-/**
- * A fragment that demonstrates how to use [ComposeView] to display a [PreviewView].
- */
+private const val TAG = "ComposeUiFragment"
+
 class ComposeUiFragment : Fragment() {
 
-    private var currentScaleType = PreviewView.ScaleType.FILL_CENTER
-
-    private lateinit var cameraController: LifecycleCameraController
-    private lateinit var toneMappingEffect: ToneMappingSurfaceEffect
-    private var hasEffect = false
-    private var lensFacing = LENS_FACING_BACK
+    var currentScaleType = PreviewView.ScaleType.FILL_CENTER
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val cameraProvider = ProcessCameraProvider.getInstance(requireContext()).get()
         val bundle: Bundle? = requireActivity().intent.extras
         if (bundle != null) {
             val scaleTypeId = bundle.getInt(
@@ -75,93 +67,86 @@ class ComposeUiFragment : Fragment() {
         val previewView = PreviewView(requireContext())
         previewView.scaleType = currentScaleType
 
-        toneMappingEffect = ToneMappingSurfaceEffect(
-            CameraEffect.PREVIEW or CameraEffect.VIDEO_CAPTURE
-        )
-
-        cameraController = LifecycleCameraController(requireContext())
-        cameraController.setEnabledUseCases(
-            CameraController.VIDEO_CAPTURE or CameraController.IMAGE_CAPTURE
-        )
-        previewView.controller = cameraController
-        cameraController.bindToLifecycle(viewLifecycleOwner)
-
-        return ComposeView(requireContext()).apply { setContent { AddPreviewView(previewView) } }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        toneMappingEffect.release()
-    }
-
-    private fun onToggleCamera() {
-        cameraController.cameraSelector = if (lensFacing == LENS_FACING_BACK) {
-            lensFacing = LENS_FACING_FRONT
-            DEFAULT_FRONT_CAMERA
-        } else {
-            lensFacing = LENS_FACING_BACK
-            DEFAULT_BACK_CAMERA
+        return ComposeView(requireContext()).apply {
+            setContent {
+                AddPreviewView(
+                    cameraProvider,
+                    previewView
+                )
+            }
         }
-    }
-
-    private fun onToggleEffect() {
-        hasEffect = if (hasEffect) {
-            cameraController.clearEffects()
-            false
-        } else {
-            cameraController.setEffects(setOf(toneMappingEffect))
-            true
-        }
-    }
-
-    private fun onTakePicture() {
-        TODO("Not yet implemented")
-    }
-
-    private fun onRecord() {
-        TODO("Not yet implemented")
     }
 
     @Composable
-    private fun AddPreviewView(previewView: PreviewView) {
+    private fun AddPreviewView(cameraProvider: ProcessCameraProvider, previewView: PreviewView) {
         previewView.layoutParams = LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.MATCH_PARENT
         )
-        Box(modifier = Modifier.fillMaxSize()) {
-            AndroidView(
-                factory = {
-                    previewView
+
+        AndroidView(
+            factory = {
+                previewView
+            }
+        )
+
+        CameraXExecutors.mainThreadExecutor().execute {
+            bindPreview(cameraProvider, this, previewView)
+        }
+    }
+
+    private fun bindPreview(
+        cameraProvider: ProcessCameraProvider,
+        lifecycleOwner: LifecycleOwner,
+        previewView: PreviewView,
+    ) {
+        val preview = Preview.Builder().build()
+        val cameraSelector = getCameraSelector()
+
+        preview.setSurfaceProvider(previewView.surfaceProvider)
+        val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        setUpFocusAndMetering(camera, previewView)
+    }
+
+    private fun getCameraSelector(): CameraSelector {
+        var cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+        val bundle: Bundle? = requireActivity().intent.extras
+        if (bundle != null) {
+            cameraSelector =
+                when (bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION, CAMERA_DIRECTION_BACK)) {
+                    CAMERA_DIRECTION_BACK -> CameraSelector.DEFAULT_BACK_CAMERA
+                    CAMERA_DIRECTION_FRONT -> CameraSelector.DEFAULT_FRONT_CAMERA
+                    else -> CameraSelector.DEFAULT_BACK_CAMERA
                 }
-            )
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.Bottom
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                    // Distribute buttons with spacing
-                ) {
-                    Button(
-                        onClick = ::onToggleEffect,
-                    ) {
-                        Text("Effect")
-                    }
-                    Button(onClick = ::onToggleCamera) {
-                        Text("Toggle")
-                    }
+        }
+        return cameraSelector
+    }
+
+    private fun setUpFocusAndMetering(camera: Camera, previewView: PreviewView) {
+        previewView.setOnTouchListener { _, motionEvent: MotionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> return@setOnTouchListener true
+                MotionEvent.ACTION_UP -> {
+                    val factory: MeteringPointFactory = previewView.meteringPointFactory
+                    val action = FocusMeteringAction.Builder(
+                        factory.createPoint(motionEvent.x, motionEvent.y)
+                    ).build()
+                    Futures.addCallback(
+                        camera.cameraControl.startFocusAndMetering(action),
+                        object : FutureCallback<FocusMeteringResult?> {
+                            override fun onSuccess(result: FocusMeteringResult?) {
+                                Log.d(TAG, "Focus and metering succeeded")
+                            }
+
+                            override fun onFailure(t: Throwable) {
+                                Log.e(TAG, "Focus and metering failed", t)
+                            }
+                        },
+                        ContextCompat.getMainExecutor(requireContext())
+                    )
+                    return@setOnTouchListener true
                 }
-                Spacer(modifier = Modifier.height(10.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceAround
-                ) {
-                    Button(onClick = ::onTakePicture) { Text("Capture") }
-                    Button(onClick = ::onRecord) { Text("Record") }
-                }
+                else -> return@setOnTouchListener false
             }
         }
     }

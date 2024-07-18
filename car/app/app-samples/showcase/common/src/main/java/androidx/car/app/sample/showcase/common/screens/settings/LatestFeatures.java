@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
@@ -74,9 +73,8 @@ public class LatestFeatures extends Screen implements DefaultLifecycleObserver {
         } else {
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.latest_feature_details))
-                    .setHeader(new Header.Builder().setTitle(getCarContext()
-                            .getString(R.string.latest_feature_title))
-                            .setStartHeaderAction(Action.BACK).build())
+                    .setTitle(getCarContext().getString(R.string.latest_feature_title))
+                    .setHeaderAction(Action.BACK)
                     .build();
         }
 

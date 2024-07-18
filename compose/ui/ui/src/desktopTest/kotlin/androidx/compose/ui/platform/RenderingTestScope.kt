@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import kotlin.coroutines.CoroutineContext
@@ -59,7 +59,7 @@ internal class RenderingTestScope(
 
     val surface: Surface = Surface.makeRasterN32Premul(width, height)
     private val canvas = surface.canvas.asComposeCanvas()
-    val scene = MultiLayerComposeScene(
+    val scene = CanvasLayersComposeScene(
         coroutineContext = coroutineContext,
         invalidate = frameDispatcher::scheduleFrame
     ).apply {

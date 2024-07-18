@@ -37,8 +37,6 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
     private CameraCaptureMetaData.AeState mAeState = CameraCaptureMetaData.AeState.UNKNOWN;
     private CameraCaptureMetaData.AwbState mAwbState = CameraCaptureMetaData.AwbState.UNKNOWN;
     private CameraCaptureMetaData.FlashState mFlashState = CameraCaptureMetaData.FlashState.UNKNOWN;
-    private CameraCaptureMetaData.AeMode mAeMode = CameraCaptureMetaData.AeMode.UNKNOWN;
-    private CameraCaptureMetaData.AwbMode mAwbMode = CameraCaptureMetaData.AwbMode.UNKNOWN;
     private long mTimestamp = -1L;
     private TagBundle mTag = TagBundle.emptyBundle();
 
@@ -60,14 +58,6 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
 
     public void setFlashState(@NonNull CameraCaptureMetaData.FlashState state) {
         mFlashState = state;
-    }
-
-    public void setAeMode(@NonNull CameraCaptureMetaData.AeMode mode) {
-        mAeMode = mode;
-    }
-
-    public void setAwbMode(@NonNull CameraCaptureMetaData.AwbMode mode) {
-        mAwbMode = mode;
     }
 
     public void setTimestamp(long timestamp) {
@@ -106,18 +96,6 @@ public final class FakeCameraCaptureResult implements CameraCaptureResult {
     @Override
     public CameraCaptureMetaData.FlashState getFlashState() {
         return mFlashState;
-    }
-
-    @NonNull
-    @Override
-    public CameraCaptureMetaData.AeMode getAeMode() {
-        return mAeMode;
-    }
-
-    @NonNull
-    @Override
-    public CameraCaptureMetaData.AwbMode getAwbMode() {
-        return mAwbMode;
     }
 
     @Override

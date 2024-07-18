@@ -19,20 +19,6 @@ package androidx.baselineprofile.gradle.utils
 enum class TestAgpVersion(val versionString: String?) {
     TEST_AGP_VERSION_8_0_0("8.0.0"),
     TEST_AGP_VERSION_8_1_0("8.1.0"),
-    TEST_AGP_VERSION_8_2_0("8.2.0"),
-    TEST_AGP_VERSION_8_3_1("8.3.1"),
-    TEST_AGP_VERSION_CURRENT(null);
-
-    fun isAtLeast(version: TestAgpVersion) = this in TestAgpVersion.atLeast(version)
-
-    fun isAtMost(version: TestAgpVersion) = this in TestAgpVersion.atMost(version)
-
-    companion object {
-        fun fromVersionString(versionString: String?) =
-            TestAgpVersion.values().first { it.versionString == versionString }
-
-        fun all() = values()
-        fun atLeast(version: TestAgpVersion) = values().filter { it.ordinal >= version.ordinal }
-        fun atMost(version: TestAgpVersion) = values().filter { it.ordinal <= version.ordinal }
-    }
+    TEST_AGP_VERSION_8_2_0("8.2.0-alpha04"),
+    TEST_AGP_VERSION_CURRENT(null)
 }

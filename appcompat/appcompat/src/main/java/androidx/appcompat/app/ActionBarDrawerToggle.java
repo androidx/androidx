@@ -21,12 +21,15 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.StringRes;
 import androidx.appcompat.graphics.drawable.DrawerArrowDrawable;
 import androidx.appcompat.widget.Toolbar;
@@ -513,6 +516,7 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
     private static class FrameworkActionBarDelegate implements Delegate {
         private final Activity mActivity;
+        private ActionBarDrawerToggleHoneycomb.SetIndicatorInfo mSetIndicatorInfo;
 
         FrameworkActionBarDelegate(Activity activity) {
             mActivity = activity;
@@ -520,12 +524,15 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
 
         @Override
         public Drawable getThemeUpIndicator() {
-            final TypedArray a = getActionBarThemedContext().obtainStyledAttributes(null,
-                    new int[]{android.R.attr.homeAsUpIndicator},
-                    android.R.attr.actionBarStyle, 0);
-            final Drawable result = a.getDrawable(0);
-            a.recycle();
-            return result;
+            if (Build.VERSION.SDK_INT >= 18) {
+                final TypedArray a = getActionBarThemedContext().obtainStyledAttributes(null,
+                        new int[] {android.R.attr.homeAsUpIndicator},
+                        android.R.attr.actionBarStyle, 0);
+                final Drawable result = a.getDrawable(0);
+                a.recycle();
+                return result;
+            }
+            return ActionBarDrawerToggleHoneycomb.getThemeUpIndicator(mActivity);
         }
 
         @Override
@@ -548,17 +555,47 @@ public class ActionBarDrawerToggle implements DrawerLayout.DrawerListener {
         public void setActionBarUpIndicator(Drawable themeImage, int contentDescRes) {
             final ActionBar actionBar = mActivity.getActionBar();
             if (actionBar != null) {
-                actionBar.setHomeAsUpIndicator(themeImage);
-                actionBar.setHomeActionContentDescription(contentDescRes);
+                if (Build.VERSION.SDK_INT >= 18) {
+                    Api18Impl.setHomeAsUpIndicator(actionBar, themeImage);
+                    Api18Impl.setHomeActionContentDescription(actionBar, contentDescRes);
+                } else {
+                    actionBar.setDisplayShowHomeEnabled(true);
+                    mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarUpIndicator(
+                            mActivity, themeImage, contentDescRes);
+                    actionBar.setDisplayShowHomeEnabled(false);
+                }
             }
         }
 
         @Override
         public void setActionBarDescription(int contentDescRes) {
-            final ActionBar actionBar = mActivity.getActionBar();
-            if (actionBar != null) {
-                actionBar.setHomeActionContentDescription(contentDescRes);
+            if (Build.VERSION.SDK_INT >= 18) {
+                final ActionBar actionBar = mActivity.getActionBar();
+                if (actionBar != null) {
+                    Api18Impl.setHomeActionContentDescription(actionBar, contentDescRes);
+                }
+            } else {
+                mSetIndicatorInfo = ActionBarDrawerToggleHoneycomb.setActionBarDescription(
+                        mSetIndicatorInfo, mActivity, contentDescRes);
             }
+        }
+
+        @RequiresApi(18)
+        static class Api18Impl {
+            private Api18Impl() {
+                // This class is not instantiable.
+            }
+
+            @DoNotInline
+            static void setHomeActionContentDescription(ActionBar actionBar, int resId) {
+                actionBar.setHomeActionContentDescription(resId);
+            }
+
+            @DoNotInline
+            static void setHomeAsUpIndicator(ActionBar actionBar, Drawable indicator) {
+                actionBar.setHomeAsUpIndicator(indicator);
+            }
+
         }
     }
 

@@ -16,11 +16,10 @@
 package androidx.health.platform.client.request
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.RequestProto
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+/** @suppress */
 class GetChangesRequest(override val proto: RequestProto.GetChangesRequest) :
     ProtoParcelable<RequestProto.GetChangesRequest>() {
 

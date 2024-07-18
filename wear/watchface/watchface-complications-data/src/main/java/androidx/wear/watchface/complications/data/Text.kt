@@ -612,13 +612,10 @@ public fun WireTimeDependentText.toApiComplicationText(): ComplicationText =
  * watch face's Renderer, it'll have been converted to a plain ComplicationText.
  *
  * @param dynamicValue The [DynamicString] which will be evaluated into a value dynamically.
- * @param fallbackValue Used when the system does not support [dynamicValue].
+ * @param fallbackValue Used when the system does not support dynamic values.
  *
- *   This is only relevant before [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], use the no-fallback
- *   constructor if you target an equal or higher API level.
- *
- *   IMPORTANT: This is only used when the system does not support [dynamicValue] _at all_. See
- *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the [dynamicValue]
+ *   IMPORTANT: This is only used when the system does not support dynamic values _at all_. See
+ *   [ComplicationData.dynamicValueInvalidationFallback] for the situation where the dynamic value
  *   cannot be evaluated, e.g. when a data source is not available.
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -626,13 +623,6 @@ public class DynamicComplicationText(
     public val dynamicValue: DynamicString,
     public val fallbackValue: CharSequence,
 ) : ComplicationText {
-    /**
-     * Creates a [DynamicComplicationText] with no [fallbackValue] for API levels that are known to
-     * support dynamic values.
-     */
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    public constructor(dynamicValue: DynamicString) : this(dynamicValue, "")
-
     private val delegate =
         DelegatingComplicationText(WireComplicationText(fallbackValue, dynamicValue))
 

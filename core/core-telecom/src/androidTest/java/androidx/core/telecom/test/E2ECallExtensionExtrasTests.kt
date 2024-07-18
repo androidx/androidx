@@ -27,10 +27,9 @@ import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.InCallServiceCompat
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
-import androidx.core.telecom.test.utils.MockInCallServiceDelegate
+import androidx.core.telecom.test.utils.MockInCallService
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.test.utils.TestUtils.waitOnInCallServiceToReachXCallCompats
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -60,7 +59,6 @@ import org.junit.runner.RunWith
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     companion object {
@@ -101,7 +99,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeIncoming_V2() {
-        setUpV2TestWithExtensions()
+        setUpV2Test()
         addAndVerifyCallExtensionTypeE2E(TestUtils.INCOMING_CALL_ATTRIBUTES)
     }
 
@@ -114,7 +112,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     @LargeTest
     @Test(timeout = 10000)
     fun testCapabilityExchangeOutgoing_V2() {
-        setUpV2TestWithExtensions()
+        setUpV2Test()
         addAndVerifyCallExtensionTypeE2E(TestUtils.OUTGOING_CALL_ATTRIBUTES)
     }
 
@@ -206,7 +204,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                     waitOnInCallServiceToReachXCallCompats(1)
                 }
                  assertEquals(InCallServiceCompat.CAPABILITY_EXCHANGE,
-                     MockInCallServiceDelegate.getServiceWithExtensions()?.mExtensionLevelSupport)
+                     MockInCallService.getService()?.mExtensionLevelSupport)
             }
         } else {
             val containsBackwardsCompatKey = callDetails.extras != null && callDetails.extras

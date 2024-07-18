@@ -16,18 +16,18 @@
 
 package androidx.camera.camera2.internal.compat.workaround;
 
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.Camera2CaptureCallbacks;
-import androidx.camera.camera2.internal.compat.quirk.CaptureNoResponseQuirk;
 import androidx.camera.camera2.internal.compat.quirk.CaptureSessionStuckQuirk;
 import androidx.camera.camera2.internal.compat.quirk.IncorrectCaptureStateQuirk;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -42,42 +42,32 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Monitors in-flight capture sequences on devices with specific quirks.
+ * Tracking in-flight capture sequences of a CameraCaptureSession if certain Quirks are enabled.
  *
- * <p>Quirks on Certain Devices:
- * <p>Some devices may fail to configure new CameraCaptureSessions
- * if existing in-flight capture sequences haven't completed. This class helps you work around
- * these issues.
- * <p>Single capture requests may not receive a response if they are submitted
- * simultaneously with repeating capture requests. Single capture requests fail to receive a
- * response approximately 10% of the time when submitted within milliseconds of a repeating
- * capture request.
+ * <p>If you try to open a new CameraCaptureSession before the existing CameraCaptureSession
+ * processes its in-flight capture sequences on certain devices, the new session may fail to be
+ * configured. To track the status of in-flight capture sequences, use the
+ * RequestMonitor#getRequestsProcessedFuture() method. This method returns a ListenableFuture that
+ * indicates when all in-flight capture sequences have been processed.
  *
- * <p>How it works: Use `RequestMonitor#getRequestsProcessedFuture()` to get a ListenableFuture.
- * This future signals when all in-flight capture sequences have been processed.
- *
- * @see CaptureNoResponseQuirk
  * @see CaptureSessionStuckQuirk
  * @see IncorrectCaptureStateQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class RequestMonitor {
-
-    private static final String TAG = "RequestMonitor";
     private final boolean mQuirkEnabled;
     private final List<ListenableFuture<Void>> mRequestTasks =
             Collections.synchronizedList(new ArrayList<>());
 
     /** Constructor of the RequestMonitor */
-    public RequestMonitor(boolean quirkEnabled) {
-        mQuirkEnabled = quirkEnabled;
+    public RequestMonitor(@NonNull Quirks cameraQuirks) {
+        mQuirkEnabled = cameraQuirks.contains(CaptureSessionStuckQuirk.class)
+                || cameraQuirks.contains(IncorrectCaptureStateQuirk.class);
     }
 
     /**
-     * Indicates whether capture sequence monitoring is enabled.
-     *
-     * <p>Returns true if a quirk is enabled that necessitates tracking in-flight capture requests.
-     * Returns false otherwise.
+     * Return true if the opening of the session should wait for the other CameraCaptureSessions
+     * to complete their in-flight capture sequences before opening the current session.
      */
     public boolean shouldMonitorRequest() {
         return mQuirkEnabled;
@@ -99,33 +89,28 @@ public class RequestMonitor {
                         input -> null, CameraXExecutors.directExecutor()));
     }
 
-    /**
-     * Creates a listener that monitors request completion for the `RequestMonitor`.
-     *
-     * <p>This listener should be assigned to the CameraCaptureSession via
-     * the `setSingleRepeatingRequest` or `captureBurstRequests` method to track when submitted
-     * requests are fully processed.
-     * The `RequestMonitor` can then use this information to ensure proper capture sequence
-     * handling.
-     *
-     * <p>Note: the created listener wraps the provided `originalListener`, ensuring any original
-     * capture callbacks still function as intended.
-     *
-     * @param originalListener The original CaptureCallback to combine with monitoring
-     *                         functionality.
-     * @return A new CaptureCallback that includes request completion tracking for the
-     * `RequestMonitor`.
-     */
+    /** Hook the setSingleRepeatingRequest() to know if it has started a repeating request. */
     @ExecutedBy("mExecutor")
-    @NonNull
-    public CameraCaptureSession.CaptureCallback createMonitorListener(
-            @NonNull CameraCaptureSession.CaptureCallback originalListener) {
+    public int setSingleRepeatingRequest(@NonNull CaptureRequest request,
+            @NonNull CameraCaptureSession.CaptureCallback listener,
+            @NonNull SingleRequest singleRequest) throws CameraAccessException {
         if (shouldMonitorRequest()) {
-            return Camera2CaptureCallbacks.createComboCallback(createMonitorListener(),
-                    originalListener);
-        } else {
-            return originalListener;
+            listener =
+                    Camera2CaptureCallbacks.createComboCallback(createMonitorListener(), listener);
         }
+        return singleRequest.run(request, listener);
+    }
+
+    /** Hook the captureBurstRequests() to know if it has started the requests. */
+    @ExecutedBy("mExecutor")
+    public int captureBurstRequests(@NonNull List<CaptureRequest> requests,
+            @NonNull CameraCaptureSession.CaptureCallback listener,
+            @NonNull MultiRequest multiRequest) throws CameraAccessException {
+        if (shouldMonitorRequest()) {
+            listener =
+                    Camera2CaptureCallbacks.createComboCallback(createMonitorListener(), listener);
+        }
+        return multiRequest.run(requests, listener);
     }
 
     private CameraCaptureSession.CaptureCallback createMonitorListener() {
@@ -133,11 +118,7 @@ public class RequestMonitor {
         ListenableFuture<Void> future = completeListener.mStartRequestFuture;
 
         mRequestTasks.add(future);
-        Log.d(TAG, "RequestListener " + completeListener + " monitoring " + this);
-        future.addListener(() -> {
-            Log.d(TAG, "RequestListener " + completeListener + " done " + this);
-            mRequestTasks.remove(future);
-        }, CameraXExecutors.directExecutor());
+        future.addListener(() -> mRequestTasks.remove(future), CameraXExecutors.directExecutor());
         return completeListener;
     }
 
@@ -199,5 +180,23 @@ public class RequestMonitor {
                 mStartRequestCompleter = null;
             }
         }
+    }
+
+    /** Interface to forward call of the setSingleRepeatingRequest() method. */
+    @FunctionalInterface
+    public interface SingleRequest {
+        /** Run the setSingleRepeatingRequest() method. */
+        int run(@NonNull CaptureRequest request,
+                @NonNull CameraCaptureSession.CaptureCallback listener)
+                throws CameraAccessException;
+    }
+
+    /** Interface to forward call of the captureBurstRequests() method. */
+    @FunctionalInterface
+    public interface MultiRequest {
+        /** Run the captureBurstRequests() method. */
+        int run(@NonNull List<CaptureRequest> requests,
+                @NonNull CameraCaptureSession.CaptureCallback listener)
+                throws CameraAccessException;
     }
 }

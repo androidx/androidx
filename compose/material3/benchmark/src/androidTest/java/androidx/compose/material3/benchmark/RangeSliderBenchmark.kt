@@ -39,8 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 
 class RangeSliderBenchmark {
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val sliderTestCaseFactory = { RangeSliderTestCase() }
 
@@ -51,9 +50,7 @@ class RangeSliderBenchmark {
 
     @Test
     fun moveThumb() {
-        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
-            caseFactory = sliderTestCaseFactory
-        )
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(caseFactory = sliderTestCaseFactory)
     }
 }
 
@@ -70,20 +67,18 @@ internal class RangeSliderTestCase : LayeredComposeTestCase(), ToggleableTestCas
             state = state,
             startThumb = {
                 Spacer(
-                    Modifier
-                        .size(48.dp)
+                    Modifier.size(48.dp)
                         .background(color = MaterialTheme.colorScheme.primary)
                         .clip(CircleShape)
                         .shadow(10.dp, CircleShape)
                 )
-            })
+            }
+        )
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 
     override fun toggleState() {

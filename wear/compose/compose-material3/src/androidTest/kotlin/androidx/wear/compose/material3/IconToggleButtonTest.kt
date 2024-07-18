@@ -414,7 +414,7 @@ class IconToggleButtonTest {
             status = Status.Enabled,
             checked = false,
             colors = { IconButtonDefaults.iconToggleButtonColors() },
-            containerColor = { MaterialTheme.colorScheme.surfaceContainer },
+            containerColor = { MaterialTheme.colorScheme.surface },
             contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
         )
 
@@ -425,12 +425,8 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = false,
             colors = { IconButtonDefaults.iconToggleButtonColors() },
-            containerColor = {
-                MaterialTheme.colorScheme.onSurface.toDisabledColor(
-                    DisabledContainerAlpha
-                )
-            },
-            contentColor = { MaterialTheme.colorScheme.onSurface.toDisabledColor() }
+            containerColor = { MaterialTheme.colorScheme.surface.toDisabledColor() },
+            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor() }
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -440,12 +436,8 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = true,
             colors = { IconButtonDefaults.iconToggleButtonColors() },
-            containerColor = {
-                MaterialTheme.colorScheme.onSurface.toDisabledColor(
-                    DisabledContainerAlpha
-                )
-            },
-            contentColor = { MaterialTheme.colorScheme.onSurface.toDisabledColor() },
+            containerColor = { MaterialTheme.colorScheme.primary.toDisabledColor() },
+            contentColor = { MaterialTheme.colorScheme.onPrimary.toDisabledColor() },
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -515,7 +507,7 @@ class IconToggleButtonTest {
                     uncheckedContentColor = overrideColor
                 )
             },
-            containerColor = { MaterialTheme.colorScheme.surfaceContainer },
+            containerColor = { MaterialTheme.colorScheme.surface },
             contentColor = { overrideColor }
         )
     }
@@ -535,7 +527,7 @@ class IconToggleButtonTest {
                 )
             },
             containerColor = { overrideColor },
-            contentColor = { MaterialTheme.colorScheme.onSurface.toDisabledColor() }
+            contentColor = { MaterialTheme.colorScheme.onPrimary.toDisabledColor() }
         )
     }
 
@@ -553,11 +545,7 @@ class IconToggleButtonTest {
                     disabledCheckedContentColor = overrideColor
                 )
             },
-            containerColor = {
-                MaterialTheme.colorScheme.onSurface.toDisabledColor(
-                    DisabledContainerAlpha
-                )
-            },
+            containerColor = { MaterialTheme.colorScheme.primary.toDisabledColor() },
             contentColor = { overrideColor }
         )
     }
@@ -577,7 +565,7 @@ class IconToggleButtonTest {
                 )
             },
             containerColor = { overrideColor },
-            contentColor = { MaterialTheme.colorScheme.onSurface.toDisabledColor() }
+            contentColor = { MaterialTheme.colorScheme.onSurfaceVariant.toDisabledColor() }
         )
     }
 
@@ -596,11 +584,7 @@ class IconToggleButtonTest {
                 )
             },
             contentColor = { overrideColor },
-            containerColor = {
-                MaterialTheme.colorScheme.onSurface.toDisabledColor(
-                    DisabledContainerAlpha
-                )
-            }
+            containerColor = { MaterialTheme.colorScheme.surface.toDisabledColor() }
         )
     }
 

@@ -38,7 +38,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
         const val proxyClassName = "SdkActivityLauncherProxy"
         const val converterClassName = "SdkActivityLauncherConverter"
         val iSdkActivityLauncher = ClassName(
-            "androidx.privacysandbox.activity.core",
+            "androidx.privacysandbox.ui.core",
             "ISdkActivityLauncher"
         )
     }
@@ -68,7 +68,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
 
     private fun launchSdkActivityFunSpec() = FunSpec.builder("launchSdkActivity").build {
         val transactionCallbackName = ClassName(
-            "androidx.privacysandbox.activity.core",
+            "androidx.privacysandbox.ui.core",
             "ISdkActivityLauncherCallback",
             "Stub"
         )
@@ -140,7 +140,7 @@ class SdkActivityLauncherProxyGenerator(private val basePackageName: String) {
                 addStatement(
                     "return launcher.%M()",
                     MemberName(
-                        "androidx.privacysandbox.activity.client",
+                        "androidx.privacysandbox.ui.client",
                         "toLauncherInfo"
                     )
                 )

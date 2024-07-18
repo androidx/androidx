@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Shape
 /**
  * Defines [Shape] for all TV [Interaction] states of Button.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class ButtonShape internal constructor(
     internal val shape: Shape,
@@ -67,6 +68,7 @@ class ButtonShape internal constructor(
 /**
  * Defines [Color]s for all TV [Interaction] states of Button.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class ButtonColors internal constructor(
     internal val containerColor: Color,
@@ -122,6 +124,7 @@ class ButtonColors internal constructor(
 /**
  * Defines [Color]s for all TV [Interaction] states of a WideButton
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class WideButtonContentColor internal constructor(
     internal val contentColor: Color,
@@ -162,6 +165,7 @@ class WideButtonContentColor internal constructor(
 /**
  * Defines the scale for all TV [Interaction] states of Button.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class ButtonScale internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
@@ -217,6 +221,7 @@ class ButtonScale internal constructor(
 /**
  * Defines [Border] for all TV [Interaction] states of Button.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class ButtonBorder internal constructor(
     internal val border: Border,
@@ -260,6 +265,7 @@ class ButtonBorder internal constructor(
 /**
  * Defines [Glow] for all TV [Interaction] states of Button.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class ButtonGlow internal constructor(
     internal val glow: Glow,
@@ -294,6 +300,7 @@ class ButtonGlow internal constructor(
 
 private val WideButtonContainerColor = Color.Transparent
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape = ClickableSurfaceShape(
     shape = shape,
     focusedShape = focusedShape,
@@ -302,6 +309,7 @@ internal fun ButtonShape.toClickableSurfaceShape(): ClickableSurfaceShape = Clic
     focusedDisabledShape = focusedDisabledShape
 )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ButtonColors.toClickableSurfaceColors(): ClickableSurfaceColors =
     ClickableSurfaceColors(
         containerColor = containerColor,
@@ -314,6 +322,7 @@ internal fun ButtonColors.toClickableSurfaceColors(): ClickableSurfaceColors =
         disabledContentColor = disabledContentColor
     )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun WideButtonContentColor.toClickableSurfaceColors(): ClickableSurfaceColors =
     ClickableSurfaceColors(
         containerColor = WideButtonContainerColor,
@@ -326,6 +335,7 @@ internal fun WideButtonContentColor.toClickableSurfaceColors(): ClickableSurface
         disabledContentColor = disabledContentColor
     )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ButtonScale.toClickableSurfaceScale() = ClickableSurfaceScale(
     scale = scale,
     focusedScale = focusedScale,
@@ -334,6 +344,7 @@ internal fun ButtonScale.toClickableSurfaceScale() = ClickableSurfaceScale(
     focusedDisabledScale = focusedDisabledScale
 )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ButtonBorder.toClickableSurfaceBorder() = ClickableSurfaceBorder(
     border = border,
     focusedBorder = focusedBorder,
@@ -342,6 +353,7 @@ internal fun ButtonBorder.toClickableSurfaceBorder() = ClickableSurfaceBorder(
     focusedDisabledBorder = focusedDisabledBorder
 )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun ButtonGlow.toClickableSurfaceGlow() = ClickableSurfaceGlow(
     glow = glow,
     focusedGlow = focusedGlow,

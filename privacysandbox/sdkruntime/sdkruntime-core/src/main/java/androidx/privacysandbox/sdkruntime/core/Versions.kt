@@ -18,22 +18,19 @@ package androidx.privacysandbox.sdkruntime.core
 
 import androidx.annotation.Keep
 import androidx.annotation.RestrictTo
-import androidx.privacysandbox.sdkruntime.core.internal.ClientApiVersion
 import org.jetbrains.annotations.TestOnly
 
 /**
  * Store internal API version (for Client-Core communication).
+ * Methods invoked via reflection.
  *
- * DO NOT CHANGE THIS CLASS.
- * Methods invoked via reflection from previously released versions of sdkruntime-client.
  */
 @Suppress("unused")
 @Keep
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Versions {
 
-    @JvmField
-    val API_VERSION = ClientApiVersion.CURRENT_VERSION.apiLevel
+    const val API_VERSION = 4
 
     @JvmField
     var CLIENT_VERSION: Int? = null

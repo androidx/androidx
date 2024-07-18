@@ -72,7 +72,7 @@ class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
                 element,
                 context.getLocation(element.getAttributeNodeNS(SdkConstants.ANDROID_URI, from)),
                 "Use `app:$to` instead of `android:$from`",
-                LintFix.create().name("Use app namespace instead of android").composite(
+                LintFix.create().composite(
                     LintFix.create().set(
                         SdkConstants.AUTO_URI, to,
                         element.getAttributeNS(SdkConstants.ANDROID_URI, from)

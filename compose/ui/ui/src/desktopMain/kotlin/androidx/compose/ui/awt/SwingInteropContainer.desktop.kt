@@ -110,7 +110,7 @@ internal class SwingInteropContainer(
         container.repaint()
     }
 
-    override fun removeInteropView(nativeView: InteropComponent) {
+    override fun unplaceInteropView(nativeView: InteropComponent) {
         val component = nativeView.container
         container.remove(component)
         interopComponents.remove(component)

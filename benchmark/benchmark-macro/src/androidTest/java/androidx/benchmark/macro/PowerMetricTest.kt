@@ -16,15 +16,15 @@
 
 package androidx.benchmark.macro
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.benchmark.macro.Metric.Measurement
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import androidx.test.filters.SdkSuppress
 import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 
-@SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalMetricApi::class)
 class PowerMetricTest {
     private val captureInfo = Metric.CaptureInfo(
@@ -34,6 +34,7 @@ class PowerMetricTest {
         StartupMode.COLD
     )
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTraceEnergyBreakdown() {
         assumeTrue(isAbiSupported())
@@ -43,7 +44,7 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
+            PowerMetric(PowerMetric.Energy(categories)).getResult(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -71,6 +72,7 @@ class PowerMetricTest {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTracePowerTotal() {
         assumeTrue(isAbiSupported())
@@ -80,7 +82,7 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.TOTAL }
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
+            PowerMetric(PowerMetric.Power(categories)).getResult(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -99,6 +101,7 @@ class PowerMetricTest {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTracePowerMix() {
         assumeTrue(isAbiSupported())
@@ -113,7 +116,7 @@ class PowerMetricTest {
         )
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Power(categories)).getMeasurements(captureInfo, this)
+            PowerMetric(PowerMetric.Power(categories)).getResult(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -131,6 +134,7 @@ class PowerMetricTest {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun emptyFixedTrace() {
         assumeTrue(isAbiSupported())
@@ -140,13 +144,13 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Energy(categories)).getMeasurements(captureInfo, this)
+            PowerMetric(PowerMetric.Energy(categories)).getResult(captureInfo, this)
         }
 
         assertEquals(emptyList(), actualMetrics)
     }
 
-    @SdkSuppress(minSdkVersion = 29)
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Test
     fun successfulFixedTraceBatteryDischarge() {
         assumeTrue(isAbiSupported())
@@ -154,7 +158,7 @@ class PowerMetricTest {
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
 
         val actualMetrics = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            PowerMetric(PowerMetric.Battery()).getMeasurements(captureInfo, this)
+            PowerMetric(PowerMetric.Battery()).getResult(captureInfo, this)
         }
 
         assertEqualMeasurements(
@@ -165,22 +169,6 @@ class PowerMetricTest {
             ),
             observed = actualMetrics,
             threshold = 0.1
-        )
-    }
-
-    @Test
-    fun deviceSupportsPowerEnergy() {
-        assertEquals(
-            PowerRail.hasMetrics(throwOnMissingMetrics = false),
-            PowerMetric.deviceSupportsHighPrecisionTracking()
-        )
-    }
-
-    @Test
-    fun deviceBatteryHasMinimumCharge() {
-        assertEquals(
-            BatteryCharge.hasMinimumCharge(throwOnMissingMetrics = false),
-            PowerMetric.deviceBatteryHasMinimumCharge()
         )
     }
 }

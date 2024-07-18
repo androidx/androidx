@@ -122,10 +122,7 @@ class CameraFragment : Fragment() {
         cameraProviderFuture.addListener(
             Runnable {
                 cameraProvider = cameraProviderFuture.get()
-                val lifecycleOwner = viewLifecycleOwnerLiveData.value
-                if (lifecycleOwner != null &&
-                    lifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED
-                ) {
+                if (viewLifecycleOwner.lifecycle.currentState != Lifecycle.State.DESTROYED) {
                     bindPreview()
                 } else {
                     Log.d(TAG, "Skip camera setup since the lifecycle is closed")

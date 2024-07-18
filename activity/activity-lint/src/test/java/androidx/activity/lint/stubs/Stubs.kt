@@ -17,7 +17,6 @@
 package androidx.activity.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
-import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 
 private val ACTIVITY_RESULT_CALLER = java(
     """
@@ -37,41 +36,8 @@ private val ACTIVITY_RESULT_CONTRACT = java(
 """
 )
 
-private val COMPONENT_ACTIVITY = kotlin(
-    """
-    package androidx.activity
-
-    class ComponentActivity {
-        open fun onBackPressed() { }
-    }
-"""
-)
-
-private val ON_BACK_PRESSED_CALLBACK = kotlin(
-    """
-    package androidx.activity
-
-    class OnBackPressedCallback {
-        open fun handleOnBackPressed() { }
-    }
-"""
-)
-
-private val ON_BACK_PRESSED_DISPATCHER = kotlin(
-    """
-    package androidx.activity
-
-    class OnBackPressedDispatcher {
-        open fun onBackPressed() { }
-    }
-"""
-)
-
 // stubs for testing calls to registerForActivityResult
 internal val STUBS = arrayOf(
     ACTIVITY_RESULT_CALLER,
-    ACTIVITY_RESULT_CONTRACT,
-    COMPONENT_ACTIVITY,
-    ON_BACK_PRESSED_CALLBACK,
-    ON_BACK_PRESSED_DISPATCHER
+    ACTIVITY_RESULT_CONTRACT
 )

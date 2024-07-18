@@ -21,7 +21,6 @@ import android.view.Surface
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -40,57 +39,44 @@ class GlContextDeviceTest {
     }
 
     private val glContext = GlContext()
-    private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     private lateinit var surface: Surface
     private lateinit var surfaceTexture: SurfaceTexture
 
     @Before
     fun setUp() {
-        instrumentation.runOnMainSync {
-            surfaceTexture = SurfaceTexture(0)
-            surface = Surface(surfaceTexture)
-            glContext.init()
-        }
+        surfaceTexture = SurfaceTexture(0)
+        surface = Surface(surfaceTexture)
+        glContext.init()
     }
 
     @After
     fun tearDown() {
-        instrumentation.runOnMainSync {
-            glContext.release()
-            surfaceTexture.release()
-            surface.release()
-        }
+        glContext.release()
+        surfaceTexture.release()
+        surface.release()
     }
 
     @Test(expected = IllegalStateException::class)
     fun drawUnregisteredSurface_throwsException() {
-        instrumentation.runOnMainSync {
-            glContext.drawAndSwap(surface, TIMESTAMP_NS)
-        }
+        glContext.drawAndSwap(surface, TIMESTAMP_NS)
     }
 
     @Test(expected = IllegalStateException::class)
     fun unregisterSurfaceAndDraw_throwsException() {
-        instrumentation.runOnMainSync {
-            glContext.registerSurface(surface)
-            glContext.unregisterSurface(surface)
-            glContext.drawAndSwap(surface, TIMESTAMP_NS)
-        }
+        glContext.registerSurface(surface)
+        glContext.unregisterSurface(surface)
+        glContext.drawAndSwap(surface, TIMESTAMP_NS)
     }
 
     @Test
     fun drawRegisteredSurface_noException() {
-        instrumentation.runOnMainSync {
-            glContext.registerSurface(surface)
-            glContext.drawAndSwap(surface, TIMESTAMP_NS)
-        }
+        glContext.registerSurface(surface)
+        glContext.drawAndSwap(surface, TIMESTAMP_NS)
     }
 
     @Test
     fun registerSurfaceWithoutDrawingOrReleasing_noException() {
-        instrumentation.runOnMainSync {
-            glContext.registerSurface(surface)
-        }
+        glContext.registerSurface(surface)
     }
 }

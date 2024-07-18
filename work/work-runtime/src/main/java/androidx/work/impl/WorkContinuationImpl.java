@@ -16,8 +16,6 @@
 
 package androidx.work.impl;
 
-import static androidx.work.OperationKt.launchOperation;
-
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -38,8 +36,6 @@ import androidx.work.impl.workers.CombineContinuationsWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import kotlin.Unit;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -48,6 +44,7 @@ import java.util.Set;
 
 /**
  * A concrete implementation of {@link WorkContinuation}.
+ *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkContinuationImpl extends WorkContinuation {
@@ -193,12 +190,9 @@ public class WorkContinuationImpl extends WorkContinuation {
         if (!mEnqueued) {
             // The runnable walks the hierarchy of the continuations
             // and marks them enqueued using the markEnqueued() method, parent first.
-            mOperation = launchOperation(
-                    mWorkManagerImpl.getWorkTaskExecutor().getSerialTaskExecutor(),
-                    () -> {
-                        EnqueueRunnable.enqueue(this);
-                        return Unit.INSTANCE;
-                    });
+            EnqueueRunnable runnable = new EnqueueRunnable(this);
+            mWorkManagerImpl.getWorkTaskExecutor().executeOnTaskThread(runnable);
+            mOperation = runnable.getOperation();
         } else {
             Logger.get().warning(TAG,
                     "Already enqueued work ids (" + TextUtils.join(", ", mIds) + ")");
@@ -228,6 +222,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     /**
      * @return {@code true} If there are cycles in the {@link WorkContinuationImpl}.
+
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public boolean hasCycles() {
@@ -278,6 +273,7 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     /**
      * @return the {@link Set} of pre-requisites for a given {@link WorkContinuationImpl}.
+     *
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

@@ -69,7 +69,6 @@ public final class ViewConfigurationCompat {
      * @deprecated Call {@link ViewConfiguration#getScaledPagingTouchSlop()} directly.
      * This method will be removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "config.getScaledPagingTouchSlop()")
     @Deprecated
     public static int getScaledPagingTouchSlop(ViewConfiguration config) {
         return config.getScaledPagingTouchSlop();
@@ -81,7 +80,6 @@ public final class ViewConfigurationCompat {
      *
      * @deprecated Use {@link ViewConfiguration#hasPermanentMenuKey()} directly.
      */
-    @androidx.annotation.ReplaceWith(expression = "config.hasPermanentMenuKey()")
     @Deprecated
     public static boolean hasPermanentMenuKey(ViewConfiguration config) {
         return config.hasPermanentMenuKey();

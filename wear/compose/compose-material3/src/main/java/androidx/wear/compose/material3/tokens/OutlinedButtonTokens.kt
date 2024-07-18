@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_33
+// VERSION: v0_11
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.dp
 
 internal object OutlinedButtonTokens {
     val ContainerBorderColor = ColorSchemeKeyTokens.Outline
-    val ContainerBorderWidth = 1.0.dp
     val ContainerHeight = 52.0.dp
     val ContainerShape = ShapeKeyTokens.CornerLarge
     val DisabledContainerBorderColor = ColorSchemeKeyTokens.OnSurface

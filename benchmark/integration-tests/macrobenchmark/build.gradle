@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -33,12 +26,6 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 23
-
-        // The package name is passed to the app as an instrumentation runner argument.
-        // Set default target package at runtime. This could also be set by baseline profile
-        // gradle plugin, but that's not used here.
-        testInstrumentationRunnerArguments["androidx.benchmark.targetPackageName"] =
-                "androidx.benchmark.integration.macrobenchmark.target"
     }
     sourceSets {
         main.assets.srcDirs += new File(
@@ -57,7 +44,7 @@ android.buildTypes { release {} }
 androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
 
 dependencies {
-    implementation(project(":benchmark:benchmark-common"))
+    implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
     implementation(project(":internal-testutils-macrobenchmark"))
     implementation(project(":tracing:tracing-ktx"))

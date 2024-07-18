@@ -28,6 +28,7 @@ import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase.assertEquals
@@ -47,6 +48,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 16)
 class WriteAheadLoggingKotlinTest {
     @get:Rule
     val countingTaskExecutorRule = CountingTaskExecutorRule()

@@ -31,6 +31,7 @@ internal fun Translations.bs() = mapOf(
     Strings.Dialog to "Dijaloški okvir",
     Strings.MenuExpanded to "Prošireno",
     Strings.MenuCollapsed to "Suženo",
+    Strings.ToggleDropdownMenu to "Uključivanje/isključivanje padajućeg menija",
     Strings.SnackbarDismiss to "Odbacivanje",
     Strings.SearchBarSearch to "Pretraživanje",
     Strings.SuggestionsAvailable to "Prijedlozi su u nastavku",

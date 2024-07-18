@@ -19,6 +19,7 @@ package androidx.profileinstaller.integration.profileverification
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
+import androidx.profileinstaller.ProfileVersion
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.After
@@ -39,7 +40,8 @@ import org.junit.Test
  * https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/base/+/3368431/
  */
 @SdkSuppress(
-    minSdkVersion = android.os.Build.VERSION_CODES.P
+    minSdkVersion = android.os.Build.VERSION_CODES.P,
+    maxSdkVersion = ProfileVersion.MAX_SUPPORTED_SDK
 )
 @LargeTest
 class ProfileVerificationTestWithProfileInstallerInitializer {

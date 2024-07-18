@@ -54,7 +54,10 @@ import java.util.Set;
 /**
  * Base class for testing with mocked car.
  */
-@Config(shadows = {ShadowCar.class})
+@Config(
+        manifest = Config.NONE,
+        shadows = {ShadowCar.class}
+)
 @DoNotInstrument
 public class MockedCarTestBase {
     public static final int MODEL_YEAR = 2021;

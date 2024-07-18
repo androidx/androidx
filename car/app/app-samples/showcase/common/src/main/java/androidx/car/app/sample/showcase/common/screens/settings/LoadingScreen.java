@@ -16,10 +16,10 @@
 
 package androidx.car.app.sample.showcase.common.screens.settings;
 
+import static androidx.car.app.model.Action.BACK;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
-import androidx.car.app.model.Action;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
@@ -38,7 +38,7 @@ public abstract class LoadingScreen {
         return new MessageTemplate.Builder(
                 carContext.getString(R.string.loading_screen))
                 .setLoading(true)
-                .setHeader(new Header.Builder().setStartHeaderAction(Action.BACK).build())
+                .setHeaderAction(BACK)
                 .build();
     }
 }

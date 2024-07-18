@@ -36,6 +36,7 @@ import androidx.emoji.text.EmojiCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import org.mockito.ArgumentCaptor;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class EmojiEditTextHelperTest {
     EmojiEditTextHelper mEmojiEditTextHelper;
     EditText mEditText;

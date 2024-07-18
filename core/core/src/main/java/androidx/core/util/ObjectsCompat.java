@@ -15,8 +15,12 @@
  */
 package androidx.core.util;
 
+import android.os.Build;
+
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -47,7 +51,11 @@ public class ObjectsCompat {
      */
     @SuppressWarnings("EqualsReplaceableByObjectsCall")
     public static boolean equals(@Nullable Object a, @Nullable Object b) {
-        return Objects.equals(a, b);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.equals(a, b);
+        } else {
+            return (a == b) || (a != null && a.equals(b));
+        }
     }
 
     /**
@@ -85,7 +93,11 @@ public class ObjectsCompat {
      * @see Arrays#hashCode(Object[])
      */
     public static int hash(@Nullable Object... values) {
-        return Objects.hash(values);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.hash(values);
+        } else {
+            return Arrays.hashCode(values);
+        }
     }
 
     /**
@@ -146,5 +158,22 @@ public class ObjectsCompat {
     public static <T> T requireNonNull(@Nullable T obj, @NonNull String message) {
         if (obj == null) throw new NullPointerException(message);
         return obj;
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean equals(Object a, Object b) {
+            return Objects.equals(a, b);
+        }
+
+        @DoNotInline
+        static int hash(Object... values) {
+            return Objects.hash(values);
+        }
     }
 }

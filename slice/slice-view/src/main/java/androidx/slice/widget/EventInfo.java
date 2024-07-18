@@ -17,6 +17,7 @@
 package androidx.slice.widget;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -29,6 +30,7 @@ import java.lang.annotation.RetentionPolicy;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@RequiresApi(19)
 @Deprecated
 public class EventInfo {
 

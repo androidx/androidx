@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -35,7 +28,7 @@ dependencies {
     api(libs.guavaListenableFuture)
     implementation("androidx.annotation:annotation:1.4.0")
     // @OptIn annotations
-    api("androidx.annotation:annotation-experimental:1.4.0")
+    api("androidx.annotation:annotation-experimental:1.3.0")
     implementation("androidx.core:core:1.9.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesGuava)

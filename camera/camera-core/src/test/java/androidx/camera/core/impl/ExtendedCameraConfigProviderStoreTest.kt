@@ -33,7 +33,7 @@ public class ExtendedCameraConfigProviderStoreTest {
     public fun canRetrieveStoredCameraConfigProvider() {
         val id = Object()
         val cameraConfigProvider =
-            CameraConfigProvider { _, _ -> CameraConfigs.defaultConfig() }
+            CameraConfigProvider { _, _ -> CameraConfigs.emptyConfig() }
 
         ExtendedCameraConfigProviderStore.addConfig(id, cameraConfigProvider)
 

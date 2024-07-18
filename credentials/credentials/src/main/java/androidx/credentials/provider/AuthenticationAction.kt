@@ -20,7 +20,6 @@ import android.app.PendingIntent
 import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
-import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -93,17 +92,7 @@ class AuthenticationAction constructor(
         }
     }
 
-    @RequiresApi(34)
-    private object Api34Impl {
-        @JvmStatic
-        fun fromAction(authenticationAction: android.service.credentials.Action):
-            AuthenticationAction? {
-            val slice = authenticationAction.slice
-            return fromSlice(slice)
-        }
-    }
-
-    companion object {
+    internal companion object {
         private const val TAG = "AuthenticationAction"
         private const val SLICE_SPEC_REVISION = 0
         private const val SLICE_SPEC_TYPE = "AuthenticationAction"
@@ -114,8 +103,8 @@ class AuthenticationAction constructor(
         private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.authenticationAction.SLICE_HINT_PENDING_INTENT"
 
-        @RequiresApi(28)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(28)
         @JvmStatic
         fun toSlice(authenticationAction: AuthenticationAction): Slice {
             val title = authenticationAction.title
@@ -145,9 +134,9 @@ class AuthenticationAction constructor(
          * constructing an instance of this class.
          *
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @RequiresApi(28)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun fromSlice(slice: Slice): AuthenticationAction? {
             var title: CharSequence? = null
@@ -166,27 +155,6 @@ class AuthenticationAction constructor(
                 Log.i(TAG, "fromSlice failed with: " + e.message)
                 null
             }
-        }
-
-        /**
-         * Converts a framework [android.service.credentials.Action] class to a Jetpack
-         * [AuthenticationAction] class
-         *
-         * Note that this API is not needed in a general credential retrieval flow that is
-         * implemented using this jetpack library, where you are only required to construct
-         * an instance of [AuthenticationAction] to populate the [BeginGetCredentialResponse],
-         * along with setting other entries.
-         *
-         * @param authenticationAction the instance of framework action class to be converted
-         */
-        @JvmStatic
-        @RequiresApi(34)
-        fun fromAction(authenticationAction: android.service.credentials.Action):
-            AuthenticationAction? {
-            if (Build.VERSION.SDK_INT >= 34) {
-                return Api34Impl.fromAction(authenticationAction)
-            }
-            return null
         }
     }
 }

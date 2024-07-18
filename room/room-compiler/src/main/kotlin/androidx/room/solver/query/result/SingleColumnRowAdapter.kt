@@ -24,9 +24,6 @@ import androidx.room.vo.ColumnIndexVar
  * Wraps a row adapter when there is only 1 item with 1 column in the response.
  */
 class SingleColumnRowAdapter(val reader: CursorValueReader) : RowAdapter(reader.typeMirror()) {
-
-    override fun isMigratedToDriver(): Boolean = true
-
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         reader.readFromCursor(outVarName, cursorVarName, "0", scope)
     }

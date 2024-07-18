@@ -308,6 +308,7 @@ public class TestUtils {
      * @param offsetX extra X offset for the tap
      * @param offsetY extra Y offset for the tap
      */
+    @RequiresApi(16)
     public static void emulateTapOnView(Instrumentation instrumentation,
             ActivityTestRule<?> activityTestRule, View anchorView,
             int offsetX, int offsetY) {
@@ -371,6 +372,7 @@ public class TestUtils {
      * @param runner the runnable to run on the main thread, or {@code null} to
      *               simply force invalidation and a draw pass
      */
+    @RequiresApi(16)
     public static void runOnMainAndDrawSync(@NonNull final ActivityTestRule activityTestRule,
             @NonNull final View view, @Nullable final Runnable runner) {
         final CountDownLatch latch = new CountDownLatch(1);

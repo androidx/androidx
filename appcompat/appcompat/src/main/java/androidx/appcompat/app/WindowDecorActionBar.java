@@ -907,7 +907,7 @@ public class WindowDecorActionBar extends ActionBar implements
     private boolean shouldAnimateContextView() {
         // We only to animate the action mode in if the container view has already been laid out.
         // If it hasn't been laid out, it hasn't been drawn to screen yet.
-        return mContainerView.isLaidOut();
+        return ViewCompat.isLaidOut(mContainerView);
     }
 
     @Override

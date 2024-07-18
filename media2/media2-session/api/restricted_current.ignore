@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedInterface: androidx.media2.session.LibraryResult:
+    Class androidx.media2.session.LibraryResult no longer implements androidx.media2.common.BaseResult
+RemovedInterface: androidx.media2.session.SessionResult:
+    Class androidx.media2.session.SessionResult no longer implements androidx.media2.common.BaseResult

@@ -153,7 +153,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
                             + "' and action '"
                             + mConnectionConfiguration.getBindAction()
                             + "'.");
-            handleNonRetriableDisconnection(new RemoteException("Binding to service failed"));
+            handleNonRetriableDisconnection(new IllegalStateException("Service not available"));
         }
     }
 
@@ -370,6 +370,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
                         + mConnectionConfiguration.getClientName()
                         + "', binder is null");
         // This connection will never be usable, don't bother with retries.
-        handleRetriableDisconnection(new RemoteException("Null binding"));
+        handleRetriableDisconnection(new IllegalStateException("Null binding"));
     }
 }

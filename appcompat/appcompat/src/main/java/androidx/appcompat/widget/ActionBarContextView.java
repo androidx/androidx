@@ -67,7 +67,7 @@ public class ActionBarContextView extends AbsActionBarView {
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.ActionMode, defStyle, 0);
-        setBackground(a.getDrawable(R.styleable.ActionMode_background));
+        ViewCompat.setBackground(this, a.getDrawable(R.styleable.ActionMode_background));
         mTitleStyleRes = a.getResourceId(
                 R.styleable.ActionMode_titleTextStyle, 0);
         mSubtitleStyleRes = a.getResourceId(
@@ -186,7 +186,7 @@ public class ActionBarContextView extends AbsActionBarView {
                 LayoutParams.MATCH_PARENT);
         menu.addMenuPresenter(mActionMenuPresenter, mPopupContext);
         mMenuView = (ActionMenuView) mActionMenuPresenter.getMenuView(this);
-        mMenuView.setBackground(null);
+        ViewCompat.setBackground(mMenuView, null);
         addView(mMenuView, layoutParams);
     }
 

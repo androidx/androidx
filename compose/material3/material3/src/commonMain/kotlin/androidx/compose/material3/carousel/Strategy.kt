@@ -31,19 +31,20 @@ import kotlin.math.roundToInt
  * scroll offset, layout direction, and snapping behaviors.
  *
  * @param defaultKeylines the keylines that define how items should be arranged in their default
- * state
- * @param startKeylineSteps a list of [KeylineList]s that move the focal range from its position
- * in [defaultKeylines] to the start of the carousel container, one keyline at a time per step
+ *   state
+ * @param startKeylineSteps a list of [KeylineList]s that move the focal range from its position in
+ *   [defaultKeylines] to the start of the carousel container, one keyline at a time per step
  * @param endKeylineSteps a list of [KeylineList]s that move the focal range from its position in
- * [defaultKeylines] to the end of the carousel container, one keyline at a time per step.
- * [endKeylineSteps] and whose value is the percentage of [endShiftDistance] that should be
- * scrolled when the end step is used.
+ *   [defaultKeylines] to the end of the carousel container, one keyline at a time per step.
+ *   [endKeylineSteps] and whose value is the percentage of [endShiftDistance] that should be
+ *   scrolled when the end step is used.
  * @param availableSpace the available space in the main axis
  * @param itemSpacing the spacing between each item
  * @param beforeContentPadding the padding preceding the first item in the list
  * @param afterContentPadding the padding proceeding the last item in the list
  */
-internal class Strategy private constructor(
+internal class Strategy
+private constructor(
     val defaultKeylines: KeylineList,
     val startKeylineSteps: List<KeylineList>,
     val endKeylineSteps: List<KeylineList>,
@@ -56,21 +57,20 @@ internal class Strategy private constructor(
     /**
      * Creates a new [Strategy] for a keyline list and set of carousel container parameters.
      *
-     * The [defaultKeylines] are a list of keylines that defines how items should be arranged,
-     * from left-to-right (or top-to-bottom), to achieve the carousel's desired appearance. For
-     * example, a start-aligned large item, followed by a medium and a small item for a
-     * multi-browse carousel. Or a small item, a center-aligned large item, and a small item for
-     * a centered hero carousel. This method will use the [defaultKeylines] to then derive new
-     * scroll and layout direction-aware [KeylineList]s to be used by carousel. For example, when
-     * a device is running in a right-to-left layout direction, Strategy will handle reversing
-     * the default [KeylineList]. Or if the default keylines use a center-aligned large item,
-     * Strategy will generate additional KeylineLists that handle shifting the large item to the
-     * start or end of the screen when the carousel is scrolled to the start or end of the list,
-     * letting all items become large without having them detach from the edges of the
-     * scroll container.
+     * The [defaultKeylines] are a list of keylines that defines how items should be arranged, from
+     * left-to-right (or top-to-bottom), to achieve the carousel's desired appearance. For example,
+     * a start-aligned large item, followed by a medium and a small item for a multi-browse
+     * carousel. Or a small item, a center-aligned large item, and a small item for a centered hero
+     * carousel. This method will use the [defaultKeylines] to then derive new scroll and layout
+     * direction-aware [KeylineList]s to be used by carousel. For example, when a device is running
+     * in a right-to-left layout direction, Strategy will handle reversing the default
+     * [KeylineList]. Or if the default keylines use a center-aligned large item, Strategy will
+     * generate additional KeylineLists that handle shifting the large item to the start or end of
+     * the screen when the carousel is scrolled to the start or end of the list, letting all items
+     * become large without having them detach from the edges of the scroll container.
      *
-     * @param defaultKeylines a default [KeylineList] that represents the arrangement
-     * of items in a left-to-right (or top-to-bottom) layout.
+     * @param defaultKeylines a default [KeylineList] that represents the arrangement of items in a
+     *   left-to-right (or top-to-bottom) layout.
      * @param availableSpace the size of the carousel container in scrolling axis
      * @param beforeContentPadding the padding to add before the list content
      * @param afterContentPadding the padding to add after the list content
@@ -83,18 +83,15 @@ internal class Strategy private constructor(
         afterContentPadding: Float
     ) : this(
         defaultKeylines = defaultKeylines,
-        startKeylineSteps = getStartKeylineSteps(
-            defaultKeylines,
-            availableSpace,
-            itemSpacing,
-            beforeContentPadding
-        ),
-        endKeylineSteps = getEndKeylineSteps(
-            defaultKeylines,
-            availableSpace,
-            itemSpacing,
-            afterContentPadding
-        ),
+        startKeylineSteps =
+            getStartKeylineSteps(
+                defaultKeylines,
+                availableSpace,
+                itemSpacing,
+                beforeContentPadding
+            ),
+        endKeylineSteps =
+            getEndKeylineSteps(defaultKeylines, availableSpace, itemSpacing, afterContentPadding),
         availableSpace = availableSpace,
         itemSpacing = itemSpacing,
         beforeContentPadding = beforeContentPadding,
@@ -106,25 +103,19 @@ internal class Strategy private constructor(
     /** The scroll distance needed to move through all steps in [endKeylineSteps]. */
     private val endShiftDistance = getEndShiftDistance(endKeylineSteps, afterContentPadding)
     /**
-     * A list of floats whose index aligns with a [KeylineList] from [startKeylineSteps] and
-     * whose value is the percentage of [startShiftDistance] that should be scrolled when the
-     * start step is used.
+     * A list of floats whose index aligns with a [KeylineList] from [startKeylineSteps] and whose
+     * value is the percentage of [startShiftDistance] that should be scrolled when the start step
+     * is used.
      */
-    private val startShiftPoints = getStepInterpolationPoints(
-        startShiftDistance,
-        startKeylineSteps,
-        true
-    )
+    private val startShiftPoints =
+        getStepInterpolationPoints(startShiftDistance, startKeylineSteps, true)
     /**
-     * A list of floats whose index aligns with a [KeylineList] from [endKeylineSteps] and
-     * whose value is the percentage of [endShiftDistance] that should be scrolled when the
-     * end step is used.
+     * A list of floats whose index aligns with a [KeylineList] from [endKeylineSteps] and whose
+     * value is the percentage of [endShiftDistance] that should be scrolled when the end step is
+     * used.
      */
-    private val endShiftPoints = getStepInterpolationPoints(
-        endShiftDistance,
-        endKeylineSteps,
-        false
-    )
+    private val endShiftPoints =
+        getStepInterpolationPoints(endShiftDistance, endKeylineSteps, false)
 
     /** The size of items when in focus and fully unmasked. */
     val itemMainAxisSize: Float
@@ -157,40 +148,39 @@ internal class Strategy private constructor(
             return defaultKeylines
         }
 
-        var interpolation = lerp(
-            outputMin = 1f,
-            outputMax = 0f,
-            inputMin = 0f,
-            inputMax = startShiftOffset,
-            value = positiveScrollOffset
-        )
+        var interpolation =
+            lerp(
+                outputMin = 1f,
+                outputMax = 0f,
+                inputMin = 0f,
+                inputMax = startShiftOffset,
+                value = positiveScrollOffset
+            )
         var shiftPoints = startShiftPoints
         var steps = startKeylineSteps
 
         if (positiveScrollOffset > endShiftOffset) {
-            interpolation = lerp(
-                outputMin = 0f,
-                outputMax = 1f,
-                inputMin = endShiftOffset,
-                inputMax = maxScrollOffset,
-                value = positiveScrollOffset
-            )
+            interpolation =
+                lerp(
+                    outputMin = 0f,
+                    outputMax = 1f,
+                    inputMin = endShiftOffset,
+                    inputMax = maxScrollOffset,
+                    value = positiveScrollOffset
+                )
             shiftPoints = endShiftPoints
             steps = endKeylineSteps
         }
 
-        val shiftPointRange = getShiftPointRange(
-            steps.size,
-            shiftPoints,
-            interpolation
-        )
+        val shiftPointRange = getShiftPointRange(steps.size, shiftPoints, interpolation)
 
         if (roundToNearestStep) {
-            val roundedStepIndex = if (shiftPointRange.steppedInterpolation.roundToInt() == 0) {
-                shiftPointRange.fromStepIndex
-            } else {
-                shiftPointRange.toStepIndex
-            }
+            val roundedStepIndex =
+                if (shiftPointRange.steppedInterpolation.roundToInt() == 0) {
+                    shiftPointRange.fromStepIndex
+                } else {
+                    shiftPointRange.toStepIndex
+                }
             return steps[roundedStepIndex]
         }
 
@@ -243,15 +233,16 @@ internal class Strategy private constructor(
     }
 
     companion object {
-        val Empty = Strategy(
-            defaultKeylines = emptyKeylineList(),
-            startKeylineSteps = emptyList(),
-            endKeylineSteps = emptyList(),
-            availableSpace = 0f,
-            itemSpacing = 0f,
-            beforeContentPadding = 0f,
-            afterContentPadding = 0f,
-        )
+        val Empty =
+            Strategy(
+                defaultKeylines = emptyKeylineList(),
+                startKeylineSteps = emptyList(),
+                endKeylineSteps = emptyList(),
+                availableSpace = 0f,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f,
+            )
     }
 }
 
@@ -263,36 +254,39 @@ private fun getStartShiftDistance(
     beforeContentPadding: Float
 ): Float {
     if (startKeylineSteps.isEmpty()) return 0f
-    return max(startKeylineSteps.last().first().unadjustedOffset -
-        startKeylineSteps.first().first().unadjustedOffset, beforeContentPadding)
+    return max(
+        startKeylineSteps.last().first().unadjustedOffset -
+            startKeylineSteps.first().first().unadjustedOffset,
+        beforeContentPadding
+    )
 }
-/**
- * Returns the total scroll offset needed to move through the entire list of [endKeylineSteps].
- */
+
+/** Returns the total scroll offset needed to move through the entire list of [endKeylineSteps]. */
 private fun getEndShiftDistance(
     endKeylineSteps: List<KeylineList>,
     afterContentPadding: Float
 ): Float {
     if (endKeylineSteps.isEmpty()) return 0f
-    return max(endKeylineSteps.first().last().unadjustedOffset -
-        endKeylineSteps.last().last().unadjustedOffset, afterContentPadding)
+    return max(
+        endKeylineSteps.first().last().unadjustedOffset -
+            endKeylineSteps.last().last().unadjustedOffset,
+        afterContentPadding
+    )
 }
 
 /**
- * Generates discreet steps which move the focal range from its original position until
- * it reaches the start of the carousel container.
+ * Generates discreet steps which move the focal range from its original position until it reaches
+ * the start of the carousel container.
  *
- * Each step can only move the focal range by one keyline at a time to ensure every
- * item in the list passes through the focal range. Each step removes the keyline at the
- * start of the container and re-inserts it after the focal range in an order that retains
- * visual balance. This is repeated until the first focal keyline is at the start of the
- * container. Re-inserting keylines after the focal range in a balanced way is done by
- * looking at the size of they keyline next to the keyline that is being re-positioned
- * and finding a match on the other side of the focal range.
+ * Each step can only move the focal range by one keyline at a time to ensure every item in the list
+ * passes through the focal range. Each step removes the keyline at the start of the container and
+ * re-inserts it after the focal range in an order that retains visual balance. This is repeated
+ * until the first focal keyline is at the start of the container. Re-inserting keylines after the
+ * focal range in a balanced way is done by looking at the size of they keyline next to the keyline
+ * that is being re-positioned and finding a match on the other side of the focal range.
  *
- * The first state in the returned list is always the default [KeylineList] while
- * the last state will be the start state or the state that has the focal range at the
- * beginning of the carousel.
+ * The first state in the returned list is always the default [KeylineList] while the last state
+ * will be the start state or the state that has the focal range at the beginning of the carousel.
  */
 private fun getStartKeylineSteps(
     defaultKeylines: KeylineList,
@@ -347,9 +341,7 @@ private fun getStartKeylineSteps(
         var dstIndex = defaultKeylines.lastIndex
         if (originalItemIndex > 0) {
             val originalNeighborBeforeSize = defaultKeylines[originalItemIndex - 1].size
-            dstIndex = prevStep.firstIndexAfterFocalRangeWithSize(
-                originalNeighborBeforeSize
-            ) - 1
+            dstIndex = prevStep.firstIndexAfterFocalRangeWithSize(originalNeighborBeforeSize) - 1
         }
 
         steps.add(
@@ -365,34 +357,33 @@ private fun getStartKeylineSteps(
     }
 
     if (beforeContentPadding != 0f) {
-        steps[steps.lastIndex] = createShiftedKeylineListForContentPadding(
-            steps.last(),
-            carouselMainAxisSize,
-            itemSpacing,
-            beforeContentPadding,
-            steps.last().firstFocal,
-            steps.last().firstFocalIndex
-        )
+        steps[steps.lastIndex] =
+            createShiftedKeylineListForContentPadding(
+                steps.last(),
+                carouselMainAxisSize,
+                itemSpacing,
+                beforeContentPadding,
+                steps.last().firstFocal,
+                steps.last().firstFocalIndex
+            )
     }
 
     return steps
 }
 
 /**
- * Generates discreet steps which move the focal range from its original position until
- * it reaches the end of the carousel container.
+ * Generates discreet steps which move the focal range from its original position until it reaches
+ * the end of the carousel container.
  *
- * Each step can only move the focal range by one keyline at a time to ensure every
- * item in the list passes through the focal range. Each step removes the keyline at the
- * end of the container and re-inserts it before the focal range in an order that retains
- * visual balance. This is repeated until the last focal keyline is at the start of the
- * container. Re-inserting keylines before the focal range in a balanced way is done by
- * looking at the size of they keyline next to the keyline that is being re-positioned
- * and finding a match on the other side of the focal range.
+ * Each step can only move the focal range by one keyline at a time to ensure every item in the list
+ * passes through the focal range. Each step removes the keyline at the end of the container and
+ * re-inserts it before the focal range in an order that retains visual balance. This is repeated
+ * until the last focal keyline is at the start of the container. Re-inserting keylines before the
+ * focal range in a balanced way is done by looking at the size of they keyline next to the keyline
+ * that is being re-positioned and finding a match on the other side of the focal range.
  *
- * The first state in the returned list is always the default [KeylineList] while
- * the last state will be the end state or the state that has the focal range at the
- * end of the carousel.
+ * The first state in the returned list is always the default [KeylineList] while the last state
+ * will be the end state or the state that has the focal range at the end of the carousel.
  */
 private fun getEndKeylineSteps(
     defaultKeylines: KeylineList,
@@ -406,14 +397,16 @@ private fun getEndKeylineSteps(
 
     if (defaultKeylines.isLastFocalItemAtEndOfContainer(carouselMainAxisSize)) {
         if (afterContentPadding != 0f) {
-            steps.add(createShiftedKeylineListForContentPadding(
-                defaultKeylines,
-                carouselMainAxisSize,
-                itemSpacing,
-                -afterContentPadding,
-                defaultKeylines.lastFocal,
-                defaultKeylines.lastFocalIndex
-            ))
+            steps.add(
+                createShiftedKeylineListForContentPadding(
+                    defaultKeylines,
+                    carouselMainAxisSize,
+                    itemSpacing,
+                    -afterContentPadding,
+                    defaultKeylines.lastFocal,
+                    defaultKeylines.lastFocalIndex
+                )
+            )
         }
         return steps
     }
@@ -445,39 +438,39 @@ private fun getEndKeylineSteps(
 
         if (originalItemIndex < defaultKeylines.lastIndex) {
             val originalNeighborAfterSize = defaultKeylines[originalItemIndex + 1].size
-            dstIndex = prevStep.lastIndexBeforeFocalRangeWithSize(
-                originalNeighborAfterSize
-            ) + 1
+            dstIndex = prevStep.lastIndexBeforeFocalRangeWithSize(originalNeighborAfterSize) + 1
         }
 
-        val keylines = moveKeylineAndCreateShiftedKeylineList(
-            from = prevStep,
-            srcIndex = defaultKeylines.lastNonAnchorIndex,
-            dstIndex = dstIndex,
-            carouselMainAxisSize = carouselMainAxisSize,
-            itemSpacing = itemSpacing
-        )
+        val keylines =
+            moveKeylineAndCreateShiftedKeylineList(
+                from = prevStep,
+                srcIndex = defaultKeylines.lastNonAnchorIndex,
+                dstIndex = dstIndex,
+                carouselMainAxisSize = carouselMainAxisSize,
+                itemSpacing = itemSpacing
+            )
         steps.add(keylines)
         i++
     }
 
     if (afterContentPadding != 0f) {
-        steps[steps.lastIndex] = createShiftedKeylineListForContentPadding(
-            steps.last(),
-            carouselMainAxisSize,
-            itemSpacing,
-            -afterContentPadding,
-            steps.last().lastFocal,
-            steps.last().lastFocalIndex
-        )
+        steps[steps.lastIndex] =
+            createShiftedKeylineListForContentPadding(
+                steps.last(),
+                carouselMainAxisSize,
+                itemSpacing,
+                -afterContentPadding,
+                steps.last().lastFocal,
+                steps.last().lastFocalIndex
+            )
     }
 
     return steps
 }
 
 /**
- * Returns a new [KeylineList] identical to [from] but with each keyline's offset shifted
- * by [contentPadding].
+ * Returns a new [KeylineList] identical to [from] but with each keyline's offset shifted by
+ * [contentPadding].
  */
 private fun createShiftedKeylineListForContentPadding(
     from: KeylineList,
@@ -491,30 +484,27 @@ private fun createShiftedKeylineListForContentPadding(
     val sizeReduction = contentPadding / numberOfNonAnchorKeylines
     // Let keylineListOf create a new keyline list with offsets adjusted for each item's
     // reduction in size
-    val newKeylines = keylineListOf(
-        carouselMainAxisSize = carouselMainAxisSize,
-        itemSpacing = itemSpacing,
-        pivotIndex = pivotIndex,
-        pivotOffset = pivot.offset - (sizeReduction / 2f) + contentPadding
-    ) {
-        from.fastForEach { k -> add(k.size - abs(sizeReduction), k.isAnchor) }
-    }
+    val newKeylines =
+        keylineListOf(
+            carouselMainAxisSize = carouselMainAxisSize,
+            itemSpacing = itemSpacing,
+            pivotIndex = pivotIndex,
+            pivotOffset = pivot.offset - (sizeReduction / 2f) + contentPadding
+        ) {
+            from.fastForEach { k -> add(k.size - abs(sizeReduction), k.isAnchor) }
+        }
 
     // Then reset each item's unadjusted offset back to their original value from the
     // incoming keyline list. This is necessary because Pager will still be laying out items
     // end-to-end with the original page size and not the new reduced size.
     return KeylineList(
-        newKeylines.fastMapIndexed { i, k ->
-            k.copy(
-                unadjustedOffset = from[i].unadjustedOffset
-            )
-        }
+        newKeylines.fastMapIndexed { i, k -> k.copy(unadjustedOffset = from[i].unadjustedOffset) }
     )
 }
 
 /**
- * Returns a new [KeylineList] where the keyline at [srcIndex] is moved to [dstIndex] and
- * with updated pivot and offsets that reflect any change in focal shift.
+ * Returns a new [KeylineList] where the keyline at [srcIndex] is moved to [dstIndex] and with
+ * updated pivot and offsets that reflect any change in focal shift.
  */
 private fun moveKeylineAndCreateShiftedKeylineList(
     from: KeylineList,
@@ -529,40 +519,35 @@ private fun moveKeylineAndCreateShiftedKeylineList(
     val newPivotIndex = from.pivotIndex + pivotDir
     val newPivotOffset = from.pivot.offset + pivotDelta
     return keylineListOf(carouselMainAxisSize, itemSpacing, newPivotIndex, newPivotOffset) {
-        from.toMutableList()
-            .move(srcIndex, dstIndex)
-            .fastForEach { k -> add(k.size, k.isAnchor) }
+        from.toMutableList().move(srcIndex, dstIndex).fastForEach { k -> add(k.size, k.isAnchor) }
     }
 }
 
 /**
- * Creates and returns a list of float values containing points between 0 and 1 that
- * represent interpolation values for when the [KeylineList] at the corresponding index in
- * [steps] should be visible.
+ * Creates and returns a list of float values containing points between 0 and 1 that represent
+ * interpolation values for when the [KeylineList] at the corresponding index in [steps] should be
+ * visible.
  *
- * For example, if [steps] has a size of 4, this method will return an array of 4 float
- * values that could look like [0, .33, .66, 1]. When interpolating through a list of
- * [KeylineList]s, an interpolation value will be between 0-1. This interpolation will be
- * used to find the range it falls within from this method's returned value. If
- * interpolation is .25, that would fall between the 0 and .33, the 0th and 1st indices
- * of the float array. Meaning the 0th and 1st items from [steps] should be the current
- * [KeylineList]s being interpolated. This is an example with equally distributed values
- * but these values will typically be unequally distributed since their size depends on
- * the distance keylines shift between each step.
+ * For example, if [steps] has a size of 4, this method will return an array of 4 float values that
+ * could look like [0, .33, .66, 1]. When interpolating through a list of [KeylineList]s, an
+ * interpolation value will be between 0-1. This interpolation will be used to find the range it
+ * falls within from this method's returned value. If interpolation is .25, that would fall between
+ * the 0 and .33, the 0th and 1st indices of the float array. Meaning the 0th and 1st items from
+ * [steps] should be the current [KeylineList]s being interpolated. This is an example with equally
+ * distributed values but these values will typically be unequally distributed since their size
+ * depends on the distance keylines shift between each step.
  *
- * @see [lerp] for more details on how interpolation points are used
- * @see [Strategy.getKeylineListForScrollOffset] for more details on how interpolation points
- * are used
- *
- * @param totalShiftDistance the total distance keylines will shift between the first and
- * last [KeylineList] of [steps]
+ * @param totalShiftDistance the total distance keylines will shift between the first and last
+ *   [KeylineList] of [steps]
  * @param steps the steps to find interpolation points for
- * @param isShiftingLeft true if this method should find interpolation points for shifting
- * keylines to the left/top of a carousel, false if this method should find interpolation
- * points for shifting keylines to the right/bottom of a carousel
- * @return a list of floats, equal in size to [steps] that contains points between 0-1
- * that align with when a [KeylineList] from [steps should be shown for a 0-1
- * interpolation value
+ * @param isShiftingLeft true if this method should find interpolation points for shifting keylines
+ *   to the left/top of a carousel, false if this method should find interpolation points for
+ *   shifting keylines to the right/bottom of a carousel
+ * @return a list of floats, equal in size to [steps] that contains points between 0-1 that align
+ *   with when a [KeylineList] from [steps should be shown for a 0-1 interpolation value
+ * @see [lerp] for more details on how interpolation points are used
+ * @see [Strategy.getKeylineListForScrollOffset] for more details on how interpolation points are
+ *   used
  */
 private fun getStepInterpolationPoints(
     totalShiftDistance: Float,
@@ -577,11 +562,12 @@ private fun getStepInterpolationPoints(
     (1 until steps.size).map { i ->
         val prevKeylines = steps[i - 1]
         val currKeylines = steps[i]
-        val distanceShifted = if (isShiftingLeft) {
-            currKeylines.first().unadjustedOffset - prevKeylines.first().unadjustedOffset
-        } else {
-            prevKeylines.last().unadjustedOffset - currKeylines.last().unadjustedOffset
-        }
+        val distanceShifted =
+            if (isShiftingLeft) {
+                currKeylines.first().unadjustedOffset - prevKeylines.first().unadjustedOffset
+            } else {
+                prevKeylines.last().unadjustedOffset - currKeylines.last().unadjustedOffset
+            }
         val stepPercentage = distanceShifted / totalShiftDistance
         val point = if (i == steps.lastIndex) 1f else points[i - 1] + stepPercentage
         points.add(point)
@@ -612,11 +598,7 @@ private fun getShiftPointRange(
         }
         lowerBounds = upperBounds
     }
-    return ShiftPointRange(
-        fromStepIndex = 0,
-        toStepIndex = 0,
-        steppedInterpolation = 0f
-    )
+    return ShiftPointRange(fromStepIndex = 0, toStepIndex = 0, steppedInterpolation = 0f)
 }
 
 private fun MutableList<Keyline>.move(srcIndex: Int, dstIndex: Int): MutableList<Keyline> {

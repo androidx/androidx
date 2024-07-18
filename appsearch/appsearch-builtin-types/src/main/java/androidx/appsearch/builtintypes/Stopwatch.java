@@ -17,11 +17,13 @@
 package androidx.appsearch.builtintypes;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.utils.BootCountUtil;
@@ -160,6 +162,7 @@ public class Stopwatch extends Thing {
      * in the {@link System#currentTimeMillis()} time base. Otherwise return
      * {@link #getBaseTimeMillis()}.
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateBaseTimeMillis(@NonNull Context context) {
         int currentBootCount = BootCountUtil.getCurrentBootCount(context);
         if (currentBootCount == -1 || currentBootCount != mBootCount) {
@@ -181,6 +184,7 @@ public class Stopwatch extends Thing {
      * {@link #getAccumulatedDurationMillis()} to get the static accumulated time stored in the
      * document.
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateCurrentAccumulatedDurationMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             return mAccumulatedDurationMillis;
@@ -272,6 +276,7 @@ public class Stopwatch extends Thing {
          * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          */
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
         public T setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
                 long baseTimeMillisInElapsedRealtime) {

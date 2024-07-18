@@ -19,5 +19,4 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"שגיאה בווידג\'ט של האפליקציה \'בקצרה\'"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"‏יש לבדוק את השגיאה המדויקת באמצעות "<b><tt>"adb Logcat‏"</tt></b>", ולחפש את "<b><tt>"GlanceAppWidget"</tt></b></string>
-    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"לא ניתן להציג את התוכן"</string>
 </resources>

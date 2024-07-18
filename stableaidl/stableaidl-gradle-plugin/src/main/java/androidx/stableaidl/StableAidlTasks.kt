@@ -116,7 +116,7 @@ fun registerCompileAidlApi(
     }
 
     // Register packaged output for use by AGP's AIDL in other projects.
-    variant.compileConfiguration.outgoing.variants { variants ->
+    project.configurations.findByName(targetConfig)?.outgoing?.variants { variants ->
         variants.allNamed(ARTIFACT_TYPE_AIDL) { variant ->
             variant.artifact(packagedDir) { artifact ->
                 artifact.type = ARTIFACT_TYPE_AIDL
@@ -133,7 +133,7 @@ fun registerCompileAidlApi(
 private fun DomainObjectCollection<ConfigurationVariant>.allNamed(
     name: String,
     action: Action<ConfigurationVariant>
-) = configureEach { variant ->
+) = all { variant ->
     if (variant.name == name) {
         action.execute(variant)
     }

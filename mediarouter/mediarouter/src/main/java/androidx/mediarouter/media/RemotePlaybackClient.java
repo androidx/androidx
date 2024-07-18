@@ -62,7 +62,6 @@ public class RemotePlaybackClient {
     /**
      * Creates a remote playback client for a route.
      *
-     * @param context The {@link Context}.
      * @param route The media route.
      */
     public RemotePlaybackClient(@NonNull Context context, @NonNull MediaRouter.RouteInfo route) {
@@ -702,10 +701,8 @@ public class RemotePlaybackClient {
                                     + ", itemId=" + itemIdResult
                                     + ", itemStatus=" + itemStatus);
                         }
-                        if (callback != null) {
-                            callback.onResult(data, sessionIdResult, sessionStatus,
-                                    itemIdResult, itemStatus);
-                        }
+                        callback.onResult(data, sessionIdResult, sessionStatus,
+                                itemIdResult, itemStatus);
                         return;
                     }
                 }
@@ -776,9 +773,7 @@ public class RemotePlaybackClient {
             Bundle data) {
         Log.w(TAG, "Received invalid result data from " + intent.getAction()
                 + ": data=" + bundleToString(data));
-        if (callback != null) {
-            callback.onError(null, MediaControlIntent.ERROR_UNKNOWN, data);
-        }
+        callback.onError(null, MediaControlIntent.ERROR_UNKNOWN, data);
     }
 
     void handleError(Intent intent, ActionCallback callback,
@@ -796,9 +791,7 @@ public class RemotePlaybackClient {
                     + ", code=" + code
                     + ", data=" + bundleToString(data));
         }
-        if (callback != null) {
-            callback.onError(error, code, data);
-        }
+        callback.onError(error, code, data);
     }
 
     private void detectFeatures() {

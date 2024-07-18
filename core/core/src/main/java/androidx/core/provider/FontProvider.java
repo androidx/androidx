@@ -238,7 +238,9 @@ class FontProvider {
         void close();
 
         static ContentQueryWrapper make(Context context, Uri uri) {
-            if (Build.VERSION.SDK_INT < 24) {
+            if (Build.VERSION.SDK_INT < 16) {
+                return new ContentQueryWrapperBaseImpl(context);
+            } else if (Build.VERSION.SDK_INT < 24) {
                 return new ContentQueryWrapperApi16Impl(context, uri);
             } else {
                 return new ContentQueryWrapperApi24Impl(context, uri);
@@ -246,6 +248,25 @@ class FontProvider {
         }
     }
 
+    private static class ContentQueryWrapperBaseImpl implements ContentQueryWrapper {
+        private ContentResolver mResolver;
+        ContentQueryWrapperBaseImpl(Context context) {
+            mResolver = context.getContentResolver();
+        }
+
+        @Override
+        public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+                String sortOrder, CancellationSignal cancellationSignal) {
+            return mResolver.query(uri, projection, selection, selectionArgs, sortOrder);
+        }
+
+        @Override
+        public void close() {
+            mResolver = null;
+        }
+    }
+
+    @RequiresApi(16)
     private static class ContentQueryWrapperApi16Impl implements ContentQueryWrapper {
         private final ContentProviderClient mClient;
         ContentQueryWrapperApi16Impl(Context context, Uri uri) {

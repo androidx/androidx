@@ -18,7 +18,6 @@ package androidx.health.services.client.data
 
 import androidx.health.services.client.data.ComparisonType.Companion.GREATER_THAN_OR_EQUAL
 import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
-import androidx.health.services.client.data.DataType.Companion.HEART_RATE_BPM
 import androidx.health.services.client.data.ExerciseGoal.Companion.createOneTimeGoal
 import androidx.health.services.client.data.ExerciseType.Companion.GOLF
 import androidx.health.services.client.data.ExerciseType.Companion.WALKING
@@ -40,15 +39,6 @@ internal class ExerciseUpdateTest {
     public fun protoRoundTrip() {
         val goal = createOneTimeGoal(
             DataTypeCondition(CALORIES_TOTAL, 125.0, GREATER_THAN_OR_EQUAL)
-        )
-        val debouncedGoal = DebouncedGoal.createSampleDebouncedGoal(
-            DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                HEART_RATE_BPM,
-                120.0,
-                GREATER_THAN_OR_EQUAL,
-                /* initialDelay= */ 60,
-                /* durationAtThreshold= */ 5
-            )
         )
         val proto = ExerciseUpdate(
             latestMetrics = DataPointContainer(
@@ -82,7 +72,6 @@ internal class ExerciseUpdateTest {
             updateDurationFromBoot = 42.duration(),
             startTime = 10.instant(),
             activeDurationLegacy = 60.duration(),
-            latestAchievedDebouncedGoals = setOf(debouncedGoal),
         ).proto
 
         val update = ExerciseUpdate(proto)
@@ -97,8 +86,6 @@ internal class ExerciseUpdateTest {
         assertThat(caloriesDataPoint.endDurationFromBoot).isEqualTo(35.duration())
         assertThat(update.latestAchievedGoals.first().dataTypeCondition.dataType)
             .isEqualTo(CALORIES_TOTAL)
-        assertThat(update.latestAchievedDebouncedGoals.first().debouncedDataTypeCondition.dataType)
-            .isEqualTo(HEART_RATE_BPM)
         assertThat(markerSummary.achievedGoal.dataTypeCondition.dataType).isEqualTo(CALORIES_TOTAL)
         assertThat(update.exerciseConfig!!.exerciseType).isEqualTo(GOLF)
         assertThat(

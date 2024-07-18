@@ -24,6 +24,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -38,6 +39,7 @@ import java.util.List;
  * Utilities for finding content within a Slice.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(19)
 @Deprecated
 public class SliceQuery {
 

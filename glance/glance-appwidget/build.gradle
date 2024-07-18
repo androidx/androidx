@@ -14,13 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
@@ -32,7 +26,18 @@ plugins {
     id("com.google.protobuf")
 }
 
+BundleInsideHelper.forInsideAar(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.glance.appwidget.protobuf",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
+)
+
 dependencies {
+    bundleInside(project(":glance:glance-appwidget-proto"))
+
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.compose.runtime:runtime:1.1.1")
@@ -45,7 +50,6 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(project(':core:core-remoteviews'))
-    implementation(project(":glance:glance-appwidget-proto"))
     implementation(libs.kotlinStdlib)
 
     testImplementation(libs.junit)
@@ -65,7 +69,6 @@ dependencies {
     testImplementation("androidx.datastore:datastore-preferences:1.0.0")
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
-    androidTestImplementation(project(":glance:glance-material3"))
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestImplementation("androidx.room:room-runtime:2.4.3")
     androidTestImplementation('androidx.core:core-ktx:1.7.0')
@@ -81,6 +84,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinReflect)
+
+    samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
 }
 
 android {
@@ -99,18 +104,18 @@ android {
     }
     namespace "androidx.glance.appwidget"
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 }
 
 androidx {
     name = "Glance For App Widgets"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
-    samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
+    targetsJavaConsumers = false
 }
 
 LayoutGeneratorTask.registerLayoutGenerator(

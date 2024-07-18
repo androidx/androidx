@@ -44,24 +44,18 @@ import java.security.cert.CertificateException;
  *
  * <p>On Android M (API 23) and above, this is class references a key that's stored in the
  * Android Keystore. On Android L (API 21, 22), there isn't a master key.
- * @deprecated Use {@link javax.crypto.KeyGenerator} with AndroidKeyStore instance instead.
  */
-@Deprecated
 public final class MasterKey {
     static final String KEYSTORE_PATH_URI = "android-keystore://";
 
     /**
      * The default master key alias.
-     * @deprecated Use {@link javax.crypto.KeyGenerator} with AndroidKeyStore instance instead.
      */
-    @Deprecated
     public static final String DEFAULT_MASTER_KEY_ALIAS = "_androidx_security_master_key_";
 
     /**
      * The default and recommended size for the master key.
-     * @deprecated Use {@link javax.crypto.KeyGenerator} with AndroidKeyStore instance instead.
      */
-    @Deprecated
     public static final int DEFAULT_AES_GCM_MASTER_KEY_SIZE = 256;
 
     private static final int DEFAULT_AUTHENTICATION_VALIDITY_DURATION_SECONDS = 5 * 60;
@@ -73,9 +67,7 @@ public final class MasterKey {
 
     /**
      * Algorithm/Cipher choices used for the master key.
-     * @deprecated Use {@link javax.crypto.KeyGenerator} with AndroidKeyStore instance instead.
      */
-    @Deprecated
     public enum KeyScheme {
         AES256_GCM
     }
@@ -174,9 +166,7 @@ public final class MasterKey {
 
     /**
      * Builder for generating a {@link MasterKey}.
-     * @deprecated Use {@link javax.crypto.KeyGenerator} with AndroidKeyStore instance instead.
      */
-    @Deprecated
     public static final class Builder {
         @NonNull
         final String mKeyAlias;

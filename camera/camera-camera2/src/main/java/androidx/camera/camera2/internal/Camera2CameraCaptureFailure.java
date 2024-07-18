@@ -33,8 +33,7 @@ public final class Camera2CameraCaptureFailure extends CameraCaptureFailure {
     }
 
     @NonNull
-    @Override
-    public Object getCaptureFailure() {
+    public CaptureFailure getCaptureFailure() {
         return mCaptureFailure;
     }
 }

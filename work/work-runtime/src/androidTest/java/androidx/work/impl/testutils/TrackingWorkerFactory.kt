@@ -46,7 +46,7 @@ class TrackingWorkerFactory : WorkerFactory() {
             appContext,
             workerClassName,
             workerParameters
-        ).also {
+        )!!.also {
             createdWorkers.value = createdWorkers.value + (it.id to it)
         }
     }

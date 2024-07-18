@@ -27,19 +27,16 @@ import androidx.camera.core.DynamicRange
 /**
  * Helper for accessing features in DynamicRangeProfiles in a backwards compatible fashion.
  */
+@RequiresApi(21)
 class DynamicRangeProfilesCompat internal constructor(
-    private val impl: DynamicRangeProfilesCompatImpl
+    private val mImpl: DynamicRangeProfilesCompatImpl
 ) {
-    /** The set of supported dynamic ranges. */
-    val supportedDynamicRanges: Set<DynamicRange>
-        get() = impl.supportedDynamicRanges
-
     /**
      * Returns a set of supported [DynamicRange] that can be referenced in a single
      * capture request.
      *
      * For example if a particular 10-bit output capable device returns (STANDARD,
-     * HLG10, HDR10) as result from calling [supportedDynamicRanges] and
+     * HLG10, HDR10) as result from calling [getSupportedDynamicRanges] and
      * [DynamicRangeProfiles.getProfileCaptureRequestConstraints]
      * returns (STANDARD, HLG10) when given an argument
      * of STANDARD. This means that the corresponding camera device will only accept and process
@@ -53,12 +50,21 @@ class DynamicRangeProfilesCompat internal constructor(
      * @param dynamicRange The dynamic range that will be checked for constraints
      * @return non-modifiable set of dynamic ranges
      * @throws IllegalArgumentException If the dynamic range argument is not within the set
-     * returned by [supportedDynamicRanges].
+     * returned by [getSupportedDynamicRanges].
      */
     fun getDynamicRangeCaptureRequestConstraints(
         dynamicRange: DynamicRange
     ): Set<DynamicRange> {
-        return impl.getDynamicRangeCaptureRequestConstraints(dynamicRange)
+        return mImpl.getDynamicRangeCaptureRequestConstraints(dynamicRange)
+    }
+
+    /**
+     * Returns a set of supported dynamic ranges.
+     *
+     * @return a non-modifiable set of dynamic ranges.
+     */
+    fun getSupportedDynamicRanges(): Set<DynamicRange> {
+        return mImpl.getSupportedDynamicRanges()
     }
 
     /**
@@ -74,10 +80,10 @@ class DynamicRangeProfilesCompat internal constructor(
      * @return `true` if the given profile is not suitable for latency sensitive use cases,
      * `false` otherwise.
      * @throws IllegalArgumentException If the dynamic range argument is not within the set
-     * returned by [supportedDynamicRanges].
+     * returned by [getSupportedDynamicRanges].
      */
     fun isExtraLatencyPresent(dynamicRange: DynamicRange): Boolean {
-        return impl.isExtraLatencyPresent(dynamicRange)
+        return mImpl.isExtraLatencyPresent(dynamicRange)
     }
 
     /**
@@ -93,14 +99,15 @@ class DynamicRangeProfilesCompat internal constructor(
             33, "DynamicRangesCompat can only be " +
                 "converted to DynamicRangeProfiles on API 33 or higher."
         )
-        return impl.unwrap()
+        return mImpl.unwrap()
     }
 
     internal interface DynamicRangeProfilesCompatImpl {
-        val supportedDynamicRanges: Set<DynamicRange>
         fun getDynamicRangeCaptureRequestConstraints(
             dynamicRange: DynamicRange
         ): Set<DynamicRange>
+
+        fun getSupportedDynamicRanges(): Set<DynamicRange>
 
         fun isExtraLatencyPresent(dynamicRange: DynamicRange): Boolean
         fun unwrap(): DynamicRangeProfiles?

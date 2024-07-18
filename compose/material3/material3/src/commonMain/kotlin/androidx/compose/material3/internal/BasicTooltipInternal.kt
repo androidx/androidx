@@ -41,30 +41,32 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * NOTICE:
- * Fork from androidx.compose.foundation.BasicTooltip box since those are experimental
+ * NOTICE: Fork from androidx.compose.foundation.BasicTooltip box since those are experimental
  *
  * BasicTooltipBox that wraps a composable with a tooltip.
  *
- * Tooltip that provides a descriptive message for an anchor.
- * It can be used to call the users attention to the anchor.
+ * Tooltip that provides a descriptive message for an anchor. It can be used to call the users
+ * attention to the anchor.
  *
- * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip
- * relative to the anchor content.
+ * @param positionProvider [PopupPositionProvider] that will be used to place the tooltip relative
+ *   to the anchor content.
  * @param tooltip the composable that will be used to populate the tooltip's content.
  * @param state handles the state of the tooltip's visibility.
  * @param modifier the [Modifier] to be applied to this BasicTooltipBox.
- * @param focusable [Boolean] that determines if the tooltip is focusable. When true,
- * the tooltip will consume touch events while it's shown and will have accessibility
- * focus move to the first element of the component. When false, the tooltip
- * won't consume touch events while it's shown but assistive-tech users will need
- * to swipe or drag to get to the first element of the component.
- * @param enableUserInput [Boolean] which determines if this BasicTooltipBox will handle
- * long press and mouse hover to trigger the tooltip through the state provided.
+ * @param focusable [Boolean] that determines if the tooltip is focusable. When true, the tooltip
+ *   will consume touch events while it's shown and will have accessibility focus move to the first
+ *   element of the component. When false, the tooltip won't consume touch events while it's shown
+ *   but assistive-tech users will need to swipe or drag to get to the first element of the
+ *   component.
+ * @param enableUserInput [Boolean] which determines if this BasicTooltipBox will handle long press
+ *   and mouse hover to trigger the tooltip through the state provided.
  * @param content the composable that the tooltip will anchor to.
  */
 @Composable
@@ -98,9 +100,7 @@ internal fun BasicTooltipBoxInternal(
         )
     }
 
-    DisposableEffect(state) {
-        onDispose { state.onDispose() }
-    }
+    DisposableEffect(state) { onDispose { state.onDispose() } }
 }
 
 @Composable
@@ -112,10 +112,14 @@ private fun WrappedAnchor(
 ) {
     val scope = rememberCoroutineScope()
     val longPressLabel = BasicTooltipStrings.label()
-    Box(modifier = modifier
-        .handleGestures(enableUserInput, state)
-        .anchorSemantics(longPressLabel, enableUserInput, state, scope)
-    ) { content() }
+    Box(
+        modifier =
+            modifier
+                .handleGestures(enableUserInput, state)
+                .anchorSemantics(longPressLabel, enableUserInput, state, scope)
+    ) {
+        content()
+    }
 }
 
 @Composable
@@ -138,47 +142,64 @@ private fun TooltipPopup(
         properties = PopupProperties(focusable = false),
     ) {
         Box(
-            modifier = Modifier.semantics {
-                liveRegion = LiveRegionMode.Assertive
-                paneTitle = tooltipDescription
-            }
-        ) { content() }
+            modifier =
+                Modifier.semantics {
+                    liveRegion = LiveRegionMode.Assertive
+                    paneTitle = tooltipDescription
+                }
+        ) {
+            content()
+        }
     }
 }
 
-private fun Modifier.handleGestures(
-    enabled: Boolean,
-    state: TooltipState
-): Modifier =
+private fun Modifier.handleGestures(enabled: Boolean, state: TooltipState): Modifier =
     if (enabled) {
         this.pointerInput(state) {
-            coroutineScope {
-                awaitEachGesture {
-                    val longPressTimeout = viewConfiguration.longPressTimeoutMillis
-                    val pass = PointerEventPass.Initial
+                coroutineScope {
+                    awaitEachGesture {
+                        // Long press will finish before or after show so keep track of it, in a
+                        // flow to handle both cases
+                        val isLongPressedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+                        val longPressTimeout = viewConfiguration.longPressTimeoutMillis
+                        val pass = PointerEventPass.Initial
 
-                    // wait for the first down press
-                    val inputType = awaitFirstDown(pass = pass).type
+                        // wait for the first down press
+                        val inputType = awaitFirstDown(pass = pass).type
 
-                    if (inputType == PointerType.Touch || inputType == PointerType.Stylus) {
-                        try {
-                            // listen to if there is up gesture
-                            // within the longPressTimeout limit
-                            withTimeout(longPressTimeout) {
-                                waitForUpOrCancellation(pass = pass)
+                        if (inputType == PointerType.Touch || inputType == PointerType.Stylus) {
+                            try {
+                                // listen to if there is up gesture
+                                // within the longPressTimeout limit
+                                withTimeout(longPressTimeout) {
+                                    waitForUpOrCancellation(pass = pass)
+                                }
+                            } catch (_: PointerEventTimeoutCancellationException) {
+                                // handle long press - Show the tooltip
+                                launch(start = CoroutineStart.UNDISPATCHED) {
+                                    try {
+                                        isLongPressedFlow.tryEmit(true)
+                                        state.show(MutatePriority.PreventUserInput)
+                                    } finally {
+                                        isLongPressedFlow.collectLatest { isLongPressed ->
+                                            if (!isLongPressed) {
+                                                state.dismiss()
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // consume the children's click handling
+                                // Long press may still be in progress
+                                val upEvent = waitForUpOrCancellation(pass = pass)
+                                upEvent?.consume()
+                            } finally {
+                                isLongPressedFlow.tryEmit(false)
                             }
-                        } catch (_: PointerEventTimeoutCancellationException) {
-                            // handle long press - Show the tooltip
-                            launch { state.show(MutatePriority.UserInput) }
-
-                            // consume the children's click handling
-                            val changes = awaitPointerEvent(pass = pass).changes
-                            for (i in 0 until changes.size) { changes[i].consume() }
                         }
                     }
                 }
             }
-        }
             .pointerInput(state) {
                 coroutineScope {
                     awaitPointerEventScope {
@@ -192,7 +213,6 @@ private fun Modifier.handleGestures(
                                     PointerEventType.Enter -> {
                                         launch { state.show(MutatePriority.UserInput) }
                                     }
-
                                     PointerEventType.Exit -> {
                                         state.dismiss()
                                     }

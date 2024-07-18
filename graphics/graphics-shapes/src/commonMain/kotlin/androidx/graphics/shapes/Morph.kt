@@ -16,7 +16,6 @@
 
 package androidx.graphics.shapes
 
-import kotlin.math.max
 import kotlin.math.min
 
 /**
@@ -36,8 +35,8 @@ import kotlin.math.min
  * curve placement within the shapes is very different.
  */
 class Morph(
-    private val start: RoundedPolygon,
-    private val end: RoundedPolygon
+    start: RoundedPolygon,
+    end: RoundedPolygon
 ) {
     /**
      * The structure which holds the actual shape being morphed. It contains
@@ -49,60 +48,6 @@ class Morph(
         get() = _morphMatch
 
     private val _morphMatch: List<Pair<Cubic, Cubic>> = match(start, end)
-
-    /**
-     * Calculates the axis-aligned bounds of the object.
-     * @param approximate when true, uses a faster calculation to create the bounding
-     * box based on the min/max values of all anchor and control points that make up the shape.
-     * Default value is true.
-     * @param bounds a buffer to hold the results. If not supplied, a temporary buffer will be
-     * created.
-     * @return The axis-aligned bounding box for this object, where the rectangles left,
-     * top, right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
-     */
-    @JvmOverloads
-    fun calculateBounds(
-        bounds: FloatArray = FloatArray(4),
-        approximate: Boolean = true
-    ): FloatArray {
-        start.calculateBounds(bounds, approximate)
-        val minX = bounds[0]
-        val minY = bounds[1]
-        val maxX = bounds[2]
-        val maxY = bounds[3]
-        end.calculateBounds(bounds, approximate)
-        bounds[0] = min(minX, bounds[0])
-        bounds[1] = min(minY, bounds[1])
-        bounds[2] = max(maxX, bounds[2])
-        bounds[3] = max(maxY, bounds[3])
-        return bounds
-    }
-
-    /**
-     * Like [calculateBounds], this function calculates the axis-aligned bounds of the
-     * object and returns that rectangle. But this function determines the max dimension of
-     * the shape (by calculating the distance from its center to the start and midpoint of
-     * each curve) and returns a square which can be used to hold the object in any rotation.
-     * This function can be used, for example, to calculate the max size of a UI element meant
-     * to hold this shape in any rotation.
-     * @param bounds a buffer to hold the results. If not supplied, a temporary buffer will be
-     * created.
-     * @return The axis-aligned max bounding box for this object, where the rectangles left,
-     * top, right, and bottom values will be stored in entries 0, 1, 2, and 3, in that order.
-     */
-    fun calculateMaxBounds(bounds: FloatArray = FloatArray(4)): FloatArray {
-        start.calculateMaxBounds(bounds)
-        val minX = bounds[0]
-        val minY = bounds[1]
-        val maxX = bounds[2]
-        val maxY = bounds[3]
-        end.calculateMaxBounds(bounds)
-        bounds[0] = min(minX, bounds[0])
-        bounds[1] = min(minY, bounds[1])
-        bounds[2] = max(maxX, bounds[2])
-        bounds[3] = max(maxY, bounds[3])
-        return bounds
-    }
 
     /**
      * Returns a representation of the morph object at a given [progress] value as a list of Cubics.
@@ -119,26 +64,15 @@ class Morph(
      */
     fun asCubics(progress: Float): List<Cubic> {
         return buildList {
-            // The first/last mechanism here ensures that the final anchor point in the shape
-            // exactly matches the first anchor point. There can be rendering artifacts introduced
-            // by those points being slightly off, even by much less than a pixel
-            var firstCubic: Cubic? = null
-            var lastCubic: Cubic? = null
             for (i in _morphMatch.indices) {
-                val cubic = Cubic(FloatArray(8) {
+                Cubic(FloatArray(8) {
                     interpolate(
                         _morphMatch[i].first.points[it],
                         _morphMatch[i].second.points[it],
                         progress
                     )
                 })
-                if (firstCubic == null) firstCubic = cubic
-                if (lastCubic != null) add(lastCubic)
-                lastCubic = cubic
             }
-            if (lastCubic != null && firstCubic != null) add(Cubic(
-                lastCubic.anchor0X, lastCubic.anchor0Y, lastCubic.control0X, lastCubic.control0Y,
-                lastCubic.control1X, lastCubic.control1Y, firstCubic.anchor0X, firstCubic.anchor0Y))
         }
     }
 

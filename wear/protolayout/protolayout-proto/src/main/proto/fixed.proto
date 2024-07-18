@@ -21,8 +21,7 @@ message FixedString {
 
 // A fixed float type.
 message FixedFloat {
-  // The value. Note that a NAN value is considered invalid and any expression
-  // with this node will have an invalid value.
+  // The value.
   float value = 1;
 }
 

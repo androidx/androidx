@@ -38,6 +38,7 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresOptIn;
 import androidx.collection.ArraySet;
 import androidx.collection.LongSparseArray;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -183,10 +184,10 @@ public abstract class FragmentStateAdapter extends
         mItemIdToViewHolder.put(itemId, viewHolderId); // this might overwrite an existing entry
         ensureFragment(position);
 
-        /* Special case when {@link RecyclerView} decides to keep the {@link container}
+        /** Special case when {@link RecyclerView} decides to keep the {@link container}
          * attached to the window, resulting in no {@link `onViewAttachedToWindow} callback later */
         final FrameLayout container = holder.getContainer();
-        if (container.isAttachedToWindow()) {
+        if (ViewCompat.isAttachedToWindow(container)) {
             placeFragmentInViewHolder(holder);
         }
 
@@ -356,7 +357,7 @@ public abstract class FragmentStateAdapter extends
                         return;
                     }
                     source.getLifecycle().removeObserver(this);
-                    if (holder.getContainer().isAttachedToWindow()) {
+                    if (ViewCompat.isAttachedToWindow(holder.getContainer())) {
                         placeFragmentInViewHolder(holder);
                     }
                 }
@@ -520,10 +521,10 @@ public abstract class FragmentStateAdapter extends
 
     @Override
     public final @NonNull Parcelable saveState() {
-        /* TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
+        /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
         Bundle savedState = new Bundle(mFragments.size() + mSavedStates.size());
 
-        /* save references to active fragments */
+        /** save references to active fragments */
         for (int ix = 0; ix < mFragments.size(); ix++) {
             long itemId = mFragments.keyAt(ix);
             Fragment fragment = mFragments.get(itemId);
@@ -533,7 +534,7 @@ public abstract class FragmentStateAdapter extends
             }
         }
 
-        /* Write {@link mSavedStates) into a {@link Parcelable} */
+        /** Write {@link mSavedStates) into a {@link Parcelable} */
         for (int ix = 0; ix < mSavedStates.size(); ix++) {
             long itemId = mSavedStates.keyAt(ix);
             if (containsItem(itemId)) {
@@ -555,7 +556,7 @@ public abstract class FragmentStateAdapter extends
 
         Bundle bundle = (Bundle) savedState;
         if (bundle.getClassLoader() == null) {
-            /* TODO(b/133752041): pass the class loader from {@link ViewPager2.SavedState } */
+            /** TODO(b/133752041): pass the class loader from {@link ViewPager2.SavedState } */
             bundle.setClassLoader(getClass().getClassLoader());
         }
 
@@ -686,7 +687,7 @@ public abstract class FragmentStateAdapter extends
 
         void updateFragmentMaxLifecycle(boolean dataSetChanged) {
             if (shouldDelayFragmentTransactions()) {
-                return; /* recovery step via {@link #mLifecycleObserver} */
+                return; /** recovery step via {@link #mLifecycleObserver} */
             }
 
             if (mViewPager.getScrollState() != ViewPager2.SCROLL_STATE_IDLE) {
@@ -699,7 +700,7 @@ public abstract class FragmentStateAdapter extends
 
             final int currentItem = mViewPager.getCurrentItem();
             if (currentItem >= getItemCount()) {
-                /* current item is yet to be updated; it is guaranteed to change, so we will be
+                /** current item is yet to be updated; it is guaranteed to change, so we will be
                  * notified via {@link ViewPager2.OnPageChangeCallback#onPageSelected(int)}  */
                 return;
             }

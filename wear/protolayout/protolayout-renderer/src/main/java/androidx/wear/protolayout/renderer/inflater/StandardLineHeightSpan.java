@@ -48,4 +48,8 @@ class StandardLineHeightSpan implements LineHeightSpan {
         fm.descent = Math.round(fm.descent * ratio);
         fm.ascent = fm.descent - mLineHeightPx;
     }
+
+    public int getLineHeight() {
+        return mLineHeightPx;
+    }
 }

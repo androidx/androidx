@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.LibraryType
 
 plugins {
@@ -56,6 +50,14 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.protobuf)
 
+    // I'm not 100% sure why, but androidTestImplementation doesn't appear to use the standard
+    // results of a project build. This leads to it not using the shadow configuration from
+    // tiles-proto, and thus failing to find the protobuf classes at runtime.
+    //
+    // This line forces the androidTest to use the properly shaded proto library on the runtime
+    // classpath.
+    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testCore)
@@ -73,7 +75,7 @@ android {
         minSdkVersion 26
     }
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 
@@ -81,7 +83,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
 
     sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-renderer"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/wear/wear-tiles-renderer"
     }
     namespace "androidx.wear.tiles.renderer"
 }
@@ -102,6 +104,7 @@ protobuf {
 androidx {
     name = "Android Wear Tiles Renderer"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."

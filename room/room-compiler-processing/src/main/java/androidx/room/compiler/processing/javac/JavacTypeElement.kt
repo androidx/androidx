@@ -158,10 +158,6 @@ internal sealed class JavacTypeElement(
         return kotlinMetadata?.isInterface() ?: (element.kind == ElementKind.INTERFACE)
     }
 
-    override fun isRecordClass(): Boolean {
-        return element.kind == ElementKind.RECORD
-    }
-
     override fun findPrimaryConstructor(): JavacConstructorElement? {
         val primarySignature = kotlinMetadata?.primaryConstructorSignature ?: return null
         return getConstructors().firstOrNull {

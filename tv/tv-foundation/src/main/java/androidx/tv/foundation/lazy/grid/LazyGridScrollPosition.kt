@@ -27,6 +27,7 @@ import androidx.tv.foundation.lazy.layout.LazyLayoutNearestRangeState
  * Contains the current scroll position represented by the first visible item index and the first
  * visible item scroll offset.
  */
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridScrollPosition(
     initialIndex: Int = 0,

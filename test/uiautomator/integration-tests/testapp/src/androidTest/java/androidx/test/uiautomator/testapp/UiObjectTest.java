@@ -31,27 +31,7 @@ import androidx.test.uiautomator.UiSelector;
 import org.junit.Test;
 
 public class UiObjectTest extends BaseTest {
-
-    // Convenience method to create a selector from a resource ID.
-    private static UiSelector resourceId(String id) {
-        return new UiSelector().resourceId(TEST_APP + ":id/" + id);
-    }
-
-    // Supplier that can throw exceptions.
-    private interface ThrowingSupplier<T> {
-        T getOrThrow() throws Exception;
-    }
-
-    // Asserts that a supplier returns true within the default timeout.
-    private void awaitTrue(String message, ThrowingSupplier<Boolean> supplier) {
-        assertTrue(message, mDevice.wait(d -> {
-            try {
-                return supplier.getOrThrow();
-            } catch (Exception e) {
-                return false;
-            }
-        }, TIMEOUT_MS));
-    }
+    private static final int TIMEOUT_MS = 10_000;
 
     @Test
     public void testGetChild() throws Exception {
@@ -254,57 +234,60 @@ public class UiObjectTest extends BaseTest {
     public void testClickTopLeft() throws Exception {
         launchTestActivity(ClickOnPositionTestActivity.class);
 
-        UiObject clickRegion = mDevice.findObject(resourceId("click_region"));
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
 
         assertEquals("click_region", clickRegion.getText());
         assertTrue(clickRegion.clickTopLeft());
-        awaitTrue("Click not detected", () -> "top_left_clicked".equals(clickRegion.getText()));
+        assertEquals("top_left_clicked", clickRegion.getText());
     }
 
     @Test
     public void testLongClickBottomRight() throws Exception {
         launchTestActivity(ClickOnPositionTestActivity.class);
 
-        UiObject clickRegion = mDevice.findObject(resourceId("click_region"));
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
 
         assertEquals("click_region", clickRegion.getText());
         assertTrue(clickRegion.longClickBottomRight());
-        awaitTrue("Click not detected",
-                () -> "bottom_right_long_clicked".equals(clickRegion.getText()));
+        assertEquals("bottom_right_long_clicked", clickRegion.getText());
     }
 
     @Test
     public void testClickBottomRight() throws Exception {
         launchTestActivity(ClickOnPositionTestActivity.class);
 
-        UiObject clickRegion = mDevice.findObject(resourceId("click_region"));
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
 
         assertEquals("click_region", clickRegion.getText());
         assertTrue(clickRegion.clickBottomRight());
-        awaitTrue("Click not detected", () -> "bottom_right_clicked".equals(clickRegion.getText()));
+        assertEquals("bottom_right_clicked", clickRegion.getText());
     }
 
     @Test
     public void testLongClick() throws Exception {
         launchTestActivity(ClickOnPositionTestActivity.class);
 
-        UiObject clickRegion = mDevice.findObject(resourceId("click_region"));
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
 
         assertEquals("click_region", clickRegion.getText());
         assertTrue(clickRegion.longClick());
-        awaitTrue("Click not detected", () -> clickRegion.getText().contains("_long_clicked"));
+        assertTrue(clickRegion.getText().contains("long"));
     }
 
     @Test
     public void testLongClickTopLeft() throws Exception {
         launchTestActivity(ClickOnPositionTestActivity.class);
 
-        UiObject clickRegion = mDevice.findObject(resourceId("click_region"));
+        UiObject clickRegion = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/click_region"));
 
         assertEquals("click_region", clickRegion.getText());
         assertTrue(clickRegion.longClickTopLeft());
-        awaitTrue("Click not detected",
-                () -> "top_left_long_clicked".equals(clickRegion.getText()));
+        assertEquals("top_left_long_clicked", clickRegion.getText());
     }
 
     @Test
@@ -361,22 +344,24 @@ public class UiObjectTest extends BaseTest {
     public void testSetText() throws Exception {
         launchTestActivity(ClearTextTestActivity.class);
 
-        UiObject editText = mDevice.findObject(resourceId("edit_text"));
+        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/edit_text"));
 
         assertEquals("sample_text", editText.getText());
         editText.setText("new_text");
-        awaitTrue("Text not set", () -> "new_text".equals(editText.getText()));
+        assertEquals("new_text", editText.getText());
     }
 
     @Test
     public void testClearTextField() throws Exception {
         launchTestActivity(ClearTextTestActivity.class);
 
-        UiObject editText = mDevice.findObject(resourceId("edit_text"));
+        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/edit_text"));
 
         assertEquals("sample_text", editText.getText());
         editText.clearTextField();
-        awaitTrue("Text not cleared", () -> editText.getText().isEmpty());
+        assertEquals("", editText.getText());
     }
 
     @Test
@@ -397,23 +382,25 @@ public class UiObjectTest extends BaseTest {
     public void testIsChecked() throws Exception {
         launchTestActivity(ClickTestActivity.class);
 
-        UiObject checkBox = mDevice.findObject(resourceId("check_box"));
+        UiObject checkBox = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/check_box"));
 
         assertFalse(checkBox.isChecked());
         checkBox.click();
-        awaitTrue("Checkbox not checked", checkBox::isChecked);
+        assertTrue(checkBox.isChecked());
     }
 
     @Test
     public void testIsSelected() throws Exception {
         launchTestActivity(IsSelectedTestActivity.class);
 
-        UiObject selectedButton = mDevice.findObject(resourceId("selected_button"));
-        UiObject selectedTarget = mDevice.findObject(resourceId("selected_target"));
+        UiObject selectedButton = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/selected_button"));
+        UiObject selectedTarget = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
+                + "/selected_target"));
 
-        assertFalse(selectedTarget.isSelected());
         selectedButton.click();
-        awaitTrue("Target not selected", selectedTarget::isSelected);
+        assertTrue(selectedTarget.isSelected());
     }
 
     @Test
@@ -457,12 +444,13 @@ public class UiObjectTest extends BaseTest {
     public void testIsFocused() throws Exception {
         launchTestActivity(IsFocusedTestActivity.class);
 
-        UiObject textView = mDevice.findObject(resourceId("focusable_text_view"));
-        UiObject button = mDevice.findObject(resourceId("button"));
+        UiObject textView = mDevice.findObject(
+                new UiSelector().resourceId(TEST_APP + ":id/focusable_text_view"));
+        UiObject button = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/button"));
 
         assertFalse(textView.isFocused());
         button.click();
-        awaitTrue("TextView not focused", textView::isFocused);
+        assertTrue(textView.isFocused());
     }
 
     @Test

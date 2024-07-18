@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
@@ -31,6 +25,9 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     jvm()
@@ -88,17 +85,23 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
             }
         }
-        darwinMain {
-            dependsOn(nativeMain)
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
         }
-        linuxMain {
-            dependsOn(nativeMain)
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
         }
 
         targets.all { target ->
@@ -123,6 +126,7 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
+    publish = Publish.SNAPSHOT_AND_RELEASE
 }
 
 android {

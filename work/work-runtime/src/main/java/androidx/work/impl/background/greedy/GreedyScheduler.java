@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Configuration;
-import androidx.work.Constraints;
 import androidx.work.Logger;
 import androidx.work.RunnableScheduler;
 import androidx.work.WorkInfo;
@@ -159,12 +158,11 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
                         mDelayedWorkTracker.schedule(workSpec, nextRunTime);
                     }
                 } else if (workSpec.hasConstraints()) {
-                    Constraints constraints = workSpec.constraints;
-                    if (SDK_INT >= 23 && constraints.requiresDeviceIdle()) {
+                    if (SDK_INT >= 23 && workSpec.constraints.requiresDeviceIdle()) {
                         // Ignore requests that have an idle mode constraint.
                         Logger.get().debug(TAG,
                                 "Ignoring " + workSpec + ". Requires device idle.");
-                    } else if (SDK_INT >= 24 && constraints.hasContentUriTriggers()) {
+                    } else if (SDK_INT >= 24 && workSpec.constraints.hasContentUriTriggers()) {
                         // Ignore requests that have content uri triggers.
                         Logger.get().debug(TAG,
                                 "Ignoring " + workSpec + ". Requires ContentUri triggers.");

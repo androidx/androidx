@@ -21,6 +21,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.EmojiCompat;
 
@@ -29,6 +30,7 @@ import androidx.emoji2.text.EmojiCompat;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 class EmojiTransformationMethod implements TransformationMethod {
     @Nullable
     private final TransformationMethod mTransformationMethod;

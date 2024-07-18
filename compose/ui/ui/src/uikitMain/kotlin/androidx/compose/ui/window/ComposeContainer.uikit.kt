@@ -26,19 +26,18 @@ import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
 import androidx.compose.ui.hapticfeedback.CupertinoHapticFeedback
 import androidx.compose.ui.interop.LocalUIViewController
-import androidx.compose.ui.interop.UIKitInteropContext
+import androidx.compose.ui.interop.UIKitInteropContainer
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
+import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.ComposeSceneMediator
-import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.PlatformLayersComposeScene
 import androidx.compose.ui.scene.SceneLayout
-import androidx.compose.ui.scene.SingleLayerComposeScene
 import androidx.compose.ui.scene.UIViewComposeSceneLayer
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.InterfaceOrientation
@@ -50,6 +49,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlin.native.runtime.GC
@@ -93,14 +93,13 @@ import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
-private val coroutineDispatcher = Dispatchers.Main
-
 // TODO: Move to androidx.compose.ui.scene
 @OptIn(BetaInteropApi::class)
 @ExportObjCClass
 internal class ComposeContainer(
     private val configuration: ComposeUIViewControllerConfiguration,
     private val content: @Composable () -> Unit,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
 ) : CMPViewController(nibName = null, bundle = null) {
     // TODO: Rename and make private
     val lifecycleOwner = ViewControllerBasedLifecycleOwner()
@@ -111,6 +110,10 @@ internal class ComposeContainer(
     private val layers: MutableList<UIViewComposeSceneLayer> = mutableListOf()
     private val layoutDirection get() = getLayoutDirection()
     private var isViewAppeared: Boolean = false
+
+    fun hasInvalidations(): Boolean {
+        return mediator?.hasInvalidations() == true || layers.any { it.hasInvalidations() }
+    }
 
     @OptIn(ExperimentalComposeApi::class)
     private val windowContainer: UIView
@@ -315,10 +318,15 @@ internal class ComposeContainer(
 
     @OptIn(ExperimentalComposeApi::class)
     private fun createSkikoUIView(
-        interopContext: UIKitInteropContext,
+        interopContainer: UIKitInteropContainer,
         renderRelegate: SkikoRenderDelegate
     ): RenderingUIView =
-        RenderingUIView(interopContext, renderRelegate).apply {
+        RenderingUIView(
+            renderDelegate = renderRelegate,
+            retrieveInteropTransaction = {
+                interopContainer.retrieveTransaction()
+            }
+        ).apply {
             opaque = configuration.opaque
         }
 
@@ -328,7 +336,7 @@ internal class ComposeContainer(
         platformContext: PlatformContext,
         coroutineContext: CoroutineContext,
     ): ComposeScene = if (configuration.platformLayers) {
-        SingleLayerComposeScene(
+        PlatformLayersComposeScene(
             density = systemDensity,
             layoutDirection = layoutDirection,
             coroutineContext = coroutineContext,
@@ -338,7 +346,7 @@ internal class ComposeContainer(
             invalidate = invalidate,
         )
     } else {
-        MultiLayerComposeScene(
+        CanvasLayersComposeScene(
             density = systemDensity,
             layoutDirection = layoutDirection,
             coroutineContext = coroutineContext,
@@ -361,7 +369,7 @@ internal class ComposeContainer(
             configuration = configuration,
             focusStack = focusStack,
             windowContext = windowContext,
-            coroutineContext = coroutineDispatcher,
+            coroutineContext = coroutineContext,
             renderingUIViewFactory = ::createSkikoUIView,
             composeSceneFactory = ::createComposeScene,
         )

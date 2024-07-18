@@ -18,6 +18,7 @@ package androidx.room.solver.transaction.binder
 
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 
@@ -35,6 +36,7 @@ abstract class TransactionMethodBinder(val adapter: TransactionMethodAdapter) {
      * transaction wrapper body that delegates to the non-abstract or default dao method.
      */
     abstract fun executeAndReturn(
+        returnType: XType,
         parameterNames: List<String>,
         daoName: XClassName,
         daoImplName: XClassName,

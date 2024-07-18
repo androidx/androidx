@@ -21,7 +21,6 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -36,7 +35,6 @@ import androidx.bluetooth.integration.testapp.ui.common.setViewEditText
 import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
@@ -83,22 +81,11 @@ class AdvertiserFragment : Fragment() {
             viewModel.discoverable = isChecked
         }
 
-        binding.textInputEditTextDuration.doAfterTextChanged {
-            val maxDuration: Long = 180_000
-            var duration = (it.toString()).toLongOrNull() ?: 0
-            if (duration > maxDuration) {
-                binding.textInputEditTextDuration.setText(maxDuration.toString())
-                duration = maxDuration
-            }
-            viewModel.durationMillis = duration
-        }
-
         binding.buttonAddData.setOnClickListener {
             with(PopupMenu(requireContext(), binding.buttonAddData)) {
                 menu.add(getString(R.string.service_uuid))
                 menu.add(getString(R.string.service_data))
                 menu.add(getString(R.string.manufacturer_data))
-                menu.add(getString(R.string.service_solicitation_uuid))
 
                 setOnMenuItemClickListener { menuItem ->
                     showDialogFor(menuItem.title.toString())
@@ -137,43 +124,42 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun updateUi(advertiserUiState: AdvertiserUiState) {
-        advertiserUiState.isAdvertising.let { isAdvertising ->
-            if (isAdvertising) {
-                binding.buttonAdvertise.text = getString(R.string.stop_advertising)
-                binding.buttonAdvertise.backgroundTintList = getColor(R.color.red_500)
-            } else {
-                binding.buttonAdvertise.text = getString(R.string.start_advertising)
-                binding.buttonAdvertise.backgroundTintList = getColor(R.color.indigo_500)
-            }
-            binding.checkBoxIncludeDeviceName.isEnabled = !isAdvertising
-            binding.checkBoxConnectable.isEnabled = !isAdvertising
-            binding.checkBoxDiscoverable.isEnabled = !isAdvertising
-            binding.buttonAddData.isEnabled = !isAdvertising
-            binding.viewRecyclerViewOverlay.isVisible = isAdvertising
+        val isAdvertising = advertiserUiState.isAdvertising
+
+        if (isAdvertising) {
+            binding.buttonAdvertise.text = getString(R.string.stop_advertising)
+            binding.buttonAdvertise.backgroundTintList = getColor(R.color.red_500)
+        } else {
+            binding.buttonAdvertise.text = getString(R.string.start_advertising)
+            binding.buttonAdvertise.backgroundTintList = getColor(R.color.indigo_500)
         }
+        binding.checkBoxIncludeDeviceName.isEnabled = !isAdvertising
+        binding.checkBoxConnectable.isEnabled = !isAdvertising
+        binding.checkBoxDiscoverable.isEnabled = !isAdvertising
+        binding.buttonAddData.isEnabled = !isAdvertising
+        binding.viewRecyclerViewOverlay.isVisible = isAdvertising
 
         advertiserUiState.resultMessage?.let {
             toast(it).show()
-            viewModel.clearResultMessage()
+            viewModel.resultMessageShown()
         }
     }
 
     private fun initData() {
-        if (Build.VERSION.SDK_INT < 31 || (ContextCompat.checkSelfPermission(
+        if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.BLUETOOTH_CONNECT
-            ) == PackageManager.PERMISSION_GRANTED)
+            )
+            == PackageManager.PERMISSION_GRANTED
         ) {
-            (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?)
-                ?.adapter?.name?.let {
-                    binding.textInputEditTextDisplayName.setText(it)
-                }
+            binding.textInputEditTextDisplayName.setText(
+                (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+                    .adapter.name
+            )
         }
-
         binding.checkBoxIncludeDeviceName.isChecked = viewModel.includeDeviceName
         binding.checkBoxConnectable.isChecked = viewModel.connectable
         binding.checkBoxDiscoverable.isChecked = viewModel.discoverable
-        binding.textInputEditTextDuration.setText(viewModel.durationMillis.toString())
     }
 
     private fun showDialogFor(title: String) {
@@ -181,7 +167,6 @@ class AdvertiserFragment : Fragment() {
             getString(R.string.service_uuid) -> showDialogForServiceUuid()
             getString(R.string.service_data) -> showDialogForServiceData()
             getString(R.string.manufacturer_data) -> showDialogForManufacturerData()
-            getString(R.string.service_solicitation_uuid) -> showDialogForServiceSolicitationUuid()
         }
     }
 
@@ -246,24 +231,6 @@ class AdvertiserFragment : Fragment() {
                     editTextDataHexInput.toByteArray()
                 )
                 viewModel.manufacturerDatas.add(manufacturerData)
-            }
-            .setNegativeButton(getString(R.string.cancel), null)
-            .create()
-            .show()
-    }
-
-    private fun showDialogForServiceSolicitationUuid() {
-        val editText = EditText(requireActivity())
-        editText.hint = getString(R.string.service_solicitation_uuid)
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(getString(R.string.service_solicitation_uuid))
-            .setViewEditText(editText)
-            .setPositiveButton(getString(R.string.add)) { _, _ ->
-                val editTextInput = editText.text.toString()
-
-                viewModel.serviceSolicitationUuids.add(UUID.fromString(editTextInput))
-                refreshAdvertiseData()
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .create()

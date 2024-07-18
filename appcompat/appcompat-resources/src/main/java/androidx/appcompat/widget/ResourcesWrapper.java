@@ -29,6 +29,7 @@ import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.resources.Compatibility;
 import androidx.core.content.res.ResourcesCompat;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -155,6 +156,7 @@ class ResourcesWrapper extends Resources {
     }
 
     @SuppressWarnings("deprecation")
+    @RequiresApi(15)
     @Override
     public Drawable getDrawableForDensity(int id, int density) throws NotFoundException {
         // If the developer only overrode the three-arg method, this will cause issues; however,
@@ -233,10 +235,11 @@ class ResourcesWrapper extends Resources {
         mResources.getValue(id, outValue, resolveRefs);
     }
 
+    @RequiresApi(15)
     @Override
     public void getValueForDensity(int id, int density, TypedValue outValue, boolean resolveRefs)
             throws NotFoundException {
-        mResources.getValueForDensity(id, density, outValue, resolveRefs);
+        Compatibility.Api15Impl.getValueForDensity(mResources, id, density, outValue, resolveRefs);
     }
 
     @Override

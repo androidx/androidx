@@ -19,8 +19,9 @@
 
 #include "Path.h"
 
-constexpr int kMaxConicToQuadCount = 5;
-constexpr int kMaxQuadraticCount = 1 << kMaxConicToQuadCount;
+#include <vector>
+
+constexpr int kDefaultQuadraticCount = 8;
 
 int conicToQuadratics(
         const Point conicPoints[3], Point *quadraticPoints, int bufferSize,
@@ -36,12 +37,12 @@ public:
     int quadraticCount() const noexcept { return mQuadraticCount; }
 
     const Point* quadratics() const noexcept {
-        return mQuadraticCount > 0 ? mStorage : nullptr;
+        return mQuadraticCount > 0 ? mStorage.data() : nullptr;
     }
 
 private:
     int mQuadraticCount = 0;
-    Point mStorage[1 + 2 * kMaxQuadraticCount];
+    std::vector<Point> mStorage{1 + 2 * kDefaultQuadraticCount};
 };
 
 struct Conic {

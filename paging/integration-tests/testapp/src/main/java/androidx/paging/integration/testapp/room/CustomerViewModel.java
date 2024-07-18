@@ -16,6 +16,7 @@
 
 package androidx.paging.integration.testapp.room;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 
 import androidx.annotation.WorkerThread;
@@ -28,10 +29,10 @@ import androidx.paging.PagedList;
 import androidx.paging.RxPagedListBuilder;
 import androidx.room.Room;
 
+import java.util.UUID;
+
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
-
-import java.util.UUID;
 
 /**
  * Sample database-backed view model of Customers
@@ -48,7 +49,7 @@ public class CustomerViewModel extends AndroidViewModel {
     private void createDb() {
         mDatabase = Room.databaseBuilder(this.getApplication(), SampleDatabase.class,
                         "customerDatabase")
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build();
 
         ArchTaskExecutor.getInstance().executeOnDiskIO(() -> {
@@ -78,6 +79,7 @@ public class CustomerViewModel extends AndroidViewModel {
                 () -> mDatabase.getCustomerDao().insert(createCustomer()));
     }
 
+    @SuppressLint("RestrictedApi")
     void clearAllCustomers() {
         ArchTaskExecutor.getInstance().executeOnDiskIO(
                 () -> mDatabase.getCustomerDao().removeAll());

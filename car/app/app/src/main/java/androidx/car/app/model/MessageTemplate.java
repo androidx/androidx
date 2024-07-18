@@ -28,10 +28,10 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
+import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.utils.CollectionUtils;
 
 import java.util.ArrayList;
@@ -52,11 +52,6 @@ import java.util.Objects;
 @KeepFields
 public final class MessageTemplate implements Template {
     private final boolean mIsLoading;
-    /**
-     * @deprecated use {@link Header.Builder#setTitle(CarText)}; mHeader replaces the need
-     * for this field.
-     */
-    @Deprecated
     @Nullable
     private final CarText mTitle;
     @Nullable
@@ -65,30 +60,11 @@ public final class MessageTemplate implements Template {
     private final CarText mDebugMessage;
     @Nullable
     private final CarIcon mIcon;
-    /**
-     * @deprecated use {@link Header.Builder#setStartHeaderAction(Action)}; mHeader replaces the
-     * need for this field.
-     */
-    @Deprecated
     @Nullable
     private final Action mHeaderAction;
     private final List<Action> mActionList;
-    /**
-     * @deprecated use {@link Header.Builder#addEndHeaderAction(Action)} for each action; mHeader
-     * replaces the need for this field.
-     */
-    @Deprecated
     @Nullable
     private final ActionStrip mActionStrip;
-
-    /**
-     * Represents a Header object to set the startHeaderAction, the title and the endHeaderActions
-     *
-     * @see MessageTemplate.Builder#setHeader(Header)
-     */
-    @Nullable
-    @RequiresCarApi(7)
-    private final Header mHeader;
 
     /**
      * Returns whether the template is loading.
@@ -103,9 +79,8 @@ public final class MessageTemplate implements Template {
     /**
      * Returns the title of the template or {@code null} if not set.
      *
-     * @deprecated use {@link Header#getTitle()} instead.
+     * @see Builder#setTitle(CharSequence)
      */
-    @Deprecated
     @Nullable
     public CarText getTitle() {
         return mTitle;
@@ -115,9 +90,8 @@ public final class MessageTemplate implements Template {
      * Returns the {@link Action} that is set to be displayed in the header of the template, or
      * {@code null} if not set.
      *
-     * @deprecated use {@link Header#getStartHeaderAction()} instead.
+     * @see Builder#setHeaderAction(Action)
      */
-    @Deprecated
     @Nullable
     public Action getHeaderAction() {
         return mHeaderAction;
@@ -126,9 +100,8 @@ public final class MessageTemplate implements Template {
     /**
      * Returns the {@link ActionStrip} for this template or {@code null} if not set.
      *
-     * @deprecated use {@link Header#getEndHeaderActions()} instead.
+     * @see Builder#setActionStrip(ActionStrip)
      */
-    @Deprecated
     @RequiresCarApi(2)
     @Nullable
     public ActionStrip getActionStrip() {
@@ -176,37 +149,6 @@ public final class MessageTemplate implements Template {
         return CollectionUtils.emptyIfNull(mActionList);
     }
 
-    /**
-     * Returns the {@link Header} to display in this template.
-     *
-     * <p>This method was introduced in API 7, but is backwards compatible even if the client is
-     * using API 6 or below. </p>
-     *
-     * @see MessageTemplate.Builder#setHeader(Header)
-     */
-    @Nullable
-    public Header getHeader() {
-        if (mHeader != null) {
-            return mHeader;
-        }
-        if (mTitle == null && mHeaderAction == null && mActionStrip == null) {
-            return null;
-        }
-        Header.Builder headerBuilder = new Header.Builder();
-        if (mTitle != null) {
-            headerBuilder.setTitle(mTitle);
-        }
-        if (mHeaderAction != null) {
-            headerBuilder.setStartHeaderAction(mHeaderAction);
-        }
-        if (mActionStrip != null) {
-            for (Action action: mActionStrip.getActions()) {
-                headerBuilder.addEndHeaderAction(action);
-            }
-        }
-        return headerBuilder.build();
-    }
-
     @NonNull
     @Override
     public String toString() {
@@ -216,7 +158,7 @@ public final class MessageTemplate implements Template {
     @Override
     public int hashCode() {
         return hash(mIsLoading, mTitle, mMessage, mDebugMessage, mHeaderAction, mActionList, mIcon,
-                mActionStrip, mHeader);
+                mActionStrip);
     }
 
     @Override
@@ -236,8 +178,7 @@ public final class MessageTemplate implements Template {
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionList, otherTemplate.mActionList)
                 && Objects.equals(mIcon, otherTemplate.mIcon)
-                && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
-                && Objects.equals(mHeader, otherTemplate.mHeader);
+                && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
     }
 
     MessageTemplate(Builder builder) {
@@ -249,7 +190,6 @@ public final class MessageTemplate implements Template {
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
         mActionList = CollectionUtils.unmodifiableCopy(builder.mActionList);
-        mHeader = builder.mHeader;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -262,7 +202,6 @@ public final class MessageTemplate implements Template {
         mHeaderAction = null;
         mActionStrip = null;
         mActionList = Collections.emptyList();
-        mHeader = null;
     }
 
     /** A builder of {@link MessageTemplate}. */
@@ -284,8 +223,6 @@ public final class MessageTemplate implements Template {
         Throwable mDebugCause;
         @Nullable
         String mDebugString;
-        @Nullable
-        Header mHeader;
 
         /**
          * Sets whether the template is in a loading state.
@@ -313,43 +250,11 @@ public final class MessageTemplate implements Template {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
-         *
-         * @deprecated Use {@link Header.Builder#setTitle(CarText)}
          */
-        @Deprecated
         @NonNull
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
-            return this;
-        }
-
-
-        /**
-         * Sets the {@link Header} for this template.
-         *
-         * <p>The end header actions will show up differently inside vs outside of a map template.
-         * See {@link Header.Builder#addEndHeaderAction} for more details.</p>
-         *
-         * @throws NullPointerException if {@code header} is null
-         */
-        @NonNull
-        @RequiresCarApi(7)
-        public Builder setHeader(@NonNull Header header) {
-            if (header.getStartHeaderAction() != null) {
-                mHeaderAction = header.getStartHeaderAction();
-            }
-            if (header.getTitle() != null) {
-                mTitle = header.getTitle();
-            }
-            if (!header.getEndHeaderActions().isEmpty()) {
-                ActionStrip.Builder actionStripBuilder = new ActionStrip.Builder();
-                for (Action action: header.getEndHeaderActions()) {
-                    actionStripBuilder.addAction(action);
-                }
-                mActionStrip = actionStripBuilder.build();
-            }
-            mHeader = header;
             return this;
         }
 
@@ -426,10 +331,7 @@ public final class MessageTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
-         *
-         * @deprecated Use {@link Header.Builder#setStartHeaderAction(Action)}
          */
-        @Deprecated
         @NonNull
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
@@ -452,10 +354,7 @@ public final class MessageTemplate implements Template {
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
-         *
-         * @deprecated Use {@link Header.Builder#addEndHeaderAction(Action) for each action}
          */
-        @Deprecated
         @RequiresCarApi(2)
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {

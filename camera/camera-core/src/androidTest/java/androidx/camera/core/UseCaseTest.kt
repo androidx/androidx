@@ -361,7 +361,7 @@ class UseCaseTest {
         val useCaseConfigFactory: UseCaseConfigFactory = FakeUseCaseConfigFactory()
         val cameraCoordinator: CameraCoordinator = FakeCameraCoordinator()
         return CameraUseCaseAdapter(
-            fakeCamera,
+            LinkedHashSet(setOf(fakeCamera)),
             cameraCoordinator,
             fakeCameraDeviceSurfaceManager,
             useCaseConfigFactory

@@ -29,8 +29,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
-import androidx.camera.camera2.internal.compat.quirk.CaptureSessionStuckQuirk;
-import androidx.camera.camera2.internal.compat.quirk.IncorrectCaptureStateQuirk;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseCaptureSession;
 import androidx.camera.camera2.internal.compat.workaround.ForceCloseDeferrableSurface;
 import androidx.camera.camera2.internal.compat.workaround.RequestMonitor;
@@ -86,8 +84,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
             @NonNull Handler compatHandler) {
         super(repository, executor, scheduledExecutorService, compatHandler);
         mCloseSurfaceQuirk = new ForceCloseDeferrableSurface(cameraQuirks, deviceQuirks);
-        mRequestMonitor = new RequestMonitor(cameraQuirks.contains(CaptureSessionStuckQuirk.class)
-                || cameraQuirks.contains(IncorrectCaptureStateQuirk.class));
+        mRequestMonitor = new RequestMonitor(cameraQuirks);
         mForceCloseSessionQuirk = new ForceCloseCaptureSession(deviceQuirks);
         mSessionResetPolicy = new SessionResetPolicy(deviceQuirks);
         mScheduledExecutorService = scheduledExecutorService;
@@ -168,16 +165,16 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     @Override
     public int setSingleRepeatingRequest(@NonNull CaptureRequest request,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        return super.setSingleRepeatingRequest(
-                request, mRequestMonitor.createMonitorListener(listener));
+        return mRequestMonitor.setSingleRepeatingRequest(
+                request, listener, super::setSingleRepeatingRequest);
     }
 
     @ExecutedBy("mExecutor")
     @Override
     public int captureBurstRequests(@NonNull List<CaptureRequest> requests,
             @NonNull CameraCaptureSession.CaptureCallback listener) throws CameraAccessException {
-        return super.captureBurstRequests(
-                requests, mRequestMonitor.createMonitorListener(listener));
+        return mRequestMonitor.captureBurstRequests(
+                requests, listener, super::captureBurstRequests);
     }
 
     @Override

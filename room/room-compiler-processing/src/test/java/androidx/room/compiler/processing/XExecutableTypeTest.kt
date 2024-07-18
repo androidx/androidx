@@ -22,9 +22,8 @@ import androidx.room.compiler.codegen.asMutableClassName
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
-import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getMethodByJvmName
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth
@@ -582,8 +581,7 @@ class XExecutableTypeTest {
             """
             class KotlinSubject {
               fun <T> oneTypeVar(): Unit = TODO()
-              fun <T : MutableList<*>?> oneBoundedTypeVar(): Unit = TODO()
-              fun <T : MutableList<*>> oneBoundedTypeVarNotNull(): Unit = TODO()
+              fun <T : MutableList<*>> oneBoundedTypeVar(): Unit = TODO()
               fun <A, B> twoTypeVar(param: B): A = TODO()
             }
             """.trimIndent()
@@ -592,18 +590,15 @@ class XExecutableTypeTest {
             "JavaSubject",
             """
             import java.util.List;
-            import org.jetbrains.annotations.NotNull;
             class JavaSubject {
               <T> void oneTypeVar() {}
               <T extends List<?>> void oneBoundedTypeVar() { }
-              <T extends @NotNull List<?>> void oneBoundedTypeVarNotNull() { }
               <A, B> A twoTypeVar(B param) { return null; }
             }
             """.trimIndent()
         )
-
-        fun handler(invocation: XTestInvocation) {
-            listOf("KotlinSubject", "JavaSubject").forEach { subjectFqn ->
+        runKspTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
+            listOf("KotlinSubject", "JavaSubject",).forEach { subjectFqn ->
                 val subject = invocation.processingEnv.requireTypeElement(subjectFqn)
                 subject.getMethodByJvmName("oneTypeVar").let {
                     val typeVar = it.executableType.typeVariables.single()
@@ -615,29 +610,6 @@ class XExecutableTypeTest {
                     assertThat(typeVar.typeElement).isNull()
                 }
                 subject.getMethodByJvmName("oneBoundedTypeVar").let {
-                    val typeVar = it.executableType.typeVariables.single()
-                    assertThat(typeVar.asTypeName())
-                        .isEqualTo(
-                            XTypeName.getTypeVariableName(
-                                name = "T",
-                                bounds = listOf(
-                                    List::class.asMutableClassName()
-                                        .parametrizedBy(XTypeName.ANY_WILDCARD)
-                                        .copy(nullable = true)
-                                )
-                            )
-                        )
-                    assertThat(typeVar.superTypes.map { it.asTypeName() })
-                        .containsExactly(
-                            XTypeName.ANY_OBJECT.copy(nullable = true),
-                            List::class.asMutableClassName()
-                                .parametrizedBy(XTypeName.ANY_WILDCARD)
-                                .copy(nullable = true)
-                        )
-                    assertThat(typeVar.typeArguments).isEmpty()
-                    assertThat(typeVar.typeElement).isNull()
-                }
-                subject.getMethodByJvmName("oneBoundedTypeVarNotNull").let {
                     val typeVar = it.executableType.typeVariables.single()
                     assertThat(typeVar.asTypeName())
                         .isEqualTo(
@@ -674,7 +646,5 @@ class XExecutableTypeTest {
                 }
             }
         }
-        runProcessorTest(sources = listOf(kotlinSrc, javaSrc), handler = ::handler)
-        runProcessorTest(classpath = compileFiles(listOf(kotlinSrc, javaSrc)), handler = ::handler)
     }
 }

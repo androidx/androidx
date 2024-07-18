@@ -312,9 +312,6 @@ public final class AppSearchImpl implements Closeable {
                             mConfig.getIntegerIndexBucketSplitThreshold())
                     .setLiteIndexSortAtIndexing(mConfig.getLiteIndexSortAtIndexing())
                     .setLiteIndexSortSize(mConfig.getLiteIndexSortSize())
-                    .setUseNewQualifiedIdJoinIndex(mConfig.getUseNewQualifiedIdJoinIndex())
-                    .setBuildPropertyExistenceMetadataHits(
-                            mConfig.getBuildPropertyExistenceMetadataHits())
                     .build();
             LogUtil.piiTrace(TAG, "Constructing IcingSearchEngine, request", options);
             mIcingSearchEngineLocked = new IcingSearchEngine(options);

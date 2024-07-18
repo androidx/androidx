@@ -7,6 +7,3 @@
 # Node.js dependencies:
 node_modules/
 .nvmrc
-
-# Puppeteer
-.cache/

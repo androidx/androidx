@@ -22,19 +22,15 @@ import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
 import android.graphics.Color;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.ActionBuilders.LaunchAction;
-import androidx.wear.protolayout.ColorBuilders.ColorProp;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
@@ -63,64 +59,31 @@ public class CompactChipTest {
     @Test
     public void testCompactChipDefault() {
         CompactChip compactChip =
-                new CompactChip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setTextContent(MAIN_TEXT)
-                        .build();
+                new CompactChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS).build();
 
         assertChip(compactChip, ChipDefaults.COMPACT_PRIMARY_COLORS, /* iconId= */ null);
-        assertThat(compactChip.getText()).isEqualTo(MAIN_TEXT);
     }
 
     @Test
     public void testCompactChipCustomColor() {
         CompactChip compactChip =
-                new CompactChip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setTextContent(MAIN_TEXT)
+                new CompactChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setChipColors(COLORS)
                         .build();
 
         assertChip(compactChip, COLORS, /* iconId= */ null);
-        assertThat(compactChip.getText()).isEqualTo(MAIN_TEXT);
     }
 
     @Test
     public void testCompactChipIconCustomColor() {
         String iconId = "icon_id";
-        String description = "This is CompactChip with icon and text";
         CompactChip compactChip =
-                new CompactChip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
-                        .setChipColors(COLORS)
-                        .setTextContent(MAIN_TEXT)
-                        .setIconContent(iconId)
-                        .setContentDescription(description)
-                        .build();
-
-        assertChip(compactChip, COLORS, /* iconId= */ iconId, description);
-        assertThat(compactChip.getText()).isEqualTo(MAIN_TEXT);
-    }
-
-    @Test
-    public void testCompactChipIconOnly() {
-        String iconId = "icon_id";
-        String description = "This is CompactChip with icon only";
-        ColorProp defaultColor = new ColorProp.Builder(0).build();
-        CompactChip compactChip =
-                new CompactChip.Builder(CONTEXT, CLICKABLE, DEVICE_PARAMETERS)
+                new CompactChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setChipColors(COLORS)
                         .setIconContent(iconId)
-                        .setContentDescription(description)
                         .build();
 
-        assertChip(
-                compactChip,
-                new ChipColors(
-                        COLORS.getBackgroundColor(),
-                        COLORS.getIconColor(),
-                        defaultColor,
-                        defaultColor),
-                iconId,
-                description);
-        assertThrows(NullPointerException.class, compactChip::getText);
+        assertChip(compactChip, COLORS, /* iconId= */ iconId);
     }
 
     @Test
@@ -155,43 +118,28 @@ public class CompactChipTest {
 
     private void assertChip(
             CompactChip actualCompactChip, ChipColors colors, @Nullable String iconId) {
-        assertChip(actualCompactChip, colors, iconId, /* contentDescription= */ MAIN_TEXT);
-    }
-
-    private void assertChip(
-            CompactChip actualCompactChip,
-            ChipColors colors,
-            @Nullable String iconId,
-            @NonNull String contentDescription) {
-        assertChipIsEqual(actualCompactChip, colors, iconId, contentDescription);
-        assertFromLayoutElementChipIsEqual(actualCompactChip, colors, iconId, contentDescription);
+        assertChipIsEqual(actualCompactChip, colors, iconId);
+        assertFromLayoutElementChipIsEqual(actualCompactChip, colors, iconId);
         assertThat(CompactChip.fromLayoutElement(actualCompactChip)).isEqualTo(actualCompactChip);
     }
 
     private void assertChipIsEqual(
-            CompactChip actualCompactChip,
-            ChipColors colors,
-            @Nullable String iconId,
-            @NonNull String contentDescription) {
+            CompactChip actualCompactChip, ChipColors colors, @Nullable String iconId) {
         String expectedTag = iconId == null ? METADATA_TAG_TEXT : METADATA_TAG_ICON;
         assertThat(actualCompactChip.getMetadataTag()).isEqualTo(expectedTag);
         assertThat(actualCompactChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(areChipColorsEqual(actualCompactChip.getChipColors(), colors)).isTrue();
+        assertThat(actualCompactChip.getText()).isEqualTo(MAIN_TEXT);
         assertThat(actualCompactChip.getIconContent()).isEqualTo(iconId);
-        assertThat(actualCompactChip.getContentDescription().getValue())
-                .isEqualTo(contentDescription);
     }
 
     private void assertFromLayoutElementChipIsEqual(
-            CompactChip chip,
-            ChipColors colors,
-            @Nullable String iconId,
-            @NonNull String contentDescription) {
+            CompactChip chip, ChipColors colors, @Nullable String iconId) {
         Box box = new Box.Builder().addContent(chip).build();
 
         CompactChip newChip = CompactChip.fromLayoutElement(box.getContents().get(0));
 
         assertThat(newChip).isNotNull();
-        assertChipIsEqual(newChip, colors, iconId, contentDescription);
+        assertChipIsEqual(newChip, colors, iconId);
     }
 }

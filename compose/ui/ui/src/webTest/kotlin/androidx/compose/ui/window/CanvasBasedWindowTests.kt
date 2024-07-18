@@ -142,7 +142,8 @@ class CanvasBasedWindowTests {
         )
 
         ('0'..'9').forEachIndexed { index, c ->
-            canvasElement.dispatchEvent(keyDownEvent(c.toString()))
+            val id = c.toString()
+            canvasElement.dispatchEvent(keyDownEvent(id, code = "Digit${id}" ))
             assertEquals(listOfNumbers[index], k)
         }
     }

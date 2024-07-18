@@ -55,15 +55,15 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * Holder object for inputs to [loadInitial].
      *
      * @param Key Type of data used to query [Value] types out of the [DataSource].
-     * @param requestedInitialKey Load items around this key, or at the beginning of the data set
+     * @property requestedInitialKey Load items around this key, or at the beginning of the data set
      * if `null` is passed.
      *
      * Note that this key is generally a hint, and may be ignored if you want to always load from
      * the beginning.
-     * @param requestedLoadSize Requested number of items to load.
+     * @property requestedLoadSize Requested number of items to load.
      *
      * Note that this may be larger than available data.
-     * @param placeholdersEnabled Defines whether placeholders are enabled, and whether the
+     * @property placeholdersEnabled Defines whether placeholders are enabled, and whether the
      * loaded total count will be ignored.
      */
     public open class LoadInitialParams<Key : Any>(
@@ -79,10 +79,10 @@ public abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * Holder object for inputs to [loadBefore] and [loadAfter].
      *
      * @param Key Type of data used to query [Value] types out of the [DataSource].
-     * @param key Load items before/after this key.
+     * @property key Load items before/after this key.
      *
      * Returned data must begin directly adjacent to this position.
-     * @param requestedLoadSize Requested number of items to load.
+     * @property requestedLoadSize Requested number of items to load.
      *
      * Returned page can be of this size, but it may be altered if that is easier, e.g. a network
      * data source where the backend defines page size.

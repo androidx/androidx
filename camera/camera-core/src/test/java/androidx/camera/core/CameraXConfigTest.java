@@ -115,14 +115,4 @@ public class CameraXConfigTest {
         assertThat(cameraXConfig.getCameraOpenRetryMaxTimeoutInMillisWhileResuming())
                 .isEqualTo(1000L);
     }
-
-    @Test
-    public void canGetInitRetryPolicy() {
-        CameraXConfig cameraXConfig = new CameraXConfig.Builder()
-                .setCameraProviderInitRetryPolicy(RetryPolicy.RETRY_UNAVAILABLE_CAMERA)
-                .build();
-
-        assertThat(cameraXConfig.getCameraProviderInitRetryPolicy())
-                .isEqualTo(RetryPolicy.RETRY_UNAVAILABLE_CAMERA);
-    }
 }

@@ -83,7 +83,6 @@ public class AppAuthenticatorTest {
         // tests, no assertion is required as making it past this statement without a
         // SecurityException indicates the test was successful.
         mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION);
-        mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION, TEST_UID);
         mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION, TEST_PID,
                 TEST_UID);
     }
@@ -100,9 +99,6 @@ public class AppAuthenticatorTest {
                 () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
         assertThrows(SecurityException.class,
                 () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION,
-                        TEST_UID));
-        assertThrows(SecurityException.class,
-                () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION,
                         TEST_PID, TEST_UID));
     }
 
@@ -116,8 +112,7 @@ public class AppAuthenticatorTest {
         when(mMockAppAuthenticatorUtils.getUidForPackage(TEST_PACKAGE)).thenReturn(23456);
 
         assertThrows(SecurityException.class,
-                () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION,
-                        TEST_UID));
+                () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
         assertThrows(SecurityException.class,
                 () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION,
                         TEST_PID, TEST_UID));
@@ -128,20 +123,13 @@ public class AppAuthenticatorTest {
         // If the specified package does not exist on the device then enforceCallingAppIdentity
         // should receive a NameNotFoundException when checking for the UID; this should result
         // in a SecurityException.
-        // true is returned here to ensure the test fails for the expected reason; a return value
-        // of false would still result in a SecurityException thrown by the method under test
-        // since any failures during an enforce call result in this exception. Returning true
-        // allows the method under test to return a successful response if package verification
-        // is incorrectly skipped, allowing the test to ensure that the SecurityException is the
-        // expected result from the package not existing on the system.
         when(mMockAppSignatureVerifier.verifySigningIdentity(TEST_PACKAGE,
                 TEST_PERMISSION)).thenReturn(true);
         when(mMockAppAuthenticatorUtils.getUidForPackage(TEST_PACKAGE)).thenThrow(
                 PackageManager.NameNotFoundException.class);
 
         assertThrows(SecurityException.class,
-                () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION,
-                        TEST_UID));
+                () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
         assertThrows(SecurityException.class,
                 () -> mAppAuthenticator.enforceCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION,
                         TEST_PID, TEST_UID));
@@ -156,8 +144,6 @@ public class AppAuthenticatorTest {
 
         assertEquals(AppAuthenticator.PERMISSION_GRANTED,
                 mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
-        assertEquals(AppAuthenticator.PERMISSION_GRANTED,
-                mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION, TEST_UID));
         assertEquals(AppAuthenticator.PERMISSION_GRANTED,
                 mAppAuthenticator.checkCallingAppIdentity(
                         TEST_PACKAGE, TEST_PERMISSION, TEST_PID, TEST_UID));
@@ -174,8 +160,6 @@ public class AppAuthenticatorTest {
         assertEquals(AppAuthenticator.PERMISSION_DENIED_NO_MATCH,
                 mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
         assertEquals(AppAuthenticator.PERMISSION_DENIED_NO_MATCH,
-                mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION, TEST_UID));
-        assertEquals(AppAuthenticator.PERMISSION_DENIED_NO_MATCH,
                 mAppAuthenticator.checkCallingAppIdentity(
                         TEST_PACKAGE, TEST_PERMISSION, TEST_PID, TEST_UID));
     }
@@ -190,7 +174,7 @@ public class AppAuthenticatorTest {
         when(mMockAppAuthenticatorUtils.getUidForPackage(TEST_PACKAGE)).thenReturn(23456);
 
         assertEquals(AppAuthenticator.PERMISSION_DENIED_PACKAGE_UID_MISMATCH,
-                mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION), TEST_UID);
+                mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
         assertEquals(AppAuthenticator.PERMISSION_DENIED_PACKAGE_UID_MISMATCH,
                 mAppAuthenticator.checkCallingAppIdentity(
                         TEST_PACKAGE, TEST_PERMISSION, TEST_PID, TEST_UID));
@@ -207,7 +191,7 @@ public class AppAuthenticatorTest {
                 PackageManager.NameNotFoundException.class);
 
         assertEquals(AppAuthenticator.PERMISSION_DENIED_UNKNOWN_PACKAGE,
-                mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION, TEST_UID));
+                mAppAuthenticator.checkCallingAppIdentity(TEST_PACKAGE, TEST_PERMISSION));
         assertEquals(AppAuthenticator.PERMISSION_DENIED_UNKNOWN_PACKAGE,
                 mAppAuthenticator.checkCallingAppIdentity(
                         TEST_PACKAGE, TEST_PERMISSION, TEST_PID, TEST_UID));

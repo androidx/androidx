@@ -18,9 +18,6 @@ package androidx.work.multiprocess;
 
 import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportFailure;
 import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.reportSuccess;
-import static androidx.work.multiprocess.RemoteWorkerWrapperKt.executeRemoteWorker;
-
-import static kotlinx.coroutines.JobKt.Job;
 
 import android.content.Context;
 
@@ -32,7 +29,6 @@ import androidx.work.ListenableWorker;
 import androidx.work.Logger;
 import androidx.work.ProgressUpdater;
 import androidx.work.WorkerParameters;
-import androidx.work.impl.WorkerStoppedException;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
 import androidx.work.multiprocess.parcelable.ParcelableInterruptRequest;
@@ -47,10 +43,9 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import kotlinx.coroutines.Job;
-
 /**
  * An implementation of ListenableWorker that can be executed in a remote process.
+ *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
@@ -72,7 +67,7 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
     // Synthetic access
     final ForegroundUpdater mForegroundUpdater;
     // Synthetic access
-    final Map<String, Job> mRemoteWorkerWrapperMap;
+    final Map<String, RemoteWorkerWrapper> mRemoteWorkerWrapperMap;
 
     ListenableWorkerImpl(@NonNull Context context) {
         mContext = context.getApplicationContext();
@@ -148,14 +143,14 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             final int stopReason = interruptRequest.getStopReason();
             Logger.get().debug(TAG, "Interrupting work with id (" + id + ")");
 
-            final Job workerJob;
+            final RemoteWorkerWrapper remoteWorker;
             synchronized (sLock) {
-                workerJob = mRemoteWorkerWrapperMap.remove(id);
+                remoteWorker = mRemoteWorkerWrapperMap.remove(id);
             }
-            if (workerJob != null) {
+            if (remoteWorker != null) {
                 mTaskExecutor.getSerialTaskExecutor()
                         .execute(() -> {
-                            workerJob.cancel(new WorkerStoppedException(stopReason));
+                            remoteWorker.interrupt(stopReason);
                             reportSuccess(callback, sEMPTY);
                         });
             } else {
@@ -172,12 +167,15 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             @NonNull String id,
             @NonNull String workerClassName,
             @NonNull WorkerParameters workerParameters) {
-        Job job = Job(null);
-        synchronized (sLock) {
-            mRemoteWorkerWrapperMap.put(id, job);
-        }
-        return executeRemoteWorker(
-                mContext, mConfiguration, workerClassName, workerParameters, job, mTaskExecutor
+
+        RemoteWorkerWrapper remoteWorker = RemoteWorkerWrapperKt.create(
+                mContext, mConfiguration, workerClassName, workerParameters, mTaskExecutor
         );
+
+        synchronized (sLock) {
+            mRemoteWorkerWrapperMap.put(id, remoteWorker);
+        }
+
+        return remoteWorker.getFuture();
     }
 }

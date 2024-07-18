@@ -19,7 +19,6 @@ package androidx.privacysandbox.sdkruntime.core.controller.impl
 import android.annotation.SuppressLint
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.os.ext.SdkExtensions
-import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
@@ -55,8 +54,6 @@ internal class AppOwnedSdkProvider private constructor(
     private class ApiAdServicesV8Impl(
         private val controller: SdkSandboxController
     ) : ProviderImpl {
-        @DoNotInline
-        @SuppressLint("ClassVerificationFailure") // flaky lint
         override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
             val apiResult = controller.getAppOwnedSdkSandboxInterfaces()
             return apiResult.map { AppOwnedSdkSandboxInterfaceCompat(it) }

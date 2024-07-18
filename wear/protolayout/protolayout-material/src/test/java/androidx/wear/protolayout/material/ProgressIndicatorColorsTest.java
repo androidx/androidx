@@ -30,21 +30,21 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class ProgressIndicatorColorsTest {
-    private static final int ARGB_TRACK_COLOR = 0x12345678;
-    private static final int ARGB_INDICATOR_COLOR = 0x11223344;
-    private static final ColorProp TRACK_COLOR = argb(ARGB_TRACK_COLOR);
-    private static final ColorProp INDICATOR_COLOR = argb(ARGB_INDICATOR_COLOR);
+    private static final int ARGB_BACKGROUND_COLOR = 0x12345678;
+    private static final int ARGB_CONTENT_COLOR = 0x11223344;
+    private static final ColorProp TRACK_COLOR = argb(ARGB_BACKGROUND_COLOR);
+    private static final ColorProp INDICATOR_COLOR = argb(ARGB_CONTENT_COLOR);
     private static final Colors COLORS = new Colors(0x123, 0x234, 0x345, 0x456);
 
     @Test
     public void testCreateProgressIndicatorColorsFromArgb() {
         ProgressIndicatorColors progressIndicatorColors =
-                new ProgressIndicatorColors(ARGB_INDICATOR_COLOR, ARGB_TRACK_COLOR);
+                new ProgressIndicatorColors(ARGB_CONTENT_COLOR, ARGB_BACKGROUND_COLOR);
 
         assertThat(progressIndicatorColors.getTrackColor().getArgb())
-                .isEqualTo(ARGB_TRACK_COLOR);
+                .isEqualTo(TRACK_COLOR.getArgb());
         assertThat(progressIndicatorColors.getIndicatorColor().getArgb())
-                .isEqualTo(ARGB_INDICATOR_COLOR);
+                .isEqualTo(INDICATOR_COLOR.getArgb());
     }
 
     @Test

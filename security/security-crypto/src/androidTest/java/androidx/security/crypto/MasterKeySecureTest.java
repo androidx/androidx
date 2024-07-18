@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
 
+import androidx.security.crypto.MasterKey.KeyScheme;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -45,7 +46,6 @@ import java.security.KeyStore;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
-@SuppressWarnings("deprecation")
 public class MasterKeySecureTest {
     private static final String PREFS_FILE = "test_shared_prefs";
 
@@ -94,7 +94,7 @@ public class MasterKeySecureTest {
     public void testCreateKeyWithAuthenicationRequired() throws GeneralSecurityException,
             IOException {
         MasterKey masterKey = new MasterKey.Builder(ApplicationProvider.getApplicationContext())
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .setKeyScheme(KeyScheme.AES256_GCM)
                 .setUserAuthenticationRequired(true, 10)
                 .build();
         MasterKeyTest.assertKeyExists(masterKey.getKeyAlias());

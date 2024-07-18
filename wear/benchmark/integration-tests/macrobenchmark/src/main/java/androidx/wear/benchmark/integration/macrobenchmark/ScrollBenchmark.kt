@@ -22,9 +22,10 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,14 +40,12 @@ class ScrollBenchmark(
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
+    private lateinit var device: UiDevice
+
     @Before
     fun setUp() {
-        disableChargingExperience()
-    }
-
-    @After
-    fun destroy() {
-        enableChargingExperience()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        device = UiDevice.getInstance(instrumentation)
     }
 
     @Test

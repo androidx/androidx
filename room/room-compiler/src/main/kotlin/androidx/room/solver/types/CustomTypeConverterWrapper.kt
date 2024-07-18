@@ -114,7 +114,7 @@ class CustomTypeConverterWrapper(
                                     addStatement(
                                         "checkNotNull(%L.getTypeConverter(%L))",
                                         DaoWriter.DB_PROPERTY_NAME,
-                                        XCodeBlock.ofKotlinClassLiteral(language, custom.className)
+                                        XCodeBlock.ofJavaClassLiteral(language, custom.className)
                                     )
                                     endControlFlow()
                                 }.build()

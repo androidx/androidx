@@ -16,15 +16,15 @@
 package androidx.health.platform.client.changes
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.OnChangesListenerProxy
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ChangeProto
 
 /**
  * Returned via [OnChangesListenerProxy].
+ *
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class ChangesEvent(override val proto: ChangeProto.ChangesEvent) :
     ProtoParcelable<ChangeProto.ChangesEvent>() {
     companion object {

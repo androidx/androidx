@@ -80,27 +80,16 @@ class KeyEventConversionTests {
         keyDownEvent("8", code = "Digit8").assertEquivalence(key = Key.Eight)
         keyDownEvent("9", code = "Digit9").assertEquivalence(key = Key.Nine)
 
-        keyDownEvent("0", code = "Numpad0").assertEquivalence(key = Key.Zero)
-        keyDownEvent("1", code = "Numpad1").assertEquivalence(key = Key.One)
-        keyDownEvent("2", code = "Numpad2").assertEquivalence(key = Key.Two)
-        keyDownEvent("3", code = "Numpad3").assertEquivalence(key = Key.Three)
-        keyDownEvent("4", code = "Numpad4").assertEquivalence(key = Key.Four)
-        keyDownEvent("5", code = "Numpad5").assertEquivalence(key = Key.Five)
-        keyDownEvent("6", code = "Numpad6").assertEquivalence(key = Key.Six)
-        keyDownEvent("7", code = "Numpad7").assertEquivalence(key = Key.Seven)
-        keyDownEvent("8", code = "Numpad8").assertEquivalence(key = Key.Eight)
-        keyDownEvent("9", code = "Numpad9").assertEquivalence(key = Key.Nine)
-
-        keyDownEvent("0", code = "Numpad0").assertEquivalence(key = Key.Zero, codePoint = 48)
-        keyDownEvent("1", code = "Numpad1").assertEquivalence(key = Key.One, codePoint = 49)
-        keyDownEvent("2", code = "Numpad2").assertEquivalence(key = Key.Two, codePoint = 50)
-        keyDownEvent("3", code = "Numpad3").assertEquivalence(key = Key.Three, codePoint = 51)
-        keyDownEvent("4", code = "Numpad4").assertEquivalence(key = Key.Four, codePoint = 52)
-        keyDownEvent("5", code = "Numpad5").assertEquivalence(key = Key.Five, codePoint = 53)
-        keyDownEvent("6", code = "Numpad6").assertEquivalence(key = Key.Six, codePoint = 54)
-        keyDownEvent("7", code = "Numpad7").assertEquivalence(key = Key.Seven, codePoint = 55)
-        keyDownEvent("8", code = "Numpad8").assertEquivalence(key = Key.Eight, codePoint = 56)
-        keyDownEvent("9", code = "Numpad9").assertEquivalence(key = Key.Nine, codePoint = 57)
+        keyDownEvent("0", code = "Numpad0").assertEquivalence(key = Key.NumPad0, codePoint = 48)
+        keyDownEvent("1", code = "Numpad1").assertEquivalence(key = Key.NumPad1, codePoint = 49)
+        keyDownEvent("2", code = "Numpad2").assertEquivalence(key = Key.NumPad2, codePoint = 50)
+        keyDownEvent("3", code = "Numpad3").assertEquivalence(key = Key.NumPad3, codePoint = 51)
+        keyDownEvent("4", code = "Numpad4").assertEquivalence(key = Key.NumPad4, codePoint = 52)
+        keyDownEvent("5", code = "Numpad5").assertEquivalence(key = Key.NumPad5, codePoint = 53)
+        keyDownEvent("6", code = "Numpad6").assertEquivalence(key = Key.NumPad6, codePoint = 54)
+        keyDownEvent("7", code = "Numpad7").assertEquivalence(key = Key.NumPad7, codePoint = 55)
+        keyDownEvent("8", code = "Numpad8").assertEquivalence(key = Key.NumPad8, codePoint = 56)
+        keyDownEvent("9", code = "Numpad9").assertEquivalence(key = Key.NumPad9, codePoint = 57)
 
         keyDownEvent("=", code = "NumpadEqual", keyCode = Key.NumPadEquals.keyCode.toInt()).assertEquivalence(key = Key.NumPadEquals, codePoint = 61)
         keyDownEvent("/", code = "NumpadDivide", keyCode = Key.NumPadDivide.keyCode.toInt()).assertEquivalence(key = Key.NumPadDivide, codePoint = 47)
@@ -164,6 +153,7 @@ class KeyEventConversionTests {
         keyDownEvent("F11", code = "F11", keyCode = Key.F11.keyCode.toInt()).assertEquivalence(key = Key.F11)
         keyDownEvent("F12", code = "F12", keyCode = Key.F12.keyCode.toInt()).assertEquivalence(key = Key.F12)
 
+        keyDownEvent("", code = "Space", keyCode = Key.Spacebar.keyCode.toInt()).assertEquivalence(key = Key.Spacebar)
     }
 
     @Test
@@ -210,5 +200,15 @@ class KeyEventConversionTests {
         keyDownEvent("+", code = "Equal", keyCode = Key.Equals.keyCode.toInt()).assertEquivalence(key = Key.Equals, codePoint = 43)
     }
 
+    @Test
+    fun standardVirtualKeyboardLayout() {
+        // Virtual keyboard generates actual keyboard events for some of the keys pressed
+        // This keyboard events, however, actually differ - the code is always "" while key contains the value that we need
+        keyDownEvent("ArrowRight", code = "", keyCode = Key.DirectionRight.keyCode.toInt()).assertEquivalence(key = Key.DirectionRight)
+        keyDownEvent("ArrowLeft", code = "", keyCode = Key.DirectionLeft.keyCode.toInt()).assertEquivalence(key = Key.DirectionLeft)
+        keyDownEvent("Delete", code = "", keyCode = Key.Delete.keyCode.toInt()).assertEquivalence(key = Key.Delete)
+        keyDownEvent("Backspace", code = "", keyCode = Key.Backspace.keyCode.toInt()).assertEquivalence(key = Key.Backspace)
+        keyDownEvent("Enter", code = "", keyCode = Key.Enter.keyCode.toInt()).assertEquivalence(key = Key.Enter)
+    }
 
 }

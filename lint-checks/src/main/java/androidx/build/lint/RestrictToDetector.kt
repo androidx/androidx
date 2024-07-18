@@ -86,9 +86,7 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
             // here, but that points to impl classes in its hierarchy which leads to
             // class loading trouble.
             val sourcePsi = element.sourcePsi
-            if (sourcePsi != null &&
-                isKotlin(sourcePsi.language) &&
-                sourcePsi.parent?.toString() == "CONSTRUCTOR_CALLEE") {
+            if (isKotlin(sourcePsi) && sourcePsi?.parent?.toString() == "CONSTRUCTOR_CALLEE") {
                 return
             }
         }

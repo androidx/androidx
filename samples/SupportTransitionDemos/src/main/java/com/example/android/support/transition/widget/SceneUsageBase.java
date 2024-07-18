@@ -59,10 +59,11 @@ abstract class SceneUsageBase extends TransitionUsageBase {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_toggle) {
-            mCurrentScene = (mCurrentScene + 1) % mScenes.length;
-            go(mScenes[mCurrentScene]);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_toggle:
+                mCurrentScene = (mCurrentScene + 1) % mScenes.length;
+                go(mScenes[mCurrentScene]);
+                return true;
         }
         return false;
     }

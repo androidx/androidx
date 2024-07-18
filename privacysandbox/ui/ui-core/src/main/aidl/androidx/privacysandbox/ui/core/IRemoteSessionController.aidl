@@ -22,5 +22,4 @@ oneway interface IRemoteSessionController {
     void notifyConfigurationChanged(in Configuration configuration);
     void notifyResized(int width, int height);
     void notifyZOrderChanged(boolean isZOrderOnTop);
-    void notifyFetchUiForSession();
 }

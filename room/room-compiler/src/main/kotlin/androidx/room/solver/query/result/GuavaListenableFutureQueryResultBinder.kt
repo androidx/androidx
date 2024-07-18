@@ -17,11 +17,13 @@
 package androidx.room.solver.query.result
 
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.RoomGuavaTypeNames
+import androidx.room.ext.RoomTypeNames
 import androidx.room.solver.CodeGenScope
 
 /**
@@ -45,10 +47,11 @@ class GuavaListenableFutureQueryResultBinder(
         scope.builder.apply {
             addLocalVariable(
                 name = cancellationSignalVar,
-                typeName = AndroidTypeNames.CANCELLATION_SIGNAL,
-                assignExpr = XCodeBlock.ofNewInstance(
+                typeName = AndroidTypeNames.CANCELLATION_SIGNAL.copy(nullable = true),
+                assignExpr = XCodeBlock.of(
                     language,
-                    AndroidTypeNames.CANCELLATION_SIGNAL,
+                    "%M()",
+                    RoomTypeNames.DB_UTIL.packageMember("createCancellationSignal")
                 )
             )
         }

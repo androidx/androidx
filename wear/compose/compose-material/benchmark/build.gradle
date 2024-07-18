@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -35,7 +28,7 @@ android {
     defaultConfig {
         minSdkVersion 25
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "benchmark-proguard-rules.pro"
     }
     namespace "androidx.wear.compose.material.benchmark"

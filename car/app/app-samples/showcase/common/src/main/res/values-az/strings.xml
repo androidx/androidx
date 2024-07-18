@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Əlçatmazdır"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"EA Birləşdirici Növləri"</string>
     <string name="example_title" msgid="530257630320010494">"Nümunə %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Bu mətn "<annotation color="red">"qırmızı"</annotation>" rəngdədir"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"Bu mətn "<annotation color="green">"yaşıl"</annotation>" rəngdədir"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"Bu mətn "<annotation color="blue">"mavi"</annotation>" rəngdədir"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"Bu mətn "<annotation color="yellow">"sarı"</annotation>" rəngdədir"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"Bu mətn qırmızı rəngdədir"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Bu mətn yaşıl rəngdədir"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Bu mətn mavi rəngdədir"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Bu mətn sarı rəngdədir"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Bu mətn əsas rəngdən istifadə edir"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Bu mətn ikinci dərəcəli rəngdən istifadə edir"</string>
     <string name="color_demo" msgid="1822427636476178993">"Rəng Demosu"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Yerlərə Baxın"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Axtarış Şablonu Demosu"</string>
     <string name="search_hint" msgid="978495498991026792">"Burada axtarın"</string>
-    <string name="additional_text" msgid="5755100726890686184"><annotation link="terms_of_service">"Xidmət şərtlərimizə"</annotation>" nəzər salın"</string>
+    <string name="additional_text" msgid="8410289578276941586">"Xidmət şərtlərimizə nəzər salın"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google girişi"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN istifadə edin"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR Kod"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Marşrut seçimləri"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Magistral yollardan istifadə etməyin"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Bərədən istifadə etməyin"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Xəritə demoları"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Kontentli xəritə demoları"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mesaj şablonlu xəritə demosu"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Şəbəkə şablonlu xəritə demosu"</string>
 </resources>

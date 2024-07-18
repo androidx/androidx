@@ -16,7 +16,7 @@
 
 package androidx.camera.core.internal.compat.workaround;
 
-import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
+import android.graphics.ImageFormat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -53,6 +53,6 @@ public class ExifRotationAvailability {
      * @param image The captured image object.
      */
     public boolean shouldUseExifOrientation(@NonNull ImageProxy image) {
-        return isRotationOptionSupported() && isJpegFormats(image.getFormat());
+        return isRotationOptionSupported() && image.getFormat() == ImageFormat.JPEG;
     }
 }

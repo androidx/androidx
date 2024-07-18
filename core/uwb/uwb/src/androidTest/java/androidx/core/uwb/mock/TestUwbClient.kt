@@ -27,7 +27,6 @@ import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
 import com.google.android.gms.nearby.uwb.RangingSessionCallback.RangingSuspendedReason.STOP_RANGING_CALLED
 import com.google.android.gms.nearby.uwb.UwbAddress
-import com.google.android.gms.nearby.uwb.UwbAvailabilityObserver
 import com.google.android.gms.nearby.uwb.UwbClient
 import com.google.android.gms.nearby.uwb.UwbComplexChannel
 import com.google.android.gms.nearby.uwb.UwbDevice
@@ -50,7 +49,7 @@ class TestUwbClient(
     private var startedRanging = false
     companion object {
         val rangingPosition = RangingPosition(
-            RangingMeasurement(1, 1.0F), null, null, 20, -50, null)
+            RangingMeasurement(1, 1.0F), null, null, 20, -50)
     }
     override fun getApiKey(): ApiKey<zze> {
         TODO("Not yet implemented")
@@ -134,14 +133,6 @@ class TestUwbClient(
     }
 
     override fun reconfigureRangingInterval(p0: Int): Task<Void> {
-        TODO("Not yet implemented")
-    }
-
-    override fun subscribeToUwbAvailability(p0: UwbAvailabilityObserver): Task<Void> {
-        TODO("Not yet implemented")
-    }
-
-    override fun unsubscribeFromUwbAvailability(): Task<Void> {
         TODO("Not yet implemented")
     }
 }

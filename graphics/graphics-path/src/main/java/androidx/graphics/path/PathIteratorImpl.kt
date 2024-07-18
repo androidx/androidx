@@ -21,13 +21,13 @@ import android.graphics.PathIterator as PlatformPathIterator
 import android.graphics.PointF
 import androidx.annotation.RequiresApi
 import androidx.graphics.path.PathIterator.ConicEvaluation
-import dalvik.annotation.optimization.FastNative
 
 /**
  * Base class for API-version-specific PathIterator implementation classes. All functionality
  * is implemented in the subclasses except for [next], which relies on shared native code
  * to perform conic conversion.
  */
+@Suppress("IllegalExperimentalApiUsage")
 internal abstract class PathIteratorImpl(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,
@@ -129,7 +129,7 @@ internal class PathIteratorApi34Impl(
      * them on ensuing calls to next(). The converter is only ever called if
      * [conicEvaluation] is set to [ConicEvaluation.AsQuadratics].
      */
-    private val conicConverter = ConicConverter()
+    var conicConverter = ConicConverter()
 
     /**
      * The platform does not expose a calculateSize() method, so we implement our own. In the
@@ -228,11 +228,9 @@ internal class PathIteratorPreApi34Impl(
     private external fun destroyInternalPathIterator(internalPathIterator: Long)
 
     @Suppress("KotlinJniMissingFunction")
-    @FastNative
     private external fun internalPathIteratorHasNext(internalPathIterator: Long): Boolean
 
     @Suppress("KotlinJniMissingFunction")
-    @FastNative
     private external fun internalPathIteratorNext(
         internalPathIterator: Long,
         points: FloatArray,
@@ -240,15 +238,12 @@ internal class PathIteratorPreApi34Impl(
     ): Int
 
     @Suppress("KotlinJniMissingFunction")
-    @FastNative
     private external fun internalPathIteratorPeek(internalPathIterator: Long): Int
 
     @Suppress("KotlinJniMissingFunction")
-    @FastNative
     private external fun internalPathIteratorRawSize(internalPathIterator: Long): Int
 
     @Suppress("KotlinJniMissingFunction")
-    @FastNative
     private external fun internalPathIteratorSize(internalPathIterator: Long): Int
 
     /**

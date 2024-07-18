@@ -605,11 +605,13 @@ class KspTypeTest {
                     JClassName.get("java.lang", "Number")
                 )
                 if (invocation.isKsp) {
-                    val numberKClassName = KClassName("kotlin", "Number").copy(nullable = true)
                     assertThat(arg1.asTypeName().kotlin)
-                        .isEqualTo(KWildcardTypeName.producerOf(numberKClassName))
-                    assertThat(arg1.extendsBound()?.asTypeName()?.kotlin)
-                        .isEqualTo(numberKClassName)
+                        .isEqualTo(
+                            KWildcardTypeName.producerOf(Number::class)
+                        )
+                    assertThat(arg1.extendsBound()?.asTypeName()?.kotlin).isEqualTo(
+                        KClassName("kotlin", "Number")
+                    )
                 }
                 assertThat(
                     arg1.extendsBound()?.extendsBound()

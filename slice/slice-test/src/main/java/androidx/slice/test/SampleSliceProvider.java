@@ -73,6 +73,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Examples of using slice template builders.
  */
+@RequiresApi(19)
 public class SampleSliceProvider extends SliceProvider {
 
     private static final String TAG = "SampleSliceProvider";

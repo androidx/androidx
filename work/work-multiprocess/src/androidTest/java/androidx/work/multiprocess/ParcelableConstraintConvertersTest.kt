@@ -16,9 +16,6 @@
 
 package androidx.work.multiprocess
 
-import android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET
-import android.net.NetworkCapabilities.TRANSPORT_WIFI
-import android.net.NetworkRequest
 import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -54,20 +51,6 @@ public class ParcelableConstraintConvertersTest {
     @SmallTest
     public fun converterTest2() {
         val constraints = Constraints.Builder().build()
-        assertOn(constraints)
-    }
-
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = 28)
-    fun converterTestNetworkRequest() {
-        val request = NetworkRequest.Builder()
-            .addCapability(NET_CAPABILITY_INTERNET)
-            .addTransportType(TRANSPORT_WIFI)
-            .build()
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkRequest(request, NetworkType.NOT_ROAMING)
-            .build()
         assertOn(constraints)
     }
 

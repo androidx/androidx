@@ -21,7 +21,6 @@ import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Delete
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.Insert
 import androidx.room.InvalidationTracker
 import androidx.room.OnConflictStrategy
@@ -86,7 +85,6 @@ class SyncTriggersConcurrencyTest {
     }
 
     @Test
-    @Ignore // Flaky test b/330789066
     fun test() {
         val invalidationTracker = database.invalidationTracker
 

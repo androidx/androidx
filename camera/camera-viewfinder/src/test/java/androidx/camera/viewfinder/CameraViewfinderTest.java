@@ -16,10 +16,6 @@
 
 package androidx.camera.viewfinder;
 
-import static androidx.camera.viewfinder.CameraViewfinder.shouldUseTextureView;
-import static androidx.camera.viewfinder.surface.ImplementationMode.EMBEDDED;
-import static androidx.camera.viewfinder.surface.ImplementationMode.EXTERNAL;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
@@ -49,7 +45,8 @@ public class CameraViewfinderTest {
     @Config(minSdk = Build.VERSION_CODES.N_MR1)
     public void surfaceViewNormal_useSurfaceView() {
         // Assert: SurfaceView is used.
-        assertThat(shouldUseTextureView(EXTERNAL)).isFalse();
+        assertThat(CameraViewfinder.shouldUseTextureView(
+                CameraViewfinder.ImplementationMode.PERFORMANCE)).isFalse();
     }
 
     @Test
@@ -58,7 +55,8 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewStretchedQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(shouldUseTextureView(EXTERNAL)).isTrue();
+        assertThat(CameraViewfinder.shouldUseTextureView(
+                CameraViewfinder.ImplementationMode.PERFORMANCE)).isTrue();
     }
 
     @Test
@@ -67,7 +65,8 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(shouldUseTextureView(EXTERNAL)).isTrue();
+        assertThat(CameraViewfinder.shouldUseTextureView(
+                CameraViewfinder.ImplementationMode.PERFORMANCE)).isTrue();
     }
 
     @Test
@@ -76,6 +75,7 @@ public class CameraViewfinderTest {
         QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
-        assertThat(shouldUseTextureView(EMBEDDED)).isTrue();
+        assertThat(CameraViewfinder.shouldUseTextureView(
+                CameraViewfinder.ImplementationMode.COMPATIBLE)).isTrue();
     }
 }

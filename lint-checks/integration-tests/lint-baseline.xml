@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="MissingClass"
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.view.View#getAccessibilityClassName`"
+        message="Call requires API level 23 (current min is 19): `android.view.View#getAccessibilityClassName`"
         errorLine1="        return view.getAccessibilityClassName();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -111,7 +111,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        performStopActivity3ParamsMethod.invoke(activityThread,"
         errorLine2="                        ^">
         <location
@@ -120,7 +120,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        performStopActivity2ParamsMethod.invoke(activityThread,"
         errorLine2="                        ^">
         <location
@@ -129,7 +129,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        performStopActivity3ParamsMethod!!.invoke("
         errorLine2="                        ^">
         <location
@@ -138,11 +138,29 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="                        performStopActivity2ParamsMethod!!.invoke("
         errorLine2="                        ^">
         <location
             file="src/main/java/androidx/sample/core/app/ActivityRecreatorKt.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mContainer.mSplitBackground.getOutline(outline);"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mContainer.mBackground.getOutline(outline);"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
     </issue>
 
     <issue
@@ -179,6 +197,42 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/AutofixUnsafeCallOnCast.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getClipToPadding();"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            this.getClipToPadding();"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            super.getClipToPadding();"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 20; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        builder.extend(extender);"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
     </issue>
 
     <issue
@@ -251,6 +305,51 @@
         errorLine2="                           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/AutofixUnsafeGenericMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingClassJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingFix is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        drawable.getOutline(null);"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeVoidMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeVoidMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            view.setBackgroundTintList(tint);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
     </issue>
 
     <issue
@@ -516,42 +615,6 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallToThis.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="    @RequiresApi(19)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
@@ -561,43 +624,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassJava.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFix.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -606,16 +633,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeVoidMethodReferenceJava.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -624,7 +642,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -633,7 +651,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -642,7 +660,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -651,7 +669,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="        return if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

@@ -1,11 +1,4 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -47,8 +40,6 @@ dependencies {
     annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
     compileOnly(fileTree(dir: "../wear_stubs", include: ["com.google.android.wearable-stubs.jar"]))
-    compileOnly(fileTree(dir: "../wear_sdk", include: ["wear-sdk.jar"]))
-
 }
 
 android {
@@ -58,10 +49,10 @@ android {
 
     sourceSets {
         main.res.srcDirs += "src/main/res-public"
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear"
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/wear/wear"
     }
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 
@@ -72,7 +63,7 @@ android {
 
 androidx {
     name = "Android Wear"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"

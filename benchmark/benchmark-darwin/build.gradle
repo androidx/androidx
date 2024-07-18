@@ -1,10 +1,4 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -14,7 +8,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 plugins {
     id("AndroidXPlugin")
 }
-
+def enableNative = KmpPlatformsKt.enableNative(project)
 androidXMultiplatform {
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
     ios {
@@ -31,51 +25,44 @@ androidXMultiplatform {
     // the only platform built on all machines
     defaultPlatform(PlatformIdentifier.JVM)
     sourceSets {
-        darwinMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
-        }
-        darwinTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
-            }
-        }
-        iosMain {
-            dependsOn(darwinMain)
-            dependencies {
-                api(project(":benchmark:benchmark-darwin-core"))
-            }
-        }
-        iosArm64Main {
-            dependsOn(iosMain)
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosMain)
-        }
-        iosX64Main {
-            dependsOn(iosMain)
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(darwinMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(darwinTest)
-                }
-                target.compilations.configureEach {
-                    compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+        // checking this avoids the warning about sourcesets that
+        // are created but not added to compilation
+        if (enableNative) {
+            darwinMain {
+                dependencies {
+                    api(libs.kotlinStdlib)
                 }
             }
-        }
-    }
-    kotlin.metadata {
-        // KT-63338
-        compilations.matching { it.name == "iosMain" }.configureEach {
-            it.compileTaskProvider.configure {
-                enabled = false
+            darwinTest {
+                dependencies {
+                    implementation(libs.kotlinTest)
+                    implementation(libs.kotlinTestAnnotationsCommon)
+                }
+            }
+            iosMain {
+                dependsOn(darwinMain)
+                dependencies {
+                    api(project(":benchmark:benchmark-darwin-core"))
+                }
+            }
+            iosArm64Main {
+                dependsOn(iosMain)
+            }
+            iosSimulatorArm64Main {
+                dependsOn(iosMain)
+            }
+            iosX64Main {
+                dependsOn(iosMain)
+            }
+            targets.all { target ->
+                if (target.platformType == KotlinPlatformType.native) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(darwinMain)
+                    }
+                    target.compilations["test"].defaultSourceSet {
+                        dependsOn(darwinTest)
+                    }
+                }
             }
         }
     }

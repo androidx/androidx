@@ -193,11 +193,13 @@ class WrappedDrawableApi14 extends Drawable
     }
 
     @Override
+    @RequiresApi(19)
     public void setAutoMirrored(boolean mirrored) {
         DrawableCompat.setAutoMirrored(mDrawable, mirrored);
     }
 
     @Override
+    @RequiresApi(19)
     public boolean isAutoMirrored() {
         return DrawableCompat.isAutoMirrored(mDrawable);
     }

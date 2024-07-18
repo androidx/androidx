@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("deprecation")
-
 package androidx.security.crypto
 
 import android.content.Context
@@ -32,7 +30,6 @@ import android.content.Context
  * valid for after the user has authenticated. Must be a value > 0.
  * @param requestStrongBoxBacked `true` if the key should be stored in Strong Box, if possible.
  */
-@Deprecated("Use Android Keystore directly instead")
 public fun MasterKey(
     context: Context,
     keyAlias: String = MasterKey.DEFAULT_MASTER_KEY_ALIAS,

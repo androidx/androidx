@@ -33,6 +33,7 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
 import androidx.camera.core.ImageCaptureException
@@ -68,7 +69,6 @@ class EffectsFragment : Fragment() {
     private var recording: Recording? = null
     private lateinit var surfaceProcessor: ToneMappingSurfaceProcessor
     private var imageEffect: ToneMappingImageEffect? = null
-    private var isBackCamera = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -98,7 +98,13 @@ class EffectsFragment : Fragment() {
                 stopRecording()
             }
         }
-        flip.setOnClickListener { toggleCamera() }
+        flip.setOnClickListener {
+            if (cameraController.cameraSelector.lensFacing == LENS_FACING_BACK) {
+                cameraController.cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+            } else {
+                cameraController.cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            }
+        }
         // Set up the surface processor.
         surfaceProcessor = ToneMappingSurfaceProcessor()
         // Set up the camera controller.
@@ -211,7 +217,6 @@ class EffectsFragment : Fragment() {
     private fun stopRecording() {
         record.text = "Record"
         recording?.stop()
-        recording = null
     }
 
     private fun getNewVideoOutputMediaStoreOptions(): MediaStoreOutputOptions {
@@ -237,17 +242,6 @@ class EffectsFragment : Fragment() {
                 toast("Failed to create directory: $pictureFolder")
             }
         }
-    }
-
-    fun toggleCamera() {
-        cameraController.cameraSelector =
-            if (isBackCamera) {
-                isBackCamera = false
-                CameraSelector.DEFAULT_FRONT_CAMERA
-            } else {
-                isBackCamera = true
-                CameraSelector.DEFAULT_BACK_CAMERA
-            }
     }
 
     @VisibleForTesting

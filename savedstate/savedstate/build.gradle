@@ -93,7 +93,7 @@ kotlin {
 }
 
 android {
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.savedstate"

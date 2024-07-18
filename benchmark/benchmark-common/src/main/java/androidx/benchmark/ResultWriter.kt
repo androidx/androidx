@@ -16,30 +16,24 @@
 
 package androidx.benchmark
 
+import android.os.Build
+import android.util.JsonWriter
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.benchmark.json.BenchmarkData
 import androidx.test.platform.app.InstrumentationRegistry
-import com.squareup.moshi.Moshi
 import java.io.File
 import java.io.IOException
-import okio.FileSystem
-import okio.Path.Companion.toPath
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object ResultWriter {
 
     @VisibleForTesting
-    internal val reports = mutableListOf<BenchmarkData.TestResult>()
+    internal val reports = ArrayList<BenchmarkResult>()
 
-    internal val adapter =
-        Moshi.Builder().build()
-            .adapter(BenchmarkData::class.java)
-            .indent("    ") // chosen for test compat, will be changed later
+    public fun appendReport(benchmarkResult: BenchmarkResult) {
+        reports.add(benchmarkResult)
 
-    fun appendTestResult(testResult: BenchmarkData.TestResult) {
-        reports.add(testResult)
         if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
             // Ideally, append for efficiency
@@ -66,38 +60,140 @@ public object ResultWriter {
     }
 
     @VisibleForTesting
-    internal fun writeReport(file: File, benchmarks: List<BenchmarkData.TestResult>) {
-        if (!file.exists()) {
-            file.parentFile?.mkdirs()
-            try {
-                file.createNewFile()
-            } catch (exception: IOException) {
-                throw IOException(
-                    """
+    internal fun writeReport(file: File, benchmarkResults: List<BenchmarkResult>) {
+        file.run {
+            if (!exists()) {
+                parentFile?.mkdirs()
+                try {
+                    createNewFile()
+                } catch (exception: IOException) {
+                    throw IOException(
+                        """
                             Failed to create file for benchmark report in:
-                            $file.parent
+                            $parent
                             Make sure the instrumentation argument additionalTestOutputDir is set
                             to a writable directory on device. If using a version of Android Gradle
                             Plugin that doesn't support additionalTestOutputDir, ensure your app's
                             manifest file enables legacy storage behavior by adding the
                             application attribute: android:requestLegacyExternalStorage="true"
                         """.trimIndent(),
-                    exception
-                )
+                        exception
+                    )
+                }
             }
-        }
 
-        val benchmarkData = BenchmarkData(
-            context = BenchmarkData.Context(),
-            benchmarks = benchmarks
-        )
+            val writer = JsonWriter(bufferedWriter())
+            writer.setIndent("    ")
 
-        FileSystem.SYSTEM.write(file.absolutePath.toPath()) {
-            adapter.toJson(this, benchmarkData)
+            writer.beginObject()
+
+            writer.name("context").beginObject()
+                .name("build").buildInfoObject()
+                .name("cpuCoreCount").value(CpuInfo.coreDirs.size)
+                .name("cpuLocked").value(CpuInfo.locked)
+                .name("cpuMaxFreqHz").value(CpuInfo.maxFreqHz)
+                .name("memTotalBytes").value(MemInfo.memTotalBytes)
+                .name("sustainedPerformanceModeEnabled")
+                .value(IsolationActivity.sustainedPerformanceModeInUse)
+            writer.endObject()
+
+            writer.name("benchmarks").beginArray()
+            benchmarkResults.forEach { writer.reportObject(it) }
+            writer.endArray()
+
+            writer.endObject()
+
+            writer.flush()
+            writer.close()
         }
     }
 
-    fun getParams(testName: String): Map<String, String> {
+    private fun JsonWriter.buildInfoObject(): JsonWriter {
+        beginObject()
+            .name("brand").value(Build.BRAND)
+            .name("device").value(Build.DEVICE)
+            .name("fingerprint").value(Build.FINGERPRINT)
+            .name("model").value(Build.MODEL)
+            .name("version").beginObject().name("sdk").value(Build.VERSION.SDK_INT).endObject()
+        return endObject()
+    }
+
+    private fun JsonWriter.reportObject(benchmarkResult: BenchmarkResult): JsonWriter {
+        beginObject()
+            .name("name").value(benchmarkResult.testName)
+            .name("params").paramsObject(benchmarkResult)
+            .name("className").value(benchmarkResult.className)
+            .name("totalRunTimeNs").value(benchmarkResult.totalRunTimeNs)
+            .name("metrics").metricsContainerObject(benchmarkResult.metrics.singleMetrics)
+            .name("sampledMetrics").sampledMetricsContainerObject(
+                benchmarkResult.metrics.sampledMetrics
+            )
+            .name("warmupIterations").value(benchmarkResult.warmupIterations)
+            .name("repeatIterations").value(benchmarkResult.repeatIterations)
+            .name("thermalThrottleSleepSeconds").value(benchmarkResult.thermalThrottleSleepSeconds)
+        return endObject()
+    }
+
+    private fun JsonWriter.metricResultObject(
+        metricResult: MetricResult
+    ): JsonWriter {
+        name("minimum").value(metricResult.min)
+        name("maximum").value(metricResult.max)
+        name("median").value(metricResult.median)
+        return this
+    }
+
+    private fun JsonWriter.metricsContainerObject(
+        metricResults: List<MetricResult>
+    ): JsonWriter {
+        beginObject()
+        metricResults.forEach { metricResult ->
+            name(metricResult.name).beginObject()
+            metricResultObject(metricResult)
+            name("runs").beginArray()
+            metricResult.data.forEach { value(it) }
+            endArray()
+            endObject()
+        }
+        return endObject()
+    }
+
+    private fun JsonWriter.sampledMetricResultObject(
+        metricResult: MetricResult
+    ): JsonWriter {
+        name("P50").value(metricResult.p50)
+        name("P90").value(metricResult.p90)
+        name("P95").value(metricResult.p95)
+        name("P99").value(metricResult.p99)
+        return this
+    }
+
+    private fun JsonWriter.sampledMetricsContainerObject(
+        metricResults: List<MetricResult>
+    ): JsonWriter {
+        beginObject()
+        metricResults.forEach { metricResult ->
+            name(metricResult.name).beginObject()
+            sampledMetricResultObject(metricResult)
+            name("runs").beginArray()
+            metricResult.iterationData!!.forEach { iterationValues ->
+                beginArray()
+                iterationValues.forEach { value(it) }
+                endArray()
+            }
+            endArray()
+            endObject()
+        }
+        return endObject()
+    }
+
+    private fun JsonWriter.paramsObject(benchmarkResult: BenchmarkResult): JsonWriter {
+        beginObject()
+        getParams(benchmarkResult.testName).forEach { name(it.key).value(it.value) }
+        return endObject()
+    }
+
+    private fun getParams(testName: String): Map<String, String> {
         val parameterStrStart = testName.indexOf('[')
         val parameterStrEnd = testName.lastIndexOf(']')
 

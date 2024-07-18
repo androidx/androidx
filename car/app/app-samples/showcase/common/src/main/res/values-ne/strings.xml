@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"उपलब्ध छैन"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"EV कनेक्टरका प्रकारहरू"</string>
     <string name="example_title" msgid="530257630320010494">"उदाहरण %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"यो टेक्स्टको रङ "<annotation color="red">"रातो"</annotation>" छ"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"यो टेक्स्टको रङ "<annotation color="green">"हरियो"</annotation>" छ"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"यो टेक्स्टको रङ "<annotation color="blue">"निलो"</annotation>" छ"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"यो टेक्स्टको रङ "<annotation color="yellow">"पहेँलो"</annotation>" छ"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"यो टेक्स्ट रातो रङको हो"</string>
+    <string name="example_2_text" msgid="718820705318661440">"यो टेक्स्ट हरियो रङको हो"</string>
+    <string name="example_3_text" msgid="977269832109695627">"यो टेक्स्ट निलो रङको हो"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"यो टेक्स्ट पहेँलो रङको हो"</string>
     <string name="example_5_text" msgid="8828804968749423500">"यो टेक्स्टमा मुख्य रङ प्रयोग गरिन्छ"</string>
     <string name="example_6_text" msgid="7991523168517599600">"यो टेक्स्टले सहायक रङ प्रयोग गर्छ"</string>
     <string name="color_demo" msgid="1822427636476178993">"रङको डेमो"</string>
@@ -114,7 +114,7 @@
     <string name="finish_app_title" msgid="9013328479438745074">"एपको डेमो बन्द गर्नुहोस्"</string>
     <string name="finish_app_demo_title" msgid="8223819062053448384">"तपाईंले अर्को पटक डेमो सुरु गर्दा अनुमति माग्न अनुरोध गर्ने स्क्रिन थपिने छ"</string>
     <string name="preseed_permission_app_title" msgid="182847662545676962">"एपको डेमो सुरु गर्ने अनुमति"</string>
-    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"अर्को पटक डेमो सुरु गर्दा अनुमति माग्ने गर्ने स्क्रिन देखाउनुहोस्"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"अर्को पटक डेमो सुरु गर्दा अनुमति माग्ने गर्ने स्क्रिन देखाइयोस्"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"डेमो लोड हुँदै छ"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"लोड गर्ने कार्य पूरा भयो!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"पहिलो स्क्रिनमा जानुहोस्"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"ठाउँहरू ब्राउज गर्नुहोस्"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"खोज टेम्प्लेटको डेमो"</string>
     <string name="search_hint" msgid="978495498991026792">"यहाँ खोज्नुहोस्"</string>
-    <string name="additional_text" msgid="5755100726890686184">"कृपया हाम्रा "<annotation link="terms_of_service">"सेवाका सर्तहरू"</annotation>" पढ्नुहोस्"</string>
+    <string name="additional_text" msgid="8410289578276941586">"कृपया हाम्रा सेवाका सर्तहरूको समीक्षा गर्नुहोस्"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google साइन इन"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN प्रयोग गर्नुहोस्"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR कोड"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"मार्गसम्बन्धी विकल्पहरू"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"राजमार्गहरू छलेर जानुहोस्"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"फेरी छलेर जानुहोस्"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"डेमोहरूसँग म्याप गर्नुहोस्"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"सामग्रीका डेमोहरूसँग म्याप गर्नुहोस्"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"म्यासेज टेम्प्लेटको डेमोसँग म्याप गर्नुहोस्"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ग्रिड टेम्प्लेटको डेमोसँग म्याप गर्नुहोस्"</string>
 </resources>

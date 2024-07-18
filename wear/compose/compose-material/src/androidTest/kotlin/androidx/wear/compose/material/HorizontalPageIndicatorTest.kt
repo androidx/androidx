@@ -18,14 +18,12 @@ package androidx.wear.compose.material
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.AbsoluteCutCornerShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertHeightIsEqualTo
-import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -92,66 +90,16 @@ class HorizontalPageIndicatorTest {
         has_square_shape(PageIndicatorStyle.Linear)
     }
 
-    @Test
-    fun horizontal_page_indicator_curved_9_pages_sized_appropriately() {
-        val indicatorSize = 6.dp
-        val spacing = 2.dp
-
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                HorizontalPageIndicator(
-                    modifier = Modifier.testTag(TEST_TAG),
-                    indicatorStyle = PageIndicatorStyle.Curved,
-                    pageIndicatorState = pageIndicatorState(
-                        pageOffset = 0f,
-                        selectedPage = 1,
-                        pageCount = 9),
-                    indicatorSize = indicatorSize,
-                    spacing = spacing
-                )
-            }
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo((indicatorSize + spacing) * 6)
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2)
-    }
-
-    @Test
-    fun horizontal_page_indicator_curved_3_pages_sized_appropriately() {
-        val indicatorSize = 6.dp
-        val spacing = 2.dp
-        val pagesCount = 3
-
-        rule.setContent {
-            Box(modifier = Modifier.size(200.dp)) {
-                HorizontalPageIndicator(
-                    modifier = Modifier.testTag(TEST_TAG),
-                    indicatorStyle = PageIndicatorStyle.Curved,
-                    pageIndicatorState = pageIndicatorState(
-                        pageOffset = 0f,
-                        selectedPage = 1,
-                        pageCount = pagesCount),
-                    indicatorSize = indicatorSize,
-                    spacing = spacing
-                )
-            }
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo((indicatorSize + spacing) * pagesCount)
-        rule.onNodeWithTag(TEST_TAG).assertHeightIsEqualTo(indicatorSize * 2)
-    }
-
     private fun position_is_selected(indicatorStyle: PageIndicatorStyle) {
         rule.setContentWithTheme {
-            Box(Modifier.testTag(TEST_TAG).size(150.dp)) {
-                HorizontalPageIndicator(
-                    indicatorStyle = indicatorStyle,
-                    pageIndicatorState = pageIndicatorState(),
-                    selectedColor = selectedColor,
-                    unselectedColor = unselectedColor,
-                    indicatorSize = 20.dp
-                )
-            }
+            HorizontalPageIndicator(
+                modifier = Modifier.testTag(TEST_TAG).size(150.dp),
+                indicatorStyle = indicatorStyle,
+                pageIndicatorState = pageIndicatorState(),
+                selectedColor = selectedColor,
+                unselectedColor = unselectedColor,
+                indicatorSize = 20.dp
+            )
         }
         rule.waitForIdle()
 
@@ -167,15 +115,14 @@ class HorizontalPageIndicatorTest {
 
     private fun in_between_positions(indicatorStyle: PageIndicatorStyle) {
         rule.setContentWithTheme {
-            Box(Modifier.testTag(TEST_TAG).size(150.dp)) {
-                HorizontalPageIndicator(
-                    pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
-                    indicatorStyle = indicatorStyle,
-                    selectedColor = selectedColor,
-                    unselectedColor = unselectedColor,
-                    indicatorSize = 20.dp
-                )
-            }
+            HorizontalPageIndicator(
+                modifier = Modifier.testTag(TEST_TAG).size(150.dp).fillMaxWidth(),
+                pageIndicatorState = pageIndicatorState(pageOffset = 0.5f),
+                indicatorStyle = indicatorStyle,
+                selectedColor = selectedColor,
+                unselectedColor = unselectedColor,
+                indicatorSize = 20.dp
+            )
         }
         rule.waitForIdle()
 
@@ -191,16 +138,15 @@ class HorizontalPageIndicatorTest {
 
     private fun has_square_shape(indicatorStyle: PageIndicatorStyle) {
         rule.setContentWithTheme {
-            Box(Modifier.testTag(TEST_TAG).size(150.dp)) {
-                HorizontalPageIndicator(
-                    pageIndicatorState = pageIndicatorState(),
-                    indicatorStyle = indicatorStyle,
-                    selectedColor = selectedColor,
-                    unselectedColor = unselectedColor,
-                    indicatorShape = AbsoluteCutCornerShape(0f),
-                    indicatorSize = 20.dp
-                )
-            }
+            HorizontalPageIndicator(
+                modifier = Modifier.testTag(TEST_TAG).size(150.dp),
+                pageIndicatorState = pageIndicatorState(),
+                indicatorStyle = indicatorStyle,
+                selectedColor = selectedColor,
+                unselectedColor = unselectedColor,
+                indicatorShape = AbsoluteCutCornerShape(0f),
+                indicatorSize = 20.dp
+            )
         }
         rule.waitForIdle()
 

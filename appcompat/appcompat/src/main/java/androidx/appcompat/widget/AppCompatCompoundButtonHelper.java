@@ -20,6 +20,7 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.CompoundButton;
 
@@ -143,4 +144,15 @@ class AppCompatCompoundButtonHelper {
         }
     }
 
+    int getCompoundPaddingLeft(int superValue) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // Before JB-MR1 the button drawable wasn't taken into account for padding. We'll
+            // workaround that here
+            Drawable buttonDrawable = CompoundButtonCompat.getButtonDrawable(mView);
+            if (buttonDrawable != null) {
+                superValue += buttonDrawable.getIntrinsicWidth();
+            }
+        }
+        return superValue;
+    }
 }

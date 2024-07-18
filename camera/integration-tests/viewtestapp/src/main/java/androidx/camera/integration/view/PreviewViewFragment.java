@@ -97,18 +97,6 @@ public class PreviewViewFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     ProcessCameraProvider mCameraProvider;
 
-    private View.OnAttachStateChangeListener mOnAttachStateChangeListener =
-            new View.OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(@NonNull View view) {
-                    setUiControlsAndBindPreview(view);
-                }
-
-                @Override
-                public void onViewDetachedFromWindow(@NonNull View view) {
-                }
-            };
-
     public PreviewViewFragment() {
         super(R.layout.fragment_preview_view);
     }
@@ -151,17 +139,21 @@ public class PreviewViewFragment extends Fragment {
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
                 mCameraProvider = cameraProvider;
+                mPreview = new Preview.Builder()
+                        .setTargetRotation(view.getDisplay().getRotation())
+                        .setTargetName("Preview")
+                        .build();
+                mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
                 if (!areFrontOrBackCameraAvailable(cameraProvider)) {
                     return;
                 }
 
-                if (!view.isAttachedToWindow()) {
-                    // The view might not have been attached and it will fail to obtain the display
-                    // and rotation. Add a listener to setup UI controls when the view is attached.
-                    view.addOnAttachStateChangeListener(mOnAttachStateChangeListener);
-                } else {
-                    setUiControlsAndBindPreview(view);
-                }
+                setUpToggleVisibility(cameraProvider, view);
+                setUpCameraLensFacing(cameraProvider);
+                setUpToggleCamera(cameraProvider, view);
+                setUpScaleTypeSelect(cameraProvider, view);
+                setUpTargetRotationButton(cameraProvider, view);
+                bindPreview(cameraProvider);
             }
 
             @Override
@@ -170,21 +162,6 @@ public class PreviewViewFragment extends Fragment {
                         + "initialized?", throwable);
             }
         }, ContextCompat.getMainExecutor(requireContext()));
-    }
-
-    private void setUiControlsAndBindPreview(@NonNull View view) {
-        mPreview = new Preview.Builder()
-                .setTargetRotation(view.getDisplay().getRotation())
-                .setTargetName("Preview")
-                .build();
-        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
-
-        setUpToggleVisibility(mCameraProvider, view);
-        setUpCameraLensFacing(mCameraProvider);
-        setUpToggleCamera(mCameraProvider, view);
-        setUpScaleTypeSelect(mCameraProvider, view);
-        setUpTargetRotationButton(mCameraProvider, view);
-        bindPreview(mCameraProvider);
     }
 
     @Override

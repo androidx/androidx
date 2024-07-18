@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
@@ -22,19 +15,12 @@ configurations {
     }
 }
 
-tasks.withType(Test).configureEach {
-    it.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
-
+SdkResourceGenerator.generateForHostTest(project)
 apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
     implementation(findGradleKotlinDsl())
-    implementation("com.android.tools.build:gradle-api:8.0.0")
+    implementation("com.android.tools.build:gradle-api:8.0.0-alpha07")
     implementation(libs.kotlinStdlib)
     compileOnly(libs.androidGradlePluginz)
     compileOnly(libs.kspGradlePluginz)
@@ -42,10 +28,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
 
-    testPlugin("com.android.tools.build:gradle:8.0.0")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:linux")
-    testPlugin("com.android.tools.build:aapt2:8.0.0-9289358:osx")
+    testPlugin("com.android.tools.build:gradle:8.0.0-alpha07")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
@@ -65,6 +48,13 @@ gradlePlugin {
 // the KAPT / KSP plugins while keeping a compileOnly dep on the main source.
 tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").configure {
     it.pluginClasspath.from(configurations.testPlugin)
+}
+
+tasks {
+    validatePlugins {
+        failOnWarning.set(true)
+        enableStricterValidation.set(true)
+    }
 }
 
 androidx {

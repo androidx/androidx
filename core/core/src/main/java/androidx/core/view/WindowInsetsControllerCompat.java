@@ -113,23 +113,15 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     @Deprecated
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
-        if (SDK_INT >= 35) {
-            mImpl = new Impl35(insetsController,
-                    this,
-                    new SoftwareKeyboardControllerCompat(insetsController));
-        } else {
-            mImpl = new Impl30(insetsController,
-                    this,
-                    new SoftwareKeyboardControllerCompat(insetsController));
-        }
+        mImpl = new Impl30(insetsController,
+                this,
+                new SoftwareKeyboardControllerCompat(insetsController));
     }
 
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
         SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat =
                 new SoftwareKeyboardControllerCompat(view);
-        if (SDK_INT >= 35) {
-            mImpl = new Impl35(window, this, softwareKeyboardControllerCompat);
-        } else if (SDK_INT >= 30) {
+        if (SDK_INT >= 30) {
             mImpl = new Impl30(window, this, softwareKeyboardControllerCompat);
         } else if (SDK_INT >= 26) {
             mImpl = new Impl26(window, softwareKeyboardControllerCompat);
@@ -202,12 +194,6 @@ public final class WindowInsetsControllerCompat {
      * Checks if the foreground of the status bar is set to light.
      * <p>
      * This method always returns false on API < 23.
-     * <p>
-     * If this value is being set in the theme (via {@link android.R.attr#windowLightStatusBar}),
-     * then the correct value will only be returned once attached to the window.
-     * <p>
-     * Once this method is called, modifying `systemUiVisibility` directly to change the
-     * appearance is undefined behavior.
      *
      * @return true if the foreground is light
      * @see #setAppearanceLightStatusBars(boolean)
@@ -221,9 +207,6 @@ public final class WindowInsetsControllerCompat {
      * bar can be read clearly. If false, reverts to the default appearance.
      * <p>
      * This method has no effect on API < 23.
-     * <p>
-     * Once this method is called, modifying `systemUiVisibility` directly to change the
-     * appearance is undefined behavior.
      *
      * @see #isAppearanceLightStatusBars()
      */
@@ -235,13 +218,6 @@ public final class WindowInsetsControllerCompat {
      * Checks if the foreground of the navigation bar is set to light.
      * <p>
      * This method always returns false on API < 26.
-     * <p>
-     * If this value is being set in the theme (via
-     * {@link android.R.attr#windowLightNavigationBar}),
-     * then the correct value will only be returned once attached to the window.
-     * <p>
-     * Once this method is called, modifying `systemUiVisibility` directly to change the
-     * appearance is undefined behavior.
      *
      * @return true if the foreground is light
      * @see #setAppearanceLightNavigationBars(boolean)
@@ -255,9 +231,6 @@ public final class WindowInsetsControllerCompat {
      * the bar can be read clearly. If false, reverts to the default appearance.
      * <p>
      * This method has no effect on API < 26.
-     * <p>
-     * Once this method is called, modifying `systemUiVisibility` directly to change the
-     * appearance is undefined behavior.
      *
      * @see #isAppearanceLightNavigationBars()
      */
@@ -664,13 +637,6 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         public boolean isAppearanceLightStatusBars() {
-            // This is a side-effectful workaround
-            // Because the mask is zero, this won't change the system bar appearance
-            // However, it "unlocks" reading the effective system bar appearance in the following
-            // call. Without this being "unlocked," the system bar appearance will always return
-            // nothing, even if it has been set in the theme or by the system ui flags before
-            // querying for it.
-            mInsetsController.setSystemBarsAppearance(0, 0);
             return (mInsetsController.getSystemBarsAppearance()
                     & WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0;
         }
@@ -698,13 +664,6 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         public boolean isAppearanceLightNavigationBars() {
-            // This is a side-effectful workaround
-            // Because the mask is zero, this won't change the system bar appearance
-            // However, it "unlocks" reading the effective system bar appearance in the following
-            // call. Without this being "unlocked," the system bar appearance will always return
-            // nothing, even if it has been set in the theme or by the system ui flags before
-            // querying for it.
-            mInsetsController.setSystemBarsAppearance(0, 0);
             return (mInsetsController.getSystemBarsAppearance()
                     & WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0;
         }
@@ -837,34 +796,5 @@ public final class WindowInsetsControllerCompat {
                     decorView.getSystemUiVisibility()
                             | systemUiFlag);
         }
-    }
-
-    @RequiresApi(35)
-    private static class Impl35 extends Impl30 {
-
-        Impl35(@NonNull Window window,
-                @NonNull WindowInsetsControllerCompat compatController,
-                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
-            super(window, compatController, softwareKeyboardControllerCompat);
-        }
-
-        Impl35(@NonNull WindowInsetsController insetsController,
-                @NonNull WindowInsetsControllerCompat compatController,
-                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
-            super(insetsController, compatController, softwareKeyboardControllerCompat);
-        }
-
-        @Override
-        public boolean isAppearanceLightStatusBars() {
-            return (mInsetsController.getSystemBarsAppearance()
-                    & WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0;
-        }
-
-        @Override
-        public boolean isAppearanceLightNavigationBars() {
-            return (mInsetsController.getSystemBarsAppearance()
-                    & WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0;
-        }
-
     }
 }

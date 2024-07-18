@@ -18,7 +18,6 @@ package androidx.core.app;
 
 import static android.app.AlarmManager.RTC_WAKEUP;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -162,13 +161,14 @@ public final class AlarmManagerCompat {
      * @see AlarmManager#ELAPSED_REALTIME_WAKEUP
      * @see AlarmManager#RTC
      * @see AlarmManager#RTC_WAKEUP
-     * @deprecated Call {@link AlarmManager#setExact()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "alarmManager.setExact(type, triggerAtMillis, operation)")
     public static void setExact(@NonNull AlarmManager alarmManager, int type, long triggerAtMillis,
             @NonNull PendingIntent operation) {
-        alarmManager.setExact(type, triggerAtMillis, operation);
+        if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.setExact(alarmManager, type, triggerAtMillis, operation);
+        } else {
+            alarmManager.set(type, triggerAtMillis, operation);
+        }
     }
 
     /**
@@ -231,37 +231,6 @@ public final class AlarmManagerCompat {
         }
     }
 
-    /**
-     * Called to check if the caller can schedule exact alarms.
-     * Your app schedules exact alarms when it calls any of the {@code setExact...} or
-     * {@link AlarmManager#setAlarmClock(AlarmManager.AlarmClockInfo, PendingIntent) setAlarmClock}
-     * API methods.
-     * <p>
-     * Apps targeting {@link Build.VERSION_CODES#S} or higher can schedule exact alarms only if they
-     * have the {@link Manifest.permission#SCHEDULE_EXACT_ALARM} permission or they are on the
-     * device's power-save exemption list.
-     * These apps can also
-     * start {@link android.provider.Settings#ACTION_REQUEST_SCHEDULE_EXACT_ALARM} to
-     * request this permission from the user.
-     * <p>
-     * Apps targeting lower sdk versions, can always schedule exact alarms.
-     *
-     * @param alarmManager AlarmManager instance used to set the alarm
-     * @return {@code true} if the caller can schedule exact alarms, {@code false} otherwise.
-     * @see android.provider.Settings#ACTION_REQUEST_SCHEDULE_EXACT_ALARM
-     * @see AlarmManager#setExact(int, long, PendingIntent)
-     * @see AlarmManager#setExactAndAllowWhileIdle(int, long, PendingIntent)
-     * @see AlarmManager#setAlarmClock(AlarmManager.AlarmClockInfo, PendingIntent)
-     * @see android.os.PowerManager#isIgnoringBatteryOptimizations(String)
-     */
-    public static boolean canScheduleExactAlarms(@NonNull AlarmManager alarmManager) {
-        if (Build.VERSION.SDK_INT >= 31) {
-            return Api31Impl.canScheduleExactAlarms(alarmManager);
-        } else {
-            return true;
-        }
-    }
-
     private AlarmManagerCompat() {
     }
 
@@ -303,15 +272,16 @@ public final class AlarmManagerCompat {
         }
     }
 
-    @RequiresApi(31)
-    static class Api31Impl {
-        private Api31Impl() {
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
             // This class is not instantiable.
         }
 
         @DoNotInline
-        static boolean canScheduleExactAlarms(AlarmManager alarmManager) {
-            return alarmManager.canScheduleExactAlarms();
+        static void setExact(AlarmManager alarmManager, int type, long triggerAtMillis,
+                PendingIntent operation) {
+            alarmManager.setExact(type, triggerAtMillis, operation);
         }
     }
 }

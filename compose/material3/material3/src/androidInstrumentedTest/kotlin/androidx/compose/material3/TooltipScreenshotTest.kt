@@ -41,11 +41,9 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 class TooltipScreenshotTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
-    @get:Rule
-    val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
+    @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
     fun plainTooltip_lightTheme() {
@@ -54,8 +52,7 @@ class TooltipScreenshotTest {
         // Stop auto advance for test consistency
         rule.mainClock.autoAdvance = false
 
-        rule.onNodeWithTag(AnchorTestTag)
-            .performTouchInput { longClick() }
+        rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
         rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
@@ -71,8 +68,7 @@ class TooltipScreenshotTest {
         // Stop auto advance for test consistency
         rule.mainClock.autoAdvance = false
 
-        rule.onNodeWithTag(AnchorTestTag)
-            .performTouchInput { longClick() }
+        rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
         rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
@@ -88,8 +84,7 @@ class TooltipScreenshotTest {
         // Stop auto advance for test consistency
         rule.mainClock.autoAdvance = false
 
-        rule.onNodeWithTag(AnchorTestTag)
-            .performTouchInput { longClick() }
+        rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
         rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
@@ -105,8 +100,7 @@ class TooltipScreenshotTest {
         // Stop auto advance for test consistency
         rule.mainClock.autoAdvance = false
 
-        rule.onNodeWithTag(AnchorTestTag)
-            .performTouchInput { longClick() }
+        rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
         rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
@@ -116,7 +110,8 @@ class TooltipScreenshotTest {
     }
 
     private fun assertAgainstGolden(goldenName: String) {
-        rule.onNodeWithTag(TooltipTestTag)
+        rule
+            .onNodeWithTag(TooltipTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
     }
@@ -127,19 +122,14 @@ class TooltipScreenshotTest {
         TooltipBox(
             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
             tooltip = {
-                PlainTooltip(
-                    modifier = Modifier.testTag(TooltipTestTag)
-                ) {
+                PlainTooltip(modifier = Modifier.testTag(TooltipTestTag)) {
                     Text("Tooltip Description")
                 }
             },
             modifier = Modifier.testTag(AnchorTestTag),
             state = tooltipState
         ) {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = null
-            )
+            Icon(Icons.Filled.Favorite, contentDescription = null)
         }
     }
 
@@ -163,10 +153,7 @@ class TooltipScreenshotTest {
             state = tooltipState,
             modifier = Modifier.testTag(AnchorTestTag)
         ) {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = null
-            )
+            Icon(Icons.Filled.Favorite, contentDescription = null)
         }
     }
 }

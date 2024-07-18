@@ -36,7 +36,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -227,35 +226,6 @@ class CurvedScreenshotTest {
                     angularDirection = CurvedDirection.Angular.CounterClockwise
                 ) {
                     layout_direction_block()
-                }
-            }
-        }
-    }
-
-    @Test
-    fun ellipsis() {
-        verify_composable_screenshot {
-            CurvedLayout(
-                Modifier.fillMaxSize(),
-                angularDirection = CurvedDirection.Angular.Clockwise,
-                anchor = 270f
-            ) {
-                curvedRow(CurvedModifier.background(Color.Green)) {
-                    basicCurvedText("Top Text Goes Here",
-                        CurvedModifier.angularSize(45f),
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-            CurvedLayout(
-                Modifier.fillMaxSize(),
-                angularDirection = CurvedDirection.Angular.CounterClockwise,
-                anchor = 90f
-            ) {
-                curvedRow(CurvedModifier.background(Color.Green)) {
-                    basicCurvedText("Bottom Text Goes Here",
-                        CurvedModifier.angularSize(45f),
-                        overflow = TextOverflow.Ellipsis)
                 }
             }
         }

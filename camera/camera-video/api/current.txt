@@ -167,7 +167,7 @@ package androidx.camera.video {
     method public static <T extends androidx.camera.video.VideoOutput> androidx.camera.video.VideoCapture<T!> withOutput(T);
   }
 
-  @RequiresApi(21) public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture!> {
+  @RequiresApi(21) public static final class VideoCapture.Builder<T extends androidx.camera.video.VideoOutput> implements androidx.camera.core.ExtendableBuilder<androidx.camera.video.VideoCapture> {
     ctor public VideoCapture.Builder(T);
     method public androidx.camera.video.VideoCapture<T!> build();
     method public androidx.camera.video.VideoCapture.Builder<T!> setDynamicRange(androidx.camera.core.DynamicRange);

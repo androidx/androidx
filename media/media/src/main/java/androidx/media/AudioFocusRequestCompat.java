@@ -263,6 +263,10 @@ public class AudioFocusRequestCompat {
                 throw new IllegalArgumentException("Illegal audio focus gain type " + focusGain);
             }
 
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT
+                    && focusGain == AudioManagerCompat.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE) {
+                focusGain = AudioManagerCompat.AUDIOFOCUS_GAIN_TRANSIENT;
+            }
             mFocusGain = focusGain;
             return this;
         }

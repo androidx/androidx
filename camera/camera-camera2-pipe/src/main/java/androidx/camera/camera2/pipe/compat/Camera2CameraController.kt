@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.compat
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraController.ControllerState
 import androidx.camera.camera2.pipe.CameraError
@@ -48,6 +49,7 @@ import kotlinx.coroutines.launch
  *
  * TODO: Reorganize these constructor parameters.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Camera2ControllerScope
 internal class Camera2CameraController
 @Inject

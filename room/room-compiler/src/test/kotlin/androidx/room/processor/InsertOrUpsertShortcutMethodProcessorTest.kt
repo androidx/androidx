@@ -129,10 +129,10 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
-                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                .isEqualTo(USER_TYPE_NAME)
 
             assertThat(param.pojoType?.asTypeName())
-                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities["user"]?.isPartialEntity)
                 .isEqualTo(false)
@@ -171,10 +171,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.parameters.size).isEqualTo(2)
             insertionUpsertion.parameters.forEach {
-                assertThat(it.type.asTypeName())
-                    .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
-                assertThat(it.pojoType?.asTypeName())
-                    .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                assertThat(it.type.asTypeName()).isEqualTo(USER_TYPE_NAME)
+                assertThat(it.pojoType?.asTypeName()).isEqualTo(USER_TYPE_NAME)
             }
             assertThat(insertionUpsertion.entities.size)
                 .isEqualTo(2)
@@ -221,13 +219,11 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(param.pojoType?.asTypeName())
-                .isEqualTo(USER_TYPE_NAME.copy(nullable = true))
+                .isEqualTo(USER_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
@@ -236,9 +232,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             assertThat(insertionUpsertion.returnType.asTypeName())
                 .isEqualTo(
-                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(
-                        XTypeName.BOXED_LONG.copy(nullable = true)
-                    ).copy(nullable = true)
+                    CommonTypeNames.MUTABLE_LIST.parametrizedBy(XTypeName.BOXED_LONG)
                 )
         }
     }
@@ -273,11 +267,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(insertionUpsertion.parameters.size).isEqualTo(1)
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
-                .isEqualTo(
-                    XTypeName.getArrayName(
-                        COMMON.USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
-                )
+                .isEqualTo(XTypeName.getArrayName(COMMON.USER_TYPE_NAME))
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
@@ -316,9 +306,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    CommonTypeNames.MUTABLE_SET.parametrizedBy(
-                        COMMON.USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    CommonTypeNames.MUTABLE_SET.parametrizedBy(COMMON.USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -361,9 +349,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    CommonTypeNames.QUEUE.parametrizedBy(
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    CommonTypeNames.QUEUE.parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -388,9 +374,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             val param = insertionUpsertion.parameters.first()
             assertThat(param.type.asTypeName())
                 .isEqualTo(
-                    Iterable::class.asMutableClassName().parametrizedBy(
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                    Iterable::class.asMutableClassName().parametrizedBy(USER_TYPE_NAME)
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -417,9 +401,8 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
             assertThat(param.type.asTypeName())
                 .isEqualTo(
                     XClassName.get("foo.bar", "MyClass", "MyList").parametrizedBy(
-                        CommonTypeNames.STRING.copy(nullable = true),
-                        USER_TYPE_NAME.copy(nullable = true)
-                    ).copy(nullable = true)
+                        CommonTypeNames.STRING, USER_TYPE_NAME
+                    )
                 )
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
@@ -716,11 +699,9 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
 
             val param = insertionUpsertion.parameters.first()
 
-            assertThat(param.type.asTypeName())
-                .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
+            assertThat(param.type.asTypeName()).isEqualTo(USERNAME_TYPE_NAME)
 
-            assertThat(param.pojoType?.asTypeName())
-                .isEqualTo(USERNAME_TYPE_NAME.copy(nullable = true))
+            assertThat(param.pojoType?.asTypeName()).isEqualTo(USERNAME_TYPE_NAME)
 
             assertThat(insertionUpsertion.entities.size).isEqualTo(1)
 
@@ -1141,8 +1122,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         )
 
         runProcessorTest(
-            sources = commonSources + additionalSources + inputSource,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+            sources = commonSources + additionalSources + inputSource
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
@@ -1182,8 +1162,7 @@ abstract class InsertOrUpsertShortcutMethodProcessorTest <out T : InsertOrUpsert
         )
 
         runProcessorTest(
-            sources = commonSources + additionalSources + inputSource,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+            sources = commonSources + additionalSources + inputSource
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)

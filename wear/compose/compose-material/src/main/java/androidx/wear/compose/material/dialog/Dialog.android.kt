@@ -22,8 +22,8 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -165,7 +165,7 @@ private fun Dialog(
     var transitionState by remember {
         mutableStateOf(MutableTransitionState(DialogVisibility.Hide))
     }
-    val transition = rememberTransition(transitionState)
+    val transition = updateTransition(transitionState)
 
     var pendingOnDismissCall by remember {
         mutableStateOf(false)
@@ -196,6 +196,7 @@ private fun Dialog(
                         Vignette(vignettePosition = VignettePosition.TopAndBottom)
                     }
                 },
+                positionIndicator = positionIndicator,
                 modifier = modifier,
             ) {
                 SwipeToDismissBox(
@@ -211,16 +212,13 @@ private fun Dialog(
                         transitionState = MutableTransitionState(DialogVisibility.Hide)
                     }
                 ) { isBackground ->
-                    if (!isBackground) {
-                        Box(
-                            modifier = Modifier
-                                .matchParentSize()
-                                .graphicsLayer(alpha = contentAlpha)
-                                .background(MaterialTheme.colors.background)
-                        ) {
-                            content()
-                            positionIndicator()
-                        }
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .graphicsLayer(alpha = contentAlpha)
+                            .background(MaterialTheme.colors.background)
+                    ) {
+                        if (!isBackground) content()
                     }
                 }
             }

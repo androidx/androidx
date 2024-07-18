@@ -17,7 +17,6 @@
 package androidx.room.paging.guava
 
 import android.database.Cursor
-import android.os.CancellationSignal
 import androidx.annotation.NonNull
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -32,6 +31,7 @@ import androidx.room.paging.util.ThreadSafeInvalidationObserver
 import androidx.room.paging.util.getClippedRefreshKey
 import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
+import androidx.room.util.createCancellationSignal
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -93,7 +93,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
     * it returned has been canceled before it has completed.
     */
     private fun initialLoad(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Value>> {
-        val cancellationSignal = CancellationSignal()
+        val cancellationSignal = createCancellationSignal()
         val loadCallable = Callable<LoadResult<Int, Value>> {
             db.runInTransaction(
                 Callable {
@@ -126,7 +126,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
         params: LoadParams<Int>,
         tempCount: Int
     ): ListenableFuture<LoadResult<Int, Value>> {
-        val cancellationSignal = CancellationSignal()
+        val cancellationSignal = createCancellationSignal()
         val loadCallable = Callable<LoadResult<Int, Value>> {
             val result = queryDatabase(
                 params, sourceQuery, db, tempCount, cancellationSignal, ::convertRows

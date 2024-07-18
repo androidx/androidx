@@ -24,7 +24,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.TapEvent
 import androidx.wear.watchface.WatchFaceService
-import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat
@@ -232,26 +231,6 @@ internal class InteractiveWatchFaceImpl(
             }
         }
 
-    override fun updateWatchfaceInstanceSync(
-        newInstanceId: String,
-        userStyle: UserStyleWireFormat
-    ): Unit =
-        aidlMethod(TAG, "updateWatchfaceInstanceSync") {
-            /**
-             * This is blocking to ensure ordering with respect to any subsequent [getInstanceId]
-             * and [getPreviewReferenceTimeMillis] calls.
-             */
-            uiThreadCoroutineScope.runBlockingWithTracing(
-                "InteractiveWatchFaceImpl.updateWatchfaceInstanceSync"
-            ) {
-                if (instanceId != newInstanceId) {
-                    engine?.updateInstance(newInstanceId)
-                    instanceId = newInstanceId
-                }
-                engine?.setUserStyle(userStyle)
-            }
-        }
-
     override fun getComplicationDetails(): List<IdAndComplicationStateWireFormat>? =
         aidlMethod(TAG, "getComplicationDetails") {
             val engineCopy = engine
@@ -300,33 +279,6 @@ internal class InteractiveWatchFaceImpl(
                 it.complicationSlotsManager.getComplicationSlotAt(xPos, yPos)?.id?.toLong()
             }
                 ?: Long.MIN_VALUE
-        }
-
-    override fun getUserStyleFlavors() =
-        aidlMethod(TAG, "getUserStyleFlavors") {
-            WatchFaceService.awaitDeferredEarlyInitDetailsThenRunOnThread(
-                engine,
-                "InteractiveWatchFaceImpl.getUserStyleFlavors",
-                WatchFaceService.Companion.ExecutionThread.CURRENT
-            ) {
-                it.userStyleFlavors.toWireFormat()
-            }
-        }
-
-    override fun overrideComplicationData(
-        complicationDatumWireFormats: List<IdAndComplicationDataWireFormat>
-    ): Unit = aidlMethod(TAG, "overrideComplicationData") {
-        engine?.overrideComplicationsForEditing(
-            complicationDatumWireFormats.associateBy(
-                { it.id },
-                { it.complicationData.toApiComplicationData() }
-            )
-        )
-    }
-
-    override fun clearComplicationDataOverride(): Unit =
-        aidlMethod(TAG, "overrideComplicationData") {
-            engine?.onEditSessionFinished()
         }
 
     fun onDestroy() {

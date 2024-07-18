@@ -203,7 +203,9 @@ public final class ResourceManagerInternal {
         final ColorStateList tintList = getTintList(context, resId);
         if (tintList != null) {
             // First mutate the Drawable, then wrap it and set the tint list
-            drawable = drawable.mutate();
+            if (DrawableUtils.canSafelyMutateDrawable(drawable)) {
+                drawable = drawable.mutate();
+            }
             drawable = DrawableCompat.wrap(drawable);
             DrawableCompat.setTintList(drawable, tintList);
 
@@ -436,10 +438,13 @@ public final class ResourceManagerInternal {
     static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
         int[] drawableState = drawable.getState();
 
-        boolean mutated = drawable.mutate() == drawable;
-        if (!mutated) {
-            Log.d(TAG, "Mutated drawable is not the same instance as the input.");
-            return;
+        boolean mutated = false;
+        if (DrawableUtils.canSafelyMutateDrawable(drawable)) {
+            mutated = drawable.mutate() == drawable;
+            if (!mutated) {
+                Log.d(TAG, "Mutated drawable is not the same instance as the input.");
+                return;
+            }
         }
 
         // Workaround for b/232275112 where LayerDrawable loses its state on mutate().

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="MissingPermission"
@@ -137,6 +137,24 @@
     </issue>
 
     <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getWindow().setStatusBarColor(0x80000000);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.supportv4.view.WindowInsetsPlayground is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            getWindow().setNavigationBarColor(0x80000000);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"/>
+    </issue>
+
+    <issue
         id="ForegroundServiceType"
         message="To call `Service.startForeground()`, the `&lt;service>` element of manifest file must have the `foregroundServiceType` attribute specified"
         errorLine1="                mService.startForeground(NOTIFICATION_ID, notification);"
@@ -165,7 +183,7 @@
 
     <issue
         id="UnspecifiedRegisterReceiverFlag"
-        message="`this` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for com.example.android.supportv4.media.next, com.example.android.supportv4.media.pause, com.example.android.supportv4.media.play, com.example.android.supportv4.media.prev"
+        message="`this` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for com.example.android.supportv4.media.next, com.example.android.supportv4.media.pause, com.example.android.supportv4.media.play, com.example.android.supportv4.media.prev"
         errorLine1="                mService.registerReceiver(this, filter);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -183,43 +201,18 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/supportv4/view/WindowInsetsControllerPlayground.kt"/>
+            file="src/main/java/com/example/android/supportv4/widget/SlidingPaneLayoutActivity.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/supportv4/view/WindowInsetsPlayground.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    tools:targetApi=&quot;lollipop&quot;>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/activity_insets_controller.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
         <location
             file="src/main/res/values-v11"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="This folder configuration (`v21`) is unnecessary; `minSdkVersion` is 21. Merge all the resources in this folder into `values`.">
-        <location
-            file="src/main/res/values-v21"/>
     </issue>
 
     <issue

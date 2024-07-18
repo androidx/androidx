@@ -1,13 +1,13 @@
 // Signature format: 4.0
 package androidx.arch.core.internal {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K!,V!> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FastSafeIterableMap<K, V> extends androidx.arch.core.internal.SafeIterableMap<K,V> {
     ctor public FastSafeIterableMap();
     method public java.util.Map.Entry<K!,V!>? ceil(K!);
     method public boolean contains(K!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap<K, V> implements java.lang.Iterable<java.util.Map.Entry<K!,V!>!> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap<K, V> implements java.lang.Iterable<java.util.Map.Entry<K,V>> {
     ctor public SafeIterableMap();
     method public java.util.Iterator<java.util.Map.Entry<K!,V!>!> descendingIterator();
     method public java.util.Map.Entry<K!,V!>? eldest();
@@ -20,7 +20,7 @@ package androidx.arch.core.internal {
     method public int size();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap.IteratorWithAdditions extends androidx.arch.core.internal.SafeIterableMap.SupportRemove<K!,V!> implements java.util.Iterator<java.util.Map.Entry<K!,V!>!> {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SafeIterableMap.IteratorWithAdditions extends androidx.arch.core.internal.SafeIterableMap.SupportRemove<K,V> implements java.util.Iterator<java.util.Map.Entry<K,V>> {
     method public boolean hasNext();
     method public java.util.Map.Entry<K!,V!>! next();
   }

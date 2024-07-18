@@ -723,7 +723,7 @@ public final class CustomTabsIntent {
          * Overrides the effect of {@link #setSession}.
          *
          */
-        @ExperimentalPendingSession
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
         public Builder setPendingSession(@NonNull CustomTabsSession.PendingSession session) {
             setSessionParameters(null, session.getId());
@@ -1257,8 +1257,7 @@ public final class CustomTabsIntent {
          * @param enabled Whether the maximization button is enabled.
          * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION
          */
-        @NonNull
-        public Builder setActivitySideSheetMaximizationEnabled(boolean enabled) {
+        @NonNull Builder setActivitySideSheetEnableMaximization(boolean enabled) {
             mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION, enabled);
             return this;
         }

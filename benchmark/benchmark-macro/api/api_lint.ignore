@@ -1,3 +1,3 @@
 // Baseline format: 1.0
-GetterSetterNames: androidx.benchmark.macro.Metric.Measurement#requireSingleValue:
+GetterSetterNames: field Metric.Measurement.requireSingleValue:
     Invalid name for boolean property `requireSingleValue`. Should start with one of `has`, `can`, `should`, `is`.

@@ -16,8 +16,6 @@
 
 package androidx.wear.protolayout.expression;
 
-import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
-
 import android.annotation.SuppressLint;
 
 import androidx.annotation.ColorInt;
@@ -29,9 +27,6 @@ import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto;
 
-import java.time.Duration;
-import java.time.Instant;
-
 /**
  * Builders for fixed value primitive types that can be used in dynamic expressions and in for state
  * state values.
@@ -39,8 +34,11 @@ import java.time.Instant;
 final class FixedValueBuilders {
     private FixedValueBuilders() {}
 
-    /** A fixed int32 type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
+    /**
+     * A fixed int32 type.
+     *
+     * @since 1.2
+     */
     static final class FixedInt32
             implements DynamicBuilders.DynamicInt32,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicInt32> {
@@ -52,7 +50,11 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the value. */
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
         public int getValue() {
             return mImpl.getValue();
         }
@@ -78,6 +80,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedInt32 toProto() {
             return mImpl;
@@ -88,19 +91,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicInt32 toDynamicInt32Proto() {
             return DynamicProto.DynamicInt32.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicInt32 toDynamicInt32Proto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicInt32.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicInt32Proto();
         }
 
         @Override
@@ -117,11 +107,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an int value.
-         * Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an int
+         * value. Otherwise returns false.
          */
         @Override
-        public boolean hasIntValue() {
+        public boolean hasIntValue(){
             return true;
         }
 
@@ -143,11 +133,13 @@ final class FixedValueBuilders {
             private final FixedProto.FixedInt32.Builder mImpl = FixedProto.FixedInt32.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(974881783);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
-            /** Sets the value. */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
             @NonNull
             public Builder setValue(int value) {
                 mImpl.setValue(value);
@@ -163,8 +155,11 @@ final class FixedValueBuilders {
         }
     }
 
-    /** A fixed string type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
+    /**
+     * A fixed string type.
+     *
+     * @since 1.2
+     */
     static final class FixedString
             implements DynamicBuilders.DynamicString,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicString> {
@@ -176,7 +171,11 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the value. */
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
         @NonNull
         public String getValue() {
             return mImpl.getValue();
@@ -203,6 +202,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedString toProto() {
             return mImpl;
@@ -213,19 +213,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicString toDynamicStringProto() {
             return DynamicProto.DynamicString.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicString toDynamicStringProto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicString.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicStringProto();
         }
 
         @Override
@@ -242,11 +229,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a String value.
-         * Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a String
+         * value. Otherwise returns false.
          */
         @Override
-        public boolean hasStringValue() {
+        public boolean hasStringValue(){
             return true;
         }
 
@@ -270,11 +257,13 @@ final class FixedValueBuilders {
                     FixedProto.FixedString.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1963352072);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
-            /** Sets the value. */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
             @NonNull
             public Builder setValue(@NonNull String value) {
                 mImpl.setValue(value);
@@ -290,8 +279,11 @@ final class FixedValueBuilders {
         }
     }
 
-    /** A fixed float type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
+    /**
+     * A fixed float type.
+     *
+     * @since 1.2
+     */
     static final class FixedFloat
             implements DynamicBuilders.DynamicFloat,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicFloat> {
@@ -307,6 +299,8 @@ final class FixedValueBuilders {
          * Gets the value. Note that a NaN value is considered invalid and any expression with this
          * node will have an invalid value delivered via {@link
          * DynamicTypeValueReceiver<T>#onInvalidate()}.
+         *
+         * @since 1.2
          */
         public float getValue() {
             return mImpl.getValue();
@@ -333,6 +327,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedFloat toProto() {
             return mImpl;
@@ -343,19 +338,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicFloat toDynamicFloatProto() {
             return DynamicProto.DynamicFloat.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicFloat toDynamicFloatProto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicFloat.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicFloatProto();
         }
 
         @Override
@@ -372,11 +354,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a float value.
-         * Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a float
+         * value. Otherwise returns false.
          */
         @Override
-        public boolean hasFloatValue() {
+        public boolean hasFloatValue(){
             return true;
         }
 
@@ -398,15 +380,15 @@ final class FixedValueBuilders {
             private final FixedProto.FixedFloat.Builder mImpl = FixedProto.FixedFloat.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-144724541);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**
              * Sets the value. Note that a NaN value is considered invalid and any expression with
              * this node will have an invalid value delivered via {@link
              * DynamicTypeValueReceiver<T>#onInvalidate()}.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setValue(float value) {
                 mImpl.setValue(value);
@@ -422,8 +404,11 @@ final class FixedValueBuilders {
         }
     }
 
-    /** A fixed boolean type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
+    /**
+     * A fixed boolean type.
+     *
+     * @since 1.2
+     */
     static final class FixedBool
             implements DynamicBuilders.DynamicBool,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicBool> {
@@ -435,7 +420,11 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the value. */
+        /**
+         * Gets the value.
+         *
+         * @since 1.2
+         */
         public boolean getValue() {
             return mImpl.getValue();
         }
@@ -461,6 +450,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedBool toProto() {
             return mImpl;
@@ -471,19 +461,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicBool toDynamicBoolProto() {
             return DynamicProto.DynamicBool.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicBool toDynamicBoolProto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicBool.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicBoolProto();
         }
 
         @Override
@@ -504,7 +481,7 @@ final class FixedValueBuilders {
          * value. Otherwise returns false.
          */
         @Override
-        public boolean hasBoolValue() {
+        public boolean hasBoolValue(){
             return true;
         }
 
@@ -526,11 +503,13 @@ final class FixedValueBuilders {
             private final FixedProto.FixedBool.Builder mImpl = FixedProto.FixedBool.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-665116398);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
-            /** Sets the value. */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            /**
+             * Sets the value.
+             *
+             * @since 1.2
+             */
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(boolean value) {
@@ -547,8 +526,11 @@ final class FixedValueBuilders {
         }
     }
 
-    /** A fixed color type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
+    /**
+     * A fixed color type.
+     *
+     * @since 1.2
+     */
     static final class FixedColor
             implements DynamicBuilders.DynamicColor,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicColor> {
@@ -560,7 +542,11 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the color value, in ARGB format. */
+        /**
+         * Gets the color value, in ARGB format.
+         *
+         * @since 1.2
+         */
         @ColorInt
         public int getArgb() {
             return mImpl.getArgb();
@@ -587,6 +573,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedColor toProto() {
             return mImpl;
@@ -597,19 +584,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicColor toDynamicColorProto() {
             return DynamicProto.DynamicColor.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicColor toDynamicColorProto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicColor.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicColorProto();
         }
 
         @Override
@@ -626,11 +600,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a color value.
-         * Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a color
+         * value. Otherwise returns false.
          */
         @Override
-        public boolean hasColorValue() {
+        public  boolean hasColorValue(){
             return true;
         }
 
@@ -652,11 +626,13 @@ final class FixedValueBuilders {
             private final FixedProto.FixedColor.Builder mImpl = FixedProto.FixedColor.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1895809356);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
-            /** Sets the color value, in ARGB format. */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            /**
+             * Sets the color value, in ARGB format.
+             *
+             * @since 1.2
+             */
             @NonNull
             public Builder setArgb(@ColorInt int argb) {
                 mImpl.setArgb(argb);
@@ -672,11 +648,12 @@ final class FixedValueBuilders {
         }
     }
 
-    /** A fixed time instant type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
-    static final class FixedInstant
-            implements DynamicBuilders.DynamicInstant,
-                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicInstant> {
+    /**
+     * A fixed time instant type.
+     *
+     * @since 1.2
+     */
+    static final class FixedInstant implements DynamicBuilders.DynamicInstant {
         private final FixedProto.FixedInstant mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -685,31 +662,13 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970. */
+        /**
+         * Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+         *
+         * @since 1.2
+         */
         public long getEpochSeconds() {
             return mImpl.getEpochSeconds();
-        }
-
-        /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an {@link
-         * Instant} value. Otherwise returns false.
-         */
-        @Override
-        public boolean hasInstantValue() {
-            return true;
-        }
-
-        /**
-         * Returns the {@link Instant} value stored in this {@link
-         * DynamicDataBuilders.DynamicDataValue }.
-         *
-         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
-         *     doesn't contain an {@link Instant} value.
-         */
-        @Override
-        @NonNull
-        public Instant getInstantValue() {
-            return Instant.ofEpochSecond(mImpl.getEpochSeconds());
         }
 
         @Override
@@ -733,6 +692,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedInstant toProto() {
             return mImpl;
@@ -743,26 +703,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicInstant toDynamicInstantProto() {
             return DynamicProto.DynamicInstant.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicInstant toDynamicInstantProto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicInstant.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicInstantProto();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
-            return DynamicDataProto.DynamicDataValue.newBuilder().setInstantVal(mImpl).build();
         }
 
         @Override
@@ -777,13 +717,13 @@ final class FixedValueBuilders {
                     FixedProto.FixedInstant.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1986552556);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
             /**
              * Sets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setEpochSeconds(long epochSeconds) {
                 mImpl.setEpochSeconds(epochSeconds);
@@ -799,11 +739,12 @@ final class FixedValueBuilders {
         }
     }
 
-    /** A fixed duration type. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
-    static final class FixedDuration
-            implements DynamicBuilders.DynamicDuration,
-                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicDuration> {
+    /**
+     * A fixed duration type.
+     *
+     * @since 1.2
+     */
+    static final class FixedDuration implements DynamicBuilders.DynamicDuration {
         private final FixedProto.FixedDuration mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -812,31 +753,13 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets duration in seconds. */
+        /**
+         * Gets duration in seconds.
+         *
+         * @since 1.2
+         */
         public long getSeconds() {
             return mImpl.getSeconds();
-        }
-
-        /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a {@link
-         * Duration} value. Otherwise returns false.
-         */
-        @Override
-        public boolean hasDurationValue() {
-            return true;
-        }
-
-        /**
-         * Returns the {@link Duration} value stored in this {@link
-         * DynamicDataBuilders.DynamicDataValue }.
-         *
-         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
-         *     doesn't contain a {@link Duration} value.
-         */
-        @Override
-        @NonNull
-        public Duration getDurationValue() {
-            return Duration.ofSeconds(mImpl.getSeconds());
         }
 
         @Override
@@ -860,6 +783,7 @@ final class FixedValueBuilders {
         }
 
         /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         FixedProto.FixedDuration toProto() {
             return mImpl;
@@ -870,26 +794,6 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicDuration toDynamicDurationProto() {
             return DynamicProto.DynamicDuration.newBuilder().setFixed(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicProto.DynamicDuration toDynamicDurationProto(boolean withFingerprint) {
-            if (withFingerprint) {
-                return DynamicProto.DynamicDuration.newBuilder()
-                        .setFixed(mImpl)
-                        .setFingerprint(checkNotNull(mFingerprint).toProto())
-                        .build();
-            }
-            return toDynamicDurationProto();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
-            return DynamicDataProto.DynamicDataValue.newBuilder().setDurationVal(mImpl).build();
         }
 
         @Override
@@ -904,11 +808,13 @@ final class FixedValueBuilders {
                     FixedProto.FixedDuration.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(9029504);
 
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder() {}
 
-            /** Sets duration in seconds. */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            /**
+             * Sets duration in seconds.
+             *
+             * @since 1.2
+             */
             @NonNull
             public Builder setSeconds(long seconds) {
                 mImpl.setSeconds(seconds);

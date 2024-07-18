@@ -105,8 +105,8 @@ class ComponentActivityCallbacksTest {
             val expectedFontScale = receivedFontScale * 2
 
             val listener = object : Consumer<Configuration> {
-                override fun accept(value: Configuration) {
-                    receivedFontScale = value.fontScale
+                override fun accept(newConfig: Configuration) {
+                    receivedFontScale = newConfig.fontScale
                     activity.removeOnConfigurationChangedListener(this)
                 }
             }
@@ -177,8 +177,8 @@ class ComponentActivityCallbacksTest {
             var receivedLevel = -1
 
             val listener = object : Consumer<Int> {
-                override fun accept(value: Int) {
-                    receivedLevel = value
+                override fun accept(level: Int) {
+                    receivedLevel = level
                     activity.removeOnTrimMemoryListener(this)
                 }
             }
@@ -262,8 +262,8 @@ class ComponentActivityCallbacksTest {
             val receivedIntents = mutableListOf<Intent>()
 
             val listener = object : Consumer<Intent> {
-                override fun accept(value: Intent) {
-                    receivedIntents += value
+                override fun accept(intent: Intent) {
+                    receivedIntents += intent
                     activity.removeOnNewIntentListener(this)
                 }
             }
@@ -366,8 +366,8 @@ class ComponentActivityCallbacksTest {
             lateinit var receivedInfo: MultiWindowModeChangedInfo
 
             val listener = object : Consumer<MultiWindowModeChangedInfo> {
-                override fun accept(value: MultiWindowModeChangedInfo) {
-                    receivedInfo = value
+                override fun accept(info: MultiWindowModeChangedInfo) {
+                    receivedInfo = info
                     activity.removeOnMultiWindowModeChangedListener(this)
                 }
             }
@@ -461,8 +461,8 @@ class ComponentActivityCallbacksTest {
             lateinit var receivedInfo: PictureInPictureModeChangedInfo
 
             val listener = object : Consumer<PictureInPictureModeChangedInfo> {
-                override fun accept(value: PictureInPictureModeChangedInfo) {
-                    receivedInfo = value
+                override fun accept(info: PictureInPictureModeChangedInfo) {
+                    receivedInfo = info
                     activity.removeOnPictureInPictureModeChangedListener(this)
                 }
             }
@@ -479,56 +479,10 @@ class ComponentActivityCallbacksTest {
             assertThat(receivedInfo.isInPictureInPictureMode).isTrue()
         }
     }
-
-    @Test
-    fun onUserLeaveHint() {
-        withUse(ActivityScenario.launch(OnUserLeaveHintActivity::class.java)) {
-            var receivedOnUserLeaveHint = false
-
-            val listener = Runnable { receivedOnUserLeaveHint = true }
-
-            withActivity {
-                addOnUserLeaveHintListener(listener)
-                onUserLeaveHint()
-            }
-
-            assertThat(receivedOnUserLeaveHint).isEqualTo(true)
-        }
-    }
-
-    @Test
-    fun onUserLeaveHintRemove() {
-        withUse(ActivityScenario.launch(OnUserLeaveHintActivity::class.java)) {
-            var receivedOnUserLeaveHintCount = 0
-
-            val listener = Runnable { receivedOnUserLeaveHintCount++ }
-
-            withActivity {
-                addOnUserLeaveHintListener(listener)
-                onUserLeaveHint()
-            }
-
-            assertThat(receivedOnUserLeaveHintCount).isEqualTo(1)
-
-            withActivity {
-                removeOnUserLeaveHintListener(listener)
-                onUserLeaveHint()
-            }
-
-            // should still be 1
-            assertThat(receivedOnUserLeaveHintCount).isEqualTo(1)
-        }
-    }
 }
 
 class SingleTopActivity : ComponentActivity() {
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-    }
-}
-
-class OnUserLeaveHintActivity : ComponentActivity() {
-    public override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
     }
 }

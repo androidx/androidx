@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -34,7 +27,8 @@ plugins {
 dependencies {
     androidTestImplementation(project(":room:room-common"))
     androidTestImplementation(project(":room:room-runtime"))
-    kspAndroidTest project(":room:room-compiler")
+    // depend on the shadowed version so that it tests with the shipped artifact
+    kspAndroidTest project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
     androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))

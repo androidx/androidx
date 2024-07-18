@@ -26,6 +26,8 @@
 
 using namespace filament::math;
 
+constexpr int kMaxConicToQuadCount = 5;
+
 constexpr bool isFinite(const Point points[], int count) noexcept {
     return isFinite(&points[0].x, count << 1);
 }
@@ -68,9 +70,17 @@ const Point* ConicConverter::toQuadratics(
     Conic conic(points[0], points[1], points[2], weight);
 
     int count = conic.computeQuadraticCount(tolerance);
-    mQuadraticCount = conic.splitIntoQuadratics(mStorage, count);
+    mQuadraticCount = 1 << count;
 
-    return mStorage;
+    int newSize = 1 + 2 * mQuadraticCount;
+    if (newSize > mStorage.size()) {
+        mStorage.resize(newSize);
+    }
+
+    Point* data = mStorage.data();
+    mQuadraticCount = conic.splitIntoQuadratics(data, count);
+
+    return data;
 }
 
 int Conic::computeQuadraticCount(float tolerance) const noexcept {
@@ -165,7 +175,7 @@ int Conic::splitIntoQuadratics(Point dstPoints[], int count) const noexcept {
 
     subdivide(*this, dstPoints + 1, count);
 
-commonFinitePointCheck:
+    commonFinitePointCheck:
     const int quadCount = 1 << count;
     const int pointCount = 2 * quadCount + 1;
 

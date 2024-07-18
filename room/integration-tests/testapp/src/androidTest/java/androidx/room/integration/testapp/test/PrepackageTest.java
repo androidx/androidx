@@ -257,7 +257,7 @@ public class PrepackageTest {
         ProductsDatabase_v2 database = Room.databaseBuilder(
                 context, ProductsDatabase_v2.class, "products.db")
                 .createFromAsset("databases/products_v1.db")
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build();
 
         ProductDao dao = database.getProductDao();
@@ -284,7 +284,7 @@ public class PrepackageTest {
         ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
                 context, ProductsDatabase_v2.class, "products.db")
                 .createFromAsset("databases/products_v2.db")
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build();
         dao = database_v2.getProductDao();
         assertThat(dao.countProducts(), is(3));
@@ -310,7 +310,7 @@ public class PrepackageTest {
         ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
                 context, ProductsDatabase_v2.class, "products.db")
                 .createFromAsset("databases/products_v1.db")
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build();
         dao = database_v2.getProductDao();
         assertThat(dao.countProducts(), is(0));
@@ -343,7 +343,7 @@ public class PrepackageTest {
                                 "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')");
                     }
                 })
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build();
         dao = database_v2.getProductDao();
         assertThat(dao.countProducts(), is(3));
@@ -438,7 +438,7 @@ public class PrepackageTest {
         ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
                 context, ProductsDatabase_v2.class, "products_external.db")
                 .createFromFile(dataDbFile)
-                .fallbackToDestructiveMigration(false)
+                .fallbackToDestructiveMigration()
                 .build();
         dao = database_v2.getProductDao();
         assertThat(dao.countProducts(), is(0));

@@ -21,10 +21,6 @@ import static androidx.appsearch.compiler.IntrospectionHelper.APPSEARCH_SCHEMA_C
 import static androidx.appsearch.compiler.IntrospectionHelper.PROPERTY_CONFIG_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentClassFactoryForClass;
 
-import static com.google.auto.common.MoreTypes.asTypeElement;
-
-import static javax.lang.model.type.TypeKind.DECLARED;
-
 import androidx.annotation.NonNull;
 import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation;
@@ -40,14 +36,8 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.WildcardTypeName;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
@@ -57,7 +47,6 @@ import javax.lang.model.type.TypeMirror;
 /** Generates java code for an {@link androidx.appsearch.app.AppSearchSchema}. */
 class SchemaCodeGenerator {
     private final DocumentModel mModel;
-    private final IntrospectionHelper mHelper;
     private final LinkedHashSet<TypeElement> mDependencyDocumentClasses;
 
     public static void generate(
@@ -69,7 +58,6 @@ class SchemaCodeGenerator {
 
     private SchemaCodeGenerator(@NonNull DocumentModel model, @NonNull ProcessingEnvironment env) {
         mModel = model;
-        mHelper = new IntrospectionHelper(env);
         mDependencyDocumentClasses = computeDependencyClasses(model, env);
     }
 
@@ -218,12 +206,6 @@ class SchemaCodeGenerator {
                 DocumentPropertyAnnotation documentPropertyAnnotation =
                         (DocumentPropertyAnnotation) annotation;
                 codeBlock.add(createSetShouldIndexNestedPropertiesExpr(documentPropertyAnnotation));
-                Set<String> indexableNestedProperties = getAllIndexableNestedProperties(
-                        documentPropertyAnnotation);
-                for (String propertyPath : indexableNestedProperties) {
-                    codeBlock.add(
-                            CodeBlock.of("\n.addIndexableNestedProperties($L)", propertyPath));
-                }
                 break;
             case LONG_PROPERTY:
                 LongPropertyAnnotation longPropertyAnnotation = (LongPropertyAnnotation) annotation;
@@ -239,59 +221,6 @@ class SchemaCodeGenerator {
         return codeBlock.add("\n.build()")
                 .unindent()
                 .build();
-    }
-
-
-    /**
-     * Finds all indexable nested properties for the given type class and document property
-     * annotation. This includes indexable nested properties that should be inherited from the
-     * type's parent.
-     */
-    private Set<String> getAllIndexableNestedProperties(
-            @NonNull DocumentPropertyAnnotation documentPropertyAnnotation)
-            throws ProcessingException {
-        Set<String> indexableNestedProperties = new HashSet<>(
-                documentPropertyAnnotation.getIndexableNestedPropertiesList());
-
-        if (documentPropertyAnnotation.shouldInheritIndexableNestedPropertiesFromSuperClass()) {
-            // List of classes to expand into parent classes to search for the property annotation
-            Queue<TypeElement> classesToExpand = new ArrayDeque<>();
-            Set<TypeElement> visited = new HashSet<>();
-            classesToExpand.add(mModel.getClassElement());
-            while (!classesToExpand.isEmpty()) {
-                TypeElement currentClass = classesToExpand.poll();
-                if (visited.contains(currentClass)) {
-                    continue;
-                }
-                visited.add(currentClass);
-                // Look for the document property annotation in the class's parent classes
-                List<TypeMirror> parentTypes = new ArrayList<>();
-                parentTypes.add(currentClass.getSuperclass());
-                parentTypes.addAll(currentClass.getInterfaces());
-                for (TypeMirror parent : parentTypes) {
-                    if (!parent.getKind().equals(DECLARED)) {
-                        continue;
-                    }
-                    TypeElement parentElement = asTypeElement(parent);
-                    DocumentPropertyAnnotation annotation = mHelper.getDocumentPropertyAnnotation(
-                            parentElement, documentPropertyAnnotation.getName());
-                    if (annotation == null) {
-                        // The property is not found in this level. Continue searching in one level
-                        // above as the property could still be defined for this level by class
-                        // inheritance.
-                        classesToExpand.add(parentElement);
-                    } else {
-                        indexableNestedProperties.addAll(
-                                annotation.getIndexableNestedPropertiesList());
-                        if (annotation.shouldInheritIndexableNestedPropertiesFromSuperClass()) {
-                            // Continue searching in the parent class's parents
-                            classesToExpand.add(parentElement);
-                        }
-                    }
-                }
-            }
-        }
-        return indexableNestedProperties;
     }
 
     /**

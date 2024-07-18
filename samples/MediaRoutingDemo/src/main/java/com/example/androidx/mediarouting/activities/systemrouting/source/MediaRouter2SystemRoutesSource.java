@@ -103,7 +103,8 @@ public final class MediaRouter2SystemRoutesSource extends SystemRoutesSource {
     @NonNull
     @Override
     public SystemRoutesSourceItem getSourceItem() {
-        return new SystemRoutesSourceItem(/* name= */ "MediaRouter2");
+        return new SystemRoutesSourceItem.Builder(SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER2)
+                .build();
     }
 
     @NonNull

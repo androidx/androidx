@@ -17,14 +17,9 @@
 package androidx.baselineprofile.gradle.consumer.task
 
 import androidx.baselineprofile.gradle.consumer.RuleType
-import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
-import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import java.io.File
-import kotlin.io.path.Path
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -56,7 +51,6 @@ import org.gradle.api.tasks.TaskProvider
  * duplication but mostly the profile file will be unnecessarily larger.
  */
 @CacheableTask
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class MergeBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -76,13 +70,12 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             project: Project,
             variantName: String,
             mergeAwareTaskName: String,
-            hasDependencies: Boolean,
+            hasDependencies: Boolean = false,
             library: Boolean,
             sourceProfilesFileCollection: FileCollection,
             outputDir: Provider<Directory>,
             filterRules: List<Pair<RuleType, String>> = listOf(),
-            isLastTask: Boolean,
-            warnings: Warnings
+            isLastTask: Boolean
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
                 .tasks
@@ -116,15 +109,6 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     // Determines whether this is the last task to be executed. This flag is used
                     // exclusively for logging purposes.
                     task.lastTask.set(isLastTask)
-
-                    // Determines whether this task should print warnings. Note that warnings used
-                    // by Android Studio cannot be suppressed.
-                    task.printWarningNoBaselineProfileRulesGenerated
-                        .set(warnings.noBaselineProfileRulesGenerated)
-                    task.printWarningNoStartupProfileRulesGenerated
-                        .set(warnings.noStartupProfileRulesGenerated)
-                    task.printWarningVariantHasNoBaselineProfileDependency
-                        .set(warnings.variantHasNoBaselineProfileDependency)
                 }
         }
 
@@ -135,9 +119,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             library: Boolean,
             sourceDir: Provider<Directory>,
             outputDir: Provider<Directory>,
-            isLastTask: Boolean,
-            hasDependencies: Boolean,
-            warnings: Warnings
+            isLastTask: Boolean
         ): TaskProvider<MergeBaselineProfileTask> {
             return project
                 .tasks
@@ -146,20 +128,14 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     mergeAwareTaskName,
                     "baselineProfileIntoSrc"
                 ) { task ->
-                    // For explanation about each of these properties, see above function named
-                    // `maybeRegisterForMerge`.
                     task.baselineProfileFileCollection.from.add(sourceDir)
                     task.baselineProfileDir.set(outputDir)
                     task.library.set(library)
                     task.variantName.set(variantName)
+
+                    // Determines whether this is the last task to be executed. This flag is used
+                    // exclusively for logging purposes.
                     task.lastTask.set(isLastTask)
-                    task.hasDependencies.set(hasDependencies)
-                    task.printWarningNoBaselineProfileRulesGenerated
-                        .set(warnings.noBaselineProfileRulesGenerated)
-                    task.printWarningNoStartupProfileRulesGenerated
-                        .set(warnings.noStartupProfileRulesGenerated)
-                    task.printWarningVariantHasNoBaselineProfileDependency
-                        .set(warnings.variantHasNoBaselineProfileDependency)
                 }
         }
     }
@@ -187,52 +163,17 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
     @get:OutputDirectory
     abstract val baselineProfileDir: DirectoryProperty
 
-    @get:Input
-    abstract val printWarningNoBaselineProfileRulesGenerated: Property<Boolean>
-
-    @get:Input
-    abstract val printWarningNoStartupProfileRulesGenerated: Property<Boolean>
-
-    @get:Input
-    abstract val printWarningVariantHasNoBaselineProfileDependency: Property<Boolean>
-
-    private val logger by lazy { BaselineProfilePluginLogger(this.getLogger()) }
-
-    private val variantHasDependencies by lazy {
-        hasDependencies.isPresent && hasDependencies.get()
-    }
-
     @TaskAction
     fun exec() {
 
-        // This warning should be printed only if no dependency has been set for the processed
-        // variant.
-        if (lastTask.get() && !variantHasDependencies) {
-            logger.warn(
-                property = { printWarningVariantHasNoBaselineProfileDependency.get() },
-                propertyName = "variantHasNoBaselineProfileDependency",
-                message = """
+        if (hasDependencies.isPresent && !hasDependencies.get()) {
+            throw GradleException(
+                """
                 The baseline profile consumer plugin is applied to this module but no dependency
-                has been set for variant `${variantName.get()}`, so no baseline profile will be 
-                generated for it.
-
-                A dependency for all the variants can be added in the dependency block using
-                `baselineProfile` configuration:
-
-                dependencies {
-                    ...
-                    baselineProfile(project(":baselineprofile"))
-                }
-
-                Or for a specific variant in the baseline profile block:
-
-                baselineProfile {
-                    variants {
-                        freeRelease {
-                            from(project(":baselineprofile"))
-                        }
-                    }
-                }
+                has been set. Please review the configuration of build.gradle for this module
+                making sure that a `baselineProfile` dependency exists and points to a valid
+                `com.android.test` module that has the `androidx.baselineprofile` or
+                `androidx.baselineprofile.producer` plugin applied.
                 """.trimIndent()
             )
         }
@@ -250,19 +191,15 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
 
         // Read the profile rules from the file collection that contains the profile artifacts from
         // all the configurations for this variant and merge them in a single list.
-        val baselineProfileRules = baselineProfileFileCollection.files
+        val profileRules = baselineProfileFileCollection.files
             .readLines {
                 FILENAME_MATCHER_BASELINE_PROFILE in it.name ||
                     FILENAME_MATCHER_STARTUP_PROFILE in it.name
             }
 
-        // This warning should be printed only if the variant has dependencies but there are no
-        // baseline profile rules.
-        if (lastTask.get() && variantHasDependencies && baselineProfileRules.isEmpty()) {
+        if (variantName.isPresent && profileRules.isEmpty()) {
             logger.warn(
-                property = { printWarningNoBaselineProfileRulesGenerated.get() },
-                propertyName = "noBaselineProfileRulesGenerated",
-                message = """
+                """
                 No baseline profile rules were generated for the variant `${variantName.get()}`.
                 This is most likely because there are no instrumentation test for it. If this
                 is not intentional check that tests for this variant exist in the `baselineProfile`
@@ -277,7 +214,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         // - group by class and method (ignoring flag) and for each group keep only the first value
         // - apply the filters
         // - sort with comparator
-        val filteredBaselineProfileRules = baselineProfileRules
+        val filteredProfileRules = profileRules
             .sorted()
             .asSequence()
             .mapNotNull { ProfileRule.parse(it) }
@@ -300,12 +237,10 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 return@filter !rules.any { r -> r.isInclude() }
             }
             .sortedWith(ProfileRule.comparator)
+            .map { it.underlying }
 
         // Check if the filters filtered out all the rules.
-        if (baselineProfileRules.isNotEmpty() &&
-            filteredBaselineProfileRules.isEmpty() &&
-            rules.isNotEmpty()
-        ) {
+        if (profileRules.isNotEmpty() && filteredProfileRules.isEmpty() && rules.isNotEmpty()) {
             throw GradleException(
                 """
                 The baseline profile consumer plugin is configured with filters that exclude all
@@ -315,11 +250,24 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             )
         }
 
-        writeProfile(
-            filename = BASELINE_PROFILE_FILENAME,
-            rules = filteredBaselineProfileRules,
-            profileType = "baseline"
-        )
+        baselineProfileDir
+            .file(BASELINE_PROFILE_FILENAME)
+            .get()
+            .asFile
+            .apply {
+                delete()
+                if (filteredProfileRules.isNotEmpty()) {
+                    writeText(filteredProfileRules.joinToString(System.lineSeparator()))
+                    if (lastTask.get()) {
+                        logger.warn(
+                            """
+                            A baseline profile was generated for the variant `${variantName.get()}`:
+                            $absolutePath
+                        """.trimIndent()
+                        )
+                    }
+                }
+            }
 
         // If this is a library we can stop here and don't manage the startup profiles.
         if (library.get()) {
@@ -330,13 +278,9 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         val startupRules = baselineProfileFileCollection.files
             .readLines { FILENAME_MATCHER_STARTUP_PROFILE in it.name }
 
-        // This warning should be printed only if the variant has dependencies but there are no
-        // startup profile rules.
-        if (lastTask.get() && variantHasDependencies && startupRules.isEmpty()) {
+        if (variantName.isPresent && startupRules.isEmpty()) {
             logger.warn(
-                property = { printWarningNoStartupProfileRulesGenerated.get() },
-                propertyName = "noBaselineProfileRulesGenerated",
-                message = """
+                """
                 No startup profile rules were generated for the variant `${variantName.get()}`.
                 This is most likely because there are no instrumentation test with baseline profile
                 rule, which specify `includeInStartupProfile = true`. If this is not intentional
@@ -346,72 +290,32 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         }
 
         // Use same sorting without filter for startup profiles.
-        val sortedStartupProfileRules = startupRules
+        val sortedProfileRules = startupRules
             .asSequence()
             .sorted()
             .mapNotNull { ProfileRule.parse(it) }
             .groupBy { it.classDescriptor + it.methodDescriptor }
             .map { it.value[0] }
             .sortedWith(ProfileRule.comparator)
+            .map { it.underlying }
+            .toList()
 
-        writeProfile(
-            filename = STARTUP_PROFILE_FILENAME,
-            profileType = "startup",
-            rules = sortedStartupProfileRules,
-        )
-    }
-
-    private fun writeProfile(filename: String, rules: List<ProfileRule>, profileType: String) {
         baselineProfileDir
-            .file(filename)
+            .file(STARTUP_PROFILE_FILENAME)
             .get()
             .asFile
             .apply {
-
-                // If an old profile file already exists calculate stats.
-                val stats = if (exists()) ProfileStats.from(
-                    existingRules = readLines().mapNotNull { ProfileRule.parse(it) },
-                    newRules = rules
-                ) else null
-
                 delete()
-                if (rules.isEmpty()) return
-                writeText(rules.joinToString(System.lineSeparator()) { it.underlying })
-
-                // If this is the last task display a success message (depending on the flag
-                // `saveInSrc` this task may be configured as a merge or copy task).
-                if (!lastTask.get()) {
-                    return
-                }
-
-                // This log should not be suppressed because it's used by Android Studio to
-                // open the generated HRF file.
-                logger.warn(
-                    property = { true },
-                    propertyName = null,
-                    message = """
-
-                    A $profileType profile was generated for the variant `${variantName.get()}`:
-                    ${Path(absolutePath).toUri()}
+                if (sortedProfileRules.isNotEmpty()) {
+                    writeText(sortedProfileRules.joinToString(System.lineSeparator()))
+                    if (lastTask.get()) {
+                        logger.warn(
+                            """
+                            A startup profile was generated for the variant `${variantName.get()}`:
+                            $absolutePath
                         """.trimIndent()
-                )
-
-                // Print stats if was previously calculated
-                stats?.apply {
-                    logger.warn(
-                        property = { true },
-                        propertyName = null,
-                        message = """
-
-                    Comparison with previous $profileType profile:
-                      $existing Old rules
-                      $new New rules
-                      $added Added rules (${"%.2f".format(addedRatio * 100)}%)
-                      $removed Removed rules (${"%.2f".format(removedRatio * 100)}%)
-                      $unmodified Unmodified rules (${"%.2f".format(unmodifiedRatio * 100)}%)
-
-                      """.trimIndent()
-                    )
+                        )
+                    }
                 }
             }
     }
@@ -454,55 +358,4 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         }
         .filter(filterBlock)
         .flatMap { it.readLines() }
-}
-
-internal data class ProfileStats(
-    val existing: Int,
-    val new: Int,
-    val added: Int,
-    val removed: Int,
-    val unmodified: Int,
-    val addedRatio: Float,
-    val removedRatio: Float,
-    val unmodifiedRatio: Float,
-) {
-    companion object {
-        fun from(existingRules: List<ProfileRule>, newRules: List<ProfileRule>): ProfileStats {
-            val existingRulesSet = existingRules
-                .map { "${it.classDescriptor}:${it.methodDescriptor}" }
-                .toHashSet()
-            val newRulesSet = newRules
-                .map { "${it.classDescriptor}:${it.methodDescriptor}" }
-                .toHashSet()
-            val allUniqueRules = existingRulesSet.union(newRulesSet).size
-
-            var unmodified = 0
-            var added = 0
-            var removed = 0
-
-            for (x in existingRulesSet) {
-                if (x in newRulesSet) {
-                    unmodified++
-                } else {
-                    removed++
-                }
-            }
-            for (x in newRulesSet) {
-                if (x !in existingRulesSet) {
-                    added++
-                }
-            }
-
-            return ProfileStats(
-                existing = existingRulesSet.size,
-                new = newRulesSet.size,
-                unmodified = unmodified,
-                added = added,
-                removed = removed,
-                addedRatio = added.toFloat() / allUniqueRules,
-                removedRatio = removed.toFloat() / allUniqueRules,
-                unmodifiedRatio = unmodified.toFloat() / allUniqueRules
-            )
-        }
-    }
 }

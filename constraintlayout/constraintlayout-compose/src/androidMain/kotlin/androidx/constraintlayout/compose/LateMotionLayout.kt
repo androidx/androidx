@@ -39,7 +39,6 @@ import kotlinx.coroutines.channels.Channel
  *
  * It's only meant to be used by ConstraintLayout to animate changes.
  */
-@OptIn(ExperimentalMotionApi::class)
 @PublishedApi
 @Composable
 internal fun LateMotionLayout(
@@ -108,7 +107,6 @@ internal fun LateMotionLayout(
  * Same as [motionLayoutMeasurePolicy] but the [ConstraintSet] objects are not available at call
  * time.
  */
-@OptIn(ExperimentalMotionApi::class) // Used only for ConstraintLayout `animateChanges` mode
 private fun lateMotionLayoutMeasurePolicy(
     startProvider: () -> ConstraintSet,
     endProvider: () -> ConstraintSet,

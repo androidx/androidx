@@ -50,7 +50,7 @@ import org.mockito.invocation.InvocationOnMock
 class AppSetIdManagerTest {
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExtVersion = AdServicesInfo.adServicesVersion() >= 4
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
 
     @Before
     fun setUp() {
@@ -75,17 +75,7 @@ class AppSetIdManagerTest {
     fun testAppSetIdOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        assertThat(AppSetIdManager.obtain(mContext)).isNull()
-    }
-
-    @Test
-    fun testAppSetIdManagerNoClassDefFoundError() {
-        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
-
-        `when`(android.adservices.appsetid.AppSetIdManager.get(any())).thenThrow(
-            NoClassDefFoundError()
-        )
-        assertThat(AppSetIdManager.obtain(mContext)).isNull()
+        assertThat(AppSetIdManager.obtain(mContext)).isEqualTo(null)
     }
 
     @Test

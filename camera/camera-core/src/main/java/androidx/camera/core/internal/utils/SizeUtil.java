@@ -48,14 +48,7 @@ public final class SizeUtil {
      * Returns the area of the supplied size.
      */
     public static int getArea(@NonNull Size size) {
-        return getArea(size.getWidth(), size.getHeight());
-    }
-
-    /**
-     * Returns the area of the supplied width and height.
-     */
-    public static int getArea(int width, int height) {
-        return width * height;
+        return size.getWidth() * size.getHeight();
     }
 
     /**

@@ -31,6 +31,7 @@ internal fun Translations.sq() = mapOf(
     Strings.Dialog to "Dialogu",
     Strings.MenuExpanded to "Zgjeruar",
     Strings.MenuCollapsed to "Palosur",
+    Strings.ToggleDropdownMenu to "Zgjero/palos menynë me lëshim poshtë",
     Strings.SnackbarDismiss to "Hiq",
     Strings.SearchBarSearch to "Kërkimi",
     Strings.SuggestionsAvailable to "Sugjerimet më poshtë",

@@ -1,6 +1,6 @@
 package com.sdk
 
-import androidx.privacysandbox.activity.core.SdkActivityLauncher
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 
 public interface MyInterface {
     public suspend fun add(x: Int, y: Int): Int

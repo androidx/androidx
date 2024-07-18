@@ -32,7 +32,7 @@ abstract class ValidationWriter {
         write(dbParamName, countingScope)
     }
 
-    protected abstract fun write(connectionParamName: String, scope: CountingCodeGenScope)
+    protected abstract fun write(dbParamName: String, scope: CountingCodeGenScope)
 
     /**
      * The estimated amount of statements this writer will write.

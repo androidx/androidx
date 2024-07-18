@@ -58,7 +58,7 @@ package androidx.appcompat.graphics.drawable {
 package androidx.appcompat.widget {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DrawableUtils {
-    method @Deprecated public static boolean canSafelyMutateDrawable(android.graphics.drawable.Drawable);
+    method public static boolean canSafelyMutateDrawable(android.graphics.drawable.Drawable);
     method public static android.graphics.Rect getOpticalBounds(android.graphics.drawable.Drawable);
     method public static android.graphics.PorterDuff.Mode! parseTintMode(int, android.graphics.PorterDuff.Mode!);
     field public static final android.graphics.Rect! INSETS_NONE;
@@ -98,7 +98,7 @@ package androidx.appcompat.widget {
     method public int getColor(int) throws android.content.res.Resources.NotFoundException;
     method public android.content.res.ColorStateList! getColorStateList(int) throws android.content.res.Resources.NotFoundException;
     method public android.graphics.drawable.Drawable! getDrawable(int) throws android.content.res.Resources.NotFoundException;
-    method public android.graphics.drawable.Drawable! getDrawableForDensity(int, int) throws android.content.res.Resources.NotFoundException;
+    method @RequiresApi(15) public android.graphics.drawable.Drawable! getDrawableForDensity(int, int) throws android.content.res.Resources.NotFoundException;
     method public android.graphics.Movie! getMovie(int) throws android.content.res.Resources.NotFoundException;
     method public static boolean isCompatVectorFromResourcesEnabled();
     method public static void setCompatVectorFromResourcesEnabled(boolean);

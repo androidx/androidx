@@ -21,11 +21,11 @@ import android.graphics.BlendMode
 import android.graphics.Color
 import android.graphics.HardwareRenderer
 import android.graphics.Paint
-import android.graphics.RenderNode
 import android.media.ImageReader
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.graphics.CanvasBufferedRenderer
+import androidx.graphics.BufferedRendererImpl
+import androidx.graphics.MultiBufferedCanvasRenderer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
@@ -45,15 +45,11 @@ internal class PreservedBufferContentsVerifier {
     private val executor = Executors.newSingleThreadExecutor()
     private val paint = Paint()
 
-    private val renderNode = RenderNode("testNode").apply {
-        setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
-    }
-
-    private val multiBufferedRenderer = CanvasBufferedRenderer.Builder(TEST_WIDTH, TEST_HEIGHT)
-        .setMaxBuffers(1)
-        .setImpl(CanvasBufferedRenderer.USE_V29_IMPL_WITH_SINGLE_BUFFER)
-        .build()
-        .apply { setContentRoot(renderNode) }
+    private val multiBufferedRenderer = MultiBufferedCanvasRenderer(
+        TEST_WIDTH,
+        TEST_HEIGHT,
+        maxImages = 1
+    ).apply { preserveContents = true }
 
     /**
      * Executes a test rendering to verify if contents are preserved across renders.
@@ -70,51 +66,45 @@ internal class PreservedBufferContentsVerifier {
      * cleared in advance.
      */
     fun supportsPreservedRenderedContent(): Boolean {
-        var canvas = renderNode.beginRecording()
-        // Ensure clear pixels before proceeding
-        canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
-        canvas.drawRect(
-            0f,
-            0f,
-            TEST_WIDTH / 2f,
-            TEST_HEIGHT.toFloat(),
-            paint.apply { color = Color.GREEN }
-        )
-        renderNode.endRecording()
-
+        multiBufferedRenderer.record { canvas ->
+            // Ensure clear pixels before proceeding
+            canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
+            canvas.drawRect(
+                0f,
+                0f,
+                TEST_WIDTH / 2f,
+                TEST_HEIGHT.toFloat(),
+                paint.apply { color = Color.GREEN }
+            )
+        }
         val firstRenderLatch = CountDownLatch(1)
-        multiBufferedRenderer.obtainRenderRequest()
-            .preserveContents(true)
-            .drawAsync(executor) { _ ->
-                firstRenderLatch.countDown()
-            }
-
+        multiBufferedRenderer.renderFrame(executor) { _, _ ->
+            firstRenderLatch.countDown()
+        }
         firstRenderLatch.await()
 
-        canvas = renderNode.beginRecording()
-        canvas.drawRect(
-            TEST_WIDTH / 2f,
-            0f,
-            TEST_WIDTH.toFloat(),
-            TEST_HEIGHT.toFloat(),
-            paint.apply { color = Color.BLUE }
-        )
-        // Draw red underneath the existing content
-        canvas.drawColor(Color.RED, BlendMode.DST_OVER)
-        renderNode.endRecording()
+        multiBufferedRenderer.record { canvas ->
+            canvas.drawRect(
+                TEST_WIDTH / 2f,
+                0f,
+                TEST_WIDTH.toFloat(),
+                TEST_HEIGHT.toFloat(),
+                paint.apply { color = Color.BLUE }
+            )
+            // Draw red underneath the existing content
+            canvas.drawColor(Color.RED, BlendMode.DST_OVER)
+        }
 
         var bitmap: Bitmap? = null
         val secondRenderLatch = CountDownLatch(1)
-        multiBufferedRenderer.obtainRenderRequest()
-            .preserveContents(true)
-            .drawAsync(executor) { result ->
-                result.fence?.awaitForever()
-                bitmap = Bitmap.wrapHardwareBuffer(
-                    result.hardwareBuffer,
-                    CanvasBufferedRenderer.DefaultColorSpace
-                )
-                secondRenderLatch.countDown()
-            }
+        multiBufferedRenderer.renderFrame(executor) { hardwareBuffer, syncFenceCompat ->
+            syncFenceCompat?.awaitForever()
+            bitmap = Bitmap.wrapHardwareBuffer(
+                hardwareBuffer,
+                BufferedRendererImpl.DefaultColorSpace
+            )
+            secondRenderLatch.countDown()
+        }
         secondRenderLatch.await()
 
         val hardwareBitmap = bitmap
@@ -130,8 +120,7 @@ internal class PreservedBufferContentsVerifier {
 
     fun release() {
         executor.shutdownNow()
-        multiBufferedRenderer.close()
-        renderNode.discardDisplayList()
+        multiBufferedRenderer.release()
     }
 
     companion object {

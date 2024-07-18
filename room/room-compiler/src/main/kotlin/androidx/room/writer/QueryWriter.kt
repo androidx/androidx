@@ -16,13 +16,11 @@
 
 package androidx.room.writer
 
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.parser.ParsedQuery
@@ -76,14 +74,11 @@ class QueryWriter(
         scope.builder.apply {
             if (varargParams.isNotEmpty()) {
                 val stringBuilderVar = scope.getTmpVar("_stringBuilder")
-                val stringBuilderTypeName = when (language) {
-                    CodeLanguage.JAVA -> CommonTypeNames.STRING_BUILDER
-                    CodeLanguage.KOTLIN -> KotlinTypeNames.STRING_BUILDER
-                }
-                addLocalVariable(
-                    name = stringBuilderVar,
-                    typeName = stringBuilderTypeName,
-                    assignExpr = XCodeBlock.ofNewInstance(language, stringBuilderTypeName)
+                addLocalVal(
+                    stringBuilderVar,
+                    CommonTypeNames.STRING_BUILDER,
+                    "%M()",
+                    RoomTypeNames.STRING_UTIL.packageMember("newStringBuilder")
                 )
                 query.sections.forEach { section ->
                     when (section) {

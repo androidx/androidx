@@ -39,7 +39,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,7 +69,6 @@ class CaptureConfigAdapterTest {
             cameraStateAdapter = CameraStateAdapter(),
         ),
         cameraProperties = fakeCameraProperties,
-        zslControl = ZslControlNoOpImpl(),
         threads = fakeUseCaseThreads,
     )
 
@@ -120,18 +118,16 @@ class CaptureConfigAdapterTest {
     @Test
     fun shouldReturnRequestThatIncludesCaptureCallbacks() {
         // Arrange
-        val callbackAborted = CompletableDeferred<Int>()
+        val callbackAborted = CompletableDeferred<Unit>()
         val captureCallback = object : CameraCaptureCallback() {
-            override fun onCaptureCancelled(captureConfigId: Int) {
-                callbackAborted.complete(captureConfigId)
+            override fun onCaptureCancelled() {
+                callbackAborted.complete(Unit)
             }
         }
-        val expectedCaptureConfigId = 101
         val captureConfig = CaptureConfig.Builder()
             .apply {
                 addSurface(surface)
                 addCameraCaptureCallback(captureCallback)
-                setId(expectedCaptureConfigId)
             }
             .build()
         val sessionConfigOptions = Camera2ImplConfig.Builder().build()
@@ -148,11 +144,7 @@ class CaptureConfigAdapterTest {
 
         // Assert
         runBlocking {
-            assertThat(
-                withTimeoutOrNull(timeMillis = 5000) {
-                    callbackAborted.await()
-                }
-            ).isEqualTo(expectedCaptureConfigId)
+            callbackAborted.await()
         }
     }
 

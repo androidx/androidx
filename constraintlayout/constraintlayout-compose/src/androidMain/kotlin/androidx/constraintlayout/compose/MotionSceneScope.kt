@@ -31,7 +31,6 @@ private const val UNDEFINED_NAME_PREFIX = "androidx.constraintlayout"
  * @see TransitionScope
  * @see ConstraintSetScope
  */
-@ExperimentalMotionApi
 fun MotionScene(
     motionSceneContent: MotionSceneScope.() -> Unit
 ): MotionScene {
@@ -42,7 +41,6 @@ fun MotionScene(
     )
 }
 
-@ExperimentalMotionApi
 internal class MotionSceneDslImpl(
     private val constraintSetsByName: Map<String, ConstraintSet>,
     private val transitionsByName: Map<String, Transition>
@@ -105,16 +103,19 @@ internal class MotionSceneDslImpl(
 /**
  * Scope used by the MotionScene DSL.
  *
+ * &nbsp;
+ *
  * Define new [ConstraintSet]s and [Transition]s within this scope using [constraintSet] and
  * [transition] respectively.
  *
  * Alternatively, you may add existing objects to this scope using [addConstraintSet] and
  * [addTransition].
  *
+ * &nbsp;
+ *
  * The [defaultTransition] **should always be set**. It defines the initial state of the layout and
  * works as a fallback for undefined `from -> to` transitions.
  */
-@ExperimentalMotionApi
 class MotionSceneScope internal constructor() {
     /**
      * Count of generated ConstraintSet & Transition names.
@@ -255,6 +256,8 @@ class MotionSceneScope internal constructor() {
      * ```
      * Note that the number of ids should match the number of variables assigned.
      *
+     * &nbsp;
+     *
      * To create a singular [ConstrainedLayoutReference] see [createRefFor].
      */
     fun createRefsFor(vararg ids: Any): ConstrainedLayoutReferences =
@@ -358,6 +361,8 @@ class MotionSceneScope internal constructor() {
     /**
      * Custom staggered weight. When set, MotionLayout will use these values instead of the default
      * way of calculating the weight, ignoring those with a `Float.NaN` value.
+     *
+     * &nbsp;
      *
      * The value is `Float.NaN` by default. Note that when all widgets are set to `Float.NaN`,
      * MotionLayout will use the default way of calculating the weight.

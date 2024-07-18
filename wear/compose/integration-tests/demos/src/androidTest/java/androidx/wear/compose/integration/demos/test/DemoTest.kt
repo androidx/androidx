@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.demos.test
 
 import android.util.Log
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollToNodeAction
@@ -46,6 +47,7 @@ private val ignoredDemos = listOf<String>(
 // given the use of ScalingLAZYColumn.
 @LargeTest
 @RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
 class DemoTest {
     // We need to provide the recompose factory first to use new clock.
     @get:Rule
@@ -150,18 +152,16 @@ class DemoTest {
 
     private fun clearFocusFromDemo() {
         with(rule.activity) {
-            rule.runOnUiThread {
-                if (hostView.hasFocus()) {
-                    if (hostView.isFocused) {
-                        // One of the Compose components has focus.
-                        focusManager.clearFocus(force = true)
-                    } else {
-                        // A child view has focus. (View interop scenario).
-                        // We could also use hostViewGroup.focusedChild?.clearFocus(), but the
-                        // interop views might end up being focused if one of them is marked as
-                        // focusedByDefault. So we clear focus by requesting focus on the owner.
-                        hostView.requestFocus()
-                    }
+            if (hostView.hasFocus()) {
+                if (hostView.isFocused) {
+                    // One of the Compose components has focus.
+                    focusManager.clearFocus(force = true)
+                } else {
+                    // A child view has focus. (View interop scenario).
+                    // We could also use hostViewGroup.focusedChild?.clearFocus(), but the
+                    // interop views might end up being focused if one of them is marked as
+                    // focusedByDefault. So we clear focus by requesting focus on the owner.
+                    rule.runOnUiThread { hostView.requestFocus() }
                 }
             }
         }
@@ -191,13 +191,13 @@ private fun DemoCategory.filter(
     val newPath = path + this
     return DemoCategory(
         title,
-        demos.mapNotNull { demo ->
-            when (demo) {
+        demos.mapNotNull {
+            when (it) {
                 is DemoCategory -> {
-                    demo.filter(newPath, predicate).let { if (it.demos.isEmpty()) null else it }
+                    it.filter(newPath, predicate).let { if (it.demos.isEmpty()) null else it }
                 }
                 else -> {
-                    if (predicate(newPath, demo)) demo else null
+                    if (predicate(newPath, it)) it else null
                 }
             }
         }

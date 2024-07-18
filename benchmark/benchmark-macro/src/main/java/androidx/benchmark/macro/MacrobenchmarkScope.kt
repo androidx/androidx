@@ -22,10 +22,10 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.benchmark.Arguments
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
-import androidx.benchmark.Profiler
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
@@ -52,14 +52,8 @@ public class MacrobenchmarkScope(
     private val launchWithClearTask: Boolean
 ) {
 
-    internal val instrumentation = InstrumentationRegistry.getInstrumentation()
-
-    internal val context = instrumentation.context
-
-    /**
-     * The per-iteration file label used as a prefix when storing Macrobenchmark results.
-     */
-    internal lateinit var fileLabel: String
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val context = instrumentation.context
 
     /**
      * Controls if the process will be launched with method tracing turned on.
@@ -67,25 +61,19 @@ public class MacrobenchmarkScope(
      * Default to false, because we only want to turn on method tracing when explicitly enabled
      * via `Arguments.methodTracingOptions`.
      */
-    private var isMethodTracingActive: Boolean = false
+    internal var launchWithMethodTracing: Boolean = false
 
     /**
-     * This is `true` iff method tracing is currently active for this benchmarking session.
+     * Only use this for testing. This forces `--start-profiler` without the check for process
+     * live ness.
      */
-    private var isMethodTracingSessionActive: Boolean = false
+    @VisibleForTesting
+    internal var methodTracingForTests: Boolean = false
 
     /**
-     * When `true`, the app will be forced to flush its ART profiles
-     * to disk before being killed. This allows them to be later collected e.g.
-     * by a `BaselineProfile` capture, or immediate compilation by `CompilationMode.Partial`
-     * with warmupIterations.
+     * This is `true` iff method tracing is currently active.
      */
-    internal var flushArtProfiles: Boolean = false
-
-    /**
-     * `true` if the app is a system app.
-     */
-    internal var isSystemApp: Boolean = false
+    internal var isMethodTracing: Boolean = false
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -97,13 +85,6 @@ public class MacrobenchmarkScope(
     @get:Suppress("AutoBoxing") // low frequency, non-perf-relevant part of test
     var iteration: Int? = null
         internal set
-
-    /**
-     * The list of method traces accumulated during a benchmarking session. The [Pair] has the
-     * label and the absolute path to the trace. These should be reported at the end of a
-     * Macro benchmarking session, if method tracing was on.
-     */
-    private val methodTraces: MutableList<Pair<String, String>> = mutableListOf()
 
     /**
      * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
@@ -157,46 +138,33 @@ public class MacrobenchmarkScope(
         startActivityImpl(intent.toUri(Intent.URI_INTENT_SCHEME))
     }
 
-    private fun startActivityImpl(uri: String) {
-        if (
-            isMethodTracingActive &&
-            !isMethodTracingSessionActive &&
-            !Shell.isPackageAlive(packageName)
-        ) {
-            isMethodTracingSessionActive = true
-            // Use the canonical trace path for the given package name.
-            val tracePath = methodTraceRecordPath(packageName)
-            val profileArgs = "--start-profiler \"$tracePath\" --streaming"
-            amStartAndWait(uri, profileArgs)
-        } else {
-            amStartAndWait(uri)
-        }
-    }
-
     @SuppressLint("BanThreadSleep") // Cannot always detect activity launches.
-    private fun amStartAndWait(uri: String, profilingArgs: String? = null) {
+    private fun startActivityImpl(uri: String) {
         val ignoredUniqueNames = if (!launchWithClearTask) {
             emptyList()
         } else {
             // ignore existing names, as we expect a new window
             getFrameStats().map { it.uniqueName }
         }
-
         val preLaunchTimestampNs = System.nanoTime()
-
-        val additionalArgs = profilingArgs ?: ""
-        val cmd = "am start $additionalArgs -W \"$uri\""
+        // Only use --start-profiler is the package is not alive. Otherwise re-use the existing
+        // profiling session.
+        val profileArgs =
+            if (launchWithMethodTracing && (methodTracingForTests || !Shell.isPackageAlive(
+                    packageName
+                ))
+            ) {
+            isMethodTracing = true
+            val tracePath = methodTraceRecordPath(packageName)
+            "--start-profiler \"$tracePath\" --streaming"
+        } else {
+            ""
+        }
+        val cmd = "am start $profileArgs -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
         val result = Shell.executeScriptCaptureStdoutStderr(cmd)
-
-        if (result.stderr.contains("java.lang.SecurityException")) {
-            throw SecurityException(result.stderr)
-        }
-        if (result.stderr.isNotEmpty()) {
-            throw IllegalStateException(result.stderr)
-        }
 
         val outputLines = result.stdout
             .split("\n")
@@ -207,6 +175,13 @@ public class MacrobenchmarkScope(
             if (it.startsWith("Error:")) {
                 throw IllegalStateException(it)
             }
+        }
+
+        if (result.stderr.contains("java.lang.SecurityException")) {
+            throw SecurityException(result.stderr)
+        }
+        if (result.stderr.isNotEmpty()) {
+            throw IllegalStateException(result.stderr)
         }
 
         Log.d(TAG, "Result: ${result.stdout}")
@@ -239,11 +214,9 @@ public class MacrobenchmarkScope(
                 Thread.sleep(100)
             }
         }
-        throw IllegalStateException(
-            "Unable to confirm activity launch completion $lastFrameStats" +
-                " Please report a bug with the output of" +
-                " `adb shell dumpsys gfxinfo $packageName framestats`"
-        )
+        throw IllegalStateException("Unable to confirm activity launch completion $lastFrameStats" +
+            " Please report a bug with the output of" +
+            " `adb shell dumpsys gfxinfo $packageName framestats`")
     }
 
     /**
@@ -284,26 +257,13 @@ public class MacrobenchmarkScope(
      *
      *@param useKillAll should be set to `true` for System apps or pre-installed apps.
      */
-    @Deprecated(
-        "Use the parameter-less killProcess() API instead",
-        replaceWith = ReplaceWith("killProcess()")
-    )
-    @Suppress("UNUSED_PARAMETER")
+    @JvmOverloads
     public fun killProcess(useKillAll: Boolean = false) {
-        killProcess()
-    }
-
-    /**
-     * Force-stop the process being measured.
-     */
-    public fun killProcess() {
-        // Method traces are only flushed is a method tracing session is active.
-        flushMethodTraces()
-        if (flushArtProfiles && Build.VERSION.SDK_INT >= 24) {
-            // Flushing ART profiles will also kill the process at the end.
-            killProcessAndFlushArtProfiles()
+        Log.d(TAG, "Killing process $packageName")
+        if (useKillAll) {
+            device.executeShellCommand("killall $packageName")
         } else {
-            killProcessImpl()
+            device.executeShellCommand("am force-stop $packageName")
         }
     }
 
@@ -319,20 +279,12 @@ public class MacrobenchmarkScope(
      * signalled to drop its shader cache.
      */
     public fun dropShaderCache() {
-        if (Arguments.dropShadersEnable) {
-            Log.d(TAG, "Dropping shader cache for $packageName")
-            val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
-            if (dropError != null && !DeviceInfo.isEmulator) {
-                if (!dropShaderCacheRoot()) {
-                    if (Arguments.dropShadersThrowOnFailure) {
-                        throw IllegalStateException(dropError)
-                    } else {
-                        Log.d(TAG, dropError)
-                    }
-                }
+        Log.d(TAG, "Dropping shader cache for $packageName")
+        val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
+        if (dropError != null && !DeviceInfo.isEmulator) {
+            if (!dropShaderCacheRoot()) {
+                throw IllegalStateException(dropError)
             }
-        } else {
-            Log.d(TAG, "Skipping drop shader cache for $packageName")
         }
     }
 
@@ -351,6 +303,47 @@ public class MacrobenchmarkScope(
             return true
         }
         return false
+    }
+
+    /**
+     * Stops method tracing for the given [packageName] and copies the output to the
+     * `additionalTestOutputDir`.
+     *
+     * @return a [Pair] representing the label, and the absolute path of the method trace.
+     */
+    internal fun stopMethodTracing(uniqueLabel: String): Pair<String, String> {
+        Shell.executeScriptSilent("am profile stop $packageName")
+        // Wait for the profiles to get dumped :(
+        // ART Method tracing has a buffer size of 8M, so 1 second should be enough
+        // to dump the contents of the buffer.
+
+        val tracePath = methodTraceRecordPath(packageName)
+        // Using 50 ms as a poll duration for a max of 20 iterations. This is because
+        // we don't want to wait for longer than 1s. Also, anecdotally when polling from the
+        // shell I found a stable iteration count of 3 to be sufficient.
+        Shell.waitForFileFlush(
+            tracePath,
+            maxIterations = 20,
+            stableIterations = 3,
+            pollDurationMs = 50L
+        )
+        // unique label so source is clear, dateToFileName so each run of test is unique on host
+        val outputFileName = "$uniqueLabel-method-${dateToFileName()}.trace"
+        val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
+        // Staging location before we write it again using Outputs.writeFile(...)
+        // NOTE: staging copy may be unnecessary if we just use a single `cp`
+        Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
+
+        // Report file
+        val outputPath = Outputs.writeFile(outputFileName) {
+            Log.d(TAG, "Writing method traces to ${it.absolutePath}")
+            stagingFile.copyTo(it, overwrite = true)
+
+            // Cleanup
+            stagingFile.delete()
+            Shell.executeScriptSilent("rm \"$tracePath\"")
+        }
+        return "MethodTrace iteration ${this.iteration ?: 0}" to outputPath
     }
 
     /**
@@ -382,55 +375,6 @@ public class MacrobenchmarkScope(
         )
     }
 
-    @RequiresApi(24)
-    internal fun killProcessAndFlushArtProfiles() {
-        Log.d(TAG, "Flushing ART profiles for $packageName")
-        // For speed profile compilation, ART team recommended to wait for 5 secs when app
-        // is in the foreground, dump the profile, wait for an additional second before
-        // speed-profile compilation.
-        @Suppress("BanThreadSleep")
-        Thread.sleep(5000)
-        val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
-        if (saveResult == null) {
-            killProcessImpl()
-        } else {
-            if (Shell.isSessionRooted()) {
-                // fallback on `killall -s SIGUSR1`, if available with root
-                Log.d(
-                    TAG,
-                    "Unable to saveProfile with profileinstaller ($saveResult), trying kill"
-                )
-                val response = Shell.executeScriptCaptureStdoutStderr(
-                    "killall -s SIGUSR1 $packageName"
-                )
-                check(response.isBlank()) {
-                    "Failed to dump profile for $packageName ($response),\n" +
-                        " and failed to save profile with broadcast: $saveResult"
-                }
-            } else {
-                throw RuntimeException(saveResult)
-            }
-        }
-    }
-
-    /**
-     * Force-stop the process being measured.
-     */
-    private fun killProcessImpl() {
-        val isRooted = Shell.isSessionRooted()
-        Log.d(TAG, "Killing process $packageName")
-        if (isRooted && isSystemApp) {
-            device.executeShellCommand("killall $packageName")
-        } else {
-            // We want to use `am force-stop` for apps that are not system apps
-            // to make sure app components are not automatically restarted by system_server.
-            device.executeShellCommand("am force-stop $packageName")
-        }
-        // System Apps need an additional Thread.sleep() to ensure that the process is killed.
-        @Suppress("BanThreadSleep")
-        Thread.sleep(Arguments.killProcessDelayMillis)
-    }
-
     /**
      * Drop Kernel's in-memory cache of disk pages.
      *
@@ -454,125 +398,6 @@ public class MacrobenchmarkScope(
                 }
                 Log.w(TAG, "Failed to drop kernel page cache, result: '$result'")
             }
-        }
-    }
-
-    /**
-     * Cancels the job responsible for running background `dexopt`.
-     *
-     * Background `dexopt` is a CPU intensive operation that can interfere with benchmarks.
-     * By cancelling this job, we ensure that this operation will not interfere with the benchmark,
-     * and we get stable numbers.
-     */
-    @RequiresApi(33)
-    internal fun cancelBackgroundDexopt() {
-        val result = if (Build.VERSION.SDK_INT >= 34) {
-            Shell.executeScriptCaptureStdout("pm bg-dexopt-job --cancel")
-        } else {
-            // This command is deprecated starting Android U, and is just an alias for the
-            // command above. More info in the link below.
-            // https://cs.android.com/android/platform/superproject/main/+/main:art/libartservice/service/java/com/android/server/art/ArtShellCommand.java;l=123;drc=93f35d39de15c555b0ddea16121b0ee3f0aa9f91
-            Shell.executeScriptCaptureStdout("pm cancel-bg-dexopt-job")
-        }
-        // We expect one of the following messages in stdout.
-        val expected = listOf("Success", "Background dexopt job cancelled")
-        if (expected.none { it == result.trim() }) {
-            throw IllegalStateException(
-                "Failed to cancel background dexopt job, result: '$result'"
-            )
-        }
-    }
-
-    /**
-     * Starts method tracing for the given [packageName].
-     */
-    internal fun startMethodTracing() {
-        require(!isMethodTracingActive && !isMethodTracingSessionActive) {
-            "Method tracing should not already be active."
-        }
-        isMethodTracingActive = true
-        // If the process is running, start a profiling session by connecting to the process.
-        // Otherwise, given isMethodTracingActive = true, startActivityAndWait(...) will ensure
-        // that a subsequent process launch happens with tracing turned on.
-        if (Shell.isPackageAlive(packageName)) {
-            isMethodTracingSessionActive = true
-            // Use the canonical trace path for the given package name.
-            val tracePath = methodTraceRecordPath(packageName)
-            // Clock Type is only available starting Android V
-            // https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/app/ProfilerInfo.java;l=115;drc=c58be09d9273485c54d6a16defc42d9f26182b73
-            val clockType = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                "--clock-type wall"
-            } else {
-                ""
-            }
-            val arguments = "--streaming $clockType $packageName \"$tracePath\""
-            Shell.executeScriptSilent("am profile start $arguments")
-        }
-    }
-
-    /**
-     * Stops a method tracing session for the provided [packageName]. This returns a list of traces
-     * accumulated in an active Method tracing session.
-     */
-    internal fun stopMethodTracing(): List<Profiler.ResultFile> {
-        require(isMethodTracingActive) {
-            "startMethodTracing() must be called prior to a call to stopMethodTracing()."
-        }
-        // Only flushes method traces when a trace session is active.
-        flushMethodTraces()
-        isMethodTracingActive = false
-        val results = methodTraces.map {
-            Profiler.ResultFile.ofMethodTrace(it.first, it.second)
-        }
-        methodTraces.clear()
-        return results
-    }
-
-    /**
-     * Stops the current method tracing session and copies the output to the
-     * `additionalTestOutputDir` if a session was active.
-     */
-    private fun flushMethodTraces() {
-        if (isMethodTracingSessionActive) {
-            isMethodTracingSessionActive = false
-            val tracePath = methodTraceRecordPath(packageName)
-
-            // We have to poll here as `am profile stop` is async, but it's hard to calibrate these
-            // numbers, as different devices take drastically different amounts of time.
-            // E.g. pixel 8 takes 100ms for it's full flush, while mokey takes 1700ms to start,
-            // then a few hundred ms to complete.
-            //
-            // Ideally, we'd use the native approach that Studio profilers use (on P+):
-            // https://cs.android.com/android-studio/platform/tools/base/+/mirror-goog-studio-main:transport/native/utils/activity_manager.cc;l=111;drc=a4c97db784418341c9f1be60b98ba22301b5ced8
-            Shell.waitForFileFlush(
-                tracePath,
-                maxInitialFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to start
-                maxStableFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to complete
-                stableIterations = 8, // 400ms of stability after flush starts
-                pollDurationMs = 50L
-            ) {
-                Shell.executeScriptSilent("am profile stop $packageName")
-            }
-            // unique label so source is clear, dateToFileName so each run of test is unique on host
-            val outputFileName = "$fileLabel-methodTracing-${Outputs.dateToFileName()}.trace"
-            val stagingFile =
-                File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
-            // Staging location before we write it again using Outputs.writeFile(...)
-            // NOTE: staging copy may be unnecessary if we just use a single `cp`
-            Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
-
-            // Report file
-            val outputPath = Outputs.writeFile(outputFileName) {
-                Log.d(TAG, "Writing method traces to ${it.absolutePath}")
-                stagingFile.copyTo(it, overwrite = true)
-
-                // Cleanup
-                stagingFile.delete()
-                Shell.executeScriptSilent("rm \"$tracePath\"")
-            }
-            val traceLabel = "MethodTrace iteration ${iteration ?: 0}"
-            // Keep track of the label and the corresponding output paths.
-            methodTraces += traceLabel to outputPath
         }
     }
 

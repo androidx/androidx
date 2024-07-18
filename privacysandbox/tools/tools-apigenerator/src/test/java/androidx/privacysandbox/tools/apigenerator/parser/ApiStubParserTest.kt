@@ -17,9 +17,8 @@
 package androidx.privacysandbox.tools.apigenerator.parser
 
 import androidx.privacysandbox.tools.apigenerator.mergedClasspath
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
-import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -75,10 +74,7 @@ class ApiStubParserTest {
                     |data class PayloadResponse(val url: String)
                     |
                     |@PrivacySandboxValue
-                    |data class PayloadRequest(val type: PayloadType, val option: PayloadOption)
-                    |
-                    |@PrivacySandboxValue
-                    |enum class PayloadOption { SHAKEN, STIRRED }
+                    |data class PayloadRequest(val type: PayloadType)
                     |
                     |@PrivacySandboxCallback
                     |interface CustomCallback {
@@ -87,25 +83,20 @@ class ApiStubParserTest {
                 """.trimMargin(),
         )
 
-        val expectedPayloadOption = AnnotatedEnumClass(
-            type = Type("com.mysdk", "PayloadOption"),
-            variants = listOf("SHAKEN", "STIRRED")
-        )
-        val expectedPayloadType = AnnotatedDataClass(
+        val expectedPayloadType = AnnotatedValue(
             type = Type("com.mysdk", "PayloadType"),
             properties = listOf(
                 ValueProperty("size", Types.long),
                 ValueProperty("appId", Types.string),
             )
         )
-        val expectedPayloadRequest = AnnotatedDataClass(
+        val expectedPayloadRequest = AnnotatedValue(
             type = Type("com.mysdk", "PayloadRequest"),
             properties = listOf(
                 ValueProperty("type", expectedPayloadType.type),
-                ValueProperty("option", expectedPayloadOption.type)
             )
         )
-        val expectedPayloadResponse = AnnotatedDataClass(
+        val expectedPayloadResponse = AnnotatedValue(
             type = Type("com.mysdk", "PayloadResponse"),
             properties = listOf(
                 ValueProperty("url", Types.string),
@@ -188,19 +179,19 @@ class ApiStubParserTest {
         )
         val expectedCallback = AnnotatedInterface(
             type = Type(packageName = "com.mysdk", simpleName = "CustomCallback"),
-            methods = listOf(
-                Method(
-                    name = "onComplete",
-                    parameters = listOf(
-                        Parameter(
-                            "status",
-                            Types.int
+                methods = listOf(
+                    Method(
+                        name = "onComplete",
+                        parameters = listOf(
+                            Parameter(
+                                "status",
+                                Types.int
+                            ),
                         ),
+                        returnType = Types.unit,
+                        isSuspend = false,
                     ),
-                    returnType = Types.unit,
-                    isSuspend = false,
-                ),
-            )
+                )
         )
 
         val actualApi = compileAndParseApi(source)
@@ -209,7 +200,6 @@ class ApiStubParserTest {
             expectedPayloadType,
             expectedPayloadRequest,
             expectedPayloadResponse,
-            expectedPayloadOption,
         )
         assertThat(actualApi.callbacks).containsExactly(expectedCallback)
         assertThat(actualApi.interfaces).containsExactlyElementsIn(expectedInterfaces)
@@ -278,7 +268,7 @@ class ApiStubParserTest {
         val source = Source.kotlin(
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
-                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk {
                         fun useLauncher(launcher: SdkActivityLauncher)
@@ -295,7 +285,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxInterface
-                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk
 
@@ -315,7 +305,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxCallback
-                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk
 
@@ -335,7 +325,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     import androidx.privacysandbox.tools.PrivacySandboxValue
-                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk
 
@@ -353,7 +343,7 @@ class ApiStubParserTest {
             "com/mysdk/MySdk.kt", """
                     import androidx.privacysandbox.tools.PrivacySandboxService
                     // Deliberate unused import
-                    import androidx.privacysandbox.activity.core.SdkActivityLauncher
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
                     @PrivacySandboxService
                     interface MySdk {
                         fun doStuff(input: String)
@@ -418,7 +408,7 @@ class ApiStubParserTest {
         assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
-            "com.mysdk.Value is not a Kotlin data class or enum class but it's annotated with " +
+            "com.mysdk.Value is not a Kotlin data class but it's annotated with " +
                 "@PrivacySandboxValue"
         )
     }
@@ -440,7 +430,7 @@ class ApiStubParserTest {
         assertThrows<PrivacySandboxParsingException> {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
-            "com.mysdk.Value is not a Kotlin data class or enum class but it's annotated with " +
+            "com.mysdk.Value is not a Kotlin data class but it's annotated with " +
                 "@PrivacySandboxValue"
         )
     }
@@ -501,32 +491,6 @@ class ApiStubParserTest {
             compileAndParseApi(source)
         }.hasMessageThat().contains(
             "Unable to find valid interfaces annotated with @PrivacySandboxService."
-        )
-    }
-
-    @Test
-    fun enumClassImplementingInterface_throws() {
-        val source = Source.kotlin(
-            "com/mysdk/TestSandboxSdk.kt", """
-                    package com.mysdk
-                    import androidx.privacysandbox.tools.PrivacySandboxService
-                    import androidx.privacysandbox.tools.PrivacySandboxValue
-                    @PrivacySandboxService
-                    interface MySdk
-                    interface MyCustomInterface
-                    @PrivacySandboxValue
-                    enum class MyEnum : MyCustomInterface {
-                       FOO,
-                       BAR,
-                    }
-                """
-        )
-
-        assertThrows<PrivacySandboxParsingException> {
-            compileAndParseApi(source)
-        }.hasMessageThat().contains(
-            "Error in com.mysdk.MyEnum: values annotated with @PrivacySandboxValue " +
-                "may not inherit other types (MyCustomInterface)"
         )
     }
 

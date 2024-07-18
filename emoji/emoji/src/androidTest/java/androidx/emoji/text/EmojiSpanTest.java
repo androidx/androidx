@@ -31,6 +31,7 @@ import android.text.TextPaint;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,7 @@ import org.mockito.stubbing.Answer;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class EmojiSpanTest {
 
     @Before

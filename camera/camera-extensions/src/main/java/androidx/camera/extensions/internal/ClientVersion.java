@@ -27,7 +27,7 @@ import androidx.annotation.VisibleForTesting;
 public class ClientVersion {
     // Current version of vendor library implementation that the CameraX extension supports. This
     // needs to be increased along with the version of vendor library interface.
-    private static ClientVersion sCurrent = new ClientVersion("1.4.0");
+    private static ClientVersion sCurrent = new ClientVersion("1.3.0");
 
     @NonNull
     public static ClientVersion getCurrentVersion() {

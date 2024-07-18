@@ -151,7 +151,7 @@ class SurfaceProcessorImplDeviceTest {
         assertThat(latch.await(TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(frameReceived!!.size).isEqualTo(size)
         assertThat(frameReceived!!.cropRect).isEqualTo(transformationInfo.cropRect)
-        assertThat(frameReceived!!.isMirroring).isEqualTo(transformationInfo.isMirroring)
+        assertThat(frameReceived!!.mirroring).isEqualTo(transformationInfo.mirroring)
         assertThat(frameReceived!!.sensorToBufferTransform)
             .isEqualTo(transformationInfo.sensorToBufferTransform)
         assertThat(frameReceived!!.rotationDegrees).isEqualTo(ROTATION_DEGREES)
@@ -242,7 +242,7 @@ class SurfaceProcessorImplDeviceTest {
         val cachedFrame = processor.buffer.frames.single()
 
         // Act: draw the cached frame.
-        val drawFuture = processor.drawFrameAsync(cachedFrame.timestampNanos)
+        val drawFuture = processor.drawFrame(cachedFrame.timestampNs)
 
         // Assert: the future completes with RESULT_SUCCESS and the output receives the frame.
         assertThat(drawFuture.get()).isEqualTo(OverlayEffect.RESULT_SUCCESS)
@@ -256,7 +256,7 @@ class SurfaceProcessorImplDeviceTest {
         val frame = processor.buffer.frames.single()
 
         // Act: draw the frame with a wrong timestamp.
-        val drawFuture = processor.drawFrameAsync(frame.timestampNanos - 1)
+        val drawFuture = processor.drawFrame(frame.timestampNs - 1)
 
         // Assert: the future completes with RESULT_FRAME_NOT_FOUND and the output does not receive
         // the frame.
@@ -275,7 +275,7 @@ class SurfaceProcessorImplDeviceTest {
         val frame = processor.buffer.frames.single()
 
         // Act: draw the frame.
-        val drawFuture = processor.drawFrameAsync(frame.timestampNanos)
+        val drawFuture = processor.drawFrame(frame.timestampNs)
 
         // Assert: the future completes with RESULT_CANCELLED_BY_CALLER and the output does not
         // receive the frame.
@@ -303,7 +303,7 @@ class SurfaceProcessorImplDeviceTest {
         }
 
         // Act: draw the buffered frame.
-        val drawFuture = processor.drawFrameAsync(frame.timestampNanos)
+        val drawFuture = processor.drawFrame(frame.timestampNs)
 
         // Assert: the future completes with RESULT_INVALID_SURFACE and the output does not
         // receive the frame.
@@ -318,7 +318,7 @@ class SurfaceProcessorImplDeviceTest {
         processor.release()
 
         // Act: release the processor and draw a frame.
-        val drawFuture = processor.drawFrameAsync(0)
+        val drawFuture = processor.drawFrame(0)
 
         // Assert: the future completes with an exception.
         try {

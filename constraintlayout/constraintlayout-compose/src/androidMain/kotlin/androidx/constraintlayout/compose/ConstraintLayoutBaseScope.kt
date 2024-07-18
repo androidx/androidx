@@ -1449,6 +1449,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * Use weight to distribute available space to each widget when their dimensions are not
      * fixed.
      *
+     * &nbsp;
+     *
      * Similarly named parameters available from [ConstrainScope.linkTo] are ignored in
      * Chains.
      *
@@ -1502,6 +1504,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      * Use weight to distribute available space to each widget when their horizontal dimension is
      * not fixed.
      *
+     * &nbsp;
+     *
      * Similarly named parameters available from [ConstrainScope.linkTo] are ignored in
      * Chains.
      *
@@ -1542,6 +1546,8 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
      *
      * Use weight to distribute available space to each widget when their vertical dimension is not
      * fixed.
+     *
+     * &nbsp;
      *
      * Similarly named parameters available from [ConstrainScope.linkTo] are ignored in
      * Chains.

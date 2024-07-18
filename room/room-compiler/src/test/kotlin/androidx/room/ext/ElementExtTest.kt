@@ -20,11 +20,9 @@ import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XMethodElement
-import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -218,36 +216,6 @@ class ElementExtTest(
         }
     }
 
-    @Test
-    fun valueClassUnderlyingProperty() {
-        val src = Source.kotlin(
-            "Subject.kt",
-            """
-            package foo
-            class Subject {
-              fun makeULong(): ULong {
-                TODO()
-              }
-            }
-            """.trimIndent()
-        )
-        runKspTest(
-            sources = listOf(src),
-            config = XProcessingEnvConfig.DEFAULT.copy(
-                excludeMethodsWithInvalidJvmSourceNames = false
-            )
-        ) { invocation ->
-            val subject = invocation.processingEnv.requireTypeElement("foo.Subject")
-            val returnType = subject.getDeclaredMethods()
-                .single { it.name == "makeULong" }
-                .returnType
-            val prop = checkNotNull(returnType.typeElement).getValueClassUnderlyingElement()
-            assertThat(prop.name).isEqualTo("data")
-            assertThat(prop.type)
-                .isEqualTo(invocation.processingEnv.requireType(XTypeName.PRIMITIVE_LONG))
-        }
-    }
-
     @Suppress("NAME_SHADOWING") // intentional
     private fun runTest(
         sources: List<Source> = emptyList(),
@@ -267,10 +235,9 @@ class ElementExtTest(
 
     private fun XTestInvocation.objectMethodNames(): List<String> {
         return processingEnv.requireTypeElement("java.lang.Object")
-            .getAllMethods()
-            .filterNot { it.isPrivate() }
-            .map { it.jvmName }
-            .toList()
+            .getAllMethods().map {
+                it.jvmName
+            }.toList() - "registerNatives"
     }
 
     private fun List<XMethodElement>.names() = map { it.jvmName }

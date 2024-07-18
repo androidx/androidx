@@ -18,6 +18,7 @@ package androidx.appcompat.app
 
 import android.content.res.Configuration
 import android.content.res.Resources
+import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_FONT_SCALE
 import androidx.appcompat.app.NightModeCustomAttachBaseContextActivity.CUSTOM_LOCALE
@@ -114,6 +115,10 @@ class NightModeCustomApplicationConfigurationTestCase(private val setMode: Night
     companion object {
         @JvmStatic
         @Parameterized.Parameters
-        fun data() = listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        fun data() = if (Build.VERSION.SDK_INT >= 17) {
+            listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        } else {
+            listOf(NightSetMode.DEFAULT)
+        }
     }
 }

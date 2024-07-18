@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.hardware.camera2.CameraDevice
 import android.media.MediaCodec
+import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.core.Log
@@ -43,9 +46,7 @@ import kotlinx.coroutines.launch
  */
 class SessionConfigAdapter(
     private val useCases: Collection<UseCase>,
-    private val sessionProcessorConfig: SessionConfig? = null,
 ) {
-    val isSessionProcessorEnabled = sessionProcessorConfig != null
     val surfaceToStreamUseCaseMap: Map<DeferrableSurface, Long> by lazy {
         val sessionConfigs = mutableListOf<SessionConfig>()
         val useCaseConfigs = mutableListOf<UseCaseConfig<*>>()
@@ -64,11 +65,6 @@ class SessionConfigAdapter(
 
         for (useCase in useCases) {
             validatingBuilder.add(useCase.sessionConfig)
-        }
-
-        if (sessionProcessorConfig != null) {
-            validatingBuilder.clearSurfaces()
-            validatingBuilder.add(sessionProcessorConfig)
         }
 
         validatingBuilder

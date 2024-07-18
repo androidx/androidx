@@ -125,21 +125,7 @@ class TileServiceViewAdapterTest(
         assertThatTileHasInflatedSuccessfully()
     }
 
-    @Test
-    fun testTilePreviewWithDefaultPlatformData() {
-        initAndInflate("$testFile.tilePreviewWithDefaultPlatformData")
-
-        assertThatTileHasInflatedSuccessfully(expectedText = "80")
-    }
-
-    @Test
-    fun testTilePreviewWithOverriddenPlatformData() {
-        initAndInflate("$testFile.tilePreviewWithOverriddenPlatformData")
-
-        assertThatTileHasInflatedSuccessfully(expectedText = "180")
-    }
-
-    private fun assertThatTileHasInflatedSuccessfully(expectedText: String = "Hello world!") {
+    private fun assertThatTileHasInflatedSuccessfully() {
         activityTestRule.runOnUiThread {
             val textView = when (
                 val child = (tileServiceViewAdapter.getChildAt(0) as ViewGroup).getChildAt(0)
@@ -149,7 +135,7 @@ class TileServiceViewAdapterTest(
                 else -> (child as? FrameLayout)?.getChildAt(0) as? TextView
             }
             assertNotNull(textView)
-            assertEquals(expectedText, textView?.text.toString())
+            assertEquals("Hello world!", textView?.text.toString())
         }
     }
 

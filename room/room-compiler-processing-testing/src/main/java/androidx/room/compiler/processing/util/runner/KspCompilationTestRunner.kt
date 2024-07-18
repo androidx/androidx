@@ -49,8 +49,6 @@ internal class KspCompilationTestRunner(
                     config = params.config
                 ).also { processor = it }
             }
-
-            fun isProcessorInitialized() = this::processor.isInitialized
         }
         val args = TestCompilationArguments(
             sources = params.sources,
@@ -64,23 +62,6 @@ internal class KspCompilationTestRunner(
             workingDir = workingDir,
             arguments = args
         )
-        if (!processorProvider.isProcessorInitialized()) {
-            // KSP did not completely run, report diagnostic messages those with an exception.
-            val exceptionMsg = buildString {
-                append("KSP did not completely run!")
-                if (result.diagnostics.isNotEmpty()) {
-                    appendLine()
-                    appendLine("--- Diagnostic messages:")
-                    result.diagnostics.values.flatten().forEach {
-                        appendLine("${it.kind}: ${it.msg}")
-                    }
-                    append("--- End of Diagnostic messages")
-                } else {
-                    append(" No diagnostic messages...")
-                }
-            }
-            error(exceptionMsg)
-        }
         return KotlinCompilationResult(
             testRunner = this,
             processor = processorProvider.processor,

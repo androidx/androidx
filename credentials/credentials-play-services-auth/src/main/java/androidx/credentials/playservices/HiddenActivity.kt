@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("Deprecation")
 package androidx.credentials.playservices
 
 import android.app.Activity
@@ -43,7 +42,7 @@ import com.google.android.gms.fido.fido2.api.common.PublicKeyCredentialCreationO
  * An activity used to ensure all required API versions work as intended.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@Suppress("ForbiddenSuperClass")
+@Suppress("Deprecation", "ForbiddenSuperClass")
 open class HiddenActivity : Activity() {
 
     private var resultReceiver: ResultReceiver? = null

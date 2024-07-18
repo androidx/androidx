@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+ChangedType: androidx.activity.ComponentActivity#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultCallback<O>):
+    Method androidx.activity.ComponentActivity.registerForActivityResult has changed return type from androidx.activity.result.ActivityResultLauncher<I> to androidx.activity.result.ActivityResultLauncher<I>
+ChangedType: androidx.activity.ComponentActivity#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O>):
+    Method androidx.activity.ComponentActivity.registerForActivityResult has changed return type from androidx.activity.result.ActivityResultLauncher<I> to androidx.activity.result.ActivityResultLauncher<I>
+ChangedType: androidx.activity.result.ActivityResultCaller#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultCallback<O>):
+    Method androidx.activity.result.ActivityResultCaller.registerForActivityResult has changed return type from androidx.activity.result.ActivityResultLauncher<I> to androidx.activity.result.ActivityResultLauncher<I>
+ChangedType: androidx.activity.result.ActivityResultCaller#registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O>):
+    Method androidx.activity.result.ActivityResultCaller.registerForActivityResult has changed return type from androidx.activity.result.ActivityResultLauncher<I> to androidx.activity.result.ActivityResultLauncher<I>
+ChangedType: androidx.activity.result.ActivityResultLauncher#getContract():
+    Method androidx.activity.result.ActivityResultLauncher.getContract has changed return type from androidx.activity.result.contract.ActivityResultContract<I,?> to androidx.activity.result.contract.ActivityResultContract<I,?>
+
+
+RemovedMethod: androidx.activity.ComponentActivity#onMultiWindowModeChanged(boolean):
+    Removed method androidx.activity.ComponentActivity.onMultiWindowModeChanged(boolean)
+RemovedMethod: androidx.activity.ComponentActivity#onPictureInPictureModeChanged(boolean):
+    Removed method androidx.activity.ComponentActivity.onPictureInPictureModeChanged(boolean)

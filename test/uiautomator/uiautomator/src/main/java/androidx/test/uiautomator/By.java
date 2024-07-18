@@ -47,7 +47,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the class name criteria.
      *
-     * @see BySelector#clazz(String) BySelector.clazz(String)
+     * @see BySelector#clazz(String)
      */
     public static @NonNull BySelector clazz(@NonNull String className) {
         return new BySelector().clazz(className);
@@ -56,7 +56,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the class name criteria.
      *
-     * @see BySelector#clazz(String, String) BySelector.clazz(String, String)
+     * @see BySelector#clazz(String, String)
      */
     public static @NonNull BySelector clazz(@NonNull String packageName,
             @NonNull String className) {
@@ -66,7 +66,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the class name criteria.
      *
-     * @see BySelector#clazz(Class) BySelector.clazz(Class)
+     * @see BySelector#clazz(Class)
      */
     public static @NonNull BySelector clazz(@NonNull Class clazz) {
         return new BySelector().clazz(clazz);
@@ -75,7 +75,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the class name criteria.
      *
-     * @see BySelector#clazz(Pattern) BySelector.clazz(Pattern)
+     * @see BySelector#clazz(Pattern)
      */
     public static @NonNull BySelector clazz(@NonNull Pattern className) {
         return new BySelector().clazz(className);
@@ -84,7 +84,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the content description criteria.
      *
-     * @see BySelector#desc(String) BySelector.desc(String)
+     * @see BySelector#desc(String)
      */
     public static @NonNull BySelector desc(@NonNull String contentDescription) {
         return new BySelector().desc(contentDescription);
@@ -93,7 +93,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the content description criteria.
      *
-     * @see BySelector#descContains(String) BySelector.descContains(String)
+     * @see BySelector#descContains(String)
      */
     public static @NonNull BySelector descContains(@NonNull String substring) {
         return new BySelector().descContains(substring);
@@ -102,7 +102,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the content description criteria.
      *
-     * @see BySelector#descStartsWith(String) BySelector.descStartsWith(String)
+     * @see BySelector#descStartsWith(String)
      */
     public static @NonNull BySelector descStartsWith(@NonNull String prefix) {
         return new BySelector().descStartsWith(prefix);
@@ -111,7 +111,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the content description criteria.
      *
-     * @see BySelector#descEndsWith(String) BySelector.descEndsWith(String)
+     * @see BySelector#descEndsWith(String)
      */
     public static @NonNull BySelector descEndsWith(@NonNull String suffix) {
         return new BySelector().descEndsWith(suffix);
@@ -120,7 +120,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the content description criteria.
      *
-     * @see BySelector#desc(Pattern) BySelector.desc(Pattern)
+     * @see BySelector#desc(Pattern)
      */
     public static @NonNull BySelector desc(@NonNull Pattern contentDescription) {
         return new BySelector().desc(contentDescription);
@@ -129,7 +129,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the application package name criteria.
      *
-     * @see BySelector#pkg(String) BySelector.pkg(String)
+     * @see BySelector#pkg(String)
      */
     public static @NonNull BySelector pkg(@NonNull String applicationPackage) {
         return new BySelector().pkg(applicationPackage);
@@ -138,7 +138,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the application package name criteria.
      *
-     * @see BySelector#pkg(Pattern) BySelector.pkg(Pattern)
+     * @see BySelector#pkg(Pattern)
      */
     public static @NonNull BySelector pkg(@NonNull Pattern applicationPackage) {
         return new BySelector().pkg(applicationPackage);
@@ -147,7 +147,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the resource name criteria.
      *
-     * @see BySelector#res(String) BySelector.res(String)
+     * @see BySelector#res(String)
      */
     public static @NonNull BySelector res(@NonNull String resourceName) {
         return new BySelector().res(resourceName);
@@ -156,7 +156,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the resource name criteria.
      *
-     * @see BySelector#res(String, String) BySelector.res(String, String)
+     * @see BySelector#res(String, String)
      */
     public static @NonNull BySelector res(@NonNull String resourcePackage,
             @NonNull String resourceId) {
@@ -166,7 +166,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the resource id criteria.
      *
-     * @see BySelector#res(Pattern) BySelector.res(Pattern)
+     * @see BySelector#res(Pattern)
      */
     public static @NonNull BySelector res(@NonNull Pattern resourceName) {
         return new BySelector().res(resourceName);
@@ -175,7 +175,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the text value criteria.
      *
-     * @see BySelector#text(String) BySelector.text(String)
+     * @see BySelector#text(String)
      */
     public static @NonNull BySelector text(@NonNull String text) {
         return new BySelector().text(text);
@@ -184,7 +184,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the text value criteria.
      *
-     * @see BySelector#textContains(String) BySelector.textContains(String)
+     * @see BySelector#textContains(String)
      */
     public static @NonNull BySelector textContains(@NonNull String substring) {
         return new BySelector().textContains(substring);
@@ -193,7 +193,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the text value criteria.
      *
-     * @see BySelector#textStartsWith(String) BySelector.textStartsWith(String)
+     * @see BySelector#textStartsWith(String)
      */
     public static @NonNull BySelector textStartsWith(@NonNull String prefix) {
         return new BySelector().textStartsWith(prefix);
@@ -202,7 +202,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the text value criteria.
      *
-     * @see BySelector#textEndsWith(String) BySelector.textEndsWith(String)
+     * @see BySelector#textEndsWith(String)
      */
     public static @NonNull BySelector textEndsWith(@NonNull String suffix) {
         return new BySelector().textEndsWith(suffix);
@@ -211,7 +211,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the text value criteria.
      *
-     * @see BySelector#text(Pattern) BySelector.text(Pattern)
+     * @see BySelector#text(Pattern)
      */
     public static @NonNull BySelector text(@NonNull Pattern regex) {
         return new BySelector().text(regex);
@@ -220,7 +220,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the hint value criteria.
      *
-     * @see BySelector#hint(String) BySelector.hint(String)
+     * @see BySelector#hint(String)
      */
     @RequiresApi(26)
     public static @NonNull BySelector hint(@NonNull String hint) {
@@ -230,7 +230,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the hint value criteria.
      *
-     * @see BySelector#hintContains(String) BySelector.hintContains(String)
+     * @see BySelector#hintContains(String)
      */
     @RequiresApi(26)
     public static @NonNull BySelector hintContains(@NonNull String substring) {
@@ -240,7 +240,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the hint value criteria.
      *
-     * @see BySelector#hintStartsWith(String) BySelector.hintStartsWith(String)
+     * @see BySelector#hintStartsWith(String)
      */
     @RequiresApi(26)
     public static @NonNull BySelector hintStartsWith(@NonNull String prefix) {
@@ -250,7 +250,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the hint value criteria.
      *
-     * @see BySelector#hintEndsWith(String) BySelector.hintEndsWith(String)
+     * @see BySelector#hintEndsWith(String)
      */
     @RequiresApi(26)
     public static @NonNull BySelector hintEndsWith(@NonNull String suffix) {
@@ -260,7 +260,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the hint value criteria.
      *
-     * @see BySelector#hint(Pattern) BySelector.hint(Pattern)
+     * @see BySelector#hint(Pattern)
      */
     @RequiresApi(26)
     public static @NonNull BySelector hint(@NonNull Pattern regex) {
@@ -270,7 +270,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the checkable criteria.
      *
-     * @see BySelector#checkable(boolean) BySelector.checkable(boolean)
+     * @see BySelector#checkable(boolean)
      */
     public static @NonNull BySelector checkable(boolean isCheckable) {
         return new BySelector().checkable(isCheckable);
@@ -279,7 +279,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the checked criteria.
      *
-     * @see BySelector#checked(boolean) BySelector.checked(boolean)
+     * @see BySelector#checked(boolean)
      */
     public static @NonNull BySelector checked(boolean isChecked) {
         return new BySelector().checked(isChecked);
@@ -288,7 +288,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the clickable criteria.
      *
-     * @see BySelector#clickable(boolean) BySelector.clickable(boolean)
+     * @see BySelector#clickable(boolean)
      */
     public static @NonNull BySelector clickable(boolean isClickable) {
         return new BySelector().clickable(isClickable);
@@ -297,7 +297,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the enabled criteria.
      *
-     * @see BySelector#enabled(boolean) BySelector.enabled(boolean)
+     * @see BySelector#enabled(boolean)
      */
     public static @NonNull BySelector enabled(boolean isEnabled) {
         return new BySelector().enabled(isEnabled);
@@ -306,7 +306,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the focusable criteria.
      *
-     * @see BySelector#focusable(boolean) BySelector.focusable(boolean)
+     * @see BySelector#focusable(boolean)
      */
     public static @NonNull BySelector focusable(boolean isFocusable) {
         return new BySelector().focusable(isFocusable);
@@ -315,7 +315,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the focused criteria.
      *
-     * @see BySelector#focused(boolean) BySelector.focused(boolean)
+     * @see BySelector#focused(boolean)
      */
     public static @NonNull BySelector focused(boolean isFocused) {
         return new BySelector().focused(isFocused);
@@ -324,7 +324,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the long clickable criteria.
      *
-     * @see BySelector#longClickable(boolean) BySelector.longClickable(boolean)
+     * @see BySelector#longClickable(boolean)
      */
     public static @NonNull BySelector longClickable(boolean isLongClickable) {
         return new BySelector().longClickable(isLongClickable);
@@ -333,7 +333,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the scrollable criteria.
      *
-     * @see BySelector#scrollable(boolean) BySelector.scrollable(boolean)
+     * @see BySelector#scrollable(boolean)
      */
     public static @NonNull BySelector scrollable(boolean isScrollable) {
         return new BySelector().scrollable(isScrollable);
@@ -342,7 +342,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the selected criteria.
      *
-     * @see BySelector#selected(boolean) BySelector.selected(boolean)
+     * @see BySelector#selected(boolean)
      */
     public static @NonNull BySelector selected(boolean isSelected) {
         return new BySelector().selected(isSelected);
@@ -358,7 +358,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and sets the display ID criteria.
      *
-     * @see BySelector#displayId(int) BySelector.displayId(int)
+     * @see BySelector#displayId(int)
      */
     @RequiresApi(30)
     public static @NonNull BySelector displayId(int displayId) {
@@ -368,7 +368,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and adds a parent selector criteria.
      *
-     * @see BySelector#hasParent(BySelector) BySelector.hasParent(BySelector)
+     * @see BySelector#hasParent(BySelector)
      */
     public static @NonNull BySelector hasParent(@NonNull BySelector parentSelector) {
         return new BySelector().hasParent(parentSelector);
@@ -377,7 +377,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and adds an ancestor selector criteria.
      *
-     * @see BySelector#hasAncestor(BySelector) BySelector.hasAncestor(BySelector)
+     * @see BySelector#hasAncestor(BySelector)
      */
     public static @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector) {
         return new BySelector().hasAncestor(ancestorSelector);
@@ -386,7 +386,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and adds an ancestor selector criteria.
      *
-     * @see BySelector#hasAncestor(BySelector, int) BySelector.hasAncestor(BySelector, int)
+     * @see BySelector#hasAncestor(BySelector, int)
      */
     public static @NonNull BySelector hasAncestor(@NonNull BySelector ancestorSelector,
             @IntRange(from = 1) int maxAncestorDistance) {
@@ -396,7 +396,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and adds a child selector criteria.
      *
-     * @see BySelector#hasChild(BySelector) BySelector.hasChild(BySelector)
+     * @see BySelector#hasChild(BySelector)
      */
     public static @NonNull BySelector hasChild(@NonNull BySelector childSelector) {
         return new BySelector().hasChild(childSelector);
@@ -405,7 +405,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and adds a descendant selector criteria.
      *
-     * @see BySelector#hasDescendant(BySelector) BySelector.hasDescendant(BySelector)
+     * @see BySelector#hasDescendant(BySelector)
      */
     public static @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector) {
         return new BySelector().hasDescendant(descendantSelector);
@@ -414,7 +414,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and adds a descendant selector criteria.
      *
-     * @see BySelector#hasDescendant(BySelector, int) BySelector.hasDescendant(BySelector, int)
+     * @see BySelector#hasDescendant(BySelector, int)
      */
     public static @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector,
             int maxDepth) {

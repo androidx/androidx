@@ -16,21 +16,18 @@
 
 package androidx.baselineprofile.gradle.consumer
 
-import androidx.baselineprofile.gradle.utils.WarningsExtension
 import javax.inject.Inject
 import org.gradle.api.Action
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
-import org.gradle.api.plugins.ExtensionAware
-import org.gradle.api.tasks.Nested
 
 /**
  * Allows specifying settings for the Baseline Profile Consumer Plugin.
  */
 abstract class BaselineProfileConsumerExtension @Inject constructor(
     objectFactory: ObjectFactory
-) : BaselineProfileVariantConfiguration, ExtensionAware {
+) : BaselineProfileVariantConfiguration {
 
     companion object {
         private const val EXTENSION_NAME = "baselineProfile"
@@ -47,9 +44,6 @@ abstract class BaselineProfileConsumerExtension @Inject constructor(
                 .create(EXTENSION_NAME, BaselineProfileConsumerExtension::class.java)
         }
     }
-
-    @Nested
-    val warnings = WarningsExtension.register(this.extensions)
 
     val variants: NamedDomainObjectContainer<BaselineProfileVariantConfigurationImpl> =
         objectFactory.domainObjectContainer(BaselineProfileVariantConfigurationImpl::class.java)

@@ -17,9 +17,13 @@
 package androidx.test.uiautomator;
 
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
+
+import androidx.annotation.DoNotInline;
+import androidx.annotation.RequiresApi;
 
 /**
  * This class contains static helper methods to work with
@@ -64,12 +68,15 @@ class AccessibilityNodeInfoHelper {
         }
         intersectOrWarn(nodeRect, displayRect);
 
-        // Trim any portion of the bounds that are outside the window
-        Rect bounds = new Rect();
-        AccessibilityWindowInfo window = node.getWindow();
-        if (window != null) {
-            window.getBoundsInScreen(bounds);
-            intersectOrWarn(nodeRect, bounds);
+        // On platforms that give us access to the node's window
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Trim any portion of the bounds that are outside the window
+            Rect bounds = new Rect();
+            AccessibilityWindowInfo window = Api21Impl.getWindow(node);
+            if (window != null) {
+                Api21Impl.getBoundsInScreen(window, bounds);
+                intersectOrWarn(nodeRect, bounds);
+            }
         }
 
         // Trim the bounds into any scrollable ancestor, if required.
@@ -97,6 +104,23 @@ class AccessibilityNodeInfoHelper {
     private static void intersectOrWarn(Rect target, Rect bounds) {
         if (!target.intersect(bounds)) {
             Log.v(TAG, String.format("No overlap between %s and %s. Ignoring.", target, bounds));
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+        }
+
+        @DoNotInline
+        static void getBoundsInScreen(AccessibilityWindowInfo accessibilityWindowInfo,
+                Rect outBounds) {
+            accessibilityWindowInfo.getBoundsInScreen(outBounds);
+        }
+
+        @DoNotInline
+        static AccessibilityWindowInfo getWindow(AccessibilityNodeInfo accessibilityNodeInfo) {
+            return accessibilityNodeInfo.getWindow();
         }
     }
 }

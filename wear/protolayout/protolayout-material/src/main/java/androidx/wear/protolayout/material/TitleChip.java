@@ -24,13 +24,13 @@ import static androidx.wear.protolayout.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
 import static androidx.wear.protolayout.material.ChipDefaults.TITLE_PRIMARY_COLORS;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
-import static androidx.wear.protolayout.materialcore.Helper.staticString;
 
 import android.content.Context;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
@@ -38,8 +38,8 @@ import androidx.wear.protolayout.DimensionBuilders.ContainerDimension;
 import androidx.wear.protolayout.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
-import androidx.wear.protolayout.TypeBuilders.StringProp;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -89,11 +89,11 @@ public class TitleChip implements LayoutElement {
         @NonNull private final DeviceParameters mDeviceParameters;
         @NonNull private ChipColors mChipColors = TITLE_PRIMARY_COLORS;
         @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_UNDEFINED;
-        @Nullable private StringProp mContentDescription = null;
 
         // Indicates that the width isn't set, so it will be automatically set by Chip.Builder
         // constructor.
         @Nullable private ContainerDimension mWidth = null;
+        private boolean mIsFontPaddingExcluded = false;
         @Nullable private String mIconResourceId = null;
 
         /**
@@ -157,9 +157,25 @@ public class TitleChip implements LayoutElement {
         }
 
         /**
+         * Sets whether the font padding is excluded or not. If not set, default to false, meaning
+         * that text will have font padding included.
+         *
+         * <p>Setting this to {@code true} will perfectly align the text label.
+         */
+        @NonNull
+        @ProtoLayoutExperimental
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        public Builder setExcludeFontPadding(boolean excluded) {
+            this.mIsFontPaddingExcluded = excluded;
+            return this;
+        }
+
+        /**
          * Sets the icon for the {@link TitleChip}. Provided icon will be tinted to the given
          * content color from {@link ChipColors}. This icon should be image with chosen alpha
          * channel that can be tinted.
+         *
+         * <p>It is highly recommended to use it with {@link #setExcludeFontPadding} set to true.
          */
         @NonNull
         public Builder setIconContent(@NonNull String imageResourceId) {
@@ -167,44 +183,21 @@ public class TitleChip implements LayoutElement {
             return this;
         }
 
-        /**
-         * Sets the static content description for the {@link TitleChip}. It is highly recommended
-         * to provide this for chip containing an icon.
-         */
-        @NonNull
-        public Builder setContentDescription(@NonNull CharSequence contentDescription) {
-            return setContentDescription(staticString(contentDescription.toString()));
-        }
-
-        /**
-         * Sets the content description for the {@link TitleChip}. It is highly recommended to
-         * provide this for chip containing an icon.
-         *
-         * <p>While this field is statically accessible from 1.0, it's only bindable since version
-         * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
-         */
-        @NonNull
-        public Builder setContentDescription(@NonNull StringProp contentDescription) {
-            this.mContentDescription = contentDescription;
-            return this;
-        }
-
         /** Constructs and returns {@link TitleChip} with the provided content and look. */
         @NonNull
         @Override
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         public TitleChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
                             .setChipColors(mChipColors)
-                            .setContentDescription(
-                                    mContentDescription == null
-                                            ? staticString(mText)
-                                            : mContentDescription)
+                            .setContentDescription(mText)
                             .setHeight(TITLE_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
+                            .setPrimaryLabelExcludeFontPadding(mIsFontPaddingExcluded)
                             .setIsPrimaryLabelScalable(false);
 
             if (mWidth != null) {
@@ -280,10 +273,10 @@ public class TitleChip implements LayoutElement {
         return coreChip == null ? null : new TitleChip(new Chip(coreChip));
     }
 
-    /** Returns content description of this TitleChip. */
-    @Nullable
-    public StringProp getContentDescription() {
-        return mElement.getContentDescription();
+    /** Returns whether the font padding for the primary label is excluded. */
+    @ProtoLayoutExperimental
+    public boolean hasExcludeFontPadding() {
+        return mElement.hasPrimaryLabelExcludeFontPadding();
     }
 
     @RestrictTo(Scope.LIBRARY_GROUP)

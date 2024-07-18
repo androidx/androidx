@@ -22,12 +22,10 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
-import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Proxy
 import java.util.concurrent.CountDownLatch
 import kotlin.reflect.cast
@@ -83,37 +81,10 @@ internal fun LocalSdkProvider.extractSdkProviderClassloader(): ClassLoader =
  *  2) getAppOwnedSdkSandboxInterfaces() : List<AppOwnedSdkSandboxInterfaceCompat>
  *  3) registerSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat) : IBinder
  *  4) unregisterSdkSandboxActivityHandler(SdkSandboxActivityHandlerCompat)
- *  5) loadSdk(sdkName, sdkParams) : SandboxedSdkCompat
  */
 internal class TestSdkWrapper(
     private val sdk: Any
 ) {
-    fun loadSdk(sdkName: String, sdkParams: Bundle): SandboxedSdkWrapper {
-        val loadSdkMethod = sdk.javaClass
-            .getMethod("loadSdk", String::class.java, Bundle::class.java)
-
-        try {
-            val rawSandboxedSdkCompat = loadSdkMethod.invoke(sdk, sdkName, sdkParams) as Any
-            return SandboxedSdkWrapper(rawSandboxedSdkCompat)
-        } catch (ex: InvocationTargetException) {
-            throw tryRebuildCompatException(ex.targetException)
-        }
-    }
-
-    private fun tryRebuildCompatException(rawException: Throwable): Throwable {
-        if (rawException.javaClass.name != LoadSdkCompatException::class.java.name) {
-            return rawException
-        }
-        val errorCode = rawException.callMethod("getLoadSdkErrorCode") as Int
-        val params = rawException.callMethod("getExtraInformation") as Bundle
-        return LoadSdkCompatException(
-            errorCode,
-            rawException.message,
-            rawException.cause,
-            params
-        )
-    }
-
     fun getSandboxedSdks(): List<SandboxedSdkWrapper> {
         val sdks = sdk.callMethod(
             methodName = "getSandboxedSdks"

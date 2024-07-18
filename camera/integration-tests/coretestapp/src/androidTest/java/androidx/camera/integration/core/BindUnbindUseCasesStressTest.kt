@@ -32,8 +32,8 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.core.util.StressTestUtil
-import androidx.camera.integration.core.util.StressTestUtil.LARGE_STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
+import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_REPEAT_COUNT
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_ANALYSIS
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_IMAGE_CAPTURE
 import androidx.camera.integration.core.util.StressTestUtil.VERIFICATION_TARGET_PREVIEW
@@ -185,7 +185,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewImageCapture(): Unit = runBlocking {
         bindUseCases_checkOutput_thenUnbindAll_repeatedly(
             preview,
@@ -196,7 +196,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageCaptureInEachTime_withPreviewImageCapture(): Unit =
         runBlocking {
             bindUseCases_checkOutput_thenUnbindAll_repeatedly(
@@ -208,7 +208,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = createImageAnalysis()
@@ -223,7 +223,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageCaptureInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = createImageAnalysis()
@@ -238,7 +238,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageAnalysisInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = createImageAnalysis()
@@ -253,7 +253,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewVideoCapture(): Unit =
         runBlocking {
             val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -266,7 +266,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkVideoCaptureInEachTime_withPreviewVideoCapture(): Unit =
         runBlocking {
             val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -279,7 +279,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewVideoCaptureImageCapture():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -294,7 +294,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkVideoCaptureInEachTime_withPreviewVideoCaptureImageCapture():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -309,7 +309,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageCaptureInEachTime_withPreviewVideoCaptureImageCapture():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -324,7 +324,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkPreviewInEachTime_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -340,7 +340,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkVideoCaptureInEachTime_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -356,7 +356,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCases_checkImageAnalysisInEachTime_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -472,7 +472,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewImageCapture(): Unit =
         runBlocking {
             bindUseCases_unbindAll_repeatedly_thenCheckOutput(
@@ -484,7 +484,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageCapture_afterBindUnbindUseCasesRepeatedly_withPreviewImageCapture(): Unit =
         runBlocking {
             bindUseCases_unbindAll_repeatedly_thenCheckOutput(
@@ -496,7 +496,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = createImageAnalysis()
@@ -511,7 +511,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageCapture_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = createImageAnalysis()
@@ -526,7 +526,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageAnalysis_afterBindUnbindUseCasesRepeatedly_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = createImageAnalysis()
@@ -541,7 +541,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCapture(): Unit =
         runBlocking {
             val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -554,7 +554,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkVideoCapture_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCapture(): Unit =
         runBlocking {
             val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -567,7 +567,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageCapture():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -582,7 +582,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkVideoCapture_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageCapture():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -597,7 +597,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageCapture_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageCapture():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -612,7 +612,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkPreview_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -628,7 +628,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkVideoCapture_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
@@ -644,7 +644,7 @@ class BindUnbindUseCasesStressTest(
 
     @LabTestRule.LabTestOnly
     @Test
-    @RepeatRule.Repeat(times = LARGE_STRESS_TEST_REPEAT_COUNT)
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun checkImageAnalysis_afterBindUnbindUseCasesRepeatedly_withPreviewVideoCaptureImageAnalysis():
         Unit = runBlocking {
         val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())

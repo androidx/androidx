@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -67,19 +60,19 @@ dependencies {
 
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.core:core:1.9.0")
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
-    implementation("androidx.tracing:tracing-ktx:1.1.0")
-    implementation("androidx.tracing:tracing-perfetto:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-binary:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
+    implementation("androidx.tracing:tracing-ktx:1.1.0-rc01")
     implementation("androidx.test:core:1.5.0")
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
 
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(androidxArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(androidxArtifact(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
-    androidTestImplementation(project(":tracing:tracing-perfetto"))
+    androidTestImplementation(androidxArtifact(":tracing:tracing-perfetto"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto-binary"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto-handshake"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
@@ -89,7 +82,7 @@ dependencies {
 
 androidx {
     name = "Benchmark - Macrobenchmark"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
     metalavaK2UastEnabled = true
@@ -109,11 +102,8 @@ tasks.withType(KotlinCompile).configureEach {
 wire {
     kotlin {}
     sourcePath {
-        srcDir AndroidXConfig.getPrebuiltsRoot(project).absolutePath + '/androidx/traceprocessor'
-
-        // currently, all protos are at same tree depth
-        // can add further includes if this stops working
-        include 'protos/perfetto/*/*.proto'
+        srcDir 'src/main/proto'
+        include '*.proto'
     }
 
     prune 'perfetto.protos.AndroidBatteryMetric'
@@ -145,6 +135,7 @@ wire {
     prune 'perfetto.protos.AndroidRtRuntimeMetric'
     prune 'perfetto.protos.AndroidSimpleperfMetric'
     prune 'perfetto.protos.AndroidSurfaceflingerMetric'
+    prune 'perfetto.protos.AndroidSysUiCujMetrics'
     prune 'perfetto.protos.AndroidTaskNames'
     prune 'perfetto.protos.AndroidTraceQualityMetric'
     prune 'perfetto.protos.AndroidTrustyWorkqueues'

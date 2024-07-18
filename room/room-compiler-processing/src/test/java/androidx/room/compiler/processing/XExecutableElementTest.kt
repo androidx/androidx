@@ -20,7 +20,6 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
-import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
@@ -89,11 +88,10 @@ class XExecutableElementTest {
                     val paramType = param.type
                     check(paramType.isArray())
                     assertThat(paramType.componentType.asTypeName())
-                        .isEqualTo(String::class.asClassName().copy(nullable = true))
+                        .isEqualTo(String::class.asClassName())
                     assertThat(param.enclosingElement).isEqualTo(method)
                 }
-                assertThat(method.returnType.asTypeName())
-                    .isEqualTo(String::class.asClassName().copy(nullable = true))
+                assertThat(method.returnType.asTypeName()).isEqualTo(String::class.asClassName())
             }
             element.getConstructors().single().let { ctor ->
                 assertThat(ctor.parameters).hasSize(1)
@@ -110,7 +108,6 @@ class XExecutableElementTest {
             package foo.bar;
             interface Baz {
                 void method(String... inputs);
-                void methodPrimitive(int... inputs);
             }
             """.trimIndent()
         )
@@ -118,20 +115,7 @@ class XExecutableElementTest {
             sources = listOf(subject)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            element.getMethodByJvmName("method").let { method ->
-                assertThat(method.isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(
-                        String::class.asClassName().copy(nullable = true)
-                    ).copy(nullable = true)
-                )
-            }
-            element.getMethodByJvmName("methodPrimitive").let { method ->
-                assertThat(method.isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(XTypeName.PRIMITIVE_INT).copy(nullable = true)
-                )
-            }
+            assertThat(element.getMethodByJvmName("method").isVarArgs()).isTrue()
         }
     }
 
@@ -144,7 +128,6 @@ class XExecutableElementTest {
                 fun method(vararg inputs: String)
                 suspend fun suspendMethod(vararg inputs: String)
                 fun method2(vararg inputs: String, arg: Int)
-                fun methodPrimitive(vararg inputs: Int)
                 fun String.extFun(vararg inputs: String)
             }
             """.trimIndent()
@@ -158,10 +141,6 @@ class XExecutableElementTest {
                 assertThat(method.isVarArgs()).isTrue()
                 assertThat(method.parameters).hasSize(1)
                 assertThat(method.parameters.single().isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(
-                        XTypeName.getProducerExtendsName(String::class.asClassName()))
-                )
             }
 
             element.getMethodByJvmName("suspendMethod").let { suspendMethod ->
@@ -170,12 +149,6 @@ class XExecutableElementTest {
                 assertThat(
                     suspendMethod.parameters.first { it.name == "inputs" }.isVarArgs()
                 ).isTrue()
-                assertThat(
-                    suspendMethod.parameters.first { it.name == "inputs" }.type.asTypeName()
-                ).isEqualTo(
-                    XTypeName.getArrayName(
-                        XTypeName.getProducerExtendsName(String::class.asClassName()))
-                )
             }
 
             element.getMethodByJvmName("extFun").let { extFun ->
@@ -184,10 +157,6 @@ class XExecutableElementTest {
                 // kapt messed with parameter names, sometimes the synthetic parameter can use the
                 // second parameter's name.
                 assertThat(extFun.parameters.get(1).isVarArgs()).isTrue()
-                assertThat(extFun.parameters.get(1).type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(
-                        XTypeName.getProducerExtendsName(String::class.asClassName()))
-                )
             }
 
             element.getMethodByJvmName("method2").let { method2 ->
@@ -195,19 +164,6 @@ class XExecutableElementTest {
                 assertThat(method2.parameters).hasSize(2)
                 assertThat(method2.parameters.first { it.name == "inputs" }.isVarArgs())
                     .isTrue()
-                assertThat(method2.parameters.first { it.name == "inputs" }.type.asTypeName())
-                    .isEqualTo(
-                        XTypeName.getArrayName(
-                            XTypeName.getProducerExtendsName(String::class.asClassName()))
-                    )
-            }
-            element.getMethodByJvmName("methodPrimitive").let { method ->
-                assertThat(method.isVarArgs()).isTrue()
-                assertThat(method.parameters).hasSize(1)
-                assertThat(method.parameters.single().isVarArgs()).isTrue()
-                assertThat(method.parameters.single().type.asTypeName()).isEqualTo(
-                    XTypeName.getArrayName(XTypeName.PRIMITIVE_INT)
-                )
             }
         }
     }
@@ -813,13 +769,13 @@ class XExecutableElementTest {
             val elm = invocation.processingEnv.requireTypeElement("JavaImpl")
             assertThat(
                 elm.getMethodByJvmName("getX").returnType.asTypeName()
-            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
+            ).isEqualTo(Int::class.asClassName())
             assertThat(
                 elm.getMethodByJvmName("getY").returnType.asTypeName()
-            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
+            ).isEqualTo(Int::class.asClassName())
             assertThat(
                 elm.getMethodByJvmName("setY").parameters.first().type.asTypeName()
-            ).isEqualTo(Int::class.asClassName().copy(nullable = true))
+            ).isEqualTo(Int::class.asClassName())
         }
     }
 
@@ -1402,8 +1358,6 @@ class XExecutableElementTest {
         }
     }
 
-    // When the origin is JAVA_LIB we know the parameter name only when the class was
-    // compiled with `-parameters` flag or, if it's not abstract or native , `-g:vars` flag.
     @Test
     fun parameterNames(
         @TestParameter isJava: Boolean,
@@ -1415,20 +1369,15 @@ class XExecutableElementTest {
             "foo.bar.Baz",
             """
             package foo.bar;
-            public abstract class Baz {
-                void jf(String param1) {}
-                abstract void jaf(String param1);
-                native void jnf(String param1);
+            public class Baz {
+                private Baz(String param1) {}
             }
             """.trimIndent())
         val kotlinSource = Source.kotlin(
             "foo.bar.Baz.kt",
             """
             package foo.bar
-            abstract class Baz {
-                fun kf(param1: String): Unit = TODO()
-                abstract fun kaf(param1: String): Unit
-            }
+            class Baz private constructor(param1: String)
             """.trimIndent())
 
         val sources: List<Source> =
@@ -1463,53 +1412,30 @@ class XExecutableElementTest {
             }
         runProcessorTest(sources = sources, classpath = classes) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            val funNames = if (isJava) {
-                listOf("jf", "jaf", "jnf")
-            } else {
-                listOf("kf", "kaf")
-            }
-            funNames.forEach { funName ->
-                val function = element.getDeclaredMethodByJvmName(funName)
-                val isAbstract = function.isAbstract()
-                // We can't yet find Java native modifier in KSP so no
-                // `XHasModifiers.isJavaNative()`:
-                // https://github.com/google/ksp/issues/1869
-                val isJavaNative = funName == "jnf"
-                val parameterName = function.parameters.single().name
-                if (isJava) {
-                    if (isPrecompiled) { // Java classes
-                        if (hasParametersFlag) {
-                            assertThat(parameterName).isEqualTo("param1")
-                        } else {
-                            if (it.isKsp) {
-                                if (hasDebugFlag && (it.processingEnv as KspProcessingEnv).isKsp2) {
-                                    if (isAbstract || isJavaNative) {
-                                        assertThat(parameterName).isEqualTo("p0")
+            assertThat(element.getConstructors().single().parameters.single().name)
+                .isEqualTo(
+                    if (isJava) {
+                        if (isPrecompiled) {
+                            if (hasParametersFlag) {
+                                "param1"
+                            } else {
+                                if (it.isKsp) {
+                                    "p0"
+                                } else { // Javac/KAPT
+                                    if (hasDebugFlag) {
+                                        "param1"
                                     } else {
-                                        assertThat(parameterName).isEqualTo("param1")
+                                        "arg0"
                                     }
-                                } else {
-                                    assertThat(parameterName).isEqualTo("p0")
-                                }
-                            } else { // Javac
-                                if (hasDebugFlag) {
-                                    if (isAbstract || isJavaNative) {
-                                        assertThat(parameterName).isEqualTo("arg0")
-                                    } else {
-                                        assertThat(parameterName).isEqualTo("param1")
-                                    }
-                                } else {
-                                    assertThat(parameterName).isEqualTo("arg0")
                                 }
                             }
+                        } else { // Java sources
+                            "param1"
                         }
-                    } else { // Java sources
-                        assertThat(parameterName).isEqualTo("param1")
+                    } else { // Kotlin sources or classes
+                        "param1"
                     }
-                } else { // Kotlin sources or classes
-                    assertThat(parameterName).isEqualTo("param1")
-                }
-            }
+                )
         }
     }
 

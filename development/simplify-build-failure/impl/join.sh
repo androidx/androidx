@@ -44,56 +44,26 @@ function joinPath() {
   # replace ending '/.' with nothing
   sourceFile="$(echo $sourceFile | sed 's|/\.$||')"
 
-  # if this file doesn't already exist, regenerate it
-  if [ ! -e "$sourceFile" ]; then
-    mkdir -p "$(dirname $sourceFile)"
-    bash -c "cd $explodedPath && find -type f | sort | xargs cat > $sourceFile"
-    chmod u+x "$sourceFile"
-  fi
+  mkdir -p "$(dirname $sourceFile)"
+
+  bash -c "cd $explodedPath && find -type f | sort | xargs cat > $sourceFile"
+  chmod u+x "$sourceFile"
 }
 
-function deleteStaleOutputs() {
-  if [ -e "$sourcePath" ]; then
-    # find everything in explodedDir newer than sourcePath
-    cd "$explodedDir"
-    changedPaths="$(find -newer "$sourcePath" | sed 's|\([/0-9]*\)$||' | sort | uniq)"
-    # for each modified inode in explodedDir, delete the corresponding inode in sourcePath
-    # first check for '.' because `rm` refuses to delete '.'
-    for filePath in $changedPaths; do
-      if [ "$filePath" == "." ]; then
-        # the source dir itself is older than the exploded dir, so we have to delete the entire source dir
-        rm "$sourcePath" -rf
-        return
-      fi
-    done
-    # now we can delete any stale paths
-    cd "$sourcePath"
-    for filePath in $changedPaths; do
-      rm $filePath -rf
-    done
-  fi
-}
 
 function main() {
-  # Remove most files and directories under $sourcePath other than build caches (out)
-  deleteStaleOutputs
-  mkdir -p "$sourcePath"
+  rm "$sourcePath" -rf
 
-  # regenerate missing files
-  cd "$explodedDir"
-  echo joining all file paths under $explodedDir into $sourcePath
+  cd $explodedDir
+  echo finding everything in $explodedDir
   filePaths="$(find -type f -name file | sed 's|/[^/]*$||' | sort | uniq)"
+  echo joining all file paths under $explodedDir into $sourcePath
   for filePath in $filePaths; do
     joinPath "$explodedDir/$filePath" "$sourcePath/$filePath"
   done
   for filePath in $(find -type l); do
-    cp -PT "$explodedDir/$filePath" "$sourcePath/$filePath"
+    cp -P "$explodedDir/$filePath" "$sourcePath/$filePath"
   done
-
-  # record the timestamp at which we finished
-  touch $sourcePath
-
-  # announce that we're done
   echo done joining all file paths under $explodedDir into $sourcePath
 }
 

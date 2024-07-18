@@ -16,7 +16,5 @@ message DynamicDataValue {
     FixedFloat float_val = 3;
     FixedBool bool_val = 4;
     FixedColor color_val = 5;
-    FixedInstant instant_val = 6;
-    FixedDuration duration_val = 7;
   }
 }

@@ -24,6 +24,7 @@ import android.view.inputmethod.InputConnectionWrapper;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
 
@@ -36,6 +37,7 @@ import androidx.emoji.text.EmojiCompat;
  *
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@RequiresApi(19)
 final class EmojiInputConnection extends InputConnectionWrapper {
     private final TextView mTextView;
 

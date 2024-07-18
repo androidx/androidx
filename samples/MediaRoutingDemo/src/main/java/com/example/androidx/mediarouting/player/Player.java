@@ -185,6 +185,7 @@ public abstract class Player {
     /**
      * presentation display
      */
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void updatePresentation() {
     }
 
@@ -206,7 +207,7 @@ public abstract class Player {
         if (route != null && route.supportsControlCategory(
                 MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
             player = new RemotePlayer(context);
-        } else if (route != null) {
+        } else if (route != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             player = new LocalPlayer.SurfaceViewPlayer(context);
         } else {
             player = new LocalPlayer.OverlayPlayer(context);

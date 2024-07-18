@@ -31,8 +31,6 @@ import androidx.testutils.PollingCheck
 import androidx.transition.Transition.TransitionListener
 import androidx.transition.test.R
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
@@ -1059,7 +1057,7 @@ class SeekTransitionTest : BaseTest() {
         var animatedFraction = -1f
         var animatedMillis = -1L
         val removeListener = object : Consumer<TransitionSeekController> {
-            override fun accept(value: TransitionSeekController) {
+            override fun accept(t: TransitionSeekController?) {
                 seekController.removeOnProgressChangedListener(this)
             }
         }
@@ -1143,58 +1141,6 @@ class SeekTransitionTest : BaseTest() {
         rule.runOnUiThread {
             TransitionManager.go(scene2, Fade())
             assertThat(TransitionManager.createSeekController(scene1, Fade())).isNull()
-        }
-    }
-
-    // onTransitionEnd() listeners should be called after the animateToStart() lambda has
-    // executed.
-    @Test
-    fun animateToStartTransitionEndListener() {
-        lateinit var seekController: TransitionSeekController
-        val callOrder = mutableListOf<String>()
-        val latch = CountDownLatch(1)
-
-        transition.addListener(object : TransitionListenerAdapter() {
-            override fun onTransitionEnd(transition: Transition, isReverse: Boolean) {
-                callOrder += "onTransitionEnd($isReverse)"
-                super.onTransitionEnd(transition, isReverse)
-            }
-
-            override fun onTransitionEnd(transition: Transition) {
-                callOrder += "onTransitionEnd()"
-                super.onTransitionEnd(transition)
-            }
-        })
-
-        rule.runOnUiThread {
-            val controller = TransitionManager.controlDelayedTransition(root, transition)
-            assertThat(controller).isNotNull()
-            seekController = controller!!
-            view.visibility = View.GONE
-        }
-
-        rule.runOnUiThread {
-            seekController.currentFraction = 0.5f
-        }
-
-        rule.runOnUiThread {
-            seekController.animateToStart {
-                view.visibility = View.VISIBLE
-                callOrder += "animateToStartLambda"
-                latch.countDown()
-            }
-        }
-
-        assertThat(latch.await(2, TimeUnit.SECONDS)).isTrue()
-        rule.runOnUiThread {
-            assertThat(callOrder).hasSize(3)
-            assertThat(callOrder).isEqualTo(
-                mutableListOf(
-                    "animateToStartLambda",
-                    "onTransitionEnd(true)",
-                    "onTransitionEnd()"
-                )
-            )
         }
     }
 }

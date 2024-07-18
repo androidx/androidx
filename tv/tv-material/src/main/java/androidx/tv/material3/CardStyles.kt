@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Shape
 /**
  * Represents the [Color] of Card in different interaction states.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class CardColors internal constructor(
     internal val containerColor: Color,
@@ -74,6 +75,7 @@ class CardColors internal constructor(
 /**
  * Represents the [Shape] of Card in different interaction states.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class CardShape internal constructor(
     internal val shape: Shape,
@@ -110,6 +112,7 @@ class CardShape internal constructor(
  * Represents the scaleFactor of Card in different interaction states.
  * Note: This scaleFactor must always be a non-negative float.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class CardScale internal constructor(
     @FloatRange(from = 0.0) internal val scale: Float,
@@ -156,6 +159,7 @@ class CardScale internal constructor(
 /**
  * Represents the [Border] of Card in different interaction states.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class CardBorder internal constructor(
     internal val border: Border,
@@ -192,6 +196,7 @@ class CardBorder internal constructor(
 /**
  * Represents the [Glow] of Card in different interaction states.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class CardGlow internal constructor(
     internal val glow: Glow,

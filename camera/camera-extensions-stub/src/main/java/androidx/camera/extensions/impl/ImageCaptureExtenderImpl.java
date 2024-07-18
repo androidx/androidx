@@ -91,7 +91,7 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
 
     /**
      * Returns supported output format/size map for postview image. OEM is required to support
-     * YUV_420_888 format output.
+     * both JPEG and YUV_420_888 format output.
      *
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
      * The sizes must be smaller than or equal to the provided capture size and have the same

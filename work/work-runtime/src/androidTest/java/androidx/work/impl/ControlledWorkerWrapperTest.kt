@@ -18,8 +18,6 @@ package androidx.work.impl
 
 import android.content.Context
 import android.os.Build
-import androidx.concurrent.futures.CallbackToFutureAdapter.Completer
-import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.core.app.NotificationCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,6 +26,7 @@ import androidx.test.filters.SmallTest
 import androidx.work.Configuration
 import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
+import androidx.work.ListenableWorker.Result
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.SystemClock
@@ -35,6 +34,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.foreground.ForegroundProcessor
 import androidx.work.impl.utils.SerialExecutorImpl
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
@@ -51,6 +51,8 @@ class ControlledWorkerWrapperTest {
     private val workDatabase = WorkDatabase.create(
         context, taskExecutor.serialTaskExecutor, SystemClock(), true
     )
+    private val foregroundInfoFuture = SettableFuture.create<ForegroundInfo>()
+    private val resultFuture = SettableFuture.create<Result>().also { it.set(Result.success()) }
 
     @Test
     fun testInterruptionsBefore() {
@@ -58,7 +60,7 @@ class ControlledWorkerWrapperTest {
         workDatabase.workSpecDao().insertWorkSpec(work.workSpec)
         lateinit var worker: TestWrapperWorker
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
-        val future = workerWrapper.launch()
+        workerWrapper.run()
 
         while (taskExecutor.serialTaskExecutor.hasPendingTask() ||
             backgroundExecutor.hasPendingTask()
@@ -68,7 +70,7 @@ class ControlledWorkerWrapperTest {
         }
         workerWrapper.interrupt(0)
         drainAll()
-        assertThat(future.isDone).isTrue()
+        assertThat(workerWrapper.future.isDone).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
     }
 
@@ -81,11 +83,11 @@ class ControlledWorkerWrapperTest {
         workDatabase.workSpecDao().insertWorkSpec(work.workSpec)
         lateinit var worker: TestWrapperWorker
         val workerWrapper = workerWrapper(work.stringId) { worker = it }
-        val future = workerWrapper.launch()
+        workerWrapper.run()
         drainAll()
         assertThat(worker.getForegroundInfoAsyncWasCalled).isTrue()
         assertThat(worker.startWorkWasCalled).isFalse()
-        worker.foregroundInfoCompleter.set(
+        foregroundInfoFuture.set(
             ForegroundInfo(
                 0,
                 NotificationCompat.Builder(context, "test").build()
@@ -94,7 +96,7 @@ class ControlledWorkerWrapperTest {
         workerWrapper.interrupt(0)
         drainAll()
         assertThat(worker.startWorkWasCalled).isFalse()
-        assertThat(future.isDone).isTrue()
+        assertThat(workerWrapper.future.isDone).isTrue()
     }
 
     private fun drainAll() {
@@ -123,6 +125,7 @@ class ControlledWorkerWrapperTest {
                 ): ListenableWorker {
                     val worker = TestWrapperWorker(
                         appContext, workerParameters,
+                        foregroundInfoFuture, resultFuture
                     )
                     workerInterceptor(worker)
                     return worker
@@ -143,24 +146,22 @@ class ControlledWorkerWrapperTest {
 internal class TestWrapperWorker(
     appContext: Context,
     workerParams: WorkerParameters,
+    private val foregroundInfoFuture: ListenableFuture<ForegroundInfo>,
+    private val resultFuture: ListenableFuture<Result>
 ) : ListenableWorker(
     appContext, workerParams
 ) {
     var getForegroundInfoAsyncWasCalled = false
     var startWorkWasCalled = false
-    lateinit var foregroundInfoCompleter: Completer<ForegroundInfo>
 
     override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
         getForegroundInfoAsyncWasCalled = true
-        return getFuture {
-            foregroundInfoCompleter = it
-            "getForegroundInfoAsync completer"
-        }
+        return foregroundInfoFuture
     }
 
     override fun startWork(): ListenableFuture<Result> {
         startWorkWasCalled = true
-        return getFuture { it.set(Result.success()) }
+        return resultFuture
     }
 }
 

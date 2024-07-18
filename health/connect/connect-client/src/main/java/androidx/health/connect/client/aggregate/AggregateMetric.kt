@@ -122,6 +122,19 @@ internal constructor(
                 aggregationField = fieldName,
             )
 
+        internal fun <R : Any> longMetric(
+            dataTypeName: String,
+            aggregationType: AggregationType,
+            fieldName: String,
+            mapper: (Long) -> R,
+        ): AggregateMetric<R> =
+            AggregateMetric(
+                converter = Converter.FromLong(mapper),
+                dataTypeName = dataTypeName,
+                aggregationType = aggregationType,
+                aggregationField = fieldName,
+            )
+
         /**
          * Creates a [AggregateMetric] returning sample or record counts. Internal for SDK use only.
          */

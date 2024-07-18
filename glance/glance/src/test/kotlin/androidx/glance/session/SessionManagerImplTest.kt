@@ -29,12 +29,9 @@ import androidx.work.WorkerParameters
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.yield
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -87,55 +84,19 @@ class SessionManagerImplTest {
 
     @Test
     fun startSession() = runTest {
-        sessionManager.runWithLock {
-            assertThat(isSessionRunning(context, key)).isFalse()
-            startSession(context, session)
-            assertThat(isSessionRunning(context, key)).isTrue()
-            assertThat(getSession(key)).isSameInstanceAs(session)
-        }
+        assertThat(sessionManager.isSessionRunning(context, key)).isFalse()
+        sessionManager.startSession(context, session)
+        assertThat(sessionManager.isSessionRunning(context, key)).isTrue()
+        assertThat(sessionManager.getSession(key)).isSameInstanceAs(session)
     }
 
     @Test
     fun closeSession() = runTest {
-        sessionManager.runWithLock {
-            startSession(context, session)
-            assertThat(isSessionRunning(context, key)).isTrue()
-            closeSession(key)
-            assertThat(isSessionRunning(context, key)).isFalse()
-            assertThat(getSession(key)).isNull()
-        }
-    }
-
-    @Test
-    fun closedSessionIsNotRunning() = runTest {
-        sessionManager.runWithLock {
-            assertThat(isSessionRunning(context, key)).isFalse()
-            startSession(context, session)
-            assertThat(isSessionRunning(context, key)).isTrue()
-            session.close()
-            assertThat(isSessionRunning(context, key)).isFalse()
-        }
-    }
-
-    @Test
-    fun runWithLockIsMutuallyExclusive() = runTest {
-        val firstRan = AtomicBoolean(false)
-        launch {
-            sessionManager.runWithLock {
-                yield()
-                firstRan.set(true)
-            }
-        }
-        // Because test dispatchers are single threaded and do not run background `launch`es until
-        // we suspend, we yield here to allow the first transaction to run. This resumes after the
-        // yield above, while the first transaction still has the lock but is suspended.
-        yield()
-        // This call to runWithLock should suspend until the first transaction finishes, then run
-        // the block. If it is not mutually exclusive, it will run right away and firstRan will not
-        // be true.
-        sessionManager.runWithLock {
-            assertThat(firstRan.get()).isTrue()
-        }
+        sessionManager.startSession(context, session)
+        assertThat(sessionManager.isSessionRunning(context, key)).isTrue()
+        sessionManager.closeSession(key)
+        assertThat(sessionManager.isSessionRunning(context, key)).isFalse()
+        assertThat(sessionManager.getSession(key)).isNull()
     }
 }
 

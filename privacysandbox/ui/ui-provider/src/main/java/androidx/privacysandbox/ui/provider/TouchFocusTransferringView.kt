@@ -24,6 +24,7 @@ import android.view.SurfaceControlViewHost
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
+import androidx.core.view.GestureDetectorCompat
 import kotlin.math.abs
 
 /**
@@ -68,7 +69,7 @@ internal class TouchFocusTransferringView(
         var isScrolling = false
           private set
 
-        private val gestureDetector = GestureDetector(context, this)
+        private val gestureDetector: GestureDetectorCompat = GestureDetectorCompat(context, this)
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, dX: Float, dY: Float): Boolean {
             // A scroll is vertical if its y displacement is greater than its x displacement.

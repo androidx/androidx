@@ -189,8 +189,4 @@ class CallAttributesCompat constructor(
     internal fun isOutgoingCall(): Boolean {
         return direction == DIRECTION_OUTGOING
     }
-
-    internal fun isVideoCall(): Boolean {
-        return callType == CALL_TYPE_VIDEO_CALL
-    }
 }

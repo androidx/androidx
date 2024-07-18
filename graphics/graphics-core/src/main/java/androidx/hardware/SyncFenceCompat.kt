@@ -35,6 +35,7 @@ import androidx.opengl.EGLSyncKHR
  * [SurfaceControlCompat.Transaction.setBuffer]. Note that depending on API level, this will
  * utilize either [android.hardware.SyncFence] or a compatibility implementation.
  */
+@RequiresApi(Build.VERSION_CODES.KITKAT)
 class SyncFenceCompat : AutoCloseable {
     internal val mImpl: SyncFenceImpl
 

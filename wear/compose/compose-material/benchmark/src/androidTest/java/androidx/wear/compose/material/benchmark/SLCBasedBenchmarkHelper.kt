@@ -33,7 +33,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstMeasure(
     caseFactory: () -> LayeredComposeTestCase
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeatedOnUiThread {
+        measureRepeated {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
@@ -58,7 +58,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstLayout(
     caseFactory: () -> LayeredComposeTestCase
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeatedOnUiThread {
+        measureRepeated {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark
@@ -84,7 +84,7 @@ internal fun ComposeBenchmarkRule.benchmarkFirstDraw(
     caseFactory: () -> LayeredComposeTestCase
 ) {
     runBenchmarkFor(LayeredCaseAdapter.of(caseFactory)) {
-        measureRepeatedOnUiThread {
+        measureRepeated {
             runWithTimingDisabled {
                 doFramesUntilNoChangesPending()
                 // Add the content to benchmark

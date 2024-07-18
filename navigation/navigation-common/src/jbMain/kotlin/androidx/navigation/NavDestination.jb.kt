@@ -18,6 +18,7 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.core.bundle.Bundle
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRoutePattern
 import kotlin.jvm.JvmStatic
 import kotlin.reflect.KClass
@@ -114,9 +115,8 @@ public actual open class NavDestination actual constructor(
     }
 
     public actual fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
-            key !in navDeepLink.argumentsNames
-        }
+        val missingRequiredArguments =
+            _arguments.missingRequiredArguments { key -> key !in navDeepLink.argumentsNames }
         require(missingRequiredArguments.isEmpty()) {
             "Deep link ${navDeepLink.uriPattern} can't be used to open destination $this.\n" +
                 "Following required arguments are missing: $missingRequiredArguments"
@@ -220,11 +220,11 @@ public actual open class NavDestination actual constructor(
 
         val equalDeepLinks = deepLinks == other.deepLinks
 
-        val equalArguments = _arguments.size == other._arguments.size &&
-            _arguments.asSequence().all {
-                other._arguments.containsKey(it.key) &&
-                    other._arguments[it.key] == it.value
-            }
+        val equalArguments =
+            _arguments.size == other._arguments.size &&
+                _arguments.asSequence().all {
+                    other._arguments.containsKey(it.key) && other._arguments[it.key] == it.value
+                }
 
         return id == other.id &&
             route == other.route &&
@@ -267,6 +267,6 @@ public actual open class NavDestination actual constructor(
         @OptIn(InternalSerializationApi::class)
         @JvmStatic
         public actual fun <T : Any> NavDestination.hasRoute(route: KClass<T>): Boolean =
-            route.serializer().hashCode() == id
+            route.serializer().generateHashCode() == id
     }
 }

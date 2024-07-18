@@ -16,16 +16,11 @@
 
 package androidx.baselineprofile.gradle.consumer.task
 
-import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
-import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.work.DisableCachingByDefault
@@ -33,85 +28,45 @@ import org.gradle.work.DisableCachingByDefault
 private const val GENERATE_TASK_NAME = "generate"
 
 /**
- * This task does nothing and it's only to start the generation process.
+ * Creates the `generate<variant>BaselineProfile` task. Note that this task does nothing on its
+ * own and it's only to start the generation process.
  */
-@DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
-internal abstract class GenerateBaselineProfileTask : DefaultTask() {
-
-    companion object {
-        fun maybeCreate(
-            project: Project,
-            variantName: String,
-            lastTaskProvider: TaskProvider<*>? = null,
-        ) = project.tasks.maybeRegister<GenerateBaselineProfileTask>(
-            GENERATE_TASK_NAME,
-            variantName,
-            TASK_NAME_SUFFIX
-        ) {
-            if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
-        }
-    }
-
-    init {
-        group = "Baseline Profile"
-        description = "Generates a baseline profile for the specified variants or dimensions."
-    }
+internal inline fun <reified T : Task> maybeCreateGenerateTask(
+    project: Project,
+    variantName: String,
+    lastTaskProvider: TaskProvider<*>? = null
+) = project.tasks.maybeRegister<T>(GENERATE_TASK_NAME, variantName, TASK_NAME_SUFFIX) {
+    it.group = "Baseline Profile"
+    it.description = "Generates a baseline profile for the specified variants or dimensions."
+    if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
 }
 
-/**
- * This task does nothing and it's only to start the generation process. This task differs from
- * [GenerateBaselineProfileTask] and it's used ONLY to print the warning about
- * `generateBaselineProfile` generating only for `release` with AGP 8.0.
- */
 @DisableCachingByDefault(because = "Not worth caching.")
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
-internal abstract class MainGenerateBaselineProfileTaskForAgp80Only : DefaultTask() {
-
-    companion object {
-        fun maybeCreate(
-            project: Project,
-            variantName: String,
-            lastTaskProvider: TaskProvider<*>? = null,
-            warnings: Warnings
-        ) = project.tasks.maybeRegister<MainGenerateBaselineProfileTaskForAgp80Only>(
-            GENERATE_TASK_NAME,
-            variantName,
-            TASK_NAME_SUFFIX
-        ) {
-            if (lastTaskProvider != null) it.dependsOn(lastTaskProvider)
-            it.printWarningMultipleBuildTypesWithAgp80.set(warnings.multipleBuildTypesWithAgp80)
-        }
-    }
+abstract class MainGenerateBaselineProfileTask : DefaultTask() {
 
     init {
         group = "Baseline Profile"
-        description = "Generates a baseline profile for the `release` variant."
+        description = "Generates a baseline profile"
     }
-
-    @get:Input
-    abstract val printWarningMultipleBuildTypesWithAgp80: Property<Boolean>
-
-    private val logger by lazy { BaselineProfilePluginLogger(this.getLogger()) }
 
     @TaskAction
     fun exec() {
         this.logger.warn(
-            property = { printWarningMultipleBuildTypesWithAgp80.get() },
-            propertyName = "multipleBuildTypesWithAgp80",
-            message = """
-        The task `generateBaselineProfile` does not support generating baseline profiles for 
-        multiple build types with AGP 8.0.
+            """
+                The task `generateBaselineProfile` cannot currently support
+                generation for all the variants when there are multiple build
+                types without improvements planned for a future version of the
+                Android Gradle Plugin.
+                Until then, `generateBaselineProfile` will only generate
+                baseline profiles for the variants of the release build type,
+                behaving like `generateReleaseBaselineProfile`.
+                If you intend to generate profiles for multiple build types
+                you'll need to run separate gradle commands for each build type.
+                For example: `generateReleaseBaselineProfile` and
+                `generateAnotherReleaseBaselineProfile`.
 
-        Only baseline profile for variants of build type `release` will be generated.
-        With AGP 8.0, this command behaves like `generateReleaseBaselineProfile`.
-
-        If you intend to generate profiles for multiple build types using AGP 8.0 you'll 
-        need to run separate gradle commands for each build type.
-        Example: `generateReleaseBaselineProfile` and `generateAnotherReleaseBaselineProfile`.
-
-        Details on https://issuetracker.google.com/issue?id=270433400.
-            """.trimIndent()
+                Details on https://issuetracker.google.com/issue?id=270433400.
+                """.trimIndent()
         )
     }
 }

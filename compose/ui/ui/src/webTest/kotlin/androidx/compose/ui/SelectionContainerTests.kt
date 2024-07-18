@@ -76,7 +76,7 @@ class SelectionContainerTests : OnCanvasTests {
                 selection = selection,
                 onSelectionChange = {
                     selection = it
-                    syncChannel.trySend(it)
+                    syncChannel.sendFromScope(it)
                 },
                 children = {
                     Column {
@@ -140,7 +140,7 @@ class SelectionContainerTests : OnCanvasTests {
                 selection = selection,
                 onSelectionChange = {
                     selection = it
-                    syncChannel.trySend(it)
+                    syncChannel.sendFromScope(it)
                 },
                 children = {
                     Column {
@@ -194,7 +194,7 @@ class SelectionContainerTests : OnCanvasTests {
                 selection = selection,
                 onSelectionChange = {
                     selection = it
-                    syncChannel.trySend(it)
+                    syncChannel.sendFromScope(it)
                     selectionCallbackCounter++
                 },
                 children = {

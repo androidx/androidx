@@ -20,15 +20,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteTransactionListener;
-import android.os.CancellationSignal;
-import android.util.Pair;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
@@ -51,11 +43,6 @@ import androidx.room.RoomDatabase;
 import androidx.room.RoomWarnings;
 import androidx.room.Transaction;
 import androidx.room.paging.LimitOffsetDataSource;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.SupportSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteStatement;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -66,10 +53,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
@@ -108,11 +93,8 @@ public class QueryTransactionTest {
     @Before
     public void initDb() {
         resetTransactionCount();
-        mDb = Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(),
-                TransactionDb.class)
-                .openHelperFactory(new TransactionOpenHelperFactory())
-                .build();
+        mDb = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
+                TransactionDb.class).build();
         mDao = mUseTransactionDao ? mDb.transactionDao() : mDb.dao();
         drain();
     }
@@ -297,26 +279,13 @@ public class QueryTransactionTest {
         }
     }
 
-    private static void incrementTransactionCount() {
-        // When incrementing the transaction count, ignore those coming from the refresh
-        // in the invalidation tracker.
-        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        for (StackTraceElement element : stack) {
-            String fileName = element.getFileName();
-            if (fileName != null && fileName.equals("InvalidationTracker.kt")) {
-                return;
-            }
-        }
-        sStartedTransactionCount.incrementAndGet();
-    }
-
     private void resetTransactionCount() {
         sStartedTransactionCount.set(0);
     }
 
     private void drain() {
         try {
-            countingTaskExecutorRule.drainTasks(3, TimeUnit.SECONDS);
+            countingTaskExecutorRule.drainTasks(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new AssertionError("interrupted", e);
         } catch (TimeoutException e) {
@@ -517,298 +486,11 @@ public class QueryTransactionTest {
         abstract EntityDao dao();
 
         abstract TransactionDao transactionDao();
-    }
-
-    static class TransactionOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
-
-        private final SupportSQLiteOpenHelper.Factory mDelegate =
-                new FrameworkSQLiteOpenHelperFactory();
-
-        @NonNull
-        @Override
-        public SupportSQLiteOpenHelper create(
-                @NonNull SupportSQLiteOpenHelper.Configuration configuration) {
-            return new TransactionSupportSQLiteOpenHelper(mDelegate.create(configuration));
-        }
-    }
-
-    static class TransactionSupportSQLiteOpenHelper implements SupportSQLiteOpenHelper {
-        private final SupportSQLiteOpenHelper mDelegate;
-
-        TransactionSupportSQLiteOpenHelper(SupportSQLiteOpenHelper delegate) {
-            this.mDelegate = delegate;
-        }
-
-        @Nullable
-        @Override
-        public String getDatabaseName() {
-            return mDelegate.getDatabaseName();
-        }
-
-        @Override
-        public void setWriteAheadLoggingEnabled(boolean enabled) {
-            mDelegate.setWriteAheadLoggingEnabled(enabled);
-        }
-
-        @NonNull
-        @Override
-        public SupportSQLiteDatabase getWritableDatabase() {
-            return new TransactionSupportSQLiteDatabase(mDelegate.getWritableDatabase());
-        }
-
-        @NonNull
-        @Override
-        public SupportSQLiteDatabase getReadableDatabase() {
-            return new TransactionSupportSQLiteDatabase(mDelegate.getReadableDatabase());
-        }
-
-        @Override
-        public void close() {
-            mDelegate.close();
-        }
-    }
-
-    static class TransactionSupportSQLiteDatabase implements SupportSQLiteDatabase {
-        private final SupportSQLiteDatabase mDelegate;
-
-        TransactionSupportSQLiteDatabase(SupportSQLiteDatabase delegate) {
-            this.mDelegate = delegate;
-        }
-
-        @NonNull
-        @Override
-        public SupportSQLiteStatement compileStatement(@NonNull String sql) {
-            return mDelegate.compileStatement(sql);
-        }
 
         @Override
         public void beginTransaction() {
-            mDelegate.beginTransaction();
-            incrementTransactionCount();
-        }
-
-        @Override
-        public void beginTransactionNonExclusive() {
-            mDelegate.beginTransactionNonExclusive();
-            incrementTransactionCount();
-        }
-
-        @Override
-        public void beginTransactionReadOnly() {
-            mDelegate.beginTransactionReadOnly();
-            incrementTransactionCount();
-        }
-
-        @Override
-        public void beginTransactionWithListener(
-                @NonNull SQLiteTransactionListener transactionListener) {
-            mDelegate.beginTransactionWithListener(transactionListener);
-            incrementTransactionCount();
-        }
-
-        @Override
-        public void beginTransactionWithListenerNonExclusive(
-                @NonNull SQLiteTransactionListener transactionListener) {
-            mDelegate.beginTransactionWithListenerNonExclusive(transactionListener);
-            incrementTransactionCount();
-        }
-
-        @Override
-        public void beginTransactionWithListenerReadOnly(
-                @NonNull SQLiteTransactionListener transactionListener) {
-            mDelegate.beginTransactionWithListenerReadOnly(transactionListener);
-            incrementTransactionCount();
-        }
-
-        @Override
-        public void endTransaction() {
-            mDelegate.endTransaction();
-        }
-
-        @Override
-        public void setTransactionSuccessful() {
-            mDelegate.setTransactionSuccessful();
-        }
-
-        @Override
-        public boolean inTransaction() {
-            return mDelegate.inTransaction();
-        }
-
-        @Override
-        public boolean isDbLockedByCurrentThread() {
-            return mDelegate.isDbLockedByCurrentThread();
-        }
-
-        @Override
-        public boolean yieldIfContendedSafely() {
-            return mDelegate.yieldIfContendedSafely();
-        }
-
-        @Override
-        public boolean yieldIfContendedSafely(long sleepAfterYieldDelayMillis) {
-            return mDelegate.yieldIfContendedSafely(sleepAfterYieldDelayMillis);
-        }
-
-        @Override
-        public boolean isExecPerConnectionSQLSupported() {
-            return mDelegate.isExecPerConnectionSQLSupported();
-        }
-
-        @Override
-        public void execPerConnectionSQL(@NonNull String sql, @Nullable Object[] bindArgs) {
-            mDelegate.execPerConnectionSQL(sql, bindArgs);
-        }
-
-        @Override
-        public int getVersion() {
-            return mDelegate.getVersion();
-        }
-
-        @Override
-        public void setVersion(int i) {
-            mDelegate.setVersion(i);
-        }
-
-        @Override
-        public long getMaximumSize() {
-            return mDelegate.getMaximumSize();
-        }
-
-        @Override
-        public long setMaximumSize(long numBytes) {
-            return mDelegate.setMaximumSize(numBytes);
-        }
-
-        @Override
-        public long getPageSize() {
-            return mDelegate.getPageSize();
-        }
-
-        @Override
-        public void setPageSize(long l) {
-            mDelegate.setPageSize(l);
-        }
-
-        @NonNull
-        @Override
-        public Cursor query(@NonNull String query) {
-            return mDelegate.query(query);
-        }
-
-        @NonNull
-        @Override
-        public Cursor query(@NonNull String query, @NonNull Object[] bindArgs) {
-            return mDelegate.query(query, bindArgs);
-        }
-
-        @NonNull
-        @Override
-        public Cursor query(@NonNull SupportSQLiteQuery query) {
-            return mDelegate.query(query);
-        }
-
-        @NonNull
-        @Override
-        public Cursor query(@NonNull SupportSQLiteQuery query,
-                @Nullable CancellationSignal cancellationSignal) {
-            return mDelegate.query(query, cancellationSignal);
-        }
-
-        @Override
-        public long insert(@NonNull String table, int conflictAlgorithm,
-                @NonNull ContentValues values) throws SQLException {
-            return mDelegate.insert(table, conflictAlgorithm, values);
-        }
-
-        @Override
-        public int delete(@NonNull String table, @Nullable String whereClause,
-                @Nullable Object[] whereArgs) {
-            return mDelegate.delete(table, whereClause, whereArgs);
-        }
-
-        @Override
-        public int update(@NonNull String table, int conflictAlgorithm,
-                @NonNull ContentValues values, @Nullable String whereClause,
-                @Nullable Object[] whereArgs) {
-            return mDelegate.update(table, conflictAlgorithm, values, whereClause, whereArgs);
-        }
-
-        @Override
-        public void execSQL(@NonNull String sql) throws SQLException {
-            mDelegate.execSQL(sql);
-        }
-
-        @Override
-        public void execSQL(@NonNull String sql, @NonNull Object[] bindArgs) throws SQLException {
-            mDelegate.execSQL(sql, bindArgs);
-        }
-
-        @Override
-        public boolean isReadOnly() {
-            return mDelegate.isReadOnly();
-        }
-
-        @Override
-        public boolean isOpen() {
-            return mDelegate.isOpen();
-        }
-
-        @Override
-        public boolean needUpgrade(int newVersion) {
-            return mDelegate.needUpgrade(newVersion);
-        }
-
-        @Nullable
-        @Override
-        public String getPath() {
-            return mDelegate.getPath();
-        }
-
-        @Override
-        public void setLocale(@NonNull Locale locale) {
-            mDelegate.setLocale(locale);
-        }
-
-        @Override
-        public void setMaxSqlCacheSize(int cacheSize) {
-            mDelegate.setMaxSqlCacheSize(cacheSize);
-        }
-
-        @Override
-        public void setForeignKeyConstraintsEnabled(boolean enabled) {
-            mDelegate.setForeignKeyConstraintsEnabled(enabled);
-        }
-
-        @Override
-        public boolean enableWriteAheadLogging() {
-            return mDelegate.enableWriteAheadLogging();
-        }
-
-        @Override
-        public void disableWriteAheadLogging() {
-            mDelegate.disableWriteAheadLogging();
-        }
-
-        @Override
-        public boolean isWriteAheadLoggingEnabled() {
-            return mDelegate.isWriteAheadLoggingEnabled();
-        }
-
-        @Nullable
-        @Override
-        public List<Pair<String, String>> getAttachedDbs() {
-            return mDelegate.getAttachedDbs();
-        }
-
-        @Override
-        public boolean isDatabaseIntegrityOk() {
-            return mDelegate.isDatabaseIntegrityOk();
-        }
-
-        @Override
-        public void close() throws IOException {
-            mDelegate.close();
+            super.beginTransaction();
+            sStartedTransactionCount.incrementAndGet();
         }
     }
 }

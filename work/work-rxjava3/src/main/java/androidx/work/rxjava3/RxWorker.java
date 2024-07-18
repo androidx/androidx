@@ -16,12 +16,12 @@
 
 package androidx.work.rxjava3;
 
-import static androidx.concurrent.futures.CallbackToFutureAdapter.getFuture;
-
 import android.content.Context;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
@@ -32,8 +32,11 @@ import androidx.work.WorkRequest;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.utils.SynchronousExecutor;
+import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Scheduler;
@@ -41,8 +44,6 @@ import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.core.SingleObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import java.util.concurrent.Executor;
 
 /**
  * RxJava3 interoperability Worker implementation.
@@ -64,6 +65,9 @@ public abstract class RxWorker extends ListenableWorker {
     @SuppressWarnings("WeakerAccess")
     static final Executor INSTANT_EXECUTOR = new SynchronousExecutor();
 
+    @Nullable
+    private SingleFutureAdapter<Result> mSingleFutureObserverAdapter;
+
     /**
      * @param appContext   The application {@link Context}
      * @param workerParams Parameters to setup the internal state of this worker
@@ -75,7 +79,8 @@ public abstract class RxWorker extends ListenableWorker {
     @NonNull
     @Override
     public final ListenableFuture<Result> startWork() {
-        return convert(createWork());
+        mSingleFutureObserverAdapter = new SingleFutureAdapter<>();
+        return convert(mSingleFutureObserverAdapter, createWork());
     }
 
     /**
@@ -128,10 +133,21 @@ public abstract class RxWorker extends ListenableWorker {
         return Completable.fromFuture(setProgressAsync(data));
     }
 
+    @Override
+    @CallSuper
+    public void onStopped() {
+        super.onStopped();
+        final SingleFutureAdapter<Result> observer = mSingleFutureObserverAdapter;
+        if (observer != null) {
+            observer.dispose();
+            mSingleFutureObserverAdapter = null;
+        }
+    }
+
     @NonNull
     @Override
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
-        return convert(getForegroundInfo());
+        return convert(new SingleFutureAdapter<>(), getForegroundInfo());
     }
 
     /**
@@ -186,32 +202,57 @@ public abstract class RxWorker extends ListenableWorker {
         return Completable.fromFuture(setForegroundAsync(foregroundInfo));
     }
 
-    private <T> ListenableFuture<T> convert(Single<T> single) {
-        return getFuture((completer) -> {
-            final Scheduler scheduler = getBackgroundScheduler();
-            single.subscribeOn(scheduler)
-                    // observe on WM's private thread
-                    .observeOn(Schedulers.from(
-                            getTaskExecutor().getSerialTaskExecutor(),
-                            /* interruptible */true,
-                            /* fair */true))
-                    .subscribe(new SingleObserver<T>() {
-                        @Override
-                        public void onSubscribe(Disposable d) {
-                            completer.addCancellationListener(d::dispose, INSTANT_EXECUTOR);
-                        }
+    private <T> ListenableFuture<T> convert(SingleFutureAdapter<T> adapter, Single<T> single) {
+        final Scheduler scheduler = getBackgroundScheduler();
+        single.subscribeOn(scheduler)
+                // observe on WM's private thread
+                .observeOn(Schedulers.from(
+                        getTaskExecutor().getSerialTaskExecutor(),
+                        /* interruptible */true,
+                        /* fair */true))
+                .subscribe(adapter);
+        return adapter.mFuture;
+    }
 
-                        @Override
-                        public void onSuccess(T t) {
-                            completer.set(t);
-                        }
+    /**
+     * An observer that can observe a single and provide it as a {@link ListenableWorker}.
+     */
+    static class SingleFutureAdapter<T> implements SingleObserver<T>, Runnable {
+        final SettableFuture<T> mFuture = SettableFuture.create();
+        @Nullable
+        private Disposable mDisposable;
 
-                        @Override
-                        public void onError(Throwable e) {
-                            completer.setException(e);
-                        }
-                    });
-            return "converted single to future";
-        });
+        SingleFutureAdapter() {
+            mFuture.addListener(this, INSTANT_EXECUTOR);
+        }
+
+        @Override
+        public void onSubscribe(Disposable disposable) {
+            mDisposable = disposable;
+        }
+
+        @Override
+        public void onSuccess(T t) {
+            mFuture.set(t);
+        }
+
+        @Override
+        public void onError(Throwable throwable) {
+            mFuture.setException(throwable);
+        }
+
+        @Override
+        public void run() { // Future listener
+            if (mFuture.isCancelled()) {
+                dispose();
+            }
+        }
+
+        void dispose() {
+            final Disposable disposable = mDisposable;
+            if (disposable != null) {
+                disposable.dispose();
+            }
+        }
     }
 }

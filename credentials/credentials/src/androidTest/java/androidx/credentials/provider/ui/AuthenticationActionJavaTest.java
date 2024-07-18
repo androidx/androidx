@@ -84,19 +84,4 @@ public class AuthenticationActionJavaTest {
         assertNotNull(fromSlice);
         assertThat(fromSlice.getPendingIntent()).isEqualTo(mPendingIntent);
     }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    public void fromAction_success() {
-        AuthenticationAction originalAction = new AuthenticationAction(TITLE, mPendingIntent);
-        Slice slice = AuthenticationAction.toSlice(originalAction);
-        assertNotNull(slice);
-
-        AuthenticationAction action = AuthenticationAction.fromAction(
-                new android.service.credentials.Action(slice)
-        );
-
-        assertNotNull(action);
-        assertThat(action.getPendingIntent()).isEqualTo(mPendingIntent);
-    }
 }

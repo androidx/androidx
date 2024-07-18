@@ -186,7 +186,7 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
                             }
                         });
 
-                mNestedScrollView.performAccessibilityAction(action, null);
+                ViewCompat.performAccessibilityAction(mNestedScrollView, action, null);
             }
         });
         assertThat(countDownLatch.await(2, TimeUnit.SECONDS), is(true));

@@ -21,7 +21,7 @@ import android.os.Message
 import android.view.Choreographer
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.core.os.MessageCompat
+import androidx.annotation.RequiresApi
 import java.lang.ref.WeakReference
 import java.lang.reflect.Field
 
@@ -29,6 +29,7 @@ import java.lang.reflect.Field
  * Subclass of JankStatsBaseImpl records frame timing data for API 16 and later,
  * using Choreographer (which was introduced in API 16).
  */
+@RequiresApi(16)
 internal open class JankStatsApi16Impl(
     jankStats: JankStats,
     view: View
@@ -107,11 +108,19 @@ internal open class JankStatsApi16Impl(
         var delegator = getTag(R.id.metricsDelegator) as DelegatingOnPreDrawListener?
         if (delegator == null) {
             val delegates = mutableListOf<OnFrameListenerDelegate>()
-            delegator = DelegatingOnPreDrawListener(this, choreographer, delegates)
+            delegator = createDelegatingOnDrawListener(this, choreographer, delegates)
             viewTreeObserver.addOnPreDrawListener(delegator)
             setTag(R.id.metricsDelegator, delegator)
         }
         return delegator
+    }
+
+    internal open fun createDelegatingOnDrawListener(
+        view: View,
+        choreographer: Choreographer,
+        delegates: MutableList<OnFrameListenerDelegate>
+    ): DelegatingOnPreDrawListener {
+        return DelegatingOnPreDrawListener(view, choreographer, delegates)
     }
 
     internal fun getFrameStartTime(): Long {
@@ -137,6 +146,7 @@ internal abstract class OnFrameListenerDelegate {
  * timing details. This listener delegates to a list of OnFrameListenerDelegate objects,
  * which do the work of sending that data to JankStats instance clients.
  */
+@RequiresApi(16)
 internal open class DelegatingOnPreDrawListener(
     decorView: View,
     val choreographer: Choreographer,
@@ -208,7 +218,7 @@ internal open class DelegatingOnPreDrawListener(
                     }
                     metricsStateHolder.state?.cleanupSingleFrameStates()
                 }.apply {
-                    MessageCompat.setAsynchronous(this, true)
+                    setMessageAsynchronicity(this)
                 })
             }
         }
@@ -250,6 +260,9 @@ internal open class DelegatingOnPreDrawListener(
     private fun getFrameStartTime(): Long {
         return choreographerLastFrameTimeField.get(choreographer) as Long
     }
+
+    // Noop prior to API 22 - overridden in 22Impl subclass
+    internal open fun setMessageAsynchronicity(message: Message) {}
 
     companion object {
         val choreographerLastFrameTimeField: Field =

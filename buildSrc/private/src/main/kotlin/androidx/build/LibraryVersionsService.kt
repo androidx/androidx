@@ -147,8 +147,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
             )
         }
         val result = mutableListOf<LibraryGroupAssociation>()
-        // the toml library returns keySet unsorted, but libraryGroupsByGroupId requires it to be sorted
-        for (name in groups.keySet().sorted()) {
+        for (name in groups.keySet()) {
             // get group name
             val groupDefinition = groups.getTable(name)!!
             val groupName = groupDefinition.getString("group")!!

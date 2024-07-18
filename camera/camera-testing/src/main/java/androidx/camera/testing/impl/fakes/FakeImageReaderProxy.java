@@ -225,12 +225,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * <p> Blocks until successfully added an ImageProxy. This can block if the maximum number of
      * ImageProxy have been triggered without a {@link #acquireLatestImage()} or {@link
      * #acquireNextImage()} being called.
-     *
-     * @return the {@link ImageProxy} that was triggered.
      */
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    @NonNull
-    public FakeImageProxy triggerImageAvailable(@NonNull TagBundle tagBundle,
+    public void triggerImageAvailable(@NonNull TagBundle tagBundle,
             long timestamp) throws InterruptedException {
         FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
 
@@ -243,7 +240,6 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mImageProxyAcquisitionQueue.put(fakeImageProxy);
 
         triggerImageAvailableListener();
-        return fakeImageProxy;
     }
 
     private FakeImageProxy generateFakeImageProxy(TagBundle tagBundle, long timestamp) {

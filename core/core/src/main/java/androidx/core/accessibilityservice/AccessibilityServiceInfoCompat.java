@@ -190,15 +190,16 @@ public final class AccessibilityServiceInfoCompat {
      * @param info The service info of interest
      * @param packageManager The current package manager
      * @return The localized description.
-     * @deprecated Call {@link AccessibilityServiceInfo#loadDescription()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "info.loadDescription(packageManager)")
     @SuppressWarnings("deprecation")
     @Nullable
     public static String loadDescription(
             @NonNull AccessibilityServiceInfo info, @NonNull PackageManager packageManager) {
-        return info.loadDescription(packageManager);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return info.loadDescription(packageManager);
+        } else {
+            return info.getDescription();
+        }
     }
 
     /**
@@ -280,13 +281,17 @@ public final class AccessibilityServiceInfoCompat {
      * @see #CAPABILITY_CAN_REQUEST_TOUCH_EXPLORATION
      * @see #CAPABILITY_CAN_REQUEST_ENHANCED_WEB_ACCESSIBILITY
      * @see #CAPABILITY_CAN_FILTER_KEY_EVENTS
-     * @deprecated Call {@link AccessibilityServiceInfo#getCapabilities()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "info.getCapabilities()")
     @SuppressWarnings("deprecation")
     public static int getCapabilities(@NonNull AccessibilityServiceInfo info) {
-        return info.getCapabilities();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return info.getCapabilities();
+        } else {
+            if (info.getCanRetrieveWindowContent()) {
+                return CAPABILITY_CAN_RETRIEVE_WINDOW_CONTENT;
+            }
+            return 0;
+        }
     }
 
     /**

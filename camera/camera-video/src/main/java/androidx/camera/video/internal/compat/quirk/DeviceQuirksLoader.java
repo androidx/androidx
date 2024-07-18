@@ -98,21 +98,6 @@ public class DeviceQuirksLoader {
         if (CodecStuckOnFlushQuirk.load()) {
             quirks.add(new CodecStuckOnFlushQuirk());
         }
-        if (StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.load()) {
-            quirks.add(new StopCodecAfterSurfaceRemovalCrashMediaServerQuirk());
-        }
-        if (ExtraSupportedQualityQuirk.load()) {
-            quirks.add(new ExtraSupportedQualityQuirk());
-        }
-        if (SignalEosOutputBufferNotComeQuirk.load()) {
-            quirks.add(new SignalEosOutputBufferNotComeQuirk());
-        }
-        if (SizeCannotEncodeVideoQuirk.load()) {
-            quirks.add(new SizeCannotEncodeVideoQuirk());
-        }
-        if (TemporalNoiseQuirk.load()) {
-            quirks.add(new TemporalNoiseQuirk());
-        }
 
         return quirks;
     }

@@ -33,7 +33,7 @@
     <string name="mr_controller_stop" msgid="5497722768305745508">"Atura"</string>
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"Desplega"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"Replega"</string>
-    <string name="mr_controller_album_art" msgid="3330502667672708728">"Coberta de l\'àlbum"</string>
+    <string name="mr_controller_album_art" msgid="3330502667672708728">"Imatge de l\'àlbum"</string>
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"Control lliscant de volum"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"No hi ha contingut multimèdia seleccionat"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"No hi ha informació disponible"</string>

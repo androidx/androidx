@@ -3,10 +3,12 @@ ExecutorRegistration: androidx.health.services.client.ExerciseClient#clearUpdate
     Registration methods should have overload that accepts delivery Executor: `clearUpdateCallbackAsync`
 
 
-GetterSetterNames: androidx.health.services.client.data.ExerciseTypeCapabilities#supportsAutoPauseAndResume:
+GetterSetterNames: field ExerciseTypeCapabilities.supportsAutoPauseAndResume:
     Invalid name for boolean property `supportsAutoPauseAndResume`. Should start with one of `has`, `can`, `should`, `is`.
 
 
+InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.health.services.client.PassiveListenerService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 

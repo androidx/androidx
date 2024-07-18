@@ -31,6 +31,7 @@ internal fun Translations.lv() = mapOf(
     Strings.Dialog to "Dialoglodziņš",
     Strings.MenuExpanded to "Izvērsta",
     Strings.MenuCollapsed to "Sakļauta",
+    Strings.ToggleDropdownMenu to "Pārslēgt nolaižamo izvēlni",
     Strings.SnackbarDismiss to "Nerādīt",
     Strings.SearchBarSearch to "Meklēšana",
     Strings.SuggestionsAvailable to "Tālāk ir sniegti ieteikumi",

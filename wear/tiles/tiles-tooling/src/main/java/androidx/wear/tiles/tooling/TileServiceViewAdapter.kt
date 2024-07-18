@@ -26,11 +26,6 @@ import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.StateBuilders
 import androidx.wear.protolayout.TimelineBuilders
-import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue
-import androidx.wear.protolayout.expression.PlatformDataValues
-import androidx.wear.protolayout.expression.PlatformHealthSources
-import androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy
-import androidx.wear.protolayout.expression.PlatformHealthSources.HEART_RATE_ACCURACY_MEDIUM
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest
 import androidx.wear.tiles.renderer.TileRenderer
@@ -41,18 +36,6 @@ import java.lang.reflect.Modifier
 import kotlin.math.roundToInt
 
 private const val TOOLS_NS_URI = "http://schemas.android.com/tools"
-
-private val defaultPlatformDataValues = PlatformDataValues.Builder()
-    .put(PlatformHealthSources.Keys.HEART_RATE_BPM, DynamicDataValue.fromFloat(80f))
-    .put(
-        PlatformHealthSources.Keys.HEART_RATE_ACCURACY,
-        DynamicHeartRateAccuracy.dynamicDataValueOf(HEART_RATE_ACCURACY_MEDIUM)
-    )
-    .put(PlatformHealthSources.Keys.DAILY_STEPS, DynamicDataValue.fromInt(4710))
-    .put(PlatformHealthSources.Keys.DAILY_FLOORS, DynamicDataValue.fromFloat(12.5f))
-    .put(PlatformHealthSources.Keys.DAILY_CALORIES, DynamicDataValue.fromFloat(245.3f))
-    .put(PlatformHealthSources.Keys.DAILY_DISTANCE_METERS, DynamicDataValue.fromFloat(3670.8f))
-    .build()
 
 /**
  * A method extending functionality of [Class.getDeclaredMethod] allowing to finding the methods
@@ -66,7 +49,7 @@ internal fun Class<out Any>.findMethod(
     while (currentClass != null) {
         try {
             return currentClass.getDeclaredMethod(name, *parameterTypes)
-        } catch (_: NoSuchMethodException) {}
+        } catch (_: NoSuchMethodException) { }
         currentClass = currentClass.superclass
     }
     val methodSignature = "$name(${parameterTypes.joinToString { ", " }})"
@@ -96,18 +79,10 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
 
     internal fun init(tilePreviewMethodFqn: String) {
         val tilePreview = getTilePreview(tilePreviewMethodFqn) ?: return
-        val platformDataValues = getPlatformDataValues(tilePreview)
-
         lateinit var tileRenderer: TileRenderer
-        tileRenderer = TileRenderer.Builder(context, executor) { newState ->
+        tileRenderer = TileRenderer(context, executor) { newState ->
             tileRenderer.previewTile(tilePreview, newState)
         }
-            .addPlatformDataProvider(
-                StaticPlatformDataProvider(platformDataValues),
-                *platformDataValues.all.keys.toTypedArray()
-            )
-            .build()
-
         tileRenderer.previewTile(tilePreview)
     }
 
@@ -171,17 +146,6 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             val instance = method.declaringClass.getConstructor().newInstance()
             method.invoke(instance, *args) as? TilePreviewData
         }
-    }
-
-    private fun getPlatformDataValues(tilePreview: TilePreviewData): PlatformDataValues {
-        return PlatformDataValues.Builder()
-            .putAll(defaultPlatformDataValues)
-            .apply {
-                tilePreview.platformDataValues?.let { platformDataValues ->
-                    putAll(platformDataValues)
-                }
-            }
-            .build()
     }
 }
 

@@ -62,12 +62,13 @@ internal abstract class JavacType(
     }
 
     override val typeElement by lazy {
-        env.delegate.typeUtils.asElement(typeMirror)?.let {
-            if (MoreElements.isType(it)) {
-                env.wrapTypeElement(MoreElements.asType(it))
-            } else {
-                null
-            }
+        val element = try {
+            MoreTypes.asTypeElement(typeMirror)
+        } catch (notAnElement: IllegalArgumentException) {
+            null
+        }
+        element?.let {
+            env.wrapTypeElement(it)
         }
     }
 
@@ -111,16 +112,7 @@ internal abstract class JavacType(
             JavacKmAnnotation(env, it)
         } ?: typeMirror.annotationMirrors.map { mirror -> JavacAnnotation(env, mirror) }
             .flatMap { annotation ->
-                // TODO(b/313473892): Checking if an annotation needs to be unwrapped can be
-                //  expensive with the XProcessing API, especially if we don't really care about
-                //  annotation values, so do a quick check on the AnnotationMirror first to decide
-                //  if its repeatable. Remove this once we've optimized the general solution in
-                //  unwrapRepeatedAnnotationsFromContainer()
-                if (annotation.mirror.isRepeatable()) {
-                    annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
-                } else {
-                    listOf(annotation)
-                }
+                annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
             }
     }
 

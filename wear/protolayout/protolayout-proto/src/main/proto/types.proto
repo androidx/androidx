@@ -11,6 +11,7 @@ option java_outer_classname = "TypesProto";
 
 // An int32 type.
 message Int32Prop {
+
   oneof optional_value {
     // The static value.
     int32 value = 1;
@@ -22,11 +23,12 @@ message Int32Prop {
 
 // A string type.
 message StringProp {
+
   oneof optional_value {
-    // The static value. If a dynamic value is also set and the renderer
-    // supports dynamic values for the corresponding field, this static value
-    // will be ignored. If the static value is not specified, {@code null} will
-    // be used instead.
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, {@code null} will be used
+    // instead.
     string value = 1;
   }
 
@@ -49,11 +51,11 @@ message StringProp {
 
 // A float type.
 message FloatProp {
+
   oneof optional_value {
-    // The static value. If a dynamic value is also set and the renderer
-    // supports dynamic values for the corresponding field, this static value
-    // will be ignored. If the static value is not specified, zero will be used
-    // instead.
+    // The static value. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
     float value = 1;
   }
 
@@ -66,17 +68,12 @@ message FloatProp {
 
 // A boolean type.
 message BoolProp {
+
   oneof optional_value {
-    // The static value. If a dynamic value is also set and the renderer
-    // supports dynamic values for the corresponding field, this static value
-    // will be ignored. If the static value is not specified, false will be used
-    // instead.
+    // The static value.
     bool value = 1;
   }
 
-  // The dynamic value. Note that when setting this value, the static value is
-  // still required to be set to support older renderers that only read the
-  // static value. If {@code dynamicValue} has an invalid result, the provided
-  // static value will be used instead.
+  // The dynamic value.
   androidx.wear.protolayout.expression.proto.DynamicBool dynamic_value = 2;
 }

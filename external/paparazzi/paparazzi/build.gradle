@@ -1,0 +1,55 @@
+import androidx.build.LibraryType
+import org.gradle.api.artifacts.transform.TransformParameters.None
+import java.util.zip.ZipInputStream
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+    id("com.google.devtools.ksp")
+    id("AndroidXComposePlugin")
+}
+
+androidx.configureAarAsJarForConfiguration("compileOnly")
+androidx.configureAarAsJarForConfiguration("testImplementation")
+
+dependencies {
+    api("androidx.annotation:annotation:1.3.0")
+    api("com.android.tools.layoutlib:layoutlib-api:27.2.2")
+    api("com.android.tools:common:27.1.2")
+    api(libs.androidToolsNinepatch)
+    api("com.android.tools:sdk-common:26.6.4")
+    api(libs.guava)
+    api(libs.junit)
+    api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesCore)
+    api(libs.kxml2)
+    api(libs.okio)
+    api(libs.paparazziNativeJvm)
+    constraints {
+        implementation(libs.kotlinReflect) {
+            because("sdk-common depends on an old kotlin-reflect")
+        }
+    }
+
+    implementation(project(":external:paparazzi:paparazzi-agent"))
+    implementation(libs.jcodec)
+    implementation(libs.jcodecJavaSe)
+    implementation(libs.moshi)
+    implementation(libs.moshiAdapters)
+
+    compileOnlyAarAsJar("androidx.compose.runtime:runtime:1.2.1")
+    compileOnlyAarAsJar("androidx.compose.ui:ui:1.2.1")
+    compileOnly(androidxArtifact(":lifecycle:lifecycle-common"))
+    compileOnlyAarAsJar(androidxArtifact(":lifecycle:lifecycle-runtime"))
+    compileOnlyAarAsJar("androidx.savedstate:savedstate:1.2.0")
+
+    ksp(libs.moshiCodeGen)
+
+    testImplementation(libs.assertj)
+    testImplementationAarAsJar("androidx.compose.runtime:runtime:1.2.1")
+}
+
+androidx {
+    name = "Paparazzi - AndroidX Fork"
+    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
+}

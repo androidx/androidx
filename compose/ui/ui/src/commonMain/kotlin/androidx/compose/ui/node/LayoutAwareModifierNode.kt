@@ -51,3 +51,7 @@ interface LayoutAwareModifierNode : DelegatableNode {
      */
     fun onRemeasured(size: IntSize) {}
 }
+
+internal interface OnUnplacedModifierNode : DelegatableNode {
+    fun onUnplaced()
+}

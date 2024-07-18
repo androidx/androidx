@@ -17,17 +17,19 @@
 package androidx.work.testing.workers
 
 import android.content.Context
-import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
+import androidx.work.impl.utils.futures.SettableFuture
 import com.google.common.util.concurrent.ListenableFuture
 
 class RetryWorker(
     appContext: Context,
     workerParams: WorkerParameters
 ) : ListenableWorker(appContext, workerParams) {
-    override fun startWork(): ListenableFuture<Result> = getFuture { completer ->
-        if (runAttemptCount <= 2) completer.set(Result.retry())
-        else completer.set(Result.success())
+    override fun startWork(): ListenableFuture<Result> {
+        val future = SettableFuture.create<Result>()
+        if (runAttemptCount <= 2) future.set(Result.retry())
+        else future.set(Result.success())
+        return future
     }
 }

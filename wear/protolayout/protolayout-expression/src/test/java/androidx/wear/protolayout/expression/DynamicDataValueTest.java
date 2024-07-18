@@ -31,9 +31,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
-import java.time.Duration;
-import java.time.Instant;
-
 @RunWith(RobolectricTestRunner.class)
 public final class DynamicDataValueTest {
     @Test
@@ -101,41 +98,7 @@ public final class DynamicDataValueTest {
         assertThat(stringDynamicDataValue.toDynamicDataValueProto().getStringVal().getValue())
                 .isEqualTo(s);
 
-        assertThat(stringDynamicDataValue.hasInstantValue()).isFalse();
-        assertThrows(IllegalStateException.class, stringDynamicDataValue::getInstantValue);
-    }
-
-    @Test
-    public void instantDynamicDataValue() {
-        Instant instant = Instant.ofEpochSecond(12345);
-        DynamicDataValue<DynamicBuilders.DynamicInstant> instantDynamicDataValue =
-                DynamicDataValue.fromInstant(instant);
-
-        assertThat(instantDynamicDataValue.hasInstantValue()).isTrue();
-        assertThat(instantDynamicDataValue.getInstantValue()).isEqualTo(instant);
-        assertThat(
-                        instantDynamicDataValue
-                                .toDynamicDataValueProto()
-                                .getInstantVal()
-                                .getEpochSeconds())
-                .isEqualTo(instant.getEpochSecond());
-
-        assertThat(instantDynamicDataValue.hasDurationValue()).isFalse();
-        assertThrows(IllegalStateException.class, instantDynamicDataValue::getDurationValue);
-    }
-
-    @Test
-    public void durationDynamicDataValue() {
-        Duration duration = Duration.ofSeconds(12345);
-        DynamicDataValue<DynamicBuilders.DynamicDuration> durationDynamicDataValue =
-                DynamicDataValue.fromDuration(duration);
-
-        assertThat(durationDynamicDataValue.hasDurationValue()).isTrue();
-        assertThat(durationDynamicDataValue.getDurationValue()).isEqualTo(duration);
-        assertThat(durationDynamicDataValue.toDynamicDataValueProto().getDurationVal().getSeconds())
-                .isEqualTo(duration.getSeconds());
-
-        assertThat(durationDynamicDataValue.hasBoolValue()).isFalse();
-        assertThrows(IllegalStateException.class, durationDynamicDataValue::getBoolValue);
+        assertThat(stringDynamicDataValue.hasBoolValue()).isFalse();
+        assertThrows(IllegalStateException.class, stringDynamicDataValue::getBoolValue);
     }
 }

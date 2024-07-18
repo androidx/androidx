@@ -17,8 +17,9 @@
 package androidx.profileinstaller.integration.profileverification
 
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE
-import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_NO_PROFILE_INSTALLED
+import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_NO_PROFILE
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION
+import androidx.profileinstaller.ProfileVersion
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import org.junit.After
@@ -41,7 +42,8 @@ import org.junit.Test
  * https://googleplex-android-review.git.corp.google.com/c/platform/frameworks/base/+/3368431/
  */
 @SdkSuppress(
-    minSdkVersion = android.os.Build.VERSION_CODES.P
+    minSdkVersion = android.os.Build.VERSION_CODES.P,
+    maxSdkVersion = ProfileVersion.MAX_SUPPORTED_SDK
 )
 @LargeTest
 class ProfileVerificationTestWithoutProfileInstallerInitializer {
@@ -65,7 +67,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+            profileInstalled(RESULT_CODE_NO_PROFILE)
             hasReferenceProfile(false)
             hasCurrentProfile(false)
         }
@@ -80,7 +82,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start once to check there is no profile
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+            profileInstalled(RESULT_CODE_NO_PROFILE)
             hasReferenceProfile(false)
             hasCurrentProfile(false)
         }
@@ -89,7 +91,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
         // Start again to check there is no profile
         start(ACTIVITY_NAME)
         evaluateUI {
-            profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+            profileInstalled(RESULT_CODE_NO_PROFILE)
             hasReferenceProfile(false)
             hasCurrentProfile(false)
         }
@@ -157,7 +159,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
@@ -189,7 +191,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
@@ -212,7 +214,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
@@ -237,7 +239,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             // Start and assess there is no profile
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
@@ -263,7 +265,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             install(apkName = APK_WITHOUT_INITIALIZER_V1, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }
@@ -284,7 +286,7 @@ class ProfileVerificationTestWithoutProfileInstallerInitializer {
             install(apkName = APK_WITHOUT_INITIALIZER_V2, withProfile = false)
             start(ACTIVITY_NAME)
             evaluateUI {
-                profileInstalled(RESULT_CODE_NO_PROFILE_INSTALLED)
+                profileInstalled(RESULT_CODE_NO_PROFILE)
                 hasReferenceProfile(false)
                 hasCurrentProfile(false)
             }

@@ -16,15 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
-import kotlin.jvm.JvmName
-import kotlin.jvm.JvmSuppressWildcards
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.firstOrNull
-
 /**
  * Collection of pagination [LoadState]s for both a [PagingSource], and [RemoteMediator].
  *
@@ -114,47 +105,4 @@ public class CombinedLoadStates(
             op(type, true, state)
         }
     }
-
-    /**
-     * Returns true when [source] and [mediator] is in [NotLoading] for all [LoadType]
-     */
-    public val isIdle = source.isIdle && mediator?.isIdle ?: true
-
-    /**
-     * Returns true if either [source] or [mediator] has a [LoadType] that is in [LoadState.Error]
-     */
-    @get:JvmName("hasError")
-    public val hasError = source.hasError || mediator?.hasError ?: false
-}
-
-/**
- * Function to wait on a Flow<CombinedLoadStates> until a load has completed.
- *
- * It collects on the Flow<CombinedLoadStates> and suspends until it collects and returns the
- * firstOrNull [CombinedLoadStates] where all [LoadStates] have settled into a non-loading state
- * i.e. [LoadState.NotLoading] or [LoadState.Error].
- *
- * A use case could be scrolling to a position after refresh has completed:
- * ```
- * override fun onCreate(savedInstanceState: Bundle?) {
- *     ...
- *     refreshButton.setOnClickListener {
- *         pagingAdapter.refresh()
- *         lifecycleScope.launch {
- *             // wait for refresh to complete
- *             pagingAdapter.loadStateFlow.awaitNotLoading()
- *             // do work after refresh
- *             recyclerView.scrollToPosition(position)
- *         }
- *    }
- * }
- * ```
- */
-@OptIn(FlowPreview::class)
-public suspend fun Flow<CombinedLoadStates>.awaitNotLoading():
-    @JvmSuppressWildcards CombinedLoadStates? {
-
-    return debounce(1).filter {
-        it.isIdle || it.hasError
-    }.firstOrNull()
 }

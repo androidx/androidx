@@ -472,7 +472,8 @@ public abstract class AppSearchSessionCtsTestBase {
     /** Test indexing maximum properties into a schema. */
     @Test
     public void testSetSchema_maxProperties() throws Exception {
-        int maxProperties = mDb1.getFeatures().getMaxIndexedProperties();
+        int maxProperties = mDb1.getFeatures().getMaxIndexedProperties(
+                ApplicationProvider.getApplicationContext());
         AppSearchSchema.Builder schemaBuilder = new AppSearchSchema.Builder("testSchema");
         for (int i = 0; i < maxProperties; i++) {
             schemaBuilder.addProperty(new StringPropertyConfig.Builder("string" + i)

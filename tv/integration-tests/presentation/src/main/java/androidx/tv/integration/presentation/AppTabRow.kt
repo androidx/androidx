@@ -39,12 +39,15 @@ fun AppTabRow(
     onSelectedTabIndexChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+
     AlignmentCenter(horizontalAxis = true) {
         TabRow(
             selectedTabIndex = selectedTabIndex,
             separator = { Spacer(modifier = Modifier.width(4.dp)) },
             modifier = modifier
-                .padding(top = 20.dp),
+                .padding(top = 20.dp)
+                .then(focusRestorerModifiers.parentModifier),
 //                indicator = @Composable { tabPositions ->
 //                    tabPositions.getOrNull(selectedTabIndex)?.let {
 //                        TabRowDefaults.PillIndicator(
@@ -63,7 +66,8 @@ fun AppTabRow(
                             inactiveContentColor = LocalContentColor.current,
 //                            selectedContentColor = Color(0xFF313033),
                         ),
-                        modifier = Modifier,
+                        modifier = Modifier
+                            .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     ) {
                         Text(
                             text = tabLabel,

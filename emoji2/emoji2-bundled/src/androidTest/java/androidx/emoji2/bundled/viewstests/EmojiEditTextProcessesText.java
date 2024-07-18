@@ -30,6 +30,7 @@ import androidx.emoji2.text.EmojiCompat;
 import androidx.emoji2.widget.EmojiEditText;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -58,6 +59,7 @@ public class EmojiEditTextProcessesText {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testDoesReplaceEmoji() {
         final TestActivity activity = mActivityRule.getActivity();
         final EmojiEditText editText = activity.findViewById(R.id.emojiEditText);

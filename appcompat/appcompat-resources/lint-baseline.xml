@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 21 (current min is 19): `android.graphics.drawable.Drawable#getColorFilter`"
+        errorLine1="        assertNotNull(ld.getDrawable(0).getColorFilter());"
+        errorLine2="                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/appcompat/widget/TintResourcesTest.java"/>
+    </issue>
 
     <issue
         id="BanSynchronizedMethods"
@@ -93,35 +102,17 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (SDK_INT >= LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="            } else if (SDK_INT >= LOLLIPOP) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="            } else if (SDK_INT >= LOLLIPOP) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
+        message="Unnecessary; SDK_INT is always >= 18"
+        errorLine1="    @RequiresApi(18)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/resources/Compatibility.java"/>
@@ -129,17 +120,17 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(LOLLIPOP)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 15"
+        errorLine1="    @RequiresApi(15)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+            file="src/main/java/androidx/appcompat/resources/Compatibility.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="            if (Build.VERSION.SDK_INT >= 21 &amp;&amp; hotspotBounds != null) {"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
@@ -147,71 +138,62 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        } else if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 15 &amp;&amp; drawable instanceof InsetDrawable) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        } else if (Build.VERSION.SDK_INT &lt; 15 &amp;&amp; drawable instanceof GradientDrawable) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        } else if (Build.VERSION.SDK_INT &lt; 17 &amp;&amp; drawable instanceof LayerDrawable) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 18"
+        errorLine1="    @RequiresApi(18)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        @RequiresApi(LOLLIPOP)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        @RequiresApi(LOLLIPOP)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainerCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
+        message="Unnecessary; SDK_INT is always >= 15"
+        errorLine1="    @RequiresApi(15)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"/>
@@ -219,47 +201,11 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (SDK_INT >= LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="                if (SDK_INT >= LOLLIPOP) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @RequiresApi(21)"
+        message="Unnecessary; SDK_INT is always >= 15"
+        errorLine1="    @RequiresApi(15)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/StateListDrawableCompat.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 21"
-        errorLine1="        return Build.VERSION.SDK_INT &lt; 21 || VectorEnabledTintResources.shouldBeUsed();"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 21"
-        errorLine1="                &amp;&amp; Build.VERSION.SDK_INT &lt;= MAX_SDK_WHERE_REQUIRED;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/VectorEnabledTintResources.java"/>
+            file="src/main/java/androidx/appcompat/widget/ResourcesWrapper.java"/>
     </issue>
 
     <issue

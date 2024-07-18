@@ -49,7 +49,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
             val annotated = node.uastParent as? UAnnotated ?: return
-            val isKotlin = isKotlin(annotated.lang)
+            val isKotlin = isKotlin(annotated.sourcePsi)
             val qualifiedName = node.qualifiedName
 
             if (isKotlin && qualifiedName == JAVA_REQUIRES_OPT_IN_ANNOTATION) {
@@ -69,7 +69,7 @@ class AnnotationRetentionDetector : Detector(), Detector.UastScanner {
          * if it does not.
          */
         private fun validateAnnotationRetention(annotated: UAnnotated) {
-            val isKotlin = isKotlin(annotated.lang)
+            val isKotlin = isKotlin(annotated.sourcePsi)
             val annotations = context.evaluator.getAllAnnotations(annotated, false)
 
             val annotationClass: String

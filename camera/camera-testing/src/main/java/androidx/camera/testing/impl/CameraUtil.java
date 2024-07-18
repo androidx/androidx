@@ -32,6 +32,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.OutputConfiguration;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -40,6 +41,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.DoNotInline;
@@ -47,22 +49,17 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
-import androidx.camera.core.ExperimentalRetryPolicy;
 import androidx.camera.core.Logger;
-import androidx.camera.core.RetryPolicy;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
-import androidx.camera.core.impl.CameraConfig;
-import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.RestrictedCameraInfo;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
@@ -621,22 +618,18 @@ public final class CameraUtil {
      * @param cameraCoordinator The camera coordinator for concurrent cameras.
      * @param cameraSelector The selector to select cameras with.
      */
-    @SuppressLint("NullAnnotationGroup")
-    @OptIn(markerClass = ExperimentalRetryPolicy.class)
     @VisibleForTesting
     @NonNull
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
             @NonNull CameraCoordinator cameraCoordinator,
-            @NonNull CameraSelector cameraSelector,
-            @NonNull CameraConfig cameraConfig) {
+            @NonNull CameraSelector cameraSelector) {
         try {
-            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(
-                    RetryPolicy.getDefaultRetryTimeoutInMillis() + 2000, TimeUnit.MILLISECONDS);
-            CameraInternal camera =
-                    cameraSelector.select(cameraX.getCameraRepository().getCameras());
-            return new CameraUseCaseAdapter(camera,
-                    new RestrictedCameraInfo(camera.getCameraInfoInternal(), cameraConfig),
+            CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
+                    TimeUnit.MILLISECONDS);
+            LinkedHashSet<CameraInternal> cameras =
+                    cameraSelector.filter(cameraX.getCameraRepository().getCameras());
+            return new CameraUseCaseAdapter(cameras,
                     cameraCoordinator,
                     cameraX.getCameraDeviceSurfaceManager(),
                     cameraX.getDefaultConfigFactory());
@@ -665,22 +658,7 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
-        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(),
-                cameraSelector, CameraConfigs.defaultConfig());
-    }
-
-    /**
-     * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
-     * CameraConfig
-     */
-    @VisibleForTesting
-    @NonNull
-    public static CameraUseCaseAdapter createCameraUseCaseAdapter(
-            @NonNull Context context,
-            @NonNull CameraSelector cameraSelector,
-            @NonNull CameraConfig cameraConfig) {
-        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(),
-                cameraSelector, cameraConfig);
+        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(), cameraSelector);
     }
 
     /**
@@ -851,22 +829,6 @@ public final class CameraUtil {
             }
         }
         return null;
-    }
-
-    /**
-     * Gets the {@link CameraCharacteristics} by specified camera id.
-     *
-     * @return the camera characteristics for the given camera id or {@code null} if it can't
-     * be retrieved.
-     */
-    @Nullable
-    public static CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId) {
-        try {
-            return getCameraCharacteristicsOrThrow(cameraId);
-        } catch (RuntimeException e) {
-            Logger.e(LOG_TAG, "Unable to get CameraCharacteristics.", e);
-            return null;
-        }
     }
 
     /**
@@ -1057,6 +1019,46 @@ public final class CameraUtil {
     }
 
     /**
+     * Retrieves the max high resolution output size if the camera has high resolution output sizes
+     * with the specified lensFacing.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return the max high resolution output size if the camera has high resolution output sizes
+     * with the specified LensFacing. Returns null otherwise.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    @Nullable
+    public static Size getMaxHighResolutionOutputSizeWithLensFacing(
+            @CameraSelector.LensFacing int lensFacing, int imageFormat) {
+        @SupportedLensFacingInt
+        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
+        for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
+            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null || cameraLensFacing != lensFacingInteger) {
+                continue;
+            }
+
+            StreamConfigurationMap map = characteristics.get(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                @SuppressLint("ClassVerificationFailure")
+                Size[] highResolutionOutputSizes = map.getHighResolutionOutputSizes(imageFormat);
+
+                if (highResolutionOutputSizes == null || Arrays.asList(
+                        highResolutionOutputSizes).isEmpty()) {
+                    return null;
+                }
+
+                Arrays.sort(highResolutionOutputSizes, new CompareSizesByArea(true));
+                return highResolutionOutputSizes[0];
+            }
+        }
+        return null;
+    }
+
+    /**
      * Grant the camera permission and test the camera.
      *
      * <p>It will
@@ -1188,8 +1190,7 @@ public final class CameraUtil {
             if (deviceHolder.get() == null) {
                 ret = false;
             }
-            if (Build.HARDWARE.equalsIgnoreCase("universal7420")
-                    || Build.HARDWARE.equalsIgnoreCase("samsungexynos7420")) {
+            if (Build.MODEL.equalsIgnoreCase("sm-g920v")) {
                 // Please see b/305835396
                 TimeUnit.SECONDS.sleep(1);
             }

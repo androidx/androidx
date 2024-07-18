@@ -25,7 +25,7 @@ import androidx.graphics.surface.SurfaceControlCompat
 /**
  * Class responsible for computing the corresponding transformations necessary to support
  * pre-rotation.
- * Consumers are expected to use the corresponding [bufferWidth] and [bufferHeight] parameters to configure
+ * Consumers are expected to use the corresponding [glWidth] and [glHeight] parameters to configure
  * with [GLES20.glViewport] as well as [transform] that should be consumed in any
  * vertex shader computations
  */
@@ -42,10 +42,10 @@ internal class BufferTransformer {
 
     var logicalHeight = 0
         private set
-    var bufferWidth = 0
+    var glWidth = 0
         private set
 
-    var bufferHeight = 0
+    var glHeight = 0
         private set
 
     var computedTransform: Int = BufferTransformHintResolver.UNKNOWN_TRANSFORM
@@ -76,15 +76,15 @@ internal class BufferTransformer {
         val fHeight = height.toFloat()
         logicalWidth = width
         logicalHeight = height
-        bufferWidth = width
-        bufferHeight = height
+        glWidth = width
+        glHeight = height
         computedTransform = transformHint
         when (transformHint) {
             SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
                 Matrix.setRotateM(mViewTransform, 0, -90f, 0f, 0f, 1f)
                 Matrix.translateM(mViewTransform, 0, -fWidth, 0f, 0f)
-                bufferWidth = height
-                bufferHeight = width
+                glWidth = height
+                glHeight = width
             }
             SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
                 Matrix.setRotateM(mViewTransform, 0, 180f, 0f, 0f, 1f)
@@ -93,8 +93,8 @@ internal class BufferTransformer {
             SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
                 Matrix.setRotateM(mViewTransform, 0, 90f, 0f, 0f, 1f)
                 Matrix.translateM(mViewTransform, 0, 0f, -fHeight, 0f)
-                bufferWidth = height
-                bufferHeight = width
+                glWidth = height
+                glHeight = width
             }
             SurfaceControlCompat.BUFFER_TRANSFORM_IDENTITY -> {
                 Matrix.setIdentityM(mViewTransform, 0)
@@ -106,4 +106,25 @@ internal class BufferTransformer {
             }
         }
     }
+
+    fun configureMatrix(matrix: android.graphics.Matrix): android.graphics.Matrix =
+        matrix.apply {
+            when (computedTransform) {
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_90 -> {
+                    setRotate(270f)
+                    postTranslate(0f, logicalWidth.toFloat())
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_180 -> {
+                    setRotate(180f)
+                    postTranslate(logicalWidth.toFloat(), logicalHeight.toFloat())
+                }
+                SurfaceControlCompat.BUFFER_TRANSFORM_ROTATE_270 -> {
+                    setRotate(90f)
+                    postTranslate(logicalHeight.toFloat(), 0f)
+                }
+                else -> {
+                    reset()
+                }
+            }
+        }
 }

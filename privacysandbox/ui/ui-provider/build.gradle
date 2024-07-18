@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -34,7 +27,9 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation project(path: ':privacysandbox:ui:ui-core')
-    implementation("androidx.core:core:1.12.0")
+    // For BundleCompat#getBinder.
+    // TODO(b/280561849): Use stable version when available.
+    implementation("androidx.core:core:1.12.0-alpha05")
     implementation(libs.kotlinCoroutinesCore)
 
     androidTestImplementation(libs.junit)

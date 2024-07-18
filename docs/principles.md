@@ -38,7 +38,7 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 -   Include only functionality that is relevant to the library's stated use case
     -   End user and developer trust depend on libraries being transparent about
         their operation. See
-        [Functionality](/docs/api_guidelines#functionality) in
+        [Functionality](/company/teams/androidx/api_guidelines#functionality) in
         the API Guidelines for details.
 
 ### 3. Aware of the existing developer ecosystem
@@ -66,7 +66,7 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 -   Comply with AndroidX checks and policies such as API tracking and style
     checks
 -   See
-    [Integrating proprietary components](/docs/open_source.md)
+    [Integrating proprietary components](/company/teams/androidx/open_source.md)
     for guidance on using closed-source and proprietary libraries and services
 
 ### 6. Written using language-idiomatic APIs
@@ -85,9 +85,6 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
 
 -   Guide developers toward using existing Jetpack best-practice libraries,
     including Architecture Components
--   Libraries that involve user interfaces, e.g. any reference to `View`
-    classes, must provide non-`View` functional parity when used with the
-    Compose UI toolkit
 
 ### 9. Designed for tooling and testability
 
@@ -121,7 +118,7 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
     new libraries should be written in Kotlin, compile using the latest stable
     Android SDK, and assume that clients are using the latest stable versions of
     Android Studio, Gradle, and AGP. See the
-    [AndroidX API Guidelines](/docs/api_guidelines/index.md#dependencies-kotlin)
+    [AndroidX API Guidelines](/company/teams/androidx/api_guidelines/index.md#dependencies-kotlin)
     for more details, including the use of Java sources and `-ktx` artifacts.
 
 ### 14. High quality APIs and ownership

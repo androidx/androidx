@@ -60,11 +60,7 @@ internal sealed class KspArrayType(
         typeAlias: KSType? = null,
     ) : KspArrayType(env, ksType, originalKSAnnotations, scope, typeAlias) {
         override fun resolveJTypeName(): JTypeName {
-            return if (ksType.arguments.single().variance == Variance.CONTRAVARIANT) {
-                JArrayTypeName.of(JTypeName.OBJECT)
-            } else {
-                JArrayTypeName.of(componentType.asTypeName().java.box())
-            }
+            return JArrayTypeName.of(componentType.asTypeName().java.box())
         }
 
         override fun resolveKTypeName(): KTypeName {
@@ -159,11 +155,7 @@ internal sealed class KspArrayType(
                     listOf(
                         env.resolver.getTypeArgument(
                             componentType.ksType.createTypeReference(),
-                            if (componentType is KspTypeArgumentType) {
-                                componentType.typeArg.variance
-                            } else {
-                                Variance.INVARIANT
-                            }
+                            Variance.INVARIANT
                         )
                     )
                 ),

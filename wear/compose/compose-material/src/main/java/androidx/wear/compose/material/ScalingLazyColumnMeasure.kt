@@ -240,7 +240,7 @@ internal class DefaultScalingParams(
         if (minTransitionArea != other.minTransitionArea) return false
         if (maxTransitionArea != other.maxTransitionArea) return false
         if (scaleInterpolator != other.scaleInterpolator) return false
-        if (viewportVerticalOffsetResolver !== other.viewportVerticalOffsetResolver) return false
+        if (viewportVerticalOffsetResolver != other.viewportVerticalOffsetResolver) return false
 
         return true
     }

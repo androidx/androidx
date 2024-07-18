@@ -20,10 +20,12 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.RequestProcessor;
-import androidx.camera.extensions.internal.RequestOptionConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +35,7 @@ import java.util.Map;
 /**
  * A builder for building {@link androidx.camera.core.impl.RequestProcessor.Request}.
  */
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class RequestBuilder {
     private List<Integer> mTargetOutputConfigIds = new ArrayList<>();
@@ -88,14 +91,14 @@ class RequestBuilder {
             mTemplateId = templateId;
             mCaptureStageId = captureStageId;
 
-            RequestOptionConfig.Builder requestOptionBuilder = new RequestOptionConfig.Builder();
+            Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();
             for (CaptureRequest.Key<?> key : parameters.keySet()) {
                 @SuppressWarnings("unchecked")
                 CaptureRequest.Key<Object> objKey = (CaptureRequest.Key<Object>) key;
-                requestOptionBuilder.setCaptureRequestOption(objKey,
+                camera2ConfigBuilder.setCaptureRequestOption(objKey,
                         parameters.get(objKey));
             }
-            mParameterConfig = requestOptionBuilder.build();
+            mParameterConfig = camera2ConfigBuilder.build();
         }
 
         @Override

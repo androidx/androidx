@@ -31,6 +31,7 @@ internal fun Translations.nb() = mapOf(
     Strings.Dialog to "Dialogboks",
     Strings.MenuExpanded to "Vises",
     Strings.MenuCollapsed to "Skjules",
+    Strings.ToggleDropdownMenu to "Slå rullegardinmeny av/på",
     Strings.SnackbarDismiss to "Lukk",
     Strings.SearchBarSearch to "Søk",
     Strings.SuggestionsAvailable to "Du finner forslag nedenfor",

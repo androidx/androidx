@@ -593,15 +593,6 @@ multiple registries.
 androidx.mylibrary.lint.MyLibraryIssueRegistry
 ```
 
-Note that `lintPublish` only publishes the lint module, it doesn't include it
-when running lint on the module that `lintPublish` is attached to. In order to
-also run these lint checks as part of the module that is publishing them, you
-can add `lintChecks` in the same way.
-
-```
-lintChecks(project(':mylibrary:mylibrary-lint'))
-```
-
 ## Advanced topics
 
 ### Analyzing multiple different file types
@@ -627,28 +618,6 @@ The Lint tool processes files in a predefined order:
 
 It is often necessary to process the sources more than once. This can be done by
 using `context.driver.requestRepeat(detector, scope)`.
-
-### Debugging custom lint checks
-
-Using Android Studio, there are a few ways to debug custom lint checks:
-
-#### Debug against all lint check tests
-
-1.  Set breakpoint(s) in the desired lint detector sources
-1.  Click the `Gradle` icon on the right menu bar
-1.  Run the `lintDebug` Gradle task and then hit the `Stop` icon in the top menu
-    bar. This creates a Run configuration.
-1.  Click the `Debug` icon in the top menu bar for the newly-selected Run
-    configuration
-1.  Breakpoint will get hit
-
-#### Debug against a single lint check test
-
-1.  Set breakpoint(s) in the desired lint detector sources
-1.  Open a lint check test, such as
-    [`AnnotationRetentionDetectorTest`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:annotation/annotation-experimental-lint/src/test/kotlin/androidx/annotation/experimental/lint/AnnotationRetentionDetectorTest.kt)
-1.  Right-click on a test method and select `Debug`
-1.  Breakpoint will get hit
 
 ## Helpful tips {#tips}
 
@@ -751,14 +720,6 @@ Here are the steps to fix this:
 Note: the generated replacement code will inline the specified sample file (in
 our case, `ktSample("androidx.sample.deprecated.DeprecatedKotlinClass")`).
 Replace the inlined code with the sample declaration.
-
-### Lint checks with WARNING severity (my lint check won't run!) {#tips-warnings}
-
-In AndroidX lint checks with a severity of `WARNING` are ignored by default to
-prevent noise from bundled lint checks. If your lint check has this severity,
-and you want it to run inside AndroidX, you'll need to override the severity: in
-Compose for example this happens in
-[AndroidXComposeLintIssues](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/private/src/main/kotlin/androidx/build/AndroidXComposeLintIssues.kt).
 
 ## Helpful links
 

@@ -15,13 +15,6 @@
   -->
 
 <resources>
-
-    <!-- For API 31+, reset enforceNavigationBarContrast to system default value, so it won't
-    corrupt activity's theme -->
-    <style name="Base.Theme.SplashScreen" parent="android:Theme.DeviceDefault.DayNight">
-        <item name="android:enforceNavigationBarContrast">true</item>
-    </style>
-
     <style name="Theme.SplashScreen" parent="Base.Theme.SplashScreen.DayNight">
         <item name="android:windowSplashScreenAnimatedIcon">?windowSplashScreenAnimatedIcon</item>
         <item name="android:windowSplashScreenBackground">?windowSplashScreenBackground</item>

@@ -35,11 +35,10 @@ class MapQueryResultAdapter(
                 typeName = mapValueResultAdapter.getDeclarationTypeName(),
                 assignExpr = XCodeBlock.ofNewInstance(
                     language,
-                    mapValueResultAdapter.getInstantiationTypeName(language)
+                    mapValueResultAdapter.getInstantiationTypeName()
                 )
             )
-            val stepName = if (scope.useDriverApi) "step" else "moveToNext"
-            beginControlFlow("while (%L.$stepName())", cursorVarName).apply {
+            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
                 mapValueResultAdapter.convert(
                     scope,
                     outVarName,
@@ -71,5 +70,4 @@ class MapQueryResultAdapter(
             }
         }
     }
-    override fun isMigratedToDriver(): Boolean = mapValueResultAdapter.isMigratedToDriver()
 }

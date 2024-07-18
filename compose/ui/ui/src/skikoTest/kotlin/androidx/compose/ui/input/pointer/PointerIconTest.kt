@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.LocalPointerIconService
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
-import androidx.compose.ui.scene.SingleLayerComposeScene
+import androidx.compose.ui.scene.PlatformLayersComposeScene
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runSkikoComposeUiTest
 import androidx.compose.ui.unit.IntSize
@@ -346,7 +346,7 @@ private fun SingleLayerComposeScene(
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     platformContext: PlatformContext,
     invalidate: () -> Unit = {},
-) = SingleLayerComposeScene(
+) = PlatformLayersComposeScene(
     coroutineContext = coroutineContext,
     composeSceneContext = object : ComposeSceneContext {
         override val platformContext get() = platformContext

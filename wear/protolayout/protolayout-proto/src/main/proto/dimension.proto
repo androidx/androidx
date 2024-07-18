@@ -12,23 +12,21 @@ option java_outer_classname = "DimensionProto";
 
 // A type for linear dimensions, measured in dp.
 message DpProp {
+
   oneof optional_value {
-    // The static value, in dp. If a dynamic value is also set and the renderer
-    // supports dynamic values for the corresponding field, this static value
-    // will be ignored. If the static value is not specified, zero will be used
-    // instead.
+    // The static value, in dp. If a dynamic value is also set and the renderer supports
+    // dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
     float value = 1;
   }
 
-  // The dynamic value, in dp. Note that when setting this value, the static
-  // value is still required to be set to support older renderers that only read
-  // the static value. If {@code dynamicValue} has an invalid result, the
-  // provided static value will be used instead.
+  // The dynamic value, in dp. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
   androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
 
   oneof optional_value_for_layout {
-    // The fixed value to reserve the space when used on a layout-changing data
-    // bind.
     float value_for_layout = 3;
   }
 
@@ -82,36 +80,28 @@ message ExpandedAngularDimensionProp {
   // angular dimension for this element will be layout_weight times the
   // available space divided by the sum of the layout_weights. If not set this
   // defaults to 1.
-  //
-  // <p>Note that negative values are not supported and it can lead to
-  // unexpected behaviour.
   FloatProp layout_weight = 1;
 }
 
 // A type for angular dimensions, measured in degrees.
 message DegreesProp {
+
   oneof optional_value {
-    // The static value, in degrees. If a dynamic value is also set and the
-    // renderer supports dynamic values for the corresponding field, this static
-    // value will be ignored. If the static value is not specified, zero will be
-    // used instead.
+    // The static value, in degrees. If a dynamic value is also set and the renderer
+    // supports dynamic values for the corresponding field, this static value will be
+    // ignored. If the static value is not specified, zero will be used instead.
     float value = 1;
   }
 
-  // The dynamic value, in degrees. Note that when setting this value, the
-  // static value is still required to be set to support older renderers that
-  // only read the static value. If {@code dynamicValue} has an invalid result,
-  // the provided static value will be used instead.
+  // The dynamic value, in degrees. Note that when setting this value, the static value is
+  // still required to be set to support older renderers that only read the
+  // static value. If {@code dynamicValue} has an invalid result, the provided
+  // static value will be used instead.
   androidx.wear.protolayout.expression.proto.DynamicFloat dynamic_value = 2;
 
   oneof optional_value_for_layout {
-    // The fixed value to reserve the space when used on a layout-changing data
-    // bind.
     float value_for_layout = 3;
   }
-
-  // Angular alignment of the actual content within the space reserved by
-  // value_for_layout. If not specified, defaults to center alignment.
   AngularAlignment angular_alignment_for_layout = 4;
 }
 
@@ -123,9 +113,6 @@ message ExpandedDimensionProp {
   // of a Column. By default, all children have equal weight. Where applicable,
   // the width or height of the element is proportional to the sum of the
   // weights of its siblings.
-  //
-  // <p>Note that negative values are not supported and it can lead to
-  // unexpected behaviour.
   FloatProp layout_weight = 1;
 }
 
@@ -176,7 +163,6 @@ message ImageDimension {
 message SpacerDimension {
   oneof inner {
     DpProp linear_dimension = 1;
-    ExpandedDimensionProp expanded_dimension = 2;
   }
 }
 
@@ -184,25 +170,5 @@ message SpacerDimension {
 message ExtensionDimension {
   oneof inner {
     DpProp linear_dimension = 1;
-  }
-}
-
-// Provide a position representation proportional to the bounding box width/height.
-message BoundingBoxRatio {
-  // The ratio proportional to the bounding box width/height. value 0 represents the location at the
-  // top / left of the bounding box and value 1 represents the location at the bottom / end of the
-  // bounding box. Its default value 0.5 represents the middle of the bounding box. Values
-  // outside [0, 1] are also valid. Dynamic value is supported.
-  FloatProp ratio = 1;
-}
-
-// A dimension that can be applied to a pivot location for scale and rotate transformations.
-message PivotDimension {
-  oneof inner {
-    // Location in dp, with the default pivot (view center) as 0
-    DpProp offset_dp = 1;
-    // Location proportion to bounding box, with the bounding box top / start as
-    // 0 and bottom / end as 1. Values outside [0, 1] are also valid.
-    BoundingBoxRatio location_ratio = 2;
   }
 }

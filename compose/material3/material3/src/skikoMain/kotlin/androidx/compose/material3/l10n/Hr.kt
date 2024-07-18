@@ -31,6 +31,7 @@ internal fun Translations.hr() = mapOf(
     Strings.Dialog to "Dijaloški okvir",
     Strings.MenuExpanded to "Prošireno",
     Strings.MenuCollapsed to "Sažeto",
+    Strings.ToggleDropdownMenu to "Prekidač za padajući izbornik",
     Strings.SnackbarDismiss to "Odbaci",
     Strings.SearchBarSearch to "Pretraživanje",
     Strings.SuggestionsAvailable to "Prijedlozi su u nastavku",

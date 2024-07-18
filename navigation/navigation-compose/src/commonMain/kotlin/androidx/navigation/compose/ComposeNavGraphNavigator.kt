@@ -28,8 +28,8 @@ import androidx.navigation.NavigatorProvider
 import kotlin.jvm.JvmSuppressWildcards
 
 /**
- * Custom subclass of [NavGraphNavigator] that adds support for defining
- * transitions at the navigation graph level.
+ * Custom subclass of [NavGraphNavigator] that adds support for defining transitions at the
+ * navigation graph level.
  */
 internal expect class ComposeNavGraphNavigator(
     navigatorProvider: NavigatorProvider
@@ -37,19 +37,24 @@ internal expect class ComposeNavGraphNavigator(
     internal class ComposeNavGraph(
         navGraphNavigator: Navigator<out NavGraph>
     ) : NavGraph {
-        internal var enterTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?
+        internal var enterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?
 
-        internal var exitTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?
+        internal var exitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?
 
-        internal var popEnterTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?
+        internal var popEnterTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)?
 
-        internal var popExitTransition: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?
+        internal var popExitTransition:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)?
 
-        internal var sizeTransform: (@JvmSuppressWildcards
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)?
+        internal var sizeTransform:
+            (@JvmSuppressWildcards
+            AnimatedContentTransitionScope<NavBackStackEntry>.() -> SizeTransform?)?
     }
 }

@@ -23,6 +23,8 @@ import java.lang.reflect.Field
 
 /**
  * Data object holding error state for IPC method calls.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ErrorStatus

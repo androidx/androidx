@@ -64,6 +64,7 @@ public class AppCompatImeFocusActivity extends BaseTestActivity {
         mLayout.addView(mEditText2);
     }
 
+    @RequiresApi(19)
     public boolean isSecondEditorLayout() {
         return mEditText2.isLaidOut();
     }

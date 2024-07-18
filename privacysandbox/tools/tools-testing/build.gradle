@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -38,7 +31,7 @@ dependencies {
 
 androidx {
     name = "androidx.privacysandbox.tools:tools-testing"
-    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Testing utilities for privacysandbox tools."
 }

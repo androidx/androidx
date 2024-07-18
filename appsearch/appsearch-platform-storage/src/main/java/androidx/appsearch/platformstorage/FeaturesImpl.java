@@ -34,17 +34,6 @@ import androidx.core.util.Preconditions;
 final class FeaturesImpl implements Features {
     private static final String APPSEARCH_MODULE_NAME = "com.android.appsearch";
 
-    // This will be set to -1 to indicate the AppSearch version code hasn't bee checked, then to
-    // 0 if it is not found, or the version code if it is found.
-    private static volatile long sAppSearchVersionCode = -1;
-
-    // Context is used to check mainline module version, as support varies by module version.
-    private final Context mContext;
-
-    FeaturesImpl(@NonNull Context context) {
-        mContext = Preconditions.checkNotNull(context);
-    }
-
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
@@ -103,42 +92,29 @@ final class FeaturesImpl implements Features {
     }
 
     @Override
-    public int getMaxIndexedProperties() {
+    public int getMaxIndexedProperties(@NonNull Context context) {
+        Preconditions.checkNotNull(context);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             return 64;
         } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.TIRAMISU) {
+            PackageManager packageManager = context.getPackageManager();
+            long appsearchVersionCode = 0;
+            try {
+                String appSearchPackageName = ApiHelperForQ.getAppSearchPackageName(packageManager);
+                if (appSearchPackageName == null) {
+                    return 16;
+                }
+                PackageInfo pInfo = packageManager
+                        .getPackageInfo(appSearchPackageName, PackageManager.MATCH_APEX);
+                appsearchVersionCode = ApiHelperForQ.getPackageInfoLongVersionCode(pInfo);
+            } catch (PackageManager.NameNotFoundException e) {
+                // Module not installed
+            }
             // Sixty-four properties were enabled in mainline module 'aml_ase_331311020'
-            return getAppSearchVersionCode(mContext) >= 331311020 ? 64 : 16;
+            return appsearchVersionCode >= 331311020 ? 64 : 16;
         } else {
             return 16;
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private static long getAppSearchVersionCode(Context context) {
-        if (sAppSearchVersionCode != -1) {
-            return sAppSearchVersionCode;
-        }
-        synchronized (FeaturesImpl.class) {
-            // Check again in case it was assigned while waiting
-            if (sAppSearchVersionCode == -1) {
-                long appsearchVersionCode = 0;
-                try {
-                    PackageManager packageManager = context.getPackageManager();
-                    String appSearchPackageName =
-                            ApiHelperForQ.getAppSearchPackageName(packageManager);
-                    if (appSearchPackageName != null) {
-                        PackageInfo pInfo = packageManager
-                                .getPackageInfo(appSearchPackageName, PackageManager.MATCH_APEX);
-                        appsearchVersionCode = ApiHelperForQ.getPackageInfoLongVersionCode(pInfo);
-                    }
-                } catch (PackageManager.NameNotFoundException e) {
-                    // Module not installed
-                }
-                sAppSearchVersionCode = appsearchVersionCode;
-            }
-        }
-        return sAppSearchVersionCode;
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)

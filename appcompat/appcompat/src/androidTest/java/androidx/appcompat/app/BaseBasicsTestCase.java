@@ -149,6 +149,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @Test
     @SdkSuppress(maxSdkVersion = 20)
+    @RequiresApi(16)
     public void testFitSystemWindowsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -222,7 +223,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28, maxSdkVersion = 33) // maxSdk 33 b/322355781
+    @SdkSuppress(minSdkVersion = 28)
     @RequiresApi(28)
     public void testOnApplyWindowInsetsReachesContent_withDisplayCutout() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
@@ -386,6 +387,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
         verify(apCallback).onSupportActionModeFinished(any(ActionMode.class));
     }
 
+    @RequiresApi(16)
     private WindowInsetsCompat waitForWindowInsets(@NonNull final View view) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();

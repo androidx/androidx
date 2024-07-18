@@ -16,17 +16,11 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.semantics
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.min
@@ -72,34 +66,6 @@ private fun ImageBitmap.histogram(): MutableMap<Color, Long> {
         }
     }
     return histogram
-}
-
-/**
- * Applies a tag to allow modified curved container element to be found in tests. This is similar to
- * [Modifier.testTag], but specifically for curved containers.
- *
- * This is a convenience method for a [semantics] that sets [SemanticsPropertyReceiver.testTag].
- * Currently, this supports basic assert operations operations only.
- *
- * @param tag The tag to apply to the curved container.
- */
-public fun CurvedModifier.testTag(
-    tag: String
-) = this.then { child ->
-    TestTagWrapper(child, tag)
-}
-
-private class TestTagWrapper(
-    val child: CurvedChild,
-    val tag: String
-) : BaseCurvedChildWrapper(child) {
-
-    @Composable
-    override fun SubComposition() {
-        Box(modifier = Modifier.testTag(tag)) {
-            super.SubComposition()
-        }
-    }
 }
 
 internal fun checkSpy(dimensions: RadialDimensions, capturedInfo: CapturedInfo) =

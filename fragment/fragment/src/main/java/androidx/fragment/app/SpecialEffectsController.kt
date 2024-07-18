@@ -20,6 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.BackEventCompat
 import androidx.annotation.CallSuper
+import androidx.core.os.CancellationSignal
+import androidx.core.view.ViewCompat
 import androidx.fragment.R
 import androidx.fragment.app.SpecialEffectsController.Operation.State.Companion.asOperationState
 
@@ -202,7 +204,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         }
         // If the container is not attached to the window, ignore the special effect
         // since none of the special effect systems will run them anyway.
-        if (!container.isAttachedToWindow()) {
+        if (!ViewCompat.isAttachedToWindow(container)) {
             forceCompleteAllOperations()
             operationDirectionIsPop = false
             return
@@ -267,10 +269,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 var seekable = true
                 var transitioning = true
                 newPendingOperations.forEach { operation ->
-                    seekable = operation.effects.isNotEmpty() &&
-                        operation.effects.all { effect ->
-                            effect.isSeekingSupported
-                        }
+                    seekable = operation.effects.all { effect ->
+                        effect.isSeekingSupported
+                    }
                     if (!operation.fragment.mTransitioning) {
                         transitioning = false
                     }
@@ -314,7 +315,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                 "SpecialEffectsController: Forcing all operations to complete"
             )
         }
-        val attachedToWindow = container.isAttachedToWindow()
+        val attachedToWindow = ViewCompat.isAttachedToWindow(container)
         synchronized(pendingOperations) {
             updateFinalState()
             processStart(pendingOperations)
@@ -387,7 +388,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
      * Commit all of the given operations.
      *
      * This commits all of the effects of the operations. When the last started special effect is
-     * completed, [Operation.completeEffect] will call [Operation.complete] automatically.
+     * completed, [Operation.completeSpecialEffect] will call [Operation.complete] automatically.
      *
      * @param operations the list of operations to execute in order.
      */
@@ -525,6 +526,20 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             )
                         }
                         val parent = view.parent as? ViewGroup
+                        // For transitions it is possible that we complete the operation while
+                        // the view is still parented by the ViewOverlay so we need to make sure
+                        // the container is the proper view.
+                        if (parent != null && parent != container) {
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(
+                                    FragmentManager.TAG, "SpecialEffectsController: " +
+                                        "Swapping view $view from parent $parent to Container " +
+                                        "$container"
+                                )
+                            }
+                            parent.removeView(view)
+                            container.addView(view)
+                        }
                         if (parent == null) {
                             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                                 Log.v(
@@ -721,6 +736,18 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         @CallSuper
         open fun onStart() {
             isStarted = true
+        }
+
+        /**
+         * Complete a [CancellationSignal].
+         *
+         * This calls through to [Operation.complete] when the last special effect is
+         * complete.
+         */
+        fun completeSpecialEffect() {
+            if (effects.isEmpty()) {
+                complete()
+            }
         }
 
         /**

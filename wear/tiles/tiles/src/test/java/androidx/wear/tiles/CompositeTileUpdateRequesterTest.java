@@ -24,18 +24,19 @@ import android.os.IBinder;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.ResourceBuilders;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@RunWith(AndroidJUnit4.class)
+import java.util.List;
+
+@RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CompositeTileUpdateRequesterTest {
     private FakeUpdateRequester mFakeUpdateRequester1;
@@ -50,7 +51,7 @@ public class CompositeTileUpdateRequesterTest {
 
         mCompositeTileUpdateRequesterUnderTest =
                 new CompositeTileUpdateRequester(
-                    ImmutableList.of(mFakeUpdateRequester1, mFakeUpdateRequester2));
+                        List.of(mFakeUpdateRequester1, mFakeUpdateRequester2));
     }
 
     @Test
@@ -61,7 +62,7 @@ public class CompositeTileUpdateRequesterTest {
         assertThat(mFakeUpdateRequester2.mCalledService).isEqualTo(FakeService.class);
     }
 
-    private static class FakeUpdateRequester implements TileUpdateRequester {
+    private class FakeUpdateRequester implements TileUpdateRequester {
         @Nullable Class<? extends TileService> mCalledService = null;
 
         @Override
@@ -70,7 +71,7 @@ public class CompositeTileUpdateRequesterTest {
         }
     }
 
-    private static class FakeService extends TileService {
+    private class FakeService extends TileService {
         @NonNull
         @Override
         protected ListenableFuture<TileBuilders.Tile> onTileRequest(

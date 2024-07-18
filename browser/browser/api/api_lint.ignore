@@ -5,6 +5,10 @@ AcronymName: androidx.browser.customtabs.CustomTabsIntent#shouldAlwaysUseBrowser
     Acronyms should not be capitalized in method names: was `shouldAlwaysUseBrowserUI`, should this be `shouldAlwaysUseBrowserUi`?
 
 
+ActionValue: androidx.browser.browseractions.BrowserActionsIntent#ACTION_BROWSER_ACTIONS_OPEN:
+    Inconsistent action value; expected `androidx.browser.browseractions.action.BROWSER_ACTIONS_OPEN`, was `androidx.browser.browseractions.browser_action_open`
+ActionValue: androidx.browser.browseractions.BrowserActionsIntent#EXTRA_APP_ID:
+    Inconsistent extra value; expected `androidx.browser.browseractions.extra.APP_ID`, was `androidx.browser.browseractions.APP_ID`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ACTION_BUTTON_BUNDLE:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.ACTION_BUTTON_BUNDLE`, was `android.support.customtabs.extra.ACTION_BUTTON_BUNDLE`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_CLOSE_BUTTON_ICON:
@@ -73,8 +77,14 @@ CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback#extraCallback
     Callback method names must follow the on<Something> style: extraCallbackWithResult
 
 
-ExecutorRegistration: androidx.browser.customtabs.CustomTabsClient#newPendingSession(android.content.Context, androidx.browser.customtabs.CustomTabsCallback, int):
-    Registration methods should have overload that accepts delivery Executor: `newPendingSession`
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>, android.app.PendingIntent) parameter #3:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#parseBrowserActionItems(java.util.ArrayList<android.os.Bundle>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
 ExecutorRegistration: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int):
     Registration methods should have overload that accepts delivery Executor: `newSession`
 ExecutorRegistration: androidx.browser.trusted.TrustedWebActivityServiceConnection#sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback):
@@ -87,6 +97,10 @@ GetterOnBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#getUri
     Getter should be on the built object, not the builder: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.getUri()
 
 
+IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
+    Intent action constant name must be ACTION_FOO: KEY_ACTION
+
+
 InvalidNullabilityOverride: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #0:
     Invalid nullability on parameter `name` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.browser.customtabs.CustomTabsServiceConnection#onServiceConnected(android.content.ComponentName, android.os.IBinder) parameter #1:
@@ -97,14 +111,22 @@ InvalidNullabilityOverride: androidx.browser.customtabs.PostMessageServiceConnec
     Invalid nullability on parameter `service` in method `onServiceConnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.browser.customtabs.PostMessageServiceConnection#onServiceDisconnected(android.content.ComponentName) parameter #0:
     Invalid nullability on parameter `name` in method `onServiceDisconnected`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.browser.trusted.TrustedWebActivityService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 
 
-ListenerLast: androidx.browser.customtabs.CustomTabsClient#newPendingSession(android.content.Context, androidx.browser.customtabs.CustomTabsCallback, int) parameter #2:
-    Listeners should always be at end of argument list (method `newPendingSession`)
 ListenerLast: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `newSession`)
 
 
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(androidx.browser.browseractions.BrowserActionItem...):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getCustomItems()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setCustomItems(androidx.browser.browseractions.BrowserActionItem...)
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getCustomItems()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>)
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setOnItemSelectedAction(android.app.PendingIntent):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getOnItemSelectedAction()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setOnItemSelectedAction(android.app.PendingIntent)
+MissingGetterMatchingBuilder: androidx.browser.browseractions.BrowserActionsIntent.Builder#setUrlType(int):
+    androidx.browser.browseractions.BrowserActionsIntent does not declare a `getUrlType()` method matching method androidx.browser.browseractions.BrowserActionsIntent.Builder.setUrlType(int)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabColorSchemeParams.Builder#setNavigationBarColor(int):
     androidx.browser.customtabs.CustomTabColorSchemeParams does not declare a `getNavigationBarColor()` method matching method androidx.browser.customtabs.CustomTabColorSchemeParams.Builder.setNavigationBarColor(int)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabColorSchemeParams.Builder#setNavigationBarDividerColor(int):
@@ -129,8 +151,6 @@ MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Build
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getExitAnimations()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setExitAnimations(android.content.Context,int,int)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setInstantAppsEnabled(boolean):
     androidx.browser.customtabs.CustomTabsIntent does not declare a `isInstantAppsEnabled()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setInstantAppsEnabled(boolean)
-MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setPendingSession(androidx.browser.customtabs.CustomTabsSession.PendingSession):
-    androidx.browser.customtabs.CustomTabsIntent does not declare a `getPendingSession()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setPendingSession(androidx.browser.customtabs.CustomTabsSession.PendingSession)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setSecondaryToolbarViews(android.widget.RemoteViews, int[], android.app.PendingIntent):
     androidx.browser.customtabs.CustomTabsIntent does not declare a `getSecondaryToolbarViews()` method matching method androidx.browser.customtabs.CustomTabsIntent.Builder.setSecondaryToolbarViews(android.widget.RemoteViews,int[],android.app.PendingIntent)
 MissingGetterMatchingBuilder: androidx.browser.customtabs.CustomTabsIntent.Builder#setSession(androidx.browser.customtabs.CustomTabsSession):

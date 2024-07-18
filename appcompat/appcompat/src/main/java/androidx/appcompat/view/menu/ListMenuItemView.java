@@ -37,6 +37,7 @@ import android.widget.TextView;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.widget.TintTypedArray;
+import androidx.core.view.ViewCompat;
 
 /**
  * The item view for each item in the ListView-based MenuViews.
@@ -99,7 +100,7 @@ public class ListMenuItemView extends LinearLayout
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        setBackground(mBackground);
+        ViewCompat.setBackground(this, mBackground);
 
         mTitleView = findViewById(R.id.title);
         if (mTextAppearance != -1) {

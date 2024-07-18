@@ -29,13 +29,13 @@ package androidx.emoji2.emojipicker {
   }
 
   public interface RecentEmojiProvider {
-    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
     method public void recordSelection(String emoji);
   }
 
   public final class RecentEmojiProviderAdapter implements androidx.emoji2.emojipicker.RecentEmojiProvider {
     ctor public RecentEmojiProviderAdapter(androidx.emoji2.emojipicker.RecentEmojiAsyncProvider recentEmojiAsyncProvider);
-    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<java.lang.String>>);
+    method public suspend Object? getRecentEmojiList(kotlin.coroutines.Continuation<? super java.util.List<? extends java.lang.String>>);
     method public void recordSelection(String emoji);
   }
 

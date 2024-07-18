@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("deprecation")
-
 package androidx.security.crypto
 
 import android.content.Context
@@ -32,7 +30,6 @@ import androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionSc
  * @param prefValueEncryptionScheme The scheme to use for encrypting values.
  * @return The SharedPreferences instance that encrypts all data.
  */
-@Deprecated("Use android.content.SharedPreferences instead")
 public fun EncryptedSharedPreferences(
     context: Context,
     fileName: String,

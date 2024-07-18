@@ -71,7 +71,6 @@ fun ColorProviders(
         inverseOnSurface = ColorProvider(ColorNotDefined, ColorNotDefined),
         inverseSurface = ColorProvider(ColorNotDefined, ColorNotDefined),
         inversePrimary = ColorProvider(ColorNotDefined, ColorNotDefined),
-        widgetBackground = background,
     )
 }
 
@@ -120,7 +119,6 @@ fun ColorProviders(
         inverseOnSurface = ColorProvider(ColorNotDefined, ColorNotDefined),
         inverseSurface = ColorProvider(ColorNotDefined, ColorNotDefined),
         inversePrimary = ColorProvider(ColorNotDefined, ColorNotDefined),
-        widgetBackground = background,
     )
 }
 

@@ -16,37 +16,32 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates;
 
-import static android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE;
-
 import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.model.CarColor.GREEN;
 import static androidx.car.app.model.CarColor.RED;
 import static androidx.car.app.model.CarColor.YELLOW;
 
 import android.graphics.BitmapFactory;
-import android.text.SpannableStringBuilder;
+import android.text.SpannableString;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.StringRes;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.ForegroundCarColorSpan;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.common.SpannableStringBuilderAnnotationExtensions;
+import androidx.car.app.sample.showcase.common.common.Utils;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** Creates a screen that shows different types of texts and icons. */
 public final class TextAndIconsDemosScreen extends Screen {
 
-    private static final String FULL_STAR = "★";
-    private static final String HALF_STAR = "½";
+    private static final String FULL_STAR = "\u2605";
+    private static final String HALF_STAR = "\u00BD";
 
     public TextAndIconsDemosScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -55,6 +50,7 @@ public final class TextAndIconsDemosScreen extends Screen {
     @NonNull
     @Override
     public Template onGetTemplate() {
+
         ItemList.Builder listBuilder = new ItemList.Builder();
 
         listBuilder.addItem(buildRowForTemplate(R.string.title_with_app_icon_row_title,
@@ -67,11 +63,11 @@ public final class TextAndIconsDemosScreen extends Screen {
                 buildCarIconWithResource(R.drawable.banana)));
 
         listBuilder.addItem(buildRowForTemplate(R.string.title_with_res_id_image_row_title,
-                buildSecondaryText(R.string.example_1_text),
+                buildSecondaryText(R.string.example_1_text, RED, 16, 3),
                 buildCarIconWithResource(R.drawable.ic_fastfood_white_48dp, RED)));
 
         listBuilder.addItem(buildRowForTemplate(R.string.title_with_svg_image_row_title,
-                buildSecondaryText(R.string.example_2_text),
+                buildSecondaryText(R.string.example_2_text, GREEN, 16, 5),
                 buildCarIconWithResource(R.drawable.ic_emoji_food_beverage_white_48dp, GREEN)));
 
         listBuilder.addItem(buildRowForTemplate(R.string.colored_secondary_row_title,
@@ -79,10 +75,8 @@ public final class TextAndIconsDemosScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext().getString(R.string.text_icons_demo_title))
-                        .setStartHeaderAction(BACK)
-                        .build())
+                .setTitle(getCarContext().getString(R.string.text_icons_demo_title))
+                .setHeaderAction(BACK)
                 .build();
 
     }
@@ -114,21 +108,11 @@ public final class TextAndIconsDemosScreen extends Screen {
     }
 
     /**
-     * build a colored line of secondary text using a specific CarColor and some custom text
-     */
-    private CharSequence buildSecondaryText(@StringRes int textId) {
-        SpannableStringBuilder ssb =
-                SpannableStringBuilderAnnotationExtensions.getSpannableStringBuilder(
-                        getCarContext(), textId);
-        SpannableStringBuilderAnnotationExtensions.addSpanToAnnotatedPosition(ssb, "color",
-                "red", CarColor.RED);
-        SpannableStringBuilderAnnotationExtensions.addSpanToAnnotatedPosition(ssb, "color",
-                "green", CarColor.GREEN);
-        SpannableStringBuilderAnnotationExtensions.addSpanToAnnotatedPosition(ssb, "color",
-                "blue", CarColor.BLUE);
-        SpannableStringBuilderAnnotationExtensions.addSpanToAnnotatedPosition(ssb, "color",
-                "yellow", CarColor.YELLOW);
-        return ssb;
+    * build a colored line of secondary text using a specific CarColor and some custom text
+    */
+    private CharSequence buildSecondaryText(int textId, CarColor color, int index, int length) {
+        return Utils.colorize(getCarContext().getString(textId),
+                color, index, length);
     }
 
     private Row buildRowForTemplate(int title, CharSequence text) {
@@ -159,9 +143,10 @@ public final class TextAndIconsDemosScreen extends Screen {
         for (s = "", r = ratings; r > 0; --r) {
             s += r < 1 ? HALF_STAR : FULL_STAR;
         }
-        return new SpannableStringBuilder()
-                .append(s, ForegroundCarColorSpan.create(YELLOW), SPAN_EXCLUSIVE_EXCLUSIVE)
-                .append(" ratings: ")
-                .append(ratings.toString());
+        SpannableString ss = new SpannableString(s + " ratings: " + ratings);
+        if (!s.isEmpty()) {
+            Utils.colorize(ss, YELLOW, 0, s.length());
+        }
+        return ss;
     }
 }

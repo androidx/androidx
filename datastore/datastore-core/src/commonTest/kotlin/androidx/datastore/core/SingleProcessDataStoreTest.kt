@@ -19,7 +19,6 @@ package androidx.datastore.core
 import androidx.datastore.TestFile
 import androidx.datastore.TestIO
 import androidx.datastore.TestingSerializerConfig
-import androidx.datastore.core.UpdatingDataContextElement.Companion.NESTED_UPDATE_ERROR_MESSAGE
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
@@ -38,19 +37,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
@@ -75,7 +67,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         store = testIO.getStore(
             serializerConfig,
             dataStoreScope,
-            { createSingleProcessCoordinator(testFile.path()) }
+            { createSingleProcessCoordinator() }
         ) { testFile }
     }
 
@@ -111,7 +103,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val store = testIO.getStore(
             serializerConfig,
             storeScope,
-            { createSingleProcessCoordinator(testFile.path()) }) { testFile }
+            { createSingleProcessCoordinator() }) { testFile }
 
         val collection = async {
             store.data.take(2).collect {
@@ -231,7 +223,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val newStore = testIO.getStore(
             serializerConfig,
             dataStoreScope,
-            { createSingleProcessCoordinator(testFile.path()) },
+            { createSingleProcessCoordinator() },
             fileProducer
         )
 
@@ -521,7 +513,6 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         val flowCollectionJob = async {
             store.data.take(8).toList(collectedBytes)
         }
-        runCurrent()
 
         repeat(7) {
             store.updateData { it.inc() }
@@ -547,7 +538,6 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             flowOf8.toList(bytesFromSecondCollect)
         }
 
-        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -576,7 +566,6 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
             flowOf8.take(8).toList(collectedBytes)
         }
 
-        runCurrent()
         repeat(7) {
             store.updateData { it.inc() }
         }
@@ -603,7 +592,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
                 flowCollection2.await()
             }
         }
-        runCurrent()
+
         repeat(15) {
             store.updateData { it.inc() }
         }
@@ -979,180 +968,6 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         }
     }
 
-    @Test
-    fun observeFileOnlyWhenDatastoreIsObserved() = runTest {
-        class InterProcessCoordinatorWithInfiniteUpdates(
-            val delegate: InterProcessCoordinator,
-            val observerCount: MutableStateFlow<Int> = MutableStateFlow(0)
-        ) : InterProcessCoordinator by delegate {
-            override val updateNotifications: Flow<Unit>
-                get() {
-                    return flow<Unit> {
-                        // never emit but never finish either so we know when we are being collected
-                        suspendCancellableCoroutine { }
-                    }.onStart {
-                        observerCount.update { it + 1 }
-                    }.onCompletion {
-                        observerCount.update { it - 1 }
-                    }
-                }
-        }
-        val observerCount = MutableStateFlow(0)
-        store = testIO.getStore(
-            serializerConfig,
-            dataStoreScope,
-            {
-                InterProcessCoordinatorWithInfiniteUpdates(
-                    delegate = createSingleProcessCoordinator(testFile.path()),
-                    observerCount = observerCount
-                )
-            }
-        ) { testFile }
-        fun hasObservers(): Boolean {
-            runCurrent()
-            return observerCount.value > 0
-        }
-        assertThat(hasObservers()).isFalse()
-        val collector1 = async {
-            store.data.collect {}
-        }
-        runCurrent()
-        assertThat(hasObservers()).isTrue()
-        val collector2 = async {
-            store.data.collect {}
-        }
-        assertThat(hasObservers()).isTrue()
-        collector1.cancelAndJoin()
-        assertThat(hasObservers()).isTrue()
-        collector2.cancelAndJoin()
-        assertThat(hasObservers()).isFalse()
-        val collector3 = async {
-            store.data.collect {}
-        }
-        assertThat(hasObservers()).isTrue()
-        collector3.cancelAndJoin()
-        assertThat(hasObservers()).isFalse()
-    }
-
-    @Test
-    fun nestedUpdateCallsShouldntDeadlock() = runTest {
-        val result = store.updateData {
-            assertThrows<IllegalStateException> {
-                store.updateData {
-                    // won't execute
-                    2.toByte()
-                }
-            }.hasMessageThat().isEqualTo(NESTED_UPDATE_ERROR_MESSAGE)
-            1.toByte()
-        }
-        assertThat(result).isEqualTo(1.toByte())
-        assertThat(store.data.first()).isEqualTo(1.toByte())
-        // write again, make sure we allow new transactions
-        store.updateData {
-            3.toByte()
-        }
-        assertThat(store.data.first()).isEqualTo(3.toByte())
-    }
-
-    @Test
-    fun nestedUpdatesInDifferentStores() = runTest {
-        val testFile2 = testIO.newTempFile(parentFile = tempFolder)
-        val store2 = testIO.getStore(
-            serializerConfig,
-            dataStoreScope,
-            { createSingleProcessCoordinator(testFile2.path()) }
-        ) { testFile2 }
-        store.updateData {
-            store2.updateData {
-                2.toByte()
-            }
-            1.toByte()
-        }
-        assertThat(store.data.first()).isEqualTo(1.toByte())
-        assertThat(store2.data.first()).isEqualTo(2.toByte())
-    }
-
-    @Test
-    fun nestedUpdatesInDifferentStores_fail() = runTest {
-        val testFile2 = testIO.newTempFile(parentFile = tempFolder)
-        val store2 = testIO.getStore(
-            serializerConfig,
-            dataStoreScope,
-            { createSingleProcessCoordinator(testFile2.path()) }
-        ) { testFile2 }
-        store.updateData {
-            store2.updateData {
-                assertThrows<IllegalStateException> {
-                    // we are in a nested transaction from store, hence this won't be allowed
-                    store.updateData {
-                        3.toByte()
-                    }
-                }.hasMessageThat().isEqualTo(NESTED_UPDATE_ERROR_MESSAGE)
-                2.toByte()
-            }
-            1.toByte()
-        }
-        assertThat(store.data.first()).isEqualTo(1.toByte())
-        assertThat(store2.data.first()).isEqualTo(2.toByte())
-    }
-
-    @Test
-    fun testReadHandlesCorruptionAfterInit() {
-        runTest {
-            val corruptionHandler = TestingCorruptionHandler(replaceWith = 3.toByte())
-            val newStore = newDataStore(
-                testFile,
-                corruptionHandler = corruptionHandler
-            )
-
-            // create the file to prevent serializer from returning default value
-            newStore.updateData { 1 }
-            assertThat(newStore.data.first()).isEqualTo(1)
-
-            // increment version to force non-cached read which gets automatically reset from a
-            // [CorruptionException], the current state is [Data]
-            serializerConfig.failReadWithCorruptionException = true
-            serializerConfig.defaultValue = 2
-            newStore.incrementSharedCounter()
-            assertThat(newStore.data.first()).isEqualTo(3.toByte())
-            assertThat(corruptionHandler.numCalls.get()).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun testUpdateHandlesCorruptionAfterInit() {
-        runTest {
-            val corruptionHandler = TestingCorruptionHandler(replaceWith = 3.toByte())
-            val newStore = newDataStore(
-                testFile,
-                corruptionHandler = corruptionHandler
-            )
-
-            // create the file to prevent serializer from returning default value
-            newStore.updateData { 1 }
-            assertThat(newStore.data.first()).isEqualTo(1)
-
-            // increment version to force non-cached read which gets [CorruptionException], the
-            // current state is [Data]
-            serializerConfig.failReadWithCorruptionException = true
-            serializerConfig.defaultValue = 2
-            newStore.incrementSharedCounter()
-            assertThat(newStore.updateData { it.inc() }).isEqualTo(4)
-            assertThat(corruptionHandler.numCalls.get()).isEqualTo(1)
-        }
-    }
-
-    @Test
-    fun testWriteSameValueSkipDisk() = runTest {
-        // write a non-default value to force a disk write
-        store.updateData { 10 }
-        assertThat(serializerConfig.writeCount).isEqualTo(1)
-
-        // write same value again
-        store.updateData { 10 }
-        assertThat(serializerConfig.writeCount).isEqualTo(1)
-    }
-
     private class TestingCorruptionHandler(
         private val replaceWith: Byte? = null
     ) : CorruptionHandler<Byte> {
@@ -1178,10 +993,7 @@ abstract class SingleProcessDataStoreTest<F : TestFile<F>>(private val testIO: T
         corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler()
     ): DataStore<Byte> {
         return DataStoreImpl(
-            testIO.getStorage(
-                serializerConfig,
-                { createSingleProcessCoordinator(file.path()) }
-            ) { file },
+            testIO.getStorage(serializerConfig, { createSingleProcessCoordinator() }) { file },
             scope = scope,
             initTasksList = initTasksList,
             corruptionHandler = corruptionHandler

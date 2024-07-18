@@ -33,6 +33,7 @@ import androidx.emoji2.text.EmojiSpan;
 import androidx.emoji2.text.TypefaceEmojiRasterizer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,6 +53,7 @@ import java.util.Collection;
  */
 @LargeTest
 @RunWith(Parameterized.class)
+@SdkSuppress(minSdkVersion = 19)
 public class AllEmojisTest {
 
     /**

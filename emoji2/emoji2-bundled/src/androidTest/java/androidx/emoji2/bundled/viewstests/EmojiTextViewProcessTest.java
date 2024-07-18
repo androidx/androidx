@@ -65,6 +65,7 @@ public class EmojiTextViewProcessTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenEmojiTextView_setText_emojiIsProcessedToSpans() {
         final TestActivity activity = mActivityRule.getActivity();
         final TextView textView = activity.findViewById(R.id.emojiTextView);
@@ -80,6 +81,7 @@ public class EmojiTextViewProcessTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void precomputedText_addsReplacementSpans() {
         final TestActivity activity = mActivityRule.getActivity();
         final TextView textView = activity.findViewById(R.id.emojiTextView);
@@ -118,7 +120,7 @@ public class EmojiTextViewProcessTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 28)
     public void precomputedText_notModifiedWhenNoEmoji_beforePlatformPrecomputedText() {
         final TestActivity activity = mActivityRule.getActivity();
         final TextView textView = activity.findViewById(R.id.emojiTextView);

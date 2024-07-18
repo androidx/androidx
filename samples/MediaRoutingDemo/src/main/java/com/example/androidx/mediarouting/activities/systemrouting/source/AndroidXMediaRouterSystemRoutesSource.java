@@ -79,7 +79,9 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
     @NonNull
     @Override
     public SystemRoutesSourceItem getSourceItem() {
-        return new SystemRoutesSourceItem(/* name= */ "AndroidX MediaRouter");
+        return new SystemRoutesSourceItem.Builder(
+                SystemRoutesSourceItem.ROUTE_SOURCE_ANDROIDX_ROUTER)
+                .build();
     }
 
     @NonNull

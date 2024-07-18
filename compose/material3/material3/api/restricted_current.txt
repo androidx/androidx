@@ -17,10 +17,13 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.AlertDialogDefaults INSTANCE;
   }
 
-  public final class AndroidAlertDialog_androidKt {
+  public final class AlertDialogKt {
     method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.window.DialogProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long iconContentColor, optional long titleContentColor, optional long textContentColor, optional float tonalElevation, optional androidx.compose.ui.window.DialogProperties properties);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void BasicAlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.window.DialogProperties properties, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  public final class AndroidAlertDialog_androidKt {
+    method @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? title, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long iconContentColor, optional long titleContentColor, optional long textContentColor, optional float tonalElevation, optional androidx.compose.ui.window.DialogProperties properties);
   }
 
   public final class AndroidMenu_androidKt {
@@ -987,9 +990,15 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.ModalBottomSheetDefaults INSTANCE;
   }
 
+  public final class ModalBottomSheetKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional float sheetMaxWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, optional kotlin.jvm.functions.Function0<? extends androidx.compose.foundation.layout.WindowInsets> contentWindowInsets, optional androidx.compose.material3.ModalBottomSheetProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberModalBottomSheetState(optional boolean skipPartiallyExpanded, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class ModalBottomSheetProperties {
     ctor public ModalBottomSheetProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress);
     ctor @Deprecated public ModalBottomSheetProperties(androidx.compose.ui.window.SecureFlagPolicy securePolicy, boolean isFocusable, boolean shouldDismissOnBackPress);
+    ctor public ModalBottomSheetProperties(optional boolean shouldDismissOnBackPress);
     method public androidx.compose.ui.window.SecureFlagPolicy getSecurePolicy();
     method public boolean getShouldDismissOnBackPress();
     property public final androidx.compose.ui.window.SecureFlagPolicy securePolicy;
@@ -998,8 +1007,6 @@ package androidx.compose.material3 {
 
   public final class ModalBottomSheet_androidKt {
     method @Deprecated @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional float sheetMaxWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, optional androidx.compose.foundation.layout.WindowInsets windowInsets, optional androidx.compose.material3.ModalBottomSheetProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static void ModalBottomSheet(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.material3.SheetState sheetState, optional float sheetMaxWidth, optional androidx.compose.ui.graphics.Shape shape, optional long containerColor, optional long contentColor, optional float tonalElevation, optional long scrimColor, optional kotlin.jvm.functions.Function0<kotlin.Unit>? dragHandle, optional kotlin.jvm.functions.Function0<? extends androidx.compose.foundation.layout.WindowInsets> contentWindowInsets, optional androidx.compose.material3.ModalBottomSheetProperties properties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.SheetState rememberModalBottomSheetState(optional boolean skipPartiallyExpanded, optional kotlin.jvm.functions.Function1<? super androidx.compose.material3.SheetValue,java.lang.Boolean> confirmValueChange);
   }
 
   public interface MultiChoiceSegmentedButtonRowScope extends androidx.compose.foundation.layout.RowScope {

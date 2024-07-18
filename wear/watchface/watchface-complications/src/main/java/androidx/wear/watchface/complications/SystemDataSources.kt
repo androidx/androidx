@@ -15,9 +15,7 @@
  */
 package androidx.wear.watchface.complications
 
-import android.os.Build
 import androidx.annotation.IntDef
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
 
@@ -27,13 +25,13 @@ import androidx.wear.watchface.complications.data.ComplicationType
  */
 public class SystemDataSources private constructor() {
     public companion object {
-        // NEXT AVAILABLE DATA SOURCE ID: 18
+        // NEXT AVAILABLE DATA SOURCE ID: 17
 
         /** Specifies that no complication data source should be used. */
         public const val NO_DATA_SOURCE: Int = -1
 
         /**
-         * Id for the 'watch battery' complication data source.
+         * Id for the 'watch battery' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -46,7 +44,7 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_WATCH_BATTERY: Int = 1
 
         /**
-         * Id for the 'date' complication data source.
+         * Id for the 'date' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -57,7 +55,7 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_DATE: Int = 2
 
         /**
-         * Id for the 'time and date' complication data source.
+         * Id for the 'time and date' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -68,26 +66,18 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_TIME_AND_DATE: Int = 3
 
         /**
-         * Id for the 'step count' complication data source.
+         * Id for the 'step count' complication complication data source.
          *
          * This is a safe complication data source (because it only shows a daily total), so if a
          * watch face uses this as a default it will be able to receive data from it even before the
          * RECEIVE_COMPLICATION_DATA permission has been granted.
          *
-         * This complication data source is only guaranteed to support [ComplicationType.SHORT_TEXT]
-         * and [ComplicationType.GOAL_PROGRESS], although it's a good idea for the slot to support
-         * [ComplicationType.SMALL_IMAGE] and [ComplicationType.ICON] too since OEMs may choose to
-         * serve a shortcut to their health app instead of the live value.
-         *
-         * Starting in Wear OS 5, this complication data source can only be configured with
-         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
-         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
-         * type may or may not be available.
+         * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
         public const val DATA_SOURCE_STEP_COUNT: Int = 4
 
         /**
-         * Id for the 'world clock' complication data source.
+         * Id for the 'world clock' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -98,7 +88,7 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_WORLD_CLOCK: Int = 5
 
         /**
-         * Id for the 'app shortcut' complication data source.
+         * Id for the 'app shortcut' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -110,7 +100,7 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_APP_SHORTCUT: Int = 6
 
         /**
-         * Id for the 'unread notification count' complication data source.
+         * Id for the 'unread notification count' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -125,19 +115,14 @@ public class SystemDataSources private constructor() {
         internal const val DATA_SOURCE_DEPRECATED8: Int = 8
 
         /**
-         * Id for the 'next event' complication data source.
+         * Id for the 'next event' complication complication data source.
          *
          * This is not a safe complication data source, so if a watch face uses this as a default it
          * will receive data of TYPE_NO_PERMISSION until the user has granted the
          * RECEIVE_COMPLICATION_DATA.
          *
-         * This complication data source is guaranteed to support the following types:
+         * This complication data source supports the following types:
          * [ComplicationType.SHORT_TEXT], [ComplicationType.LONG_TEXT].
-         *
-         * Starting in Wear OS 5, this complication data source can only be configured with
-         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
-         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
-         * type may or may not be available.
          */
         public const val DATA_SOURCE_NEXT_EVENT: Int = 9
 
@@ -148,23 +133,17 @@ public class SystemDataSources private constructor() {
         internal const val DATA_SOURCE_DEPRECATED11: Int = 11
 
         /**
-         * Id for the 'sunrise sunset' complication data source.
+         * Id for the 'sunrise sunset' complication complication data source.
          *
          * This complication data source shows next sunrise or sunset time according to current
          * timezone and location.
          *
-         * This complication data source is guaranteed to support only
-         * [ComplicationType.SHORT_TEXT].
-         *
-         * Starting in Wear OS 5, this complication data source can only be configured with
-         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
-         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
-         * type may or may not be available.
+         * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
         public const val DATA_SOURCE_SUNRISE_SUNSET: Int = 12
 
         /**
-         * Id for the 'day of week' complication data source.
+         * Id for the 'day of week' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -175,19 +154,13 @@ public class SystemDataSources private constructor() {
         public const val DATA_SOURCE_DAY_OF_WEEK: Int = 13
 
         /**
-         * Id for the 'favorite contact' complication data source.
+         * Id for the 'favorite contact' complication complication data source.
          *
          * This is not a safe complication data source, so if a watch face uses this as a default it
          * will receive data of TYPE_NO_PERMISSION until the user has granted the
          * RECEIVE_COMPLICATION_DATA.
          *
-         * This complication data source is guaranteed to support only
-         * [ComplicationType.SMALL_IMAGE].
-         *
-         * Starting in Wear OS 5, this complication data source can only be configured with
-         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
-         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
-         * type may or may not be available.
+         * This complication data source supports only [ComplicationType.SMALL_IMAGE].
          */
         public const val DATA_SOURCE_FAVORITE_CONTACT: Int = 14
 
@@ -195,7 +168,7 @@ public class SystemDataSources private constructor() {
         internal const val DATA_SOURCE_DEPRECATED15: Int = 15
 
         /**
-         * Id for the 'day and date' complication data source.
+         * Id for the 'day and date' complication complication data source.
          *
          * This is a safe complication data source, so if a watch face uses this as a default it
          * will be able to receive data from it even before the RECEIVE_COMPLICATION_DATA permission
@@ -204,22 +177,6 @@ public class SystemDataSources private constructor() {
          * This complication data source supports only [ComplicationType.SHORT_TEXT].
          */
         public const val DATA_SOURCE_DAY_AND_DATE: Int = 16
-
-        /**
-         * Id for the 'heart rate' complication data source.
-         *
-         * This complication data source is only guaranteed to support [ComplicationType.SHORT_TEXT]
-         * although it's a good idea for the slot to support [ComplicationType.SMALL_IMAGE] and
-         * [ComplicationType.ICON] too since OEMs may choose to serve a shortcut to their health app
-         * instead of the live value.
-         *
-         *  Starting in Wear OS 5, this complication data source can only be configured with
-         * [ComplicationType.ICON] type, if used in a watch face that isn't built using Watch Face
-         * Format. Depending on the device manufacturer, this data source in [ComplicationType.ICON]
-         * type may or may not be available.
-         */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-        public const val DATA_SOURCE_HEART_RATE: Int = 17
     }
 
     /** System complication data source id as defined in [SystemDataSources]. */
@@ -236,8 +193,7 @@ public class SystemDataSources private constructor() {
         DATA_SOURCE_SUNRISE_SUNSET,
         DATA_SOURCE_DAY_OF_WEEK,
         DATA_SOURCE_FAVORITE_CONTACT,
-        DATA_SOURCE_DAY_AND_DATE,
-        DATA_SOURCE_HEART_RATE
+        DATA_SOURCE_DAY_AND_DATE
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)

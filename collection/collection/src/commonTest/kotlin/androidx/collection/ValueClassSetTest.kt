@@ -20,6 +20,7 @@ import androidx.collection.template.TestValueClassSet
 import androidx.collection.template.emptyTestValueClassSet
 import androidx.collection.template.mutableTestValueClassSetOf
 import androidx.collection.template.testValueClassSetOf
+import kotlin.js.JsName
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -330,6 +331,7 @@ internal class ValueClassSetTest {
     }
 
     @Test
+    @JsName("testEquals")
     fun equals() {
         val set = MutableTestValueClassSet()
         set += TestValueClass(1UL)

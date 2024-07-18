@@ -87,7 +87,7 @@ package androidx.tvprovider.media.tv {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CollectionUtils {
-    method public static <T> T![]! concatAll(T![]!, T![]!...!);
+    method public static <T> T![]! concatAll(T![]!, T![]!...);
   }
 
   public class PreviewChannel {
@@ -289,7 +289,7 @@ package androidx.tvprovider.media.tv {
     method public androidx.tvprovider.media.tv.PreviewProgram.Builder! setWeight(int);
   }
 
-  public final class Program implements java.lang.Comparable<androidx.tvprovider.media.tv.Program!> {
+  public final class Program implements java.lang.Comparable<androidx.tvprovider.media.tv.Program> {
     method public int compareTo(androidx.tvprovider.media.tv.Program);
     method public static androidx.tvprovider.media.tv.Program! fromCursor(android.database.Cursor!);
     method public String![]! getAudioLanguages();

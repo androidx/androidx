@@ -27,7 +27,7 @@ import java.util.Locale
 
 class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
 
-    override fun write(connectionParamName: String, scope: CountingCodeGenScope) {
+    override fun write(dbParamName: String, scope: CountingCodeGenScope) {
         val suffix = view.viewName.stripNonJava().capitalize(Locale.US)
         scope.builder.apply {
             val expectedInfoVar = scope.getTmpVar("_info$suffix")
@@ -47,7 +47,7 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                 existingVar,
                 RoomTypeNames.VIEW_INFO,
                 "%M(%L, %S)",
-                RoomMemberNames.VIEW_INFO_READ, connectionParamName, view.viewName
+                RoomMemberNames.VIEW_INFO_READ, dbParamName, view.viewName
             )
 
             beginControlFlow("if (!%L.equals(%L))", expectedInfoVar, existingVar).apply {
@@ -55,7 +55,7 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                     "return %L",
                     XCodeBlock.ofNewInstance(
                         language,
-                        RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
                         "false, %S + %L + %S + %L",
                         "${view.viewName}(${view.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar,

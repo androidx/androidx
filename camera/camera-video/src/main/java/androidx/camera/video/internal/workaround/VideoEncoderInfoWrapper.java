@@ -70,9 +70,6 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
      * <p>Exception: if the input videoEncoderInfo is already a wrapper, then it will not be
      * wrapped again and will be returned directly.
      *
-     * <p>The {@code validSizeToCheck} will be taken as an extra supported size if this method
-     * returns a wrapper.
-     *
      * @param videoEncoderInfo the input VideoEncoderInfo.
      * @param validSizeToCheck a valid size to check or null if no valid size to check.
      * @return a wrapped VideoEncoderInfo or the input VideoEncoderInfo.
@@ -85,7 +82,7 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
             toWrap = false;
         } else if (DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null) {
             toWrap = true;
-        } else if (validSizeToCheck != null && !videoEncoderInfo.isSizeSupportedAllowSwapping(
+        } else if (validSizeToCheck != null && !videoEncoderInfo.isSizeSupported(
                 validSizeToCheck.getWidth(), validSizeToCheck.getHeight())) {
             // If the device does not support a size that should be valid, assume the device
             // reports incorrect information. This is used to detect devices that we haven't
@@ -99,16 +96,11 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         } else {
             toWrap = false;
         }
-        if (toWrap) {
-            videoEncoderInfo = new VideoEncoderInfoWrapper(videoEncoderInfo);
-        }
-        if (validSizeToCheck != null && videoEncoderInfo instanceof VideoEncoderInfoWrapper) {
-            ((VideoEncoderInfoWrapper) videoEncoderInfo).addExtraSupportedSize(validSizeToCheck);
-        }
-        return videoEncoderInfo;
+        return toWrap ? new VideoEncoderInfoWrapper(videoEncoderInfo, validSizeToCheck)
+                : videoEncoderInfo;
     }
 
-    private VideoEncoderInfoWrapper(@NonNull VideoEncoderInfo videoEncoderInfo) {
+    VideoEncoderInfoWrapper(@NonNull VideoEncoderInfo videoEncoderInfo, @Nullable Size validSize) {
         mVideoEncoderInfo = videoEncoderInfo;
 
         // Ideally we should find out supported widths/heights for each problematic device.
@@ -121,6 +113,9 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
         int maxHeight = (int) Math.ceil((double) HEIGHT_4KDCI / heightAlignment) * heightAlignment;
         mSupportedHeights = Range.create(heightAlignment, maxHeight);
 
+        if (validSize != null) {
+            mExtraSupportedSizes.add(validSize);
+        }
         mExtraSupportedSizes.addAll(
                 MediaCodecInfoReportIncorrectInfoQuirk.getExtraSupportedSizes());
     }
@@ -132,19 +127,10 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     }
 
     @Override
-    public boolean canSwapWidthHeight() {
-        return mVideoEncoderInfo.canSwapWidthHeight();
-    }
-
-    @Override
     public boolean isSizeSupported(int width, int height) {
-        if (mVideoEncoderInfo.isSizeSupported(width, height)) {
+        if (!mExtraSupportedSizes.isEmpty() && mExtraSupportedSizes.contains(
+                new Size(width, height))) {
             return true;
-        }
-        for (Size size : mExtraSupportedSizes) {
-            if (size.getWidth() == width && size.getHeight() == height) {
-                return true;
-            }
         }
         return mSupportedWidths.contains(width)
                 && mSupportedHeights.contains(height)
@@ -200,9 +186,5 @@ public class VideoEncoderInfoWrapper implements VideoEncoderInfo {
     @Override
     public Range<Integer> getSupportedBitrateRange() {
         return mVideoEncoderInfo.getSupportedBitrateRange();
-    }
-
-    private void addExtraSupportedSize(@NonNull Size size) {
-        mExtraSupportedSizes.add(size);
     }
 }

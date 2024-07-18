@@ -19,5 +19,4 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance යෙදුම් විජට්ටු දෝෂය"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"නිවැරදි දෝෂය "<b><tt>"GlanceAppWidget"</tt></b>" සොයන "<b><tt>"adb logcat"</tt></b>" භාවිත කර පරීක්ෂා කරන්න"</string>
-    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"අන්තර්ගතය පෙන්විය නොහැක"</string>
 </resources>

@@ -14,37 +14,17 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXRepackagePlugin")
     id("kotlin")
     id("com.google.protobuf")
 }
 
-repackage {
-    // Must match what is in glance/glance-appwidget-external-protobuf/build.gradle
-    addRelocation {
-        sourcePackage = "com.google.protobuf"
-        targetPackage = "androidx.glance.appwidget.protobuf"
-    }
-}
-
 dependencies {
-    api(project(":glance:glance-appwidget-external-protobuf"))
-    // Must be compileOnly to not bring in protobufLite in runtime
-    // Repackaged protobufLite brought in by
-    // project(":glance:glance-appwidget-external-protobuf") and used at runtime
-    compileOnly(libs.protobufLite)
+    implementation(libs.protobufLite)
     compileOnly(libs.kotlinStdlib)
     compileOnly("androidx.datastore:datastore-core:1.0.0")
 }
@@ -75,10 +55,8 @@ afterEvaluate {
 
 androidx {
     name = "Glance AppWidget Protos"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.NONE
     inceptionYear = "2021"
     description = "Protos for use with glance app widgets."
-    runApiTasks = new RunApiTasks.No("Metalava doesn't properly parse the proto sources " +
-            "(b/180579063)")
 }
 

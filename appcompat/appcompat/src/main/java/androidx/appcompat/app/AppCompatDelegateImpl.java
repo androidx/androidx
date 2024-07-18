@@ -150,6 +150,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     private static final boolean sCanReturnDifferentContext =
             !"robolectric".equals(Build.FINGERPRINT);
 
+    /**
+     * Flag indicating whether ContextThemeWrapper.applyOverrideConfiguration() is available.
+     */
+    private static final boolean sCanApplyOverrideConfiguration = Build.VERSION.SDK_INT >= 17;
+
     private static boolean sInstalledExceptionHandler;
 
     static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
@@ -407,7 +412,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // If the base context is a ContextThemeWrapper (thus not an Application context)
         // and nobody's touched its Resources yet, we can shortcut and directly apply our
         // override configuration.
-        if (baseContext instanceof android.view.ContextThemeWrapper) {
+        if (sCanApplyOverrideConfiguration
+                && baseContext instanceof android.view.ContextThemeWrapper) {
             final Configuration config = createOverrideAppConfiguration(
                     baseContext, modeToApply, localesToApply, null, false);
             if (DEBUG) {
@@ -416,7 +422,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
 
             try {
-                ((android.view.ContextThemeWrapper) baseContext).applyOverrideConfiguration(config);
+                ContextThemeWrapperCompatApi17Impl.applyOverrideConfiguration(
+                        (android.view.ContextThemeWrapper) baseContext, config);
                 return baseContext;
             } catch (IllegalStateException e) {
                 if (DEBUG) {
@@ -455,30 +462,32 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         Configuration configOverlay = null;
 
-        // There is a bug in createConfigurationContext where it applies overrides to the
-        // canonical configuration, e.g. ActivityThread.mCurrentConfig, rather than the base
-        // configuration, e.g. Activity.getResources().getConfiguration(). We can lean on this
-        // bug to obtain a reference configuration and reconstruct any custom configuration
-        // that may have been applied by the app, thereby avoiding the bug later on.
-        Configuration overrideConfig = new Configuration();
-        // We have to modify a value to receive a new Configuration, so use one that developers
-        // can't override.
-        overrideConfig.uiMode = -1;
-        // Workaround for incorrect default fontScale on earlier SDKs.
-        overrideConfig.fontScale = 0f;
-        Configuration referenceConfig =
-                baseContext.createConfigurationContext(overrideConfig)
-                        .getResources().getConfiguration();
-        // Revert the uiMode change so that the diff doesn't include uiMode.
-        Configuration baseConfig = baseContext.getResources().getConfiguration();
-        referenceConfig.uiMode = baseConfig.uiMode;
+        if (Build.VERSION.SDK_INT >= 17) {
+            // There is a bug in createConfigurationContext where it applies overrides to the
+            // canonical configuration, e.g. ActivityThread.mCurrentConfig, rather than the base
+            // configuration, e.g. Activity.getResources().getConfiguration(). We can lean on this
+            // bug to obtain a reference configuration and reconstruct any custom configuration
+            // that may have been applied by the app, thereby avoiding the bug later on.
+            Configuration overrideConfig = new Configuration();
+            // We have to modify a value to receive a new Configuration, so use one that developers
+            // can't override.
+            overrideConfig.uiMode = -1;
+            // Workaround for incorrect default fontScale on earlier SDKs.
+            overrideConfig.fontScale = 0f;
+            Configuration referenceConfig =
+                    Api17Impl.createConfigurationContext(baseContext, overrideConfig)
+                            .getResources().getConfiguration();
+            // Revert the uiMode change so that the diff doesn't include uiMode.
+            Configuration baseConfig = baseContext.getResources().getConfiguration();
+            referenceConfig.uiMode = baseConfig.uiMode;
 
-        // Extract any customizations as an overlay.
-        if (!referenceConfig.equals(baseConfig)) {
-            configOverlay = generateConfigDelta(referenceConfig, baseConfig);
-            if (DEBUG) {
-                Log.d(TAG, "Application config (" + referenceConfig + ") does not match base "
-                        + "config (" + baseConfig + "), using base overlay: " + configOverlay);
+            // Extract any customizations as an overlay.
+            if (!referenceConfig.equals(baseConfig)) {
+                configOverlay = generateConfigDelta(referenceConfig, baseConfig);
+                if (DEBUG) {
+                    Log.d(TAG, "Application config (" + referenceConfig + ") does not match base "
+                            + "config (" + baseConfig + "), using base overlay: " + configOverlay);
+                }
             }
         }
 
@@ -514,6 +523,21 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         return super.attachBaseContext2(wrappedContext);
+    }
+
+    /**
+     * Helper for accessing new APIs on {@link android.view.ContextThemeWrapper}.
+     */
+    @RequiresApi(17)
+    private static class ContextThemeWrapperCompatApi17Impl {
+        private ContextThemeWrapperCompatApi17Impl() {
+            // This class is non-instantiable.
+        }
+
+        static void applyOverrideConfiguration(android.view.ContextThemeWrapper context,
+                Configuration overrideConfiguration) {
+            context.applyOverrideConfiguration(overrideConfiguration);
+        }
     }
 
     @Override
@@ -935,7 +959,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // Floating windows can never have an action bar, reset the flags
                 mHasActionBar = mOverlayActionBar = false;
             } else if (mHasActionBar) {
-                /*
+                /**
                  * This needs some explanation. As we can not use the android:theme attribute
                  * pre-L, we emulate it by manually creating a LayoutInflater using a
                  * ContextThemeWrapper pointing to actionBarTheme.
@@ -958,7 +982,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                         .findViewById(R.id.decor_content_parent);
                 mDecorContentParent.setWindowCallback(getWindowCallback());
 
-                /*
+                /**
                  * Propagate features to DecorContentParent
                  */
                 if (mOverlayActionBar) {
@@ -1435,7 +1459,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     final boolean shouldAnimateActionModeView() {
         // We only to animate the action mode in if the sub decor has already been laid out.
         // If it hasn't been laid out, it hasn't been drawn to screen yet.
-        return mSubDecorInstalled && mSubDecor != null && mSubDecor.isLaidOut();
+        return mSubDecorInstalled && mSubDecor != null && ViewCompat.isLaidOut(mSubDecor);
     }
 
     @Override
@@ -1613,7 +1637,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             TypedArray a = mContext.obtainStyledAttributes(R.styleable.AppCompatTheme);
             String viewInflaterClassName =
                     a.getString(R.styleable.AppCompatTheme_viewInflaterClass);
-            a.recycle();
             if (viewInflaterClassName == null) {
                 // Set to null (the default in all AppCompat themes). Create the base inflater
                 // (no reflection)
@@ -1672,7 +1695,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 // added to the hierarchy at the end of the inflate() call.
                 return true;
             } else if (parent == windowDecor || !(parent instanceof View)
-                    || ((View) parent).isAttachedToWindow()) {
+                    || ViewCompat.isAttachedToWindow((View) parent)) {
                 // We have either hit the window's decor view, a parent which isn't a View
                 // (i.e. ViewRootImpl), or an attached view, so we know that the original parent
                 // is currently added to the view hierarchy. This means that it has not be
@@ -2604,6 +2627,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
+    @RequiresApi(17)
     public void setLocalNightMode(@NightMode int mode) {
         if (DEBUG) {
             Log.d(TAG, String.format("setLocalNightMode. New: %d, Current: %d",
@@ -2663,9 +2687,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     void setConfigurationLocales(Configuration conf, @NonNull LocaleListCompat locales) {
         if (Build.VERSION.SDK_INT >= 24) {
             Api24Impl.setLocales(conf, locales);
+        } else if (Build.VERSION.SDK_INT >= 17) {
+            Api17Impl.setLocale(conf, locales.get(0));
+            Api17Impl.setLayoutDirection(conf, locales.get(0));
         } else {
-            conf.setLocale(locales.get(0));
-            conf.setLayoutDirection(locales.get(0));
+            conf.locale = locales.get(0);
         }
     }
 
@@ -2769,7 +2795,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
         if (newLocales != null && !currentLocales.equals(newLocales)) {
             configChanges |= ActivityInfo.CONFIG_LOCALE;
-            configChanges |= ActivityInfo.CONFIG_LAYOUT_DIRECTION;
+            if (Build.VERSION.SDK_INT >= 17) {
+                configChanges |= ActivityInfo.CONFIG_LAYOUT_DIRECTION;
+            }
         }
 
         if (DEBUG) {
@@ -2808,8 +2836,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // layout direction after recreating in Android S.
             if (Build.VERSION.SDK_INT >= 31
                     && (configChanges & ActivityInfo.CONFIG_LAYOUT_DIRECTION) != 0) {
-                View view = ((Activity) mHost).getWindow().getDecorView();
-                view.setLayoutDirection(overrideConfig.getLayoutDirection());
+                Api17Impl.setLayoutDirection(
+                        ((Activity) mHost).getWindow().getDecorView(),
+                        Api17Impl.getLayoutDirection(overrideConfig));
             }
             ActivityCompat.recreate((Activity) mHost);
             handled = true;
@@ -3879,13 +3908,51 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             delta.smallestScreenWidthDp = change.smallestScreenWidthDp;
         }
 
-        if (base.densityDpi != change.densityDpi) {
-            delta.densityDpi = change.densityDpi;
+        if (Build.VERSION.SDK_INT >= 17) {
+            Api17Impl.generateConfigDelta_densityDpi(base, change, delta);
         }
 
         // Assets sequence and window configuration are not supported.
 
         return delta;
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() { }
+
+        static void generateConfigDelta_densityDpi(@NonNull Configuration base,
+                @NonNull Configuration change, @NonNull Configuration delta) {
+            if (base.densityDpi != change.densityDpi) {
+                delta.densityDpi = change.densityDpi;
+            }
+        }
+
+        @DoNotInline
+        static Context createConfigurationContext(@NonNull Context context,
+                @NonNull Configuration overrideConfiguration) {
+            return context.createConfigurationContext(overrideConfiguration);
+        }
+
+        @DoNotInline
+        static void setLayoutDirection(Configuration configuration, Locale loc) {
+            configuration.setLayoutDirection(loc);
+        }
+
+        @DoNotInline
+        static void setLayoutDirection(View view, int layoutDirection) {
+            view.setLayoutDirection(layoutDirection);
+        }
+
+        @DoNotInline
+        static void setLocale(Configuration configuration, Locale loc) {
+            configuration.setLocale(loc);
+        }
+
+        @DoNotInline
+        static int getLayoutDirection(Configuration configuration) {
+            return configuration.getLayoutDirection();
+        }
     }
 
     @RequiresApi(21)

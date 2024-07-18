@@ -16,8 +16,9 @@
 
 package androidx.camera.camera2.pipe
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.core.Debug
 
 /**
  * An ordered list of [TCaptureRequest] objects, listeners, and associated metadata that will be
@@ -26,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Debug
  * A CaptureSequence should be created from a [CaptureSequenceProcessor].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 interface CaptureSequence<out TCaptureRequest> {
     val cameraId: CameraId
     val repeating: Boolean
@@ -44,6 +46,7 @@ interface CaptureSequence<out TCaptureRequest> {
 
 /** Utility functions for interacting with [CaptureSequence] callbacks and listeners. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object CaptureSequences {
     /**
      * Efficient, inlined utility function for invoking a call on each of the listeners defined on a
@@ -52,7 +55,6 @@ object CaptureSequences {
     inline fun <T> CaptureSequence<T>.invokeOnRequests(
         crossinline fn: (RequestMetadata, Int, Request.Listener) -> Any
     ) {
-        Debug.traceStart { "InvokeInternalListeners" }
         // Always invoke the internal listener first on all of the internal listeners for the
         // entire sequence before invoking the listeners specified in the specific requests
         for (i in captureMetadataList.indices) {
@@ -62,9 +64,6 @@ object CaptureSequences {
             }
         }
 
-        Debug.traceStop()
-        Debug.traceStart { "InvokeRequestListeners" }
-
         // Invoke the listeners that were defined on the individual requests.
         for (i in captureMetadataList.indices) {
             val request = captureMetadataList[i]
@@ -72,8 +71,6 @@ object CaptureSequences {
                 fn(request, i, request.request.listeners[listenerIndex])
             }
         }
-
-        Debug.traceStop()
     }
 
     /**
@@ -84,22 +81,15 @@ object CaptureSequences {
         request: RequestMetadata,
         crossinline fn: (Request.Listener) -> Any
     ) {
-        Debug.traceStart { "InvokeInternalListeners" }
-
         // Always invoke the sequence listeners first so that internal state can be updated before
         // specific requests receive the callback.
         for (i in listeners.indices) {
             fn(listeners[i])
         }
 
-        Debug.traceStop()
-        Debug.traceStart { "InvokeRequestListeners" }
-
         // Invoke the listeners that were defined on this request.
         for (i in request.request.listeners.indices) {
             fn(request.request.listeners[i])
         }
-
-        Debug.traceStop()
     }
 }

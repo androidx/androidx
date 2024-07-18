@@ -40,7 +40,7 @@ Major (`x.0.0`)
 Minor (`1.x.0`)
 :   Minor indicates compatible public API changes. This number is incremented
     when APIs are added, including the addition of
-    [`@Deprecated` annotations](/docs/api_guidelines/index.md#deprecation-and-removal).
+    [`@Deprecated` annotations](/company/teams/androidx/api_guidelines/index.md#deprecation-and-removal).
     Binary compatibility must be preserved between minor version changes.
 
 Bugfix (`1.0.x`)
@@ -61,11 +61,6 @@ RC (`1.0.0-rcXX`)
 
 Stable (no-suffix)
 :   Recommended for production use.
-
-In the past -- and only in rare cases -- libraries have used a `-devXX` suffix
-to indicate that a public release does not yet meet the requirements for Alpha.
-We **strongly discourage** libraries from using `-devXX`, as failing to meet the
-requirements for Alpha indicates that a library should not be publicly released.
 
 ### Major (`x.0.0`) {#major}
 
@@ -109,7 +104,7 @@ a much easier time increasing their major version.
 
 #### Process requirements {#major-process}
 
-If the artifact has dependencies within Jetpack, owners *must* complete an
+If the artifact has dependencies within Jetpack, owners *must* complete the
 assessment before implementing any breaking changes to binary or behavioral
 compatibility.
 
@@ -164,33 +159,34 @@ lexicographic ordering of versions used by SemVer.
 
 Snapshot releases are whatever exists at tip-of-tree. They are only subject to
 the constraints placed on the average commit. Depending on when it's cut, a
-snapshot may even be binary-identical to an `alpha`, `beta`, or `RC` release.
+snapshot may even be binary-identical to an `alpha`, `beta`, or `stable`
+release.
 
 ### Tooling guarantees
 
 Versioning policies are enforced by the following Gradle tasks:
 
--   `checkApi`: ensures that changes to public API are intentional and tracked,
-    asking the developer to explicitly run `updateApi` (see below) if any
-    changes are detected
+`checkApi`: ensures that changes to public API are intentional and tracked,
+asking the developer to explicitly run `updateApi` (see below) if any changes
+are detected
 
--   `checkApiRelease`: verifies that API changes between previously released and
-    currently under-development versions conform to semantic versioning
-    guarantees
+`checkApiRelease`: verifies that API changes between previously released and
+currently under-development versions conform to semantic versioning guarantees
 
--   `updateApi`: commits API changes to source control in such a way that they
-    can be reviewed in pre-submit via Gerrit `API+2` and reviewed in post-submit
-    by API Council
+`updateApi`: commits API changes to source control in such a way that they can
+be reviewed in pre-submit via Gerrit API+1 and reviewed in post-submit by API
+Council
 
-`SNAPSHOT` is automatically added to the version string for all builds that
-occur outside the build server for release branches. Local release builds may be
-forced by passing `-Prelease` to the Gradle command line.
+`SNAPSHOT`: is automatically added to the version string for all builds that
+occur outside the build server for release branches (ex. ub-androidx-release).
+Local release builds may be forced by passing -Prelease to the Gradle command
+line.
 
 ## Picking the right version {#picking-the-right-version}
 
-Libraries follow [semantic versioning](#semver), which means that the version
-code is strongly tied to the API surface. A full version consists of revision
-numbers for major, minor, and bugfix as well as a pre-release stage and
+Libraries follow [semantic versioning](https://semver.org), which means that the
+version code is strongly tied to the API surface. A full version consists of
+revision numbers for major, minor, and bugfix as well as a pre-release stage and
 revision. Correct versioning is, for the most part, automatically enforced;
 however, please check for the following:
 
@@ -222,11 +218,11 @@ Libraries are expected to allow >= 2 weeks per pre-release stage. This "soaking
 period" gives developers time to try each version, find bugs, and ensure a
 quality stable release. Therefore, at minimum:
 
--   An `alpha` version must be publicly available for 2 weeks before releasing a
-    public `beta`
--   A `beta` version must be publicly available for 2 weeks before releasing a
-    public `rc`
--   A `rc` version must be publicly available for 2 weeks before releasing a
+-   An `alpha` version must be publically available for 2 weeks before releasing
+    a public `beta`
+-   A `beta` version must be publically available for 2 weeks before releasing
+    an public `rc`
+-   A `rc` version must be publically available for 2 weeks before releasing a
     public stable version
 
 Your library must meet the following criteria to move your public release to
@@ -248,11 +244,11 @@ Council review but are expected to have performed a minimum level of validation.
     *   May add/remove APIs within `alpha` cycle, but deprecate/remove cycle is
         strongly recommended.
     *   May use
-        [experimental APIs](/docs/api_guidelines/index.md#experimental-api)
+        [experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api)
         across same-version group boundaries
 *   Testing
     *   Ensure the library is testable. Follow the guideline on
-        [go/androidx/testability](/docs/testability.md)
+        [go/androidx/testability](/company/teams/androidx/testability.md)
     *   All changes **should** be accompanied by a `Test:` stanza
     *   All pre-submit and post-submit tests are passing
     *   Flaky or failing tests **must** be suppressed or fixed within one day
@@ -274,8 +270,7 @@ granted for new features, non-trivial API changes, significant refactorings, or
 any changes likely to introduce additional functional instability. Requests for
 exceptions **must** be accompanied by a justification explaining why the change
 cannot be made in a future minor version. This policy does not apply to
-additions of experimental `@RequiresOptIn` APIs or changes to `@RequiresOptIn`
-APIs.
+additions of `@Experimental` APIs or changes to `@Experimental` APIs.
 
 #### Checklist for moving to `beta01` {#beta-checklist}
 
@@ -285,7 +280,7 @@ APIs.
         *   The final removal of a `@Deprecated` API should occur in alpha, not
             in beta
     *   Must not use
-        [experimental APIs](/docs/api_guidelines#experimental-api)
+        [experimental APIs](/company/teams/androidx/api_guidelines#experimental-api)
         across same-version group boundaries
 *   Testing
     *   All public APIs are tested
@@ -358,25 +353,26 @@ least a year.
 A few notes about version updates:
 
 -   The version of your library listed in `androidx-main` should *always* be
-    higher than the version publicly available on Google Maven. This allows us
+    higher than the version publically available on Google Maven. This allows us
     to do proper version tracking and API tracking.
 -   Version increments must be done before the CL cutoff date (aka the build cut
     date).
 -   **Increments to the next stability suffix** (like `alpha` to `beta`) should
-    be handled by the library owner
+    be handled by the library owner, with the Jetpack TPM (natnaelbelay@) CC'd
+    for API+1.
 -   Version increments in release branches will need to follow the guide
-    [How to update your version on a release branch](/docs/release_branches.md#update-your-version)
+    [How to update your version on a release branch](/company/teams/androidx/release_branches.md#update-your-version)
 -   When you're ready for `rc01`, the increment to `rc01` should be done in
     `androidx-main` and then your release branch should be snapped to that
     build. See the guide
-    [Snap your release branch](/docs/release_branches.md#snap)
+    [Snap your release branch](/company/teams/androidx/release_branches.md#snap)
     on how to do this. After the release branch is snapped to that build, you
     will need to update your version in `androidx-main` to `alpha01` of the next
     minor (or major) version.
 
 ### How to update your version
 
-1.  Update the version listed in `libraryversions.toml`
+1.  Update the version listed in `frameworks/support/libraryversions.toml`
 1.  If your library is a `beta` or `rc01` version, run `./gradlew
     <your-lib>:updateApi`. This will create an API txt file for the new version
     of your library. For other versions, this step is not required
@@ -389,7 +385,7 @@ An example of a version bump can be found here:
 
 ## `-ktx` Modules {#ktx}
 
-[Kotlin extension libraries](/docs/api_guidelines/index.md#module-ktx)
+[Kotlin extension libraries](/company/teams/androidx/api_guidelines/index.md#module-ktx)
 (`-ktx`) follow the same versioning requirements as other libraries, but with
 one exception: they must match the version of the Java libraries that they
 extend.
@@ -412,14 +408,8 @@ because all tip-of-tree dependencies will need to be released too.
 
 ### Can alpha work (ex. for the next Minor release) occur in the primary development branch during beta API lockdown?
 
-Generally, no. This is by design. Focus should be spent on improving the Beta
-version and adding documentation/samples/blog posts for usage!
-
-In limited cases, the
-[`@RequiresOptIn`](/docs/api_guidelines/index.md#experimental-api)
-meta-annotation may be used to extend development of a feature beyond the alpha
-cycle. When doing so, extreme care must be taken to avoid destabilizing the rest
-of the library.
+No. This is by design. Focus should be spent on improving the Beta version and
+adding documentation/samples/blog posts for usage!
 
 ### Is there an API freeze window between alpha and beta while API surface is reviewed and tests are added, but before the beta is released?
 

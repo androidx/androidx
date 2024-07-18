@@ -17,14 +17,11 @@
 package androidx.core.graphics;
 
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.graphics.Path;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.ArrayList;
 
@@ -33,7 +30,7 @@ import java.util.ArrayList;
 /**
  * Parses SVG path strings.
  */
-public final class PathParser {
+public class PathParser {
     private static final String LOGTAG = "PathParser";
 
     // Copy from Arrays.copyOfRange() which is only available from API level 9.
@@ -89,7 +86,6 @@ public final class PathParser {
      * @param pathData The string representing a path, the same as "d" string in svg file.
      * @return an array of the PathDataNode.
      */
-    @SuppressWarnings("ArrayReturn")
     @NonNull
     public static PathDataNode[] createNodesFromPathData(@NonNull String pathData) {
         int start = 0;
@@ -117,11 +113,8 @@ public final class PathParser {
      * @param source The array of PathDataNode to be duplicated.
      * @return a deep copy of the <code>source</code>.
      */
-    @SuppressWarnings("ArrayReturn")
     @NonNull
-    public static PathDataNode[] deepCopyNodes(
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] source
-    ) {
+    public static PathDataNode[] deepCopyNodes(@NonNull PathDataNode[] source) {
         PathDataNode[] copy = new PathParser.PathDataNode[source.length];
         for (int i = 0; i < source.length; i++) {
             copy[i] = new PathDataNode(source[i]);
@@ -134,11 +127,8 @@ public final class PathParser {
      * @param nodesTo   The target path represented in an array of PathDataNode
      * @return whether the <code>nodesFrom</code> can morph into <code>nodesTo</code>
      */
-    @SuppressWarnings("ArrayReturn")
-    public static boolean canMorph(
-            @SuppressWarnings("ArrayReturn") @Nullable PathDataNode[] nodesFrom,
-            @SuppressWarnings("ArrayReturn") @Nullable PathDataNode[] nodesTo
-    ) {
+    public static boolean canMorph(@Nullable PathDataNode[] nodesFrom,
+            @Nullable PathDataNode[] nodesTo) {
         if (nodesFrom == null || nodesTo == null) {
             return false;
         }
@@ -163,10 +153,7 @@ public final class PathParser {
      * @param target The target path represented in an array of PathDataNode
      * @param source The source path represented in an array of PathDataNode
      */
-    public static void updateNodes(
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] target,
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] source
-    ) {
+    public static void updateNodes(@NonNull PathDataNode[] target, @NonNull PathDataNode[] source) {
         for (int i = 0; i < source.length; i++) {
             target[i].mType = source[i].mType;
             for (int j = 0; j < source[i].mParams.length; j++) {
@@ -310,48 +297,15 @@ public final class PathParser {
      * Interpolate between two arrays of PathDataNodes with the given fraction, and store the
      * results in the first parameter.
      *
-     * @param target   The resulting array of {@link PathDataNode} for the interpolation
+     * @param target The resulting array of {@link PathDataNode} for the interpolation
+     * @param from The array of {@link PathDataNode} when fraction is 0
+     * @param to The array of {@link PathDataNode} when the fraction is 1
      * @param fraction A float fraction value in the range of 0 to 1
-     * @param from     The array of {@link PathDataNode} when fraction is 0
-     * @param to       The array of {@link PathDataNode} when the fraction is 1
-     * @throws IllegalArgumentException When the arrays of nodes are incompatible for interpolation.
+     * @return whether it's possible to interpolate between the two arrays of PathDataNodes
      * @see #canMorph(PathDataNode[], PathDataNode[])
      */
-    public static void interpolatePathDataNodes(
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] target,
-            float fraction,
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] from,
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] to
-    ) {
-        if (!interpolatePathDataNodes(target, from, to, fraction)) {
-            throw new IllegalArgumentException(
-                    "Can't interpolate between two incompatible pathData"
-            );
-        }
-    }
-
-    /**
-     * Interpolate between two arrays of PathDataNodes with the given fraction, and store the
-     * results in the first parameter.
-     *
-     * @param target   The resulting array of {@link PathDataNode} for the interpolation
-     * @param from     The array of {@link PathDataNode} when fraction is 0
-     * @param to       The array of {@link PathDataNode} when the fraction is 1
-     * @param fraction A float fraction value in the range of 0 to 1
-     * @throws IllegalArgumentException When the arrays of nodes are incompatible for interpolation.
-     * @see #canMorph(PathDataNode[], PathDataNode[])
-     * @deprecated Use
-     * {@link #interpolatePathDataNodes(PathDataNode[], float, PathDataNode[], PathDataNode[])}
-     * instead.
-     */
-    @Deprecated
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static boolean interpolatePathDataNodes(
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] target,
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] from,
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] to,
-            float fraction
-    ) {
+    public static boolean interpolatePathDataNodes(@NonNull PathDataNode[] target,
+            @NonNull PathDataNode[] from, @NonNull PathDataNode[] to, float fraction) {
         if (target.length != from.length || from.length != to.length) {
             throw new IllegalArgumentException("The nodes to be interpolated and resulting nodes"
                     + " must have the same length");
@@ -365,26 +319,6 @@ public final class PathParser {
             target[i].interpolatePathDataNode(from[i], to[i], fraction);
         }
         return true;
-    }
-
-    /**
-     * Convert an array of PathDataNode to Path.
-     *
-     * @param node The source array of PathDataNode.
-     * @param path The target Path object.
-     */
-    @SuppressWarnings("ArrayReturn")
-    public static void nodesToPath(
-            @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] node,
-            @NonNull Path path
-    ) {
-        float[] current = new float[6];
-        char previousCommand = 'm';
-        for (PathDataNode pathDataNode : node) {
-            PathDataNode.addCommand(path, current, previousCommand, pathDataNode.mType,
-                    pathDataNode.mParams);
-            previousCommand = pathDataNode.mType;
-        }
     }
 
     /**
@@ -426,16 +360,14 @@ public final class PathParser {
          *
          * @param node The source array of PathDataNode.
          * @param path The target Path object.
-         * @deprecated Use {@link PathParser#nodesToPath(PathDataNode[], Path)} instead.
          */
-        @Deprecated
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        @SuppressWarnings("ArrayReturn")
-        public static void nodesToPath(
-                @SuppressWarnings("ArrayReturn") @NonNull PathDataNode[] node,
-                @NonNull Path path
-        ) {
-            PathParser.nodesToPath(node, path);
+        public static void nodesToPath(@NonNull PathDataNode[] node, @NonNull Path path) {
+            float[] current = new float[6];
+            char previousCommand = 'm';
+            for (int i = 0; i < node.length; i++) {
+                addCommand(path, current, previousCommand, node[i].mType, node[i].mParams);
+                previousCommand = node[i].mType;
+            }
         }
 
         /**

@@ -58,7 +58,7 @@ res/layout/image_button.xml:10: Error: Must use app:tint instead of android:tint
             )
             .expectFixDiffs(
                 """
-Fix for res/layout/image_button.xml line 10: Use `app:tint` instead of `android:tint`:
+Fix for res/layout/image_button.xml line 10: Set tint="#FF0000":
 @@ -3 +3
 +     xmlns:app="http://schemas.android.com/apk/res-auto"
 @@ -11 +12

@@ -16,7 +16,6 @@
 
 package androidx.graphics.lowlatency
 
-import android.app.Activity
 import android.app.UiAutomation
 import android.graphics.Canvas
 import android.graphics.Color
@@ -27,7 +26,6 @@ import android.os.Build
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.graphics.drawSquares
 import androidx.graphics.opengl.SurfaceViewTestActivity
@@ -117,72 +115,6 @@ class CanvasFrontBufferedRendererTest {
                 Color.RED ==
                     bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
             }
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testInvalidWidth() {
-        testRenderWithDimensions(0, 100)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testInvalidHeight() {
-        testRenderWithDimensions(100, 0)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testNegativeWidth() {
-        testRenderWithDimensions(-18, 100)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testNegativeHeight() {
-        testRenderWithDimensions(100, -19)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun testRenderWithDimensions(width: Int, height: Int) {
-        verifyCanvasFrontBufferedRenderer(object : CanvasFrontBufferedRenderer.Callback<Any> {
-            override fun onDrawFrontBufferedLayer(
-                canvas: Canvas,
-                bufferWidth: Int,
-                bufferHeight: Int,
-                param: Any
-            ) {
-                canvas.drawColor(Color.RED)
-            }
-
-            override fun onDrawMultiBufferedLayer(
-                canvas: Canvas,
-                bufferWidth: Int,
-                bufferHeight: Int,
-                params: Collection<Any>
-            ) {
-                canvas.drawColor(Color.BLUE)
-            }
-
-            override fun onFrontBufferedLayerRenderComplete(
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction
-            ) {
-                // NO-OP
-            }
-        }) { scenario, _, surfaceView ->
-            val paramLatch = CountDownLatch(1)
-            surfaceView.post {
-                surfaceView.layoutParams = FrameLayout.LayoutParams(
-                    width,
-                    height
-                )
-                paramLatch.countDown()
-            }
-            paramLatch.await()
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
         }
     }
 
@@ -1049,20 +981,18 @@ class CanvasFrontBufferedRendererTest {
         }
         try {
             var supportsWideColorGamut = false
-            val createLatch = CountDownLatch(1)
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    supportsWideColorGamut = supportsWideColorGamut(it)
+                    supportsWideColorGamut = it.window.isWideColorGamut
                     surfaceView = it.getSurfaceView()
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
                         configureRenderer.invoke(this)
                     }
-                    createLatch.countDown()
                 }
-            assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             if (supportsWideColorGamut) {
                 scenario.moveToState(Lifecycle.State.RESUMED)
+
                 assertTrue(multiBufferLatch.await(3000, TimeUnit.MILLISECONDS))
 
                 renderer?.renderFrontBufferedLayer(Any())
@@ -1083,16 +1013,6 @@ class CanvasFrontBufferedRendererTest {
             }
         } finally {
             renderer.blockingRelease()
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun supportsWideColorGamut(activity: Activity): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            activity.display?.isWideColorGamut == true
-        } else {
-            activity.windowManager.defaultDisplay.isWideColorGamut
         }
     }
 
@@ -1167,18 +1087,15 @@ class CanvasFrontBufferedRendererTest {
         }
         try {
             var supportsWideColorGamut = false
-            val createLatch = CountDownLatch(1)
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    supportsWideColorGamut = supportsWideColorGamut(it)
+                    supportsWideColorGamut = it.window.isWideColorGamut
                     surfaceView = it.getSurfaceView()
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
                         configureRenderer.invoke(this)
                     }
-                    createLatch.countDown()
                 }
-            assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             if (supportsWideColorGamut) {
                 scenario.moveToState(Lifecycle.State.RESUMED)
 
@@ -1313,7 +1230,6 @@ class CanvasFrontBufferedRendererTest {
                 }
             }
         ) { _, renderer, surfaceView ->
-            commitCount.set(0)
             val latch = CountDownLatch(1)
             commitLatch.set(latch)
             renderer.renderFrontBufferedLayer(Color.RED)
@@ -1322,8 +1238,8 @@ class CanvasFrontBufferedRendererTest {
             renderer.renderFrontBufferedLayer(Color.BLUE)
             renderer.commit()
 
-            pendingCommitLatch.set(CountDownLatch(2))
             latch.countDown()
+            pendingCommitLatch.set(CountDownLatch(1))
 
             assertTrue(pendingCommitLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
 
@@ -1351,6 +1267,8 @@ class CanvasFrontBufferedRendererTest {
                 destroyLatch.countDown()
             }
             Assert.assertTrue(destroyLatch.await(timeoutMillis, TimeUnit.MILLISECONDS))
+        } else {
+            Assert.fail("CanvasFrontBufferedRenderer is not initialized")
         }
     }
 

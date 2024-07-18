@@ -31,6 +31,7 @@ internal fun Translations.ka() = mapOf(
     Strings.Dialog to "დიალოგი",
     Strings.MenuExpanded to "გაფართოებული",
     Strings.MenuCollapsed to "ჩაკეცილი",
+    Strings.ToggleDropdownMenu to "გადართეთ ჩამოსაშლელი მენიუ",
     Strings.SnackbarDismiss to "დახურვა",
     Strings.SearchBarSearch to "ძიება",
     Strings.SuggestionsAvailable to "შემოთავაზებები იხილეთ ქვემოთ",

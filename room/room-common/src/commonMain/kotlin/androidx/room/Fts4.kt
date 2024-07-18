@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.annotation.RequiresApi
 import androidx.room.FtsOptions.TOKENIZER_SIMPLE
 import kotlin.reflect.KClass
 
@@ -57,6 +58,7 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
+@RequiresApi(16)
 public annotation class Fts4(
 
     /**

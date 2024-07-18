@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanThreadSleep"
@@ -20,12 +20,93 @@
     </issue>
 
     <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is never &lt; 21"
-        errorLine1="    if (Build.VERSION.SDK_INT &lt; 21) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.enqueue(listOf(request)).await()"
+        errorLine2="                                                   ~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.kt"/>
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        ).await()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        ).await()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="            .await()"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.cancelAllWorkByTag(WORK_TAG).await()"
+        errorLine2="                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.cancelAllWork().await()"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        val workInfoList: List&lt;WorkInfo> = remoteWorkManager.getWorkInfos(query).await()"
+        errorLine2="                                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="                    setProgressAsync(progress).await()"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteWorker.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                &amp;&amp; Build.VERSION.SDK_INT >= 16 &amp;&amp; data.getClipData() != null) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
     </issue>
 
     <issue

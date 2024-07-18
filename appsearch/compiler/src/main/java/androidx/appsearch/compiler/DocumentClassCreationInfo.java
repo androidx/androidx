@@ -420,7 +420,9 @@ public abstract class DocumentClassCreationInfo {
         }
 
         private static boolean isAnnotatedWithBuilderProducer(@NonNull Element element) {
-            return !IntrospectionHelper.getAnnotations(element, BUILDER_PRODUCER_CLASS).isEmpty();
+            return element.getAnnotationMirrors().stream()
+                    .anyMatch(annotation -> annotation.getAnnotationType().toString()
+                            .equals(BUILDER_PRODUCER_CLASS.canonicalName()));
         }
 
         /**
@@ -450,8 +452,8 @@ public abstract class DocumentClassCreationInfo {
         }
 
         /**
-         * Makes sure the builder type is a {@link DeclaredType} with a non-private & non-static
-         * method of the form {@code DocumentClass build()}.
+         * Makes sure the type is a {@link DeclaredType} with a non-private & non-static method
+         * of the form {@code DocumentClass build()}.
          *
          * @param annotatedElement The method/class annotated with
          *                         {@code @Document.BuilderProducer}.
@@ -469,12 +471,12 @@ public abstract class DocumentClassCreationInfo {
             if (builderType.getKind() != TypeKind.DECLARED) {
                 throw exception;
             }
-            boolean hasBuildMethod = helper.getAllMethods((DeclaredType) builderType)
-                    .anyMatch(method -> method.getElement().getSimpleName().contentEquals("build")
-                            && !method.getElement().getModifiers().contains(Modifier.STATIC)
-                            && !method.getElement().getModifiers().contains(Modifier.PRIVATE)
-                            && helper.isReturnTypeMatching(method.getType(), documentClass.asType())
-                            && method.getType().getParameterTypes().isEmpty());
+            TypeElement builderClass = (TypeElement) ((DeclaredType) builderType).asElement();
+            boolean hasBuildMethod = helper.getAllMethods(builderClass).stream()
+                    .anyMatch(method -> !method.getModifiers().contains(Modifier.STATIC)
+                            && !method.getModifiers().contains(Modifier.PRIVATE)
+                            && helper.isReturnTypeMatching(method, documentClass.asType())
+                            && method.getParameters().isEmpty());
             if (!hasBuildMethod) {
                 throw exception;
             }

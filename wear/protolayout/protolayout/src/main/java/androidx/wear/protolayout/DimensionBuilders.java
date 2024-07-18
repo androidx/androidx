@@ -21,7 +21,6 @@ import static androidx.annotation.Dimension.SP;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import androidx.annotation.Dimension;
-import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +32,6 @@ import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.ExperimentalProtoLayoutExtensionApi;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.DimensionProto;
 
 /** Builders for dimensions for layout elements. */
@@ -44,35 +42,38 @@ public final class DimensionBuilders {
     private static final WrappedDimensionProp WRAP = new WrappedDimensionProp.Builder().build();
 
     /** Shortcut for building a {@link DpProp} using a measurement in DP. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     @NonNull
     public static DpProp dp(@Dimension(unit = DP) float valueDp) {
         return new DpProp.Builder(valueDp).build();
     }
 
     /** Shortcut for building a {@link SpProp} using a measurement in SP. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     @NonNull
     public static SpProp sp(@Dimension(unit = SP) float valueSp) {
         return new SpProp.Builder().setValue(valueSp).build();
     }
 
     /** Shortcut for building a {@link EmProp} using a measurement in EM. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     @NonNull
     public static EmProp em(int valueEm) {
         return new EmProp.Builder().setValue(valueEm).build();
     }
 
-    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * Shortcut for building a {@link EmProp} using a measurement in EM.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static EmProp em(float valueEm) {
         return new EmProp.Builder().setValue(valueEm).build();
     }
 
-    /** Shortcut for building an {@link DegreesProp} using a measurement in degrees. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * Shortcut for building an {@link DegreesProp} using a measurement in degrees.
+     *
+     * @since 1.0
+     */
     @NonNull
     public static DegreesProp degrees(float valueDegrees) {
         return new DegreesProp.Builder(valueDegrees).build();
@@ -81,53 +82,33 @@ public final class DimensionBuilders {
     /**
      * Shortcut for building an {@link ExpandedDimensionProp} that will expand to the size of its
      * parent.
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     @NonNull
     public static ExpandedDimensionProp expand() {
         return EXPAND;
     }
 
     /**
-     * Shortcut for building an {@link ExpandedDimensionProp} with weight (a dimensionless scalar
-     * value).
-     *
-     * <p>This will only affect the width of children of a {@link
-     * androidx.wear.protolayout.LayoutElementBuilders.Row} or the height of children of a {@link
-     * androidx.wear.protolayout.LayoutElementBuilders.Column}, otherwise it will expand to the size
-     * of its parent. Where applicable, the remaining space in the width or height left from the
-     * children with fixed or wrapped dimension will be proportionally split across children with
-     * expand dimension, meaning that the width or height of the element is proportional to the sum
-     * of the weights of its weighted siblings. For the siblings that don't have weight set, but
-     * they are expanded, defaults to 1.
-     */
-    @RequiresSchemaVersion(major = 1, minor = 300)
-    @NonNull
-    public static ExpandedDimensionProp weight(@FloatRange(from = 0.0) float weight) {
-        return new ExpandedDimensionProp.Builder()
-                .setLayoutWeight(new FloatProp.Builder(weight).build())
-                .build();
-    }
-
-    /**
      * Shortcut for building an {@link WrappedDimensionProp} that will shrink to the size of its
      * children.
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     @NonNull
     public static WrappedDimensionProp wrap() {
         return WRAP;
     }
 
-    /** A type for linear dimensions, measured in dp. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * A type for linear dimensions, measured in dp.
+     *
+     * @since 1.0
+     */
     @OptIn(markerClass = ExperimentalProtoLayoutExtensionApi.class)
     public static final class DpProp
-            implements ContainerDimension,
-                ImageDimension,
-                SpacerDimension,
-                ExtensionDimension,
-                PivotDimension {
+            implements ContainerDimension, ImageDimension, SpacerDimension, ExtensionDimension {
         private final DimensionProto.DpProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -140,6 +121,8 @@ public final class DimensionBuilders {
          * Gets the static value, in dp. If a dynamic value is also set and the renderer supports
          * dynamic values for the corresponding field, this static value will be ignored. If the
          * static value is not specified, zero will be used instead.
+         *
+         * @since 1.0
          */
         @Dimension(unit = DP)
         public float getValue() {
@@ -151,6 +134,8 @@ public final class DimensionBuilders {
          * still required to be set to support older renderers that only read the static value. If
          * {@code dynamicValue} has an invalid result, the provided static value will be used
          * instead.
+         *
+         * @since 1.2
          */
         @Nullable
         public DynamicFloat getDynamicValue() {
@@ -218,55 +203,46 @@ public final class DimensionBuilders {
         }
 
         @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DimensionProto.PivotDimension toPivotDimensionProto() {
-            return DimensionProto.PivotDimension.newBuilder().setOffsetDp(mImpl).build();
-        }
-
-        @Override
         @NonNull
         public String toString() {
             return "DpProp{" + "value=" + getValue() + ", dynamicValue=" + getDynamicValue() + "}";
         }
 
         /** Builder for {@link DpProp}. */
-        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder
                 implements ContainerDimension.Builder,
                         ImageDimension.Builder,
                         SpacerDimension.Builder,
-                        ExtensionDimension.Builder,
-                        PivotDimension.Builder {
+                        ExtensionDimension.Builder {
             private final DimensionProto.DpProp.Builder mImpl = DimensionProto.DpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756413087);
 
             /**
-             * Creates an instance of {@link Builder} from the given static value. {@link
-             * #setDynamicValue(DynamicFloat)} can be used to provide a dynamic value.
+             * @deprecated Use {@link #Builder(float)} instead.
+             */
+            @Deprecated
+            public Builder() {}
+
+            /**
+             * Creates a instance of {@link Builder}.
+             *
+             * @param staticValue the static value, in dp.
              */
             public Builder(@Dimension(unit = DP) float staticValue) {
                 setValue(staticValue);
             }
 
             /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @deprecated use {@link #Builder(float)}
-             */
-            @Deprecated
-            public Builder() {}
-
-            /**
              * Sets the static value, in dp. If a dynamic value is also set and the renderer
              * supports dynamic values for the corresponding field, this static value will be
              * ignored. If the static value is not specified, zero will be used instead.
+             *
+             * @since 1.0
              */
-            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
-            public Builder setValue(@Dimension(unit = DP) float value) {
-                mImpl.setValue(value);
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
+            public Builder setValue(@Dimension(unit = DP) float staticValue) {
+                mImpl.setValue(staticValue);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(staticValue));
                 return this;
             }
 
@@ -275,8 +251,9 @@ public final class DimensionBuilders {
              * still required to be set to support older renderers that only read the static value.
              * If {@code dynamicValue} has an invalid result, the provided static value will be used
              * instead.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
                 mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
@@ -317,6 +294,8 @@ public final class DimensionBuilders {
          * Gets the value to use when laying out components which can have a dynamic value.
          * Constrains the layout so that components are not changing size or location regardless of
          * the dynamic value that is being provided.
+         *
+         * @since 1.2
          */
         @SuppressWarnings("Unused")
         @Dimension(unit = DP)
@@ -350,8 +329,8 @@ public final class DimensionBuilders {
              * @param value Sets the value to use when laying out components which can have a
              *     dynamic value. Constrains the layout so that components are not changing size or
              *     location regardless of the dynamic value that is being provided.
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             protected Builder(@Dimension(unit = DP) float value) {
                 setValue(value);
             }
@@ -360,8 +339,9 @@ public final class DimensionBuilders {
              * Sets the value to use when laying out components which can have a dynamic value.
              * Constrains the layout so that components are not changing size or location regardless
              * of the dynamic value that is being provided.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             private Builder setValue(@Dimension(unit = DP) float value) {
                 mImpl.setValueForLayout(value);
@@ -374,9 +354,9 @@ public final class DimensionBuilders {
     /**
      * A type for specifying horizontal layout constraints when using {@link DpProp} on a data
      * bindable layout element.
+     *
+     * @since 1.2
      */
-    @RequiresSchemaVersion(major = 1, minor = 200)
-    @SuppressWarnings("PrivateSuperclass")
     public static final class HorizontalLayoutConstraint extends DpPropLayoutConstraint {
         HorizontalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
             super(impl, fingerprint);
@@ -384,6 +364,8 @@ public final class DimensionBuilders {
 
         /**
          * Gets the horizontal alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
          */
         @LayoutElementBuilders.HorizontalAlignment
         public int getHorizontalAlignment() {
@@ -403,8 +385,8 @@ public final class DimensionBuilders {
              * @param value Sets the value to use when laying out components which can have a
              *     dynamic value. Constrains the layout so that components are not changing size or
              *     location regardless of the dynamic value that is being provided.
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder(@Dimension(unit = DP) float value) {
                 super(value);
             }
@@ -412,8 +394,9 @@ public final class DimensionBuilders {
             /**
              * Sets the horizontal alignment of the actual content within the space reserved by
              * value. If not specified, defaults to center alignment.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setHorizontalAlignment(
                     @LayoutElementBuilders.HorizontalAlignment int horizontalAlignment) {
@@ -433,15 +416,19 @@ public final class DimensionBuilders {
     /**
      * A type for specifying vertical layout constraints when using {@link DpProp} on a data
      * bindable layout element.
+     *
+     * @since 1.2
      */
-    @RequiresSchemaVersion(major = 1, minor = 200)
-    @SuppressWarnings("PrivateSuperclass")
     public static final class VerticalLayoutConstraint extends DpPropLayoutConstraint {
         VerticalLayoutConstraint(DimensionProto.DpProp impl, @Nullable Fingerprint fingerprint) {
             super(impl, fingerprint);
         }
 
-        /** Gets the vertical alignment of the actual content within the space reserved by value. */
+        /**
+         * Gets the vertical alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
         @LayoutElementBuilders.VerticalAlignment
         public int getVerticalAlignment() {
             return mImpl.getVerticalAlignmentForLayoutValue();
@@ -460,8 +447,8 @@ public final class DimensionBuilders {
              * @param value Sets the value to use when laying out components which can have a
              *     dynamic value. Constrains the layout so that components are not changing size or
              *     location regardless of the dynamic value that is being provided.
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder(@Dimension(unit = DP) float value) {
                 super(value);
             }
@@ -469,8 +456,9 @@ public final class DimensionBuilders {
             /**
              * Sets the vertical alignment of the actual content within the space reserved by value.
              * If not specified, defaults to center alignment.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setVerticalAlignment(
                     @LayoutElementBuilders.VerticalAlignment int verticalAlignment) {
@@ -487,8 +475,11 @@ public final class DimensionBuilders {
         }
     }
 
-    /** A type for font sizes, measured in sp. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * A type for font sizes, measured in sp.
+     *
+     * @since 1.0
+     */
     public static final class SpProp {
         private final DimensionProto.SpProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -498,7 +489,11 @@ public final class DimensionBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the value, in sp. */
+        /**
+         * Gets the value, in sp.
+         *
+         * @since 1.0
+         */
         @Dimension(unit = SP)
         public float getValue() {
             return mImpl.getValue();
@@ -542,11 +537,13 @@ public final class DimensionBuilders {
             private final DimensionProto.SpProp.Builder mImpl = DimensionProto.SpProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(631793260);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /** Sets the value, in sp. */
-            @RequiresSchemaVersion(major = 1, minor = 0)
+            /**
+             * Sets the value, in sp.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setValue(@Dimension(unit = SP) float value) {
                 mImpl.setValue(value);
@@ -562,8 +559,11 @@ public final class DimensionBuilders {
         }
     }
 
-    /** A type for font spacing, measured in em. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * A type for font spacing, measured in em.
+     *
+     * @since 1.0
+     */
     public static final class EmProp {
         private final DimensionProto.EmProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -573,7 +573,11 @@ public final class DimensionBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the value, in em. */
+        /**
+         * Gets the value, in em.
+         *
+         * @since 1.0
+         */
         public float getValue() {
             return mImpl.getValue();
         }
@@ -616,11 +620,13 @@ public final class DimensionBuilders {
             private final DimensionProto.EmProp.Builder mImpl = DimensionProto.EmProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-659639046);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /** Sets the value, in em. */
-            @RequiresSchemaVersion(major = 1, minor = 0)
+            /**
+             * Sets the value, in em.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setValue(float value) {
                 mImpl.setValue(value);
@@ -636,8 +642,11 @@ public final class DimensionBuilders {
         }
     }
 
-    /** A type for angular dimensions, measured in degrees. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * A type for angular dimensions, measured in degrees.
+     *
+     * @since 1.0
+     */
     public static final class DegreesProp {
         private final DimensionProto.DegreesProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -651,6 +660,8 @@ public final class DimensionBuilders {
          * Gets the static value, in degrees. If a dynamic value is also set and the renderer
          * supports dynamic values for the corresponding field, this static value will be ignored.
          * If the static value is not specified, zero will be used instead.
+         *
+         * @since 1.0
          */
         public float getValue() {
             return mImpl.getValue();
@@ -661,6 +672,8 @@ public final class DimensionBuilders {
          * is still required to be set to support older renderers that only read the static value.
          * If {@code dynamicValue} has an invalid result, the provided static value will be used
          * instead.
+         *
+         * @since 1.2
          */
         @Nullable
         public DynamicFloat getDynamicValue() {
@@ -716,31 +729,31 @@ public final class DimensionBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(-1927567665);
 
             /**
-             * Creates an instance of {@link Builder} from the given static value. {@link
-             * #setDynamicValue(DynamicFloat)} can be used to provide a dynamic value.
+             * @deprecated Use {@link #Builder(float)} instead.
+             */
+            @Deprecated
+            public Builder() {}
+
+            /**
+             * Creates a instance of {@link Builder}.
+             *
+             * @param staticValue the static value, in degrees.
              */
             public Builder(float staticValue) {
                 setValue(staticValue);
             }
 
             /**
-             * Creates an instance of {@link Builder}.
-             *
-             * @deprecated use {@link #Builder(float)}
-             */
-            @Deprecated
-            public Builder() {}
-
-            /**
              * Sets the static value, in degrees. If a dynamic value is also set and the renderer
              * supports dynamic values for the corresponding field, this static value will be
              * ignored. If the static value is not specified, zero will be used instead.
+             *
+             * @since 1.0
              */
-            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
-            public Builder setValue(float value) {
-                mImpl.setValue(value);
-                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(value));
+            public Builder setValue(float staticValue) {
+                mImpl.setValue(staticValue);
+                mFingerprint.recordPropertyUpdate(1, Float.floatToIntBits(staticValue));
                 return this;
             }
 
@@ -749,8 +762,9 @@ public final class DimensionBuilders {
              * value is still required to be set to support older renderers that only read the
              * static value. If {@code dynamicValue} has an invalid result, the provided static
              * value will be used instead.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setDynamicValue(@NonNull DynamicFloat dynamicValue) {
                 mImpl.setDynamicValue(dynamicValue.toDynamicFloatProto());
@@ -779,8 +793,9 @@ public final class DimensionBuilders {
     /**
      * A type for specifying layout constraints when using {@link DegreesProp} on a data bindable
      * layout element.
+     *
+     * @since 1.2
      */
-    @RequiresSchemaVersion(major = 1, minor = 200)
     public static final class AngularLayoutConstraint {
         private final DimensionProto.DegreesProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -794,13 +809,19 @@ public final class DimensionBuilders {
         /**
          * Gets the fixed value to reserve the space when used on a layout-changing data bind. If
          * not set defaults to the static value of the associated {@link DegreesProp} field.
+         *
+         * @since 1.2
          */
         @Dimension(unit = DP)
         public float getValue() {
             return mImpl.getValueForLayout();
         }
 
-        /** Gets angular alignment of the actual content within the space reserved by value. */
+        /**
+         * Gets angular alignment of the actual content within the space reserved by value.
+         *
+         * @since 1.2
+         */
         @LayoutElementBuilders.AngularAlignment
         public int getAngularAlignment() {
             return mImpl.getAngularAlignmentForLayoutValue();
@@ -834,16 +855,17 @@ public final class DimensionBuilders {
              *
              * @param value Sets the fixed value to reserve the space when used on a layout-changing
              *     data bind.
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             public Builder(@Dimension(unit = DP) float value) {
                 setValue(value);
             }
 
             /**
              * Sets the fixed value to reserve the space when used on a layout-changing data bind.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             private Builder setValue(@Dimension(unit = DP) float value) {
                 mImpl.setValueForLayout(value);
@@ -854,8 +876,9 @@ public final class DimensionBuilders {
             /**
              * Sets angular alignment of the actual content within the space reserved by value. If
              * not specified, defaults to center alignment.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setAngularAlignment(
                     @LayoutElementBuilders.AngularAlignment int angularAlignment) {
@@ -875,10 +898,10 @@ public final class DimensionBuilders {
     /**
      * A type for a dimension that fills all the space it can (i.e. MATCH_PARENT in Android
      * parlance).
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
-    public static final class ExpandedDimensionProp
-            implements ContainerDimension, ImageDimension, SpacerDimension {
+    public static final class ExpandedDimensionProp implements ContainerDimension, ImageDimension {
         private final DimensionProto.ExpandedDimensionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -896,7 +919,7 @@ public final class DimensionBuilders {
          * have equal weight. Where applicable, the width or height of the element is proportional
          * to the sum of the weights of its siblings.
          *
-         * <p>Note that negative values are not supported and it can lead to unexpected behaviour.
+         * @since 1.2
          */
         @Nullable
         public FloatProp getLayoutWeight() {
@@ -945,18 +968,12 @@ public final class DimensionBuilders {
                     .build();
         }
 
+        /* */
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public DimensionProto.ImageDimension toImageDimensionProto() {
             return DimensionProto.ImageDimension.newBuilder().setExpandedDimension(mImpl).build();
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DimensionProto.SpacerDimension toSpacerDimensionProto() {
-            return DimensionProto.SpacerDimension.newBuilder().setExpandedDimension(mImpl).build();
         }
 
         @Override
@@ -966,16 +983,12 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link ExpandedDimensionProp}. */
-        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder
-                implements ContainerDimension.Builder,
-                        ImageDimension.Builder,
-                        SpacerDimension.Builder {
+                implements ContainerDimension.Builder, ImageDimension.Builder {
             private final DimensionProto.ExpandedDimensionProp.Builder mImpl =
                     DimensionProto.ExpandedDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-997720604);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -986,18 +999,15 @@ public final class DimensionBuilders {
              * children have equal weight. Where applicable, the width or height of the element is
              * proportional to the sum of the weights of its siblings.
              *
-             * <p>Note that negative values are not supported and it can lead to unexpected
-             * behaviour.
-             *
              * <p>Note that this field only supports static values.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setLayoutWeight(@NonNull FloatProp layoutWeight) {
                 if (layoutWeight.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "ExpandedDimensionProp.Builder.setLayoutWeight doesn't support dynamic"
-                                    + " values.");
+                            "setLayoutWeight doesn't support dynamic values.");
                 }
                 mImpl.setLayoutWeight(layoutWeight.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -1005,7 +1015,6 @@ public final class DimensionBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public ExpandedDimensionProp build() {
@@ -1017,8 +1026,9 @@ public final class DimensionBuilders {
     /**
      * A type for a dimension that sizes itself to the size of its children (i.e. WRAP_CONTENT in
      * Android parlance).
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class WrappedDimensionProp implements ContainerDimension {
         private final DimensionProto.WrappedDimensionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1029,7 +1039,11 @@ public final class DimensionBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the minimum size of this dimension. If not set, then there is no minimum size. */
+        /**
+         * Gets the minimum size of this dimension. If not set, then there is no minimum size.
+         *
+         * @since 1.2
+         */
         @Nullable
         public DpProp getMinimumSize() {
             if (mImpl.hasMinimumSize()) {
@@ -1083,35 +1097,33 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link WrappedDimensionProp}. */
-        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ContainerDimension.Builder {
             private final DimensionProto.WrappedDimensionProp.Builder mImpl =
                     DimensionProto.WrappedDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1118918114);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
              * Sets the minimum size of this dimension. If not set, then there is no minimum size.
              *
              * <p>Note that this field only supports static values.
+             *
+             * @since 1.2
              */
-            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setMinimumSize(@NonNull DpProp minimumSize) {
                 if (minimumSize.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "WrappedDimensionProp.Builder.setMinimumSize doesn't support dynamic"
-                                    + " values.");
+                            "setMinimumSize doesn't support dynamic values.");
                 }
+
                 mImpl.setMinimumSize(minimumSize.toProto());
                 mFingerprint.recordPropertyUpdate(
                         1, checkNotNull(minimumSize.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public WrappedDimensionProp build() {
@@ -1128,8 +1140,9 @@ public final class DimensionBuilders {
      * specifying an element's size using common ratios (e.g. width=4, height=3), or to allow an
      * element to be resized proportionally based on the size of an underlying asset (e.g. an
      * 800x600 image being added to a smaller container and resized accordingly).
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ProportionalDimensionProp implements ImageDimension {
         private final DimensionProto.ProportionalDimensionProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1140,13 +1153,21 @@ public final class DimensionBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the width to be used when calculating the aspect ratio to preserve. */
+        /**
+         * Gets the width to be used when calculating the aspect ratio to preserve.
+         *
+         * @since 1.0
+         */
         @IntRange(from = 0)
         public int getAspectRatioWidth() {
             return mImpl.getAspectRatioWidth();
         }
 
-        /** Gets the height to be used when calculating the aspect ratio ratio to preserve. */
+        /**
+         * Gets the height to be used when calculating the aspect ratio ratio to preserve.
+         *
+         * @since 1.0
+         */
         @IntRange(from = 0)
         public int getAspectRatioHeight() {
             return mImpl.getAspectRatioHeight();
@@ -1202,17 +1223,18 @@ public final class DimensionBuilders {
         }
 
         /** Builder for {@link ProportionalDimensionProp}. */
-        @SuppressWarnings("HiddenSuperclass")
         public static final class Builder implements ImageDimension.Builder {
             private final DimensionProto.ProportionalDimensionProp.Builder mImpl =
                     DimensionProto.ProportionalDimensionProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1725027476);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /** Sets the width to be used when calculating the aspect ratio to preserve. */
-            @RequiresSchemaVersion(major = 1, minor = 0)
+            /**
+             * Sets the width to be used when calculating the aspect ratio to preserve.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setAspectRatioWidth(@IntRange(from = 0) int aspectRatioWidth) {
                 mImpl.setAspectRatioWidth(aspectRatioWidth);
@@ -1220,8 +1242,11 @@ public final class DimensionBuilders {
                 return this;
             }
 
-            /** Sets the height to be used when calculating the aspect ratio ratio to preserve. */
-            @RequiresSchemaVersion(major = 1, minor = 0)
+            /**
+             * Sets the height to be used when calculating the aspect ratio ratio to preserve.
+             *
+             * @since 1.0
+             */
             @NonNull
             public Builder setAspectRatioHeight(@IntRange(from = 0) int aspectRatioHeight) {
                 mImpl.setAspectRatioHeight(aspectRatioHeight);
@@ -1229,7 +1254,6 @@ public final class DimensionBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public ProportionalDimensionProp build() {
@@ -1238,8 +1262,11 @@ public final class DimensionBuilders {
         }
     }
 
-    /** Interface defining a dimension that can be applied to a container. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * Interface defining a dimension that can be applied to a container.
+     *
+     * @since 1.0
+     */
     public interface ContainerDimension {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1285,8 +1312,11 @@ public final class DimensionBuilders {
         return containerDimensionFromProto(proto, null);
     }
 
-    /** Interface defining a dimension that can be applied to an image. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * Interface defining a dimension that can be applied to an image.
+     *
+     * @since 1.0
+     */
     public interface ImageDimension {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1331,8 +1361,11 @@ public final class DimensionBuilders {
         return imageDimensionFromProto(proto, null);
     }
 
-    /** Interface defining a dimension that can be applied to a spacer. */
-    @RequiresSchemaVersion(major = 1, minor = 0)
+    /**
+     * Interface defining a dimension that can be applied to a spacer.
+     *
+     * @since 1.0
+     */
     public interface SpacerDimension {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -1362,9 +1395,6 @@ public final class DimensionBuilders {
         if (proto.hasLinearDimension()) {
             return DpProp.fromProto(proto.getLinearDimension(), fingerprint);
         }
-        if (proto.hasExpandedDimension()) {
-            return ExpandedDimensionProp.fromProto(proto.getExpandedDimension(), fingerprint);
-        }
         throw new IllegalStateException("Proto was not a recognised instance of SpacerDimension");
     }
 
@@ -1376,8 +1406,9 @@ public final class DimensionBuilders {
     /**
      * Interface defining a dimension that can be applied to a {@link
      * androidx.wear.protolayout.LayoutElementBuilders.ExtensionLayoutElement} element.
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
     @ExperimentalProtoLayoutExtensionApi
     public interface ExtensionDimension {
         /** Get the protocol buffer representation of this object. */
@@ -1416,159 +1447,5 @@ public final class DimensionBuilders {
     static ExtensionDimension extensionDimensionFromProto(
             @NonNull DimensionProto.ExtensionDimension proto) {
         return extensionDimensionFromProto(proto, null);
-    }
-
-    /** Provide a position representation proportional to the bounding box width/height. */
-    @RequiresSchemaVersion(major = 1, minor = 400)
-    public static final class BoundingBoxRatio implements PivotDimension {
-        private final DimensionProto.BoundingBoxRatio mImpl;
-        @Nullable private final Fingerprint mFingerprint;
-
-        BoundingBoxRatio(DimensionProto.BoundingBoxRatio impl, @Nullable Fingerprint fingerprint) {
-            this.mImpl = impl;
-            this.mFingerprint = fingerprint;
-        }
-
-        /**
-         * Gets the ratio proportional to the bounding box width/height. value 0 represents the
-         * location at the top / left of the bounding box and value 1 represents the location at the
-         * bottom / end of the bounding box. Its default value 0.5 represents the middle of the
-         * bounding box. Values outside [0, 1] are also valid. Dynamic value is supported.
-         */
-        @NonNull
-        public FloatProp getRatio() {
-            if (mImpl.hasRatio()) {
-                return FloatProp.fromProto(mImpl.getRatio());
-            } else {
-                return new FloatProp.Builder(0.5f).build();
-            }
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Nullable
-        public Fingerprint getFingerprint() {
-            return mFingerprint;
-        }
-
-        /** Creates a new wrapper instance from the proto. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public static BoundingBoxRatio fromProto(
-                @NonNull DimensionProto.BoundingBoxRatio proto, @Nullable Fingerprint fingerprint) {
-            return new BoundingBoxRatio(proto, fingerprint);
-        }
-
-        @NonNull
-        static BoundingBoxRatio fromProto(@NonNull DimensionProto.BoundingBoxRatio proto) {
-            return fromProto(proto, null);
-        }
-
-        /** Returns the internal proto instance. */
-        @NonNull
-        DimensionProto.BoundingBoxRatio toProto() {
-            return mImpl;
-        }
-
-        @Override
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public DimensionProto.PivotDimension toPivotDimensionProto() {
-            return DimensionProto.PivotDimension.newBuilder().setLocationRatio(mImpl).build();
-        }
-
-        @Override
-        @NonNull
-        public String toString() {
-            return "BoundingBoxRatio{" + "ratio=" + getRatio() + "}";
-        }
-
-        /** Builder for {@link BoundingBoxRatio}. */
-        @SuppressWarnings("HiddenSuperclass")
-        public static final class Builder implements PivotDimension.Builder {
-            private final DimensionProto.BoundingBoxRatio.Builder mImpl =
-                    DimensionProto.BoundingBoxRatio.newBuilder();
-            private final Fingerprint mFingerprint = new Fingerprint(-1387873430);
-
-            /**
-             * Creates an instance of {@link Builder}.
-             * @param ratio the ratio proportional to the bounding box width/height. value 0
-             *     represents the location at the top / left of the bounding box and value 1
-             *     represents the location at the bottom / end of the bounding box. Its default
-             *     value 0.5 represents the middle of the bounding box. Values outside [0, 1]
-             *     are also valid. Dynamic value is supported.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 400)
-            public Builder(@NonNull FloatProp ratio) {
-               setRatio(ratio);
-            }
-
-            /**
-             * Gets the ratio proportional to the bounding box width/height. value 0 represents the
-             * location at the top / left of the bounding box and value 1 represents the location at
-             * the bottom / end of the bounding box. Its default value 0.5 represents the middle
-             * of the bounding box. Values outside [0, 1] are also valid. Dynamic value is
-             * supported.
-             */
-            @NonNull
-            private Builder setRatio(@NonNull FloatProp ratio) {
-                mImpl.setRatio(ratio.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        1, checkNotNull(ratio.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /** Builds an instance from accumulated values. */
-            @Override
-            @NonNull
-            public BoundingBoxRatio build() {
-                return new BoundingBoxRatio(mImpl.build(), mFingerprint);
-            }
-        }
-    }
-
-    /**
-     * Interface defining a dimension that can be applied to a pivot location for scale and rotate
-     * transformations.
-     */
-    @RequiresSchemaVersion(major = 1, minor = 400)
-    public interface PivotDimension {
-        /** Get the protocol buffer representation of this object. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        DimensionProto.PivotDimension toPivotDimensionProto();
-
-        /** Get the fingerprint for this object or null if unknown. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Nullable
-        Fingerprint getFingerprint();
-
-        /** Builder to create {@link PivotDimension} objects. */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        interface Builder {
-
-            /** Builds an instance with values accumulated in this Builder. */
-            @NonNull
-            PivotDimension build();
-        }
-    }
-
-    /** Creates a new wrapper instance from the proto. */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public static PivotDimension pivotDimensionFromProto(
-            @NonNull DimensionProto.PivotDimension proto, @Nullable Fingerprint fingerprint) {
-        if (proto.hasOffsetDp()) {
-            return DpProp.fromProto(proto.getOffsetDp(), fingerprint);
-        }
-        if (proto.hasLocationRatio()) {
-            return BoundingBoxRatio.fromProto(proto.getLocationRatio(), fingerprint);
-        }
-        throw new IllegalStateException("Proto was not a recognised instance of PivotDimension");
-    }
-
-    @NonNull
-    static PivotDimension pivotDimensionFromProto(@NonNull DimensionProto.PivotDimension proto) {
-        return pivotDimensionFromProto(proto, null);
     }
 }

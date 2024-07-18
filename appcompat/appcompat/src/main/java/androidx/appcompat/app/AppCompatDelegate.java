@@ -663,6 +663,7 @@ public abstract class AppCompatDelegate {
      * @see #getLocalNightMode()
      * @see #setDefaultNightMode(int)
      */
+    @RequiresApi(17)
     public abstract void setLocalNightMode(@NightMode int mode);
 
     /**

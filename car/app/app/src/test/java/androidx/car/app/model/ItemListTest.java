@@ -45,14 +45,6 @@ import java.util.Collections;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class ItemListTest {
-    private static final Row row1 = new Row.Builder().setTitle("Row1").build();
-    private static final Row row2 = new Row.Builder().setTitle("Row2").build();
-    private static final GridItem gridItem1 = new GridItem.Builder().setTitle("title 1").setImage(BACK).build();
-    private static final GridItem gridItem2 = new GridItem.Builder().setTitle("title 2").setImage(BACK).build();
-    private final OnSelectedListener mockSelectedListener = mock(OnSelectedListener.class);
-    private final OnItemVisibilityChangedListener mockItemVisibilityChangedListener = mock(OnItemVisibilityChangedListener.class);
-    OnDoneCallback mockOnDoneCallback = mock(OnDoneCallback.class);
-
     @Test
     public void createEmpty() {
         ItemList list = new ItemList.Builder().build();
@@ -61,13 +53,19 @@ public class ItemListTest {
 
     @Test
     public void createRows() {
+        Row row1 = new Row.Builder().setTitle("Row1").build();
+        Row row2 = new Row.Builder().setTitle("Row2").build();
         ItemList list = new ItemList.Builder().addItem(row1).addItem(row2).build();
 
-        assertThat(list.getItems()).containsExactly(row1, row2).inOrder();
+        assertThat(list.getItems()).hasSize(2);
+        assertThat(list.getItems().get(0)).isEqualTo(row1);
+        assertThat(list.getItems().get(1)).isEqualTo(row2);
     }
 
     @Test
     public void createGridItems() {
+        GridItem gridItem1 = new GridItem.Builder().setTitle("title 1").setImage(BACK).build();
+        GridItem gridItem2 = new GridItem.Builder().setTitle("title 2").setImage(BACK).build();
         ItemList list = new ItemList.Builder().addItem(gridItem1).addItem(gridItem2).build();
 
         assertThat(list.getItems()).containsExactly(gridItem1, gridItem2).inOrder();
@@ -75,45 +73,54 @@ public class ItemListTest {
 
     @Test
     public void clearItems() {
+        Row row1 = new Row.Builder().setTitle("Row1").build();
+        Row row2 = new Row.Builder().setTitle("Row2").build();
         ItemList list = new ItemList.Builder()
                 .addItem(row1)
                 .clearItems()
                 .addItem(row2)
                 .build();
 
-        assertThat(list.getItems()).containsExactly(row2).inOrder();
+        assertThat(list.getItems()).hasSize(1);
+        assertThat(list.getItems().get(0)).isEqualTo(row2);
     }
 
     @Test
     public void setSelectedable_emptyList_throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> new ItemList.Builder().setOnSelectedListener(mockSelectedListener).build());
+                () -> new ItemList.Builder().setOnSelectedListener(selectedIndex -> {
+                }).build());
     }
 
     @Test
     public void setSelectedIndex_greaterThanListSize_throws() {
+        Row row1 = new Row.Builder().setTitle("Row1").build();
         assertThrows(
                 IllegalStateException.class,
                 () -> new ItemList.Builder()
                         .addItem(row1)
-                        .setOnSelectedListener(mockSelectedListener)
+                        .setOnSelectedListener(selectedIndex -> {
+                        })
                         .setSelectedIndex(2)
                         .build());
     }
 
     @Test
     public void setSelectable() throws RemoteException {
+        OnSelectedListener mockListener = mock(OnSelectedListener.class);
         ItemList itemList =
                 new ItemList.Builder()
-                        .addItem(row1)
-                        .setOnSelectedListener(mockSelectedListener)
+                        .addItem(new Row.Builder().setTitle("title").build())
+                        .setOnSelectedListener(mockListener)
                         .build();
 
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
 
-        itemList.getOnSelectedDelegate().sendSelected(0, mockOnDoneCallback);
-        verify(mockSelectedListener).onSelected(eq(0));
-        verify(mockOnDoneCallback).onSuccess(null);
+
+        itemList.getOnSelectedDelegate().sendSelected(0, onDoneCallback);
+        verify(mockListener).onSelected(eq(0));
+        verify(onDoneCallback).onSuccess(null);
     }
 
     @Test
@@ -123,13 +130,15 @@ public class ItemListTest {
                 () -> new ItemList.Builder()
                         .addItem(new Row.Builder().setTitle("foo").setOnClickListener(() -> {
                         }).build())
-                        .setOnSelectedListener(mockSelectedListener)
+                        .setOnSelectedListener((index) -> {
+                        })
                         .build());
 
         // Positive test.
         new ItemList.Builder()
                 .addItem(new Row.Builder().setTitle("foo").build())
-                .setOnSelectedListener(mockSelectedListener)
+                .setOnSelectedListener((index) -> {
+                })
                 .build();
     }
 
@@ -140,65 +149,72 @@ public class ItemListTest {
                 () -> new ItemList.Builder()
                         .addItem(new Row.Builder().setToggle(new Toggle.Builder(isChecked -> {
                         }).build()).build())
-                        .setOnSelectedListener(mockSelectedListener)
+                        .setOnSelectedListener((index) -> {
+                        })
                         .build());
     }
 
     @Test
     public void setOnItemVisibilityChangeListener_triggerListener() {
+        OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
         ItemList list =
                 new ItemList.Builder()
-                        .addItem(row1)
-                        .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
+                        .addItem(new Row.Builder().setTitle("1").build())
+                        .setOnItemsVisibilityChangedListener(listener)
                         .build();
 
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         list.getOnItemVisibilityChangedDelegate().sendItemVisibilityChanged(0, 1,
-                mockOnDoneCallback);
+                onDoneCallback);
         ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockItemVisibilityChangedListener).onItemVisibilityChanged(startIndexCaptor.capture(),
+        verify(listener).onItemVisibilityChanged(startIndexCaptor.capture(),
                 endIndexCaptor.capture());
-        verify(mockOnDoneCallback).onSuccess(null);
+        verify(onDoneCallback).onSuccess(null);
         assertThat(startIndexCaptor.getValue()).isEqualTo(0);
         assertThat(endIndexCaptor.getValue()).isEqualTo(1);
     }
 
     @Test
     public void setOnItemVisibilityChangeListener_triggerListenerWithFailure() {
+        OnItemVisibilityChangedListener listener = mock(OnItemVisibilityChangedListener.class);
         ItemList list =
                 new ItemList.Builder()
-                        .addItem(row1)
-                        .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
+                        .addItem(new Row.Builder().setTitle("1").build())
+                        .setOnItemsVisibilityChangedListener(listener)
                         .build();
 
         String testExceptionMessage = "Test exception";
-        doThrow(new RuntimeException(testExceptionMessage)).when(mockItemVisibilityChangedListener).onItemVisibilityChanged(
+        doThrow(new RuntimeException(testExceptionMessage)).when(listener).onItemVisibilityChanged(
                 0, 1);
 
+        OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         try {
             list.getOnItemVisibilityChangedDelegate().sendItemVisibilityChanged(0, 1,
-                    mockOnDoneCallback);
+                    onDoneCallback);
         } catch (RuntimeException e) {
             assertThat(e.getMessage()).contains(testExceptionMessage);
         }
 
         ArgumentCaptor<Integer> startIndexCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<Integer> endIndexCaptor = ArgumentCaptor.forClass(Integer.class);
-        verify(mockItemVisibilityChangedListener).onItemVisibilityChanged(startIndexCaptor.capture(),
+        verify(listener).onItemVisibilityChanged(startIndexCaptor.capture(),
                 endIndexCaptor.capture());
-        verify(mockOnDoneCallback).onFailure(any());
+        verify(onDoneCallback).onFailure(any());
         assertThat(startIndexCaptor.getValue()).isEqualTo(0);
         assertThat(endIndexCaptor.getValue()).isEqualTo(1);
     }
 
     @Test
     public void equals_itemListWithRows() {
-        assertThat(createFullyPopulatedRowItemList()).isEqualTo(createFullyPopulatedRowItemList());
+        assertThat(createFullyPopulatedRowItemList())
+                .isEqualTo(createFullyPopulatedRowItemList());
     }
 
     @Test
     public void equals_itemListWithGridItems() {
-        assertThat(createFullyPopulatedGridItemList()).isEqualTo(createFullyPopulatedGridItemList());
+        assertThat(createFullyPopulatedGridItemList())
+                .isEqualTo(createFullyPopulatedGridItemList());
     }
 
     @Test
@@ -209,46 +225,48 @@ public class ItemListTest {
 
     @Test
     public void notEquals_differentSelectedIndex() {
-        ItemList itemList = new ItemList.Builder()
-                .setOnSelectedListener(mockSelectedListener)
-                .addItem(row1)
-                .addItem(row2)
-                .build();
+        Row row = new Row.Builder().setTitle("Title").build();
+        ItemList itemList =
+                new ItemList.Builder().setOnSelectedListener((index) -> {
+                }).addItem(row).addItem(row).build();
         assertThat(itemList)
                 .isNotEqualTo(
                         new ItemList.Builder()
-                                .setOnSelectedListener(mockSelectedListener)
+                                .setOnSelectedListener((index) -> {
+                                })
                                 .setSelectedIndex(1)
-                                .addItem(row1)
-                                .addItem(row2)
+                                .addItem(row)
+                                .addItem(row)
                                 .build());
     }
 
     @Test
     public void notEquals_missingSelectedListener() {
-        ItemList itemList = new ItemList.Builder()
-                .setOnSelectedListener(mockSelectedListener)
-                .addItem(row1)
-                .addItem(row2)
-                .build();
-        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row1).addItem(row2).build());
+        Row row = new Row.Builder().setTitle("Title").build();
+        ItemList itemList =
+                new ItemList.Builder().setOnSelectedListener((index) -> {
+                }).addItem(row).addItem(row).build();
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row).addItem(row).build());
     }
 
     @Test
     public void notEquals_missingVisibilityChangedListener() {
+        Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList =
                 new ItemList.Builder()
-                        .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
-                        .addItem(row1)
-                        .addItem(row2)
+                        .setOnItemsVisibilityChangedListener((start, end) -> {
+                        })
+                        .addItem(row)
+                        .addItem(row)
                         .build();
-        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row1).addItem(row2).build());
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row).addItem(row).build());
     }
 
     @Test
     public void notEquals_differentRows() {
-        ItemList itemList = new ItemList.Builder().addItem(row1).addItem(row1).build();
-        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row1).build());
+        Row row = new Row.Builder().setTitle("Title").build();
+        ItemList itemList = new ItemList.Builder().addItem(row).addItem(row).build();
+        assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(row).build());
     }
 
     @Test
@@ -256,20 +274,6 @@ public class ItemListTest {
         GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
         ItemList itemList = new ItemList.Builder().addItem(gridItem).addItem(gridItem).build();
         assertThat(itemList).isNotEqualTo(new ItemList.Builder().addItem(gridItem).build());
-    }
-
-    @Test
-    public void equals_delegateVsCallback() {
-        ItemList itemListWithListeners = new ItemList.Builder().addItem(row1)
-                .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
-                .setOnSelectedListener(mockSelectedListener)
-                .build();
-        ItemList itemListWithDelegates = new ItemList.Builder().addItem(row1)
-                .setOnItemsVisibilityChangedDelegate(OnItemVisibilityChangedDelegateImpl.create(mockItemVisibilityChangedListener))
-                .setOnSelectedDelegate(OnSelectedDelegateImpl.create(mockSelectedListener))
-                .build();
-
-        assertThat(itemListWithListeners).isEqualTo(itemListWithDelegates);
     }
 
     @Test
@@ -290,41 +294,51 @@ public class ItemListTest {
     public void toBuilder_fieldsCanBeOverwritten() {
         Row row = new Row.Builder().setTitle("Title").build();
         ItemList itemList = new ItemList.Builder()
-                .setOnSelectedListener(mockSelectedListener)
+                .setOnSelectedListener((index) -> {
+                })
                 .setNoItemsMessage("no items")
                 .setSelectedIndex(0)
-                .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
                 .addItem(row)
                 .build();
 
         // Verify fields can be overwritten (no crash)
         itemList.toBuilder()
-                .setOnSelectedListener(mockSelectedListener)
+                .setOnSelectedListener((index) -> {
+                })
                 .setNoItemsMessage("no items")
                 .setSelectedIndex(0)
-                .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
                 .clearItems()
                 .addItem(row)
                 .build();
     }
 
-    private ItemList createFullyPopulatedRowItemList() {
+    private static ItemList createFullyPopulatedRowItemList() {
+        Row row = new Row.Builder().setTitle("Title").build();
         return new ItemList.Builder()
-                .setOnSelectedListener(mockSelectedListener)
+                .setOnSelectedListener((index) -> {
+                })
                 .setNoItemsMessage("no items")
                 .setSelectedIndex(0)
-                .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
-                .addItem(row1)
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
+                .addItem(row)
                 .build();
     }
 
-    private ItemList createFullyPopulatedGridItemList() {
+    private static ItemList createFullyPopulatedGridItemList() {
+        GridItem gridItem = new GridItem.Builder().setImage(BACK).setTitle("Title").build();
         return new ItemList.Builder()
-                .setOnSelectedListener(mockSelectedListener)
+                .setOnSelectedListener((index) -> {
+                })
                 .setNoItemsMessage("no items")
                 .setSelectedIndex(0)
-                .setOnItemsVisibilityChangedListener(mockItemVisibilityChangedListener)
-                .addItem(gridItem1)
+                .setOnItemsVisibilityChangedListener((start, end) -> {
+                })
+                .addItem(gridItem)
                 .build();
     }
 }

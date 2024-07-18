@@ -127,7 +127,7 @@ class CreateCustomCredentialRequestTest {
         val convertedRequest = createFrom(
             request.type, request.credentialData, request.candidateQueryData,
             request.isSystemProviderRequired, request.origin
-        )
+        )!!
 
         assertThat(convertedRequest).isInstanceOf(CreateCustomCredentialRequest::class.java)
         val actualRequest = convertedRequest as CreateCustomCredentialRequest

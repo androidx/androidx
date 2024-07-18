@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.database.AbstractCursor#setExtras`"
+        message="Call requires API level 23 (current min is 19): `android.database.AbstractCursor#setExtras`"
         errorLine1="        c.setExtras(extras);"
         errorLine2="          ~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.database.AbstractCursor#setExtras`"
+        message="Call requires API level 23 (current min is 19): `android.database.AbstractCursor#setExtras`"
         errorLine1="        cursor.setExtras(extras);"
         errorLine2="               ~~~~~~~~~">
         <location
@@ -33,6 +33,24 @@
         message="This call references a method added in API level 26; however, the containing class androidx.contentpager.content.Query is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
+        <location
+            file="src/main/java/androidx/contentpager/content/Query.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/contentpager/content/Query.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>

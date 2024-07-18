@@ -24,6 +24,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
@@ -39,6 +40,7 @@ import java.util.Set;
  * list after a reboot since the packages are no longer requesting pinning.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public class CompatPinnedList {
 

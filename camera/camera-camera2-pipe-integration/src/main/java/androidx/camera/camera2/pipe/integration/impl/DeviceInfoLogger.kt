@@ -17,11 +17,13 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraCharacteristics
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.info
 
 /**
  * Logs the required device info, e.g. camera hardware level required by CameraXHardwareLevelPlugin.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 object DeviceInfoLogger {
     fun logDeviceInfo(cameraProperties: CameraProperties) {
         // Extend by adding logging here as needed.

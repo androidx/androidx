@@ -536,7 +536,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun itemCountIsObservable() {
-        var items = listOf(0, 1)
+        val items = mutableListOf(0, 1)
         val pager = createPager {
             TestPagingSource(items = items, loadDelay = 0)
         }
@@ -553,7 +553,7 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items = listOf(0, 1, 2)
+            items += 2
             lazyPagingItems.refresh()
         }
 
@@ -562,7 +562,8 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items = listOf(0)
+            items.clear()
+            items.add(0)
             lazyPagingItems.refresh()
         }
 
@@ -573,7 +574,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun worksWhenUsedWithoutExtension() {
-        var items = listOf(10, 20)
+        val items = mutableListOf(10, 20)
         val pager = createPager {
             TestPagingSource(items = items, loadDelay = 0)
         }
@@ -596,7 +597,8 @@ class LazyPagingItemsTest {
             .assertIsDisplayed()
 
         rule.runOnIdle {
-            items = listOf(30, 20, 40)
+            items.clear()
+            items.addAll(listOf(30, 20, 40))
             lazyPagingItems.refresh()
         }
 
@@ -615,7 +617,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun updatingItem() {
-        var items = listOf(1, 2, 3)
+        val items = mutableListOf(1, 2, 3)
         val pager = createPager(
             PagingConfig(
                 pageSize = 3,
@@ -642,7 +644,8 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items = listOf(1, 4, 3)
+            items.clear()
+            items.addAll(listOf(1, 4, 3))
             lazyPagingItems.refresh()
         }
 
@@ -661,7 +664,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun addingNewItem() {
-        var items = listOf(1, 2)
+        val items = mutableListOf(1, 2)
         val pager = createPager(
             PagingConfig(
                 pageSize = 3,
@@ -688,7 +691,8 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items = listOf(1, 2, 3)
+            items.clear()
+            items.addAll(listOf(1, 2, 3))
             lazyPagingItems.refresh()
         }
 
@@ -704,7 +708,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun removingItem() {
-        var items = listOf(1, 2, 3)
+        val items = mutableListOf(1, 2, 3)
         val pager = createPager(
             PagingConfig(
                 pageSize = 3,
@@ -734,7 +738,8 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items = listOf(2, 3)
+            items.clear()
+            items.addAll(listOf(2, 3))
             lazyPagingItems.refresh()
         }
 
@@ -750,7 +755,7 @@ class LazyPagingItemsTest {
 
     @Test
     fun stateIsMovedWithItemWithCustomKey_items() {
-        var items = listOf(1)
+        val items = mutableListOf(1)
         val pager = createPager {
             TestPagingSource(items = items, loadDelay = 0)
         }
@@ -773,7 +778,8 @@ class LazyPagingItemsTest {
         }
 
         rule.runOnIdle {
-            items = listOf(0, 1)
+            items.clear()
+            items.addAll(listOf(0, 1))
             lazyPagingItems.refresh()
         }
 

@@ -21,25 +21,21 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-}
-
-android {
-    defaultConfig {
-        multiDexEnabled true
-    }
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
     api(project(":navigation:navigation-dynamic-features-runtime"))
     api(project(":navigation:navigation-fragment"))
     api(libs.kotlinStdlib)
+    implementation(libs.kotlinSerializationCore)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testExtJunit)
@@ -57,23 +53,20 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.multidex)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
     namespace "androidx.navigation.dynamicfeatures.fragment"
 }
 
 androidx {
     name = "Dynamic Feature Navigation Fragment"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

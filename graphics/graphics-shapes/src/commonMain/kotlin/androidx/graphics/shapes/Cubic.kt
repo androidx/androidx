@@ -17,9 +17,6 @@
 package androidx.graphics.shapes
 
 import androidx.collection.FloatFloatPair
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
@@ -91,123 +88,6 @@ open class Cubic internal constructor(internal val points: FloatArray = FloatArr
             anchor0Y * (u * u * u) + control0Y * (3 * t * u * u) +
                 control1Y * (3 * t * t * u) + anchor1Y * (t * t * t)
         )
-    }
-
-    internal fun zeroLength() = abs(anchor0X - anchor1X) < DistanceEpsilon &&
-            abs(anchor0Y - anchor1Y) < DistanceEpsilon
-
-    private fun zeroIsh(value: Float) = abs(value) < DistanceEpsilon
-
-    /**
-     * This function returns the true bounds of this curve, filling [bounds] with the
-     * axis-aligned bounding box values for left, top, right, and bottom, in that order.
-     */
-    internal fun calculateBounds(
-        bounds: FloatArray = FloatArray(4),
-        approximate: Boolean = false
-    ) {
-
-        // A curve might be of zero-length, with both anchors co-lated.
-        // Just return the point itself.
-        if (zeroLength()) {
-            bounds[0] = anchor0X
-            bounds[1] = anchor0Y
-            bounds[2] = anchor0X
-            bounds[3] = anchor0Y
-            return
-        }
-
-        var minX = min(anchor0X, anchor1X)
-        var minY = min(anchor0Y, anchor1Y)
-        var maxX = max(anchor0X, anchor1X)
-        var maxY = max(anchor0Y, anchor1Y)
-
-        if (approximate) {
-            // Approximate bounds use the bounding box of all anchors and controls
-            bounds[0] = min(minX, min(control0X, control1X))
-            bounds[1] = min(minY, min(control0Y, control1Y))
-            bounds[2] = max(maxX, max(control0X, control1X))
-            bounds[3] = max(maxY, max(control0Y, control1Y))
-            return
-        }
-
-        // Find the derivative, which is a quadratic Bezier. Then we can solve for t using
-        // the quadratic formula
-        val xa = -anchor0X + 3 * control0X - 3 * control1X + anchor1X
-        val xb = 2 * anchor0X - 4 * control0X + 2 * control1X
-        val xc = -anchor0X + control0X
-
-        if (zeroIsh(xa)) {
-            // Try Muller's method instead; it can find a single root when a is 0
-            if (xb != 0f) {
-                val t = 2 * xc / (-2 * xb)
-                if (t in 0f..1f) {
-                    pointOnCurve(t).x.let {
-                        if (it < minX) minX = it
-                        if (it > maxX) maxX = it
-                    }
-                }
-            }
-        } else {
-            val xs = xb * xb - 4 * xa * xc
-            if (xs >= 0) {
-                val t1 = (-xb + sqrt(xs)) / (2 * xa)
-                if (t1 in 0f..1f) {
-                    pointOnCurve(t1).x.let {
-                        if (it < minX) minX = it
-                        if (it > maxX) maxX = it
-                    }
-                }
-
-                val t2 = (-xb - sqrt(xs)) / (2 * xa)
-                if (t2 in 0f..1f) {
-                    pointOnCurve(t2).x.let {
-                        if (it < minX) minX = it
-                        if (it > maxX) maxX = it
-                    }
-                }
-            }
-        }
-
-        // Repeat the above for y coordinate
-        val ya = -anchor0Y + 3 * control0Y - 3 * control1Y + anchor1Y
-        val yb = 2 * anchor0Y - 4 * control0Y + 2 * control1Y
-        val yc = -anchor0Y + control0Y
-
-        if (zeroIsh(ya)) {
-            if (yb != 0f) {
-                val t = 2 * yc / (-2 * yb)
-                if (t in 0f..1f) {
-                    pointOnCurve(t).y.let {
-                        if (it < minY) minY = it
-                        if (it > maxY) maxY = it
-                    }
-                }
-            }
-        } else {
-            val ys = yb * yb - 4 * ya * yc
-            if (ys >= 0) {
-                val t1 = (-yb + sqrt(ys)) / (2 * ya)
-                if (t1 in 0f..1f) {
-                    pointOnCurve(t1).y.let {
-                        if (it < minY) minY = it
-                        if (it > maxY) maxY = it
-                    }
-                }
-
-                val t2 = (-yb - sqrt(ys)) / (2 * ya)
-                if (t2 in 0f..1f) {
-                    pointOnCurve(t2).y.let {
-                        if (it < minY) minY = it
-                        if (it > maxY) maxY = it
-                    }
-                }
-            }
-        }
-        bounds[0] = minX
-        bounds[1] = minY
-        bounds[2] = maxX
-        bounds[3] = maxY
     }
 
     /**

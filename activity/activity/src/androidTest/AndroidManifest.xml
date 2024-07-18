@@ -31,9 +31,6 @@
             android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"
             android:exported="true" />
         <activity
-            android:name="androidx.activity.EarlyDispatcherAccessComponentActivity"
-            android:exported="true" />
-        <activity
             android:name="androidx.activity.ComponentActivity"
             android:exported="true" />
         <activity
@@ -54,9 +51,6 @@
         <activity
             android:name="androidx.activity.SingleTopActivity"
             android:launchMode="singleTop"
-            android:exported="true" />
-        <activity
-            android:name="androidx.activity.OnUserLeaveHintActivity"
             android:exported="true" />
         <activity
             android:name="androidx.activity.AutoRestarterActivity"
@@ -87,9 +81,6 @@
             android:exported="true" />
         <activity
             android:name="androidx.activity.OptionMenuNoSuperActivity"
-            android:exported="true" />
-        <activity
-            android:name="androidx.activity.ActivityViewModelLazyTest$TestActivity"
             android:exported="true" />
         <activity
             android:name="androidx.activity.FullyDrawnActivity"

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="MediaControlView_subtitle_off_text" msgid="3464220590351304587">"Off"</string>
+    <string name="MediaControlView_audio_track_text" msgid="3309135445007366582">"Audio track"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="2659752099246305694">"None"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1481072528142380025">"Playback speed"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="2029510260288453183">"Normal"</string>
+    <string name="MediaControlView_time_placeholder" msgid="6734584158942500617">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="2241078077382492349">"Track <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="2268860463481696609">"Track <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4263103361854223806">"Track <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_non_music_title_unknown_text" msgid="2032814146738922144">"Video title unknown"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="6037645626002038645">"Song title unknown"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="5393558204040775454">"Artist unknown"</string>
+    <string name="mcv2_playback_error_text" msgid="6061787693725630293">"Couldn\'t play the item that you requested"</string>
+    <string name="mcv2_error_dialog_button" msgid="5940167897992933850">"OK"</string>
+    <string name="mcv2_back_button_desc" msgid="1540894858499118373">"Back"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="2749567167276435888">"Back to previous button list"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="7388732945289831383">"See more buttons"</string>
+    <string name="mcv2_seek_bar_desc" msgid="24915699029009384">"Playback progress"</string>
+    <string name="mcv2_settings_button_desc" msgid="811917224044739656">"Settings"</string>
+    <string name="mcv2_cc_is_on" msgid="5427119422911561783">"Subtitle is on. Click to hide it."</string>
+    <string name="mcv2_cc_is_off" msgid="2380791179816122456">"Subtitle is off. Click to show it."</string>
+    <string name="mcv2_replay_button_desc" msgid="3128622733570179596">"Replay"</string>
+    <string name="mcv2_play_button_desc" msgid="4881308324856085359">"Play"</string>
+    <string name="mcv2_pause_button_desc" msgid="7391720675120766278">"Pause"</string>
+    <string name="mcv2_previous_button_desc" msgid="3080315055670437389">"Previous media"</string>
+    <string name="mcv2_next_button_desc" msgid="1204572886248099893">"Next media"</string>
+    <string name="mcv2_rewind_button_desc" msgid="578809901971186362">"Rewind by 10 seconds"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="611689280746097673">"Go forwards 30 seconds"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="1609817079594941003">"Full screen"</string>
+</resources>

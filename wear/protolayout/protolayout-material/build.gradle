@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -33,15 +26,9 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
     api(project(":wear:protolayout:protolayout"))
-
     implementation(project(":wear:protolayout:protolayout-material-core"))
     implementation(project(":wear:protolayout:protolayout-proto"))
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
-
-    lintChecks(project(":wear:protolayout:protolayout-lint"))
-    lintPublish(project(":wear:protolayout:protolayout-lint"))
-
-
+    implementation("androidx.annotation:annotation-experimental:1.3.0")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -50,6 +37,8 @@ dependencies {
     androidTestImplementation("androidx.core:core:1.7.0")
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":wear:protolayout:protolayout-renderer"))
+    androidTestRuntimeOnly(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
+    androidTestImplementation(libs.protobuf)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

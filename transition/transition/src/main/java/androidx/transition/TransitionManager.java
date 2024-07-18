@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
+import androidx.core.view.ViewCompat;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -361,7 +362,7 @@ public class TransitionManager {
      * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
      * had a layout yet.
      * @throws IllegalArgumentException if {@code transition} returns {@code false} from
-     *                                  {@link Transition#isSeekingSupported()}.
+     * {@link Transition#isSeekingSupported()}.
      */
     @Nullable
     public static TransitionSeekController createSeekController(
@@ -377,7 +378,7 @@ public class TransitionManager {
             return null; // Already in the process of transitioning
         }
         Scene oldScene = Scene.getCurrentScene(sceneRoot);
-        if (!sceneRoot.isLaidOut()
+        if (!ViewCompat.isLaidOut(sceneRoot)
                 || Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE
         ) {
             // Can't control it, so just change the scene immediately
@@ -457,7 +458,7 @@ public class TransitionManager {
      */
     public static void beginDelayedTransition(@NonNull final ViewGroup sceneRoot,
             @Nullable Transition transition) {
-        if (!sPendingTransitions.contains(sceneRoot) && sceneRoot.isLaidOut()) {
+        if (!sPendingTransitions.contains(sceneRoot) && ViewCompat.isLaidOut(sceneRoot)) {
             if (Transition.DBG) {
                 Log.d(LOG_TAG, "beginDelayedTransition: root, transition = "
                         + sceneRoot + ", " + transition);
@@ -497,14 +498,14 @@ public class TransitionManager {
      * another Transition is being captured for {@code sceneRoot}, or {@code sceneRoot} hasn't
      * had a layout yet.
      * @throws IllegalArgumentException if {@code transition} returns {@code false} from
-     *                                  {@link Transition#isSeekingSupported()}.
+     * {@link Transition#isSeekingSupported()}.
      */
     @Nullable
     public static TransitionSeekController controlDelayedTransition(
             @NonNull final ViewGroup sceneRoot,
             @NonNull Transition transition
     ) {
-        if (sPendingTransitions.contains(sceneRoot) || !sceneRoot.isLaidOut()
+        if (sPendingTransitions.contains(sceneRoot) || !ViewCompat.isLaidOut(sceneRoot)
                 || Build.VERSION.SDK_INT < 34) {
             return null;
         }

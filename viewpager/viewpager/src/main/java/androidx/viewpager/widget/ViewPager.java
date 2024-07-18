@@ -429,9 +429,10 @@ public class ViewPager extends ViewGroup {
 
         ViewCompat.setAccessibilityDelegate(this, new MyAccessibilityDelegate());
 
-        if (this.getImportantForAccessibility()
-                == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-            setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        if (ViewCompat.getImportantForAccessibility(this)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(this,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(this,
@@ -1003,7 +1004,7 @@ public class ViewPager extends ViewGroup {
         // where we call computeScrollOffset().
         mIsScrollStarted = false;
         mScroller.startScroll(sx, sy, dx, dy, duration);
-        postInvalidateOnAnimation();
+        ViewCompat.postInvalidateOnAnimation(this);
     }
 
     ItemInfo addNewItem(int position, int index) {
@@ -1802,7 +1803,7 @@ public class ViewPager extends ViewGroup {
             }
 
             // Keep on drawing until the animation has finished.
-            postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(this);
             return;
         }
 
@@ -2119,7 +2120,7 @@ public class ViewPager extends ViewGroup {
                 if (mIsBeingDragged) {
                     // Scroll to follow the motion event
                     if (performDrag(x, y)) {
-                        postInvalidateOnAnimation();
+                        ViewCompat.postInvalidateOnAnimation(this);
                     }
                 }
                 break;
@@ -2318,7 +2319,7 @@ public class ViewPager extends ViewGroup {
                 break;
         }
         if (needsInvalidate) {
-            postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
         return true;
     }
@@ -2526,7 +2527,7 @@ public class ViewPager extends ViewGroup {
 
         if (needsInvalidate) {
             // Keep animating
-            postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 

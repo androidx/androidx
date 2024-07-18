@@ -16,21 +16,18 @@
 
 package androidx.profileinstaller;
 
-import static androidx.profileinstaller.ProfileInstaller.PROFILE_SOURCE_LOCATION;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_ERROR_CACHE_FILE_EXISTS_BUT_CANNOT_BE_READ;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_ERROR_CANT_WRITE_PROFILE_VERIFICATION_RESULT_CACHE_FILE;
-import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_ERROR_PACKAGE_NAME_DOES_NOT_EXIST;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION;
-import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_NO_PROFILE_INSTALLED;
+import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_NO_PROFILE;
 import static androidx.profileinstaller.ProfileVerifier.CompilationStatus.RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.AssetFileDescriptor;
 import android.os.Build;
 
 import androidx.annotation.DoNotInline;
@@ -138,22 +135,13 @@ public final class ProfileVerifier {
                 return sCompilationStatus;
             }
 
-            // Check the apk has an embedded profile
-            boolean hasEmbeddedProfile;
-            try (AssetFileDescriptor afd = context.getAssets().openFd(PROFILE_SOURCE_LOCATION)) {
-                hasEmbeddedProfile = afd.getLength() > 0;
-            } catch (IOException e) {
-                hasEmbeddedProfile = false;
-            }
-
             // ProfileVerifier supports only api 28 and above.
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P
                     || Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
                 return setCompilationStatus(
                         RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION,
                         false,
-                        false,
-                        hasEmbeddedProfile
+                        false
                 );
             }
 
@@ -182,8 +170,7 @@ public final class ProfileVerifier {
                 return setCompilationStatus(
                         RESULT_CODE_ERROR_PACKAGE_NAME_DOES_NOT_EXIST,
                         hasReferenceProfile,
-                        hasCurrentProfile,
-                        hasEmbeddedProfile
+                        hasCurrentProfile
                 );
             }
 
@@ -197,8 +184,7 @@ public final class ProfileVerifier {
                     return setCompilationStatus(
                             RESULT_CODE_ERROR_CACHE_FILE_EXISTS_BUT_CANNOT_BE_READ,
                             hasReferenceProfile,
-                            hasCurrentProfile,
-                            hasEmbeddedProfile
+                            hasCurrentProfile
                     );
                 }
             }
@@ -222,14 +208,12 @@ public final class ProfileVerifier {
 
                 // If so, reevaluate if the app has a reference profile and whether a current
                 // profile has been installed (since this runs after profile installer).
-                if (!hasEmbeddedProfile) {
-                    resultCode = RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED;
-                } else if (hasReferenceProfile) {
+                if (hasReferenceProfile) {
                     resultCode = RESULT_CODE_COMPILED_WITH_PROFILE;
                 } else if (hasCurrentProfile) {
                     resultCode = RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION;
                 } else {
-                    resultCode = RESULT_CODE_NO_PROFILE_INSTALLED;
+                    resultCode = RESULT_CODE_NO_PROFILE;
                 }
             } else {
 
@@ -288,26 +272,19 @@ public final class ProfileVerifier {
             }
 
             // Set and report the calculated value
-            return setCompilationStatus(
-                    resultCode,
-                    hasReferenceProfile,
-                    hasCurrentProfile,
-                    hasEmbeddedProfile
-            );
+            return setCompilationStatus(resultCode, hasReferenceProfile, hasCurrentProfile);
         }
     }
 
     private static CompilationStatus setCompilationStatus(
             int resultCode,
             boolean hasReferenceProfile,
-            boolean hasCurrentProfile,
-            boolean hasEmbeddedProfile
+            boolean hasCurrentProfile
     ) {
         sCompilationStatus = new CompilationStatus(
                 /* resultCode = */ resultCode,
-                /* hasReferenceProfile = */ hasReferenceProfile,
-                /* hasCurrentProfile = */ hasCurrentProfile,
-                /* hasEmbeddedProfile = */ hasEmbeddedProfile
+                /* hasReferenceProfile */ hasReferenceProfile,
+                /* hasCurrentProfile */ hasCurrentProfile
         );
         sFuture.set(sCompilationStatus);
         return sCompilationStatus;
@@ -417,45 +394,27 @@ public final class ProfileVerifier {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef({
-                RESULT_CODE_NO_PROFILE_INSTALLED,
+                RESULT_CODE_NO_PROFILE,
                 RESULT_CODE_COMPILED_WITH_PROFILE,
                 RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION,
                 RESULT_CODE_COMPILED_WITH_PROFILE_NON_MATCHING,
                 RESULT_CODE_ERROR_PACKAGE_NAME_DOES_NOT_EXIST,
                 RESULT_CODE_ERROR_CACHE_FILE_EXISTS_BUT_CANNOT_BE_READ,
                 RESULT_CODE_ERROR_CANT_WRITE_PROFILE_VERIFICATION_RESULT_CACHE_FILE,
-                RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION,
-                RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED
+                RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION
         })
         public @interface ResultCode {
         }
 
-        /**
-         * Error code bit shift is applied to error result codes so that they're always bigger
-         * than the other result codes.
-         */
         private static final int RESULT_CODE_ERROR_CODE_BIT_SHIFT = 16;
-
-        /**
-         * Indicates that no profile was installed for this app when installing the app through an
-         * app store or package manager. The main reason for this to error code is that the profile
-         * installer did not run due to {@link ProfileInstallerInitializer} being disabled.
-         * Note that when this error is reported an embedded profile was still found in the
-         * application apk. When an embedded profile is not found, the error code returned is
-         * {@link #RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED}.
-         */
-        public static final int RESULT_CODE_NO_PROFILE_INSTALLED = 0;
 
         /**
          * Indicates that no profile was installed for this app. This means that no profile was
          * installed when installing the app through app store or package manager and profile
          * installer either didn't run ({@link ProfileInstallerInitializer} disabled) or the app
          * was packaged without a compilation profile.
-         *
-         * @deprecated Do not use. Use {@link #RESULT_CODE_NO_PROFILE_INSTALLED} instead.
          */
-        @Deprecated
-        public static final int RESULT_CODE_NO_PROFILE = RESULT_CODE_NO_PROFILE_INSTALLED;
+        public static final int RESULT_CODE_NO_PROFILE = 0;
 
         /**
          * Indicates that a profile is installed and the app has been compiled with it. This is the
@@ -519,32 +478,18 @@ public final class ProfileVerifier {
         public static final int RESULT_CODE_ERROR_UNSUPPORTED_API_VERSION =
                 4 << RESULT_CODE_ERROR_CODE_BIT_SHIFT;
 
-        /**
-         * Indicates that the apk does not embed a baseline profile. When this happens it's usually
-         * because a baseline profile was not found at build time. Baseline profiles can be
-         * generated through the Baseline Profile Gradle Plugin, or manually added to the baseline
-         * profile source set for AGP 8.0 and above, or manually placed in
-         * `src/main/baseline-prof.txt for versions of AGP less than to 8.0 (legacy behavior that
-         * does not support variants).
-         */
-        public static final int RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED =
-                5 << RESULT_CODE_ERROR_CODE_BIT_SHIFT;
-
         final int mResultCode;
         private final boolean mHasReferenceProfile;
         private final boolean mHasCurrentProfile;
-        private final boolean mHasEmbeddedProfile;
 
         CompilationStatus(
                 int resultCode,
                 boolean hasReferenceProfile,
-                boolean hasCurrentProfile,
-                boolean hasEmbeddedProfile
+                boolean hasCurrentProfile
         ) {
             this.mResultCode = resultCode;
             this.mHasCurrentProfile = hasCurrentProfile;
             this.mHasReferenceProfile = hasReferenceProfile;
-            this.mHasEmbeddedProfile = hasEmbeddedProfile;
         }
 
         /**
@@ -557,7 +502,7 @@ public final class ProfileVerifier {
          * later in the future, so the return code will be
          * {@link CompilationStatus#RESULT_CODE_PROFILE_ENQUEUED_FOR_COMPILATION}.
          * In the case that no profile was installed, the result code will be
-         * {@link CompilationStatus#RESULT_CODE_NO_PROFILE_INSTALLED}.
+         * {@link CompilationStatus#RESULT_CODE_NO_PROFILE}.
          *
          * Note that even if no profile was installed it's still possible for the app to have a
          * profile and be compiled with it, as result of background dex optimization.
@@ -601,15 +546,6 @@ public final class ProfileVerifier {
          */
         public boolean hasProfileEnqueuedForCompilation() {
             return mHasCurrentProfile;
-        }
-
-        /**
-         * @return True when the application apk has an embedded profile in the assets, false
-         * otherwise. Note that if the profile is not embedded, the result code is always
-         * {@link #RESULT_CODE_ERROR_NO_PROFILE_EMBEDDED}.
-         */
-        public boolean appApkHasEmbeddedProfile() {
-            return mHasEmbeddedProfile;
         }
     }
 

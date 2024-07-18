@@ -140,7 +140,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetHintText() {
-        final CharSequence hintText = "hint text";
+        final CharSequence hintText = (Build.VERSION.SDK_INT >= 19) ? "hint text" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setHintText(hintText);
         assertThat(nodeCompat.getHintText()).isEqualTo(hintText);
@@ -148,7 +148,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetPaneTitle() {
-        final CharSequence paneTitle = "pane title";
+        final CharSequence paneTitle = (Build.VERSION.SDK_INT >= 19) ? "pane title" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setPaneTitle(paneTitle);
         assertThat(nodeCompat.getPaneTitle()).isEqualTo(paneTitle);
@@ -156,7 +156,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetTooltipText() {
-        final CharSequence tooltipText = "tooltip";
+        final CharSequence tooltipText = (Build.VERSION.SDK_INT >= 19) ? "tooltip" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setTooltipText(tooltipText);
         assertThat(nodeCompat.getTooltipText()).isEqualTo(tooltipText);
@@ -197,7 +197,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetContainerTitle() {
-        final CharSequence containerTitle = "title";
+        final CharSequence containerTitle = (Build.VERSION.SDK_INT >= 19) ? "title" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setContainerTitle(containerTitle);
         assertThat(nodeCompat.getContainerTitle()).isEqualTo(containerTitle);
@@ -265,7 +265,7 @@ public class AccessibilityNodeInfoCompatTest {
 
     @Test
     public void testGetSetUniqueId() {
-        final String uniqueId = "localUId";
+        final String uniqueId = (Build.VERSION.SDK_INT >= 19) ? "localUId" : null;
         AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
         nodeCompat.setUniqueId(uniqueId);
         assertThat(nodeCompat.getUniqueId()).isEqualTo(uniqueId);

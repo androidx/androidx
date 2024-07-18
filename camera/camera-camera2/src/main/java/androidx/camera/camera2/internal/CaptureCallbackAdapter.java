@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
-import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.TagBundle;
 import androidx.core.util.Preconditions;
 
@@ -52,20 +51,7 @@ final class CaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback 
             long timestamp,
             long frameNumber) {
         super.onCaptureStarted(session, request, timestamp, frameNumber);
-        mCameraCaptureCallback.onCaptureStarted(getCaptureConfigId(request));
-    }
-
-    private int getCaptureConfigId(CaptureRequest captureRequest) {
-        if (!(captureRequest.getTag() instanceof TagBundle)) {
-            return CaptureConfig.DEFAULT_ID;
-        }
-        TagBundle tagbundle = (TagBundle) captureRequest.getTag();
-        Integer captureConfigId =
-                (Integer) tagbundle.getTag(CaptureConfig.CAPTURE_CONFIG_ID_TAG_KEY);
-        if (captureConfigId == null) {
-            return CaptureConfig.DEFAULT_ID;
-        }
-        return captureConfigId;
+        mCameraCaptureCallback.onCaptureStarted();
     }
 
     @Override
@@ -88,7 +74,7 @@ final class CaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback 
         } else {
             tagBundle = TagBundle.emptyBundle();
         }
-        mCameraCaptureCallback.onCaptureCompleted(getCaptureConfigId(request),
+        mCameraCaptureCallback.onCaptureCompleted(
                 new Camera2CameraCaptureResult(tagBundle, result));
     }
 
@@ -102,6 +88,6 @@ final class CaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback 
         CameraCaptureFailure cameraFailure =
                 new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
 
-        mCameraCaptureCallback.onCaptureFailed(getCaptureConfigId(request), cameraFailure);
+        mCameraCaptureCallback.onCaptureFailed(cameraFailure);
     }
 }

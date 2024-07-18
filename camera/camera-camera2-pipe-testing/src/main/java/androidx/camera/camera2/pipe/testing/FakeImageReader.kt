@@ -16,11 +16,13 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import android.graphics.SurfaceTexture
+import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamFormat
-import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageReaderWrapper
 import androidx.camera.camera2.pipe.media.ImageWrapper
 import kotlin.reflect.KClass
@@ -29,11 +31,11 @@ import kotlinx.atomicfu.atomic
 /**
  * Utility class for simulating [FakeImage] and testing code that uses an [ImageReaderWrapper].
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class FakeImageReader private constructor(
     private val format: StreamFormat,
     override val capacity: Int,
     override val surface: Surface,
-    private val streamId: StreamId,
     private val outputs: Map<OutputId, Size>
 ) : ImageReaderWrapper {
     private val closed = atomic(false)
@@ -41,11 +43,6 @@ class FakeImageReader private constructor(
 
     val isClosed: Boolean
         get() = closed.value
-
-    fun simulateImage(timestamp: Long) {
-        val outputId = outputs.keys.single()
-        simulateImage(outputId, timestamp)
-    }
 
     fun simulateImage(outputId: OutputId, timestamp: Long) {
         val size =
@@ -63,7 +60,7 @@ class FakeImageReader private constructor(
             }
         check(image.width == size.width)
         check(image.height == size.height)
-        onImageListener.value?.onImage(streamId, outputId, image)
+        onImageListener.value?.onImage(outputId, image)
     }
 
     override fun setOnImageListener(onImageListener: ImageReaderWrapper.OnImageListener) {
@@ -86,29 +83,33 @@ class FakeImageReader private constructor(
     }
 
     companion object {
+        private val fakeSurfaceTextureNames = atomic(0)
 
         /** Create a [FakeImageReader] that can simulate images. */
         fun create(
             format: StreamFormat,
-            streamId: StreamId,
             outputId: OutputId,
             size: Size,
             capacity: Int
-        ): FakeImageReader = create(format, streamId, mapOf(outputId to size), capacity)
+        ): FakeImageReader = create(format, mapOf(outputId to size), capacity)
 
         /** Create a [FakeImageReader] that can simulate different sized images. */
         fun create(
             format: StreamFormat,
-            streamId: StreamId,
-            outputIdMap: Map<OutputId, Size>,
+            outputs: Map<OutputId, Size>,
             capacity: Int
         ): FakeImageReader {
 
             // Find smallest by areas to pick the default surface size. This matches the behavior of
             // MultiResolutionImageReader.
-            val smallestOutput = outputIdMap.values.minBy { it.width * it.height }
-            val surface = FakeSurfaces.create(smallestOutput)
-            return FakeImageReader(format, capacity, surface, streamId, outputIdMap)
+            val smallestOutput = outputs.values.minBy { it.width * it.height }
+
+            val surface = Surface(
+                SurfaceTexture(fakeSurfaceTextureNames.getAndIncrement()).also {
+                    it.setDefaultBufferSize(smallestOutput.width, smallestOutput.height)
+                }
+            )
+            return FakeImageReader(format, capacity, surface, outputs)
         }
     }
 }

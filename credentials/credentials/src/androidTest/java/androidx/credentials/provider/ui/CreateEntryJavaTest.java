@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -121,20 +120,6 @@ public class CreateEntryJavaTest {
 
         CreateEntry entry = CreateEntry.fromSlice(
                 CreateEntry.toSlice(originalEntry));
-
-        assertNotNull(entry);
-        assertEntryWithAllParams(entry);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    public void fromCreateEntry_allParams_success() {
-        CreateEntry originalEntry = constructEntryWithAllParams();
-        Slice slice = CreateEntry.toSlice(originalEntry);
-        assertNotNull(slice);
-
-        CreateEntry entry = CreateEntry.fromCreateEntry(
-                new android.service.credentials.CreateEntry(slice));
 
         assertNotNull(entry);
         assertEntryWithAllParams(entry);

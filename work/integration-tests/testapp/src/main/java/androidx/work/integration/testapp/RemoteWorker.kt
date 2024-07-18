@@ -26,11 +26,11 @@ import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.concurrent.futures.CallbackToFutureAdapter
-import androidx.concurrent.futures.await
 import androidx.core.app.NotificationCompat
 import androidx.work.Data
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import androidx.work.await
 import androidx.work.multiprocess.RemoteListenableWorker
 import androidx.work.workDataOf
 import com.google.common.util.concurrent.ListenableFuture

@@ -21,6 +21,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.DoNotInline;
@@ -28,7 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
@@ -187,14 +189,14 @@ public final class BundleCompat {
      * @param bundle The bundle to get the {@link IBinder}.
      * @param key The key to use while getting the {@link IBinder}.
      * @return The {@link IBinder} that was obtained.
-     *
-     * @deprecated Use {@link Bundle#getBinder(String)} directly.
      */
-    @androidx.annotation.ReplaceWith(expression = "bundle.getBinder(key)")
-    @Deprecated
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
-        return bundle.getBinder(key);
+        if (Build.VERSION.SDK_INT >= 18) {
+            return Api18Impl.getBinder(bundle, key);
+        } else {
+            return BeforeApi18Impl.getBinder(bundle, key);
+        }
     }
 
     /**
@@ -204,44 +206,13 @@ public final class BundleCompat {
      * @param bundle The bundle to insert the {@link IBinder}.
      * @param key The key to use while putting the {@link IBinder}.
      * @param binder The {@link IBinder} to put.
-     *
-     * @deprecated Use {@link Bundle#putBinder(String, IBinder)} directly.
      */
-    @androidx.annotation.ReplaceWith(expression = "bundle.putBinder(key, binder)")
-    @Deprecated
     public static void putBinder(@NonNull Bundle bundle, @Nullable String key,
             @Nullable IBinder binder) {
-        bundle.putBinder(key, binder);
-    }
-
-    /**
-     * Returns the value associated with the given key or {@code null} if:
-     * <ul>
-     *     <li>No mapping of the desired type exists for the given key.
-     *     <li>A {@code null} value is explicitly associated with the key.
-     *     <li>The object is not of type {@code clazz}.
-     * </ul>
-     * Compatibility behavior:
-     * <ul>
-     *     <li>SDK 34 and above, this method matches platform behavior.
-     *     <li>SDK 33 and below, the object type is checked after deserialization.
-     * </ul>
-     *
-     *
-     * @param in The bundle to retrieve from.
-     * @param key a String, or {@code null}
-     * @param clazz The type of the object expected
-     * @return a Serializable value, or {@code null}
-     */
-    @SuppressWarnings({"deprecation", "unchecked"})
-    @Nullable
-    public static <T extends Serializable> T getSerializable(@NonNull Bundle in,
-            @Nullable String key, @NonNull Class<T> clazz) {
-        if (Build.VERSION.SDK_INT >= 34) {
-            return Api33Impl.getSerializable(in, key, clazz);
+        if (Build.VERSION.SDK_INT >= 18) {
+            Api18Impl.putBinder(bundle, key, binder);
         } else {
-            Serializable serializable = in.getSerializable(key);
-            return clazz.isInstance(serializable) ? (T) serializable : null;
+            BeforeApi18Impl.putBinder(bundle, key, binder);
         }
     }
 
@@ -274,11 +245,85 @@ public final class BundleCompat {
                 @NonNull Class<? extends T> clazz) {
             return in.getSparseParcelableArray(key, clazz);
         }
+    }
+
+    @RequiresApi(18)
+    static class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
 
         @DoNotInline
-        static <T extends Serializable> T getSerializable(@NonNull Bundle in, @Nullable String key,
-                @NonNull Class<T> clazz) {
-            return in.getSerializable(key, clazz);
+        static IBinder getBinder(Bundle bundle, String key) {
+            return bundle.getBinder(key);
+        }
+
+        @DoNotInline
+        static void putBinder(Bundle bundle, String key, IBinder value) {
+            bundle.putBinder(key, value);
+        }
+    }
+
+    @SuppressLint("BanUncheckedReflection") // Only called prior to API 18
+    static class BeforeApi18Impl {
+        private static final String TAG = "BundleCompat";
+
+        private static Method sGetIBinderMethod;
+        private static boolean sGetIBinderMethodFetched;
+
+        private static Method sPutIBinderMethod;
+        private static boolean sPutIBinderMethodFetched;
+
+        private BeforeApi18Impl() {
+            // This class is not instantiable.
+        }
+
+        @SuppressWarnings("JavaReflectionMemberAccess")
+        public static IBinder getBinder(Bundle bundle, String key) {
+            if (!sGetIBinderMethodFetched) {
+                try {
+                    sGetIBinderMethod = Bundle.class.getMethod("getIBinder", String.class);
+                    sGetIBinderMethod.setAccessible(true);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "Failed to retrieve getIBinder method", e);
+                }
+                sGetIBinderMethodFetched = true;
+            }
+
+            if (sGetIBinderMethod != null) {
+                try {
+                    return (IBinder) sGetIBinderMethod.invoke(bundle, key);
+                } catch (InvocationTargetException | IllegalAccessException
+                         | IllegalArgumentException e) {
+                    Log.i(TAG, "Failed to invoke getIBinder via reflection", e);
+                    sGetIBinderMethod = null;
+                }
+            }
+            return null;
+        }
+
+        @SuppressWarnings("JavaReflectionMemberAccess")
+        public static void putBinder(Bundle bundle, String key, IBinder binder) {
+            if (!sPutIBinderMethodFetched) {
+                try {
+                    sPutIBinderMethod =
+                            Bundle.class.getMethod("putIBinder", String.class, IBinder.class);
+                    sPutIBinderMethod.setAccessible(true);
+                } catch (NoSuchMethodException e) {
+                    Log.i(TAG, "Failed to retrieve putIBinder method", e);
+                }
+                sPutIBinderMethodFetched = true;
+            }
+
+            if (sPutIBinderMethod != null) {
+                try {
+                    sPutIBinderMethod.invoke(bundle, key, binder);
+                } catch (InvocationTargetException | IllegalAccessException
+                         | IllegalArgumentException e) {
+                    Log.i(TAG, "Failed to invoke putIBinder via reflection", e);
+                    sPutIBinderMethod = null;
+                }
+            }
         }
     }
 }

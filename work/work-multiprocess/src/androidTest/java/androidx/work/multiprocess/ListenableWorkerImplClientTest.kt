@@ -22,11 +22,11 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
-import androidx.concurrent.futures.CallbackToFutureAdapter.getFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutorImpl
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import java.util.concurrent.Executor
 import org.junit.Assert.assertNotNull
@@ -37,8 +37,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyInt
-import org.mockito.ArgumentMatchers.eq
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.spy
+import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 
 @RunWith(AndroidJUnit4::class)
@@ -107,18 +109,20 @@ public class ListenableWorkerImplClientTest {
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
         val remoteStub = mock(IListenableWorkerImpl::class.java)
+        val callback = spy(RemoteCallback())
         val message = "Something bad happened"
-        `when`(remoteDispatcher.execute(eq(remoteStub), any(IWorkManagerImplCallback::class.java)))
-            .thenThrow(RuntimeException(message))
+        `when`(remoteDispatcher.execute(remoteStub, callback)).thenThrow(RuntimeException(message))
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = getFuture { it.set(remoteStub) }
+        val session = SettableFuture.create<IListenableWorkerImpl>()
+        session.set(remoteStub)
         var exception: Throwable? = null
         try {
-            mClient.execute(session, remoteDispatcher).get()
+            mClient.execute(session, remoteDispatcher, callback).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
         assertNotNull(exception)
+        verify(callback).onFailure(message)
     }
 
     @Test
@@ -132,16 +136,17 @@ public class ListenableWorkerImplClientTest {
 
         val remoteDispatcher =
             mock(RemoteDispatcher::class.java) as RemoteDispatcher<IListenableWorkerImpl>
-        val session = getFuture<IListenableWorkerImpl> {
-            it.setException(RuntimeException("Something bad happened"))
-        }
+        val callback = spy(RemoteCallback())
+        val session = SettableFuture.create<IListenableWorkerImpl>()
+        session.setException(RuntimeException("Something bad happened"))
         var exception: Throwable? = null
         try {
-            mClient.execute(session, remoteDispatcher).get()
+            mClient.execute(session, remoteDispatcher, callback).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
         assertNotNull(exception)
+        verify(callback).onFailure(anyString())
     }
 
     @Test
@@ -157,14 +162,17 @@ public class ListenableWorkerImplClientTest {
             callback.onSuccess(ByteArray(0))
         }
         val remoteStub = mock(IListenableWorkerImpl::class.java)
+        val callback = spy(RemoteCallback())
         `when`(remoteStub.asBinder()).thenReturn(binder)
-        val session = getFuture { it.set(remoteStub) }
+        val session = SettableFuture.create<IListenableWorkerImpl>()
+        session.set(remoteStub)
         var exception: Throwable? = null
         try {
-            mClient.execute(session, remoteDispatcher).get()
+            mClient.execute(session, remoteDispatcher, callback).get()
         } catch (throwable: Throwable) {
             exception = throwable
         }
         assertNull(exception)
+        verify(callback).onSuccess(any())
     }
 }

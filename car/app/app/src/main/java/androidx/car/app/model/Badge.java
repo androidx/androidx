@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 
 import java.util.Objects;
 
@@ -34,6 +35,7 @@ import java.util.Objects;
 @CarProtocol
 @ExperimentalCarApi
 @KeepFields
+@RequiresCarApi(7)
 public class Badge {
 
     private final boolean mHasDot;

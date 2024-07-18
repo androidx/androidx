@@ -25,14 +25,13 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.Fingerprint;
-import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.TriggerProto;
 
 /** Builders for triggers that can be used to start an animation. */
 public final class TriggerBuilders {
     private TriggerBuilders() {}
 
-    /** Creates a {@link Trigger} that fires immediately when the layout is loaded / reloaded. */
+    /** Creates a {@link Trigger} that fires immediately when the layout is loaded / reloaded.. */
     @NonNull
     public static Trigger createOnLoadTrigger() {
         return new OnLoadTrigger.Builder().build();
@@ -42,14 +41,16 @@ public final class TriggerBuilders {
      * Creates a {@link Trigger} that fires *every time* the condition switches from false to true.
      * If the condition is true initially, that will fire the trigger on load.
      */
-    @RequiresSchemaVersion(major = 1, minor = 200)
     @NonNull
     public static Trigger createOnConditionMetTrigger(@NonNull DynamicBool dynamicBool) {
         return new OnConditionMetTrigger.Builder().setCondition(dynamicBool).build();
     }
 
-    /** Triggers immediately when the layout is loaded / reloaded. */
-    @RequiresSchemaVersion(major = 1, minor = 200)
+    /**
+     * Triggers immediately when the layout is loaded / reloaded.
+     *
+     * @since 1.2
+     */
     static final class OnLoadTrigger implements Trigger {
         private final TriggerProto.OnLoadTrigger mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -105,10 +106,8 @@ public final class TriggerBuilders {
                     TriggerProto.OnLoadTrigger.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-1262805599);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public OnLoadTrigger build() {
@@ -120,8 +119,9 @@ public final class TriggerBuilders {
     /**
      * Triggers *every time* the condition switches from false to true. If the condition is true
      * initially, that will fire the trigger on load.
+     *
+     * @since 1.2
      */
-    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class OnConditionMetTrigger implements Trigger {
         private final TriggerProto.OnConditionMetTrigger mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -132,7 +132,11 @@ public final class TriggerBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets dynamic boolean used as trigger. */
+        /**
+         * Gets dynamic boolean used as trigger.
+         *
+         * @since 1.2
+         */
         @Nullable
         public DynamicBool getCondition() {
             if (mImpl.hasCondition()) {
@@ -189,20 +193,21 @@ public final class TriggerBuilders {
                     TriggerProto.OnConditionMetTrigger.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(756642641);
 
-            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /** Sets dynamic boolean used as trigger. */
-            @RequiresSchemaVersion(major = 1, minor = 200)
+            /**
+             * Sets dynamic boolean used as trigger.
+             *
+             * @since 1.2
+             */
             @NonNull
-            public Builder setCondition(@NonNull DynamicBool condition) {
-                mImpl.setCondition(condition.toDynamicBoolProto());
+            public Builder setCondition(@NonNull DynamicBool dynamicBool) {
+                mImpl.setCondition(dynamicBool.toDynamicBoolProto());
                 mFingerprint.recordPropertyUpdate(
-                        1, checkNotNull(condition.getFingerprint()).aggregateValueAsInt());
+                        1, checkNotNull(dynamicBool.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
             @Override
             @NonNull
             public OnConditionMetTrigger build() {
@@ -214,8 +219,9 @@ public final class TriggerBuilders {
     /**
      * Interface defining the triggers that can be fired. These triggers can be used to allow acting
      * on events. For example some animations can be set to start based on a trigger.
+     *
+     * @since 1.2
      */
-    @RequiresSchemaVersion(major = 1, minor = 200)
     public interface Trigger {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)

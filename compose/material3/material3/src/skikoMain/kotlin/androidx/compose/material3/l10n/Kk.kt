@@ -31,6 +31,7 @@ internal fun Translations.kk() = mapOf(
     Strings.Dialog to "Диалогтік терезе",
     Strings.MenuExpanded to "Жайылды",
     Strings.MenuCollapsed to "Жиылды",
+    Strings.ToggleDropdownMenu to "Ашылмалы мәзірді жаю/жию",
     Strings.SnackbarDismiss to "Жабу",
     Strings.SearchBarSearch to "Іздеу",
     Strings.SuggestionsAvailable to "Төмендегі ұсыныстар",

@@ -18,7 +18,6 @@ package androidx.compose.ui.window
 
 import androidx.compose.ui.interop.UIKitInteropState
 import androidx.compose.ui.interop.UIKitInteropTransaction
-import androidx.compose.ui.interop.doLocked
 import androidx.compose.ui.interop.isNotEmpty
 import androidx.compose.ui.uikit.utils.CMPMetalDrawablesHandler
 import androidx.compose.ui.util.fastForEach
@@ -115,7 +114,7 @@ internal interface MetalRedrawerCallbacks {
     fun render(canvas: Canvas, targetTimestamp: NSTimeInterval)
 
     /**
-     * Retrieve a transaction object, containing a list of pending actions
+     * Create an interop transaction by flushing the list of all pending actions
      * that need to be synchronized with Metal rendering using CATransaction mechanism.
      */
     fun retrieveInteropTransaction(): UIKitInteropTransaction
@@ -490,5 +489,15 @@ private class DisplayLinkProxy(
     @ObjCAction
     fun handleDisplayLinkTick() {
         callback()
+    }
+}
+
+private inline fun <T> NSLock.doLocked(block: () -> T): T {
+    lock()
+
+    try {
+        return block()
+    } finally {
+        unlock()
     }
 }

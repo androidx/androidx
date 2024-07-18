@@ -138,7 +138,6 @@ public fun <T : Component> SwingPanel(
         }
         interopContainer.container.addFocusListener(focusListener)
         onDispose {
-            interopContainer.removeInteropView(interopComponent)
             interopContainer.container.removeFocusListener(focusListener)
         }
     }

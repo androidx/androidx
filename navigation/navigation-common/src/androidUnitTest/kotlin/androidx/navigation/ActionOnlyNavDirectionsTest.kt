@@ -26,10 +26,8 @@ class ActionOnlyNavDirectionsTest {
 
     @Test
     fun testEquals() {
-        assertThat(ActionOnlyNavDirections(1))
-            .isEqualTo(ActionOnlyNavDirections(1))
-        assertThat(ActionOnlyNavDirections(1))
-            .isNotEqualTo(ActionOnlyNavDirections(2))
+        assertThat(ActionOnlyNavDirections(1)).isEqualTo(ActionOnlyNavDirections(1))
+        assertThat(ActionOnlyNavDirections(1)).isNotEqualTo(ActionOnlyNavDirections(2))
     }
 
     @Test

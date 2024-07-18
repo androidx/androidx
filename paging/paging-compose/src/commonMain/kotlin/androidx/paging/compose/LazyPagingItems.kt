@@ -25,14 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AndroidUiDispatcher
 import androidx.paging.CombinedLoadStates
+import androidx.paging.DifferCallback
 import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.LoadStates
+import androidx.paging.NullPaddedList
 import androidx.paging.PagingData
-import androidx.paging.PagingDataEvent
-import androidx.paging.PagingDataPresenter
-import androidx.paging.PagingSource
-import androidx.paging.RemoteMediator
+import androidx.paging.PagingDataDiffer
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.flow.Flow
@@ -63,21 +62,47 @@ public class LazyPagingItems<T : Any> internal constructor(
 ) {
     private val mainDispatcher = AndroidUiDispatcher.Main
 
+    private val differCallback: DifferCallback = object : DifferCallback {
+        override fun onChanged(position: Int, count: Int) {
+            if (count > 0) {
+                updateItemSnapshotList()
+            }
+        }
+
+        override fun onInserted(position: Int, count: Int) {
+            if (count > 0) {
+                updateItemSnapshotList()
+            }
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            if (count > 0) {
+                updateItemSnapshotList()
+            }
+        }
+    }
+
     /**
      * If the [flow] is a SharedFlow, it is expected to be the flow returned by from
      * pager.flow.cachedIn(scope) which could contain a cached PagingData. We pass the cached
-     * PagingData to the presenter so that if the PagingData contains cached data, the presenter
-     * can be initialized with the data prior to collection on pager.
+     * PagingData to the differ so that if the PagingData contains cached data, the differ can be
+     * initialized with the data prior to collection on pager.
      */
-    private val pagingDataPresenter = object : PagingDataPresenter<T>(
+    private val pagingDataDiffer = object : PagingDataDiffer<T>(
+        differCallback = differCallback,
         mainContext = mainDispatcher,
         cachedPagingData =
             if (flow is SharedFlow<PagingData<T>>) flow.replayCache.firstOrNull() else null
     ) {
-        override suspend fun presentPagingDataEvent(
-            event: PagingDataEvent<T>,
-        ) {
+        override suspend fun presentNewList(
+            previousList: NullPaddedList<T>,
+            newList: NullPaddedList<T>,
+            lastAccessedIndex: Int,
+            onListPresentable: () -> Unit
+        ): Int? {
+            onListPresentable()
             updateItemSnapshotList()
+            return null
         }
     }
 
@@ -88,7 +113,7 @@ public class LazyPagingItems<T : Any> internal constructor(
      * Use [get] to achieve such behavior.
      */
     var itemSnapshotList by mutableStateOf(
-        pagingDataPresenter.snapshot()
+        pagingDataDiffer.snapshot()
     )
         private set
 
@@ -98,7 +123,7 @@ public class LazyPagingItems<T : Any> internal constructor(
     val itemCount: Int get() = itemSnapshotList.size
 
     private fun updateItemSnapshotList() {
-        itemSnapshotList = pagingDataPresenter.snapshot()
+        itemSnapshotList = pagingDataDiffer.snapshot()
     }
 
     /**
@@ -108,7 +133,7 @@ public class LazyPagingItems<T : Any> internal constructor(
      * @see peek
      */
     operator fun get(index: Int): T? {
-        pagingDataPresenter[index] // this registers the value load
+        pagingDataDiffer[index] // this registers the value load
         return itemSnapshotList[index]
     }
 
@@ -135,7 +160,7 @@ public class LazyPagingItems<T : Any> internal constructor(
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     fun retry() {
-        pagingDataPresenter.retry()
+        pagingDataDiffer.retry()
     }
 
     /**
@@ -153,14 +178,14 @@ public class LazyPagingItems<T : Any> internal constructor(
      * @see PagingSource.invalidate
      */
     fun refresh() {
-        pagingDataPresenter.refresh()
+        pagingDataDiffer.refresh()
     }
 
     /**
      * A [CombinedLoadStates] object which represents the current loading state.
      */
     public var loadState: CombinedLoadStates by mutableStateOf(
-        pagingDataPresenter.loadStateFlow.value
+        pagingDataDiffer.loadStateFlow.value
             ?: CombinedLoadStates(
                 refresh = InitialLoadStates.refresh,
                 prepend = InitialLoadStates.prepend,
@@ -171,14 +196,14 @@ public class LazyPagingItems<T : Any> internal constructor(
         private set
 
     internal suspend fun collectLoadState() {
-        pagingDataPresenter.loadStateFlow.filterNotNull().collect {
+        pagingDataDiffer.loadStateFlow.filterNotNull().collect {
             loadState = it
         }
     }
 
     internal suspend fun collectPagingData() {
         flow.collectLatest {
-            pagingDataPresenter.collectFrom(it)
+            pagingDataDiffer.collectFrom(it)
         }
     }
 }

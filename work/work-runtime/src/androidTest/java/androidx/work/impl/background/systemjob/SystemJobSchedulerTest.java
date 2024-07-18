@@ -126,9 +126,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
                         workDatabase,
                         configuration,
                         mJobScheduler,
-                        new SystemJobInfoConverter(context, configuration.getClock(),
-                                configuration.isMarkingJobsAsImportantWhileForeground()
-                        )));
+                        new SystemJobInfoConverter(context, configuration.getClock())));
 
         doNothing().when(mSystemJobScheduler).scheduleInternal(any(WorkSpec.class), anyInt());
     }
@@ -256,8 +254,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
     @Test
     @LargeTest
-    // JobSchedulerNamespaceTest covers maxSdkVersion 34+
-    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 33)
+    @SdkSuppress(minSdkVersion = 23)
     public void testSystemJobScheduler_cancelsInvalidJobs() {
         List<JobInfo> allJobInfos = new ArrayList<>(2);
 

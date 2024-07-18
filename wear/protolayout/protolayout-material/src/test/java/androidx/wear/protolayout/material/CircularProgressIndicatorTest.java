@@ -97,7 +97,6 @@ public class CircularProgressIndicatorTest {
                         .setCircularProgressIndicatorColors(colors)
                         .setStrokeWidth(thickness)
                         .setContentDescription(contentDescription)
-                        .setOuterMarginApplied(false)
                         .build();
 
         assertProgressIndicator(
@@ -108,7 +107,6 @@ public class CircularProgressIndicatorTest {
                 colors,
                 thickness,
                 contentDescription);
-        assertThat(circularProgressIndicator.isOuterMarginApplied()).isFalse();
     }
 
     @Test

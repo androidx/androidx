@@ -18,25 +18,19 @@ package androidx.privacysandbox.ads.adservices.customaudience
 
 import android.net.Uri
 import androidx.privacysandbox.ads.adservices.common.AdData
-import androidx.privacysandbox.ads.adservices.common.AdFilters
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
-import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
-import androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters
-import androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
-import java.time.Duration
 import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFeatures.Ext8OptIn::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 31)
+@SdkSuppress(minSdkVersion = 26)
 class CustomAudienceTest {
     private val uri: Uri = Uri.parse("abc.com")
     private val buyer: AdTechIdentifier = AdTechIdentifier("1234")
@@ -46,32 +40,16 @@ class CustomAudienceTest {
     private val userBiddingSignals: AdSelectionSignals = AdSelectionSignals("signals")
     private val keys: List<String> = listOf("key1", "key2")
     private val trustedBiddingSignals: TrustedBiddingData = TrustedBiddingData(uri, keys)
-    private val adCounterKeys: Set<Int> = setOf<Int>(1, 2, 3)
-    private val interval = Duration.ofSeconds(1)
-    private val adFilters: AdFilters = AdFilters(
-        FrequencyCapFilters(
-            keyedFrequencyCapsForViewEvents =
-            listOf(KeyedFrequencyCap(1, 3, interval)),
-        )
-    )
-    private val ads: List<AdData> = listOf(
-        AdData(uri, "metadata", adCounterKeys, adFilters)
-    )
+    private val ads: List<AdData> = listOf(AdData(uri, "metadata"))
 
     @Test
     fun testToStringAndEquals() {
-        val result = "CustomAudience: buyer=abc.com, name=abc, activationTime=$activationTime, " +
+        val result = "CustomAudience: buyer=abc.com, activationTime=$activationTime, " +
             "expirationTime=$expirationTime, dailyUpdateUri=abc.com, " +
             "userBiddingSignals=AdSelectionSignals: signals, " +
             "trustedBiddingSignals=TrustedBiddingData: trustedBiddingUri=abc.com " +
             "trustedBiddingKeys=[key1, key2], biddingLogicUri=abc.com, " +
-            "ads=[AdData: renderUri=abc.com, metadata='metadata', adCounterKeys=[1, 2, 3], " +
-            "adFilters=AdFilters: frequencyCapFilters=FrequencyCapFilters: " +
-            "keyedFrequencyCapsForWinEvents=[], " +
-            "keyedFrequencyCapsForImpressionEvents=[], " +
-            "keyedFrequencyCapsForViewEvents=" +
-            "[KeyedFrequencyCap: adCounterKey=1, maxCount=3, interval=$interval], " +
-            "keyedFrequencyCapsForClickEvents=[], adRenderId=null]"
+            "ads=[AdData: renderUri=abc.com, metadata='metadata']"
 
         val customAudience = CustomAudience(
             buyer,
@@ -82,8 +60,7 @@ class CustomAudienceTest {
             activationTime,
             expirationTime,
             userBiddingSignals,
-            trustedBiddingSignals
-        )
+            trustedBiddingSignals)
         Truth.assertThat(customAudience.toString()).isEqualTo(result)
 
         // Verify Builder.

@@ -18,8 +18,9 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
-import androidx.room.compiler.processing.ksp.KspFileMemberContainer
-import androidx.room.compiler.processing.ksp.KspTypeElement
+import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspMemberContainer
+import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
@@ -149,31 +150,22 @@ fun XElement.isConstructor(): Boolean {
  * Attempts to get a Javac [Element] representing the originating element for attribution
  * when writing a file for incremental processing.
  *
- * In KSP a synthetic javac element will be returned, which allows us to pass originating elements
- * to JavaPoet and KotlinPoet, and later extract the KSP file when writing with [XFiler] if it
- * exists.
- *
- * Note that this function doesn't yet support Kotlin top-level functions and properties from
- * compiled classes in KSP due to https://github.com/google/ksp/issues/1704.
+ * In KSP a [KSFileAsOriginatingElement] will be returned, which is a synthetic javac element
+ * that allows us to pass originating elements to JavaPoet and KotlinPoet, and later extract
+ * the KSP file when writing with [XFiler].
  */
-internal fun XElement.originatingElementForPoet(): Element {
-    return if (this is JavacElement) {
-        element
-    } else {
-        // We use either the enclosing file or the class as the originating element for KSP.
-        this.closestMemberContainer.run {
-            when (this) {
-                is KspTypeElement -> {
-                    declaration.wrapAsOriginatingElement()
-                }
-                is KspFileMemberContainer -> {
-                    KSFileAsOriginatingElement(ksFile)
-                }
-                else -> {
-                    error("Originating element is not implemented for" +
-                        " ${this.javaClass}")
-                }
-            }
+internal fun XElement.originatingElementForPoet(): Element? {
+    return when (this) {
+        is JavacElement -> element
+        is KspElement -> {
+            declaration.wrapAsOriginatingElement()
         }
+        is KspSyntheticPropertyMethodElement -> {
+            field.declaration.wrapAsOriginatingElement()
+        }
+        is KspMemberContainer -> {
+            declaration?.wrapAsOriginatingElement()
+        }
+        else -> error("Originating element is not implemented for ${this.javaClass}")
     }
 }

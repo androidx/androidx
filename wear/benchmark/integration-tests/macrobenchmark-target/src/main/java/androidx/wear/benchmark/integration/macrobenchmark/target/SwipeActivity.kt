@@ -18,16 +18,10 @@ package androidx.wear.benchmark.integration.macrobenchmark.target
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.wear.widget.SwipeDismissFrameLayout
 
 class SwipeActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_swipe)
-        // SwipeDismissFrameLayout is not swipeable by default. It instead relies on system
-        // property `windowSwipeToDismiss` to determine that which is not enabled on mobile devices.
-        // Setting the property explicitly to true to enable the swipe dismiss behaviour.
-        val s2d: SwipeDismissFrameLayout = findViewById(R.id.swipe_dismiss)
-        s2d.isSwipeable = true
     }
 }

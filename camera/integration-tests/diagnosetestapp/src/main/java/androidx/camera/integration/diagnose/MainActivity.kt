@@ -29,13 +29,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.mlkit.vision.MlKitAnalyzer
 import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoRecordEvent
+import androidx.camera.view.CameraController
 import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
@@ -324,7 +324,7 @@ class MainActivity : AppCompatActivity() {
 
         analyzer = MlKitAnalyzer(
             listOf(barcodeScanner),
-            ImageAnalysis.COORDINATE_SYSTEM_VIEW_REFERENCED,
+            CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED,
             calibrationExecutor
         ) { result ->
             // validating thread

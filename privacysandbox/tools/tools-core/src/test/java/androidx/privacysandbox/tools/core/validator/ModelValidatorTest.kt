@@ -16,9 +16,8 @@
 
 package androidx.privacysandbox.tools.core.validator
 
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
-import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -83,7 +82,7 @@ class ModelValidatorTest {
                 )
             ),
             values = setOf(
-                AnnotatedDataClass(
+                AnnotatedValue(
                     type = Type(packageName = "com.mysdk", simpleName = "Foo"),
                     properties = listOf(
                         ValueProperty(
@@ -92,7 +91,7 @@ class ModelValidatorTest {
                         )
                     ),
                 ),
-                AnnotatedDataClass(
+                AnnotatedValue(
                     type = Type(packageName = "com.mysdk", simpleName = "Bar"),
                     properties = emptyList(),
                 )
@@ -221,32 +220,6 @@ class ModelValidatorTest {
                         ),
                     ),
                 ),
-            ),
-            interfaces = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdkInterface"),
-                    methods = listOf(
-                        Method(
-                            name = "returnSomethingInInterface",
-                            parameters = listOf(),
-                            returnType = Types.string,
-                            isSuspend = false,
-                        )
-                    )
-                )
-            ),
-            callbacks = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdkCallback"),
-                    methods = listOf(
-                        Method(
-                            name = "returnSomethingInCallback",
-                            parameters = listOf(),
-                            returnType = Types.string,
-                            isSuspend = false,
-                        )
-                    )
-                )
             )
         )
         val validationResult = ModelValidator.validate(api)
@@ -255,11 +228,7 @@ class ModelValidatorTest {
             "Error in com.mysdk.MySdk.returnSomethingNow: functions with return values " +
                 "should be suspending functions.",
             "Error in com.mysdk.MySdk.returnSomethingElseNow: functions with return values " +
-                "should be suspending functions.",
-            "Error in com.mysdk.MySdkInterface.returnSomethingInInterface: " +
-                "functions with return values should be suspending functions.",
-            "Error in com.mysdk.MySdkCallback.returnSomethingInCallback: " +
-                "functions with return values should be suspending functions."
+                "should be suspending functions."
         )
     }
 
@@ -294,10 +263,10 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data/enum classes " +
-                "annotated with @PrivacySandboxValue, interfaces annotated with " +
-                "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as return types.",
-            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data/enum classes " +
+            "Error in com.mysdk.MySdk.returnFoo: only primitives, lists, data classes annotated " +
+                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
+                "and SdkActivityLaunchers are supported as return types.",
+            "Error in com.mysdk.MySdk.receiveFoo: only primitives, lists, data classes " +
                 "annotated with @PrivacySandboxValue, interfaces annotated with " +
                 "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
                 "are supported as parameter types."
@@ -329,36 +298,10 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Invalid type parameter in list, found kotlin.collections.List."
-        )
-    }
-
-    @Test
-    fun listWithNullable_throws() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                    methods = listOf(
-                        Method(
-                            name = "processNestedList",
-                            parameters = listOf(
-                                Parameter(
-                                    name = "foo",
-                                    type = Types.list(Types.int.asNullable())
-                                )
-                            ),
-                            returnType = Types.unit,
-                            isSuspend = true,
-                        ),
-                    ),
-                ),
-            )
-        )
-        val validationResult = ModelValidator.validate(api)
-        assertThat(validationResult.isFailure).isTrue()
-        assertThat(validationResult.errors).containsExactly(
-            "Nullable type parameters are not supported in lists, found kotlin.Int"
+            "Error in com.mysdk.MySdk.processNestedList: only primitives, lists, data classes " +
+                "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "@PrivacySandboxCallback or @PrivacySandboxInterface, and SdkActivityLaunchers " +
+                "are supported as parameter types."
         )
     }
 
@@ -369,7 +312,7 @@ class ModelValidatorTest {
                 AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
             ),
             values = setOf(
-                AnnotatedDataClass(
+                AnnotatedValue(
                     type = Type(packageName = "com.mysdk", simpleName = "Foo"),
                     properties = listOf(
                         ValueProperty("bar", Type("com.mysdk", "Bar"))
@@ -380,9 +323,45 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.bar: only primitives, lists, data/enum classes annotated " +
-                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
-                "and SdkActivityLaunchers are supported as properties."
+            "Error in com.mysdk.Foo.bar: only primitives, lists, data classes annotated with " +
+                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
+                "SdkActivityLaunchers are supported as properties."
+        )
+    }
+
+    @Test
+    fun callbackWithNonFireAndForgetMethod_throws() {
+        val api = ParsedApi(
+            services = setOf(
+                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
+            ),
+            callbacks = setOf(
+                AnnotatedInterface(
+                    type = Type(packageName = "com.mysdk", simpleName = "MySdkCallback"),
+                    methods = listOf(
+                        Method(
+                            name = "suspendMethod",
+                            parameters = listOf(),
+                            returnType = Types.unit,
+                            isSuspend = true,
+                        ),
+                        Method(
+                            name = "methodWithReturnValue",
+                            parameters = listOf(),
+                            returnType = Types.int,
+                            isSuspend = false,
+                        ),
+                    )
+                )
+            )
+        )
+        val validationResult = ModelValidator.validate(api)
+        assertThat(validationResult.isFailure).isTrue()
+        assertThat(validationResult.errors).containsExactly(
+            "Error in com.mysdk.MySdkCallback.suspendMethod: callback methods should be " +
+                "non-suspending and have no return values.",
+            "Error in com.mysdk.MySdkCallback.methodWithReturnValue: callback methods should be " +
+                "non-suspending and have no return values.",
         )
     }
 
@@ -411,78 +390,10 @@ class ModelValidatorTest {
         val validationResult = ModelValidator.validate(api)
         assertThat(validationResult.isFailure).isTrue()
         assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data/enum classes " +
+            "Error in com.mysdk.MySdkCallback.foo: only primitives, lists, data classes " +
                 "annotated with @PrivacySandboxValue, interfaces annotated with " +
                 "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as callback " +
                 "parameter types."
-        )
-    }
-
-    @Test
-    fun propertyWithKeywordName_throws() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
-            ),
-            values = setOf(
-                AnnotatedDataClass(
-                    type = Type(packageName = "com.mysdk", simpleName = "Foo"),
-                    properties = listOf(
-                        ValueProperty("import", Types.int)
-                    )
-                )
-            )
-        )
-        val validationResult = ModelValidator.validate(api)
-        assertThat(validationResult.isFailure).isTrue()
-        assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.import: property name must not be a Java keyword."
-        )
-    }
-
-    @Test
-    fun enumConstantWithKeywordName_throws() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(type = Type(packageName = "com.mysdk", simpleName = "MySdk")),
-            ),
-            values = setOf(
-                AnnotatedEnumClass(
-                    type = Type(packageName = "com.mysdk", simpleName = "Foo"),
-                    variants = listOf(
-                        "boolean"
-                    )
-                )
-            )
-        )
-        val validationResult = ModelValidator.validate(api)
-        assertThat(validationResult.isFailure).isTrue()
-        assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.Foo.boolean: enum constant name must not be a Java keyword."
-        )
-    }
-
-    @Test
-    fun methodWithKeywordName_throws() {
-        val api = ParsedApi(
-            services = setOf(
-                AnnotatedInterface(
-                    type = Type(packageName = "com.mysdk", simpleName = "MySdk"),
-                    methods = listOf(
-                        Method(
-                            name = "char",
-                            parameters = listOf(),
-                            returnType = Types.unit,
-                            isSuspend = false,
-                        )
-                    )
-                ),
-            ),
-        )
-        val validationResult = ModelValidator.validate(api)
-        assertThat(validationResult.isFailure).isTrue()
-        assertThat(validationResult.errors).containsExactly(
-            "Error in com.mysdk.MySdk.char: method name must not be a Java keyword."
         )
     }
 }

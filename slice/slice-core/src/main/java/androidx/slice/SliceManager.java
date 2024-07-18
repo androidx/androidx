@@ -22,6 +22,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.PermissionChecker;
 
@@ -37,6 +38,7 @@ import java.util.Set;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@RequiresApi(19)
 @Deprecated
 public abstract class SliceManager {
 

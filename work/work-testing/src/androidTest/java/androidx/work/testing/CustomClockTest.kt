@@ -72,7 +72,7 @@ class CustomClockTest {
         workManagerImpl.enqueue(listOf(request)).result.get()
 
         val status = workManagerImpl.getWorkInfoById(request.id).get()
-        assertThat(status!!.nextScheduleTimeMillis)
+        assertThat(status.nextScheduleTimeMillis)
             .isEqualTo(testClock.timeMillis + initialDelay.toMillis())
     }
 }

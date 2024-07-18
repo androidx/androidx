@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.media
 import android.media.ImageWriter
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.InputStreamId
+import androidx.camera.camera2.pipe.InputId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 
 /**
@@ -45,7 +45,7 @@ interface ImageWriterWrapper : UnsafeWrapper, AutoCloseable {
      * Queue an input Image back to ImageWriter for the downstream consumer to access.
      * @see [ImageWriter.queueInputImage]
      */
-    fun queueInputImage(image: ImageWrapper): Boolean
+    fun queueInputImage(image: ImageWrapper)
 
     /**
      * Dequeue the next available input Image for the application to produce data into.
@@ -66,7 +66,7 @@ interface ImageWriterWrapper : UnsafeWrapper, AutoCloseable {
         /**
          * Handle the [ImageWrapper] that has been released back to [ImageWriterWrapper].
          */
-        fun onImageReleased(inputStreamId: InputStreamId)
+        fun onImageReleased(inputId: InputId)
     }
 
     interface Builder {

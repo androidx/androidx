@@ -49,8 +49,7 @@ class IconButtonBenchmark(private val type: IconButtonType) {
         fun parameters() = IconButtonType.values()
     }
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val iconButtonTestCaseFactory = { IconButtonTestCase(type) }
 
@@ -84,55 +83,39 @@ class IconButtonBenchmark(private val type: IconButtonType) {
     }
 }
 
-internal class IconButtonTestCase(
-    private val type: IconButtonType
-) : LayeredComposeTestCase() {
+internal class IconButtonTestCase(private val type: IconButtonType) : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
         when (type) {
             IconButtonType.IconButton ->
                 IconButton(onClick = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
-
             IconButtonType.FilledIconButton ->
                 FilledIconButton(onClick = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
-
             IconButtonType.FilledTonalIconButton ->
                 FilledTonalIconButton(onClick = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
-
             IconButtonType.OutlinedIconButton ->
                 OutlinedIconButton(onClick = { /* Do something! */ }) {
-                    Icon(
-                        Icons.Outlined.Lock,
-                        contentDescription = "Localized description"
-                    )
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
 enum class IconButtonType {
-    IconButton, FilledIconButton, FilledTonalIconButton, OutlinedIconButton,
+    IconButton,
+    FilledIconButton,
+    FilledTonalIconButton,
+    OutlinedIconButton,
 }

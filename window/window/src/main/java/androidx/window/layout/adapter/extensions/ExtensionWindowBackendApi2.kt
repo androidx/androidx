@@ -33,12 +33,11 @@ internal class ExtensionWindowBackendApi2(
     private val component: WindowLayoutComponent
 ) : WindowBackend {
 
-    private val globalLock = ReentrantLock()
-
-    @GuardedBy("globalLock")
+    private val extensionWindowBackendLock = ReentrantLock()
+    @GuardedBy("lock")
     private val contextToListeners = mutableMapOf<Context, MulticastConsumer>()
 
-    @GuardedBy("globalLock")
+    @GuardedBy("lock")
     private val listenerToContext = mutableMapOf<Consumer<WindowLayoutInfo>, Context>()
 
     /**
@@ -56,7 +55,7 @@ internal class ExtensionWindowBackendApi2(
         executor: Executor,
         callback: Consumer<WindowLayoutInfo>
     ) {
-        globalLock.withLock {
+        extensionWindowBackendLock.withLock {
             contextToListeners[context]?.let { listener ->
                 listener.addListener(callback)
                 listenerToContext[callback] = context
@@ -78,7 +77,7 @@ internal class ExtensionWindowBackendApi2(
      * @param callback a listener that may have been registered
      */
     override fun unregisterLayoutChangeCallback(callback: Consumer<WindowLayoutInfo>) {
-        globalLock.withLock {
+        extensionWindowBackendLock.withLock {
             val context = listenerToContext[callback] ?: return
             val multicastListener = contextToListeners[context] ?: return
             multicastListener.removeListener(callback)

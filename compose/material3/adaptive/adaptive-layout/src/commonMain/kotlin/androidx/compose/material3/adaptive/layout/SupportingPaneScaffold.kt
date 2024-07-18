@@ -26,17 +26,17 @@ import androidx.compose.ui.Modifier
  * panes in a canonical supporting-pane layout.
  *
  * @param directive The top-level directives about how the scaffold should arrange its panes.
- * @param value The current adapted value of the scaffold, which indicates how each pane of
- *        the scaffold is adapted.
+ * @param value The current adapted value of the scaffold, which indicates how each pane of the
+ *   scaffold is adapted.
  * @param mainPane the main pane of the scaffold, which is supposed to hold the major content of an
- *        app, for example, the editing screen of a doc app. See [SupportingPaneScaffoldRole.Main].
+ *   app, for example, the editing screen of a doc app. See [SupportingPaneScaffoldRole.Main].
  * @param supportingPane the supporting pane of the scaffold, which is supposed to hold the support
- *        content of an app, for example, the comment list of a doc app. See
- *        [SupportingPaneScaffoldRole.Supporting].
+ *   content of an app, for example, the comment list of a doc app. See
+ *   [SupportingPaneScaffoldRole.Supporting].
  * @param modifier [Modifier] of the scaffold layout.
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any additional content
- *        besides the main and the supporting panes, for example, a styling panel in a doc app.
- *        See [SupportingPaneScaffoldRole.Extra].
+ *   besides the main and the supporting panes, for example, a styling panel in a doc app. See
+ *   [SupportingPaneScaffoldRole.Extra].
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -52,16 +52,14 @@ fun SupportingPaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = directive,
         scaffoldValue = value,
-        paneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder,
+        paneOrder = SupportingPaneScaffoldDefaults.PaneOrder,
         secondaryPane = supportingPane,
         tertiaryPane = extraPane,
         primaryPane = mainPane
     )
 }
 
-/**
- * Provides default values of [SupportingPaneScaffold].
- */
+/** Provides default values of [SupportingPaneScaffold]. */
 @ExperimentalMaterial3AdaptiveApi
 object SupportingPaneScaffoldDefaults {
     /**
@@ -81,12 +79,24 @@ object SupportingPaneScaffoldDefaults {
             supportingPaneAdaptStrategy,
             extraPaneAdaptStrategy
         )
+
+    /**
+     * Denotes [ThreePaneScaffold] to use the supporting-pane pane-order to arrange its panes
+     * horizontally, which allocates panes in the order of primary, secondary, and tertiary from
+     * start to end.
+     */
+    internal val PaneOrder =
+        ThreePaneScaffoldHorizontalOrder(
+            ThreePaneScaffoldRole.Primary,
+            ThreePaneScaffoldRole.Secondary,
+            ThreePaneScaffoldRole.Tertiary
+        )
 }
 
 /**
  * The set of the available pane roles of [SupportingPaneScaffold]. Those roles map to their
- * corresponding [ThreePaneScaffoldRole], which is a generic role definition across all types
- * of three pane scaffolds. We suggest you to use the values defined here instead of the raw
+ * corresponding [ThreePaneScaffoldRole], which is a generic role definition across all types of
+ * three pane scaffolds. We suggest you to use the values defined here instead of the raw
  * [ThreePaneScaffoldRole] under the context of [SupportingPaneScaffold] for better code clarity.
  */
 @ExperimentalMaterial3AdaptiveApi

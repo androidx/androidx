@@ -20,7 +20,6 @@ import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
-import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl
 import androidx.camera.camera2.internal.compat.CameraManagerCompat
@@ -66,17 +65,9 @@ class Camera2CameraCoordinatorTest {
         val cameraCharacteristics0 = mock(CameraCharacteristics::class.java)
         Mockito.`when`(cameraCharacteristics0.get(CameraCharacteristics.LENS_FACING))
             .thenReturn(CameraCharacteristics.LENS_FACING_BACK)
-        Mockito.`when`(cameraCharacteristics0.get(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES))
-            .thenReturn(intArrayOf(
-                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE))
         val cameraCharacteristics1 = mock(CameraCharacteristics::class.java)
         Mockito.`when`(cameraCharacteristics1.get(CameraCharacteristics.LENS_FACING))
             .thenReturn(CameraCharacteristics.LENS_FACING_FRONT)
-        Mockito.`when`(cameraCharacteristics1.get(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES))
-            .thenReturn(intArrayOf(
-                CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE))
         fakeCameraImpl.addCamera("0", cameraCharacteristics0)
         fakeCameraImpl.addCamera("1", cameraCharacteristics1)
         cameraCoordinator = Camera2CameraCoordinator(CameraManagerCompat.from(fakeCameraImpl))

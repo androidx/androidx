@@ -11,8 +11,8 @@ package androidx.glance.wear.tiles {
   }
 
   public final class CompositionLocalsKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval?> getLocalTimeInterval();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval?> LocalTimeInterval;
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> getLocalTimeInterval();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.wear.tiles.TimeInterval> LocalTimeInterval;
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalGlanceWearTilesApi {
@@ -21,14 +21,14 @@ package androidx.glance.wear.tiles {
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
     method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
-    method public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object!>? getStateDefinition();
+    method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
     method public final suspend <T> Object? getTileState(kotlin.coroutines.Continuation<? super T>);
     method public androidx.glance.wear.tiles.TimelineMode getTimelineMode();
     method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
     method public void onStart(android.content.Intent? intent, int startId);
     method protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
-    method public final suspend <T> Object? updateTileState(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> updateState, kotlin.coroutines.Continuation<? super T>);
-    property public androidx.glance.state.GlanceStateDefinition<? extends java.lang.Object!>? stateDefinition;
+    method public final suspend <T> Object? updateTileState(kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T>);
+    property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
     property public androidx.glance.wear.tiles.TimelineMode timelineMode;
   }
 
@@ -184,7 +184,7 @@ package androidx.glance.wear.tiles.state {
 
   public final class GlanceWearTilesStateKt {
     method public static suspend <T> Object? getWearTileState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super T>);
-    method public static suspend <T> Object? updateWearTileState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,? extends java.lang.Object?> updateState, kotlin.coroutines.Continuation<? super T>);
+    method public static suspend <T> Object? updateWearTileState(android.content.Context context, androidx.glance.state.GlanceStateDefinition<T> definition, androidx.glance.GlanceId glanceId, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super T>,?> updateState, kotlin.coroutines.Continuation<? super T>);
   }
 
 }

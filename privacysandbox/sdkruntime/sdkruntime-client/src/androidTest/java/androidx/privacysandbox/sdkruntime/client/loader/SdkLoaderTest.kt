@@ -17,10 +17,14 @@ package androidx.privacysandbox.sdkruntime.client.loader
 
 import android.content.Context
 import android.os.Build
+import android.os.IBinder
 import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,7 +33,6 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.io.File
-import java.lang.reflect.Proxy
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,17 +65,6 @@ class SdkLoaderTest {
 
         assertThat(loadedSdk.extractClientVersion())
             .isEqualTo(Versions.API_VERSION)
-    }
-
-    @Test
-    fun loadSdk_withCustomVersionHandshake_performsCustomHandShake() {
-        val customVersionHandshake = VersionHandshake(
-            overrideApiVersion = Int.MAX_VALUE
-        )
-        val loadedSdk = sdkLoader.loadSdk(testSdkConfig, customVersionHandshake)
-
-        assertThat(loadedSdk.extractClientVersion())
-            .isEqualTo(Int.MAX_VALUE)
     }
 
     @Test
@@ -162,18 +154,28 @@ class SdkLoaderTest {
     }
 
     private object NoOpFactory : SdkLoader.ControllerFactory {
+        override fun createControllerFor(sdkConfig: LocalSdkConfig) = NoOpImpl()
+    }
 
-        val controllerImplClass = SdkSandboxControllerCompat.SandboxControllerImpl::class.java
+    private class NoOpImpl : SdkSandboxControllerCompat.SandboxControllerImpl {
+        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+            throw UnsupportedOperationException("NoOp")
+        }
 
-        val noOpProxy = Proxy.newProxyInstance(
-            controllerImplClass.classLoader,
-            arrayOf(controllerImplClass)
-        ) { proxy, method, args ->
-            throw UnsupportedOperationException(
-                "Unexpected method call (NoOp) object:$proxy, method: $method, args: $args"
-            )
-        } as SdkSandboxControllerCompat.SandboxControllerImpl
+        override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
+            throw UnsupportedOperationException("NoOp")
+        }
 
-        override fun createControllerFor(sdkConfig: LocalSdkConfig) = noOpProxy
+        override fun registerSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ): IBinder {
+            throw UnsupportedOperationException("NoOp")
+        }
+
+        override fun unregisterSdkSandboxActivityHandler(
+            handlerCompat: SdkSandboxActivityHandlerCompat
+        ) {
+            throw UnsupportedOperationException("NoOp")
+        }
     }
 }

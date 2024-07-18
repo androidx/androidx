@@ -28,12 +28,10 @@ internal class SetTextAction(
     private val value: String,
     private val transactionStartedLatch: InterProcessCompletable<IpcUnit>? = null,
     private val commitTransactionLatch: InterProcessCompletable<IpcUnit>? = null,
-    private val actionStartedLatch: InterProcessCompletable<IpcUnit>? = null,
 ) : IpcAction<IpcUnit>(), Parcelable {
     override suspend fun invokeInRemoteProcess(
         subject: TwoWayIpcSubject
     ): IpcUnit {
-        actionStartedLatch?.complete(subject, IpcUnit)
         subject.datastore.updateData {
             transactionStartedLatch?.complete(subject, IpcUnit)
             commitTransactionLatch?.await(subject)

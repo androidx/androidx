@@ -14,13 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
+import androidx.build.KmpPlatformsKt
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -33,6 +28,8 @@ plugins {
     id("androidx.benchmark")
     id("androidx.benchmark.darwin")
 }
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
 
 androidXMultiplatform {
     android()
@@ -77,10 +74,12 @@ androidXMultiplatform {
             }
         }
 
-        darwinMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(project(":benchmark:benchmark-darwin"))
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(commonMain)
+                dependencies {
+                    api(project(":benchmark:benchmark-darwin"))
+                }
             }
         }
 

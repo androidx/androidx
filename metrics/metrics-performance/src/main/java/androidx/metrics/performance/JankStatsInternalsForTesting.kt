@@ -35,6 +35,7 @@ class JankStatsInternalsForTesting(val jankStats: JankStats) {
         performanceMetricsState.removeStateNow(stateName)
     }
 
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     fun getFrameData(): FrameData? {
         when (impl) {
             is JankStatsApi16Impl -> {
@@ -54,6 +55,7 @@ class JankStatsInternalsForTesting(val jankStats: JankStats) {
         return null
     }
 
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     fun logFrameData(frameData: FrameData) {
         jankStats.logFrameData(frameData)
     }

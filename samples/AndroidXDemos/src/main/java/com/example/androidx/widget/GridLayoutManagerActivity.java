@@ -18,6 +18,7 @@ package com.example.androidx.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,7 +41,6 @@ public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLay
         return lm;
     }
 
-    @SuppressWarnings("MathAbsoluteNegative")
     GridLayoutManager.SpanSizeLookup mSpanSizeLookup = new GridLayoutManager.SpanSizeLookup() {
         @Override
         public int getSpanSize(int position) {
@@ -78,13 +78,14 @@ public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLay
                 new ConfigToggle(this, R.string.checkbox_layout_dir) {
                     @Override
                     public boolean isChecked() {
-                        return mRecyclerView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+                        return ViewCompat.getLayoutDirection(mRecyclerView) ==
+                                ViewCompat.LAYOUT_DIRECTION_RTL;
                     }
 
                     @Override
                     public void onChange(boolean newValue) {
-                        mRecyclerView.setLayoutDirection(newValue
-                                ? View.LAYOUT_DIRECTION_RTL : View.LAYOUT_DIRECTION_LTR);
+                        ViewCompat.setLayoutDirection(mRecyclerView, newValue ?
+                                ViewCompat.LAYOUT_DIRECTION_RTL : ViewCompat.LAYOUT_DIRECTION_LTR);
                     }
                 },
                 new ConfigToggle(this, R.string.checkbox_stack_from_end) {

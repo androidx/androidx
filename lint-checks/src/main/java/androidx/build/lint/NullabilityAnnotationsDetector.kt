@@ -40,8 +40,7 @@ class NullabilityAnnotationsDetector : Detector(), Detector.UastScanner {
 
     private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
         override fun visitAnnotation(node: UAnnotation) {
-            val element = node.sourcePsi
-            if (element != null && isJava(element.language)) {
+            if (isJava(node.sourcePsi)) {
                 checkForAnnotation(node, "NotNull", "NonNull")
                 checkForAnnotation(node, "Nullable", "Nullable")
             }

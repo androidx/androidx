@@ -26,10 +26,7 @@ import kotlinx.coroutines.sync.withLock
  * SingleProcessCoordinator does coordination within a single process. It is used as the default
  * [InterProcessCoordinator] immplementation unless otherwise specified.
  */
-internal class SingleProcessCoordinator(
-    /** The canonical file path of the file managed by [SingleProcessCoordinator]. */
-    private val filePath: String
-) : InterProcessCoordinator {
+internal class SingleProcessCoordinator() : InterProcessCoordinator {
     private val mutex = Mutex()
     private val version = AtomicInt(0)
 

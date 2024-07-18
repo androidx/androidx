@@ -28,7 +28,6 @@ import android.opengl.EGL14
  *
  * For example to create an 8888 configuration, this can be done with the following:
  *
- * ```
  * EGLConfigAttributes {
  *      EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
  *      EGL14.EGL_RED_SIZE to 8
@@ -40,7 +39,6 @@ import android.opengl.EGL14
  *      EGL14.EGL_STENCIL_SIZE to 8
  *      EGL14.EGL_SURFACE_TYPE to EGL14.EGL_WINDOW_BIT
  * }
- * ```
  *
  * @see EGLConfigAttributes.RGBA_8888
  */
@@ -48,49 +46,6 @@ import android.opengl.EGL14
 inline fun EGLConfigAttributes(block: EGLConfigAttributes.Builder.() -> Unit): EGLConfigAttributes =
     EGLConfigAttributes.Builder().apply { block() }.build()
 
-/**
- * Class responsible for containing configuration parameters to be consumed by [EGLSpec.loadConfig]
- * This contains a mapping of key value pairs for attribute names to values. This handles
- * flattening the pairs into a single integer based array when passed to corresponding EGL based APIs
- * with alternating key/value pairs and ends with [EGL14.EGL_NONE]. Consumers can create
- * an instance by using [EGLConfigAttributes.Builder] or using the DSL based Kotlin API
- * [EGLConfigAttributes] factory method. [EGLConfigAttributes] also provides a few constants
- * for commonly used configurations such as [EGLConfigAttributes.RGBA_8888],
- * [EGLConfigAttributes.RGBA_1010102], or [EGLConfigAttributes.RGBA_F16]
- *
- * For example from Java:
- *
- * ```
- * EGLConfigAttributes config = new EGLConfigAttributes.Builder()
- *   .setAttribute(EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT)
- *   .setAttribute(EGL14.EGL_RED_SIZE, 8)
- *   .setAttribute(EGL14.EGL_GREEN_SIZE, 8)
- *   .setAttribute(EGL14.EGL_BLUE_SIZE, 8)
- *   .setAttribute(EGL14.EGL_ALPHA_SIZE, 8)
- *   .setAttribute(EGL14.EGL_DEPTH_SIZE, 0)
- *   .setAttribute(EGL14.EGL_CONFIG_CAVEAT, EGL14.EGL_NONE)
- *   .setAttribute(EGL14.STENCIL_SIZE, 8)
- *   .setAttribute(EGL14.EGL_SURFACE_TYPE, EGL14.EGL_WINDOW_BIT)
- *   .build();
- *
- * ```
- *
- * Or from the Kotlin factory method:
- *
- * ```
- * val config = EGLConfigAttributes {
- *      EGL14.EGL_RENDERABLE_TYPE to EGL14.EGL_OPENGL_ES2_BIT
- *      EGL14.EGL_RED_SIZE to 8
- *      EGL14.EGL_GREEN_SIZE to 8
- *      EGL14.EGL_BLUE_SIZE to 8
- *      EGL14.EGL_ALPHA_SIZE to 8
- *      EGL14.EGL_DEPTH_SIZE to 0
- *      EGL14.EGL_CONFIG_CAVEAT to EGL14.EGL_NONE
- *      EGL14.EGL_STENCIL_SIZE to 8
- *      EGL14.EGL_SURFACE_TYPE to EGL14.EGL_WINDOW_BIT
- * }
- * ```
- */
 @Suppress("AcronymName")
 class EGLConfigAttributes internal constructor(
     @PublishedApi internal val attrs: IntArray
@@ -109,7 +64,7 @@ class EGLConfigAttributes internal constructor(
      * values as well as including a previously generated [EGLConfigAttributes]
      * instance to be used as a template and conditionally update individual mapped values
      */
-    class Builder {
+    class Builder @PublishedApi internal constructor() {
         private val attrs = HashMap<Int, Int>()
 
         /**
@@ -140,22 +95,11 @@ class EGLConfigAttributes internal constructor(
          * instance that has all the same configuration as [RGBA_8888] but with a
          * 16 bit stencil buffer size:
          *
-         *
-         * For example from Java:
-         *
-         * new EglConfigAttributes.Builder()
-         *      .include(EGLConfigAttributes.RGBA_8888)
-         *      .setAttribute(EGL14.EGL_STENCIL_SIZE, 16)
-         *      .build()
-         *
-         * Or from the Kotlin factory method:
-         *
-         * ```
          * EGLConfigAttributes {
          *      include(EGLConfigAttributes.RGBA_8888)
          *      EGL14.EGL_STENCIL_SIZE to 16
          * }
-         * ```
+         *
          *
          * That is all attributes configured after the include will overwrite the attributes
          * configured previously.

@@ -30,10 +30,11 @@ import androidx.camera.core.impl.Quirk;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: b/157448499, b/192129158, b/245495234, b/303151423
+ *     Bug Id: b/157448499, b/192129158, b/245495234
  *     Description: Quirk required to exclude certain supported surface sizes that are
  *                  problematic. These sizes are dependent on the device, camera and image format.
  *                  An example is the resolution size 4000x3000 which is supported on OnePlus 6,
@@ -44,7 +45,7 @@ import java.util.List;
  *                  J7 (SM-J710MN) API 27 devices, the Preview images will be stretched if
  *                  1920x1080 resolution is used.
  *     Device(s): OnePlus 6, OnePlus 6T, Huawei P20, Samsung J7 Prime (SM-G610M) API 27, Samsung
- *     J7 (SM-J710MN) API 27, Redmi Note 9 Pro
+ *     J7 (SM-J710MN) API 27
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludedSupportedSizesQuirk implements Quirk {
@@ -54,7 +55,7 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
 
     static boolean load() {
         return isOnePlus6() || isOnePlus6T() || isHuaweiP20Lite() || isSamsungJ7PrimeApi27Above()
-                || isSamsungJ7Api27Above() || isRedmiNote9Pro();
+                || isSamsungJ7Api27Above();
     }
 
     private static boolean isOnePlus6() {
@@ -71,20 +72,15 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
     }
 
     private static boolean isSamsungJ7PrimeApi27Above() {
-        return "SAMSUNG".equalsIgnoreCase(Build.BRAND)
-                && "ON7XELTE".equalsIgnoreCase(Build.DEVICE)
+        return "SAMSUNG".equalsIgnoreCase(Build.BRAND.toUpperCase(Locale.US))
+                && "ON7XELTE".equalsIgnoreCase(Build.DEVICE.toUpperCase(Locale.US))
                 && Build.VERSION.SDK_INT >= 27;
     }
 
     private static boolean isSamsungJ7Api27Above() {
-        return "SAMSUNG".equalsIgnoreCase(Build.BRAND)
-                && "J7XELTE".equalsIgnoreCase(Build.DEVICE)
+        return "SAMSUNG".equalsIgnoreCase(Build.BRAND.toUpperCase(Locale.US))
+                && "J7XELTE".equalsIgnoreCase(Build.DEVICE.toUpperCase(Locale.US))
                 && Build.VERSION.SDK_INT >= 27;
-    }
-
-    private static boolean isRedmiNote9Pro() {
-        return "REDMI".equalsIgnoreCase(Build.BRAND)
-                && "joyeuse".equalsIgnoreCase(Build.DEVICE);
     }
 
     /**
@@ -107,9 +103,6 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
         }
         if (isSamsungJ7Api27Above()) {
             return getSamsungJ7Api27AboveExcludedSizes(cameraId, imageFormat, null);
-        }
-        if (isRedmiNote9Pro()) {
-            return getRedmiNote9ProExcludedSizes(cameraId, imageFormat);
         }
         Logger.w(TAG, "Cannot retrieve list of supported sizes to exclude on this device.");
         return Collections.emptyList();
@@ -244,15 +237,6 @@ public class ExcludedSupportedSizesQuirk implements Quirk {
             }
         }
 
-        return sizes;
-    }
-
-    @NonNull
-    private List<Size> getRedmiNote9ProExcludedSizes(@NonNull String cameraId, int imageFormat) {
-        final List<Size> sizes = new ArrayList<>();
-        if (cameraId.equals("0") && imageFormat == ImageFormat.JPEG) {
-            sizes.add(new Size(9280, 6944)); // High resolution
-        }
         return sizes;
     }
 }

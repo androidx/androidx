@@ -79,7 +79,7 @@ interface BooksDao {
     fun addPublisherMaybe(publisher: Publisher): Maybe<Long>
 
     @Insert
-    fun addPublisher(publisher: Publisher)
+    fun addPublisherSuspend(publisher: Publisher)
 
     @Delete
     fun deletePublishers(vararg publishers: Publisher)
@@ -416,7 +416,7 @@ interface BooksDao {
     @Transaction
     suspend fun addAuthorPublisherBooks(author: Author, publisher: Publisher, vararg books: Book) {
         addAuthorsSuspend(author)
-        addPublisher(publisher)
+        addPublisherSuspend(publisher)
         for (book in books) {
             insertBookSuspend(book)
         }

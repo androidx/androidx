@@ -31,6 +31,7 @@ internal fun Translations.fa() = mapOf(
     Strings.Dialog to "کادر گفتگو",
     Strings.MenuExpanded to "ازهم باز شد",
     Strings.MenuCollapsed to "جمع شد",
+    Strings.ToggleDropdownMenu to "جمع کردن/ ازهم باز کردن منوِ کرکره‌ای",
     Strings.SnackbarDismiss to "بستن",
     Strings.SearchBarSearch to "جستجو",
     Strings.SuggestionsAvailable to "پیشنهادهای زیر",

@@ -26,6 +26,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -61,6 +62,7 @@ import android.widget.TextView;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.core.util.ObjectsCompat;
@@ -494,8 +496,12 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
             // the size of this package (approximately two-fold). Instead, only the black scrim
             // will be placed on top of the metadata background.
             mMetadataBlackScrim.setVisibility(View.VISIBLE);
-            Bitmap blurredBitmap = blurBitmap(mArtIconLoadedBitmap, BLUR_RADIUS, mContext);
-            mMetadataBackground.setImageBitmap(blurredBitmap);
+            if (Build.VERSION.SDK_INT >= 17) {
+                Bitmap blurredBitmap = blurBitmap(mArtIconLoadedBitmap, BLUR_RADIUS, mContext);
+                mMetadataBackground.setImageBitmap(blurredBitmap);
+            } else {
+                mMetadataBackground.setImageBitmap(Bitmap.createBitmap(mArtIconLoadedBitmap));
+            }
         } else {
             if (isBitmapRecycled(mArtIconLoadedBitmap)) {
                 Log.w(TAG, "Can't set artwork image with recycled bitmap: " + mArtIconLoadedBitmap);
@@ -648,6 +654,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         mAdapter.updateItems();
     }
 
+    @RequiresApi(17)
     private static Bitmap blurBitmap(Bitmap bitmap, float radius, Context context) {
         RenderScript rs = RenderScript.create(context);
         Allocation allocation = Allocation.createFromBitmap(rs, bitmap);
@@ -1013,7 +1020,7 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
             switch (route.getDeviceType()) {
                 case MediaRouter.RouteInfo.DEVICE_TYPE_TV:
                     return mTvIcon;
-                case MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER:
+                case MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER:
                     return mSpeakerIcon;
             }
 

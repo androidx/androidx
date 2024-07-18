@@ -211,6 +211,7 @@ interface SyncStrategy {
      *
      * @param eglSpec an [EGLSpec] object to dictate the version of EGL and make EGL calls.
      */
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat?
 
     companion object {
@@ -219,6 +220,7 @@ interface SyncStrategy {
          */
         @JvmField
         val ALWAYS = object : SyncStrategy {
+            @RequiresApi(Build.VERSION_CODES.KITKAT)
             override fun createSyncFence(eglSpec: EGLSpec): SyncFenceCompat? {
                 return SyncFenceCompat.createNativeSyncFence()
             }

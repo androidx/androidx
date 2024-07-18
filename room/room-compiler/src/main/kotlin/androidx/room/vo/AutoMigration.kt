@@ -18,7 +18,7 @@ package androidx.room.vo
 
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.migration.bundle.BaseEntityBundle
+import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.util.SchemaDiffResult
 
@@ -65,7 +65,7 @@ data class AutoMigration(
     /**
      * Stores the table that was added to a database in a newer version.
      */
-    data class AddedTable(val entityBundle: BaseEntityBundle)
+    data class AddedTable(val entityBundle: EntityBundle)
 
     /**
      * Stores the table that contains a change in the primary key, foreign key(s) or index(es)
@@ -82,8 +82,8 @@ data class AutoMigration(
     data class ComplexChangedTable(
         val tableName: String,
         val tableNameWithNewPrefix: String,
-        val oldVersionEntityBundle: BaseEntityBundle,
-        val newVersionEntityBundle: BaseEntityBundle,
+        val oldVersionEntityBundle: EntityBundle,
+        val newVersionEntityBundle: EntityBundle,
         val renamedColumnsMap: MutableMap<String, String>
     )
 

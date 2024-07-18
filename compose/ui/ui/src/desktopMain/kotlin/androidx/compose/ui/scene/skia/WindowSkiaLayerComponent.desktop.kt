@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.scene.skia
 
+import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.ComposeSceneMediator
 import java.awt.Dimension
@@ -24,6 +25,7 @@ import javax.accessibility.Accessible
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaLayerAnalytics
+import org.jetbrains.skiko.SkiaLayerProperties
 import org.jetbrains.skiko.SkikoRenderDelegate
 
 /**
@@ -36,7 +38,8 @@ internal class WindowSkiaLayerComponent(
     private val mediator: ComposeSceneMediator,
     private val windowContext: PlatformWindowContext,
     renderDelegate: SkikoRenderDelegate,
-    skiaLayerAnalytics: SkiaLayerAnalytics
+    skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val renderSettings: RenderSettings,
 ) : SkiaLayerComponent {
     /**
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
@@ -46,6 +49,13 @@ internal class WindowSkiaLayerComponent(
             // It depends on initialization order, so explicitly
             // apply `checkNotNull` for "non-null" field.
             checkNotNull(mediator.accessible)
+        },
+        properties = run {
+            val defaultProperties = SkiaLayerProperties()
+
+            SkiaLayerProperties(
+                isVsyncEnabled = renderSettings.isVsyncEnabled ?: defaultProperties.isVsyncEnabled,
+            )
         },
         analytics = skiaLayerAnalytics
     ) {

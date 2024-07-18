@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.annotation.RequiresApi
 import androidx.room.FtsOptions.TOKENIZER_SIMPLE
 
 /**
@@ -55,6 +56,7 @@ import androidx.room.FtsOptions.TOKENIZER_SIMPLE
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.BINARY)
+@RequiresApi(16)
 public annotation class Fts3(
 
     /**

@@ -26,7 +26,6 @@ import android.opengl.Matrix
 import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.SurfaceViewTestActivity
@@ -49,12 +48,10 @@ import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.roundToInt
 import org.junit.Assert
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -160,118 +157,6 @@ class GLFrontBufferedRendererTest {
                 Color.RED ==
                     bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
             }
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testInvalidWidth() {
-        testRenderWithDimension(0, 200)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testInvalidHeight() {
-        testRenderWithDimension(100, 0)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testNegativeWidth() {
-        testRenderWithDimension(-19, 200)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testNegativeHeight() {
-        testRenderWithDimension(100, -30)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    fun testRenderWithDimension(width: Int, height: Int) {
-        val renderLatch = CountDownLatch(1)
-        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
-
-            val mProjectionMatrix = FloatArray(16)
-            val mOrthoMatrix = FloatArray(16)
-
-            override fun onDrawFrontBufferedLayer(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray,
-                param: Any
-            ) {
-                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-                Matrix.orthoM(
-                    mOrthoMatrix,
-                    0,
-                    0f,
-                    bufferInfo.width.toFloat(),
-                    0f,
-                    bufferInfo.height.toFloat(),
-                    -1f,
-                    1f
-                )
-                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
-                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
-            }
-
-            override fun onDrawMultiBufferedLayer(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray,
-                params: Collection<Any>
-            ) {
-                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-                Matrix.orthoM(
-                    mOrthoMatrix,
-                    0,
-                    0f,
-                    bufferInfo.width.toFloat(),
-                    0f,
-                    bufferInfo.height.toFloat(),
-                    -1f,
-                    1f
-                )
-                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
-                Rectangle().draw(mProjectionMatrix, Color.BLUE, 0f, 0f, 100f, 100f)
-            }
-
-            override fun onFrontBufferedLayerRenderComplete(
-                frontBufferedLayerSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction
-            ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    transaction.addTransactionCommittedListener(
-                        executor,
-                        object : SurfaceControlCompat.TransactionCommittedListener {
-                            override fun onTransactionCommitted() {
-                                renderLatch.countDown()
-                            }
-                        }
-                    )
-                } else {
-                    renderLatch.countDown()
-                }
-            }
-        }
-        verifyGLFrontBufferedRenderer(
-            callbacks,
-            createSurfaceView = { activity ->
-                val surfaceView = SurfaceView(activity)
-                activity.setContentView(surfaceView, FrameLayout.LayoutParams(width, height))
-                surfaceView
-            },
-            assertFirstRender = { latch ->
-                // invalid dimension should not render
-                assertFalse(latch.await(500, TimeUnit.MILLISECONDS))
-            }
-        ) { _, renderer, _ ->
-            renderer.renderFrontBufferedLayer(Any())
         }
     }
 
@@ -1014,7 +899,6 @@ class GLFrontBufferedRendererTest {
         )
     }
 
-    @Ignore("b/324920812")
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testRenderFrontBufferSeveralTimes() {
@@ -1161,7 +1045,7 @@ class GLFrontBufferedRendererTest {
         }
         verifyGLFrontBufferedRenderer(
             callbacks,
-            configureSurfaceView = { surfaceView -> surfaceView.setZOrderOnTop(true) }
+            { surfaceView -> surfaceView.setZOrderOnTop(true) }
         ) {
             _, renderer, surfaceView ->
 
@@ -1396,7 +1280,7 @@ class GLFrontBufferedRendererTest {
         }
         verifyGLFrontBufferedRenderer(
             callbacks,
-            configureSurfaceView = { targetSurfaceView ->
+            { targetSurfaceView ->
                 targetSurfaceView.holder.addCallback(surfaceHolderCallbacks)
                 surfaceView = targetSurfaceView
             }
@@ -1969,11 +1853,7 @@ class GLFrontBufferedRendererTest {
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun <T> verifyGLFrontBufferedRenderer(
         callbacks: GLFrontBufferedRenderer.Callback<T>,
-        createSurfaceView: (SurfaceViewTestActivity) -> SurfaceView = { it.getSurfaceView() },
         configureSurfaceView: (SurfaceView) -> Unit = {},
-        assertFirstRender: (CountDownLatch) -> Unit = { latch ->
-            assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
-        },
         block: FrontBufferTestCallback<T>
     ) {
         val firstRenderLatch = CountDownLatch(1)
@@ -2055,14 +1935,14 @@ class GLFrontBufferedRendererTest {
             scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    surfaceView = createSurfaceView(it)
+                    surfaceView = it.getSurfaceView()
                     configureSurfaceView(surfaceView!!)
                     renderer = GLFrontBufferedRenderer<T>(surfaceView!!, wrappedCallbacks)
                     it.setOnDestroyCallback { destroyLatch.countDown() }
                 }
 
             scenario.moveToState(Lifecycle.State.RESUMED)
-            assertFirstRender(firstRenderLatch)
+            assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
 
             block(scenario, renderer!!, surfaceView!!)
         } finally {

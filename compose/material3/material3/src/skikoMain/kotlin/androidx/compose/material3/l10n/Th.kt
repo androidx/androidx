@@ -31,6 +31,7 @@ internal fun Translations.th() = mapOf(
     Strings.Dialog to "กล่องโต้ตอบ",
     Strings.MenuExpanded to "ขยายแล้ว",
     Strings.MenuCollapsed to "ยุบแล้ว",
+    Strings.ToggleDropdownMenu to "เปิด/ปิดเมนูแบบเลื่อนลง",
     Strings.SnackbarDismiss to "ปิด",
     Strings.SearchBarSearch to "ค้นหา",
     Strings.SuggestionsAvailable to "มีคำแนะนำที่ด้านล่าง",

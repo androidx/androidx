@@ -78,8 +78,7 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
             return false
         }
 
-        val boxedIntType = context.processingEnv.requireType(XTypeName.BOXED_INT)
-        if (!declared.typeArguments.first().isSameType(boxedIntType)) {
+        if (declared.typeArguments.first().asTypeName() != XTypeName.BOXED_INT) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_TYPE)
         }
 

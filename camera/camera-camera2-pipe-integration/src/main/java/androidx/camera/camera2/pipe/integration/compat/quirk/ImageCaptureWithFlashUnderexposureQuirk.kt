@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics.LENS_FACING
 import android.hardware.camera2.CameraMetadata.LENS_FACING_BACK
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 
 /**
@@ -37,6 +38,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ImageCaptureWithFlashUnderexposureQuirk : UseTorchAsFlashQuirk {
     companion object {
         // List of devices with the issue. See b/228800282.

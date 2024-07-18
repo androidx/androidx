@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -143,6 +143,33 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/CameraControllerFragment.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        CameraXExecutors.mainThreadExecutor().execute {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/ComposeUiFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            if (cameraController.cameraSelector.lensFacing == LENS_FACING_BACK) {"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/EffectsFragment.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraSelector.getLensFacing can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            if (cameraController.cameraSelector.lensFacing == LENS_FACING_BACK) {"
+        errorLine2="                                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/view/EffectsFragment.kt"/>
     </issue>
 
     <issue
@@ -474,15 +501,6 @@
         message="ShaderProvider.createFragmentShader can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            override fun createFragmentShader(sampler: String, fragCoords: String): String {"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="OpenGlRenderer can only be accessed from within the same library (androidx.camera:camera-core)"
-        errorLine1="    private val glRenderer: OpenGlRenderer = OpenGlRenderer()"
-        errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/view/ToneMappingSurfaceProcessor.kt"/>
     </issue>

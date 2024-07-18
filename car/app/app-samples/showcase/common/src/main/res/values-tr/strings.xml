@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Bilinmiyor"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Elektrikli Araç Konnektör Türleri"</string>
     <string name="example_title" msgid="530257630320010494">"Örnek %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Bu metnin rengi "<annotation color="red">"kırmızı"</annotation></string>
-    <string name="example_2_text" msgid="1359373957397219102">"Bu metnin rengi "<annotation color="green">"yeşil"</annotation></string>
-    <string name="example_3_text" msgid="2409207170762049673">"Bu metnin rengi "<annotation color="blue">"mavi"</annotation></string>
-    <string name="example_4_text" msgid="9055989886645433000">"Bu metnin rengi "<annotation color="yellow">"sarı"</annotation></string>
+    <string name="example_1_text" msgid="8456567953748293512">"Bu metnin rengi kırmızı"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Bu metnin rengi yeşil"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Bu metnin rengi mavi"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Bu metnin rengi sarı"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Bu metinde birincil renk kullanılıyor"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Bu metinde ikincil renk kullanılıyor"</string>
     <string name="color_demo" msgid="1822427636476178993">"Renk Demosu"</string>
@@ -165,7 +165,7 @@
     <string name="gas_station" msgid="1203313937444666161">"Benzin İstasyonu"</string>
     <string name="short_route" msgid="4831864276538141265">"Kısa rota"</string>
     <string name="less_busy" msgid="310625272281710983">"Daha sakin"</string>
-    <string name="hov_friendly" msgid="6956152104754594971">"Yüksek yolcu kapasiteliye uygun"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Toplu taşımaya uygun"</string>
     <string name="long_route" msgid="4737969235741057506">"Uzun rota"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"Navigasyonu başlatmaya devam et"</string>
     <string name="continue_route" msgid="5172258139245088080">"Rotaya devam et"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Yerlere Göz At"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Arama Şablonu Demosu"</string>
     <string name="search_hint" msgid="978495498991026792">"Burada arayın"</string>
-    <string name="additional_text" msgid="5755100726890686184">"Lütfen "<annotation link="terms_of_service">"hizmet şartlarımızı"</annotation>" inceleyin"</string>
+    <string name="additional_text" msgid="8410289578276941586">"Lütfen hizmet şartlarımızı inceleyin"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google oturumu açma"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN kullan"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR Kodu"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Rota seçenekleri"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Otoyollar kullanılmasın"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Feribot kullanılmasın"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Harita Demoları"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"İçerik Bulunan Harita Demoları"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mesaj Şablonu İçeren Harita Demosu"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Izgara Şablonu İçeren Harita Demosu"</string>
 </resources>

@@ -29,14 +29,13 @@ import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk;
  *     Description: On certain devices, one pixel shifted when the HAL layer converts RGB data to
  *                  YUV data. It leads to the leftmost column degradation when converting YUV to
  *                  RGB in applications.
- *     Device(s): Motorola MotoG3, Samsung SM-G532F/SM-J700F/SM-J415F/SM-920F, Xiaomi Mi A1
+ *     Device(s): Motorola MotoG3, Samsung SM-G532F/SM-J700F
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class YuvImageOnePixelShiftQuirk implements OnePixelShiftQuirk {
 
     static boolean load(@NonNull CameraCharacteristicsCompat characteristicsCompat) {
-        return isMotorolaMotoG3() || isSamsungSMG532F() || isSamsungSMJ700F()
-                || isSamsungSMA920F() || isSamsungSMJ415F() || isXiaomiMiA1();
+        return isMotorolaMotoG3() || isSamsungSMG532F() || isSamsungSMGJ700F();
     }
 
     private static boolean isMotorolaMotoG3() {
@@ -47,19 +46,7 @@ public final class YuvImageOnePixelShiftQuirk implements OnePixelShiftQuirk {
         return "samsung".equalsIgnoreCase(Build.BRAND) && "SM-G532F".equalsIgnoreCase(Build.MODEL);
     }
 
-    private static boolean isSamsungSMJ700F() {
+    private static boolean isSamsungSMGJ700F() {
         return "samsung".equalsIgnoreCase(Build.BRAND) && "SM-J700F".equalsIgnoreCase(Build.MODEL);
-    }
-
-    private static boolean isSamsungSMJ415F() {
-        return "samsung".equalsIgnoreCase(Build.BRAND) && "SM-J415F".equalsIgnoreCase(Build.MODEL);
-    }
-
-    private static boolean isSamsungSMA920F() {
-        return "samsung".equalsIgnoreCase(Build.BRAND) && "SM-A920F".equalsIgnoreCase(Build.MODEL);
-    }
-
-    private static boolean isXiaomiMiA1() {
-        return "xiaomi".equalsIgnoreCase(Build.BRAND) && "Mi A1".equalsIgnoreCase(Build.MODEL);
     }
 }

@@ -15,6 +15,8 @@
  */
 package androidx.appsearch.app;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
@@ -28,7 +30,7 @@ import androidx.annotation.RestrictTo;
  * Android API level, on that device.
  */
 
-// @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/Features.java)
+// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/Features.java)
 public interface Features {
 
     /**
@@ -188,6 +190,7 @@ public interface Features {
      * given the Android API level and AppSearch backend.
      *
      * <p>A property is defined as all values that are present at a particular path.
+     * @param context to check mainline module version, as support varies by module version.
      */
-    int getMaxIndexedProperties();
+    int getMaxIndexedProperties(@NonNull Context context);
 }

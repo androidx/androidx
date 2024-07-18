@@ -121,31 +121,6 @@ public final class CameraCaptureMetaData {
         LOCKED
     }
 
-    /** AE mode. */
-    public enum AeMode {
-        UNKNOWN,
-        OFF,
-        ON,
-        ON_AUTO_FLASH,
-        ON_ALWAYS_FLASH,
-        ON_AUTO_FLASH_REDEYE,
-        ON_EXTERNAL_FLASH
-    }
-
-    /** AWB mode. */
-    public enum AwbMode {
-        UNKNOWN,
-        OFF,
-        AUTO,
-        INCANDESCENT,
-        FLUORESCENT,
-        WARM_FLUORESCENT,
-        DAYLIGHT,
-        CLOUDY_DAYLIGHT,
-        TWILIGHT,
-        SHADE
-    }
-
     /** Flash state. */
     public enum FlashState {
 

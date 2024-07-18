@@ -28,6 +28,7 @@ import com.squareup.kotlinpoet.TypeSpec
 
 class ThrowableParcelConverterFileGenerator(
     private val basePackageName: String,
+    private val target: GenerationTarget,
 ) {
     companion object {
         const val converterName = "${throwableParcelName}Converter"
@@ -57,8 +58,10 @@ class ThrowableParcelConverterFileGenerator(
 
     private fun generateConverter() =
         TypeSpec.objectBuilder(ClassName(basePackageName, converterName)).build {
-            addFunction(generateFromThrowableParcel())
-            addFunction(generateToThrowableParcel())
+            when (target) {
+                GenerationTarget.CLIENT -> addFunction(generateFromThrowableParcel())
+                GenerationTarget.SERVER -> addFunction(generateToThrowableParcel())
+            }
         }
 
     private fun generateToThrowableParcel() =

@@ -31,6 +31,7 @@ internal fun Translations.ar() = mapOf(
     Strings.Dialog to "مربّع حوار",
     Strings.MenuExpanded to "موسَّعة",
     Strings.MenuCollapsed to "مصغَّرة",
+    Strings.ToggleDropdownMenu to "توسيع القائمة المنسدلة أو تصغيرها",
     Strings.SnackbarDismiss to "إغلاق",
     Strings.SearchBarSearch to "شريط بحث",
     Strings.SuggestionsAvailable to "إليك الاقتراحات",

@@ -53,7 +53,9 @@ import androidx.compose.ui.unit.TextUnit
  * from [style] will be used instead.
  *
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
- * [LocalContentColor] will be used.
+ * [LocalContentColor] will be used with an alpha of [LocalContentAlpha]- this allows this
+ * [Text] or element containing this [Text] to adapt to different background colors and still
+ * maintain contrast and accessibility.
  *
  * @param text The text to be displayed.
  * @param modifier [Modifier] to apply to this layout node.
@@ -88,7 +90,7 @@ import androidx.compose.ui.unit.TextUnit
  * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
-fun Text(
+public fun Text(
     text: String,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -145,7 +147,9 @@ fun Text(
  * from [style] will be used instead.
  *
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
- * [LocalContentColor] will be used.
+ * [LocalContentColor] will be used with an alpha of [LocalContentAlpha]- this allows this
+ * [Text] or element containing this [Text] to adapt to different background colors and still
+ * maintain contrast and accessibility.
  *
  * @param text The text to be displayed, where [AnnotatedString] allows multiple styles to be used.
  * @param modifier [Modifier] to apply to this layout node.
@@ -182,7 +186,7 @@ fun Text(
  * @param style Style configuration for the text such as color, font, line height etc.
  */
 @Composable
-fun Text(
+public fun Text(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     color: Color = Color.Unspecified,
@@ -204,7 +208,7 @@ fun Text(
 ) {
     val textColor = color.takeOrElse {
         style.color.takeOrElse {
-            LocalContentColor.current
+            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
         }
     }
 
@@ -237,7 +241,7 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
-val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
+public val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
     compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 /**
@@ -248,7 +252,7 @@ val LocalTextStyle: ProvidableCompositionLocal<TextStyle> =
  * @see LocalTextStyle
  */
 @Composable
-fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
+public fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)
     CompositionLocalProvider(LocalTextStyle provides mergedStyle, content = content)
 }

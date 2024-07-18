@@ -144,11 +144,6 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     fun isCompanionObject(): Boolean
 
     /**
-     * Returns `true` if this [XTypeElement] is a Java record class (i.e. [java.lang.Record]).
-     */
-    fun isRecordClass(): Boolean
-
-    /**
      * Fields declared in this type
      *  includes all instance/static fields in this
      */

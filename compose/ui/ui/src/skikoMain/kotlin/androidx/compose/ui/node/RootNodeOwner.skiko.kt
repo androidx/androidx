@@ -45,7 +45,6 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.InteropViewCatchPointerModifier
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -66,6 +65,7 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.RenderNodeLayer
+import androidx.compose.ui.platform.asDragAndDropManager
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
 import androidx.compose.ui.scene.ComposeScenePointer
@@ -85,6 +85,7 @@ import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.InteropView
+import androidx.compose.ui.viewinterop.InteropViewAnchorModifierNode
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -121,6 +122,8 @@ internal class RootNodeOwner(
             platformContext.parentFocusManager.clearFocus(true)
         },
     )
+    private val dragAndDropManager: DragAndDropManager =
+        platformContext.createDragAndDropManager().asDragAndDropManager()
     private val rootSemanticsNode = EmptySemanticsModifier()
 
     private val rootModifier = EmptySemanticsElement(rootSemanticsNode)
@@ -136,6 +139,7 @@ internal class RootNodeOwner(
             }
         }
         .then(focusOwner.modifier)
+        .then(dragAndDropManager.modifier)
         .semantics {
             // This makes the reported role of the root node "PANEL", which is ignored by VoiceOver
             // (which is what we want).
@@ -263,13 +267,16 @@ internal class RootNodeOwner(
     }
 
     /**
-     * If pointerPosition is inside UIKitView, then Compose skip touches. And touches goes to UIKit.
+     * Perform hit test and return the [InteropView] associated with the resulting
+     * [PointerInputModifierNode] node in case it is a [InteropViewAnchorModifierNode], otherwise null.
      */
-    fun hitTestInteropView(position: Offset): Boolean {
+    fun hitTestInteropView(position: Offset): InteropView? {
         val result = HitTestResult()
         owner.root.hitTest(position, result, true)
-        val last = result.lastOrNull()
-        return (last as? BackwardsCompatNode)?.element is InteropViewCatchPointerModifier
+
+        val node = result.lastOrNull() as? InteropViewAnchorModifierNode ?: return null
+
+        return node.interopView
     }
 
     private fun isInBounds(localPosition: Offset): Boolean =
@@ -321,8 +328,7 @@ internal class RootNodeOwner(
         ): Nothing {
             awaitCancellation()
         }
-        // TODO https://youtrack.jetbrains.com/issue/COMPOSE-743/Implement-commonMain-Dragdrop-developed-in-AOSP
-        override val dragAndDropManager: DragAndDropManager get() = TODO("Not yet implemented")
+        override val dragAndDropManager: DragAndDropManager = this@RootNodeOwner.dragAndDropManager
         override val pointerIconService = PointerIconServiceImpl()
         override val focusOwner get() = this@RootNodeOwner.focusOwner
         override val windowInfo get() = platformContext.windowInfo

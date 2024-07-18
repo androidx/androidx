@@ -497,14 +497,11 @@ public final class androidx/compose/material/ElevationOverlayKt {
 public abstract interface annotation class androidx/compose/material/ExperimentalMaterialApi : java/lang/annotation/Annotation {
 }
 
-public abstract interface class androidx/compose/material/ExposedDropdownMenuBoxScope {
-	public fun ExposedDropdownMenu (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+public abstract class androidx/compose/material/ExposedDropdownMenuBoxScope {
+	public static final field $stable I
+	public fun <init> ()V
+	public final fun ExposedDropdownMenu (ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public abstract fun exposedDropdownSize (Landroidx/compose/ui/Modifier;Z)Landroidx/compose/ui/Modifier;
-	public static synthetic fun exposedDropdownSize$default (Landroidx/compose/material/ExposedDropdownMenuBoxScope;Landroidx/compose/ui/Modifier;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
-}
-
-public final class androidx/compose/material/ExposedDropdownMenuBoxScope$DefaultImpls {
-	public static fun ExposedDropdownMenu (Landroidx/compose/material/ExposedDropdownMenuBoxScope;ZLkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollState;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 	public static synthetic fun exposedDropdownSize$default (Landroidx/compose/material/ExposedDropdownMenuBoxScope;Landroidx/compose/ui/Modifier;ZILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 

@@ -182,7 +182,7 @@ package androidx.constraintlayout.core {
     ctor public PriorityGoalRow(androidx.constraintlayout.core.Cache!);
   }
 
-  public class SolverVariable implements java.lang.Comparable<androidx.constraintlayout.core.SolverVariable!> {
+  public class SolverVariable implements java.lang.Comparable<androidx.constraintlayout.core.SolverVariable> {
     ctor public SolverVariable(androidx.constraintlayout.core.SolverVariable.Type!, String!);
     ctor public SolverVariable(String!, androidx.constraintlayout.core.SolverVariable.Type!);
     method public final void addToRow(androidx.constraintlayout.core.ArrayRow!);
@@ -545,22 +545,22 @@ package androidx.constraintlayout.core.dsl {
     method public float[]! getTranslationY();
     method public float[]! getTranslationZ();
     method public androidx.constraintlayout.core.dsl.KeyAttributes.Visibility![]! getVisibility();
-    method public void setAlpha(float...!);
+    method public void setAlpha(float...);
     method public void setCurveFit(androidx.constraintlayout.core.dsl.KeyAttributes.Fit!);
-    method public void setPivotX(float...!);
-    method public void setPivotY(float...!);
-    method public void setRotation(float...!);
-    method public void setRotationX(float...!);
-    method public void setRotationY(float...!);
+    method public void setPivotX(float...);
+    method public void setPivotY(float...);
+    method public void setRotation(float...);
+    method public void setRotationX(float...);
+    method public void setRotationY(float...);
     method public void setScaleX(float[]!);
     method public void setScaleY(float[]!);
     method public void setTarget(String![]!);
     method public void setTransitionEasing(String!);
-    method public void setTransitionPathRotate(float...!);
+    method public void setTransitionPathRotate(float...);
     method public void setTranslationX(float[]!);
     method public void setTranslationY(float[]!);
     method public void setTranslationZ(float[]!);
-    method public void setVisibility(androidx.constraintlayout.core.dsl.KeyAttributes.Visibility!...!);
+    method public void setVisibility(androidx.constraintlayout.core.dsl.KeyAttributes.Visibility!...);
     field protected String! TYPE;
   }
 
@@ -600,9 +600,9 @@ package androidx.constraintlayout.core.dsl {
     method public float[]! getWavePeriod();
     method public float[]! getWavePhase();
     method public androidx.constraintlayout.core.dsl.KeyCycles.Wave! getWaveShape();
-    method public void setWaveOffset(float...!);
-    method public void setWavePeriod(float...!);
-    method public void setWavePhase(float...!);
+    method public void setWaveOffset(float...);
+    method public void setWavePeriod(float...);
+    method public void setWavePhase(float...);
     method public void setWaveShape(androidx.constraintlayout.core.dsl.KeyCycles.Wave!);
   }
 
@@ -647,7 +647,7 @@ package androidx.constraintlayout.core.dsl {
   }
 
   public class KeyPositions extends androidx.constraintlayout.core.dsl.Keys {
-    ctor public KeyPositions(int, java.lang.String!...!);
+    ctor public KeyPositions(int, java.lang.String!...);
     method public int[]! getFrames();
     method public float[]! getPercentHeight();
     method public float[]! getPercentWidth();
@@ -656,11 +656,11 @@ package androidx.constraintlayout.core.dsl {
     method public androidx.constraintlayout.core.dsl.KeyPositions.Type! getPositionType();
     method public String![]! getTarget();
     method public String! getTransitionEasing();
-    method public void setFrames(int...!);
-    method public void setPercentHeight(float...!);
-    method public void setPercentWidth(float...!);
-    method public void setPercentX(float...!);
-    method public void setPercentY(float...!);
+    method public void setFrames(int...);
+    method public void setPercentHeight(float...);
+    method public void setPercentWidth(float...);
+    method public void setPercentX(float...);
+    method public void setPercentY(float...);
     method public void setPositionType(androidx.constraintlayout.core.dsl.KeyPositions.Type!);
     method public void setTransitionEasing(String!);
   }
@@ -954,7 +954,7 @@ package androidx.constraintlayout.core.motion {
     field public String! mId;
   }
 
-  public class MotionPaths implements java.lang.Comparable<androidx.constraintlayout.core.motion.MotionPaths!> {
+  public class MotionPaths implements java.lang.Comparable<androidx.constraintlayout.core.motion.MotionPaths> {
     ctor public MotionPaths();
     ctor public MotionPaths(int, int, androidx.constraintlayout.core.motion.key.MotionKeyPosition!, androidx.constraintlayout.core.motion.MotionPaths!, androidx.constraintlayout.core.motion.MotionPaths!);
     method public void applyParameters(androidx.constraintlayout.core.motion.MotionWidget!);
@@ -1953,7 +1953,7 @@ package androidx.constraintlayout.core.parser {
     method public void putValue(float);
   }
 
-  public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey!> {
+  public class CLObject extends androidx.constraintlayout.core.parser.CLContainer implements java.lang.Iterable<androidx.constraintlayout.core.parser.CLKey> {
     ctor public CLObject(char[]!);
     method public static androidx.constraintlayout.core.parser.CLObject! allocate(char[]!);
     method public androidx.constraintlayout.core.parser.CLObject clone();
@@ -2194,7 +2194,7 @@ package androidx.constraintlayout.core.state {
 
   public class HelperReference extends androidx.constraintlayout.core.state.ConstraintReference implements androidx.constraintlayout.core.state.helpers.Facade {
     ctor public HelperReference(androidx.constraintlayout.core.state.State!, androidx.constraintlayout.core.state.State.Helper!);
-    method public androidx.constraintlayout.core.state.HelperReference! add(java.lang.Object!...!);
+    method public androidx.constraintlayout.core.state.HelperReference! add(java.lang.Object!...);
     method public void applyBase();
     method public androidx.constraintlayout.core.widgets.HelperWidget! getHelperWidget();
     method public androidx.constraintlayout.core.state.State.Helper! getType();
@@ -2248,8 +2248,8 @@ package androidx.constraintlayout.core.state {
     method public void apply(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!);
     method public androidx.constraintlayout.core.state.helpers.BarrierReference! barrier(Object!, androidx.constraintlayout.core.state.State.Direction!);
     method public void baselineNeededFor(Object!);
-    method public androidx.constraintlayout.core.state.helpers.AlignHorizontallyReference! centerHorizontally(java.lang.Object!...!);
-    method public androidx.constraintlayout.core.state.helpers.AlignVerticallyReference! centerVertically(java.lang.Object!...!);
+    method public androidx.constraintlayout.core.state.helpers.AlignHorizontallyReference! centerHorizontally(java.lang.Object!...);
+    method public androidx.constraintlayout.core.state.helpers.AlignVerticallyReference! centerVertically(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.ConstraintReference! constraints(Object!);
     method public int convertDimension(Object!);
     method public androidx.constraintlayout.core.state.ConstraintReference! createConstraintReference(Object!);
@@ -2257,15 +2257,15 @@ package androidx.constraintlayout.core.state {
     method public androidx.constraintlayout.core.state.helpers.FlowReference! getFlow(Object!, boolean);
     method public androidx.constraintlayout.core.state.helpers.GridReference getGrid(Object, String);
     method public androidx.constraintlayout.core.state.helpers.FlowReference! getHorizontalFlow();
-    method public androidx.constraintlayout.core.state.helpers.FlowReference! getHorizontalFlow(java.lang.Object!...!);
+    method public androidx.constraintlayout.core.state.helpers.FlowReference! getHorizontalFlow(java.lang.Object!...);
     method public java.util.ArrayList<java.lang.String!>! getIdsForTag(String!);
     method public androidx.constraintlayout.core.state.helpers.FlowReference! getVerticalFlow();
-    method public androidx.constraintlayout.core.state.helpers.FlowReference! getVerticalFlow(java.lang.Object!...!);
+    method public androidx.constraintlayout.core.state.helpers.FlowReference! getVerticalFlow(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.helpers.GuidelineReference! guideline(Object!, int);
     method public androidx.constraintlayout.core.state.State! height(androidx.constraintlayout.core.state.Dimension!);
     method public androidx.constraintlayout.core.state.HelperReference! helper(Object!, androidx.constraintlayout.core.state.State.Helper!);
     method public androidx.constraintlayout.core.state.helpers.HorizontalChainReference! horizontalChain();
-    method public androidx.constraintlayout.core.state.helpers.HorizontalChainReference! horizontalChain(java.lang.Object!...!);
+    method public androidx.constraintlayout.core.state.helpers.HorizontalChainReference! horizontalChain(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.helpers.GuidelineReference! horizontalGuideline(Object!);
     method public boolean isBaselineNeeded(androidx.constraintlayout.core.widgets.ConstraintWidget!);
     method @Deprecated public boolean isLtr();
@@ -2281,7 +2281,7 @@ package androidx.constraintlayout.core.state {
     method public void setTag(String!, String!);
     method public androidx.constraintlayout.core.state.State! setWidth(androidx.constraintlayout.core.state.Dimension!);
     method public androidx.constraintlayout.core.state.helpers.VerticalChainReference! verticalChain();
-    method public androidx.constraintlayout.core.state.helpers.VerticalChainReference! verticalChain(java.lang.Object!...!);
+    method public androidx.constraintlayout.core.state.helpers.VerticalChainReference! verticalChain(java.lang.Object!...);
     method public androidx.constraintlayout.core.state.helpers.GuidelineReference! verticalGuideline(Object!);
     method public androidx.constraintlayout.core.state.State! width(androidx.constraintlayout.core.state.Dimension!);
     field public static final Integer PARENT;
@@ -3243,7 +3243,7 @@ package androidx.constraintlayout.core.widgets {
     ctor public WidgetContainer(int, int);
     ctor public WidgetContainer(int, int, int, int);
     method public void add(androidx.constraintlayout.core.widgets.ConstraintWidget!);
-    method public void add(androidx.constraintlayout.core.widgets.ConstraintWidget!...!);
+    method public void add(androidx.constraintlayout.core.widgets.ConstraintWidget!...);
     method public java.util.ArrayList<androidx.constraintlayout.core.widgets.ConstraintWidget!>! getChildren();
     method public androidx.constraintlayout.core.widgets.ConstraintWidgetContainer! getRootConstraintContainer();
     method public void layout();

@@ -35,7 +35,6 @@ Reusing configuration cache\.
 Calculating task graph as configuration cache cannot be reused because an input to task '[^ ]*' has changed\.
 Calculating task graph as configuration cache cannot be reused because the set of paths ignored in file\-system\-check input tracking has changed\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
-The build is running offline\. A build scan will not be published at this time, but it can be published if you run the 'buildScanPublishPrevious' task in the next build\.
 # Some messages that encode the number of a certain type of other error
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
@@ -43,6 +42,11 @@ The build is running offline\. A build scan will not be published at this time, 
 [0-9]+ problems were found reusing the configuration cache\.
 [0-9]+ problem was found reusing the configuration cache\.
 Configuration cache entry reused with [0-9]+ problem\.
+# > Task :webkit:integration-tests:testapp:compileReleaseJavaWithJavac
+\[ant\:jacocoReport\] Note\: Some input files use or override a deprecated API\.
+\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
+\[ant\:jacocoReport\] Note\: Some input files use unchecked or unsafe operations\.
+\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:unchecked for details\.
 # b/179833331 , https://youtrack.jetbrains.com/issue/KT-35156
 # b/181258249 , https://youtrack.jetbrains.com/issue/KT-43881
 \.\.\. [0-9]+ more
@@ -123,15 +127,7 @@ It looks like you are a Googler running without remote build cache.*
 > Run with \-\-info or \-\-debug option to get more log output\.
 > Run with \-\-scan to get full insights\.
 # developers already see this message when local builds fail and don't need to also see it in CI
-> Get more help at https://help\.gradle\.org.
-# developers already can tell when a build failed
-FAILURE: Build failed with an exception.
-# developers already expect the output to explain what went wrong
-\* What went wrong:
-# the compilation log is already displayed in the output
-.*> Compilation error. See log for more details
-# In practice, these failures are compilation failures
-> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers\$GradleKotlinCompilerWorkAction
+\* Get more help at https://help\.gradle\.org
 # Flaky printout from kapt
 WARNING: Illegal reflective access by org\.jetbrains\.kotlin\.kapt3\.util\.ModuleManipulationUtilsKt .* to constructor com\.sun\.tools\.javac\.util\.Context\(\)
 WARNING: Please consider reporting this to the maintainers of org\.jetbrains\.kotlin\.kapt3\.util\.ModuleManipulationUtilsKt

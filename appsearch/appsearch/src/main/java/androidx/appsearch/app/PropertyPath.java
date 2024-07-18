@@ -313,7 +313,8 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
         @NonNull
         public String toString() {
             if (mPropertyIndex != NON_REPEATED_CARDINALITY) {
-                return mPropertyName + "[" + mPropertyIndex + "]";
+                return new StringBuilder(mPropertyName)
+                        .append("[").append(mPropertyIndex).append("]").toString();
             }
             return mPropertyName;
         }

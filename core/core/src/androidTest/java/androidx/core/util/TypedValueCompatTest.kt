@@ -27,7 +27,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 
-@Suppress("DEPRECATION") // for DisplayMetrics.scaledDensity
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class TypedValueCompatTest {

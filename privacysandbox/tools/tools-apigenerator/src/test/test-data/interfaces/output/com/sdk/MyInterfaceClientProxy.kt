@@ -1,6 +1,6 @@
 package com.sdk
 
-import androidx.privacysandbox.activity.core.SdkActivityLauncher
+import androidx.privacysandbox.ui.core.SdkActivityLauncher
 import com.sdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import com.sdk.SdkActivityLauncherConverter.toBinder
 import kotlin.coroutines.resumeWithException

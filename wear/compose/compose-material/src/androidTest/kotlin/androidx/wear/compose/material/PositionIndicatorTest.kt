@@ -172,7 +172,7 @@ public class PositionIndicatorTest {
     }
 
     @Test
-    fun positionIndicatorWithScalingLazyColumn_shown_by_default() {
+    fun positionIndicatorWithScalingLazyColumn_hidden_by_default() {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         val piColor = Color.Yellow
@@ -200,7 +200,7 @@ public class PositionIndicatorTest {
         }
         rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertContainsColor(expectedColor = piColor, minPercent = 0.2f)
+            .assertDoesNotContainColor(piColor)
     }
 
     @Test

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <!-- TODO: remove translatable=false, when "Ads" mode is ready to release publicly. -->
+    <!-- Text for displaying ad skip wait time. -->
+    <string translatable="false" name="MediaControlView_ad_skip_wait_time">
+        You can skip Ad in <xliff:g id="wait_time" example="5">%1$d</xliff:g>s
+    </string>
+    <!-- TODO: remove translatable=false, when "Ads" mode is ready to release publicly. -->
+    <!-- Text for displaying ad total remaining time. -->
+    <string translatable="false" name="MediaControlView_ad_remaining_time">
+        Ad · <xliff:g id="remaining_time" example="1:15">%1$s</xliff:g> remaining
+    </string>
+    <!-- TODO: remove translatable=false, when "Ads" mode is ready to release publicly. -->
+    <!-- Placeholder text indicating that the user can press the button to go to an external website. -->
+    <string translatable="false" name="MediaControlView_ad_text">Visit Advertiser</string>
+
+    <!-- It's shown in the list of subtitle options. If the "off" option is selected, then
+         subtitle will not be shown. -->
+    <string name="MediaControlView_subtitle_off_text">Off</string>
+    <!-- The title of audio track selection. It is shown with the currently selected audio track's
+         information (such as language). If a user clicks it, the list of possible audio tracks
+         will be shown. -->
+    <string name="MediaControlView_audio_track_text">Audio track</string>
+    <!-- It is shown when no audio track exists in this media. -->
+    <string name="MediaControlView_audio_track_none_text">None</string>
+    <!-- The title of playback speed selection. It is shown with the current playback speed.
+         If a user clicks it, the list of possible playback speeds will be shown. -->
+    <string name="MediaControlView_playback_speed_text">Playback speed</string>
+    <!-- It implies that the playback speed is normal (1.0x). -->
+    <string name="MediaControlView_playback_speed_normal">Normal</string>
+    <string-array translatable="false" name="MediaControlView_playback_speeds">
+        <item>0.25x</item>
+        <item>0.5x</item>
+        <item>0.75x</item>
+        <item>1.25x</item>
+        <item>1.5x</item>
+        <item>2x</item>
+    </string-array>
+    <!-- Text for displaying custom playback speed. -->
+    <string translatable="false" name="MediaControlView_custom_playback_speed_text">
+        <xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x
+    </string>
+    <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
+    <string name="MediaControlView_time_placeholder">00:00:00</string>
+
+    <!-- Text for displaying subtitle track number without language info. -->
+    <string name="MediaControlView_subtitle_track_number_text">
+        Track <xliff:g id="track_number" example="1">%1$d</xliff:g>
+    </string>
+    <!-- Text for displaying subtitle track number with language info. -->
+    <string name="MediaControlView_subtitle_track_number_and_lang_text">
+        Track <xliff:g id="track_number" example="1">%1$d</xliff:g> - <xliff:g id="lang" example="eng">%2$s</xliff:g>
+    </string>
+    <!-- Text for displaying audio track number. -->
+    <string name="MediaControlView_audio_track_number_text">
+        Track <xliff:g id="audio_number" example="1">%1$d</xliff:g>
+    </string>
+    <!-- Text for displaying unknown media title. -->
+    <string name="mcv2_non_music_title_unknown_text">Video title unknown</string>
+    <!-- Text for displaying unknown song title. -->
+    <string name="mcv2_music_title_unknown_text">Song title unknown</string>
+    <!-- Text for displaying unknown artist name. -->
+    <string name="mcv2_music_artist_unknown_text">Artist unknown</string>
+    <!-- Text for error alert when a video cannot be played. It can be used by any app. -->
+    <string name="mcv2_playback_error_text">Couldn\'t play the item you requested</string>
+    <!-- Button to close error alert when a video cannot be played. -->
+    <string name="mcv2_error_dialog_button">OK</string>
+
+    <!-- Content description of the back button. -->
+    <string name="mcv2_back_button_desc">Back</string>
+    <!-- Content description of the left arrow button to navigate a list of buttons.
+         If a user clicks the arrow, it goes back to the previous button list. -->
+    <string name="mcv2_overflow_left_button_desc">Back to previous button list</string>
+    <!-- Content description of the right arrow button to navigate a list of buttons.
+         If a user clicks the arrow, it shows a list of other buttons. -->
+    <string name="mcv2_overflow_right_button_desc">See more buttons</string>
+    <!-- Content description of the seek bar, which indicates the playback progress. -->
+    <string name="mcv2_seek_bar_desc">Playback progress</string>
+    <!-- Content description of the settings button. -->
+    <string name="mcv2_settings_button_desc">Settings</string>
+    <!-- Content description of the close caption (subtitle) button, when subtitle is turned on.
+         If a user clicks the button, it will turned off. -->
+    <string name="mcv2_cc_is_on">Subtitle is on. Click to hide it.</string>
+    <!-- Content description of the close caption (subtitle) button, when subtitle is turned off.
+         If a user clicks the button, it will turned on. -->
+    <string name="mcv2_cc_is_off">Subtitle is off. Click to show it.</string>
+    <!-- Content description of the replay button.
+         If a user clicks the button, the playback will be restarted from the beginning. -->
+    <string name="mcv2_replay_button_desc">Replay</string>
+    <!-- Content description of the play button.
+         If a user clicks the button, the playback will be started or resumed. -->
+    <string name="mcv2_play_button_desc">Play</string>
+    <!-- Content description of the pause button.
+         If a user clicks the button, the playback will be paused. -->
+    <string name="mcv2_pause_button_desc">Pause</string>
+    <!-- Content description of the "previous" button.
+         If a user clicks the button, it goes to the previous media to play. -->
+    <string name="mcv2_previous_button_desc">Previous media</string>
+    <!-- Content description of the "next" button.
+         If a user clicks the button, it goes to the next media to play. -->
+    <string name="mcv2_next_button_desc">Next media</string>
+    <!-- Content description of the "rewind" button.
+         If a user clicks the button, it rewinds back by 10 seconds. -->
+    <string name="mcv2_rewind_button_desc">Rewind by 10 seconds</string>
+    <!-- Content description of the "fast-forward" button.
+         If a user clicks the button, it fast-forwards by 30 seconds. -->
+    <string name="mcv2_ffwd_button_desc">Go forward by 30 seconds</string>
+    <!-- TODO: remove translatable=false, when "Ads" mode is ready to release publicly. -->
+    <!-- Content description of the "Ads" button.
+         If a user clicks the button, it launches external website. -->
+    <string translatable="false" name="mcv2_launch_button_desc">Launch Link</string>
+    <!-- Content description of the full screen button.
+         If a user clicks the button, the widget goes into full-screen mode. -->
+    <string name="mcv2_full_screen_button_desc">Full screen</string>
+    <!-- TODO: cleanup these video quality strings from all the branches. -->
+    <string translatable="false" name="mcv2_video_quality_button_desc">Video Quality Selection</string>
+    <string translatable="false" name="MediaControlView_video_quality_auto_text">Auto</string>
+</resources>

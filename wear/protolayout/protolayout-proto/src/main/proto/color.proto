@@ -12,11 +12,12 @@ option java_outer_classname = "ColorProto";
 
 // A property defining a color.
 message ColorProp {
+
   oneof optional_argb {
-    // The static color value, in ARGB format. If a dynamic value is also set
-    // and the renderer supports dynamic values for the corresponding field,
-    // this static value will be ignored. If the static value is not specified,
-    // zero (equivalent to {@link Color#TRANSPARENT}) will be used instead.
+    // The static color value, in ARGB format. If a dynamic value is also set and the
+    // renderer supports dynamic values for the corresponding field, this static
+    // value will be ignored. If the static value is not specified, zero
+    // (equivalent to {@link Color#TRANSPARENT}) will be used instead.
     uint32 argb = 1;
   }
 
@@ -29,8 +30,7 @@ message ColorProp {
 
 // A color and an offset, determining a color position in a gradient.
 message ColorStop {
-  // The color for this stop. Only opaque colors are supported. Any transparent
-  // colors will have their alpha component set to 0xFF (opaque).
+  // The color for this stop.
   ColorProp color = 1;
 
   oneof optional_offset {
@@ -53,31 +53,22 @@ message SweepGradient {
   //
   // A color stop is a pair of a color and its offset in the gradient.
   // The offset is the relative position of the color, beginning with 0 from the
-  // start angle and ending with 1.0 at the end angle, spanning clockwise.
+  // start angle and ending with 1.0 after spanning 360 degrees clockwise.
   //
-  // There must be at least 2 colors and at most 10 colors.
+  // There must be at least 2 colors.
   //
   // If offset values are not set, the colors are evenly distributed in the
   // gradient.
+  //
+  // If the offset values are not monotonic, the drawing may produce unexpected
+  // results.
   repeated ColorStop color_stops = 1;
 
-  // The start angle of the gradient relative to the element's base angle. If
-  // not set, defaults to zero.
+  // The angular shift relative to the element's parent base angle. This is used
+  // to shift the start angle of the gradient.
   //
-  // For ArcLine, the base angle is the angle where the line starts. The value
-  // represents a relative position in the line's length span. Values greater
-  // than 360 degrees correspond to upper layers of the arc line as it wraps
-  // over itself.
-  DegreesProp start_angle = 2;
-
-  // The end angle of the gradient, relative to the element's base angle. If not
-  // set, defaults to 360 degrees.
-  //
-  // For ArcLine, the base angle is the angle where the line starts. The value
-  // represents a relative position in the line's length span. Values greater
-  // than 360 degrees correspond to upper layers of the arc line as it wraps
-  // over itself.
-  DegreesProp end_angle = 3;
+  // For ArcLine, the base angle is the angle where the line starts.
+  DegreesProp angular_shift = 2;
 }
 
 // A Brush describes how something is drawn on screen.

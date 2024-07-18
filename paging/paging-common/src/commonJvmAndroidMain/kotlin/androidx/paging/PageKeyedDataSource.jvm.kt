@@ -54,10 +54,10 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * Holder object for inputs to [loadInitial].
      *
      * @param Key Type of data used to query pages.
-     * @param requestedLoadSize Requested number of items to load.
+     * @property requestedLoadSize Requested number of items to load.
      *
      * Note that this may be larger than available data.
-     * @param placeholdersEnabled Defines whether placeholders are enabled, and whether the
+     * @property placeholdersEnabled Defines whether placeholders are enabled, and whether the
      * loaded total count will be ignored.
      */
     public open class LoadInitialParams<Key : Any>(
@@ -69,10 +69,10 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
      * Holder object for inputs to [loadBefore] and [loadAfter].
      *
      * @param Key Type of data used to query pages.
-     * @param key Load items before/after this key.
+     * @property key Load items before/after this key.
      *
      * Returned data must begin directly adjacent to this position.
-     * @param requestedLoadSize Requested number of items to load.
+     * @property requestedLoadSize Requested number of items to load.
      *
      * Returned page can be of this size, but it may be altered if that is easier, e.g. a network
      * data source where the backend defines page size.
@@ -119,10 +119,6 @@ public abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<K
          * @param totalCount Total number of items that may be returned from this DataSource.
          * Includes the number in the initial `data` parameter as well as any items that can be
          * loaded in front or behind of `data`.
-         * @param previousPageKey Key for page before the initial load result, or `null` if no more
-         * data can be loaded before.
-         * @param nextPageKey Key for page after the initial load result, or `null` if no more data
-         * can be loaded after.
          */
         public abstract fun onResult(
             data: List<Value>,

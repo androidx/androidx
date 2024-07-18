@@ -19,7 +19,6 @@ package androidx.room.compiler.processing
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
-import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeName.Companion.ANY_OBJECT
 import androidx.room.compiler.codegen.XTypeName.Companion.UNAVAILABLE_KTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
@@ -95,7 +94,6 @@ class XTypeTest {
                             KTypeVariableName(
                                 "InputStreamType",
                                 KClassName("java.io", "InputStream")
-                                    .copy(nullable = true)
                             )
                         )
                 )
@@ -122,14 +120,12 @@ class XTypeTest {
                     val expected = KTypeVariableName(
                         "InputStreamType",
                         KClassName("java.io", "InputStream")
-                            .copy(nullable = true)
                     )
                     assertThat(firstType.asTypeName().kotlin).isEqualTo(expected)
                     assertThat(
                         (firstType.asTypeName().kotlin as KTypeVariableName).bounds
                     ).containsExactly(
                         KClassName("java.io", "InputStream")
-                            .copy(nullable = true)
                     )
                 }
             }
@@ -145,7 +141,7 @@ class XTypeTest {
                 )
                 if (it.isKsp) {
                     assertThat(wildcardParam.type.asTypeName().kotlin).isEqualTo(
-                        MUTABLE_SET.parameterizedBy(STAR).copy(nullable = true)
+                        MUTABLE_SET.parameterizedBy(STAR)
                     )
                     assertThat(extendsBoundOrSelf.rawType)
                         .isEqualTo(
@@ -166,7 +162,7 @@ class XTypeTest {
                 )
                 if (it.isKsp) {
                     assertThat(rawParamType.type.asTypeName().kotlin).isEqualTo(
-                        KClassName("kotlin.collections", "MutableSet").copy(nullable = true)
+                        KClassName("kotlin.collections", "MutableSet")
                     )
                 }
             }
@@ -181,8 +177,8 @@ class XTypeTest {
                 if (it.isKsp) {
                     assertThat(rawParamTypeArgument.type.asTypeName().kotlin).isEqualTo(
                         KClassName("kotlin.collections", "MutableList").parameterizedBy(
-                            KClassName("kotlin.collections", "MutableSet").copy(nullable = true)
-                        ).copy(nullable = true)
+                            KClassName("kotlin.collections", "MutableSet")
+                        )
                     )
                 }
                 val rawTypeArgument = rawParamTypeArgument.type.typeArguments.single()
@@ -191,7 +187,7 @@ class XTypeTest {
                 )
                 if (it.isKsp) {
                     assertThat(rawTypeArgument.asTypeName().kotlin).isEqualTo(
-                        KClassName("kotlin.collections", "MutableSet").copy(nullable = true)
+                        KClassName("kotlin.collections", "MutableSet")
                     )
                 }
             }
@@ -626,22 +622,17 @@ class XTypeTest {
             assertThat(typeElement.type.asTypeName().java.dumpToString(5))
                 .isEqualTo(expectedTypeStringDump)
             if (invocation.isKsp) {
-                val expectedTypeStringDumpKotlin = """
-                SelfReferencing<T>
-                | T
-                | > SelfReferencing<T?>?
-                | > | T?
-                | > | > SelfReferencing<T?>?
-                | > | > | T?
-                """.trimIndent()
                 assertThat(typeElement.type.asTypeName().kotlin.dumpToString(5))
-                    .isEqualTo(expectedTypeStringDumpKotlin)
+                    .isEqualTo(expectedTypeStringDump)
             }
+            val expectedParamStringDump = """
+                SelfReferencing
+                """.trimIndent()
             assertThat(parameter.type.asTypeName().java.dumpToString(5))
-                .isEqualTo("SelfReferencing")
+                .isEqualTo(expectedParamStringDump)
             if (invocation.isKsp) {
                 assertThat(parameter.type.asTypeName().kotlin.dumpToString(5))
-                    .isEqualTo("SelfReferencing?")
+                    .isEqualTo(expectedParamStringDump)
             }
         }
     }
@@ -1379,48 +1370,38 @@ class XTypeTest {
 
     @Test
     fun getWildcardType() {
-        fun XTestInvocation.checkType(isJavaSrc: Boolean) {
+        fun XTestInvocation.checkType() {
             val usageElement = processingEnv.requireTypeElement("test.Usage")
             val fooElement = processingEnv.requireTypeElement("test.Foo")
-            val barType = processingEnv.requireType("test.Bar").run {
-                if (isJavaSrc) makeNullable() else makeNonNullable()
-            }
+            val barType = processingEnv.requireType("test.Bar")
 
             // Test a manually constructed Foo<Bar>
-            val fooBarType = processingEnv.getDeclaredType(fooElement, barType).run {
-                if (isJavaSrc) makeNullable() else makeNonNullable()
-            }
+            val fooBarType = processingEnv.getDeclaredType(fooElement, barType)
             val fooBarUsageType = usageElement.getDeclaredField("fooBar").type
-            assertThat(fooBarUsageType.asTypeName()).isEqualTo(fooBarType.asTypeName())
+            assertThat(fooBarType.asTypeName()).isEqualTo(fooBarUsageType.asTypeName())
 
             // Test a manually constructed Foo<? extends Bar>
             val fooExtendsBarType = processingEnv.getDeclaredType(
                 fooElement,
                 processingEnv.getWildcardType(producerExtends = barType)
-            ).run {
-                if (isJavaSrc) makeNullable() else makeNonNullable()
-            }
+            )
             val fooExtendsBarUsageType = usageElement.getDeclaredField("fooExtendsBar").type
-            assertThat(fooExtendsBarUsageType.asTypeName())
-                .isEqualTo(fooExtendsBarType.asTypeName())
+            assertThat(fooExtendsBarType.asTypeName())
+                .isEqualTo(fooExtendsBarUsageType.asTypeName())
 
             // Test a manually constructed Foo<? super Bar>
             val fooSuperBarType = processingEnv.getDeclaredType(
                 fooElement,
                 processingEnv.getWildcardType(consumerSuper = barType)
-            ).run {
-                if (isJavaSrc) makeNullable() else makeNonNullable()
-            }
+            )
             val fooSuperBarUsageType = usageElement.getDeclaredField("fooSuperBar").type
-            assertThat(fooSuperBarUsageType.asTypeName()).isEqualTo(fooSuperBarType.asTypeName())
+            assertThat(fooSuperBarType.asTypeName()).isEqualTo(fooSuperBarUsageType.asTypeName())
 
             // Test a manually constructed Foo<?>
             val fooUnboundedType = processingEnv.getDeclaredType(
                 fooElement,
                 processingEnv.getWildcardType()
-            ).run {
-                if (isJavaSrc) makeNullable() else makeNonNullable()
-            }
+            )
             val fooUnboundedUsageType = usageElement.getDeclaredField("fooUnbounded").type
             assertThat(fooUnboundedType.asTypeName()).isEqualTo(fooUnboundedUsageType.asTypeName())
         }
@@ -1438,10 +1419,10 @@ class XTypeTest {
             interface Foo<T> {}
             interface Bar {}
             """.trimIndent()
-        ))) { it.checkType(isJavaSrc = true) }
+        ))) { it.checkType() }
 
         runProcessorTest(listOf(Source.kotlin(
-            "Usage.kt",
+            "test.Usage.kt",
             """
             package test
             class Usage {
@@ -1453,7 +1434,7 @@ class XTypeTest {
             interface Foo<T>
             interface Bar
             """.trimIndent()
-        ))) { it.checkType(isJavaSrc = false) }
+        ))) { it.checkType() }
     }
 
     @Test
@@ -1607,87 +1588,45 @@ class XTypeTest {
             """.trimIndent()
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
-            val fooTypeName = XClassName.get("test", "Foo")
-            val barTypeName = XClassName.get("test", "Bar")
-
-            fun assertHasTypeName(type: XType, expectedTypeName: XTypeName) {
-                assertThat(type.asTypeName()).isEqualTo(expectedTypeName)
+            fun assertHasTypeName(type: XType, expectedTypeName: String) {
+                assertThat(type.asTypeName().java.toString()).isEqualTo(expectedTypeName)
+                if (invocation.isKsp) {
+                    assertThat(type.asTypeName().kotlin.toString()).isEqualTo(expectedTypeName)
+                }
             }
 
             val subject = invocation.processingEnv.requireTypeElement("test.Subject")
+            assertHasTypeName(subject.getDeclaredField("foo").type, "test.Foo")
+            assertHasTypeName(subject.getDeclaredField("fooFoo").type, "test.Foo<test.Foo>")
             assertHasTypeName(
-                type = subject.getDeclaredField("foo").type,
-                expectedTypeName = fooTypeName.copy(nullable = true)
-            )
+                subject.getDeclaredField("fooFooFoo").type, "test.Foo<test.Foo<test.Foo>>")
             assertHasTypeName(
-                type = subject.getDeclaredField("fooFoo").type,
-                expectedTypeName = fooTypeName.parametrizedBy(
-                    fooTypeName.copy(nullable = true)
-                ).copy(nullable = true)
-            )
-            assertHasTypeName(
-                type = subject.getDeclaredField("fooFooFoo").type,
-                expectedTypeName = fooTypeName.parametrizedBy(
-                    fooTypeName.parametrizedBy(
-                        fooTypeName.copy(nullable = true)
-                    ).copy(nullable = true)
-                ).copy(nullable = true)
-            )
-            assertHasTypeName(
-                type = subject.getDeclaredField("barFooFoo").type,
-                expectedTypeName = barTypeName.parametrizedBy(
-                    fooTypeName.copy(nullable = true), fooTypeName.copy(nullable = true)
-                ).copy(nullable = true)
-            )
+                subject.getDeclaredField("barFooFoo").type, "test.Bar<test.Foo, test.Foo>")
 
             // Test manually wrapping raw type using XProcessingEnv#getDeclaredType()
             subject.getDeclaredField("foo").type.let { foo ->
                 val fooTypeElement = invocation.processingEnv.requireTypeElement("test.Foo")
                 val fooFoo: XType = invocation.processingEnv.getDeclaredType(fooTypeElement, foo)
-                assertHasTypeName(
-                    type = fooFoo,
-                    expectedTypeName = fooTypeName.parametrizedBy(
-                        fooTypeName.copy(nullable = true)
-                    )
-                )
+                assertHasTypeName(fooFoo, "test.Foo<test.Foo>")
 
                 val fooFooFoo: XType =
                     invocation.processingEnv.getDeclaredType(fooTypeElement, fooFoo)
-                assertHasTypeName(
-                    type = fooFooFoo,
-                    expectedTypeName = fooTypeName.parametrizedBy(
-                        fooTypeName.parametrizedBy(fooTypeName.copy(nullable = true))
-                    )
-                )
+                assertHasTypeName(fooFooFoo, "test.Foo<test.Foo<test.Foo>>")
 
                 val barTypeElement = invocation.processingEnv.requireTypeElement("test.Bar")
                 val barFooFoo: XType =
                     invocation.processingEnv.getDeclaredType(barTypeElement, foo, foo)
-                assertHasTypeName(
-                    type = barFooFoo,
-                    expectedTypeName = barTypeName.parametrizedBy(
-                        fooTypeName.copy(nullable = true), fooTypeName.copy(nullable = true)
-                    )
-                )
+                assertHasTypeName(barFooFoo, "test.Bar<test.Foo, test.Foo>")
             }
 
             // Test manually unwrapping a type with a raw type argument:
             subject.getDeclaredField("fooFoo").type.let { fooFoo ->
-                assertHasTypeName(
-                    type = fooFoo.typeArguments.single(),
-                    expectedTypeName = fooTypeName.copy(nullable = true)
-                )
+                assertHasTypeName(fooFoo.typeArguments.single(), "test.Foo")
             }
             subject.getDeclaredField("barFooFoo").type.let { barFooFoo ->
                 assertThat(barFooFoo.typeArguments).hasSize(2)
-                assertHasTypeName(
-                    type = barFooFoo.typeArguments[0],
-                    expectedTypeName = fooTypeName.copy(nullable = true)
-                )
-                assertHasTypeName(
-                    type = barFooFoo.typeArguments[1],
-                    expectedTypeName = fooTypeName.copy(nullable = true)
-                )
+                assertHasTypeName(barFooFoo.typeArguments[0], "test.Foo")
+                assertHasTypeName(barFooFoo.typeArguments[1], "test.Foo")
             }
         }
     }
@@ -1965,32 +1904,9 @@ class XTypeTest {
             }
             """.trimIndent()
         )
-        val javaSrc = Source.java(
-            "JavaClass",
-            """
-            import java.util.List;
-            import kotlin.Result;
-            import kotlin.UInt;
-            interface JavaClass {
-                UInt inlineClassDirectUsage();
-                List<UInt> inlineClassIndirectUsage();
-                Result<Integer> genericInlineClassDirectUsage();
-                List<Result<Integer>> genericInlineClassIndirectUsage();
-
-                MyInlineClass customInlineClassDirectUsage();
-                List<MyInlineClass> customInlineClassIndirectUsage();
-                MyGenericInlineClass<Integer> customGenericInlineClassDirectUsage();
-                List<MyGenericInlineClass<Integer>> customGenericInlineClassIndirectUsage();
-            }
-            """.trimIndent()
-        )
         runProcessorTest(
-            sources = if (isPrecompiled) { emptyList() } else { listOf(kotlinSrc, javaSrc) },
-            classpath = if (isPrecompiled) {
-                compileFiles(listOf(kotlinSrc, javaSrc))
-            } else {
-                emptyList()
-            }
+            sources = if (isPrecompiled) { emptyList() } else { listOf(kotlinSrc) },
+            classpath = if (isPrecompiled) { compileFiles(listOf(kotlinSrc)) } else { emptyList() }
         ) { invocation ->
             val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
             kotlinElm.getMethodByJvmName("kotlinValueClassDirectUsage").apply {
@@ -2072,53 +1988,6 @@ class XTypeTest {
                     assertThat(returnType.asTypeName().kotlin.toString())
                         .isEqualTo("kotlin.collections.List<MyGenericInlineClass<kotlin.Int>>")
                 }
-            }
-
-            val javaElm = invocation.processingEnv.requireTypeElement("JavaClass")
-            javaElm.getMethodByJvmName("inlineClassDirectUsage").apply {
-                if (invocation.isKsp) {
-                    // TODO(kuanyingchou): When an inline type is used in Java we shouldn't replace
-                    // it with the JVM type.
-                    assertThat(returnType.asTypeName().java.toString())
-                        .isEqualTo("int")
-                } else {
-                    assertThat(returnType.asTypeName().java.toString())
-                        .isEqualTo("kotlin.UInt")
-                }
-            }
-            javaElm.getMethodByJvmName("inlineClassIndirectUsage").apply {
-                assertThat(returnType.asTypeName().java.toString())
-                    .isEqualTo("java.util.List<kotlin.UInt>")
-            }
-            javaElm.getMethodByJvmName("customInlineClassDirectUsage").apply {
-                if (invocation.isKsp) {
-                    // TODO(kuanyingchou): When an inline type is used in Java we shouldn't replace
-                    // it with the JVM type.
-                    assertThat(returnType.asTypeName().java.toString())
-                        .isEqualTo("int")
-                } else {
-                    assertThat(returnType.asTypeName().java.toString())
-                        .isEqualTo("MyInlineClass")
-                }
-            }
-            javaElm.getMethodByJvmName("customInlineClassIndirectUsage").apply {
-                assertThat(returnType.asTypeName().java.toString())
-                    .isEqualTo("java.util.List<MyInlineClass>")
-            }
-            javaElm.getMethodByJvmName("customGenericInlineClassDirectUsage").apply {
-                if (invocation.isKsp) {
-                    // TODO(kuanyingchou): When an inline type is used in Java we shouldn't replace
-                    // it with the JVM type.
-                    assertThat(returnType.asTypeName().java.toString())
-                        .isEqualTo("java.lang.Number")
-                } else {
-                    assertThat(returnType.asTypeName().java.toString())
-                        .isEqualTo("MyGenericInlineClass<java.lang.Integer>")
-                }
-            }
-            javaElm.getMethodByJvmName("customGenericInlineClassIndirectUsage").apply {
-                assertThat(returnType.asTypeName().java.toString())
-                    .isEqualTo("java.util.List<MyGenericInlineClass<java.lang.Integer>>")
             }
         }
     }

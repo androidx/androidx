@@ -31,6 +31,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 
@@ -152,6 +153,7 @@ public final class GridItem implements Item {
      */
     @ExperimentalCarApi
     @Nullable
+    @RequiresCarApi(7)
     public Badge getBadge() {
         return mBadge;
     }
@@ -254,33 +256,35 @@ public final class GridItem implements Item {
          * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
          * string.
          *
-         * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         *                                  unsupported spans
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
-            if (title == null) {
-                mTitle = null;
-                return this;
+        public Builder setTitle(@NonNull CharSequence title) {
+            CarText titleText = CarText.create(requireNonNull(title));
+            if (titleText.isEmpty()) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            CarText titleText = CarText.create(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
 
         /**
-         * Sets the title of the {@link GridItem}, with support for multiple length variants.
+         * Sets the title of the {@link GridItem}, with support for multiple length variants.,
          *
          * <p>Only {@link DistanceSpan}s and {@link DurationSpan}s are supported in the input
          * string.
          *
-         * @throws IllegalArgumentException if {@code title} contains unsupported spans
+         * @throws NullPointerException     if {@code title} is {@code null}
+         * @throws IllegalArgumentException if {@code title} is empty, of if it contains
+         *                                  unsupported spans
          */
         @NonNull
-        public Builder setTitle(@Nullable CarText title) {
-            if (title == null) {
-                mTitle = null;
-                return this;
+        public Builder setTitle(@NonNull CarText title) {
+            if (CarText.isNullOrEmpty(title)) {
+                throw new IllegalArgumentException("The title cannot be null or empty");
             }
             CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
             mTitle = title;
@@ -356,6 +360,7 @@ public final class GridItem implements Item {
          */
         @NonNull
         @ExperimentalCarApi
+        @RequiresCarApi(7)
         public Builder setImage(@NonNull CarIcon image, @NonNull Badge badge) {
             requireNonNull(badge);
             mBadge = badge;
@@ -375,6 +380,7 @@ public final class GridItem implements Item {
          */
         @NonNull
         @ExperimentalCarApi
+        @RequiresCarApi(7)
         public Builder setImage(@NonNull CarIcon image, @GridItemImageType int imageType,
                 @NonNull Badge badge) {
             requireNonNull(badge);
@@ -430,12 +436,17 @@ public final class GridItem implements Item {
         /**
          * Constructs the {@link GridItem} defined by this builder.
          *
-         * @throws IllegalStateException if the grid item's image is set when it is loading or vice
-         *                               versa, if the grid item is loading but the click listener
-         *                               is set, or if a badge is set and an image is not set
+         * @throws IllegalStateException if the grid item's title is not set, if the grid item's
+         *                               image is set when it is loading or vice versa, if
+         *                               the grid item is loading but the click listener is set,
+         *                               or if a badge is set and an image is not set
          */
         @NonNull
         public GridItem build() {
+            if (mTitle == null) {
+                throw new IllegalStateException("A title must be set on the grid item");
+            }
+
             if (mIsLoading == (mImage != null)) {
                 throw new IllegalStateException(
                         "When a grid item is loading, the image must not be set and vice versa");

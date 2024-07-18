@@ -88,7 +88,7 @@ public class SimpleStaticVectorDrawable extends AppCompatActivity {
         LinearLayout container = new LinearLayout(this);
         scrollView.addView(container);
         container.setOrientation(LinearLayout.VERTICAL);
-        final Resources res = getResources();
+        final Resources res = this.getResources();
         final Resources.Theme theme = getTheme();
         container.setBackgroundColor(0xFF888888);
         VectorDrawableCompat[] d = new VectorDrawableCompat[mIcons.length];

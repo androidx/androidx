@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
@@ -25,6 +26,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType
  * Helper class that overrides user configured resolution with resolution selected based on device
  * quirks.
  */
+@RequiresApi(21)
 class ResolutionCorrector {
     private val extraCroppingQuirk = DeviceQuirks[ExtraCroppingQuirk::class.java]
     /**

@@ -41,8 +41,6 @@ import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
@@ -63,16 +61,16 @@ private const val DEFAULT_LENS_FACING = CameraSelector.LENS_FACING_FRONT
 class VideoCaptureScreenState(
     initialLensFacing: Int = DEFAULT_LENS_FACING
 ) {
-    var lensFacing by mutableIntStateOf(initialLensFacing)
+    var lensFacing by mutableStateOf(initialLensFacing)
         private set
 
     var isCameraReady by mutableStateOf(false)
         private set
 
-    var linearZoom by mutableFloatStateOf(0f)
+    var linearZoom by mutableStateOf(0f)
         private set
 
-    var zoomRatio by mutableFloatStateOf(1f)
+    var zoomRatio by mutableStateOf(1f)
         private set
 
     private var recording: Recording? = null

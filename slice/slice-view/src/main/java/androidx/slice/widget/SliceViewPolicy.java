@@ -18,6 +18,7 @@ package androidx.slice.widget;
 
 import static androidx.slice.widget.SliceView.MODE_LARGE;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -25,6 +26,7 @@ import androidx.annotation.RestrictTo;
  * of the slice that are displayed.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public class SliceViewPolicy {
 

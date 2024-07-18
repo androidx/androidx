@@ -84,7 +84,7 @@ class SchedulersTest {
         val finishedLatch = CountDownLatch(1)
         env.taskExecutor.mainThreadExecutor.execute {
             wm.getWorkInfoByIdLiveData(dependency.id).observeForever {
-                if (it?.state == WorkInfo.State.SUCCEEDED) finishedLatch.countDown()
+                if (it.state == WorkInfo.State.SUCCEEDED) finishedLatch.countDown()
             }
         }
         assertThat(finishedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -112,7 +112,7 @@ class SchedulersTest {
         val finishedLatch = CountDownLatch(1)
         env.taskExecutor.mainThreadExecutor.execute {
             wm.getWorkInfoByIdLiveData(workRequest.id).observeForever {
-                if (it?.state == WorkInfo.State.FAILED) finishedLatch.countDown()
+                if (it.state == WorkInfo.State.FAILED) finishedLatch.countDown()
             }
         }
         assertThat(finishedLatch.await(5, TimeUnit.SECONDS)).isTrue()
@@ -151,7 +151,7 @@ class SchedulersTest {
         var running = false
         env.taskExecutor.mainThreadExecutor.execute {
             wm.getWorkInfoByIdLiveData(request.id).observeForever {
-                when (it?.state) {
+                when (it.state) {
                     WorkInfo.State.RUNNING -> {
                         launcher.stopWork(scheduler.tokens.remove(request.stringId).first())
                         running = true
@@ -206,7 +206,7 @@ class SchedulersTest {
         val worker = factory.awaitWorker(request.id) as LatchWorker
         env.taskExecutor.mainThreadExecutor.execute {
             wm.getWorkInfoByIdLiveData(request.id).observeForever {
-                when (it?.state) {
+                when (it.state) {
                     WorkInfo.State.RUNNING -> {
                         running = true
                         worker.mLatch.countDown()

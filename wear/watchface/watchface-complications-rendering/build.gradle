@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
+
 import androidx.build.RunApiTasks
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -69,7 +63,7 @@ android {
 
 androidx {
     name = "Android Wear Watchface Complication Rendering"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Support for rendering complications on the watch face"
     metalavaK2UastEnabled = true

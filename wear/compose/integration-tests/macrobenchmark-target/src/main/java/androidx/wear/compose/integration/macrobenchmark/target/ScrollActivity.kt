@@ -37,7 +37,7 @@ import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Text
 
 class ScrollActivity : ComponentActivity() {
-    private var itemHeightDp: Dp = 60.dp
+    private var itemHeightDp: Dp = 20.dp
     private var defaultItemSpacingDp: Dp = 8.dp
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,11 +62,7 @@ class ScrollActivity : ComponentActivity() {
                                 .background(MaterialTheme.colors.surface)
                                 .fillMaxSize()
                         ) {
-                            Text(
-                                modifier = Modifier.align(Alignment.Center),
-                                text = "Item $it",
-                                color = MaterialTheme.colors.onSurface
-                            )
+                            Text(text = "Item $it", color = MaterialTheme.colors.onSurface)
                         }
                     }
                 }

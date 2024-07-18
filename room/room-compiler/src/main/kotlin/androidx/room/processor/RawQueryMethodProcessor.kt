@@ -50,30 +50,11 @@ class RawQueryMethodProcessor(
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
         )
 
-        // TODO(b/330586815): Support @RawQuery in KMP
         context.checker.check(
-            context.isAndroidOnlyTarget(),
-            executableElement,
-            ProcessorErrors.RAW_QUERY_NOT_SUPPORTED_ON_NON_ANDROID
-        )
-
-        val returnsDeferredType = delegate.returnsDeferredType()
-        val isSuspendFunction = delegate.executableElement.isSuspendFunction()
-        context.checker.check(
-            !isSuspendFunction || !returnsDeferredType,
+            !delegate.isSuspendAndReturnsDeferredType(),
             executableElement,
             ProcessorErrors.suspendReturnsDeferredType(returnType.rawType.typeName.toString())
         )
-
-        if (!isSuspendFunction && !returnsDeferredType && !context.isAndroidOnlyTarget()) {
-            // A blocking function that does not return a deferred return type is not allowed if the
-            // target platforms include non-Android targets.
-            context.logger.e(
-                executableElement,
-                ProcessorErrors.INVALID_BLOCKING_DAO_FUNCTION_NON_ANDROID
-            )
-            // TODO(b/332781418): Early return to avoid generating redundant code.
-        }
 
         val observedTableNames = processObservedTables()
         val query = SqlParser.rawQueryForTables(observedTableNames)

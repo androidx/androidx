@@ -138,28 +138,29 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         assertThat(model.formatWithSkeleton(month, "yMMMM")).isEqualTo("March 2022")
         assertThat(model.formatWithSkeleton(month, "MMMMy")).isEqualTo("March 2022")
         // Check that the direct formatting is equal to the one the model does.
-        assertThat(model.formatWithSkeleton(month, "yMMMM"))
-            .isEqualTo(month.format(model, "yMMMM"))
+        assertThat(model.formatWithSkeleton(month, "yMMMM")).isEqualTo(month.format(model, "yMMMM"))
     }
 
     @Test
     fun formatWithSkeleton() {
         // Format twice to check that the formatter is outputting the right values, and that it's
         // not failing due to cache issues.
-        var formatted = formatWithSkeleton(
-            January2022Millis,
-            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US,
-            cache = mutableMapOf()
-        )
+        var formatted =
+            formatWithSkeleton(
+                January2022Millis,
+                DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+                Locale.US,
+                cache = mutableMapOf()
+            )
         assertThat(formatted).isEqualTo("Saturday, January 1, 2022")
 
-        formatted = formatWithSkeleton(
-            January2022Millis - 1000000000,
-            DatePickerDefaults.YearMonthWeekdayDaySkeleton,
-            Locale.US,
-            cache = mutableMapOf()
-        )
+        formatted =
+            formatWithSkeleton(
+                January2022Millis - 1000000000,
+                DatePickerDefaults.YearMonthWeekdayDaySkeleton,
+                Locale.US,
+                cache = mutableMapOf()
+            )
         assertThat(formatted).isEqualTo("Monday, December 20, 2021")
     }
 
@@ -168,20 +169,22 @@ internal class CalendarModelTest(private val model: CalendarModel) {
     fun formatWithSkeletonProducingEqualPattern() {
         // Format twice to check that the formatter is outputting the right values, and that it's
         // not failing due to cache issues.
-        var formatted = formatWithSkeleton(
-            January2022Millis,
-            skeleton = "YY",
-            Locale.US,
-            cache = mutableMapOf()
-        )
+        var formatted =
+            formatWithSkeleton(
+                January2022Millis,
+                skeleton = "YY",
+                Locale.US,
+                cache = mutableMapOf()
+            )
         assertThat(formatted).isEqualTo("22")
 
-        formatted = formatWithSkeleton(
-            January2022Millis - 1000000000,
-            "YY",
-            Locale.US,
-            cache = mutableMapOf()
-        )
+        formatted =
+            formatWithSkeleton(
+                January2022Millis - 1000000000,
+                "YY",
+                Locale.US,
+                cache = mutableMapOf()
+            )
         assertThat(formatted).isEqualTo("21")
     }
 
@@ -194,9 +197,8 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         // Check that the first day is always "Monday", per ISO-8601 standard.
         assertThat(weekDays.first().first).ignoringCase().contains("Monday")
         weekDays.forEach {
-            assertThat(it.second.first().lowercaseChar()).isEqualTo(
-                it.first.first().lowercaseChar()
-            )
+            assertThat(it.second.first().lowercaseChar())
+                .isEqualTo(it.first.first().lowercaseChar())
         }
     }
 
@@ -272,18 +274,10 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         assertThat(newModel.plusMonths(month, 3)).isEqualTo(legacyModel.plusMonths(month, 3))
         assertThat(date).isEqualTo(legacyDate)
         assertThat(newModel.getDayOfWeek(date)).isEqualTo(legacyModel.getDayOfWeek(date))
-        assertThat(newModel.formatWithSkeleton(date, "dMMMy")).isEqualTo(
-            legacyModel.formatWithSkeleton(
-                date,
-                "dMMMy"
-            )
-        )
-        assertThat(newModel.formatWithSkeleton(month, "MMMy")).isEqualTo(
-            legacyModel.formatWithSkeleton(
-                month,
-                "MMMy"
-            )
-        )
+        assertThat(newModel.formatWithSkeleton(date, "dMMMy"))
+            .isEqualTo(legacyModel.formatWithSkeleton(date, "dMMMy"))
+        assertThat(newModel.formatWithSkeleton(month, "MMMy"))
+            .isEqualTo(legacyModel.formatWithSkeleton(month, "MMMy"))
     }
 
     internal companion object {

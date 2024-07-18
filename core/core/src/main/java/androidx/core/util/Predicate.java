@@ -121,6 +121,7 @@ public interface Predicate<T> {
      * @return a predicate that negates the results of the supplied
      * predicate
      * @throws NullPointerException if target is null
+     * @since 11
      */
     @SuppressWarnings("unchecked")
     @SuppressLint("MissingNullability")

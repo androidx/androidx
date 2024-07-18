@@ -18,7 +18,6 @@ package androidx.camera.video.internal.workaround
 
 import android.os.Build
 import androidx.camera.core.impl.Timebase
-import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebaseQuirk
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import org.junit.Test
@@ -38,8 +37,7 @@ class VideoTimebaseConverterTest {
     @Test
     fun uptimeTimebase_noConversion() {
         // Arrange.
-        val videoTimebaseConverter =
-            VideoTimebaseConverter(systemTimeProvider, Timebase.UPTIME, null)
+        val videoTimebaseConverter = VideoTimebaseConverter(systemTimeProvider, Timebase.UPTIME)
 
         // Act.
         val outputTime1 = videoTimebaseConverter.convertToUptimeUs(800L)
@@ -53,8 +51,7 @@ class VideoTimebaseConverterTest {
     @Test
     fun realtimeTimebase_doConversion() {
         // Arrange.
-        val videoTimebaseConverter =
-            VideoTimebaseConverter(systemTimeProvider, Timebase.REALTIME, null)
+        val videoTimebaseConverter = VideoTimebaseConverter(systemTimeProvider, Timebase.REALTIME)
 
         // Act.
         val outputTime1 = videoTimebaseConverter.convertToUptimeUs(1800L)
@@ -66,13 +63,9 @@ class VideoTimebaseConverterTest {
     }
 
     @Test
-    fun hasQuirk_closeToUptime_noConversion() {
+    fun unknownTimebase_closeToUptime_noConversion() {
         // Arrange.
-        val videoTimebaseConverter = VideoTimebaseConverter(
-            systemTimeProvider,
-            Timebase.REALTIME,
-            CameraUseInconsistentTimebaseQuirk()
-        )
+        val videoTimebaseConverter = VideoTimebaseConverter(systemTimeProvider, null)
 
         // Act.
         val outputTime1 = videoTimebaseConverter.convertToUptimeUs(800L)
@@ -84,13 +77,9 @@ class VideoTimebaseConverterTest {
     }
 
     @Test
-    fun hasQuirk_closeToRealtime_doConversion() {
+    fun unknownTimebase_closeToRealtime_doConversion() {
         // Arrange.
-        val videoTimebaseConverter = VideoTimebaseConverter(
-            systemTimeProvider,
-            Timebase.UPTIME,
-            CameraUseInconsistentTimebaseQuirk()
-        )
+        val videoTimebaseConverter = VideoTimebaseConverter(systemTimeProvider, null)
 
         // Act.
         val outputTime1 = videoTimebaseConverter.convertToUptimeUs(1800L)
@@ -99,43 +88,5 @@ class VideoTimebaseConverterTest {
         // Assert.
         assertThat(outputTime1).isEqualTo(800L)
         assertThat(outputTime2).isEqualTo(900L)
-    }
-
-    @Test
-    fun systemTimeDiverged_closeToUptime_noConversion() {
-        // Arrange.
-        val systemTimeProvider = FakeTimeProvider(
-            TimeUnit.SECONDS.toNanos(3),
-            TimeUnit.SECONDS.toNanos(8)
-        )
-        val videoTimebaseConverter =
-            VideoTimebaseConverter(systemTimeProvider, Timebase.REALTIME, null)
-
-        // Act.
-        val outputTimeUs1 = videoTimebaseConverter.convertToUptimeUs(TimeUnit.SECONDS.toMicros(2))
-        val outputTimeUs2 = videoTimebaseConverter.convertToUptimeUs(TimeUnit.SECONDS.toMicros(3))
-
-        // Assert.
-        assertThat(outputTimeUs1).isEqualTo(TimeUnit.SECONDS.toMicros(2))
-        assertThat(outputTimeUs2).isEqualTo(TimeUnit.SECONDS.toMicros(3))
-    }
-
-    @Test
-    fun systemTimeDiverged_closeToRealtime_doConversion() {
-        // Arrange.
-        val systemTimeProvider = FakeTimeProvider(
-            TimeUnit.SECONDS.toNanos(3),
-            TimeUnit.SECONDS.toNanos(8)
-        )
-        val videoTimebaseConverter =
-            VideoTimebaseConverter(systemTimeProvider, Timebase.UPTIME, null)
-
-        // Act.
-        val outputTimeUs1 = videoTimebaseConverter.convertToUptimeUs(TimeUnit.SECONDS.toMicros(7))
-        val outputTimeUs2 = videoTimebaseConverter.convertToUptimeUs(TimeUnit.SECONDS.toMicros(8))
-
-        // Assert.
-        assertThat(outputTimeUs1).isEqualTo(TimeUnit.SECONDS.toMicros(2))
-        assertThat(outputTimeUs2).isEqualTo(TimeUnit.SECONDS.toMicros(3))
     }
 }

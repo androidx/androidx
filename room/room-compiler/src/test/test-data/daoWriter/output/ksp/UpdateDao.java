@@ -2,11 +2,9 @@ package foo.bar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.room.EntityDeleteOrUpdateAdapter;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
-import androidx.room.util.DBUtil;
-import androidx.sqlite.SQLiteStatement;
+import androidx.room.SharedSQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -24,368 +22,415 @@ import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings({"unchecked", "deprecation", "removal"})
+@SuppressWarnings({"unchecked", "deprecation"})
 public final class UpdateDao_Impl implements UpdateDao {
-  private final RoomDatabase __db;
+    private final RoomDatabase __db;
 
-  private final EntityDeleteOrUpdateAdapter<User> __updateAdapterOfUser;
+    private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser;
 
-  private final EntityDeleteOrUpdateAdapter<User> __updateAdapterOfUser_1;
+    private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser_1;
 
-  private final EntityDeletionOrUpdateAdapter<User> __updateCompatAdapterOfUser;
+    private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
 
-  private final EntityDeleteOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
+    private final EntityDeletionOrUpdateAdapter<Book> __updateAdapterOfBook;
 
-  private final EntityDeleteOrUpdateAdapter<Book> __updateAdapterOfBook;
+    private final SharedSQLiteStatement __preparedStmtOfAgeUserByUid;
 
-  public UpdateDao_Impl(@NonNull final RoomDatabase __db) {
-    this.__db = __db;
-    this.__updateAdapterOfUser = new EntityDeleteOrUpdateAdapter<User>() {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
-      }
+    private final SharedSQLiteStatement __preparedStmtOfAgeUserAll;
 
-      @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
-        statement.bindLong(1, entity.uid);
-        if (entity.name == null) {
-          statement.bindNull(2);
-        } else {
-          statement.bindText(2, entity.name);
-        }
-        if (entity.getLastName() == null) {
-          statement.bindNull(3);
-        } else {
-          statement.bindText(3, entity.getLastName());
-        }
-        statement.bindLong(4, entity.age);
-        statement.bindLong(5, entity.uid);
-      }
-    };
-    this.__updateAdapterOfUser_1 = new EntityDeleteOrUpdateAdapter<User>() {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
-      }
+    public UpdateDao_Impl(@NonNull final RoomDatabase __db) {
+        this.__db = __db;
+        this.__updateAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
+            @Override
+            @NonNull
+            protected String createQuery() {
+                return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+            }
 
-      @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
-        statement.bindLong(1, entity.uid);
-        if (entity.name == null) {
-          statement.bindNull(2);
-        } else {
-          statement.bindText(2, entity.name);
-        }
-        if (entity.getLastName() == null) {
-          statement.bindNull(3);
-        } else {
-          statement.bindText(3, entity.getLastName());
-        }
-        statement.bindLong(4, entity.age);
-        statement.bindLong(5, entity.uid);
-      }
-    };
-    this.__updateCompatAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
-      }
+            @Override
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final User entity) {
+                statement.bindLong(1, entity.uid);
+                statement.bindString(2, entity.name);
+                statement.bindString(3, entity.getLastName());
+                statement.bindLong(4, entity.age);
+                statement.bindLong(5, entity.uid);
+            }
+        };
+        this.__updateAdapterOfUser_1 = new EntityDeletionOrUpdateAdapter<User>(__db) {
+            @Override
+            @NonNull
+            protected String createQuery() {
+                return "UPDATE `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
+            }
 
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final User entity) {
-        statement.bindLong(1, entity.uid);
-        if (entity.name == null) {
-          statement.bindNull(2);
-        } else {
-          statement.bindString(2, entity.name);
-        }
-        if (entity.getLastName() == null) {
-          statement.bindNull(3);
-        } else {
-          statement.bindString(3, entity.getLastName());
-        }
-        statement.bindLong(4, entity.age);
-        statement.bindLong(5, entity.uid);
-      }
-    };
-    this.__updateAdapterOfMultiPKeyEntity = new EntityDeleteOrUpdateAdapter<MultiPKeyEntity>() {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "UPDATE OR ABORT `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
-      }
+            @Override
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final User entity) {
+                statement.bindLong(1, entity.uid);
+                statement.bindString(2, entity.name);
+                statement.bindString(3, entity.getLastName());
+                statement.bindLong(4, entity.age);
+                statement.bindLong(5, entity.uid);
+            }
+        };
+        this.__updateAdapterOfMultiPKeyEntity = new EntityDeletionOrUpdateAdapter<MultiPKeyEntity>(__db) {
+            @Override
+            @NonNull
+            protected String createQuery() {
+                return "UPDATE OR ABORT `MultiPKeyEntity` SET `name` = ?,`lastName` = ? WHERE `name` = ? AND `lastName` = ?";
+            }
 
-      @Override
-      protected void bind(@NonNull final SQLiteStatement statement,
-          @NonNull final MultiPKeyEntity entity) {
-        statement.bindText(1, entity.name);
-        statement.bindText(2, entity.lastName);
-        statement.bindText(3, entity.name);
-        statement.bindText(4, entity.lastName);
-      }
-    };
-    this.__updateAdapterOfBook = new EntityDeleteOrUpdateAdapter<Book>() {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "UPDATE OR ABORT `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
-      }
+            @Override
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final MultiPKeyEntity entity) {
+                statement.bindString(1, entity.name);
+                statement.bindString(2, entity.lastName);
+                statement.bindString(3, entity.name);
+                statement.bindString(4, entity.lastName);
+            }
+        };
+        this.__updateAdapterOfBook = new EntityDeletionOrUpdateAdapter<Book>(__db) {
+            @Override
+            @NonNull
+            protected String createQuery() {
+                return "UPDATE OR ABORT `Book` SET `bookId` = ?,`uid` = ? WHERE `bookId` = ?";
+            }
 
-      @Override
-      protected void bind(@NonNull final SQLiteStatement statement, @NonNull final Book entity) {
-        statement.bindLong(1, entity.bookId);
-        statement.bindLong(2, entity.uid);
-        statement.bindLong(3, entity.bookId);
-      }
-    };
-  }
+            @Override
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
+                    @NonNull final Book entity) {
+                statement.bindLong(1, entity.bookId);
+                statement.bindLong(2, entity.uid);
+                statement.bindLong(3, entity.bookId);
+            }
+        };
+        this.__preparedStmtOfAgeUserByUid = new SharedSQLiteStatement(__db) {
+            @Override
+            @NonNull
+            public String createQuery() {
+                final String _query = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
+                return _query;
+            }
+        };
+        this.__preparedStmtOfAgeUserAll = new SharedSQLiteStatement(__db) {
+            @Override
+            @NonNull
+            public String createQuery() {
+                final String _query = "UPDATE User SET ageColumn = ageColumn + 1";
+                return _query;
+            }
+        };
+    }
 
-  @Override
-  public void updateUser(final User user) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handle(_connection, user);
-      return null;
-    });
-  }
-
-  @Override
-  public void updateUsers(final User user1, final List<User> others) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handle(_connection, user1);
-      __updateAdapterOfUser.handleMultiple(_connection, others);
-      return null;
-    });
-  }
-
-  @Override
-  public void updateArrayOfUsers(final User[] users) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handleMultiple(_connection, users);
-      return null;
-    });
-  }
-
-  @Override
-  public void updateTwoUsers(final User userOne, final User userTwo) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser_1.handle(_connection, userOne);
-      __updateAdapterOfUser_1.handle(_connection, userTwo);
-      return null;
-    });
-  }
-
-  @Override
-  public int updateUserAndReturnCount(final User user) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handle(_connection, user);
-      return _result;
-    });
-  }
-
-  @Override
-  public int updateUserAndReturnCount(final User user1, final List<User> others) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handle(_connection, user1);
-      _result += __updateAdapterOfUser.handleMultiple(_connection, others);
-      return _result;
-    });
-  }
-
-  @Override
-  public int updateUserAndReturnCount(final User[] users) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handleMultiple(_connection, users);
-      return _result;
-    });
-  }
-
-  @Override
-  public Integer updateUserAndReturnCountObject(final User user) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfUser.handle(_connection, user);
-      return _result;
-    });
-  }
-
-  @Override
-  public Completable updateUserAndReturnCountCompletable(final User user) {
-    return Completable.fromCallable(new Callable<Void>() {
-      @Override
-      @Nullable
-      public Void call() throws Exception {
+    @Override
+    public void updateUser(final User user) {
+        __db.assertNotSuspendingTransaction();
         __db.beginTransaction();
         try {
-          __updateCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return null;
+            __updateAdapterOfUser.handle(user);
+            __db.setTransactionSuccessful();
         } finally {
-          __db.endTransaction();
+            __db.endTransaction();
         }
-      }
-    });
-  }
+    }
 
-  @Override
-  public Single<Integer> updateUserAndReturnCountSingle(final User user) {
-    return Single.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
+    @Override
+    public void updateUsers(final User user1, final List<User> others) {
+        __db.assertNotSuspendingTransaction();
+        __db.beginTransaction();
+        try {
+            __updateAdapterOfUser.handle(user1);
+            __updateAdapterOfUser.handleMultiple(others);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void updateArrayOfUsers(final User[] users) {
+        __db.assertNotSuspendingTransaction();
+        __db.beginTransaction();
+        try {
+            __updateAdapterOfUser.handleMultiple(users);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void updateTwoUsers(final User userOne, final User userTwo) {
+        __db.assertNotSuspendingTransaction();
+        __db.beginTransaction();
+        try {
+            __updateAdapterOfUser_1.handle(userOne);
+            __updateAdapterOfUser_1.handle(userTwo);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public int updateUserAndReturnCount(final User user) {
+        __db.assertNotSuspendingTransaction();
         int _total = 0;
         __db.beginTransaction();
         try {
-          _total += __updateCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
+            _total += __updateAdapterOfUser.handle(user);
+            __db.setTransactionSuccessful();
+            return _total;
         } finally {
-          __db.endTransaction();
+            __db.endTransaction();
         }
-      }
-    });
-  }
+    }
 
-  @Override
-  public Maybe<Integer> updateUserAndReturnCountMaybe(final User user) {
-    return Maybe.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
+    @Override
+    public int updateUserAndReturnCount(final User user1, final List<User> others) {
+        __db.assertNotSuspendingTransaction();
         int _total = 0;
         __db.beginTransaction();
         try {
-          _total += __updateCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
+            _total += __updateAdapterOfUser.handle(user1);
+            _total += __updateAdapterOfUser.handleMultiple(others);
+            __db.setTransactionSuccessful();
+            return _total;
         } finally {
-          __db.endTransaction();
+            __db.endTransaction();
         }
-      }
-    });
-  }
+    }
 
-  @Override
-  public int multiPKey(final MultiPKeyEntity entity) {
-    return DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      int _result = 0;
-      _result += __updateAdapterOfMultiPKeyEntity.handle(_connection, entity);
-      return _result;
-    });
-  }
+    @Override
+    public int updateUserAndReturnCount(final User[] users) {
+        __db.assertNotSuspendingTransaction();
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+            _total += __updateAdapterOfUser.handleMultiple(users);
+            __db.setTransactionSuccessful();
+            return _total;
+        } finally {
+            __db.endTransaction();
+        }
+    }
 
-  @Override
-  public void updateUserAndBook(final User user, final Book book) {
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      __updateAdapterOfUser.handle(_connection, user);
-      __updateAdapterOfBook.handle(_connection, book);
-      return null;
-    });
-  }
+    @Override
+    public Integer updateUserAndReturnCountObject(final User user) {
+        __db.assertNotSuspendingTransaction();
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+            _total += __updateAdapterOfUser.handle(user);
+            __db.setTransactionSuccessful();
+            return _total;
+        } finally {
+            __db.endTransaction();
+        }
+    }
 
-  @Override
-  public void ageUserByUid(final String uid) {
-    final String _sql = "UPDATE User SET ageColumn = ageColumn + 1 WHERE uid = ?";
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
+    @Override
+    public Completable updateUserAndReturnCountCompletable(final User user) {
+        return Completable.fromCallable(new Callable<Void>() {
+            @Override
+            @Nullable
+            public Void call() throws Exception {
+                __db.beginTransaction();
+                try {
+                    __updateAdapterOfUser.handle(user);
+                    __db.setTransactionSuccessful();
+                    return null;
+                } finally {
+                    __db.endTransaction();
+                }
+            }
+        });
+    }
+
+    @Override
+    public Single<Integer> updateUserAndReturnCountSingle(final User user) {
+        return Single.fromCallable(new Callable<Integer>() {
+            @Override
+            @Nullable
+            public Integer call() throws Exception {
+                int _total = 0;
+                __db.beginTransaction();
+                try {
+                    _total += __updateAdapterOfUser.handle(user);
+                    __db.setTransactionSuccessful();
+                    return _total;
+                } finally {
+                    __db.endTransaction();
+                }
+            }
+        });
+    }
+
+    @Override
+    public Maybe<Integer> updateUserAndReturnCountMaybe(final User user) {
+        return Maybe.fromCallable(new Callable<Integer>() {
+            @Override
+            @Nullable
+            public Integer call() throws Exception {
+                int _total = 0;
+                __db.beginTransaction();
+                try {
+                    _total += __updateAdapterOfUser.handle(user);
+                    __db.setTransactionSuccessful();
+                    return _total;
+                } finally {
+                    __db.endTransaction();
+                }
+            }
+        });
+    }
+
+    @Override
+    public int multiPKey(final MultiPKeyEntity entity) {
+        __db.assertNotSuspendingTransaction();
+        int _total = 0;
+        __db.beginTransaction();
+        try {
+            _total += __updateAdapterOfMultiPKeyEntity.handle(entity);
+            __db.setTransactionSuccessful();
+            return _total;
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void updateUserAndBook(final User user, final Book book) {
+        __db.assertNotSuspendingTransaction();
+        __db.beginTransaction();
+        try {
+            __updateAdapterOfUser.handle(user);
+            __updateAdapterOfBook.handle(book);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void updateAndAge(final User user) {
+        __db.beginTransaction();
+        try {
+            UpdateDao.super.updateAndAge(user);
+            __db.setTransactionSuccessful();
+        } finally {
+            __db.endTransaction();
+        }
+    }
+
+    @Override
+    public void ageUserByUid(final String uid) {
+        __db.assertNotSuspendingTransaction();
+        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserByUid.acquire();
         int _argIndex = 1;
-        if (uid == null) {
-          _stmt.bindNull(_argIndex);
-        } else {
-          _stmt.bindText(_argIndex, uid);
-        }
-        _stmt.step();
-        return null;
-      } finally {
-        _stmt.close();
-      }
-    });
-  }
-
-  @Override
-  public void ageUserAll() {
-    final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-    DBUtil.performBlocking(__db, false, true, (_connection) -> {
-      final SQLiteStatement _stmt = _connection.prepare(_sql);
-      try {
-        _stmt.step();
-        return null;
-      } finally {
-        _stmt.close();
-      }
-    });
-  }
-
-  @Override
-  public Completable ageUserAllCompletable() {
-    return Completable.fromCallable(new Callable<Void>() {
-      @Override
-      @Nullable
-      public Void call() throws Exception {
-        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        __db.beginTransaction();
+        _stmt.bindString(_argIndex, uid);
         try {
-          _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return null;
+            __db.beginTransaction();
+            try {
+                _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-          __db.endTransaction();
+            __preparedStmtOfAgeUserByUid.release(_stmt);
         }
-      }
-    });
-  }
+    }
 
-  @Override
-  public Single<Integer> ageUserAllSingle() {
-    return Single.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        __db.beginTransaction();
+    @Override
+    public void ageUserAll() {
+        __db.assertNotSuspendingTransaction();
+        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         try {
-          final Integer _result = _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return _result;
+            __db.beginTransaction();
+            try {
+                _stmt.executeUpdateDelete();
+                __db.setTransactionSuccessful();
+            } finally {
+                __db.endTransaction();
+            }
         } finally {
-          __db.endTransaction();
+            __preparedStmtOfAgeUserAll.release(_stmt);
         }
-      }
-    });
-  }
+    }
 
-  @Override
-  public Maybe<Integer> ageUserAllMaybe() {
-    return Maybe.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        __db.beginTransaction();
-        try {
-          final Integer _result = _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return _result;
-        } finally {
-          __db.endTransaction();
-        }
-      }
-    });
-  }
+    @Override
+    public Completable ageUserAllCompletable() {
+        return Completable.fromCallable(new Callable<Void>() {
+            @Override
+            @Nullable
+            public Void call() throws Exception {
+                final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+                try {
+                    __db.beginTransaction();
+                    try {
+                        _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return null;
+                    } finally {
+                        __db.endTransaction();
+                    }
+                } finally {
+                    __preparedStmtOfAgeUserAll.release(_stmt);
+                }
+            }
+        });
+    }
 
-  @NonNull
-  public static List<Class<?>> getRequiredConverters() {
-    return Collections.emptyList();
-  }
+    @Override
+    public Single<Integer> ageUserAllSingle() {
+        return Single.fromCallable(new Callable<Integer>() {
+            @Override
+            @Nullable
+            public Integer call() throws Exception {
+                final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+                try {
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
+                } finally {
+                    __preparedStmtOfAgeUserAll.release(_stmt);
+                }
+            }
+        });
+    }
+
+    @Override
+    public Maybe<Integer> ageUserAllMaybe() {
+        return Maybe.fromCallable(new Callable<Integer>() {
+            @Override
+            @Nullable
+            public Integer call() throws Exception {
+                final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+                try {
+                    __db.beginTransaction();
+                    try {
+                        final Integer _result = _stmt.executeUpdateDelete();
+                        __db.setTransactionSuccessful();
+                        return _result;
+                    } finally {
+                        __db.endTransaction();
+                    }
+                } finally {
+                    __preparedStmtOfAgeUserAll.release(_stmt);
+                }
+            }
+        });
+    }
+
+    @NonNull
+    public static List<Class<?>> getRequiredConverters() {
+        return Collections.emptyList();
+    }
 }

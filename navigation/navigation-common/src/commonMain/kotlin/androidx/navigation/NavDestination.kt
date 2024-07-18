@@ -67,8 +67,7 @@ public expect open class NavDestination(
      * destination is added to a NavGraph via [NavGraph.addDestination].
      */
     public var parent: NavGraph?
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        public set
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public set
 
     /**
      * The descriptive label of this destination.
@@ -101,8 +100,7 @@ public expect open class NavDestination(
     public var route: String?
 
     public open val displayName: String
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        get
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get
 
     /**
      * Add a deep link to this destination. Matching Uris sent to

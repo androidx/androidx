@@ -23,14 +23,12 @@ import android.os.OutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
-import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.testutils.assertThrows
 import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth
@@ -51,16 +49,15 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.quality.Strictness
 
-@OptIn(ExperimentalFeatures.Ext8OptIn::class, ExperimentalFeatures.Ext10OptIn::class)
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 31)
+@SdkSuppress(minSdkVersion = 30)
 class CustomAudienceManagerTest {
 
     private var mSession: StaticMockitoSession? = null
     private val mValidAdServicesSdkExtVersion = AdServicesInfo.adServicesVersion() >= 4
-    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersionS() >= 9
+    private val mValidAdExtServicesSdkExtVersion = AdServicesInfo.extServicesVersion() >= 9
 
     @Before
     fun setUp() {
@@ -82,47 +79,11 @@ class CustomAudienceManagerTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 31)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
     fun testOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
-        Truth.assertThat(obtain(mContext)).isNull()
-    }
-
-    @Test
-    fun testCustomAudienceManagerNoClassDefFoundError() {
-        Assume.assumeTrue("minSdkVersion = API 31/32 ext 9", mValidAdExtServicesSdkExtVersion);
-
-        `when`(CustomAudienceManager.get(any())).thenThrow(NoClassDefFoundError())
-        Truth.assertThat(obtain(mContext)).isNull()
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = 34, minSdkVersion = 31)
-    fun testFetchAndJoinCustomAudienceOlderVersions() {
-        /* AdServices or ExtServices are present */
-        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
-                          mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion)
-
-        /* API is not available */
-        Assume.assumeTrue("maxSdkVersion = API 31-34 ext 9",
-            AdServicesInfo.adServicesVersion() < 10 && AdServicesInfo.extServicesVersionS() < 10)
-        mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)
-        val managerCompat = obtain(mContext)
-
-        // Verify that it throws an exception
-        assertThrows(UnsupportedOperationException::class.java) {
-            runBlocking {
-                val request = FetchAndJoinCustomAudienceRequest(
-                    uri,
-                    name,
-                    activationTime,
-                    expirationTime,
-                    userBiddingSignals
-                )
-                managerCompat!!.fetchAndJoinCustomAudience(request)
-            }
-        }.hasMessageThat().contains("API is not available. Min version is API 31 ext 10")
+        Truth.assertThat(obtain(mContext)).isEqualTo(null)
     }
 
     @Test
@@ -158,39 +119,6 @@ class CustomAudienceManagerTest {
     }
 
     @Test
-    fun testFetchAndJoinCustomAudience() {
-        Assume.assumeTrue("minSdkVersion = API 31 ext 10",
-            AdServicesInfo.adServicesVersion() >= 10 ||
-                AdServicesInfo.extServicesVersionS() >= 10)
-
-        val customAudienceManager =
-            mockCustomAudienceManager(mContext, mValidAdExtServicesSdkExtVersion)
-        setupFetchAndJoinResponse(customAudienceManager)
-        val managerCompat = obtain(mContext)
-
-        // Actually invoke the compat code.
-        runBlocking {
-            val request = FetchAndJoinCustomAudienceRequest(
-                uri,
-                name,
-                activationTime,
-                expirationTime,
-                userBiddingSignals
-            )
-            managerCompat!!.fetchAndJoinCustomAudience(request)
-        }
-
-        // Verify that the compat code was invoked correctly.
-        val captor = ArgumentCaptor.forClass(
-            android.adservices.customaudience.FetchAndJoinCustomAudienceRequest::class.java
-        )
-        verify(customAudienceManager).fetchAndJoinCustomAudience(captor.capture(), any(), any())
-
-        // Verify that the request that the compat code makes to the platform is correct.
-        verifyFetchAndJoinCustomAudienceRequest(captor.value)
-    }
-
-    @Test
     fun testLeaveCustomAudience() {
         Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
             mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion)
@@ -216,7 +144,7 @@ class CustomAudienceManagerTest {
         verifyLeaveCustomAudienceRequest(captor.value)
     }
 
-    @SdkSuppress(minSdkVersion = 31)
+    @SdkSuppress(minSdkVersion = 30)
     companion object {
         private lateinit var mContext: Context
         private val uri: Uri = Uri.parse("abc.com")
@@ -229,8 +157,6 @@ class CustomAudienceManagerTest {
         private val trustedBiddingSignals: TrustedBiddingData = TrustedBiddingData(uri, keys)
         private const val metadata = "metadata"
         private val ads: List<AdData> = listOf(AdData(uri, metadata))
-        private val activationTime: Instant = Instant.ofEpochSecond(5)
-        private val expirationTime: Instant = Instant.ofEpochSecond(10)
 
         private fun mockCustomAudienceManager(
             spyContext: Context,
@@ -254,16 +180,6 @@ class CustomAudienceManagerTest {
             }
             doAnswer(answer).`when`(customAudienceManager).joinCustomAudience(any(), any(), any())
             doAnswer(answer).`when`(customAudienceManager).leaveCustomAudience(any(), any(), any())
-        }
-
-        private fun setupFetchAndJoinResponse(customAudienceManager: CustomAudienceManager) {
-            val answer = { args: InvocationOnMock ->
-                val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
-                receiver.onResult(Object())
-                null
-            }
-            doAnswer(answer).`when`(customAudienceManager)
-                .fetchAndJoinCustomAudience(any(), any(), any())
         }
 
         private fun verifyJoinCustomAudienceRequest(
@@ -322,24 +238,6 @@ class CustomAudienceManagerTest {
             Truth.assertThat(
                 joinCustomAudienceRequest.customAudience.userBiddingSignals!!.toString() ==
                 signals).isTrue()
-        }
-
-        private fun verifyFetchAndJoinCustomAudienceRequest(
-            fetchAndJoinCustomAudienceRequest:
-                android.adservices.customaudience.FetchAndJoinCustomAudienceRequest
-        ) {
-            // Set up the request that we expect the compat code to invoke.
-            val expectedRequest = android.adservices.customaudience
-                .FetchAndJoinCustomAudienceRequest
-                .Builder(uri)
-                .setName(name)
-                .setActivationTime(activationTime)
-                .setExpirationTime(expirationTime)
-                .setUserBiddingSignals(userBiddingSignals.convertToAdServices())
-                .build()
-
-            // Verify that the actual request matches the expected one.
-            Truth.assertThat(expectedRequest == fetchAndJoinCustomAudienceRequest).isTrue()
         }
 
         private fun verifyLeaveCustomAudienceRequest(

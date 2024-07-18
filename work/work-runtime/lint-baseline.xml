@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,6 +8,42 @@
         errorLine2="                            ^">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/AbstractFuture.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TEST_TIMEOUT_IN_MS);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TEST_TIMEOUT_IN_MS);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TEST_TIMEOUT_IN_MS);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(TEST_TIMEOUT_IN_MS);"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidTest/java/androidx/work/impl/workers/ConstraintTrackingWorkerTest.java"/>
     </issue>
 
     <issue
@@ -121,8 +157,8 @@
     <issue
         id="ForegroundServiceType"
         message="To call `Service.startForeground()`, the `&lt;service>` element of manifest file must have the `foregroundServiceType` attribute specified"
-        errorLine1="            startForeground(notificationId, notification);"
-        errorLine2="            ~~~~~~~~~~~~~~~">
+        errorLine1="                    startForeground(notificationId, notification);"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/foreground/SystemForegroundService.java"/>
     </issue>
@@ -147,74 +183,38 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @get:RequiresApi(21) // NetworkRequest class is available since 21"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/Constraints.kt"/>
+            file="src/main/java/androidx/work/impl/background/systemalarm/Alarms.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        @RequiresApi(21)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/Constraints.kt"/>
+            file="src/main/java/androidx/work/impl/background/systemalarm/Alarms.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@get:RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/impl/background/systemjob/JobSchedulerExt.kt"/>
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"/>
     </issue>
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        val packageName = if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/impl/background/systemjob/JobSchedulerExt.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@get:RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/background/systemjob/JobSchedulerExt.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@file:RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/NetworkApi21.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="    @get:RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/NetworkRequestCompat.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="@RequiresApi(21)"
-        errorLine2="~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkDatabasePathHelper.kt"/>
+            file="src/main/java/androidx/work/impl/utils/ProcessUtils.kt"/>
     </issue>
 
     <issue

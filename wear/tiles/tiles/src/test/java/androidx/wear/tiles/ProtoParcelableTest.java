@@ -20,16 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.proto.RequestProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-
-@RunWith(AndroidJUnit4.class)
-@DoNotInstrument // See http://g/robolectric-users/fTi2FRXgyGA/m/PkB0wYuwBgAJ
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
 public final class ProtoParcelableTest {
     public static class Wrapper extends ProtoParcelable {
         public static final int VERSION = 1;

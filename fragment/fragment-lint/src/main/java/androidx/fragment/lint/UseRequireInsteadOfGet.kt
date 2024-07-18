@@ -38,6 +38,7 @@ import org.jetbrains.uast.UPostfixExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getContainingUClass
+import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
 import org.jetbrains.uast.skipParenthesizedExprDown
 import org.jetbrains.uast.skipParenthesizedExprUp
 import org.jetbrains.uast.toUElement
@@ -99,6 +100,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
     }
 
     override fun createUastHandler(context: JavaContext): UElementHandler? {
+        val isKotlin = isKotlin(context.psiFile)
         return object : UElementHandler() {
 
             /** This covers Kotlin accessor syntax expressions like "fragment.arguments" */
@@ -158,7 +160,7 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 // Note we go up potentially two parents - the first one may just be the qualified reference expression
                 val nearestNonQualifiedReferenceParent =
                     skipParenthesizedExprUp(node.nearestNonQualifiedReferenceParent) ?: return
-                if (isKotlin(node.lang) && nearestNonQualifiedReferenceParent.isNullCheckBlock()) {
+                if (isKotlin && nearestNonQualifiedReferenceParent.isNullCheckBlock()) {
                     // We're a double-bang expression (!!)
                     val parentSourceToReplace =
                         nearestNonQualifiedReferenceParent.asSourceString()
@@ -215,7 +217,8 @@ class UseRequireInsteadOfGet : Detector(), SourceCodeScanner {
                 nearestNonQualifiedRefParent: UCallExpression
             ) = enclosingMethodCall.parameterList.parametersCount == 1 ||
                 (
-                    isKotlin(nearestNonQualifiedRefParent.lang) &&
+                    isKotlin &&
+                        nearestNonQualifiedRefParent is KotlinUFunctionCallExpression &&
                         nearestNonQualifiedRefParent.getArgumentForParameter(1) == null
                     )
 

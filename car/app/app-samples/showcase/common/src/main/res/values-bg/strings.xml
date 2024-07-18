@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Не е налице"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Типове конектори за ЕПС"</string>
     <string name="example_title" msgid="530257630320010494">"Пример за %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Този текст е с "<annotation color="red">"червен"</annotation>" цвят"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"Този текст е със "<annotation color="green">"зелен"</annotation>" цвят"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"Този текст е със "<annotation color="blue">"син"</annotation>" цвят"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"Този текст е с "<annotation color="yellow">"жълт"</annotation>" цвят"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"Този текст е с червен цвят"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Този текст е със зелен цвят"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Този текст е със син цвят"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Този текст е с жълт цвят"</string>
     <string name="example_5_text" msgid="8828804968749423500">"За този текст се използва основен цвят"</string>
     <string name="example_6_text" msgid="7991523168517599600">"За този текст се използва алтернативният цвят"</string>
     <string name="color_demo" msgid="1822427636476178993">"Цветова демонстрация"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Преглед на места"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Демонстрация на шаблона за търсене"</string>
     <string name="search_hint" msgid="978495498991026792">"Търсете тук"</string>
-    <string name="additional_text" msgid="5755100726890686184">"Моля, прегледайте "<annotation link="terms_of_service">"Общите ни условия"</annotation></string>
+    <string name="additional_text" msgid="8410289578276941586">"Моля, прегледайте Общите ни условия"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Вход с Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Използване на ПИН"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR код"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Опции за маршрута"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Без магистрали"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Без фериботи"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Демонстрации на карти"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демонстрации на карти със съдържание"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демонстрация на карта с шаблон за съобщения"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демонстрация на карта с шаблон на решетка"</string>
 </resources>

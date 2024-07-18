@@ -29,9 +29,6 @@ import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.isList
-import androidx.room.ext.isNotKotlinUnit
-import androidx.room.ext.isNotVoid
-import androidx.room.ext.isNotVoidObject
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.CodeGenScope
@@ -40,8 +37,6 @@ import androidx.room.vo.ShortcutQueryParameter
 class InsertOrUpsertMethodAdapter private constructor(
     private val methodInfo: MethodInfo
 ) {
-    internal val returnType = methodInfo.returnType
-
     companion object {
         fun createInsert(
             context: Context,
@@ -177,89 +172,7 @@ class InsertOrUpsertMethodAdapter private constructor(
         }
     }
 
-    fun generateMethodBody(
-        scope: CodeGenScope,
-        connectionVar: String,
-        parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>
-    ) {
-        scope.builder.apply {
-            val hasReturnValue = returnType.isNotVoid() &&
-                returnType.isNotVoidObject() &&
-                returnType.isNotKotlinUnit()
-            val resultVar = if (hasReturnValue) {
-                scope.getTmpVar("_result")
-            } else {
-                null
-            }
-            parameters.forEach { param ->
-                val upsertAdapter = adapters.getValue(param.name).first
-                val resultFormat = XCodeBlock.of(
-                    language,
-                    "%L.%L(%L, %L)",
-                    upsertAdapter.name,
-                    methodInfo.methodName,
-                    connectionVar,
-                    param.name
-                ).let {
-                    if (
-                        scope.language == CodeLanguage.KOTLIN &&
-                        methodInfo.returnInfo == ReturnInfo.ID_ARRAY_BOX &&
-                        methodInfo.returnType.asTypeName() == methodInfo.returnInfo.typeName
-                    ) {
-                        XCodeBlock.ofCast(
-                            language = language,
-                            typeName = methodInfo.returnInfo.typeName,
-                            expressionBlock = it
-                        )
-                    } else {
-                        it
-                    }
-                }
-                when (scope.language) {
-                    CodeLanguage.JAVA -> {
-                        when (methodInfo.returnInfo) {
-                            ReturnInfo.VOID, ReturnInfo.VOID_OBJECT -> {
-                                if (param == parameters.last()) {
-                                    addStatement("%L", resultFormat)
-                                    addStatement("return null")
-                                } else {
-                                    addStatement("%L", resultFormat)
-                                }
-                            }
-                            ReturnInfo.UNIT -> {
-                                if (param == parameters.last()) {
-                                    addStatement("%L", resultFormat)
-                                    addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
-                                } else {
-                                    addStatement("%L", resultFormat)
-                                }
-                            }
-                            else -> addStatement("return %L", resultFormat)
-                        }
-                    }
-                    CodeLanguage.KOTLIN -> {
-                        if (resultVar != null) {
-                            // if it has more than 1 parameter, we would've already printed the error
-                            // so we don't care about re-declaring the variable here
-                            addLocalVariable(
-                                name = resultVar,
-                                typeName = returnType.asTypeName(),
-                                assignExpr = resultFormat
-                            )
-                        } else {
-                            addStatement("%L", resultFormat)
-                        }
-                    }
-                }
-            }
-            if (scope.language == CodeLanguage.KOTLIN && resultVar != null) {
-                addStatement("%L", resultVar)
-            }
-        }
-    }
-
-    fun generateMethodBodyCompat(
+    fun createMethodBody(
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<XPropertySpec, Any>>,
         dbProperty: XPropertySpec,
@@ -279,13 +192,13 @@ class InsertOrUpsertMethodAdapter private constructor(
 
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
-                    val upsertAdapter = adapters.getValue(param.name).first
+                    val upsertionAdapter = adapters.getValue(param.name).first
                     // We want to keep the e.g. Array<out Long> generic type function signature, so
                     // need to do a cast.
                     val resultFormat = XCodeBlock.of(
                         language,
                         "%L.%L(%L)",
-                        upsertAdapter.name,
+                        upsertionAdapter.name,
                         methodName,
                         param.name
                     ).let {
@@ -309,7 +222,7 @@ class InsertOrUpsertMethodAdapter private constructor(
                         // so we don't care about re-declaring the variable here
                         addLocalVariable(
                             name = resultVar,
-                            typeName = returnType.asTypeName(),
+                            typeName = methodInfo.returnType.asTypeName(),
                             assignExpr = resultFormat
                         )
                     } else {
@@ -343,14 +256,14 @@ class InsertOrUpsertMethodAdapter private constructor(
         returnInfo: ReturnInfo,
         returnType: XType
     ) : MethodInfo(returnInfo, returnType) {
-        override val methodName: String = "insert${returnInfo.methodSuffix}"
+        override val methodName = "insert" + returnInfo.methodSuffix
     }
 
     class UpsertMethodInfo(
         returnInfo: ReturnInfo,
         returnType: XType
     ) : MethodInfo(returnInfo, returnType) {
-        override val methodName: String = "upsert${returnInfo.methodSuffix}"
+        override val methodName = "upsert" + returnInfo.methodSuffix
     }
 
     enum class ReturnInfo(

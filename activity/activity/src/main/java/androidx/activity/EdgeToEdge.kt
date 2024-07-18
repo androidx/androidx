@@ -75,12 +75,8 @@ fun ComponentActivity.enableEdgeToEdge(
     val view = window.decorView
     val statusBarIsDark = statusBarStyle.detectDarkMode(view.resources)
     val navigationBarIsDark = navigationBarStyle.detectDarkMode(view.resources)
-    val impl = Impl ?: if (Build.VERSION.SDK_INT >= 30) {
-        EdgeToEdgeApi30()
-    } else if (Build.VERSION.SDK_INT >= 29) {
+    val impl = Impl ?: if (Build.VERSION.SDK_INT >= 29) {
         EdgeToEdgeApi29()
-    } else if (Build.VERSION.SDK_INT >= 28) {
-        EdgeToEdgeApi28()
     } else if (Build.VERSION.SDK_INT >= 26) {
         EdgeToEdgeApi26()
     } else if (Build.VERSION.SDK_INT >= 23) {
@@ -93,7 +89,6 @@ fun ComponentActivity.enableEdgeToEdge(
     impl.setUp(
         statusBarStyle, navigationBarStyle, window, view, statusBarIsDark, navigationBarIsDark
     )
-    impl.adjustLayoutInDisplayCutoutMode(window)
 }
 
 /**
@@ -203,11 +198,9 @@ private interface EdgeToEdgeImpl {
         statusBarIsDark: Boolean,
         navigationBarIsDark: Boolean
     )
-
-    fun adjustLayoutInDisplayCutoutMode(window: Window)
 }
 
-private open class EdgeToEdgeBase : EdgeToEdgeImpl {
+private class EdgeToEdgeBase : EdgeToEdgeImpl {
 
     override fun setUp(
         statusBarStyle: SystemBarStyle,
@@ -219,14 +212,10 @@ private open class EdgeToEdgeBase : EdgeToEdgeImpl {
     ) {
         // No edge-to-edge before SDK 21.
     }
-
-    override fun adjustLayoutInDisplayCutoutMode(window: Window) {
-        // No display cutout before SDK 28.
-    }
 }
 
 @RequiresApi(21)
-private class EdgeToEdgeApi21 : EdgeToEdgeBase() {
+private class EdgeToEdgeApi21 : EdgeToEdgeImpl {
 
     @Suppress("DEPRECATION")
     @DoNotInline
@@ -245,7 +234,7 @@ private class EdgeToEdgeApi21 : EdgeToEdgeBase() {
 }
 
 @RequiresApi(23)
-private class EdgeToEdgeApi23 : EdgeToEdgeBase() {
+private class EdgeToEdgeApi23 : EdgeToEdgeImpl {
 
     @DoNotInline
     override fun setUp(
@@ -264,7 +253,7 @@ private class EdgeToEdgeApi23 : EdgeToEdgeBase() {
 }
 
 @RequiresApi(26)
-private open class EdgeToEdgeApi26 : EdgeToEdgeBase() {
+private class EdgeToEdgeApi26 : EdgeToEdgeImpl {
 
     @DoNotInline
     override fun setUp(
@@ -285,18 +274,8 @@ private open class EdgeToEdgeApi26 : EdgeToEdgeBase() {
     }
 }
 
-@RequiresApi(28)
-private open class EdgeToEdgeApi28 : EdgeToEdgeApi26() {
-
-    @DoNotInline
-    override fun adjustLayoutInDisplayCutoutMode(window: Window) {
-        window.attributes.layoutInDisplayCutoutMode =
-            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-    }
-}
-
 @RequiresApi(29)
-private open class EdgeToEdgeApi29 : EdgeToEdgeApi28() {
+private class EdgeToEdgeApi29 : EdgeToEdgeImpl {
 
     @DoNotInline
     override fun setUp(
@@ -318,15 +297,5 @@ private open class EdgeToEdgeApi29 : EdgeToEdgeApi28() {
             isAppearanceLightStatusBars = !statusBarIsDark
             isAppearanceLightNavigationBars = !navigationBarIsDark
         }
-    }
-}
-
-@RequiresApi(30)
-private class EdgeToEdgeApi30 : EdgeToEdgeApi29() {
-
-    @DoNotInline
-    override fun adjustLayoutInDisplayCutoutMode(window: Window) {
-        window.attributes.layoutInDisplayCutoutMode =
-            WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
     }
 }

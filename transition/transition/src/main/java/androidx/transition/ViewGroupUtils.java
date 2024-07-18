@@ -41,16 +41,29 @@ class ViewGroupUtils {
     private static boolean sGetChildDrawingOrderMethodFetched;
 
     /**
+     * Backward-compatible {@link ViewGroup#getOverlay()}.
+     */
+    static ViewGroupOverlayImpl getOverlay(@NonNull ViewGroup group) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            return new ViewGroupOverlayApi18(group);
+        }
+        return ViewGroupOverlayApi14.createFrom(group);
+    }
+
+    /**
      * Provides access to the hidden ViewGroup#suppressLayout method.
      */
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
         if (Build.VERSION.SDK_INT >= 29) {
             Api29Impl.suppressLayout(group, suppress);
-        } else {
+        } else if (Build.VERSION.SDK_INT >= 18) {
             hiddenSuppressLayout(group, suppress);
+        } else {
+            ViewGroupUtilsApi14.suppressLayout(group, suppress);
         }
     }
 
+    @RequiresApi(18)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
     private static void hiddenSuppressLayout(@NonNull ViewGroup group, boolean suppress) {
         if (sTryHiddenSuppressLayout) {

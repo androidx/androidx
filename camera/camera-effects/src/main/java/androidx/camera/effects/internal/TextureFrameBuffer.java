@@ -73,9 +73,9 @@ class TextureFrameBuffer {
             if (frame.isEmpty()) {
                 continue;
             }
-            if (frame.getTimestampNanos() == timestampNs) {
+            if (frame.getTimestampNs() == timestampNs) {
                 frameToReturn = frame;
-            } else if (frame.getTimestampNanos() < timestampNs) {
+            } else if (frame.getTimestampNs() < timestampNs) {
                 frame.markEmpty();
             }
         }
@@ -95,8 +95,8 @@ class TextureFrameBuffer {
         for (TextureFrame frame : mFrames) {
             if (frame.isEmpty()) {
                 return frame;
-            } else if (frame.getTimestampNanos() < minTimestampNs) {
-                minTimestampNs = frame.getTimestampNanos();
+            } else if (frame.getTimestampNs() < minTimestampNs) {
+                minTimestampNs = frame.getTimestampNs();
                 oldestFrame = frame;
             }
         }

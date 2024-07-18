@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraCaptureSession
@@ -21,10 +23,8 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.core.Debug
-import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.media.ImageWrapper
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
@@ -52,13 +52,12 @@ value class RequestNumber(val value: Long)
  * @param streams The list of streams to submit. Each request *must* have 1 or more valid streams.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class Request(
+data class Request(
     val streams: List<StreamId>,
     val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
     val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
     val listeners: List<Listener> = emptyList(),
-    val template: RequestTemplate? = null,
-    val inputRequest: InputRequest? = null
+    val template: RequestTemplate? = null
 ) {
     operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
     operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
@@ -161,23 +160,6 @@ class Request(
         }
 
         /**
-         * onReadoutStarted occurs when the camera device has started reading out the output image
-         * for the request, at the beginning of the sensor image readout. Concretely, it is invoked
-         * right after onCaptureStarted.
-         *
-         * @param requestMetadata the data about the camera2 request that was sent to the camera.
-         * @param frameNumber the android frame number for this capture.
-         * @param timestamp the android timestamp in nanos at the start of camera data readout.
-         * @see android.hardware.camera2.CameraCaptureSession.CaptureCallback.onReadoutStarted
-         */
-        fun onReadoutStarted(
-            requestMetadata: RequestMetadata,
-            frameNumber: FrameNumber,
-            timestamp: SensorTimestamp
-        ) {
-        }
-
-        /**
          * onBufferLost occurs when a CaptureRequest failed to create an image for a given output
          * stream. This method may be invoked multiple times per frame if multiple buffers were
          * lost. This method may not be invoked when an image is lost in some situations.
@@ -198,8 +180,7 @@ class Request(
          * This is an artificial callback that will be invoked if a specific request was pending or
          * had already been submitted to when an abort was requested. The behavior of the request is
          * undefined if this method is invoked and images or metadata may or may not be produced for
-         * this request. Repeating requests will not receive onAborted. Failed reprocessing
-         * requests will be aborted and removed from the queue.
+         * this request. Repeating requests will not receive onAborted.
          *
          * @param request information about this specific request.
          */
@@ -255,21 +236,6 @@ class Request(
     @Suppress("UNCHECKED_CAST")
     private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? =
         this.parameters[key] as T?
-
-    override fun toString(): String {
-        val parametersString =
-            if (parameters.isEmpty()) {
-                ""
-            } else {
-                ", parameters=${Debug.formatParameterMap(parameters, limit = 5)}"
-            }
-        val extrasString =
-            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras, limit = 5)}"
-        val templateString = if (template == null) "" else ", template=$template"
-        // Ignore listener count, always include stream list (required), and use super.toString to
-        // reference the class name.
-        return "Request(streams=$streams$templateString$parametersString$extrasString)"
-    }
 }
 
 /**
@@ -279,22 +245,16 @@ class Request(
  * constructor prevents directly creating an instance of it.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface RequestFailure : UnsafeWrapper {
-    /** Metadata about the request that has failed. */
+interface RequestFailure {
     val requestMetadata: RequestMetadata
 
-    /** The Camera [FrameNumber] for the request that has failed. */
     val frameNumber: FrameNumber
 
-    /** Indicates the reason the particular request failed, see [CaptureFailure] for details. */
     val reason: Int
 
-    /**
-     * Indicates if images were still captured for this request. If this is true, the camera should
-     * invoke [Request.Listener.onBufferLost] individually for each output that failed. If this is
-     * false, these outputs will never arrive, and the individual callbacks will not be invoked.
-     */
     val wasImageCaptured: Boolean
+
+    val captureFailure: CaptureFailure?
 }
 
 /**
@@ -317,17 +277,6 @@ value class RequestTemplate(val value: Int) {
             }
         }
 }
-
-/**
- * The intended use for this class is to submit the input needed for a reprocessing request, the
- * [ImageWrapper] and [FrameInfo]. Both values are non-nullable because
- * both values are needed for reprocessing.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class InputRequest(
-    val image: ImageWrapper,
-    val frameInfo: FrameInfo
-)
 
 /**
  * RequestMetadata wraps together all of the information about a specific CaptureRequest that was
@@ -377,14 +326,6 @@ interface RequestMetadata : Metadata, UnsafeWrapper {
 @JvmInline
 value class CameraTimestamp(val value: Long)
 
-/**
- * This is a timestamp happen at start of readout for a regular request, or the timestamp at the
- * input image's start of readout for a reprocess request, in nanoseconds.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@JvmInline
-value class SensorTimestamp(val value: Long)
-
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <T> Request.getOrDefault(key: Metadata.Key<T>, default: T): T = this[key] ?: default
 
@@ -407,17 +348,7 @@ fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
     if (key != null && key is CaptureRequest.Key<*>) {
-        try {
-            @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
-        } catch (e: IllegalArgumentException) {
-            // Setting keys on CaptureRequest.Builder can fail if the key is defined on some
-            // OS versions, but not on others. Log and ignore these kinds of failures.
-            //
-            // See b/309518353 for an example failure.
-            Log.warn(e) {
-                "Failed to set [${key.name}: $value] on CaptureRequest.Builder"
-            }
-        }
+        @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
     }
 }
 

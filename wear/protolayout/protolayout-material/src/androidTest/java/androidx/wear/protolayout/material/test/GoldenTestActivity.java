@@ -22,7 +22,6 @@ import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -33,7 +32,6 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.wear.protolayout.LayoutElementBuilders.Layout;
 import androidx.wear.protolayout.ResourceBuilders.AndroidImageResourceByResId;
@@ -44,29 +42,21 @@ import androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
-import java.util.Locale;
-
 @SuppressWarnings("deprecation")
 public class GoldenTestActivity extends Activity {
-
-    /** Extra to be put in the intent if test should use RTL direction on parent View. */
-    public static final String USE_RTL_DIRECTION = "using_rtl";
     private static final String ICON_ID = "icon";
     private static final String ICON_ID_SMALL = "icon_small";
     private static final String AVATAR = "avatar_image";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        Bundle extras = getIntent().getExtras();
-        byte[] layoutPayload = extras.getByteArray("layout");
+        byte[] layoutPayload = getIntent().getExtras().getByteArray("layout");
         Layout layout = Layout.fromByteArray(layoutPayload);
 
         Context appContext = getApplicationContext();
         FrameLayout root = new FrameLayout(appContext);
         root.setBackgroundColor(Color.BLACK);
         root.setLayoutParams(new LayoutParams(SCREEN_WIDTH, SCREEN_HEIGHT));
-        boolean isRtlEnabled = extras.getBoolean(USE_RTL_DIRECTION);
-        updateLanguage(this, isRtlEnabled);
 
         ListeningExecutorService mainExecutor = MoreExecutors.newDirectExecutorService();
         Resources resources = generateResources();
@@ -127,16 +117,5 @@ public class GoldenTestActivity extends Activity {
                                                 .build())
                                 .build())
                 .build();
-    }
-
-    /** Sets language for device to be LTR or RTL. */
-    private static void updateLanguage(@NonNull Context context, boolean isRtlDirection) {
-        String languageToLoad = isRtlDirection ? "fa" : "en"; // fa = Persian, en = English
-        Locale locale = new Locale(languageToLoad);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.setLocale(locale);
-        context.getResources().updateConfiguration(
-                config, context.getResources().getDisplayMetrics());
     }
 }

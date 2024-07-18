@@ -27,6 +27,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +58,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.semantics
@@ -65,11 +67,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
+import androidx.wear.compose.material.PickerDefaults
 import androidx.wear.compose.material.PickerGroup
 import androidx.wear.compose.material.PickerGroupItem
 import androidx.wear.compose.material.PickerGroupState
@@ -191,7 +193,7 @@ public fun TimePicker(
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     PickerGroup(
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = hourState,
                             modifier = Modifier
                                 .size(40.dp, 100.dp),
@@ -204,7 +206,7 @@ public fun TimePicker(
                             contentDescription = hourContentDescription,
                             option = pickerOption
                         ),
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = minuteState,
                             modifier = Modifier
                                 .size(40.dp, 100.dp),
@@ -217,7 +219,7 @@ public fun TimePicker(
                             contentDescription = minuteContentDescription,
                             option = pickerOption
                         ),
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = secondState,
                             modifier = Modifier
                                 .size(40.dp, 100.dp),
@@ -397,7 +399,7 @@ public fun TimePickerWith12HourClock(
                         }
                     Spacer(Modifier.width(16.dp))
                     PickerGroup(
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = hourState,
                             modifier = Modifier.size(48.dp, 100.dp),
                             onSelected = {
@@ -409,7 +411,7 @@ public fun TimePickerWith12HourClock(
                             contentDescription = hoursContentDescription,
                             option = pickerTextOption(textStyle) { "%02d".format(it + 1) }
                         ),
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = minuteState,
                             modifier = Modifier.size(48.dp, 100.dp),
                             onSelected = {
@@ -421,7 +423,7 @@ public fun TimePickerWith12HourClock(
                             contentDescription = minutesContentDescription,
                             option = pickerTextOption(textStyle) { "%02d".format(it) }
                         ),
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = periodState,
                             modifier = Modifier.size(64.dp, 100.dp),
                             contentDescription = periodContentDescription,
@@ -663,7 +665,7 @@ public fun DatePicker(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     PickerGroup(
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = datePickerState.dayState,
                             modifier = Modifier.size(dayWidth, 100.dp),
                             contentDescription = dayContentDescription,
@@ -677,7 +679,7 @@ public fun DatePicker(
                                 "%d".format(datePickerState.currentDay(it))
                             }
                         ),
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = datePickerState.monthState,
                             modifier = Modifier.size(monthWidth, 100.dp),
                             onSelected = {
@@ -691,7 +693,7 @@ public fun DatePicker(
                                 shortMonthNames[(datePickerState.currentMonth(it) - 1) % 12]
                             }
                         ),
-                        PickerGroupItem(
+                        pickerGroupItemWithRSB(
                             pickerState = datePickerState.yearState,
                             modifier = Modifier.size(yearWidth, 100.dp),
                             onSelected = {
@@ -813,6 +815,26 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     )
     Spacer(Modifier.width(width))
 }
+
+@Composable
+fun pickerGroupItemWithRSB(
+    pickerState: PickerState,
+    modifier: Modifier,
+    contentDescription: String?,
+    onSelected: () -> Unit,
+    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+    option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit
+) = PickerGroupItem(
+    pickerState = pickerState,
+    modifier = modifier.rsbScroll(
+        scrollableState = pickerState,
+        flingBehavior = PickerDefaults.flingBehavior(pickerState)
+    ),
+    contentDescription = contentDescription,
+    onSelected = onSelected,
+    readOnlyLabel = readOnlyLabel,
+    option = option
+)
 
 @Composable
 fun PickerWithoutGradient() {

@@ -34,22 +34,15 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
-import androidx.test.filters.MediumTest
 import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.grid.keyPress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@MediumTest
-@RunWith(AndroidJUnit4::class)
 class LazyListsReverseLayoutTest {
 
-    @Suppress("PrivatePropertyName")
     private val ContainerTag = "ContainerTag"
 
     @get:Rule
@@ -158,7 +151,6 @@ class LazyListsReverseLayoutTest {
             .assertTopPositionInRootIsEqualTo(itemSize)
     }
 
-    @FlakyTest(bugId = 313465577)
     @Test
     fun column_scrollForwardHalfWay() {
         lateinit var state: TvLazyListState
@@ -175,7 +167,7 @@ class LazyListsReverseLayoutTest {
             }
         }
 
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_UP, 1)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_UP, 3)
 
         val scrolled = rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(0)
@@ -318,7 +310,6 @@ class LazyListsReverseLayoutTest {
             .assertLeftPositionInRootIsEqualTo(itemSize)
     }
 
-    @FlakyTest(bugId = 313465577)
     @Test
     fun row_scrollForwardHalfWay() {
         lateinit var state: TvLazyListState
@@ -335,7 +326,7 @@ class LazyListsReverseLayoutTest {
             }
         }
 
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, 1)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, 3)
 
         val scrolled = rule.runOnIdle {
             assertThat(state.firstVisibleItemScrollOffset).isGreaterThan(0)
@@ -447,7 +438,7 @@ class LazyListsReverseLayoutTest {
             }
         }
 
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 2)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_RIGHT, 3)
 
         val scrolled = rule.runOnIdle {
             assertThat(state.firstVisibleItemScrollOffset).isGreaterThan(0)

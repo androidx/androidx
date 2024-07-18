@@ -235,11 +235,10 @@ public class TileRendererGoldenTest {
         LayoutElement rootElement = LayoutElement.parseFrom(contents);
 
         TileRenderer renderer =
-                new TileRenderer.Builder(
-                                appContext,
-                                ContextCompat.getMainExecutor(getApplicationContext()),
-                                i -> {})
-                        .build();
+                new TileRenderer(
+                        appContext,
+                        ContextCompat.getMainExecutor(getApplicationContext()),
+                        i -> {});
 
         View firstChild =
                 renderer.inflateAsync(

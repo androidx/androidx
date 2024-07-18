@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.os.Looper
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState
@@ -35,6 +36,7 @@ import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 
 @CameraScope
+@RequiresApi(21)
 class CameraStateAdapter @Inject constructor() {
     private val lock = Any()
 
@@ -209,6 +211,7 @@ class CameraStateAdapter @Inject constructor() {
     )
 
     companion object {
+        @RequiresApi(21)
         internal fun CameraError.toCameraStateError(): CameraState.StateError =
             CameraState.StateError.create(
                 when (this) {
@@ -237,6 +240,7 @@ class CameraStateAdapter @Inject constructor() {
                 }
             )
 
+        @RequiresApi(21)
         internal fun CameraInternal.State.toCameraState(): CameraState.Type = when (this) {
             CameraInternal.State.CLOSED -> CameraState.Type.CLOSED
             CameraInternal.State.OPENING -> CameraState.Type.OPENING

@@ -26,6 +26,7 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
+import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
@@ -313,13 +314,17 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     private Bitmap getBitmap(@NonNull Size size,
             @NonNull float[] textureTransform,
             int rotationDegrees) {
-        float[] snapshotTransform = textureTransform.clone();
+        float[] snapshotTransform = new float[16];
+        Matrix.setIdentityM(snapshotTransform, 0);
+
+        // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
+        MatrixExt.preVerticalFlip(snapshotTransform, 0.5f);
 
         // Rotate the output if requested.
         MatrixExt.preRotate(snapshotTransform, rotationDegrees, 0.5f, 0.5f);
 
-        // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
-        MatrixExt.preVerticalFlip(snapshotTransform, 0.5f);
+        // Apply the texture transform.
+        Matrix.multiplyMM(snapshotTransform, 0, snapshotTransform, 0, textureTransform, 0);
 
         // Update the size based on the rotation degrees.
         size = rotateSize(size, rotationDegrees);

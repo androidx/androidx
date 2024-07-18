@@ -321,18 +321,20 @@ internal class VoipParticipantExtensionManager(
  * be translated to backing fields so, internally, we need to resolve the APIs for each
  * CallControlScope using a delegate to mimic this behavior.
  */
-@ExperimentalAppActions
 internal val CallControlScope.activeParticipant: MutableStateFlow<Participant?>?
+    @ExperimentalAppActions
     @RequiresApi(Build.VERSION_CODES.O)
     get() = CallControlScopeExtensionSingleton.getInstance()
         .PARTICIPANT_DELEGATE[getCallId()]?.activeParticipantFlow
-@ExperimentalAppActions
+
 internal val CallControlScope.participants: MutableStateFlow<Set<Participant>>?
+    @ExperimentalAppActions
     @RequiresApi(Build.VERSION_CODES.O)
     get() = CallControlScopeExtensionSingleton.getInstance()
         .PARTICIPANT_DELEGATE[getCallId()]?.participantsFlow
-@ExperimentalAppActions
+
 internal val CallControlScope.raisedHandParticipants: MutableStateFlow<Set<Participant>>?
+    @ExperimentalAppActions
     @RequiresApi(Build.VERSION_CODES.O)
     get() = CallControlScopeExtensionSingleton.getInstance()
         .PARTICIPANT_DELEGATE[getCallId()]?.raisedHandParticipantsFlow

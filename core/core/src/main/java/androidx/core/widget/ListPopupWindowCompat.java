@@ -21,8 +21,10 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.ListPopupWindow;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ListPopupWindow}.
@@ -90,13 +92,26 @@ public final class ListPopupWindowCompat {
      * @param src the view on which the resulting listener will be set
      * @return a touch listener that controls drag-to-open behavior, or {@code null} on
      *         unsupported APIs
-     * @deprecated Call {@link ListPopupWindow#createDragToOpenListener()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "listPopupWindow.createDragToOpenListener(src)")
     @Nullable
     public static OnTouchListener createDragToOpenListener(
             @NonNull ListPopupWindow listPopupWindow, @NonNull View src) {
-        return listPopupWindow.createDragToOpenListener(src);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.createDragToOpenListener(listPopupWindow, src);
+        } else {
+            return null;
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static OnTouchListener createDragToOpenListener(ListPopupWindow listPopupWindow, View src) {
+            return listPopupWindow.createDragToOpenListener(src);
+        }
     }
 }

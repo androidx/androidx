@@ -192,8 +192,8 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             assertThat(dao.queryMethods.size, `is`(1))
             val method = dao.queryMethods.first()
             assertThat(method.element.jvmName, `is`("getIds"))
-            assertThat(dao.insertMethods.size, `is`(1))
-            val insertMethod = dao.insertMethods.first()
+            assertThat(dao.insertionMethods.size, `is`(1))
+            val insertMethod = dao.insertionMethods.first()
             assertThat(insertMethod.element.jvmName, `is`("insert"))
         }
     }
@@ -475,82 +475,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
     }
 
     @Test
-    fun allowDaoQueryProperty() {
-        val src = Source.kotlin(
-            "MyDatabase.kt",
-            """
-            import androidx.room.*
-
-            @Dao
-            interface MyDao {
-              @get:Query("SELECT * FROM MyEntity")
-              val allEntities: List<MyEntity>
-            }
-
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """.trimIndent()
-        )
-        runKspTest(
-            sources = listOf(src),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
-        ) { invocation ->
-            val dao = invocation.processingEnv.requireTypeElement("MyDao")
-            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
-            DaoProcessor(
-                baseContext = invocation.context,
-                element = dao,
-                dbType = dbType,
-                dbVerifier = null
-            ).process()
-            invocation.assertCompilationResult {
-                hasNoWarnings()
-            }
-        }
-    }
-
-    @Test
-    fun missingAnnotationInDaoProperty() {
-        val src = Source.kotlin(
-            "MyDatabase.kt",
-            """
-            import androidx.room.*
-
-            @Dao
-            interface MyDao {
-              val allEntities: List<MyEntity>
-            }
-
-            @Entity
-            data class MyEntity(
-                @PrimaryKey
-                var pk: Int
-            )
-            """.trimIndent()
-        )
-        runKspTest(
-            sources = listOf(src),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
-        ) { invocation ->
-            val dao = invocation.processingEnv.requireTypeElement("MyDao")
-            val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
-            DaoProcessor(
-                baseContext = invocation.context,
-                element = dao,
-                dbType = dbType,
-                dbVerifier = null
-            ).process()
-            invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.INVALID_ANNOTATION_IN_DAO_PROPERTY)
-            }
-        }
-    }
-
-    @Test
-    fun missplacedAnnotationInDaoProperty() {
+    fun disallowPropertyDao() {
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -582,7 +507,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 dbVerifier = null
             ).process()
             invocation.assertCompilationResult {
-                hasErrorContaining(ProcessorErrors.INVALID_ANNOTATION_IN_DAO_PROPERTY)
+                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
             }
         }
     }
@@ -839,7 +764,6 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                 ),
                 COMMON.USER
             ),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             classpath = classpathFiles
         ) { invocation: XTestInvocation ->
             val dao = invocation.roundEnv

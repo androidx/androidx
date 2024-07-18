@@ -42,11 +42,13 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
  * SkiaLayer is underlying class used internally to draw Compose content.
  * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
+ * @param renderSettings Configuration class for rendering settings.
  */
 class ComposePanel @ExperimentalComposeUiApi constructor(
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val renderSettings: RenderSettings = RenderSettings.Default
 ) : JLayeredPane() {
-    constructor() : this(SkiaLayerAnalytics.Empty)
+    constructor() : this(SkiaLayerAnalytics.Empty, RenderSettings.Default)
 
     init {
         check(isEventDispatchThread()) {
@@ -196,7 +198,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         return ComposeContainer(
             container = this,
             skiaLayerAnalytics = skiaLayerAnalytics,
-            windowContainer = windowContainer
+            windowContainer = windowContainer,
+            renderSettings = renderSettings,
         ).apply {
             setBounds(0, 0, width, height)
             contentComponent.isFocusable = isFocusable

@@ -33,6 +33,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
@@ -47,6 +48,7 @@ import java.util.Set;
  */
 @AnyThread
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 final class EmojiProcessor {
 
     /**
@@ -779,6 +781,7 @@ final class EmojiProcessor {
     /**
      * Copy of BaseInputConnection findIndexBackward and findIndexForward functions.
      */
+    @RequiresApi(19)
     private static final class CodepointIndexFinder {
         private static final int INVALID_INDEX = -1;
 

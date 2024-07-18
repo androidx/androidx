@@ -29,6 +29,7 @@ import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.os.CancellationSignal;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 
@@ -78,7 +79,7 @@ public abstract class FragmentTransitionImpl {
      * containing the bounds relative to the screen that the view is in.
      */
     protected void getBoundsOnScreen(View view, Rect epicenter) {
-        if (!view.isAttachedToWindow()) {
+        if (!ViewCompat.isAttachedToWindow(view)) {
             return;
         }
 
@@ -273,9 +274,8 @@ public abstract class FragmentTransitionImpl {
      * @param transitionCompleteRunnable used to notify the FragmentManager when a transition is
      *                                   complete
      */
-    @SuppressWarnings("deprecation") // TODO(b/309499026): Migrate to platform-provided class.
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull androidx.core.os.CancellationSignal signal,
+            @NonNull Object transition, @NonNull CancellationSignal signal,
             @NonNull Runnable transitionCompleteRunnable) {
         setListenerForTransitionEnd(
                 outFragment, transition, signal, null, transitionCompleteRunnable
@@ -290,7 +290,7 @@ public abstract class FragmentTransitionImpl {
      * cleaning up the transition when seeking is cancelled.
      *
      * If the transition is not seeking, you should use
-     * {@link #setListenerForTransitionEnd(Fragment, Object, androidx.core.os.CancellationSignal, Runnable)}.
+     * {@link #setListenerForTransitionEnd(Fragment, Object, CancellationSignal, Runnable)}.
      *
      * @param outFragment The first fragment that is exiting
      * @param transition all transitions to be executed on a single container
@@ -299,9 +299,8 @@ public abstract class FragmentTransitionImpl {
      * @param transitionCompleteRunnable used to notify the FragmentManager when a transition is
      *                                   complete
      */
-    @SuppressWarnings("deprecation")
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull androidx.core.os.CancellationSignal signal,
+            @NonNull Object transition, @NonNull CancellationSignal signal,
             @Nullable Runnable cancelRunnable,
             @NonNull Runnable transitionCompleteRunnable) {
         transitionCompleteRunnable.run();

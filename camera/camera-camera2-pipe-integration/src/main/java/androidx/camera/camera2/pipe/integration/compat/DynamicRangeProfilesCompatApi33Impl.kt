@@ -26,10 +26,6 @@ import java.util.Collections
 internal class DynamicRangeProfilesCompatApi33Impl(
     private val dynamicRangeProfiles: DynamicRangeProfiles
 ) : DynamicRangeProfilesCompat.DynamicRangeProfilesCompatImpl {
-    override val supportedDynamicRanges: Set<DynamicRange>
-        get() = profileSetToDynamicRangeSet(
-            dynamicRangeProfiles.supportedProfiles
-        )
 
     override fun getDynamicRangeCaptureRequestConstraints(
         dynamicRange: DynamicRange
@@ -42,6 +38,10 @@ internal class DynamicRangeProfilesCompatApi33Impl(
             dynamicRangeProfiles.getProfileCaptureRequestConstraints(dynamicRangeProfile)
         )
     }
+
+    override fun getSupportedDynamicRanges() = profileSetToDynamicRangeSet(
+        dynamicRangeProfiles.supportedProfiles
+    )
 
     override fun isExtraLatencyPresent(dynamicRange: DynamicRange): Boolean {
         val dynamicRangeProfile = dynamicRangeToFirstSupportedProfile(dynamicRange)

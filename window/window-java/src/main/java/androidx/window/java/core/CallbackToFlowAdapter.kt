@@ -16,7 +16,6 @@
 
 package androidx.window.java.core
 
-import androidx.annotation.GuardedBy
 import androidx.core.util.Consumer
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
@@ -32,9 +31,7 @@ import kotlinx.coroutines.launch
  */
 internal class CallbackToFlowAdapter {
 
-    private val globalLock = ReentrantLock()
-
-    @GuardedBy("globalLock")
+    private val lock = ReentrantLock()
     private val consumerToJobMap = mutableMapOf<Consumer<*>, Job>()
 
     /**
@@ -42,7 +39,7 @@ internal class CallbackToFlowAdapter {
      * Registering the same [Consumer] is a no-op.
      */
     fun <T : Any> connect(executor: Executor, consumer: Consumer<T>, flow: Flow<T>) {
-        globalLock.withLock {
+        lock.withLock {
             if (consumerToJobMap[consumer] == null) {
                 val scope = CoroutineScope(executor.asCoroutineDispatcher())
                 consumerToJobMap[consumer] = scope.launch {
@@ -59,7 +56,7 @@ internal class CallbackToFlowAdapter {
      * no-op.
      */
     fun disconnect(consumer: Consumer<*>) {
-        globalLock.withLock {
+        lock.withLock {
             consumerToJobMap[consumer]?.cancel()
             consumerToJobMap.remove(consumer)
         }

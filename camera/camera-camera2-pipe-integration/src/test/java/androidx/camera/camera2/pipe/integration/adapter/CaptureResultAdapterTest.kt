@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.graphics.Rect
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -48,25 +49,22 @@ class CaptureResultAdapterTest {
 
     @Test
     fun getAfMode_withNull() {
-        val metadata = mapOf<CaptureResult.Key<*>, Any?>(CaptureResult.CONTROL_AF_MODE to null)
-
-        val cameraCaptureResult = createCaptureResultAdapter(resultMetadata = metadata)
-        val partialResult = createPartialCaptureResultAdapter(resultMetadata = metadata)
+        val cameraCaptureResult = createCaptureResultAdapter(
+            resultMetadata = mapOf(CaptureResult.CONTROL_AF_MODE to null)
+        )
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.UNKNOWN)
-        assertThat(partialResult.afMode).isEqualTo(AfMode.UNKNOWN)
     }
 
     @Test
     fun getAfMode_withAfModeOff() {
-        val metadata = mapOf<CaptureResult.Key<*>, Any?>(
-            CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
+        val cameraCaptureResult = createCaptureResultAdapter(
+            resultMetadata = mapOf(
+                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
+            )
         )
-        val cameraCaptureResult = createCaptureResultAdapter(resultMetadata = metadata)
-        val partialResult = createPartialCaptureResultAdapter(resultMetadata = metadata)
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.OFF)
-        assertThat(partialResult.afMode).isEqualTo(AfMode.OFF)
     }
 
     @Test
@@ -397,6 +395,7 @@ class CaptureResultAdapterTest {
     @Test
     fun canPopulateExif() {
         // Arrange
+        val cropRegion = Rect(0, 0, 640, 480)
         val exposureTime = TimeUnit.SECONDS.toNanos(5)
         val aperture = 1.8f
         val iso = 200
@@ -407,8 +406,9 @@ class CaptureResultAdapterTest {
         }
         val focalLength = 4200f
         val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any?>(
+            resultMetadata = mutableMapOf(
                 CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_FIRED,
+                CaptureResult.SCALER_CROP_REGION to cropRegion,
                 CaptureResult.JPEG_ORIENTATION to 270,
                 CaptureResult.SENSOR_EXPOSURE_TIME to exposureTime,
                 CaptureResult.LENS_APERTURE to aperture,
@@ -430,6 +430,12 @@ class CaptureResultAdapterTest {
         // Assert
         assertThat(exifData.getAttribute(ExifInterface.TAG_FLASH)!!.toShort()).isEqualTo(
             FLAG_FLASH_FIRED
+        )
+        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_WIDTH)).isEqualTo(
+            cropRegion.width().toString()
+        )
+        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_LENGTH)).isEqualTo(
+            cropRegion.height().toString()
         )
         assertThat(exifData.getAttribute(ExifInterface.TAG_ORIENTATION)).isEqualTo(
             ExifInterface.ORIENTATION_ROTATE_270.toString()
@@ -467,7 +473,7 @@ class CaptureResultAdapterTest {
             requestParameters = requestParams,
             requestNumber = RequestNumber(1)
         )
-        val frameMetadata = FakeFrameMetadata(
+        val resultMetaData = FakeFrameMetadata(
             resultMetadata = resultMetadata,
             frameNumber = frameNumber,
         )
@@ -475,29 +481,9 @@ class CaptureResultAdapterTest {
             requestMetadata = requestMetadata,
             frameNumber,
             FakeFrameInfo(
-                metadata = frameMetadata,
+                metadata = resultMetaData,
                 requestMetadata = requestMetadata,
             )
-        )
-    }
-
-    private fun createPartialCaptureResultAdapter(
-        requestParams: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
-        resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
-        frameNumber: FrameNumber = FrameNumber(101L)
-    ): CameraCaptureResult {
-        val requestMetadata = FakeRequestMetadata(
-            requestParameters = requestParams,
-            requestNumber = RequestNumber(1)
-        )
-        val frameMetadata = FakeFrameMetadata(
-            resultMetadata = resultMetadata,
-            frameNumber = frameNumber,
-        )
-        return PartialCaptureResultAdapter(
-            requestMetadata = requestMetadata,
-            frameNumber,
-            result = frameMetadata,
         )
     }
 }

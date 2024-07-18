@@ -233,9 +233,6 @@ class OnBackPressedDispatcher constructor(
         val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
-        if (inProgressCallback != null) {
-            onBackCancelled()
-        }
         inProgressCallback = callback
         if (callback != null) {
             callback.handleOnBackStarted(backEvent)
@@ -251,7 +248,7 @@ class OnBackPressedDispatcher constructor(
 
     @MainThread
     private fun onBackProgressed(backEvent: BackEventCompat) {
-        val callback = inProgressCallback ?: onBackPressedCallbacks.lastOrNull {
+        val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
         if (callback != null) {
@@ -271,7 +268,7 @@ class OnBackPressedDispatcher constructor(
      */
     @MainThread
     fun onBackPressed() {
-        val callback = inProgressCallback ?: onBackPressedCallbacks.lastOrNull {
+        val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
         inProgressCallback = null
@@ -290,7 +287,7 @@ class OnBackPressedDispatcher constructor(
 
     @MainThread
     private fun onBackCancelled() {
-        val callback = inProgressCallback ?: onBackPressedCallbacks.lastOrNull {
+        val callback = onBackPressedCallbacks.lastOrNull {
             it.isEnabled
         }
         inProgressCallback = null

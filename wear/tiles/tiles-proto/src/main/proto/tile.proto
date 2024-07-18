@@ -19,8 +19,7 @@ message Tile {
   // resource version.
   string resources_version = 1;
 
-  // The Timeline containing the layouts for the tiles to show in the carousel,
-  // along with their validity periods.
+  // The tiles to show in the carousel, along with their validity periods.
   androidx.wear.protolayout.proto.Timeline tile_timeline = 2;
 
   // The schema version that this tile was built with.

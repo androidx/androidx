@@ -410,11 +410,7 @@ public abstract class VideoRecordEvent {
         /**
          * Gets the error cause.
          *
-         * <p>Returns the error cause if any, otherwise returns {@code null}.
-         * <p>Note that not all error types include an error cause. For some error types, the
-         * file may still be generated successfully with no error cause. For example,
-         * {@link #ERROR_FILE_SIZE_LIMIT_REACHED}, {@link #ERROR_DURATION_LIMIT_REACHED} and
-         * {@link #ERROR_SOURCE_INACTIVE}.
+         * <p>Returns {@code null} if {@link #hasError()} returns {@code false}.
          */
         @Nullable
         public Throwable getCause() {

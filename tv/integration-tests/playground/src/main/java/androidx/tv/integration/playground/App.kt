@@ -28,11 +28,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.darkColorScheme
 
 val pageColor = Color.Black
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun App() {
     val navController = rememberNavController()

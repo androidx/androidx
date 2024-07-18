@@ -200,46 +200,6 @@ class RoundedPolygonTest {
         }
     }
 
-    @Test
-    fun creatingFullSizeTest() {
-        val radius = 400f
-        val innerRadiusFactor = 0.35f
-        val innerRadius = radius * innerRadiusFactor
-        val roundingFactor = 0.32f
-
-        val fullSizeShape = RoundedPolygon.star(
-            numVerticesPerRadius = 4,
-            radius,
-            innerRadius,
-            rounding = CornerRounding(radius * roundingFactor),
-            innerRounding = CornerRounding(radius * roundingFactor),
-            centerX = radius,
-            centerY = radius
-        ).transformed { x, y -> TransformResult((x - radius) / radius, (y - radius) / radius) }
-
-        val canonicalShape = RoundedPolygon.star(
-            numVerticesPerRadius = 4,
-            1f,
-            innerRadiusFactor,
-            rounding = CornerRounding(roundingFactor),
-            innerRounding = CornerRounding(roundingFactor)
-        )
-
-        val cubics = canonicalShape.cubics
-        val cubics1 = fullSizeShape.cubics
-        assertEquals(cubics.size, cubics1.size)
-        cubics.zip(cubics1).forEach { (cubic, cubic1) ->
-            assertEqualish(cubic.anchor0X, cubic1.anchor0X)
-            assertEqualish(cubic.anchor0Y, cubic1.anchor0Y)
-            assertEqualish(cubic.anchor1X, cubic1.anchor1X)
-            assertEqualish(cubic.anchor1Y, cubic1.anchor1Y)
-            assertEqualish(cubic.control0X, cubic1.control0X)
-            assertEqualish(cubic.control0Y, cubic1.control0Y)
-            assertEqualish(cubic.control1X, cubic1.control1X)
-            assertEqualish(cubic.control1Y, cubic1.control1Y)
-        }
-    }
-
     private fun doUnevenSmoothTest(
         // Corner rounding parameter for vertex 0 (top left)
         rounding0: CornerRounding,

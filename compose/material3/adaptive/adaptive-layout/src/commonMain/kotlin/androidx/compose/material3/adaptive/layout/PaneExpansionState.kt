@@ -42,9 +42,8 @@ import kotlinx.coroutines.coroutineScope
 
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-internal class PaneExpansionState(
-    internal val anchors: List<PaneExpansionAnchor> = emptyList()
-) : DraggableState {
+internal class PaneExpansionState(internal val anchors: List<PaneExpansionAnchor> = emptyList()) :
+    DraggableState {
     private var firstPaneWidthState by mutableIntStateOf(UnspecifiedWidth)
     private var firstPanePercentageState by mutableFloatStateOf(Float.NaN)
     private var currentDraggingOffsetState by mutableIntStateOf(UnspecifiedWidth)
@@ -83,7 +82,8 @@ internal class PaneExpansionState(
     internal var isSettling by mutableStateOf(false)
         private set
 
-    internal val isDraggingOrSettling get() = isDragging || isSettling
+    internal val isDraggingOrSettling
+        get() = isDragging || isSettling
 
     @VisibleForTesting
     internal var maxExpansionWidth = 0
@@ -97,9 +97,10 @@ internal class PaneExpansionState(
 
     private var anchorPositions: IntList = emptyIntList()
 
-    private val dragScope: DragScope = object : DragScope {
-        override fun dragBy(pixels: Float): Unit = dispatchRawDelta(pixels)
-    }
+    private val dragScope: DragScope =
+        object : DragScope {
+            override fun dragBy(pixels: Float): Unit = dispatchRawDelta(pixels)
+        }
 
     private val dragMutex = MutatorMutex()
 
@@ -115,14 +116,12 @@ internal class PaneExpansionState(
         currentDraggingOffset = (currentMeasuredDraggingOffset + delta).toInt()
     }
 
-    override suspend fun drag(
-        dragPriority: MutatePriority,
-        block: suspend DragScope.() -> Unit
-    ) = coroutineScope {
-        isDragging = true
-        dragMutex.mutateWith(dragScope, dragPriority, block)
-        isDragging = false
-    }
+    override suspend fun drag(dragPriority: MutatePriority, block: suspend DragScope.() -> Unit) =
+        coroutineScope {
+            isDragging = true
+            dragMutex.mutateWith(dragScope, dragPriority, block)
+            isDragging = false
+        }
 
     internal fun onMeasured(measuredWidth: Int, density: Density) {
         if (measuredWidth == maxExpansionWidth) {
@@ -149,10 +148,9 @@ internal class PaneExpansionState(
             // TODO(conradchen): Use the right animation spec here.
             animate(
                 currentMeasuredDraggingOffset.toFloat(),
-                currentAnchorPositions.getPositionOfTheClosestAnchor(
-                    currentMeasuredDraggingOffset,
-                    velocity
-                ).toFloat(),
+                currentAnchorPositions
+                    .getPositionOfTheClosestAnchor(currentMeasuredDraggingOffset, velocity)
+                    .toFloat(),
                 velocity,
             ) { value, _ ->
                 currentDraggingOffset = value.toInt()
@@ -161,30 +159,26 @@ internal class PaneExpansionState(
         }
     }
 
-    private fun IntList.getPositionOfTheClosestAnchor(
-        currentPosition: Int,
-        velocity: Float
-    ): Int = minBy(
-        when {
-            velocity >= AnchoringVelocityThreshold -> {
-                { anchorPosition: Int ->
-                    val delta = anchorPosition - currentPosition
-                    if (delta < 0) Int.MAX_VALUE else delta
+    private fun IntList.getPositionOfTheClosestAnchor(currentPosition: Int, velocity: Float): Int =
+        minBy(
+            when {
+                velocity >= AnchoringVelocityThreshold -> {
+                    { anchorPosition: Int ->
+                        val delta = anchorPosition - currentPosition
+                        if (delta < 0) Int.MAX_VALUE else delta
+                    }
+                }
+                velocity <= -AnchoringVelocityThreshold -> {
+                    { anchorPosition: Int ->
+                        val delta = currentPosition - anchorPosition
+                        if (delta < 0) Int.MAX_VALUE else delta
+                    }
+                }
+                else -> {
+                    { anchorPosition: Int -> abs(currentPosition - anchorPosition) }
                 }
             }
-            velocity <= -AnchoringVelocityThreshold -> {
-                { anchorPosition: Int ->
-                    val delta = currentPosition - anchorPosition
-                    if (delta < 0) Int.MAX_VALUE else delta
-                }
-            }
-            else -> {
-                { anchorPosition: Int ->
-                    abs(currentPosition - anchorPosition)
-                }
-            }
-        }
-    )
+        )
 
     companion object {
         const val UnspecifiedWidth = -1
@@ -194,7 +188,8 @@ internal class PaneExpansionState(
 
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class PaneExpansionAnchor private constructor(
+internal class PaneExpansionAnchor
+private constructor(
     val percentage: Int,
     val startOffset: Dp // TODO(conradchen): confirm RTL support
 ) {
@@ -212,9 +207,10 @@ private fun List<PaneExpansionAnchor>.toPositions(
     @Suppress("ListIterator") // Not necessarily a random-accessible list
     forEach { anchor ->
         if (anchor.startOffset.isSpecified) {
-            val position = with(density) { anchor.startOffset.toPx() }.toInt().let {
-                if (it < 0) maxExpansionWidth + it else it
-            }
+            val position =
+                with(density) { anchor.startOffset.toPx() }
+                    .toInt()
+                    .let { if (it < 0) maxExpansionWidth + it else it }
             if (position in 0..maxExpansionWidth) {
                 anchors.add(position)
             }

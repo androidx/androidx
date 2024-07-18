@@ -55,18 +55,9 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-      convertAndReturnCompat(parameters, adapters, dbProperty, scope)
-    }
-
-    override fun convertAndReturnCompat(
-        parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
-        dbProperty: XPropertySpec,
-        scope: CodeGenScope
-    ) {
         val adapterScope = scope.fork()
         val callableImpl = CallableTypeSpecBuilder(scope.language, typeArg.asTypeName()) {
-            adapter?.generateMethodBodyCompat(
+            adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,
                 dbProperty = dbProperty,

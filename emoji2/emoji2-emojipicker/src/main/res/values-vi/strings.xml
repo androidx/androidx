@@ -29,14 +29,4 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"CỜ"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Không có biểu tượng cảm xúc nào"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Bạn chưa sử dụng biểu tượng cảm xúc nào"</string>
-    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"trình chuyển đổi hai chiều biểu tượng cảm xúc"</string>
-    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"đã chuyển hướng mặt của biểu tượng cảm xúc"</string>
-    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"bộ chọn biến thể biểu tượng cảm xúc"</string>
-    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s và %2$s"</string>
-    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"bóng"</string>
-    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"tông màu da sáng"</string>
-    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"tông màu da sáng trung bình"</string>
-    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"tông màu da trung bình"</string>
-    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"tông màu da tối trung bình"</string>
-    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"tông màu da tối"</string>
 </resources>

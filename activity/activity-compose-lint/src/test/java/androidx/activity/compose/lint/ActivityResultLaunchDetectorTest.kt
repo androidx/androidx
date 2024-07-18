@@ -43,7 +43,7 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
     private val MANAGED_ACTIVITY_RESULT_LAUNCHER = bytecodeStub(
         filename = "ActivityResultRegistry.kt",
         filepath = "androidx/activity/compose",
-        checksum = 0xef067b97,
+        checksum = 0x42f3e9f,
         source = """
     package androidx.activity.compose
 
@@ -53,23 +53,23 @@ class ActivityResultLaunchDetectorTest : LintDetectorTest() {
     """,
         """
     META-INF/main.kotlin_module:
-    H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgEuXiTs7P1UutSMwtyEkVYgtJLS7x
-    LlFi0GIAAJY6UNwvAAAA
+    H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3AJcrFnZyfq5dakZhbkJMqxBaSWlzi
+    XaLEoMUAAIXWemUvAAAA
     """,
-    """
+        """
     androidx/activity/compose/ManagedActivityResultLauncher.class:
-    H4sIAAAAAAAA/51Ry24TMRQ9dpLJoy2ZtDSk5f2S0i6YNALxqiqVSohBKUhp
-    lU1WTmKlbhJPNfZE7S7fwh+wQmKBIpZ8FOJ6mg0tK7w499zjc+177V+/v/8A
-    8BxPGV4KPYgjNTgPRN+qqbIXQT+anEVGBodCi6Ec7C/0tjTJ2LZEovsnMs6D
-    MdR3wzetUzEVwVjoYfC5dyr79u3edYnBv6rlkWXwdpVWdo8hU9/qLMNDvoQc
-    CgxZe6IMw+vWf7ZHN3rjlDOs1683tNUhQ/04TElO6bPEMqz+q/FKaxTZsdLB
-    obRiIKwgjU+mGXpA5qDoAAxsRPq5clmD2GCH4cN8Vi3xGi/NZyXuOyhwItzF
-    2ny2nS3MZz5r8gZ/l/v5xeN+5uOan93kjVzT871N/mo+S+W8O69JV4TM3bTx
-    98htOVTGxhfPRjRC9iAaSIZyS2n5KZn0ZHwsemPpZov6YtwRsXL5QiweqaEW
-    NomJl46iJO7L98ptbLQTbdVEdpRR5NzXOrLCqkgb7IDTF7nFqRf6McL7lAXu
-    DSjmtr+h+DXdfkDopWIWDwmXLw0oYYlihfIVcrniF6mfhrtamEsLq5ebi0LH
-    yvAJH6XuG8gsWAaP03gPTygekKNCJ6x2kQmxFuJmiHVUieJWiBo2umAGm7jd
-    RcFgyeCOwV2DvMFySsoGK38AjaXx2SsDAAA=
+    H4sIAAAAAAAAAJ1Ry24aMRQ9NjAQQsqQNBTo+7EgWXQIatVXFCmNVJWKpBKJ
+    2LAyYBEH8ERjD0p2fEv/oKtKXVSoy35U1esJmyZd1Ytzzz0+1/fa/vX7+w8A
+    L/CM4ZXQwyhUw4tADKyaKXsZDMLpeWhkcCi0GMnh/lLvSBNPbFvEenAqoywY
+    Q3239bZ9JmYimAg9Cj73z+TAvtu7KTH417Us0gzertLK7jGk6lvdAjxk88gg
+    x5C2p8owvGn/53jU0ZsknGGzfnOgrS4Z6iethGSUPo8tw/q/Bi+1x6GdKB0c
+    SiuGwgrS+HSWogdkDjIMbEzShXJZg9hwh+HjYl7O8wrPL+Z57jvIcSLcxcpi
+    vp3OLeY+a/IGf5/5+cXjfurThp+u8Uam6flejb9ezBM5685rUosWo36o/n3b
+    jhwpY6PL52OaPn0QDiVDsa20PIqnfRmdiP5EumuFAzHpiki5fCmuHKuRFjaO
+    iOePwzgayA/KbVQ7sbZqKrvKKHLuax1aYVWoDXbA6Xfc4jQLfRbhA8oCisw9
+    xfY3rHxNth8SeomYxiPCwpUBeaxSLFG+Ri5X/DLx0+WuF2aSwvLV5rLQsSJ8
+    wseJ+xZSS5bCkyTex1OKB+Qo0QnrPaRa2GjhNiE2HZRbuINKD8ygiloPOYNV
+    g7sG9wyyBoWEFA3W/gCvD9WQJgMAAA==
     """
     )
 

@@ -84,12 +84,6 @@ public class CustomTabsSessionToken {
                 @NonNull Bundle extras) {}
 
         @Override
-        public void onMinimized(@NonNull Bundle extras) {}
-
-        @Override
-        public void onUnminimized(@NonNull Bundle extras) {}
-
-        @Override
         public IBinder asBinder() {
             return this;
         }
@@ -228,26 +222,6 @@ public class CustomTabsSessionToken {
                     @ActivityLayoutState int state, @NonNull Bundle extras) {
                 try {
                     mCallbackBinder.onActivityLayout(left, top, right, bottom, state, extras);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
-                }
-            }
-
-            @SuppressWarnings("NullAway")  // TODO: b/142938599
-            @Override
-            public void onMinimized(@NonNull Bundle extras) {
-                try {
-                    mCallbackBinder.onMinimized(extras);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
-                }
-            }
-
-            @SuppressWarnings("NullAway")  // TODO: b/142938599
-            @Override
-            public void onUnminimized(@NonNull Bundle extras) {
-                try {
-                    mCallbackBinder.onUnminimized(extras);
                 } catch (RemoteException e) {
                     Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
                 }

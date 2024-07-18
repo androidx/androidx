@@ -48,6 +48,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
+import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
@@ -60,9 +61,11 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpecDao;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.worker.InfiniteTestWorker;
-import androidx.work.worker.NeverResolvedWorker;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
@@ -137,7 +140,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         }
 
         mSystemJobServiceSpy.onDestroy();
-        mWorkManagerImpl.closeDatabase();
+        mDatabase.close();
         WorkManagerImpl.setDelegate(null);
         ArchTaskExecutor.getInstance().setDelegate(null);
     }
@@ -341,13 +344,19 @@ public class SystemJobServiceTest extends WorkManagerTest {
         }
     }
 
-    public static class StopReasonLoggingWorker extends NeverResolvedWorker {
+    public static class StopReasonLoggingWorker extends ListenableWorker {
 
         static int sReason = 0;
 
         public StopReasonLoggingWorker(@NonNull Context appContext,
                 @NonNull WorkerParameters workerParams) {
             super(appContext, workerParams);
+        }
+
+        @NonNull
+        @Override
+        public ListenableFuture<Result> startWork() {
+            return SettableFuture.create();
         }
 
         @Override

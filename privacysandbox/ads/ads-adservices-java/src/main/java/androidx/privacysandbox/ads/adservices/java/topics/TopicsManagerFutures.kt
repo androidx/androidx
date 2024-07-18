@@ -44,7 +44,7 @@ abstract class TopicsManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract fun getTopicsAsync(request: GetTopicsRequest): ListenableFuture<GetTopicsResponse>
 
-    private class CommonApiJavaImpl(
+    private class Api33Ext4JavaImpl(
         private val mTopicsManager: TopicsManager
     ) : TopicsManagerFutures() {
         @DoNotInline
@@ -67,7 +67,7 @@ abstract class TopicsManagerFutures internal constructor() {
          */
         @JvmStatic
         fun from(context: Context): TopicsManagerFutures? {
-            return obtain(context)?.let { CommonApiJavaImpl(it) }
+            return obtain(context)?.let { Api33Ext4JavaImpl(it) }
         }
     }
 }

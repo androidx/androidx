@@ -67,9 +67,17 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.multidex)
-    kspAndroidTestWithKspGenJava(project(":room:room-compiler"))
-    kspAndroidTestWithKspGenKotlin(project(":room:room-compiler"))
-    kaptAndroidTestWithKapt(project(":room:room-compiler"))
+    // depend on the shadowed version so that it tests with the shipped artifact
+    // this is a temporary attribute until KSP and AndroidX plugin supports variants.
+    kspAndroidTestWithKspGenJava(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    kspAndroidTestWithKspGenKotlin(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+    kaptAndroidTestWithKapt(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
     androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
     androidTestImplementation(libs.testExtJunit)

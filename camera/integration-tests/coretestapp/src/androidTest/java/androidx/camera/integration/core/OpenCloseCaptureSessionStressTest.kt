@@ -38,7 +38,6 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.testing.impl.StressTestRule
 import androidx.camera.testing.impl.SurfaceTextureProvider
-import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
@@ -84,9 +83,6 @@ class OpenCloseCaptureSessionStressTest(
 
     @get:Rule
     val repeatRule = RepeatRule()
-
-    @get:Rule
-    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
 

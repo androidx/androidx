@@ -36,7 +36,6 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -45,7 +44,6 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.utils.SizeUtil;
 import androidx.camera.core.resolutionselector.AspectRatioStrategy;
-import androidx.camera.core.resolutionselector.ResolutionFilter;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.testing.fakes.FakeAppConfig;
@@ -68,7 +66,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -164,9 +161,8 @@ public class ImageAnalysisTest {
 
     @Test
     public void canSetQueueDepth() {
-        mImageAnalysis = new ImageAnalysis.Builder().setImageQueueDepth(QUEUE_DEPTH).build();
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        assertThat(mergedConfig.getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
+        assertThat(getMergedImageAnalysisConfig(null, null, QUEUE_DEPTH,
+                false).getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
     }
 
     @Test
@@ -181,112 +177,71 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // legacy resolution API
     public void setAnalyzerWithResolution_doesNotOverridesUseCaseResolution_legacyApi() {
-        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        builder.setTargetResolution(APP_RESOLUTION);
-        mImageAnalysis = builder.build();
-        setAnalyzerToImageAnalysis(ANALYZER_RESOLUTION);
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        assertThat(mergedConfig.getTargetResolution()).isEqualTo(APP_RESOLUTION);
+        assertThat(getMergedImageAnalysisConfig(APP_RESOLUTION, ANALYZER_RESOLUTION, -1,
+                false).getTargetResolution()).isEqualTo(APP_RESOLUTION);
     }
 
     @Test
     public void setAnalyzerWithResolution_doesNotOverridesUseCaseResolution_resolutionSelector() {
-        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        setResolutionSelectorToImageAnalysisBuilder(builder, AspectRatio.RATIO_4_3, APP_RESOLUTION,
-                null);
-        mImageAnalysis = builder.build();
-        setAnalyzerToImageAnalysis(ANALYZER_RESOLUTION);
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        ResolutionSelector resolutionSelector = mergedConfig.getResolutionSelector();
-        // Checks APP_RESOLUTION is correctly set as ResolutionStrategy bound size
-        assertThat(resolutionSelector.getResolutionStrategy().getBoundSize())
-                .isEqualTo(APP_RESOLUTION);
-        // Checks that no ResolutionFilter is inserted when app has its own ResolutionSelector
-        assertThat(resolutionSelector.getResolutionFilter()).isNull();
-    }
-
-    @Test
-    public void setAnalyzerWithResolution_filterPrioritizesResolutionCorrectly() {
-        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        mImageAnalysis = builder.build();
-        setAnalyzerToImageAnalysis(ANALYZER_RESOLUTION);
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        ResolutionFilter resolutionFilter =
-                mergedConfig.getResolutionSelector().getResolutionFilter();
-        List<Size> originalList = Arrays.asList(APP_RESOLUTION, ANALYZER_RESOLUTION,
-                FLIPPED_ANALYZER_RESOLUTION);
-        List<Size> expectedResult = Arrays.asList(FLIPPED_ANALYZER_RESOLUTION, APP_RESOLUTION,
-                ANALYZER_RESOLUTION);
-        assertThat(resolutionFilter.filter(originalList, 0)).isEqualTo(expectedResult);
-    }
-
-    @Test
-    public void setAnalyzerWithResolution_doesNotOverridesAppResolutionFilter() {
-        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        ResolutionFilter appResolutionFilter = new ResolutionFilter() {
-            @NonNull
-            @Override
-            public List<Size> filter(@NonNull List<Size> supportedSizes, int rotationDegrees) {
-                return Collections.singletonList(APP_RESOLUTION);
-            }
-        };
-        setResolutionSelectorToImageAnalysisBuilder(builder, AspectRatio.RATIO_4_3, APP_RESOLUTION,
-                appResolutionFilter);
-        mImageAnalysis = builder.build();
-        setAnalyzerToImageAnalysis(ANALYZER_RESOLUTION);
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        assertThat(mergedConfig.getResolutionSelector().getResolutionFilter())
-                .isSameInstanceAs(appResolutionFilter);
+        ImageAnalysisConfig config = getMergedImageAnalysisConfig(APP_RESOLUTION,
+                ANALYZER_RESOLUTION, -1, true);
+        assertThat(config.getResolutionSelector().getResolutionStrategy().getBoundSize()).isEqualTo(
+                APP_RESOLUTION);
     }
 
     @Test
     public void setAnalyzerWithResolution_usedAsDefaultUseCaseResolution_legacyApi() {
-        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
-        mImageAnalysis = builder.build();
-        setAnalyzerToImageAnalysis(ANALYZER_RESOLUTION);
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        assertThat(mergedConfig.getTargetResolution()).isEqualTo(FLIPPED_ANALYZER_RESOLUTION);
+        assertThat(
+                getMergedImageAnalysisConfig(null, ANALYZER_RESOLUTION, -1,
+                        false).getTargetResolution()).isEqualTo(FLIPPED_ANALYZER_RESOLUTION);
     }
 
     @Test
     public void setAnalyzerWithResolution_usedAsDefaultUseCaseResolution_resolutionSelector() {
-        mImageAnalysis = new ImageAnalysis.Builder().build();
-        setAnalyzerToImageAnalysis(ANALYZER_RESOLUTION);
-        ImageAnalysisConfig mergedConfig = getMergedImageAnalysisConfig();
-        Size boundSize =
-                mergedConfig.getResolutionSelector().getResolutionStrategy().getBoundSize();
-        assertThat(boundSize).isEqualTo(FLIPPED_ANALYZER_RESOLUTION);
+        ImageAnalysisConfig config = getMergedImageAnalysisConfig(null,
+                ANALYZER_RESOLUTION, -1, true);
+        assertThat(config.getResolutionSelector().getResolutionStrategy().getBoundSize()).isEqualTo(
+                FLIPPED_ANALYZER_RESOLUTION);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void noAppOrAnalyzerResolution_noMergedOption_legacyApi() {
-        mImageAnalysis = new ImageAnalysis.Builder().build();
-        getMergedImageAnalysisConfig().getTargetResolution();
+        getMergedImageAnalysisConfig(null, null, -1, false).getTargetResolution();
     }
 
-    private void setResolutionSelectorToImageAnalysisBuilder(@NonNull ImageAnalysis.Builder builder,
-            @AspectRatio.Ratio int aspectRatio, @Nullable Size boundSize,
-            @Nullable ResolutionFilter resolutionFilter) {
-        ResolutionSelector.Builder selectorBuilder = new ResolutionSelector.Builder();
+    @SuppressWarnings("deprecation") // legacy resolution API
+    @NonNull
+    private ImageAnalysisConfig getMergedImageAnalysisConfig(
+            @Nullable Size appResolution,
+            @Nullable Size analyzerResolution,
+            int queueDepth,
+            boolean useResolutionSelector) {
+        // Arrange: set up ImageAnalysis.
+        ImageAnalysis.Builder builder = new ImageAnalysis.Builder();
 
-        selectorBuilder.setAspectRatioStrategy(new AspectRatioStrategy(aspectRatio,
-                AspectRatioStrategy.FALLBACK_RULE_AUTO));
-
-        if (boundSize != null) {
-            selectorBuilder.setResolutionStrategy(new ResolutionStrategy(boundSize,
-                    ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+        // Sets preferred resolution by ResolutionSelector or legacy API
+        if (useResolutionSelector) {
+            ResolutionSelector.Builder selectorBuilder = new ResolutionSelector.Builder();
+            if (appResolution != null) {
+                selectorBuilder.setResolutionStrategy(new ResolutionStrategy(appResolution,
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+            } else {
+                selectorBuilder.setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY);
+            }
+            builder.setResolutionSelector(selectorBuilder.build());
+        } else {
+            if (appResolution != null) {
+                builder.setTargetResolution(appResolution);
+            }
         }
 
-        if (resolutionFilter != null) {
-            selectorBuilder.setResolutionFilter(resolutionFilter);
+        if (queueDepth >= 0) {
+            builder.setImageQueueDepth(QUEUE_DEPTH);
         }
 
-        builder.setResolutionSelector(selectorBuilder.build());
-    }
-
-    private void setAnalyzerToImageAnalysis(@Nullable Size analyzerResolution) {
+        mImageAnalysis = builder.build();
         // Analyzer that overrides the resolution.
         ImageAnalysis.Analyzer analyzer = new ImageAnalysis.Analyzer() {
             @Override
@@ -302,14 +257,10 @@ public class ImageAnalysisTest {
 
         // Act: set the analyzer.
         mImageAnalysis.setAnalyzer(mBackgroundExecutor, analyzer);
-    }
 
-    @NonNull
-    private ImageAnalysisConfig getMergedImageAnalysisConfig() {
-        CameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(90,
-                CameraSelector.LENS_FACING_BACK);
-        return (ImageAnalysisConfig) mImageAnalysis.mergeConfigs(cameraInfoInternal, null,
-                new ImageAnalysis.Defaults().getConfig());
+        return (ImageAnalysisConfig) mImageAnalysis.mergeConfigs(
+                new FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK), null,
+                null);
     }
 
     @NonNull

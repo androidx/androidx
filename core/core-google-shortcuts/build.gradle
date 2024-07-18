@@ -27,7 +27,7 @@ android {
         multiDexEnabled = true
     }
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 

@@ -145,6 +145,7 @@ import java.util.Set;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@RequiresApi(19)
 @Deprecated
 public class ListBuilder extends TemplateSliceBuilder {
 

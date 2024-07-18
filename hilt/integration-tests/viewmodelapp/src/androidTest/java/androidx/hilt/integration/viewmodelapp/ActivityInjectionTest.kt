@@ -25,7 +25,6 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.lifecycle.withCreationCallback
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Rule
@@ -50,8 +49,6 @@ class ActivityInjectionTest {
                 assertThat(activity.myViewModel).isNotNull()
                 assertThat(activity.myInjectedViewModel).isNotNull()
                 assertThat(activity.myNestedInjectedViewModel).isNotNull()
-                assertThat(activity.myAssistedInjectedViewModel).isNotNull()
-                assertThat(activity.myAssistedInjectedViewModel.bar).isEqualTo(42)
             }
         }
     }
@@ -62,13 +59,5 @@ class ActivityInjectionTest {
         val myViewModel by viewModels<MyViewModel>()
         val myInjectedViewModel by viewModels<MyInjectedViewModel>()
         val myNestedInjectedViewModel by viewModels<TopClass.MyNestedInjectedViewModel>()
-        val myAssistedInjectedViewModel by viewModels<MyAssistedInjectedViewModel>(
-            extrasProducer = {
-                defaultViewModelCreationExtras.withCreationCallback<
-                        MyAssistedInjectedViewModel.Factory> { factory ->
-                    factory.create(42)
-                }
-            }
-        )
     }
 }

@@ -54,15 +54,12 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     private final GlobalSearchClient mGmsClient;
     private final Features mFeatures;
-    private final Executor mExecutor;
 
     GlobalSearchSessionImpl(
             @NonNull GlobalSearchClient gmsClient,
-            @NonNull Features features,
-            @NonNull Executor executor) {
+            @NonNull Features features) {
         mGmsClient = Preconditions.checkNotNull(gmsClient);
         mFeatures = Preconditions.checkNotNull(features);
-        mExecutor = Preconditions.checkNotNull(executor);
     }
     @NonNull
     @Override
@@ -73,8 +70,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
                 mGmsClient.getByDocumentId(packageName, databaseName,
                         RequestToGmsConverter.toGmsGetByDocumentIdRequest(request)),
                 result -> AppSearchResultToGmsConverter.gmsAppSearchBatchResultToJetpack(
-                        result, GenericDocumentToGmsConverter::toJetpackGenericDocument),
-                mExecutor);
+                        result, GenericDocumentToGmsConverter::toJetpackGenericDocument));
     }
 
     @NonNull
@@ -83,7 +79,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
         com.google.android.gms.appsearch.SearchResults searchResults =
                 mGmsClient.search(queryExpression,
                         SearchSpecToGmsConverter.toGmsSearchSpec(searchSpec));
-        return new SearchResultsImpl(searchResults, mExecutor);
+        return new SearchResultsImpl(searchResults, searchSpec);
     }
 
     @NonNull
@@ -91,8 +87,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     public ListenableFuture<Void> reportSystemUsageAsync(
             @NonNull ReportSystemUsageRequest request) {
         Task<Void> flushTask = Tasks.forResult(null);
-        return AppSearchTaskFutures.toListenableFuture(flushTask, /* valueMapper= */ i-> i,
-                mExecutor);
+        return AppSearchTaskFutures.toListenableFuture(flushTask, /* valueMapper= */ i-> i);
     }
 
     @NonNull
@@ -101,7 +96,7 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
             @NonNull String databaseName) {
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsClient.getSchema(packageName, databaseName),
-                GetSchemaResponseToGmsConverter::toJetpackGetSchemaResponse, mExecutor);
+                GetSchemaResponseToGmsConverter::toJetpackGetSchemaResponse);
     }
 
     @NonNull

@@ -36,7 +36,6 @@ import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -48,12 +47,7 @@ class SurfaceOrientedMeteringPointFactoryTest(
     private val implName: String,
     private val cameraConfig: CameraXConfig
 ) {
-    @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
-    )
-
-    private var pointFactory: SurfaceOrientedMeteringPointFactory? = null
+    var pointFactory: SurfaceOrientedMeteringPointFactory? = null
     private var context: Context? = null
     @Before
     fun setUp() {

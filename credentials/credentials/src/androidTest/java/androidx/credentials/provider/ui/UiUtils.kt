@@ -79,7 +79,6 @@ class UiUtils {
          * provider objects.
          */
         @JvmStatic
-        @Suppress("DEPRECATION")
         fun constructPasswordCredentialEntryDefault(username: CharSequence): CredentialEntry {
             return PasswordCredentialEntry(
                 sContext,

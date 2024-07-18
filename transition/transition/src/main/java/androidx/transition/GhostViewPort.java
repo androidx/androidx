@@ -25,6 +25,7 @@ import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 
 /**
  * Backport of android.view.GhostView introduced in API level 21.
@@ -52,10 +53,10 @@ class GhostViewPort extends ViewGroup implements GhostView {
                 @Override
                 public boolean onPreDraw() {
                     // We draw the view.
-                    GhostViewPort.this.postInvalidateOnAnimation();
+                    ViewCompat.postInvalidateOnAnimation(GhostViewPort.this);
                     if (mStartParent != null && mStartView != null) {
                         mStartParent.endViewTransition(mStartView);
-                        mStartParent.postInvalidateOnAnimation();
+                        ViewCompat.postInvalidateOnAnimation(mStartParent);
                         mStartParent = null;
                         mStartView = null;
                     }

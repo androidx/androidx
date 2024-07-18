@@ -19,5 +19,4 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance 앱 위젯 오류"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"adb logcat"</tt></b>"을 사용하여 정확한 오류 확인, "<b><tt>"GlanceAppWidget"</tt></b>" 검색"</string>
-    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"콘텐츠를 표시할 수 없음"</string>
 </resources>

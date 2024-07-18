@@ -17,7 +17,6 @@
 package androidx.wear.compose.material
 
 import android.os.Build
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -103,19 +102,16 @@ class HorizontalPageIndicatorScreenshotTest {
 
     private fun between_pages(indicatorStyle: PageIndicatorStyle) {
         rule.setContentWithTheme {
-            Box(
+            HorizontalPageIndicator(
                 modifier = Modifier
                     .testTag(TEST_TAG)
-                    .size(150.dp)
-            ) {
-                HorizontalPageIndicator(
-                    indicatorStyle = indicatorStyle,
-                    pageIndicatorState = pageIndicatorState(0.5f),
-                    selectedColor = Color.Yellow,
-                    unselectedColor = Color.Red,
-                    indicatorSize = 15.dp
-                )
-            }
+                    .size(150.dp),
+                indicatorStyle = indicatorStyle,
+                pageIndicatorState = pageIndicatorState(0.5f),
+                selectedColor = Color.Yellow,
+                unselectedColor = Color.Red,
+                indicatorSize = 15.dp
+            )
         }
         rule.waitForIdle()
 
@@ -126,18 +122,15 @@ class HorizontalPageIndicatorScreenshotTest {
 
     @Composable
     private fun defaultHorizontalPageIndicator(indicatorStyle: PageIndicatorStyle) {
-        Box(
+        HorizontalPageIndicator(
             modifier = Modifier
                 .testTag(TEST_TAG)
-                .size(150.dp)
-        ) {
-            HorizontalPageIndicator(
-                indicatorStyle = indicatorStyle,
-                pageIndicatorState = pageIndicatorState(),
-                selectedColor = Color.Yellow,
-                unselectedColor = Color.Red,
-                indicatorSize = 15.dp
-            )
-        }
+                .size(150.dp),
+            indicatorStyle = indicatorStyle,
+            pageIndicatorState = pageIndicatorState(),
+            selectedColor = Color.Yellow,
+            unselectedColor = Color.Red,
+            indicatorSize = 15.dp
+        )
     }
 }

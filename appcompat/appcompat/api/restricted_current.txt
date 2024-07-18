@@ -282,7 +282,7 @@ package androidx.appcompat.app {
     method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.app.Activity, androidx.appcompat.app.AppCompatCallback?);
     method public static androidx.appcompat.app.AppCompatDelegate create(android.content.Context, android.view.Window, androidx.appcompat.app.AppCompatCallback?);
     method public abstract android.view.View! createView(android.view.View?, String!, android.content.Context, android.util.AttributeSet);
-    method public abstract <T extends android.view.View> T? findViewById(@IdRes int);
+    method public abstract <T extends android.view.View> T! findViewById(@IdRes int);
     method @AnyThread public static androidx.core.os.LocaleListCompat getApplicationLocales();
     method public android.content.Context? getContextForDelegate();
     method @androidx.appcompat.app.AppCompatDelegate.NightMode public static int getDefaultNightMode();
@@ -311,7 +311,7 @@ package androidx.appcompat.app {
     method public abstract void setContentView(@LayoutRes int);
     method public static void setDefaultNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
     method public abstract void setHandleNativeActionModesEnabled(boolean);
-    method public abstract void setLocalNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
+    method @RequiresApi(17) public abstract void setLocalNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
     method @CallSuper @RequiresApi(33) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher?);
     method public abstract void setSupportActionBar(androidx.appcompat.widget.Toolbar?);
     method public void setTheme(@StyleRes int);
@@ -831,7 +831,7 @@ package androidx.appcompat.view.menu {
     method public androidx.appcompat.view.menu.MenuView! getMenuView(android.view.ViewGroup!);
     method public void initForMenu(android.content.Context!, androidx.appcompat.view.menu.MenuBuilder!);
     method public void onCloseMenu(androidx.appcompat.view.menu.MenuBuilder!, boolean);
-    method public void onItemClick(android.widget.AdapterView<? extends java.lang.Object!>!, android.view.View!, int, long);
+    method public void onItemClick(android.widget.AdapterView<?>!, android.view.View!, int, long);
     method public void onRestoreInstanceState(android.os.Parcelable!);
     method public android.os.Parcelable! onSaveInstanceState();
     method public boolean onSubMenuSelected(androidx.appcompat.view.menu.SubMenuBuilder!);
@@ -1901,9 +1901,9 @@ package androidx.appcompat.widget {
     method public void animateToVisibility(int);
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method public void onItemSelected(android.widget.AdapterView<? extends java.lang.Object!>!, android.view.View!, int, long);
+    method public void onItemSelected(android.widget.AdapterView<?>!, android.view.View!, int, long);
     method public void onMeasure(int, int);
-    method public void onNothingSelected(android.widget.AdapterView<? extends java.lang.Object!>!);
+    method public void onNothingSelected(android.widget.AdapterView<?>!);
     method public void removeAllTabs();
     method public void removeTabAt(int);
     method public void setAllowCollapse(boolean);
@@ -2275,7 +2275,7 @@ package androidx.appcompat.widget {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ViewUtils {
-    method public static void computeFitSystemWindows(android.view.View, android.graphics.Rect, android.graphics.Rect);
+    method public static void computeFitSystemWindows(android.view.View!, android.graphics.Rect!, android.graphics.Rect!);
     method public static boolean isLayoutRtl(android.view.View!);
     method public static void makeOptionalFitsSystemWindows(android.view.View!);
   }

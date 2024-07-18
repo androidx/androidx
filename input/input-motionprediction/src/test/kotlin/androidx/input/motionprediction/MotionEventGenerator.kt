@@ -22,18 +22,16 @@ import androidx.test.core.view.MotionEventBuilder
 class MotionEventGenerator(
     val firstXGenerator: (Long) -> Float,
     val firstYGenerator: (Long) -> Float,
-    val firstPressureGenerator: ((Long) -> Float)?,
     val secondXGenerator: ((Long) -> Float)?,
-    val secondYGenerator: ((Long) -> Float)?,
-    val secondPressureGenerator: ((Long) -> Float)?,
+    val secondYGenerator: ((Long) -> Float)?
 ) {
-    constructor(
-            firstXGenerator: (Long) -> Float,
-            firstYGenerator: (Long) -> Float,
-            firstPressureGenerator: ((Long) -> Float)?
-    ) : this(firstXGenerator, firstYGenerator, firstPressureGenerator, null, null, null)
 
-    private val downEventTime: Long = System.currentTimeMillis()
+    constructor(
+        firstXGenerator: (Long) -> Float,
+        firstYGenerator: (Long) -> Float
+    ) : this(firstXGenerator, firstYGenerator, null, null)
+
+    private val downEventTime: Long = 0
     private var currentEventTime: Long = downEventTime
     private val firstStartX = 500f
     private val firstStartY = 500f
@@ -69,11 +67,7 @@ class MotionEventGenerator(
         val coords = MotionEvent.PointerCoords()
         coords.x = firstStartX + firstXGenerator(currentEventTime - downEventTime)
         coords.y = firstStartY + firstYGenerator(currentEventTime - downEventTime)
-        if (firstPressureGenerator == null) {
-            coords.pressure = 1f
-        } else {
-            coords.pressure = firstPressureGenerator.invoke(currentEventTime - downEventTime)
-        }
+        coords.pressure = 1f
 
         motionEventBuilder.setPointer(pointerProperties, coords)
 
@@ -83,16 +77,9 @@ class MotionEventGenerator(
             secondPointerProperties.toolType = MotionEvent.TOOL_TYPE_STYLUS
 
             val secondCoords = MotionEvent.PointerCoords()
-            secondCoords.x = secondStartX +
-                    secondXGenerator.invoke(currentEventTime - downEventTime)
-            secondCoords.y = secondStartY +
-                    secondYGenerator.invoke(currentEventTime - downEventTime)
-            if (secondPressureGenerator == null) {
-                secondCoords.pressure = 1f
-            } else {
-                secondCoords.pressure =
-                        secondPressureGenerator.invoke(currentEventTime - downEventTime)
-            }
+            secondCoords.x = firstStartX + secondXGenerator.invoke(currentEventTime - downEventTime)
+            secondCoords.y = firstStartY + secondYGenerator.invoke(currentEventTime - downEventTime)
+            secondCoords.pressure = 1f
 
             motionEventBuilder.setPointer(secondPointerProperties, secondCoords)
         }

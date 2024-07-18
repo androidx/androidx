@@ -3,7 +3,6 @@ set -e
 
 javaProcessesOutput="$(jps -lmv | grep -v jps)"
 echo
-echo "Outputting java stack information to stdout (see build.log)" >&2
 echo "Java processes: $javaProcessesOutput"
 echo
 javaPids="$(echo "$javaProcessesOutput" | sed 's/ .*//g')"

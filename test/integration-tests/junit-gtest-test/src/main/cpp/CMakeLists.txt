@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.10.2)
 
 project(junit-gtest-test LANGUAGES CXX)
 
@@ -22,11 +22,3 @@ target_link_libraries(apptest
         googletest::gtest
         junit-gtest::junit-gtest
         )
-target_link_options(adder
-        PRIVATE
-        "-Wl,-z,max-page-size=16384"
-)
-target_link_options(apptest
-        PRIVATE
-        "-Wl,-z,max-page-size=16384"
-)

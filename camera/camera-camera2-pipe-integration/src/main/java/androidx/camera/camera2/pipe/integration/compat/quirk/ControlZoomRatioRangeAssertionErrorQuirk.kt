@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import java.nio.BufferUnderflowException
 
@@ -36,6 +37,7 @@ import java.nio.BufferUnderflowException
  * @see androidx.camera.camera2.pipe.integration.compat.workaround.getControlZoomRatioRangeSafely
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ControlZoomRatioRangeAssertionErrorQuirk : Quirk {
     companion object {
         fun isEnabled() = isJioPhoneNext() || isSamsungA2s() || isVivo2039()

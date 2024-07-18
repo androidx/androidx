@@ -19,9 +19,9 @@ package androidx.work.impl.utils
 
 import androidx.work.WorkInfo
 import androidx.work.WorkQuery
-import androidx.work.executeAsync
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.model.WorkSpec.Companion.WORK_INFO_MAPPER
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
@@ -65,6 +65,12 @@ internal fun WorkDatabase.forWorkQuerySpec(
 private fun <T> WorkDatabase.loadStatusFuture(
     executor: TaskExecutor,
     block: (WorkDatabase) -> T
-): ListenableFuture<T> = executor.serialTaskExecutor.executeAsync("loadStatusFuture") {
-    block(this@loadStatusFuture)
+): ListenableFuture<T> = SettableFuture.create<T>().apply {
+    executor.serialTaskExecutor.execute {
+        try {
+            set(block(this@loadStatusFuture))
+        } catch (throwable: Throwable) {
+            setException(throwable)
+        }
+    }
 }

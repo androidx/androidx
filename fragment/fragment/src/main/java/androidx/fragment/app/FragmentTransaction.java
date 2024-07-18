@@ -289,23 +289,7 @@ public abstract class FragmentTransaction {
         return this;
     }
 
-    /**
-     * Add a fragment to the activity state.  This fragment may optionally
-     * also have its view (if {@link Fragment#onCreateView Fragment.onCreateView}
-     * returns non-null) into a container view of the activity.
-     *
-     * @param container The container this fragment is to be placed in. The id of the container
-     *                  should be non-zero and unique.
-     * @param fragment The fragment to be added.  This fragment must not already
-     * be added to the activity.
-     * @param tag Optional tag name for the fragment, to later retrieve the
-     * fragment with {@link FragmentManager#findFragmentByTag(String)
-     * FragmentManager.findFragmentByTag(String)}.
-     *
-     * @return Returns the same FragmentTransaction instance.
-     */
-    @NonNull
-    public final FragmentTransaction add(@NonNull ViewGroup container, @NonNull Fragment fragment,
+    FragmentTransaction add(@NonNull ViewGroup container, @NonNull Fragment fragment,
             @Nullable String tag) {
         fragment.mContainer = container;
         return add(container.getId(), fragment, tag);
@@ -904,17 +888,7 @@ public abstract class FragmentTransaction {
      */
     @NonNull
     public FragmentTransaction runOnCommit(@NonNull Runnable runnable) {
-        return runOnCommitInternal(false, runnable);
-    }
-
-    @NonNull
-    FragmentTransaction runOnCommitInternal(
-            boolean allowAddToBackStack,
-            @NonNull Runnable runnable
-    ) {
-        if (!allowAddToBackStack) {
-            disallowAddToBackStack();
-        }
+        disallowAddToBackStack();
         if (mCommitRunnables == null) {
             mCommitRunnables = new ArrayList<>();
         }

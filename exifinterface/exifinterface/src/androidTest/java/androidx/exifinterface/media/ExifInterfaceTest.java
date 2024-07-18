@@ -20,21 +20,27 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.Manifest;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Build;
+import android.os.Environment;
 import android.os.StrictMode;
-import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
+import android.util.Pair;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -42,20 +48,16 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.ByteStreams;
-import com.google.common.io.Files;
-import com.google.common.primitives.Ints;
-import com.google.common.truth.Expect;
-
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -63,13 +65,14 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Test {@link ExifInterface}.
@@ -80,30 +83,195 @@ import java.util.concurrent.atomic.AtomicReference;
 public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
     private static final boolean VERBOSE = false;  // lots of logging
+    private static final double DIFFERENCE_TOLERANCE = .001;
     private static final boolean ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO = true;
-
-    /** Test XMP value that is different to all the XMP values embedded in the test images. */
-    private static final String TEST_XMP =
-            "<?xpacket begin='' id='W5M0MpCehiHzreSzNTczkc9d'?>"
-                    + "<x:xmpmeta xmlns:x='adobe:ns:meta/' x:xmptk='Image::ExifTool 10.73'>"
-                    + "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'>"
-                    + "<rdf:Description rdf:about='' xmlns:photoshop='http://ns.adobe.com/photoshop/1.0/'>"
-                    + "<photoshop:DateCreated>2024-03-15T17:44:18</photoshop:DateCreated>"
-                    + "</rdf:Description>"
-                    + "</rdf:RDF>"
-                    + "</x:xmpmeta>"
-                    + "<?xpacket end='w'?>";
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule =
             GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
+    private static final String JPEG_WITH_EXIF_BYTE_ORDER_II = "jpeg_with_exif_byte_order_ii.jpg";
+    private static final String JPEG_WITH_EXIF_BYTE_ORDER_MM = "jpeg_with_exif_byte_order_mm.jpg";
+    private static final String JPEG_WITH_EXIF_INVALID_OFFSET = "jpeg_with_exif_invalid_offset.jpg";
+    private static final String JPEG_WITH_EXIF_FULL_APP1_SEGMENT =
+            "jpeg_with_exif_full_app1_segment.jpg";
+
+    private static final String DNG_WITH_EXIF_WITH_XMP = "dng_with_exif_with_xmp.dng";
+    private static final String JPEG_WITH_EXIF_WITH_XMP = "jpeg_with_exif_with_xmp.jpg";
+    private static final String PNG_WITH_EXIF_BYTE_ORDER_II = "png_with_exif_byte_order_ii.png";
+    private static final String PNG_WITHOUT_EXIF = "png_without_exif.png";
+    private static final String WEBP_WITH_EXIF = "webp_with_exif.webp";
     private static final String WEBP_WITHOUT_EXIF_WITH_ANIM_DATA =
             "webp_with_anim_without_exif.webp";
+    private static final String WEBP_WITHOUT_EXIF = "webp_without_exif.webp";
+    private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING =
+            "webp_lossless_without_exif.webp";
+    private static final String WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA =
+            "webp_lossless_alpha_without_exif.webp";
+    private static final String JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT =
+            "jpeg_with_datetime_tag_primary_format.jpg";
+    private static final String JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT =
+            "jpeg_with_datetime_tag_secondary_format.jpg";
+    private static final String HEIF_WITH_EXIF = "heif_with_exif.heic";
+    private static final int[] IMAGE_RESOURCES = new int[] {
+            R.raw.jpeg_with_exif_byte_order_ii,
+            R.raw.jpeg_with_exif_byte_order_mm,
+            R.raw.jpeg_with_exif_invalid_offset,
+            R.raw.jpeg_with_exif_full_app1_segment,
+            R.raw.dng_with_exif_with_xmp,
+            R.raw.jpeg_with_exif_with_xmp,
+            R.raw.png_with_exif_byte_order_ii,
+            R.raw.png_without_exif,
+            R.raw.webp_with_exif,
+            R.raw.webp_with_anim_without_exif,
+            R.raw.webp_without_exif,
+            R.raw.webp_lossless_without_exif,
+            R.raw.webp_lossless_alpha_without_exif,
+            R.raw.jpeg_with_datetime_tag_primary_format,
+            R.raw.jpeg_with_datetime_tag_secondary_format,
+            R.raw.heif_with_exif};
+    private static final String[] IMAGE_FILENAMES = new String[] {
+            JPEG_WITH_EXIF_BYTE_ORDER_II,
+            JPEG_WITH_EXIF_BYTE_ORDER_MM,
+            JPEG_WITH_EXIF_INVALID_OFFSET,
+            JPEG_WITH_EXIF_FULL_APP1_SEGMENT,
+            DNG_WITH_EXIF_WITH_XMP,
+            JPEG_WITH_EXIF_WITH_XMP,
+            PNG_WITH_EXIF_BYTE_ORDER_II,
+            PNG_WITHOUT_EXIF,
+            WEBP_WITH_EXIF,
+            WEBP_WITHOUT_EXIF_WITH_ANIM_DATA,
+            WEBP_WITHOUT_EXIF,
+            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING,
+            WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA,
+            JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT,
+            JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT,
+            HEIF_WITH_EXIF};
 
+    private static final int USER_READ_WRITE = 0600;
+    private static final String TEST_TEMP_FILE_NAME = "testImage";
     private static final double DELTA = 1e-8;
     // We translate double to rational in a 1/10000 precision.
     private static final double RATIONAL_DELTA = 0.0001;
+    private static final int TEST_LAT_LONG_VALUES_ARRAY_LENGTH = 8;
+    private static final int TEST_NUMBER_OF_CORRUPTED_IMAGE_STREAMS = 30;
+    private static final double[] TEST_LATITUDE_VALID_VALUES = new double[]
+            {0, 45, 90, -60, 0.00000001, -89.999999999, 14.2465923626, -68.3434534737};
+    private static final double[] TEST_LONGITUDE_VALID_VALUES = new double[]
+            {0, -45, 90, -120, 180, 0.00000001, -179.99999999999, -58.57834236352};
+    private static final double[] TEST_LATITUDE_INVALID_VALUES = new double[]
+            {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 90.0000000001,
+                    263.34763236326, -1e5, 347.32525, -176.346347754};
+    private static final double[] TEST_LONGITUDE_INVALID_VALUES = new double[]
+            {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, 180.0000000001,
+                    263.34763236326, -1e10, 347.325252623, -4000.346323236};
+    private static final double[] TEST_ALTITUDE_VALUES = new double[]
+            {0, -2000, 10000, -355.99999999999, 18.02038};
+    private static final int[][] TEST_ROTATION_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, -90, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 0, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 90, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 180, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 270, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_UNDEFINED, 540, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, -90, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 0, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_NORMAL, 90, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_NORMAL, 180, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_NORMAL, 270, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_NORMAL, 540, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_90, -90, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 0, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_90, 90, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_90, 180 , ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_90, 270, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, 540, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_180, -90, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 0, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_180, 90, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_180, 180, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_180, 270, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_180, 540, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, -90, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 0, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_ROTATE_270, 90, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, 180, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_ROTATE_270, 270, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_ROTATE_270, 540, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, -90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 0, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 180,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 270, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, 540,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, -90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 0,
+                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 180,
+                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 270, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, 540,
+                    ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, -90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 0, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 180, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 270, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, 540, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, -90, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 0, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 90, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 180, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 270, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_TRANSVERSE, 540, ExifInterface.ORIENTATION_TRANSPOSE},
+    };
+    private static final int[][] TEST_FLIP_VERTICALLY_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_270},
+            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_90}
+    };
+    private static final int[][] TEST_FLIP_HORIZONTALLY_STATE_MACHINE = {
+            {ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_UNDEFINED},
+            {ExifInterface.ORIENTATION_NORMAL, ExifInterface.ORIENTATION_FLIP_HORIZONTAL},
+            {ExifInterface.ORIENTATION_ROTATE_90, ExifInterface.ORIENTATION_TRANSPOSE},
+            {ExifInterface.ORIENTATION_ROTATE_180, ExifInterface.ORIENTATION_FLIP_VERTICAL},
+            {ExifInterface.ORIENTATION_ROTATE_270, ExifInterface.ORIENTATION_TRANSVERSE},
+            {ExifInterface.ORIENTATION_FLIP_VERTICAL, ExifInterface.ORIENTATION_ROTATE_180},
+            {ExifInterface.ORIENTATION_FLIP_HORIZONTAL, ExifInterface.ORIENTATION_NORMAL},
+            {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_90},
+            {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_270}
+    };
+    private static final HashMap<Integer, Pair<Boolean, Integer>> FLIP_STATE_AND_ROTATION_DEGREES =
+            new HashMap<>();
+    static {
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_UNDEFINED, new Pair<>(false, 0));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_NORMAL, new Pair<>(false, 0));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_ROTATE_90, new Pair<>(false, 90));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_ROTATE_180, new Pair<>(false, 180));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_ROTATE_270, new Pair<>(false, 270));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_FLIP_HORIZONTAL, new Pair<>(true, 0));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_TRANSVERSE, new Pair<>(true, 90));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_FLIP_VERTICAL, new Pair<>(true, 180));
+        FLIP_STATE_AND_ROTATION_DEGREES.put(
+                ExifInterface.ORIENTATION_TRANSPOSE, new Pair<>(true, 270));
+    }
 
     private static final String[] EXIF_TAGS = {
             ExifInterface.TAG_MAKE,
@@ -129,118 +297,189 @@ public class ExifInterfaceTest {
             ExifInterface.TAG_WHITE_BALANCE
     };
 
-    @Rule
-    public final TemporaryFolder tempFolder = new TemporaryFolder();
+    private static class ExpectedValue {
+        // Thumbnail information.
+        public final boolean hasThumbnail;
+        public final int thumbnailWidth;
+        public final int thumbnailHeight;
+        public final boolean isThumbnailCompressed;
+        public final int thumbnailOffset;
+        public final int thumbnailLength;
 
-    @Rule public final Expect expect = Expect.create();
+        // GPS information.
+        public final boolean hasLatLong;
+        public final float latitude;
+        public final int latitudeOffset;
+        public final int latitudeLength;
+        public final float longitude;
+        public final float altitude;
+
+        // Make information
+        public final boolean hasMake;
+        public final int makeOffset;
+        public final int makeLength;
+        public final String make;
+
+        // Values.
+        public final String model;
+        public final float aperture;
+        public final String dateTimeOriginal;
+        public final float exposureTime;
+        public final float flash;
+        public final String focalLength;
+        public final String gpsAltitude;
+        public final String gpsAltitudeRef;
+        public final String gpsDatestamp;
+        public final String gpsLatitude;
+        public final String gpsLatitudeRef;
+        public final String gpsLongitude;
+        public final String gpsLongitudeRef;
+        public final String gpsProcessingMethod;
+        public final String gpsTimestamp;
+        public final int imageLength;
+        public final int imageWidth;
+        public final String iso;
+        public final int orientation;
+        public final int whiteBalance;
+
+        // XMP information.
+        public final boolean hasXmp;
+        public final int xmpOffset;
+        public final int xmpLength;
+
+        private static String getString(TypedArray typedArray, int index) {
+            String stringValue = typedArray.getString(index);
+            if (stringValue == null || stringValue.equals("")) {
+                return null;
+            }
+            return stringValue.trim();
+        }
+
+        ExpectedValue(TypedArray typedArray) {
+            int index = 0;
+
+            // Reads thumbnail information.
+            hasThumbnail = typedArray.getBoolean(index++, false);
+            thumbnailOffset = typedArray.getInt(index++, -1);
+            thumbnailLength = typedArray.getInt(index++, -1);
+            thumbnailWidth = typedArray.getInt(index++, 0);
+            thumbnailHeight = typedArray.getInt(index++, 0);
+            isThumbnailCompressed = typedArray.getBoolean(index++, false);
+
+            // Reads GPS information.
+            hasLatLong = typedArray.getBoolean(index++, false);
+            latitudeOffset = typedArray.getInt(index++, -1);
+            latitudeLength = typedArray.getInt(index++, -1);
+            latitude = typedArray.getFloat(index++, 0f);
+            longitude = typedArray.getFloat(index++, 0f);
+            altitude = typedArray.getFloat(index++, 0f);
+
+            // Reads Make information.
+            hasMake = typedArray.getBoolean(index++, false);
+            makeOffset = typedArray.getInt(index++, -1);
+            makeLength = typedArray.getInt(index++, -1);
+            make = getString(typedArray, index++);
+
+            // Reads values.
+            model = getString(typedArray, index++);
+            aperture = typedArray.getFloat(index++, 0f);
+            dateTimeOriginal = getString(typedArray, index++);
+            exposureTime = typedArray.getFloat(index++, 0f);
+            flash = typedArray.getFloat(index++, 0f);
+            focalLength = getString(typedArray, index++);
+            gpsAltitude = getString(typedArray, index++);
+            gpsAltitudeRef = getString(typedArray, index++);
+            gpsDatestamp = getString(typedArray, index++);
+            gpsLatitude = getString(typedArray, index++);
+            gpsLatitudeRef = getString(typedArray, index++);
+            gpsLongitude = getString(typedArray, index++);
+            gpsLongitudeRef = getString(typedArray, index++);
+            gpsProcessingMethod = getString(typedArray, index++);
+            gpsTimestamp = getString(typedArray, index++);
+            imageLength = typedArray.getInt(index++, 0);
+            imageWidth = typedArray.getInt(index++, 0);
+            iso = getString(typedArray, index++);
+            orientation = typedArray.getInt(index++, 0);
+            whiteBalance = typedArray.getInt(index++, 0);
+
+            // Reads XMP information.
+            hasXmp = typedArray.getBoolean(index++, false);
+            xmpOffset = typedArray.getInt(index++, 0);
+            xmpLength = typedArray.getInt(index++, 0);
+
+            typedArray.recycle();
+        }
+    }
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         if (ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO && Build.VERSION.SDK_INT >= 26) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
                     .detectUnbufferedIo()
                     .penaltyDeath()
                     .build());
         }
+
+        for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
+            File file = getFileFromExternalDir(IMAGE_FILENAMES[i]);
+            InputStream inputStream = null;
+            FileOutputStream outputStream = null;
+            try {
+                inputStream = getApplicationContext()
+                        .getResources().openRawResource(IMAGE_RESOURCES[i]);
+                outputStream = new FileOutputStream(file);
+                copy(inputStream, outputStream);
+            } finally {
+                closeQuietly(inputStream);
+                closeQuietly(outputStream);
+            }
+        }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
+            File imageFile = getFileFromExternalDir(IMAGE_FILENAMES[i]);
+            if (imageFile.exists()) {
+                imageFile.delete();
+            }
+        }
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifIntelByteOrder() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II);
-        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II);
+        readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
+        writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II, R.array.jpeg_with_exif_byte_order_ii);
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifMotorolaByteOrder() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_mm, "jpeg_with_exif_byte_order_mm.jpg");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_MM);
-        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_MM);
+        readFromFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
+        writeToFilesWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM, R.array.jpeg_with_exif_byte_order_mm);
     }
 
     @Test
     @LargeTest
     public void testJpegWithExifAndXmp() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
-        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP);
-    }
-
-    // https://issuetracker.google.com/309843390
-    @Test
-    @LargeTest
-    public void testJpegWithExifAndXmp_doesntDuplicateXmp() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-
-        exifInterface.setAttribute(ExifInterface.TAG_XMP, TEST_XMP);
-
-        exifInterface.saveAttributes();
-
-        byte[] imageBytes = Files.toByteArray(imageFile);
-        assertThat(countOccurrences(imageBytes, "<?xpacket begin=".getBytes(Charsets.UTF_8)))
-                .isEqualTo(1);
-    }
-
-    /**
-     * Returns the number of times {@code pattern} appears in {@code source}.
-     *
-     * <p>Overlapping occurrences are counted multiple times, e.g. {@code countOccurrences([0, 1, 0,
-     * 1, 0], [0, 1, 0])} will return 2.
-     */
-    private static int countOccurrences(byte[] source, byte[] pattern) {
-        int count = 0;
-        for (int i = 0; i < source.length - pattern.length; i++) {
-            if (containsAtIndex(source, i, pattern)) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /**
-     * Returns {@code true} if {@code source} contains {@code pattern} starting at {@code index}.
-     *
-     * @throws IndexOutOfBoundsException if {@code source.length < index + pattern.length}.
-     */
-    private static boolean containsAtIndex(byte[] source, int index, byte[] pattern) {
-        for (int i = 0; i < pattern.length; i++) {
-            if (pattern[i] != source[index + i]) {
-                return false;
-            }
-        }
-        return true;
+        readFromFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
+        writeToFilesWithExif(JPEG_WITH_EXIF_WITH_XMP, R.array.jpeg_with_exif_with_xmp);
     }
 
     // https://issuetracker.google.com/264729367
     @Test
     @LargeTest
     public void testJpegWithInvalidOffset() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_invalid_offset, "jpeg_with_exif_invalid_offset.jpg");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_INVALID_OFFSET);
-        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_EXIF_INVALID_OFFSET);
+        readFromFilesWithExif(JPEG_WITH_EXIF_INVALID_OFFSET, R.array.jpeg_with_exif_invalid_offset);
+        writeToFilesWithExif(JPEG_WITH_EXIF_INVALID_OFFSET, R.array.jpeg_with_exif_invalid_offset);
     }
 
     // https://issuetracker.google.com/263747161
     @Test
     @LargeTest
     public void testJpegWithFullApp1Segment() throws Throwable {
-        File srcFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_full_app1_segment,
-                        "jpeg_with_exif_full_app1_segment.jpg");
+        File srcFile = getFileFromExternalDir(JPEG_WITH_EXIF_FULL_APP1_SEGMENT);
         File imageFile = clone(srcFile);
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         // Add a really long string that makes the Exif data too large for the JPEG APP1 segment.
@@ -255,107 +494,65 @@ public class ExifInterfaceTest {
                 .hasCauseThat()
                 .hasMessageThat()
                 .contains("exceeds the max size of a JPEG APP1 segment");
-        expectBitmapsEquivalent(srcFile, imageFile);
+        assertBitmapsEquivalent(srcFile, imageFile);
     }
 
     @Test
     @LargeTest
     public void testDngWithExifAndXmp() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(R.raw.dng_with_exif_with_xmp, "dng_with_exif_with_xmp.dng");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.DNG_WITH_EXIF_WITH_XMP);
+        readFromFilesWithExif(DNG_WITH_EXIF_WITH_XMP, R.array.dng_with_exif_with_xmp);
     }
 
     @Test
     @LargeTest
     public void testPngWithExif() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.png_with_exif_byte_order_ii, "png_with_exif_byte_order_ii.png");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.PNG_WITH_EXIF_BYTE_ORDER_II);
-        testWritingExif(imageFile, ExpectedAttributes.PNG_WITH_EXIF_BYTE_ORDER_II);
+        readFromFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
+        writeToFilesWithExif(PNG_WITH_EXIF_BYTE_ORDER_II, R.array.png_with_exif_byte_order_ii);
     }
 
     @Test
     @LargeTest
     public void testPngWithoutExif() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(R.raw.png_without_exif, "png_without_exif.png");
-        testWritingExif(imageFile, /* expectedAttributes= */ null);
+        writeToFilesWithoutExif(PNG_WITHOUT_EXIF);
     }
 
     @Test
     @LargeTest
-    public void testStandaloneData_jpegIntelByteOrder() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        readFromStandaloneDataWithExif(
-                imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_II_STANDALONE);
-    }
-
-    @Test
-    @LargeTest
-    public void testStandaloneData_jpegMotorolaByteOrder() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_mm, "jpeg_with_exif_byte_order_mm.jpg");
-        readFromStandaloneDataWithExif(
-                imageFile, ExpectedAttributes.JPEG_WITH_EXIF_BYTE_ORDER_MM_STANDALONE);
+    public void testStandaloneData() throws Throwable {
+        readFromStandaloneDataWithExif(JPEG_WITH_EXIF_BYTE_ORDER_II,
+                R.array.standalone_data_with_exif_byte_order_ii);
+        readFromStandaloneDataWithExif(JPEG_WITH_EXIF_BYTE_ORDER_MM,
+                R.array.standalone_data_with_exif_byte_order_mm);
     }
 
     @Test
     @LargeTest
     public void testWebpWithExif() throws Throwable {
-        File imageFile = copyFromResourceToFile(R.raw.webp_with_exif, "webp_with_exif.jpg");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.WEBP_WITH_EXIF);
-        testWritingExif(imageFile, ExpectedAttributes.WEBP_WITH_EXIF);
-    }
-
-    // https://issuetracker.google.com/281638358
-    @Test
-    @LargeTest
-    public void testWebpWithExifApp1() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.invalid_webp_with_jpeg_app1_marker,
-                        "invalid_webp_with_jpeg_app1_marker.webp");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
-        testWritingExif(imageFile, ExpectedAttributes.INVALID_WEBP_WITH_JPEG_APP1_MARKER);
+        readFromFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
+        writeToFilesWithExif(WEBP_WITH_EXIF, R.array.webp_with_exif);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExif() throws Throwable {
-        File imageFile = copyFromResourceToFile(R.raw.webp_without_exif, "webp_without_exif.webp");
-        testWritingExif(imageFile, /* expectedAttributes= */ null);
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExifWithAnimData() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.webp_with_anim_without_exif, WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
-        testWritingExif(imageFile, /* expectedAttributes= */ null);
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA);
     }
     @Test
     @LargeTest
     public void testWebpWithoutExifWithLosslessEncoding() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.webp_lossless_without_exif, "webp_lossless_without_exif.webp");
-        testWritingExif(imageFile, /* expectedAttributes= */ null);
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_ENCODING);
     }
 
     @Test
     @LargeTest
     public void testWebpWithoutExifWithLosslessEncodingAndAlpha() throws Throwable {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.webp_lossless_alpha_without_exif,
-                        "webp_lossless_alpha_without_exif.webp");
-        testWritingExif(imageFile, /* expectedAttributes= */ null);
+        writeToFilesWithoutExif(WEBP_WITHOUT_EXIF_WITH_LOSSLESS_AND_ALPHA);
     }
 
     /**
@@ -364,22 +561,20 @@ public class ExifInterfaceTest {
     @Test
     @LargeTest
     public void testHeifFile() throws Throwable {
-        File imageFile = copyFromResourceToFile(R.raw.heif_with_exif, "heif_with_exif.heic");
         if (Build.VERSION.SDK_INT >= 28) {
             // Reading XMP data from HEIF was added in SDK 31.
-            readFromFilesWithExif(
-                    imageFile,
+            readFromFilesWithExif(HEIF_WITH_EXIF,
                     Build.VERSION.SDK_INT >= 31
-                            ? ExpectedAttributes.HEIF_WITH_EXIF_API_31_AND_ABOVE
-                            : ExpectedAttributes.HEIF_WITH_EXIF_BELOW_API_31);
+                            ? R.array.heif_with_exif_31_and_above
+                            : R.array.heif_with_exif);
         } else {
             // Make sure that an exception is not thrown and that image length/width tag values
             // return default values, not the actual values.
+            File imageFile = getFileFromExternalDir(HEIF_WITH_EXIF);
             ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
             String defaultTagValue = "0";
-            assertThat(exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH))
-                    .isEqualTo(defaultTagValue);
-            assertThat(exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH)).isEqualTo(defaultTagValue);
+            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH));
+            assertEquals(defaultTagValue, exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH));
         }
     }
 
@@ -415,119 +610,86 @@ public class ExifInterfaceTest {
         final String provider = "ExifInterfaceTest";
         final long timestamp = 1689328448000L; // 2023-07-14T09:54:32.000Z
         final float speedInMeterPerSec = 36.627533f;
-        double latitudeDegrees = -68.3434534737;
-        double longitudeDegrees = -58.57834236352;
-        double altitudeMeters = 18.02038;
         Location location = new Location(provider);
-        location.setLatitude(latitudeDegrees);
-        location.setLongitude(longitudeDegrees);
-        location.setAltitude(altitudeMeters);
+        location.setLatitude(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1]);
+        location.setLongitude(TEST_LONGITUDE_VALID_VALUES[TEST_LONGITUDE_VALID_VALUES.length - 1]);
+        location.setAltitude(TEST_ALTITUDE_VALUES[TEST_ALTITUDE_VALUES.length - 1]);
         location.setSpeed(speedInMeterPerSec);
         location.setTime(timestamp);
         ExifInterface exif = createTestExifInterface();
         exif.setGpsInfo(location);
 
         double[] latLong = exif.getLatLong();
-        assertThat(latLong)
-                .usingTolerance(DELTA)
-                .containsExactly(latitudeDegrees, longitudeDegrees)
-                .inOrder();
-        assertThat(exif.getAltitude(0)).isWithin(RATIONAL_DELTA).of(altitudeMeters);
-        assertThat(exif.getAttribute(ExifInterface.TAG_GPS_SPEED_REF)).isEqualTo("K");
-        float speedInKmph = speedInMeterPerSec * TimeUnit.HOURS.toSeconds(1) / 1000;
-        assertThat(exif.getAttributeDouble(ExifInterface.TAG_GPS_SPEED, 0.0))
-                .isWithin(RATIONAL_DELTA)
-                .of(speedInKmph);
-        assertThat(exif.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD)).isEqualTo(provider);
+        assertNotNull(latLong);
+        assertEquals(TEST_LATITUDE_VALID_VALUES[TEST_LATITUDE_VALID_VALUES.length - 1],
+                latLong[0], DELTA);
+        assertEquals(TEST_LONGITUDE_VALID_VALUES[TEST_LONGITUDE_VALID_VALUES.length - 1],
+                latLong[1], DELTA);
+        assertEquals(TEST_ALTITUDE_VALUES[TEST_ALTITUDE_VALUES.length - 1], exif.getAltitude(0),
+                RATIONAL_DELTA);
+        assertEquals("K", exif.getAttribute(ExifInterface.TAG_GPS_SPEED_REF));
+        assertEquals(speedInMeterPerSec, exif.getAttributeDouble(ExifInterface.TAG_GPS_SPEED, 0.0)
+                * 1000 / TimeUnit.HOURS.toSeconds(1), RATIONAL_DELTA);
+        assertEquals(provider, exif.getAttribute(ExifInterface.TAG_GPS_PROCESSING_METHOD));
         // GPS time's precision is secs.
-        assertThat(TimeUnit.MILLISECONDS.toSeconds(exif.getGpsDateTime()))
-                .isEqualTo(TimeUnit.MILLISECONDS.toSeconds(timestamp));
+        assertEquals(TimeUnit.MILLISECONDS.toSeconds(timestamp),
+                TimeUnit.MILLISECONDS.toSeconds(exif.getGpsDateTime()));
     }
 
     @Test
     @SmallTest
     public void testSetLatLong_withValidValues() throws IOException {
-        testSetLatLong(0d, 0d);
-        testSetLatLong(45d, -45d);
-        testSetLatLong(90d, 90d);
-        testSetLatLong(-60d, -120d);
-        testSetLatLong(0.00000001, 180d);
-        testSetLatLong(89.999999999, 0.00000001);
-        testSetLatLong(14.2465923626, -179.99999999999);
-        testSetLatLong(-68.3434534737, -58.57834236352);
-    }
+        for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
+            ExifInterface exif = createTestExifInterface();
+            exif.setLatLong(TEST_LATITUDE_VALID_VALUES[i], TEST_LONGITUDE_VALID_VALUES[i]);
 
-    private void testSetLatLong(double latitude, double longitude) throws IOException {
-        ExifInterface exif = createTestExifInterface();
-
-        exif.setLatLong(latitude, longitude);
-
-        assertThat(exif.getLatLong())
-                .usingTolerance(DELTA)
-                .containsExactly(latitude, longitude)
-                .inOrder();
+            double[] latLong = exif.getLatLong();
+            assertNotNull(latLong);
+            assertEquals(TEST_LATITUDE_VALID_VALUES[i], latLong[0], DELTA);
+            assertEquals(TEST_LONGITUDE_VALID_VALUES[i], latLong[1], DELTA);
+        }
     }
 
     @Test
     @SmallTest
     public void testSetLatLong_withInvalidLatitude() throws IOException {
-        double longitude = -5.003427;
-        assertLatLongInvalidAndNotPersisted(Double.NaN, longitude);
-        assertLatLongInvalidAndNotPersisted(Double.POSITIVE_INFINITY, longitude);
-        assertLatLongInvalidAndNotPersisted(Double.NEGATIVE_INFINITY, longitude);
-        assertLatLongInvalidAndNotPersisted(90.0000000001, longitude);
-        assertLatLongInvalidAndNotPersisted(263.34763236326, longitude);
-        assertLatLongInvalidAndNotPersisted(-1e5, longitude);
-        assertLatLongInvalidAndNotPersisted(347.32525, longitude);
-        assertLatLongInvalidAndNotPersisted(-176.346347754, longitude);
+        for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
+            ExifInterface exif = createTestExifInterface();
+            try {
+                exif.setLatLong(TEST_LATITUDE_INVALID_VALUES[i], TEST_LONGITUDE_VALID_VALUES[i]);
+                fail();
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+            assertNull(exif.getLatLong());
+            assertLatLongValuesAreNotSet(exif);
+        }
     }
 
     @Test
     @SmallTest
     public void testSetLatLong_withInvalidLongitude() throws IOException {
-        double latitude = 56.796626;
-        assertLatLongInvalidAndNotPersisted(latitude, Double.NaN);
-        assertLatLongInvalidAndNotPersisted(latitude, Double.POSITIVE_INFINITY);
-        assertLatLongInvalidAndNotPersisted(latitude, Double.NEGATIVE_INFINITY);
-        assertLatLongInvalidAndNotPersisted(latitude, 180.0000000001);
-        assertLatLongInvalidAndNotPersisted(latitude, 263.34763236326);
-        assertLatLongInvalidAndNotPersisted(latitude, -1e10);
-        assertLatLongInvalidAndNotPersisted(latitude, 347.325252623);
-        assertLatLongInvalidAndNotPersisted(latitude, -4000.346323236);
-    }
-
-    /**
-     * Passes the parameters to {@link ExifInterface#setLatLong} and asserts it throws an exception
-     * because one or both are invalid, and then all the corresponding getters still return 'unset'
-     * values.
-     */
-    private void assertLatLongInvalidAndNotPersisted(double latitude, double longitude)
-            throws IOException {
-        ExifInterface exif = createTestExifInterface();
-
-        assertThrows(IllegalArgumentException.class, () -> exif.setLatLong(latitude, longitude));
-
-        assertThat(exif.getLatLong()).isNull();
-        assertThat(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE)).isNull();
-        assertThat(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF)).isNull();
-        assertThat(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)).isNull();
-        assertThat(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)).isNull();
+        for (int i = 0; i < TEST_LAT_LONG_VALUES_ARRAY_LENGTH; i++) {
+            ExifInterface exif = createTestExifInterface();
+            try {
+                exif.setLatLong(TEST_LATITUDE_VALID_VALUES[i], TEST_LONGITUDE_INVALID_VALUES[i]);
+                fail();
+            } catch (IllegalArgumentException e) {
+                // expected
+            }
+            assertNull(exif.getLatLong());
+            assertLatLongValuesAreNotSet(exif);
+        }
     }
 
     @Test
     @SmallTest
     public void testSetAltitude() throws IOException {
-        testSetAltitudeInternal(0);
-        testSetAltitudeInternal(-2000);
-        testSetAltitudeInternal(10000);
-        testSetAltitudeInternal(-355.99999999999);
-        testSetAltitudeInternal(18.02038);
-    }
-
-    private void testSetAltitudeInternal(double altitude) throws IOException {
-        ExifInterface exif = createTestExifInterface();
-        exif.setAltitude(altitude);
-        assertThat(exif.getAltitude(Double.NaN)).isWithin(RATIONAL_DELTA).of(altitude);
+        for (int i = 0; i < TEST_ALTITUDE_VALUES.length; i++) {
+            ExifInterface exif = createTestExifInterface();
+            exif.setAltitude(TEST_ALTITUDE_VALUES[i]);
+            assertEquals(TEST_ALTITUDE_VALUES[i], exif.getAltitude(Double.NaN), RATIONAL_DELTA);
+        }
     }
 
     /**
@@ -549,22 +711,19 @@ public class ExifInterfaceTest {
                 + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDatetimeOffsetStringValue = "+09:00";
 
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_datetime_tag_primary_format,
-                        "jpeg_with_datetime_tag_primary_format.jpg");
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
         // Test getting datetime values
-        assertThat(exif.getDateTime()).isEqualTo(expectedGetDatetimeValue);
-        assertThat(exif.getDateTimeOriginal()).isEqualTo(expectedGetDatetimeValue);
-        assertThat(exif.getDateTimeDigitized()).isEqualTo(expectedGetDatetimeValue);
-        assertThat(exif.getGpsDateTime()).isEqualTo(expectedGetGpsDatetimeValue);
-        assertThat(exif.getAttribute(ExifInterface.TAG_OFFSET_TIME))
-                .isEqualTo(expectedDatetimeOffsetStringValue);
-        assertThat(exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL))
-                .isEqualTo(expectedDatetimeOffsetStringValue);
-        assertThat(exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED))
-                .isEqualTo(expectedDatetimeOffsetStringValue);
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTimeOriginal());
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTimeDigitized());
+        assertEquals(expectedGetGpsDatetimeValue, (long) exif.getGpsDateTime());
+        assertEquals(expectedDatetimeOffsetStringValue,
+                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME));
+        assertEquals(expectedDatetimeOffsetStringValue,
+                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_ORIGINAL));
+        assertEquals(expectedDatetimeOffsetStringValue,
+                exif.getAttribute(ExifInterface.TAG_OFFSET_TIME_DIGITIZED));
 
         // Test setting datetime values
         final long newTimestamp = 1689328448000L; // 2023-07-14T09:54:32.000Z
@@ -572,7 +731,7 @@ public class ExifInterfaceTest {
         exif.setDateTime(newTimestamp);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.getDateTime()).isEqualTo(newTimestamp - expectedDatetimeOffsetLongValue);
+        assertEquals(newTimestamp - expectedDatetimeOffsetLongValue, (long) exif.getDateTime());
 
         // Test that setting null throws NPE
         try {
@@ -617,14 +776,11 @@ public class ExifInterfaceTest {
                 + 32400000L /* TAG_OFFSET_TIME value ("+09:00") converted to msec */;
         final String expectedDateTimeStringValue = "2016-01-29 18:32:27";
 
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_datetime_tag_secondary_format,
-                        "jpeg_with_datetime_tag_secondary_format.jpg");
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_SECONDARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME))
-                .isEqualTo(expectedDateTimeStringValue);
-        assertThat(exif.getDateTime()).isEqualTo(expectedGetDatetimeValue);
+        assertEquals(expectedDateTimeStringValue,
+                exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(expectedGetDatetimeValue, (long) exif.getDateTime());
 
         // Test setting datetime value: check that secondary format value is modified correctly
         // when it is saved.
@@ -637,302 +793,14 @@ public class ExifInterfaceTest {
 
         exif.setAttribute(ExifInterface.TAG_DATETIME, newDateTimeStringValue);
         exif.saveAttributes();
-        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME))
-                .isEqualTo(modifiedNewDateTimeStringValue);
-        assertThat(exif.getDateTime()).isEqualTo(newDateTimeLongValue);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetFNumber_decimalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        String value = "1.4";
-        exifInterface.setAttribute(ExifInterface.TAG_F_NUMBER, value);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo(value);
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(1.4);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo(value);
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(1.4);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetFNumber_rationalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_F_NUMBER, "7/5");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo("1.4");
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(1.4);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_F_NUMBER)).isEqualTo("1.4");
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_F_NUMBER, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(1.4);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetDigitalZoomRatio_decimalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        String value = "0.8";
-        exifInterface.setAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, value);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO))
-                .isEqualTo("0.8");
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(0.8);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO))
-                .isEqualTo("0.8");
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(0.8);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetDigitalZoomRatio_rationalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO, "12/5");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO))
-                .isEqualTo("2.4");
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(2.4);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_DIGITAL_ZOOM_RATIO))
-                .isEqualTo("2.4");
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_DIGITAL_ZOOM_RATIO, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(2.4);
-    }
-
-    // https://issuetracker.google.com/312680558
-    @Test
-    @SmallTest
-    public void testSetExposureTime_decimalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_EXPOSURE_TIME, "0.000625");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME))
-                .isEqualTo("6.25E-4");
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(0.000625);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME))
-                .isEqualTo("6.25E-4");
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(0.000625);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetExposureTime_rationalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_EXPOSURE_TIME, "1/1600");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME))
-                .isEqualTo("6.25E-4");
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(0.000625);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_EXPOSURE_TIME))
-                .isEqualTo("6.25E-4");
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_EXPOSURE_TIME, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(0.000625);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetSubjectDistance_decimalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        String value = "3.5";
-        exifInterface.setAttribute(ExifInterface.TAG_SUBJECT_DISTANCE, value);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isEqualTo(value);
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_SUBJECT_DISTANCE, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(3.5);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isEqualTo(value);
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_SUBJECT_DISTANCE, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(3.5);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetSubjectDistance_rationalString() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_SUBJECT_DISTANCE, "7/2");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isEqualTo("3.5");
-        double result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_SUBJECT_DISTANCE, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(3.5);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_SUBJECT_DISTANCE)).isEqualTo("3.5");
-        result =
-                exifInterface.getAttributeDouble(
-                        ExifInterface.TAG_SUBJECT_DISTANCE, /* defaultValue= */ -1);
-        assertThat(result).isEqualTo(3.5);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetGpsTimestamp_integers() throws Exception {
-        // Deliberately use an image with an existing GPS timestamp value to overwrite.
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        String timestamp = "11:06:52";
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, timestamp);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
-                .isEqualTo(timestamp);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
-                .isEqualTo(timestamp);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetGpsTimestamp_rationals_failsSilently() throws Exception {
-        // Deliberately use an image with an existing GPS timestamp value to overwrite.
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, "11/2:06/5:52/8");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
-                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
-                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
-    }
-
-    @Test
-    @SmallTest
-    public void testSetGpsTimestamp_decimals_failsSilently() throws Exception {
-        // Deliberately use an image with an existing GPS timestamp value to overwrite.
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_with_xmp, "jpeg_with_exif_with_xmp.jpg");
-        ExifInterface exifInterface = new ExifInterface(imageFile);
-
-        exifInterface.setAttribute(ExifInterface.TAG_GPS_TIMESTAMP, "11.5:06.3:52.8");
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
-                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
-
-        exifInterface.saveAttributes();
-        exifInterface = new ExifInterface(imageFile);
-
-        assertThat(exifInterface.getAttribute(ExifInterface.TAG_GPS_TIMESTAMP))
-                .isEqualTo(ExpectedAttributes.JPEG_WITH_EXIF_WITH_XMP.gpsTimestamp);
+        assertEquals(modifiedNewDateTimeStringValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(newDateTimeLongValue, (long) exif.getDateTime());
     }
 
     @Test
     @LargeTest
     public void testAddDefaultValuesForCompatibility() throws Exception {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_datetime_tag_primary_format,
-                        "jpeg_with_datetime_tag_primary_format.jpg");
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         // 1. Check that the TAG_DATETIME value is not overwritten by TAG_DATETIME_ORIGINAL's value
@@ -943,30 +811,26 @@ public class ExifInterfaceTest {
         exif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTimeOriginalValue);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME)).isEqualTo(dateTimeValue);
-        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL))
-                .isEqualTo(dateTimeOriginalValue);
+        assertEquals(dateTimeValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
+        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL));
 
         // 2. Check that when TAG_DATETIME has no value, it is set to TAG_DATETIME_ORIGINAL's value.
         exif.setAttribute(ExifInterface.TAG_DATETIME, null);
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.getAttribute(ExifInterface.TAG_DATETIME)).isEqualTo(dateTimeOriginalValue);
+        assertEquals(dateTimeOriginalValue, exif.getAttribute(ExifInterface.TAG_DATETIME));
     }
 
     @Test
     @LargeTest
     public void testSubsec() throws IOException {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_datetime_tag_primary_format,
-                        "jpeg_with_datetime_tag_primary_format.jpg");
+        File imageFile = getFileFromExternalDir(JPEG_WITH_DATETIME_TAG_PRIMARY_FORMAT);
         ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
 
         // Set initial value to 0
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, /* 0ms */ "000");
         exif.saveAttributes();
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo("000");
+        assertEquals("000", exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
         long currentDateTimeValue = exif.getDateTime();
 
         // Test that single and double-digit values are set properly.
@@ -976,42 +840,40 @@ public class ExifInterfaceTest {
         String oneDigitSubSec = "1";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneDigitSubSec);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 100);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(oneDigitSubSec);
+        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
+        assertEquals(oneDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         String twoDigitSubSec1 = "01";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec1);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 10);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(twoDigitSubSec1);
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+        assertEquals(twoDigitSubSec1, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         String twoDigitSubSec2 = "11";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, twoDigitSubSec2);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 110);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(twoDigitSubSec2);
+        assertEquals(currentDateTimeValue + 110, (long) exif.getDateTime());
+        assertEquals(twoDigitSubSec2, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         // Test that 3-digit values are set properly.
         String hundredMs = "100";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, hundredMs);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 100);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(hundredMs);
+        assertEquals(currentDateTimeValue + 100, (long) exif.getDateTime());
+        assertEquals(hundredMs, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         // Test that values starting with zero are also supported.
         String oneMsStartingWithZeroes = "001";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, oneMsStartingWithZeroes);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 1);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME))
-                .isEqualTo(oneMsStartingWithZeroes);
+        assertEquals(currentDateTimeValue + 1, (long) exif.getDateTime());
+        assertEquals(oneMsStartingWithZeroes, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         String tenMsStartingWithZero = "010";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, tenMsStartingWithZero);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 10);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME))
-                .isEqualTo(tenMsStartingWithZero);
+        assertEquals(currentDateTimeValue + 10, (long) exif.getDateTime());
+        assertEquals(tenMsStartingWithZero, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         // Test that values with more than three digits are set properly. getAttribute() should
         // return the whole string, but getDateTime() should only add the first three digits
@@ -1019,391 +881,90 @@ public class ExifInterfaceTest {
         String fourDigitSubSec = "1234";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fourDigitSubSec);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 123);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(fourDigitSubSec);
+        assertEquals(currentDateTimeValue + 123, (long) exif.getDateTime());
+        assertEquals(fourDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         String fiveDigitSubSec = "23456";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, fiveDigitSubSec);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 234);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(fiveDigitSubSec);
+        assertEquals(currentDateTimeValue + 234, (long) exif.getDateTime());
+        assertEquals(fiveDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
 
         String sixDigitSubSec = "345678";
         exif.setAttribute(ExifInterface.TAG_SUBSEC_TIME, sixDigitSubSec);
         exif.saveAttributes();
-        assertThat(exif.getDateTime()).isEqualTo(currentDateTimeValue + 345);
-        assertThat(exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME)).isEqualTo(sixDigitSubSec);
+        assertEquals(currentDateTimeValue + 345, (long) exif.getDateTime());
+        assertEquals(sixDigitSubSec, exif.getAttribute(ExifInterface.TAG_SUBSEC_TIME));
     }
 
     @Test
     @LargeTest
     public void testRotation() throws IOException {
+        File imageFile = getFileFromExternalDir(JPEG_WITH_EXIF_BYTE_ORDER_II);
+        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+
+        int num;
         // Test flip vertically.
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                ExifInterface::flipVertically,
-                ExifInterface.ORIENTATION_ROTATE_90);
+        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_FLIP_VERTICALLY_STATE_MACHINE[num][0]));
+            exif.flipVertically();
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
+                    TEST_FLIP_VERTICALLY_STATE_MACHINE[num][1]);
+
+        }
 
         // Test flip horizontally.
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                ExifInterface::flipHorizontally,
-                ExifInterface.ORIENTATION_ROTATE_270);
+        for (num = 0; num < TEST_FLIP_VERTICALLY_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][0]));
+            exif.flipHorizontally();
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION,
+                    TEST_FLIP_HORIZONTALLY_STATE_MACHINE[num][1]);
+
+        }
 
         // Test rotate by degrees
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_UNDEFINED,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_UNDEFINED);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_NORMAL,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_90,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_180,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_ROTATE_270);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_NORMAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_ROTATE_180);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_ROTATE_270,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_ROTATE_90);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_VERTICAL,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSPOSE,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                exifInterface -> exifInterface.rotate(-90),
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                exifInterface -> exifInterface.rotate(0),
-                ExifInterface.ORIENTATION_TRANSVERSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                exifInterface -> exifInterface.rotate(90),
-                ExifInterface.ORIENTATION_FLIP_VERTICAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                exifInterface -> exifInterface.rotate(180),
-                ExifInterface.ORIENTATION_TRANSPOSE);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                exifInterface -> exifInterface.rotate(270),
-                ExifInterface.ORIENTATION_FLIP_HORIZONTAL);
-        testModifyOrientation(
-                ExifInterface.ORIENTATION_TRANSVERSE,
-                exifInterface -> exifInterface.rotate(540),
-                ExifInterface.ORIENTATION_TRANSPOSE);
-    }
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                Integer.toString(ExifInterface.ORIENTATION_NORMAL));
+        try {
+            exif.rotate(108);
+            fail("Rotate with 108 degree should throw IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // Success
+        }
 
-    private void testModifyOrientation(
-            int originalOrientation,
-            ExifInterfaceOperation rotationOperation,
-            int expectedOrientation)
-            throws IOException {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        exif.setAttribute(ExifInterface.TAG_ORIENTATION, Integer.toString(originalOrientation));
-        rotationOperation.applyTo(exif);
-        exif.saveAttributes();
-        exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0))
-                .isEqualTo(expectedOrientation);
-        imageFile.delete();
-    }
+        for (num = 0; num < TEST_ROTATION_STATE_MACHINE.length; num++) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION,
+                    Integer.toString(TEST_ROTATION_STATE_MACHINE[num][0]));
+            exif.rotate(TEST_ROTATION_STATE_MACHINE[num][1]);
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertIntTag(exif, ExifInterface.TAG_ORIENTATION, TEST_ROTATION_STATE_MACHINE[num][2]);
+        }
 
-    @Test
-    @LargeTest
-    public void testRotation_byDegrees_invalid() throws IOException {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThrows(IllegalArgumentException.class, () -> exif.rotate(108));
-    }
+        // Test get flip state and rotation degrees.
+        for (Integer key : FLIP_STATE_AND_ROTATION_DEGREES.keySet()) {
+            exif.setAttribute(ExifInterface.TAG_ORIENTATION, key.toString());
+            exif.saveAttributes();
+            exif = new ExifInterface(imageFile.getAbsolutePath());
+            assertEquals(FLIP_STATE_AND_ROTATION_DEGREES.get(key).first, exif.isFlipped());
+            assertEquals((int) FLIP_STATE_AND_ROTATION_DEGREES.get(key).second,
+                    exif.getRotationDegrees());
+        }
 
-    @Test
-    @LargeTest
-    public void testRotation_flipState() throws IOException {
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_UNDEFINED, false, 0);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_NORMAL, false, 0);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_ROTATE_90, false, 90);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_ROTATE_180, false, 180);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_ROTATE_270, false, 270);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_FLIP_HORIZONTAL, true, 0);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_TRANSVERSE, true, 90);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_FLIP_VERTICAL, true, 180);
-        testFlipStateAndRotation(ExifInterface.ORIENTATION_TRANSPOSE, true, 270);
-    }
-
-    private void testFlipStateAndRotation(
-            int orientation, boolean expectedFlipState, int expectedDegrees) throws IOException {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        exif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
-        exif.saveAttributes();
-        exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.isFlipped()).isEqualTo(expectedFlipState);
-        assertThat(exif.getRotationDegrees()).isEqualTo(expectedDegrees);
-        imageFile.delete();
-    }
-
-    @Test
-    @LargeTest
-    public void testResetOrientation() throws IOException {
-        File imageFile =
-                copyFromResourceToFile(
-                        R.raw.jpeg_with_exif_byte_order_ii, "jpeg_with_exif_byte_order_ii.jpg");
-        ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
-        exif.setAttribute(
-                ExifInterface.TAG_ORIENTATION,
+        // Test reset the rotation.
+        exif.setAttribute(ExifInterface.TAG_ORIENTATION,
                 Integer.toString(ExifInterface.ORIENTATION_FLIP_HORIZONTAL));
         exif.resetOrientation();
         exif.saveAttributes();
         exif = new ExifInterface(imageFile.getAbsolutePath());
-        assertThat(exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0))
-                .isEqualTo(ExifInterface.ORIENTATION_NORMAL);
+        assertIntTag(exif, ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
     }
 
     @SuppressWarnings("deprecation")
@@ -1418,143 +979,13 @@ public class ExifInterfaceTest {
 
         ExifInterface exif = createTestExifInterface();
         exif.setAttribute(oldTag, isoValue);
-        assertThat(exif.getAttribute(oldTag)).isEqualTo(isoValue);
-        assertThat(exif.getAttribute(newTag)).isEqualTo(isoValue);
+        assertEquals(isoValue, exif.getAttribute(oldTag));
+        assertEquals(isoValue, exif.getAttribute(newTag));
 
         exif = createTestExifInterface();
         exif.setAttribute(newTag, isoValue);
-        assertThat(exif.getAttribute(oldTag)).isEqualTo(isoValue);
-        assertThat(exif.getAttribute(newTag)).isEqualTo(isoValue);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble() {
-        double value = 0.12345678;
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(150549);
-        expect.that(result.denominator).isEqualTo(1219447);
-        expect.that((double) result.numerator / result.denominator)
-                .isWithin(0.00000000001)
-                .of(value);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_niceFraction() {
-        double value = 1.0 / 1600;
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(1);
-        expect.that(result.denominator).isEqualTo(1600);
-        expect.that((double) result.numerator / result.denominator).isEqualTo(value);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_recurringDecimal() {
-        double value = 1.0 / 3;
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(1);
-        expect.that(result.denominator).isEqualTo(3);
-        expect.that((double) result.numerator / result.denominator).isEqualTo(value);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_negative() {
-        double value = -0.12345678;
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(-150549);
-        expect.that(result.denominator).isEqualTo(1219447);
-        expect.that((double) result.numerator / result.denominator)
-                .isWithin(0.00000000001)
-                .of(value);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_maxLong() {
-        double value = Long.MAX_VALUE;
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(Long.MAX_VALUE);
-        expect.that(result.denominator).isEqualTo(1);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_justLargerThanMaxLong() {
-        double value = Math.nextUp(Long.MAX_VALUE);
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(Long.MAX_VALUE);
-        expect.that(result.denominator).isEqualTo(1);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_muchLargerThanMaxLong() {
-        double value = Long.MAX_VALUE + 10000.0;
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(Long.MAX_VALUE);
-        expect.that(result.denominator).isEqualTo(1);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_minLong() {
-        double value = Math.nextDown(Long.MIN_VALUE);
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(Long.MIN_VALUE);
-        expect.that(result.denominator).isEqualTo(1);
-    }
-
-    // Ensure that a very large negative number, which is just higher (closer to positive infinity)
-    // than Long.MIN_VALUE doesn't cause overflow.
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_justHigherThanMinLong() {
-        double value = Math.nextUp(Long.MIN_VALUE);
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        long expectedNumerator = Math.round(value);
-        expect.that(result.numerator).isEqualTo(expectedNumerator);
-        expect.that(result.denominator).isEqualTo(1);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_justLowerThanMinLong() {
-        double value = Math.nextDown(Long.MIN_VALUE);
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(Long.MIN_VALUE);
-        expect.that(result.denominator).isEqualTo(1);
-    }
-
-    @Test
-    @SmallTest
-    public void testRationalFromDouble_muchLowerThanMinLong() {
-        double value = Long.MIN_VALUE - 1000.0;
-
-        ExifInterface.Rational result = ExifInterface.Rational.createFromDouble(value);
-
-        expect.that(result.numerator).isEqualTo(Long.MIN_VALUE);
-        expect.that(result.denominator).isEqualTo(1);
+        assertEquals(isoValue, exif.getAttribute(oldTag));
+        assertEquals(isoValue, exif.getAttribute(newTag));
     }
 
     private void printExifTagsAndValues(String fileName, ExifInterface exifInterface) {
@@ -1601,155 +1032,180 @@ public class ExifInterfaceTest {
         }
     }
 
-    private void expectStringTag(ExifInterface exifInterface, String tag, String expectedValue) {
+    private void assertIntTag(ExifInterface exifInterface, String tag, int expectedValue) {
+        int intValue = exifInterface.getAttributeInt(tag, 0);
+        assertEquals(expectedValue, intValue);
+    }
+
+    private void assertFloatTag(ExifInterface exifInterface, String tag, float expectedValue) {
+        double doubleValue = exifInterface.getAttributeDouble(tag, 0.0);
+        assertEquals(expectedValue, doubleValue, DIFFERENCE_TOLERANCE);
+    }
+
+    private void assertStringTag(ExifInterface exifInterface, String tag, String expectedValue) {
         String stringValue = exifInterface.getAttribute(tag);
         if (stringValue != null) {
             stringValue = stringValue.trim();
         }
         stringValue = ("".equals(stringValue)) ? null : stringValue;
 
-        expect.that(stringValue).isEqualTo(expectedValue);
+        assertEquals(expectedValue, stringValue);
     }
 
-    private void compareWithExpectedAttributes(
-            ExifInterface exifInterface, ExpectedAttributes expectedAttributes, String verboseTag)
-            throws IOException {
+    private void compareWithExpectedValue(ExifInterface exifInterface,
+            ExpectedValue expectedValue, String verboseTag, boolean assertRanges) {
         if (VERBOSE) {
             printExifTagsAndValues(verboseTag, exifInterface);
         }
         // Checks a thumbnail image.
-        expect.that(exifInterface.hasThumbnail()).isEqualTo(expectedAttributes.hasThumbnail);
-        if (expectedAttributes.hasThumbnail) {
-            expectThumbnailGettersSelfConsistentAndMatchExpectedValues(
-                    expectedAttributes, exifInterface);
+        assertEquals(expectedValue.hasThumbnail, exifInterface.hasThumbnail());
+        if (expectedValue.hasThumbnail) {
+            assertNotNull(exifInterface.getThumbnailRange());
+            if (assertRanges) {
+                final long[] thumbnailRange = exifInterface.getThumbnailRange();
+                assertEquals(expectedValue.thumbnailOffset, thumbnailRange[0]);
+                assertEquals(expectedValue.thumbnailLength, thumbnailRange[1]);
+            }
+            testThumbnail(expectedValue, exifInterface);
+        } else {
+            assertNull(exifInterface.getThumbnailRange());
+            assertNull(exifInterface.getThumbnail());
         }
 
         // Checks GPS information.
         double[] latLong = exifInterface.getLatLong();
-        if (expectedAttributes.hasLatLong) {
-            expect.that(latLong)
-                    .usingExactEquality()
-                    .containsExactly(
-                            expectedAttributes.computedLatitude,
-                            expectedAttributes.computedLongitude)
-                    .inOrder();
-            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)).isTrue();
-            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE)).isTrue();
+        assertEquals(expectedValue.hasLatLong, latLong != null);
+        if (expectedValue.hasLatLong) {
+            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE));
+            if (assertRanges) {
+                final long[] latitudeRange = exifInterface
+                        .getAttributeRange(ExifInterface.TAG_GPS_LATITUDE);
+                assertEquals(expectedValue.latitudeOffset, latitudeRange[0]);
+                assertEquals(expectedValue.latitudeLength, latitudeRange[1]);
+            }
+            assertEquals(expectedValue.latitude, latLong[0], DIFFERENCE_TOLERANCE);
+            assertEquals(expectedValue.longitude, latLong[1], DIFFERENCE_TOLERANCE);
+            assertTrue(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE));
+            assertTrue(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE));
         } else {
-            expect.that(latLong).isNull();
-            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)).isFalse();
-            expect.that(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE)).isFalse();
+            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE));
+            assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE));
+            assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_GPS_LONGITUDE));
         }
-        expect.that(exifInterface.getAltitude(.0)).isEqualTo(expectedAttributes.computedAltitude);
+        assertEquals(expectedValue.altitude, exifInterface.getAltitude(.0), DIFFERENCE_TOLERANCE);
+
+        // Checks Make information.
+        String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
+        assertEquals(expectedValue.hasMake, make != null);
+        if (expectedValue.hasMake) {
+            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_MAKE));
+            if (assertRanges) {
+                final long[] makeRange = exifInterface
+                        .getAttributeRange(ExifInterface.TAG_MAKE);
+                assertEquals(expectedValue.makeOffset, makeRange[0]);
+                assertEquals(expectedValue.makeLength, makeRange[1]);
+            }
+            assertEquals(expectedValue.make, make);
+        } else {
+            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_MAKE));
+            assertFalse(exifInterface.hasAttribute(ExifInterface.TAG_MAKE));
+        }
 
         // Checks values.
-        expectStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedAttributes.make);
-        expectStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedAttributes.model);
-        expect.that(exifInterface.getAttributeDouble(ExifInterface.TAG_F_NUMBER, 0.0))
-                .isEqualTo(expectedAttributes.aperture);
-        expectStringTag(
-                exifInterface,
-                ExifInterface.TAG_DATETIME_ORIGINAL,
-                expectedAttributes.dateTimeOriginal);
-        expect.that(exifInterface.getAttributeDouble(ExifInterface.TAG_EXPOSURE_TIME, 0.0))
-                .isEqualTo(expectedAttributes.exposureTime);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedAttributes.focalLength);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_GPS_ALTITUDE, expectedAttributes.gpsAltitude);
-        expectStringTag(
-                exifInterface,
-                ExifInterface.TAG_GPS_ALTITUDE_REF,
-                expectedAttributes.gpsAltitudeRef);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_GPS_DATESTAMP, expectedAttributes.gpsDatestamp);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_GPS_LATITUDE, expectedAttributes.gpsLatitude);
-        expectStringTag(
-                exifInterface,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                expectedAttributes.gpsLatitudeRef);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_GPS_LONGITUDE, expectedAttributes.gpsLongitude);
-        expectStringTag(
-                exifInterface,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                expectedAttributes.gpsLongitudeRef);
-        expectStringTag(
-                exifInterface,
-                ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                expectedAttributes.gpsProcessingMethod);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_GPS_TIMESTAMP, expectedAttributes.gpsTimestamp);
-        expect.that(exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0))
-                .isEqualTo(expectedAttributes.imageLength);
-        expect.that(exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0))
-                .isEqualTo(expectedAttributes.imageWidth);
-        expectStringTag(
-                exifInterface, ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY, expectedAttributes.iso);
-        expect.that(exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0))
-                .isEqualTo(expectedAttributes.orientation);
+        assertStringTag(exifInterface, ExifInterface.TAG_MAKE, expectedValue.make);
+        assertStringTag(exifInterface, ExifInterface.TAG_MODEL, expectedValue.model);
+        assertFloatTag(exifInterface, ExifInterface.TAG_F_NUMBER, expectedValue.aperture);
+        assertStringTag(exifInterface, ExifInterface.TAG_DATETIME_ORIGINAL,
+                expectedValue.dateTimeOriginal);
+        assertFloatTag(exifInterface, ExifInterface.TAG_EXPOSURE_TIME, expectedValue.exposureTime);
+        assertFloatTag(exifInterface, ExifInterface.TAG_FLASH, expectedValue.flash);
+        assertStringTag(exifInterface, ExifInterface.TAG_FOCAL_LENGTH, expectedValue.focalLength);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_ALTITUDE, expectedValue.gpsAltitude);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_ALTITUDE_REF,
+                expectedValue.gpsAltitudeRef);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_DATESTAMP, expectedValue.gpsDatestamp);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_LATITUDE, expectedValue.gpsLatitude);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_LATITUDE_REF,
+                expectedValue.gpsLatitudeRef);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_LONGITUDE, expectedValue.gpsLongitude);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_LONGITUDE_REF,
+                expectedValue.gpsLongitudeRef);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                expectedValue.gpsProcessingMethod);
+        assertStringTag(exifInterface, ExifInterface.TAG_GPS_TIMESTAMP, expectedValue.gpsTimestamp);
+        assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_LENGTH, expectedValue.imageLength);
+        assertIntTag(exifInterface, ExifInterface.TAG_IMAGE_WIDTH, expectedValue.imageWidth);
+        assertStringTag(exifInterface, ExifInterface.TAG_PHOTOGRAPHIC_SENSITIVITY,
+                expectedValue.iso);
+        assertIntTag(exifInterface, ExifInterface.TAG_ORIENTATION, expectedValue.orientation);
+        assertIntTag(exifInterface, ExifInterface.TAG_WHITE_BALANCE, expectedValue.whiteBalance);
 
-        // ExifInterface.TAG_XMP is documented as type byte[], so we access it using
-        // getAttributeBytes instead of getAttribute, which would unavoidably convert it to an
-        // ASCII string.
-        //
-        // The XMP spec (part 1, section 7.1) doesn't enforce a specific character encoding, but
-        // part 3 requires that UTF-8 is used in the following formats supported by ExifInterface:
-        // * DNG and other raw formats (as TIFF, section 3.2.3.1)
-        // * JPEG (table 6)
-        // * PNG (table 9)
-        // * HEIF (as MP4, section 1.2.7.1)
-        //
-        // The WebP spec doesn't seem to specify the character encoding for XMP, but none of the
-        // current test assets have XMP-in-WebP so we assume UTF-8 here too.
-        String xmp =
-                exifInterface.hasAttribute(ExifInterface.TAG_XMP)
-                        ? new String(
-                                exifInterface.getAttributeBytes(ExifInterface.TAG_XMP),
-                                Charsets.UTF_8)
-                        : null;
-        expect.that(xmp)
-                .isEqualTo(expectedAttributes.getXmp(getApplicationContext().getResources()));
+        if (expectedValue.hasXmp) {
+            assertNotNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
+            if (assertRanges) {
+                final long[] xmpRange = exifInterface.getAttributeRange(ExifInterface.TAG_XMP);
+                assertEquals(expectedValue.xmpOffset, xmpRange[0]);
+                assertEquals(expectedValue.xmpLength, xmpRange[1]);
+            }
+            final String xmp = new String(exifInterface.getAttributeBytes(ExifInterface.TAG_XMP),
+                    Charset.forName("UTF-8"));
+            // We're only interested in confirming that we were able to extract
+            // valid XMP data, which must always include this XML tag; a full
+            // XMP parser is beyond the scope of ExifInterface. See XMP
+            // Specification Part 1, Section C.2.2 for additional details.
+            if (!xmp.contains("<rdf:RDF")) {
+                fail("Invalid XMP: " + xmp);
+            }
+        } else {
+            assertNull(exifInterface.getAttributeRange(ExifInterface.TAG_XMP));
+        }
     }
 
-    private void readFromStandaloneDataWithExif(
-            File imageFile, ExpectedAttributes expectedAttributes) throws IOException {
+    private void readFromStandaloneDataWithExif(String fileName, int typedArrayResourceId)
+            throws IOException {
+        ExpectedValue expectedValue = new ExpectedValue(
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
+
+        File imageFile = getFileFromExternalDir(fileName);
         String verboseTag = imageFile.getName();
 
-        byte[] exifBytes;
-        try (FileInputStream fis = new FileInputStream(imageFile)) {
-            // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
-            ByteStreams.skipFully(fis, 4);
-            // Read the value of the length of the exif data
-            short length = readShort(fis);
-            exifBytes = new byte[length];
-            ByteStreams.readFully(fis, exifBytes);
-        }
+        FileInputStream fis = new FileInputStream(imageFile);
+        // Skip the following marker bytes (0xff, 0xd8, 0xff, 0xe1)
+        fis.skip(4);
+        // Read the value of the length of the exif data
+        short length = readShort(fis);
+        byte[] exifBytes = new byte[length];
+        fis.read(exifBytes);
 
         ByteArrayInputStream bin = new ByteArrayInputStream(exifBytes);
         ExifInterface exifInterface =
                 new ExifInterface(bin, ExifInterface.STREAM_TYPE_EXIF_DATA_ONLY);
-        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
     }
 
-    private void testExifInterfaceCommon(File imageFile, ExpectedAttributes expectedAttributes)
+    private void testExifInterfaceCommon(String fileName, ExpectedValue expectedValue)
             throws IOException {
+        File imageFile = getFileFromExternalDir(fileName);
         String verboseTag = imageFile.getName();
 
         // Creates via file.
         ExifInterface exifInterface = new ExifInterface(imageFile);
-        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        assertNotNull(exifInterface);
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
 
         // Creates via path.
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+        assertNotNull(exifInterface);
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
 
+        InputStream in = null;
         // Creates via InputStream.
-        try (InputStream in =
-                new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
+        try {
+            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
             exifInterface = new ExifInterface(in);
-            compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+            compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
+        } finally {
+            closeQuietly(in);
         }
 
         // Creates via FileDescriptor.
@@ -1759,7 +1215,7 @@ public class ExifInterfaceTest {
                 fd = Os.open(imageFile.getAbsolutePath(), OsConstants.O_RDONLY,
                         OsConstants.S_IRWXU);
                 exifInterface = new ExifInterface(fd);
-                compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
+                compareWithExpectedValue(exifInterface, expectedValue, verboseTag, true);
             } catch (Exception e) {
                 throw new IOException("Failed to open file descriptor", e);
             } finally {
@@ -1768,238 +1224,162 @@ public class ExifInterfaceTest {
         }
     }
 
-    /**
-     * Asserts (using {@link #expect}) that {@link ExifInterface#getThumbnailRange()} and {@link
-     * ExifInterface#getAttributeRange(String)} return ranges that match {@code expectedAttributes}
-     * and that can be used to directly read the underlying value from the file (which then also
-     * matches {@code expectedAttributes}.
-     */
-    private void testExifInterfaceRange(File imageFile, ExpectedAttributes expectedAttributes)
+    private void testExifInterfaceRange(String fileName, ExpectedValue expectedValue)
             throws IOException {
-        ExifInterface exifInterface = new ExifInterface(imageFile);
+        File imageFile = getFileFromExternalDir(fileName);
 
-        if (exifInterface.hasThumbnail()) {
-            long[] thumbnailRange = exifInterface.getThumbnailRange();
-            expect.that(thumbnailRange)
-                    .asList()
-                    .containsExactly(
-                            expectedAttributes.thumbnailOffset, expectedAttributes.thumbnailLength)
-                    .inOrder();
-            expectThumbnailMatchesFileBytes(imageFile, exifInterface, expectedAttributes);
-        } else {
-            expect.that(exifInterface.getThumbnailRange()).isNull();
-        }
-
-        if (exifInterface.hasAttribute(ExifInterface.TAG_MAKE)) {
-            long[] makeRange = exifInterface.getAttributeRange(ExifInterface.TAG_MAKE);
-            expect.that(makeRange)
-                    .asList()
-                    .containsExactly(expectedAttributes.makeOffset, expectedAttributes.makeLength)
-                    .inOrder();
-            try (InputStream in =
-                    new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
-                ByteStreams.skipFully(in, makeRange[0]);
-                byte[] makeBytes = new byte[Ints.checkedCast(makeRange[1])];
-                ByteStreams.readFully(in, makeBytes);
-                int nullIndex = -1;
-                for (int i = 0; i < makeBytes.length; i++) {
-                    if (makeBytes[i] == 0) {
-                        nullIndex = i;
-                        break;
-                    }
+        InputStream in = null;
+        try {
+            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+            if (expectedValue.hasThumbnail) {
+                in.skip(expectedValue.thumbnailOffset);
+                byte[] thumbnailBytes = new byte[expectedValue.thumbnailLength];
+                if (in.read(thumbnailBytes) != expectedValue.thumbnailLength) {
+                    throw new IOException("Failed to read the expected thumbnail length");
                 }
-                assertThat(nullIndex).isAtLeast(0);
-                String makeString = new String(makeBytes, 0, nullIndex, Charsets.US_ASCII);
-                expect.that(makeString).isEqualTo(expectedAttributes.make);
+                // TODO: Need a way to check uncompressed thumbnail file
+                Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnailBytes, 0,
+                        thumbnailBytes.length);
+                assertNotNull(thumbnailBitmap);
+                assertEquals(expectedValue.thumbnailWidth, thumbnailBitmap.getWidth());
+                assertEquals(expectedValue.thumbnailHeight, thumbnailBitmap.getHeight());
             }
-        } else {
-            expect.that(exifInterface.getAttributeRange(ExifInterface.TAG_MAKE)).isNull();
-        }
 
-        if (exifInterface.hasAttribute(ExifInterface.TAG_XMP)) {
-            long[] xmpRange = exifInterface.getAttributeRange(ExifInterface.TAG_XMP);
-            expect.that(xmpRange)
-                    .asList()
-                    .containsExactly(expectedAttributes.xmpOffset, expectedAttributes.xmpLength)
-                    .inOrder();
-            try (InputStream in =
-                    new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()))) {
-                ByteStreams.skipFully(in, xmpRange[0]);
-                byte[] xmpBytes = new byte[Ints.checkedCast(xmpRange[1])];
-                ByteStreams.readFully(in, xmpBytes);
-                String xmpData = new String(xmpBytes, Charset.forName("UTF-8"));
-                expect.that(xmpData)
-                        .isEqualTo(
-                                expectedAttributes.getXmp(getApplicationContext().getResources()));
+            // TODO: Creating a new input stream is a temporary
+            //  workaround for BufferedInputStream#mark/reset not working properly for
+            //  LG_G4_ISO_800_DNG. Need to investigate cause.
+            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+            if (expectedValue.hasMake) {
+                in.skip(expectedValue.makeOffset);
+                byte[] makeBytes = new byte[expectedValue.makeLength];
+                if (in.read(makeBytes) != expectedValue.makeLength) {
+                    throw new IOException("Failed to read the expected make length");
+                }
+                String makeString = new String(makeBytes);
+                // Remove null bytes
+                makeString = makeString.replaceAll("\u0000.*", "");
+                assertEquals(expectedValue.make, makeString);
             }
-        } else {
-            expect.that(exifInterface.getAttributeRange(ExifInterface.TAG_XMP)).isNull();
-        }
 
-        if (exifInterface.hasAttribute(ExifInterface.TAG_GPS_LATITUDE)) {
-            expect.that(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE))
-                    .asList()
-                    .containsExactly(
-                            expectedAttributes.gpsLatitudeOffset,
-                            expectedAttributes.gpsLatitudeLength)
-                    .inOrder();
+            in = new BufferedInputStream(new FileInputStream(imageFile.getAbsolutePath()));
+            if (expectedValue.hasXmp) {
+                in.skip(expectedValue.xmpOffset);
+                byte[] identifierBytes = new byte[expectedValue.xmpLength];
+                if (in.read(identifierBytes) != expectedValue.xmpLength) {
+                    throw new IOException("Failed to read the expected xmp length");
+                }
+                final String xmpIdentifier = "<?xpacket begin=";
+                assertTrue(new String(identifierBytes, Charset.forName("UTF-8"))
+                        .startsWith(xmpIdentifier));
+            }
             // TODO: Add code for retrieving raw latitude data using offset and length
-        } else {
-            expect.that(exifInterface.getAttributeRange(ExifInterface.TAG_GPS_LATITUDE)).isNull();
+        } finally {
+            closeQuietly(in);
         }
     }
 
-    /**
-     * Copies {@code srcFile} to a new location, modifies the Exif data, and asserts the resulting
-     * file has the expected modifications.
-     *
-     * @param srcFile The file to copy and make changes to.
-     * @param expectedAttributes The expected Exif values already present in {@code srcFile}, or
-     *     {@code null} if none are present.
-     */
-    private void testWritingExif(File srcFile, @Nullable ExpectedAttributes expectedAttributes)
+    private void writeToFilesWithExif(String fileName, int typedArrayResourceId)
             throws IOException {
-        expectSavingWithNoModificationsLeavesImageIntact(srcFile, expectedAttributes);
+        ExpectedValue expectedValue = new ExpectedValue(
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
-        expectSavingPersistsModifications(ExifInterface::new, srcFile, expectedAttributes);
+        File srcFile = getFileFromExternalDir(fileName);
+        File imageFile = clone(srcFile);
+        String verboseTag = imageFile.getName();
+
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
+        assertBitmapsEquivalent(srcFile, imageFile);
+        assertSecondSaveProducesSameSizeFile(imageFile);
+
+        // Test for modifying one attribute.
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        String backupValue = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        exifInterface.saveAttributes();
+        // Check if thumbnail offset and length are properly updated without parsing the data again.
+        if (expectedValue.hasThumbnail) {
+            testThumbnail(expectedValue, exifInterface);
+        }
+        assertEquals("abc", exifInterface.getAttribute(ExifInterface.TAG_MAKE));
+        // Check if thumbnail bytes can be retrieved from the new thumbnail range.
+        if (expectedValue.hasThumbnail) {
+            testThumbnail(expectedValue, exifInterface);
+        }
+
+        // Restore the backup value.
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, backupValue);
+        exifInterface.saveAttributes();
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
 
         // Creates via FileDescriptor.
         if (Build.VERSION.SDK_INT >= 21) {
-            AtomicReference<FileDescriptor> fileDescriptor = new AtomicReference<>();
-            ExifInterfaceFactory createFromFileDescriptor =
-                    f -> {
-                        try {
-                            fileDescriptor.set(
-                                    Os.open(
-                                            f.getAbsolutePath(),
-                                            OsConstants.O_RDWR,
-                                            OsConstants.S_IRWXU));
-                        } catch (ErrnoException e) {
-                            throw new IOException("Failed to open file descriptor", e);
-                        }
-                        return new ExifInterface(fileDescriptor.get());
-                    };
+            FileDescriptor fd = null;
             try {
-                expectSavingPersistsModifications(
-                        createFromFileDescriptor, srcFile, expectedAttributes);
+                fd = Os.open(imageFile.getAbsolutePath(), OsConstants.O_RDWR,
+                        OsConstants.S_IRWXU);
+                exifInterface = new ExifInterface(fd);
+                exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+                exifInterface.saveAttributes();
+                assertEquals("abc", exifInterface.getAttribute(ExifInterface.TAG_MAKE));
+            } catch (Exception e) {
+                throw new IOException("Failed to open file descriptor", e);
             } finally {
-                closeQuietly(fileDescriptor.get());
+                closeQuietly(fd);
             }
         }
     }
 
-    private void expectSavingWithNoModificationsLeavesImageIntact(
-            File srcFile, @Nullable ExpectedAttributes expectedAttributes) throws IOException {
-        File imageFile = clone(srcFile);
-        String verboseTag = imageFile.getName();
-        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-
-        exifInterface.saveAttributes();
-
-        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        if (expectedAttributes != null) {
-            compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
-        }
-        expectBitmapsEquivalent(srcFile, imageFile);
-        expectSecondSaveProducesSameSizeFile(imageFile);
-    }
-
-    private void expectSavingPersistsModifications(
-            ExifInterfaceFactory exifInterfaceFactory,
-            File srcFile,
-            @Nullable ExpectedAttributes expectedAttributes)
+    private void readFromFilesWithExif(String fileName, int typedArrayResourceId)
             throws IOException {
-        File imageFile = clone(srcFile);
-        String verboseTag = imageFile.getName();
-
-        ExifInterface exifInterface = exifInterfaceFactory.create(imageFile);
-        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
-        exifInterface.setAttribute(ExifInterface.TAG_XMP, TEST_XMP);
-        exifInterface.saveAttributes();
-
-        ExpectedAttributes.Builder expectedAttributesBuilder =
-                expectedAttributes != null
-                        ? expectedAttributes.buildUpon()
-                        : new ExpectedAttributes.Builder();
-        expectedAttributes =
-                expectedAttributesBuilder.setMake("abc").clearXmp().setXmp(TEST_XMP).build();
-
-        // Check expected modifications are visible without re-parsing the file.
-        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
-        if (expectedAttributes.hasThumbnail) {
-            expectThumbnailGettersSelfConsistentAndMatchExpectedValues(
-                    expectedAttributes, exifInterface);
-            // TODO: Check bitmap offset/length match underlying file before re-parsing (requires
-            //  relaxing preconditions of ExifInterface.getThumbnailRange()).
-        }
-
-        // Re-parse the file to confirm the changes are persisted to disk, and the resulting file
-        // can still be parsed as an image.
-        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
-        compareWithExpectedAttributes(exifInterface, expectedAttributes, verboseTag);
-        expectBitmapsEquivalent(srcFile, imageFile);
-        if (expectedAttributes.hasThumbnail) {
-            expectThumbnailGettersSelfConsistentAndMatchExpectedValues(
-                    expectedAttributes, exifInterface);
-            expectThumbnailMatchesFileBytes(imageFile, exifInterface, expectedAttributes);
-        }
-    }
-
-    private void readFromFilesWithExif(File imageFile, ExpectedAttributes expectedAttributes)
-            throws IOException {
+        ExpectedValue expectedValue = new ExpectedValue(
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
         // Test for reading from external data storage.
-        testExifInterfaceCommon(imageFile, expectedAttributes);
+        testExifInterfaceCommon(fileName, expectedValue);
 
         // Test for checking expected range by retrieving raw data with given offset and length.
-        testExifInterfaceRange(imageFile, expectedAttributes);
+        testExifInterfaceRange(fileName, expectedValue);
     }
 
-    /**
-     * Asserts (using {@link #expect}) that {@link ExifInterface#getThumbnail()}, {@link
-     * ExifInterface#getThumbnailBytes()}, and {@link ExifInterface#getThumbnailBitmap()} all return
-     * self-consistent values that can be parsed by {@link BitmapFactory#decodeByteArray(byte[],
-     * int, int)} and match the bitmap values in {@code expectedAttributes}.
-     */
-    private void expectThumbnailGettersSelfConsistentAndMatchExpectedValues(
-            ExpectedAttributes expectedAttributes, ExifInterface exifInterface) {
+    private void writeToFilesWithoutExif(String fileName) throws IOException {
+        File srcFile = getFileFromExternalDir(fileName);
+        File imageFile = clone(srcFile);
+
+        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        exifInterface.setAttribute(ExifInterface.TAG_MAKE, "abc");
+        exifInterface.saveAttributes();
+
+        assertBitmapsEquivalent(srcFile, imageFile);
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        String make = exifInterface.getAttribute(ExifInterface.TAG_MAKE);
+        assertEquals("abc", make);
+
+        assertSecondSaveProducesSameSizeFile(imageFile);
+    }
+
+    private void testThumbnail(ExpectedValue expectedValue, ExifInterface exifInterface) {
         byte[] thumbnail = exifInterface.getThumbnail();
-        byte[] thumbnailBytes = exifInterface.getThumbnailBytes();
-        expect.that(thumbnail).isEqualTo(thumbnailBytes);
-        expect.that(thumbnail.length).isEqualTo(expectedAttributes.thumbnailLength);
-
-        Bitmap thumbnailBitmap = exifInterface.getThumbnailBitmap();
-        expect.that(thumbnailBitmap.getWidth()).isEqualTo(expectedAttributes.thumbnailWidth);
-        expect.that(thumbnailBitmap.getHeight()).isEqualTo(expectedAttributes.thumbnailHeight);
-        expectBitmapsEquivalent(
-                BitmapFactory.decodeByteArray(thumbnail, 0, thumbnail.length), thumbnailBitmap);
+        assertNotNull(thumbnail);
+        Bitmap thumbnailBitmap = BitmapFactory.decodeByteArray(thumbnail, 0,
+                thumbnail.length);
+        assertNotNull(thumbnailBitmap);
+        assertEquals(expectedValue.thumbnailWidth, thumbnailBitmap.getWidth());
+        assertEquals(expectedValue.thumbnailHeight, thumbnailBitmap.getHeight());
     }
 
-    /**
-     * Asserts (using {@link #expect}) that {@link ExifInterface#getThumbnailRange()} can be used to
-     * read the bytes for a {@link Bitmap} directly from {@code file} and the result matches both
-     * {@link ExifInterface#getThumbnailBitmap()} and the bitmap metadata in {@code
-     * expectedAttributes}.
-     */
-    private void expectThumbnailMatchesFileBytes(
-            File file, ExifInterface exifInterface, ExpectedAttributes expectedAttributes)
-            throws IOException {
-        byte[] thumbnailBytesFromFile;
-        try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
-            long[] thumbnailRange = exifInterface.getThumbnailRange();
-            ByteStreams.skipFully(inputStream, thumbnailRange[0]);
-            thumbnailBytesFromFile = new byte[Ints.checkedCast(thumbnailRange[1])];
-            ByteStreams.readFully(inputStream, thumbnailBytesFromFile);
+    private void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
+            } catch (Exception ignored) {
+            }
         }
-        Bitmap thumbnailBitmapFromFile =
-                BitmapFactory.decodeByteArray(
-                        thumbnailBytesFromFile, 0, thumbnailBytesFromFile.length);
-        expect.that(thumbnailBitmapFromFile.getWidth())
-                .isEqualTo(expectedAttributes.thumbnailWidth);
-        expect.that(thumbnailBitmapFromFile.getHeight())
-                .isEqualTo(expectedAttributes.thumbnailHeight);
-
-        expectBitmapsEquivalent(thumbnailBitmapFromFile, exifInterface.getThumbnailBitmap());
     }
 
     @RequiresApi(21)
@@ -2014,13 +1394,28 @@ public class ExifInterfaceTest {
         }
     }
 
-    private ExifInterface createTestExifInterface() throws IOException {
-        File originalFile = tempFolder.newFile();
-        File jpgFile = new File(originalFile.getAbsolutePath() + ".jpg");
-        if (!originalFile.renameTo(jpgFile)) {
-            throw new IOException("Rename from " + originalFile + " to " + jpgFile + " failed.");
+    private int copy(InputStream in, OutputStream out) throws IOException {
+        int total = 0;
+        byte[] buffer = new byte[8192];
+        int c;
+        while ((c = in.read(buffer)) != -1) {
+            total += c;
+            out.write(buffer, 0, c);
         }
-        return new ExifInterface(jpgFile.getAbsolutePath());
+        return total;
+    }
+
+    private void assertLatLongValuesAreNotSet(ExifInterface exif) {
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE));
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF));
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE));
+        assertNull(exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF));
+    }
+
+    private ExifInterface createTestExifInterface() throws IOException {
+        File image = File.createTempFile(TEST_TEMP_FILE_NAME, ".jpg");
+        image.deleteOnExit();
+        return new ExifInterface(image.getAbsolutePath());
     }
 
     private short readShort(InputStream is) throws IOException {
@@ -2032,18 +1427,26 @@ public class ExifInterfaceTest {
         return (short) ((ch1 << 8) + (ch2));
     }
 
+    private File getFileFromExternalDir(String fileName) {
+        return new File(getApplicationContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                fileName);
+    }
+
     /**
-     * Asserts (using {@link #expect}) that {@code expectedImageFile} and {@code actualImageFile}
-     * can be decoded by {@link BitmapFactory} and the results have the same metadata such as width,
-     * height, and MIME type.
+     * Asserts that {@code expectedImageFile} and {@code actualImageFile} can be decoded by
+     * {@link BitmapFactory} and the results have the same width, height and MIME type.
      *
-     * <p>The assertion is skipped if the test is running on an API level where {@link
-     * BitmapFactory} is known not to support the image format of {@code expectedImageFile} (as
-     * determined by file extension).
+     * <p>The assertion is skipped if the test is running on an API level where
+     * {@link BitmapFactory} is known not to support the image format of {@code expectedImageFile}
+     * (as determined by file extension).
      *
      * <p>This does not check the image itself for similarity/equality.
      */
-    private void expectBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
+    private void assertBitmapsEquivalent(File expectedImageFile, File actualImageFile) {
+        if (Build.VERSION.SDK_INT < 16 && expectedImageFile.getName().endsWith("webp")) {
+            // BitmapFactory can't parse WebP files on API levels before 16: b/254571189
+            return;
+        }
         if (Build.VERSION.SDK_INT < 26
                 && expectedImageFile.getName().equals(WEBP_WITHOUT_EXIF_WITH_ANIM_DATA)) {
             // BitmapFactory can't parse animated WebP files on API levels before 26: b/259964971
@@ -2054,23 +1457,13 @@ public class ExifInterfaceTest {
                 decodeBitmap(expectedImageFile, expectedOptions));
         BitmapFactory.Options actualOptions = new BitmapFactory.Options();
         Bitmap actualBitmap = Objects.requireNonNull(decodeBitmap(actualImageFile, actualOptions));
-        expect.that(actualOptions.outWidth).isEqualTo(expectedOptions.outWidth);
-        expect.that(actualOptions.outHeight).isEqualTo(expectedOptions.outHeight);
-        expect.that(actualOptions.outMimeType).isEqualTo(expectedOptions.outMimeType);
 
-        expectBitmapsEquivalent(expectedBitmap, actualBitmap);
-    }
-
-    /**
-     * Asserts (using {@link #expect}) that {@code expected} and {@code actual} have the same width,
-     * height and alpha presence.
-     *
-     * <p>This does not check the image itself for similarity/equality.
-     */
-    private void expectBitmapsEquivalent(Bitmap expected, Bitmap actual) {
-        expect.that(actual.getWidth()).isEqualTo(expected.getWidth());
-        expect.that(actual.getHeight()).isEqualTo(expected.getHeight());
-        expect.that(actual.hasAlpha()).isEqualTo(expected.hasAlpha());
+        assertEquals(expectedOptions.outWidth, actualOptions.outWidth);
+        assertEquals(expectedOptions.outHeight, actualOptions.outHeight);
+        assertEquals(expectedOptions.outMimeType, actualOptions.outMimeType);
+        assertEquals(expectedBitmap.getWidth(), actualBitmap.getWidth());
+        assertEquals(expectedBitmap.getHeight(), actualBitmap.getHeight());
+        assertEquals(expectedBitmap.hasAlpha(), actualBitmap.hasAlpha());
     }
 
     /**
@@ -2087,13 +1480,12 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * Asserts (using {@link #expect}) that saving the file the second time (without modifying any
-     * attributes) produces exactly the same length file as the first save. The first save (with no
-     * modifications) is expected to (possibly) change the file length because {@link ExifInterface}
-     * may move/reformat the Exif block within the file, but the second save should not make further
-     * modifications.
+     * Asserts that saving the file the second time (without modifying any attributes) produces
+     * exactly the same length file as the first save. The first save (with no modifications) is
+     * expected to (possibly) change the file length because {@link ExifInterface} may move/reformat
+     * the Exif block within the file, but the second save should not make further modifications.
      */
-    private void expectSecondSaveProducesSameSizeFile(File imageFileAfterOneSave)
+    private void assertSecondSaveProducesSameSizeFile(File imageFileAfterOneSave)
             throws IOException {
         File imageFileAfterTwoSaves = clone(imageFileAfterOneSave);
         ExifInterface exifInterface = new ExifInterface(imageFileAfterTwoSaves.getAbsolutePath());
@@ -2105,43 +1497,19 @@ public class ExifInterfaceTest {
             File imageFileAfterThreeSaves = clone(imageFileAfterTwoSaves);
             exifInterface = new ExifInterface(imageFileAfterThreeSaves.getAbsolutePath());
             exifInterface.saveAttributes();
-            expect.that(imageFileAfterThreeSaves.length())
-                    .isEqualTo(imageFileAfterTwoSaves.length());
+            assertEquals(imageFileAfterTwoSaves.length(), imageFileAfterThreeSaves.length());
         } else {
-            expect.that(imageFileAfterTwoSaves.length()).isEqualTo(imageFileAfterOneSave.length());
+            assertEquals(imageFileAfterOneSave.length(), imageFileAfterTwoSaves.length());
         }
     }
 
     private File clone(File original) throws IOException {
-        File cloned = tempFolder.newFile(System.nanoTime() + "_" + original.getName());
-        Files.copy(original, cloned);
-        return cloned;
-    }
-
-    private File copyFromResourceToFile(int resourceId, String filename) throws IOException {
-        File file = tempFolder.newFile(filename);
-        try (InputStream inputStream =
-                        getApplicationContext().getResources().openRawResource(resourceId);
-                FileOutputStream outputStream = new FileOutputStream(file)) {
-            ByteStreams.copy(inputStream, outputStream);
+        File cloned =
+                File.createTempFile("tmp_", System.nanoTime() + "_" + original.getName());
+        try (FileInputStream inputStream = new FileInputStream(original);
+             FileOutputStream outputStream = new FileOutputStream(cloned)) {
+            copy(inputStream, outputStream);
         }
-        return file;
-    }
-
-    /**
-     * An operation that can be applied to an {@link ExifInterface} instance.
-     *
-     * <p>We would use java.util.Consumer but it's not available before API 24, and there's no Guava
-     * equivalent.
-     */
-    private interface ExifInterfaceOperation {
-        void applyTo(ExifInterface exifInterface);
-    }
-
-    /**
-     * A functional interface to construct an {@link ExifInterface} instance from a {@link File}.
-     */
-    private interface ExifInterfaceFactory {
-        ExifInterface create(File file) throws IOException;
+        return cloned;
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe
 
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
 /**
@@ -36,6 +37,7 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Deprecated("Use CaptureSequence and CaptureSequenceProcessor instead.")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 interface RequestProcessor {
 
     /**

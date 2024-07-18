@@ -37,13 +37,10 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.RadioButton
 import androidx.glance.appwidget.Switch
-import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
-import androidx.glance.layout.fillMaxSize
-import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.material.ColorProviders
 import androidx.glance.material3.ColorProviders
@@ -78,9 +75,8 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
         GlanceTheme(colors) {
             Column(
                 GlanceModifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .background(GlanceTheme.colors.widgetBackground)
+                    .padding(8.dp)
+                    .background(GlanceTheme.colors.background)
             ) {
                 Button(
                     text = "Theme: $currentScheme",
@@ -91,30 +87,24 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
                             Scheme.CustomM2 -> Scheme.SystemM3
                         }
                     },
-                    modifier = GlanceModifier.padding(8.dp)
+                    modifier = GlanceModifier.padding(2.dp)
                 )
-                Row(GlanceModifier.fillMaxWidth().padding(top = 8.dp)) {
+                Row(GlanceModifier.padding(top = 8.dp)) {
                     CheckBox(
-                        modifier = GlanceModifier.defaultWeight(),
                         checked = false,
                         onCheckedChange = doNothingAction,
                         text = "Unchecked"
                     )
                     CheckBox(
-                        modifier = GlanceModifier.defaultWeight(),
                         checked = true,
                         onCheckedChange = doNothingAction,
                         text = "Checked"
                     )
                 }
 
-                Row(modifier = GlanceModifier.fillMaxWidth().padding(bottom = 8.dp)) {
-                    RadioButton(
-                        modifier = GlanceModifier.defaultWeight(),
-                        checked = false, onClick = doNothingAction, text = "Unchecked")
-                    RadioButton(
-                        modifier = GlanceModifier.defaultWeight(),
-                        checked = true, onClick = doNothingAction, text = "Checked")
+                Row(modifier = GlanceModifier.padding(bottom = 8.dp)) {
+                    RadioButton(checked = false, onClick = doNothingAction, text = "Unchecked")
+                    RadioButton(checked = true, onClick = doNothingAction, text = "Checked")
                 }
 
                 Row(modifier = GlanceModifier.padding(bottom = 8.dp)) {
@@ -133,9 +123,9 @@ private fun ColorDebug() {
     fun Text(text: String, fg: ColorProvider, bg: ColorProvider) = Text(
         text = text,
         style = TextStyle(color = fg),
-        modifier = GlanceModifier.fillMaxWidth().background(bg).padding(6.dp)
+        modifier = GlanceModifier.background(bg).padding(2.dp)
     )
-    Column(modifier = GlanceModifier.cornerRadius(8.dp)) {
+    Column {
         with(GlanceTheme.colors) {
             // Using  nested column because Glance uses statically generated layouts. Our
             // Rows/Columns can only support a fixed number of children, so nesting is a workaround.

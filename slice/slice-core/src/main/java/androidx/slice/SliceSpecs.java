@@ -16,12 +16,14 @@
 
 package androidx.slice;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
  * Constants for each of the slice specs
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(19)
 @Deprecated
 public class SliceSpecs {
 

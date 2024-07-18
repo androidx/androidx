@@ -22,11 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.CollectionInfo
@@ -60,23 +56,22 @@ fun LazyRowsAndColumns() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SampleLazyRow(modifier: Modifier = Modifier) {
     val colors = listOf(Color.Red, Color.Magenta, Color.Green, Color.Yellow, Color.Blue, Color.Cyan)
     val backgroundColors = List(columnsCount) { colors.random() }
-    val focusRequester = remember { FocusRequester() }
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
     TvLazyRow(
         modifier = modifier
             .lazyListSemantics(1, columnsCount)
-            .focusRestorer { focusRequester },
+            .then(focusRestorerModifiers.parentModifier),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         itemsIndexed(backgroundColors) { index, item ->
             Card(
                 modifier = Modifier
-                    .ifElse(index == 0, Modifier.focusRequester(focusRequester))
+                    .ifElse(index == 0, focusRestorerModifiers.childModifier)
                     .semantics {
                         collectionItemInfo = CollectionItemInfo(0, 1, index, 1)
                     },

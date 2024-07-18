@@ -19,6 +19,8 @@ package androidx.wear.protolayout.expression;
 import static java.util.Collections.unmodifiableMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
@@ -49,6 +51,8 @@ public final class PlatformDataValues {
          */
         @NonNull
         @SuppressWarnings("BuilderSetStyle") // Map-style builder, getter is generic get().
+        @VisibleForTesting
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder putAll(@NonNull PlatformDataValues other) {
             data.putAll(other.data);
             return this;

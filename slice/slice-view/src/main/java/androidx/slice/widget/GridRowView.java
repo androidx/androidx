@@ -70,6 +70,7 @@ import android.widget.TimePicker;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.slice.CornerDrawable;
@@ -91,6 +92,7 @@ import java.util.List;
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @Deprecated
+@RequiresApi(19)
 public class GridRowView extends SliceChildView implements View.OnClickListener,
         View.OnTouchListener {
 

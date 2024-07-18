@@ -179,7 +179,7 @@ final class PreviewStreamStateObserver implements Observable.Observer<CameraInte
                     // The callback will be invoked in camera executor thread.
                     CameraCaptureCallback callback = new CameraCaptureCallback() {
                         @Override
-                        public void onCaptureCompleted(int captureConfigId,
+                        public void onCaptureCompleted(
                                 @NonNull CameraCaptureResult result) {
                             completer.set(null);
                             ((CameraInfoInternal) cameraInfo).removeSessionCaptureCallback(

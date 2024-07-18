@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.os.Build
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.SurfaceConfig
 import com.google.common.truth.Truth
 import org.junit.Before

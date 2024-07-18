@@ -29,6 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 @SmallTest
 class SyncFenceV19Test {
 

@@ -19,7 +19,6 @@ package androidx.camera.video.internal;
 import static androidx.camera.core.internal.utils.SizeUtil.findNearestHigherFor;
 import static androidx.camera.video.internal.config.VideoConfigUtil.toVideoEncoderConfig;
 import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched;
-import static androidx.camera.video.internal.utils.EncoderProfilesUtil.deriveVideoProfile;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
@@ -38,6 +37,7 @@ import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.video.CapabilitiesByQuality;
 import androidx.camera.video.Quality;
+import androidx.camera.video.internal.config.VideoConfigUtil;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 
@@ -160,8 +160,7 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
                 VideoEncoderConfig encoderConfig = toVideoEncoderConfig(baseVideoProfile);
                 VideoEncoderInfo encoderInfo = mVideoEncoderInfoFinder.apply(encoderConfig);
                 // Check if size is valid for the Encoder.
-                if (encoderInfo == null || !encoderInfo.isSizeSupportedAllowSwapping(
-                        size.getWidth(), size.getHeight())) {
+                if (!encoderInfo.isSizeSupported(size.getWidth(), size.getHeight())) {
                     continue;
                 }
                 // Add the encoderProfiles to the candidates of base EncoderProfiles.
@@ -170,8 +169,7 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
                         encoderProfiles);
                 // Generate VideoProfile from base VideoProfile and new size.
                 generatedVideoProfiles.add(
-                        deriveVideoProfile(baseVideoProfile, size,
-                                encoderInfo.getSupportedBitrateRange()));
+                        generateVideoProfile(baseVideoProfile, size, encoderInfo));
             }
             if (!generatedVideoProfiles.isEmpty()) {
                 // Use the nearest higher EncoderProfiles as base EncoderProfiles.
@@ -209,6 +207,31 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
         CapabilitiesByQuality capabilities = new CapabilitiesByQuality(constrainedProvider);
         mDynamicRangeToCapabilitiesMap.put(dynamicRange, capabilities);
         return capabilities;
+    }
+
+    @NonNull
+    private static VideoProfileProxy generateVideoProfile(@NonNull VideoProfileProxy baseProfile,
+            @NonNull Size size, @NonNull VideoEncoderInfo encoderInfo) {
+        // "Guess" bit rate. Scale the bitrate based on size difference.
+        int derivedBitrate = VideoConfigUtil.scaleAndClampBitrate(
+                baseProfile.getBitrate(),
+                baseProfile.getBitDepth(), baseProfile.getBitDepth(),
+                baseProfile.getFrameRate(), baseProfile.getFrameRate(),
+                size.getWidth(), baseProfile.getWidth(),
+                size.getHeight(), baseProfile.getHeight(),
+                encoderInfo.getSupportedBitrateRange());
+        return VideoProfileProxy.create(
+                baseProfile.getCodec(),
+                baseProfile.getMediaType(),
+                derivedBitrate,
+                baseProfile.getFrameRate(),
+                size.getWidth(),
+                size.getHeight(),
+                baseProfile.getProfile(),
+                baseProfile.getBitDepth(),
+                baseProfile.getChromaSubsampling(),
+                baseProfile.getHdrFormat()
+        );
     }
 
     @Nullable

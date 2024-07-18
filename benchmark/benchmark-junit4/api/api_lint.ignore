@@ -1,7 +1,7 @@
 // Baseline format: 1.0
-GetterSetterNames: androidx.benchmark.junit4.PerfettoTraceRule#enableAppTagTracing:
+GetterSetterNames: field PerfettoTraceRule.enableAppTagTracing:
     Invalid name for boolean property `enableAppTagTracing`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: androidx.benchmark.junit4.PerfettoTraceRule#enableUserspaceTracing:
+GetterSetterNames: field PerfettoTraceRule.enableUserspaceTracing:
     Invalid name for boolean property `enableUserspaceTracing`. Should start with one of `has`, `can`, `should`, `is`.
 
 

@@ -650,7 +650,7 @@ public class ToolbarWidgetWrapper implements DecorToolbar {
 
     @Override
     public void setBackgroundDrawable(Drawable d) {
-        mToolbar.setBackground(d);
+        ViewCompat.setBackground(mToolbar, d);
     }
 
     @Override

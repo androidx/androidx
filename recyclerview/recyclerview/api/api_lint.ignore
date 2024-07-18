@@ -8,13 +8,13 @@ AcronymName: androidx.recyclerview.widget.LinearLayoutManager#isLayoutRTL():
 
 
 ArrayReturn: androidx.recyclerview.widget.AsyncListUtil.DataCallback#fillData(T[], int, int) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.recyclerview.widget.AsyncListUtil.DataCallback#recycleData(T[], int) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.recyclerview.widget.SortedList#addAll(T[], boolean) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.recyclerview.widget.SortedList#replaceAll(T[], boolean) parameter #0:
-    Method parameter should be Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method parameter should be Collection<T> (or subclass) instead of raw array; was `T[]`
 
 
 BannedThrow: androidx.recyclerview.widget.SnapHelper#attachToRecyclerView(androidx.recyclerview.widget.RecyclerView):

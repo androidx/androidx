@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.SdkResourceGenerator
 
@@ -52,12 +45,11 @@ dependencies {
     testImplementation(libs.testParameterInjector)
 
     testPlugin("com.android.tools.build:gradle:7.3.0")
-    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043")
-    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:linux")
-    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:osx")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
+
+SdkResourceGenerator.generateForHostTest(project)
 
 // Configure the generating task of plugin-under-test-metadata.properties to
 // include additional dependencies for the injected plugin classpath that
@@ -67,27 +59,19 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
     it.pluginClasspath.from(configurations.testPlugin)
 }
 
-tasks.withType(Test).configureEach { test ->
-    test.javaLauncher = javaToolchains.launcherFor {
-        // Test on JDK 17 which supports lower versions of AGP. This can be removed
-        // once we move to AGP 8.2.1+
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-    // Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
-    // the test project executed with Gradle Test Kit.
-    test.dependsOn(
-            ":annotation:annotation:publish",
-            ":annotation:annotation-experimental:publish",
-            ":room:room-common:publish",
-            ":room:room-runtime:publish",
-            ":room:room-migration:publish",
-            ":room:room-compiler:publish",
-            ":room:room-compiler-processing:publish",
-            ":room:room-external-antlr:publish",
-            ":sqlite:sqlite:publish",
-            ":sqlite:sqlite-framework:publish",
-    )
-}
+// Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
+// the test project executed with Gradle Test Kit.
+tasks.findByPath("test").dependsOn(
+        tasks.findByPath(":annotation:annotation:publish"),
+        tasks.findByPath(":annotation:annotation-experimental:publish"),
+        tasks.findByPath(":room:room-common:publish"),
+        tasks.findByPath(":room:room-runtime:publish"),
+        tasks.findByPath(":room:room-migration:publish"),
+        tasks.findByPath(":room:room-compiler:publish"),
+        tasks.findByPath(":room:room-compiler-processing:publish"),
+        tasks.findByPath(":sqlite:sqlite:publish"),
+        tasks.findByPath(":sqlite:sqlite-framework:publish"),
+)
 
 gradlePlugin {
     plugins {
@@ -103,4 +87,8 @@ androidx {
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2023"
     description = "Android Room Gradle Plugin"
+}
+
+validatePlugins {
+    enableStricterValidation = true
 }

@@ -30,6 +30,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.view.R;
@@ -42,6 +43,7 @@ import java.util.List;
  *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public class SliceStyle {
     private int mTintColor = -1;

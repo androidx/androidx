@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
 
     <issue
         id="ClassVerificationFailure"
@@ -17,6 +17,60 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
     </issue>
 
     <issue
@@ -44,33 +98,6 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/image_view_using_android_tint.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; SDK_INT is always >= 21"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
     </issue>
 
     <issue

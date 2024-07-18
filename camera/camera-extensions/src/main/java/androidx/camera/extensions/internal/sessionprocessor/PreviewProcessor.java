@@ -52,15 +52,12 @@ import java.util.List;
 class PreviewProcessor {
     private static final String TAG = "PreviewProcessor";
     @NonNull
-    private final PreviewImageProcessorImpl mPreviewImageProcessor;
+    final PreviewImageProcessorImpl mPreviewImageProcessor;
     @NonNull
-    private final CaptureResultImageMatcher mCaptureResultImageMatcher =
-            new CaptureResultImageMatcher();
-    private final Object mLock = new Object();
+    final CaptureResultImageMatcher mCaptureResultImageMatcher = new CaptureResultImageMatcher();
+    final Object mLock = new Object();
     @GuardedBy("mLock")
-    private boolean mIsClosed = false;
-    @GuardedBy("mLock")
-    private boolean mIsPaused = false;
+    boolean mIsClosed = false;
 
     PreviewProcessor(@NonNull PreviewImageProcessorImpl previewImageProcessor,
             @NonNull Surface previewOutputSurface, @NonNull Size surfaceSize) {
@@ -75,54 +72,38 @@ class PreviewProcessor {
                 @NonNull List<Pair<CaptureResult.Key, Object>> result);
     }
 
-    void pause() {
-        synchronized (mLock) {
-            mIsPaused = true;
-        }
-    }
-
-    void resume() {
-        synchronized (mLock) {
-            mIsPaused = false;
-        }
-    }
-
     void start(@NonNull OnCaptureResultCallback onResultCallback) {
         mCaptureResultImageMatcher.setImageReferenceListener(
                 (imageReference, totalCaptureResult, captureStageId) -> {
                     synchronized (mLock) {
-                        if (mIsClosed || mIsPaused) {
+                        if (mIsClosed) {
                             imageReference.decrement();
-                            Logger.d(TAG, "Ignore image in closed or paused state");
+                            Logger.d(TAG, "Ignore image in closed state");
                             return;
                         }
-                        try {
-                            if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
-                                    && ExtensionVersion
-                                    .isMinimumCompatibleVersion(Version.VERSION_1_3)) {
-                                mPreviewImageProcessor.process(imageReference.get(),
-                                        totalCaptureResult,
-                                        new ProcessResultImpl() {
-                                            @Override
-                                            public void onCaptureCompleted(long shutterTimestamp,
-                                                    @NonNull List<Pair<CaptureResult.Key, Object>>
-                                                            result) {
-                                                onResultCallback.onCaptureResult(shutterTimestamp,
-                                                        result);
-                                            }
+                        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
+                                && ExtensionVersion
+                                .isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+                            mPreviewImageProcessor.process(imageReference.get(), totalCaptureResult,
+                                    new ProcessResultImpl() {
+                                        @Override
+                                        public void onCaptureCompleted(long shutterTimestamp,
+                                                @NonNull List<Pair<CaptureResult.Key, Object>>
+                                                        result) {
+                                            onResultCallback.onCaptureResult(shutterTimestamp,
+                                                    result);
+                                        }
 
-                                            @Override
-                                            public void onCaptureProcessProgressed(int progress) {
+                                        @Override
+                                        public void onCaptureProcessProgressed(int progress) {
 
-                                            }
-                                        }, CameraXExecutors.ioExecutor());
-                            } else {
-                                mPreviewImageProcessor.process(imageReference.get(),
-                                        totalCaptureResult);
-                            }
-                        } finally {
-                            imageReference.decrement();
+                                        }
+                                    }, CameraXExecutors.ioExecutor());
+                        } else {
+                            mPreviewImageProcessor.process(imageReference.get(),
+                                    totalCaptureResult);
                         }
+                        imageReference.decrement();
                     }
                 });
     }

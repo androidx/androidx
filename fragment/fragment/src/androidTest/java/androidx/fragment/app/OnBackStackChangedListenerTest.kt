@@ -461,7 +461,6 @@ class OnBackStackChangedListenerTest {
             val fragment2 = StrictFragment()
             var startedCount = 0
             var committedCount = 0
-            var progress = 0f
 
             withActivity {
                 fragmentManager.beginTransaction()
@@ -488,10 +487,6 @@ class OnBackStackChangedListenerTest {
                     startedCount++
                 }
 
-                override fun onBackStackChangeProgressed(backEventCompat: BackEventCompat) {
-                    progress = backEventCompat.progress
-                }
-
                 override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
                     committedCount++
                 }
@@ -503,14 +498,8 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
-            withActivity {
-                onBackPressedDispatcher.dispatchOnBackProgressed(BackEventCompat(0f, 0f, 0.5f, 0))
-                executePendingTransactions()
-            }
-
             if (FragmentManager.USE_PREDICTIVE_BACK) {
                 assertThat(startedCount).isEqualTo(1)
-                assertThat(progress).isEqualTo(0.5f)
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
@@ -538,8 +527,6 @@ class OnBackStackChangedListenerTest {
             val fragment2 = StrictFragment()
             var startedCount = 0
             var committedCount = 0
-            var cancelledCount = 0
-            var backStackChangedCount = 0
 
             withActivity {
                 fragmentManager.beginTransaction()
@@ -559,13 +546,8 @@ class OnBackStackChangedListenerTest {
                 executePendingTransactions()
             }
 
-            var beforeOnBackStackChanged = false
-
             val listener = object : OnBackStackChangedListener {
-                override fun onBackStackChanged() {
-                    beforeOnBackStackChanged = false
-                    backStackChangedCount++
-                }
+                override fun onBackStackChanged() { /* nothing */ }
 
                 override fun onBackStackChangeStarted(fragment: Fragment, pop: Boolean) {
                     startedCount++
@@ -573,12 +555,6 @@ class OnBackStackChangedListenerTest {
 
                 override fun onBackStackChangeCommitted(fragment: Fragment, pop: Boolean) {
                     committedCount++
-                }
-
-                override fun onBackStackChangeCancelled() {
-                    if (beforeOnBackStackChanged) {
-                        cancelledCount++
-                    }
                 }
             }
             fragmentManager.addOnBackStackChangedListener(listener)
@@ -593,10 +569,7 @@ class OnBackStackChangedListenerTest {
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
-            assertThat(backStackChangedCount).isEqualTo(1)
             assertThat(committedCount).isEqualTo(0)
-
-            beforeOnBackStackChanged = true
 
             withActivity {
                 onBackPressedDispatcher.dispatchOnBackCancelled()
@@ -604,13 +577,10 @@ class OnBackStackChangedListenerTest {
 
             if (FragmentManager.USE_PREDICTIVE_BACK) {
                 assertThat(startedCount).isEqualTo(1)
-                assertThat(cancelledCount).isEqualTo(1)
             } else {
                 assertThat(startedCount).isEqualTo(0)
             }
             assertThat(committedCount).isEqualTo(0)
-            assertThat(backStackChangedCount).isEqualTo(2)
-            assertThat(beforeOnBackStackChanged).isFalse()
 
             assertThat(fragment2).isSameInstanceAs(fragmentManager.findFragmentById(R.id.content))
         }

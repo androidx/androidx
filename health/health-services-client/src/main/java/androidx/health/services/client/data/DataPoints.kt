@@ -618,30 +618,4 @@ internal object DataPoints {
             endDurationFromBoot = endDurationFromBoot
         )
     }
-
-    /**
-     * Creates a new [IntervalDataPoint] of type [DataType.ELEVATION_GAIN_DAILY] with the given
-     * [meters].
-     *
-     * @param meters number of meters elevated between [startDurationFromBoot] and
-     *   [endDurationFromBoot], Range from 0.0 to 1000000.0
-     * @param startDurationFromBoot the point in time this data point begins
-     * @param endDurationFromBoot the point in time this data point ends
-     */
-    @JvmStatic
-    public fun dailyElevationGain(
-        @FloatRange(from = 0.0, to = 1000000.0) meters: Double,
-        startDurationFromBoot: Duration,
-        endDurationFromBoot: Duration
-      ): IntervalDataPoint<Double> {
-        if (meters !in 0.0..1000000.0) {
-          Log.w(TAG, "meters value $meters is out of range")
-        }
-        return IntervalDataPoint(
-            dataType = DataType.ELEVATION_GAIN_DAILY,
-            value = meters,
-            startDurationFromBoot = startDurationFromBoot,
-            endDurationFromBoot = endDurationFromBoot
-        )
-    }
 }

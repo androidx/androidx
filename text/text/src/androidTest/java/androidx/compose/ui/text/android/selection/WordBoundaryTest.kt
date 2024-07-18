@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.text.android.selection
 
+import androidx.compose.ui.text.android.InternalPlatformTextApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -23,87 +24,88 @@ import java.util.Locale
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(InternalPlatformTextApi::class)
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class WordBoundaryTest {
     @Test(expected = IllegalArgumentException::class)
     fun testGetWordStart_out_of_boundary_too_small() {
         val text = "text"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        wordIterator.getWordStart(-1)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        wordBoundary.getWordStart(-1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetWordStart_out_of_boundary_too_big() {
         val text = "text"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        wordIterator.getWordStart(text.length + 1)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        wordBoundary.getWordStart(text.length + 1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetWordStart_DONE() {
         val text = "text"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        wordIterator.getWordStart(BreakIterator.DONE)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        wordBoundary.getWordStart(BreakIterator.DONE)
     }
 
     @Test
     fun testGetWordStart_Empty_String() {
-        val wordIterator = WordIterator("", 0, 0, Locale.ENGLISH)
-        assertThat(wordIterator.getWordStart(0)).isEqualTo(0)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, "")
+        assertThat(wordBoundary.getWordStart(0)).isEqualTo(0)
     }
 
     @Test
     fun testGetWordStart() {
         val text = "abc def-ghi. jkl"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        assertThat(wordIterator.getWordStart(text.indexOf('a')))
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        assertThat(wordBoundary.getWordStart(text.indexOf('a')))
             .isEqualTo(text.indexOf('a'))
-        assertThat(wordIterator.getWordStart(text.indexOf('c')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('c')))
             .isEqualTo(text.indexOf('a'))
-        assertThat(wordIterator.getWordStart(text.indexOf(' ')))
+        assertThat(wordBoundary.getWordStart(text.indexOf(' ')))
             .isEqualTo(text.indexOf('a'))
-        assertThat(wordIterator.getWordStart(text.indexOf('d')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('d')))
             .isEqualTo(text.indexOf('d'))
-        assertThat(wordIterator.getWordStart(text.indexOf('i')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('i')))
             .isEqualTo(text.indexOf('g'))
-        assertThat(wordIterator.getWordStart(text.indexOf('k')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('k')))
             .isEqualTo(text.indexOf('j'))
     }
 
     @Test
     fun testGetWordStart_RTL() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = WordIterator(text, 0, text.length, Locale("he", "IL"))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u05d0')))
+        val wordBoundary = WordBoundary(Locale("he", "IL"), text)
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d0')))
             .isEqualTo(text.indexOf('\u05d0'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u05d2')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d2')))
             .isEqualTo(text.indexOf('\u05d0'))
-        assertThat(wordIterator.getWordStart(text.indexOf(' ')))
+        assertThat(wordBoundary.getWordStart(text.indexOf(' ')))
             .isEqualTo(text.indexOf('\u05d0'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u05d4')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d4')))
             .isEqualTo(text.indexOf('\u05d3'))
-        assertThat(wordIterator.getWordStart(text.indexOf('-')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('-')))
             .isEqualTo(text.indexOf('\u05d3'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u05d5')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d5')))
             .isEqualTo(text.indexOf('-'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u05d6')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d6')))
             .isEqualTo(text.indexOf('\u05d5'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u05d7')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u05d7')))
             .isEqualTo(text.indexOf('\u05d7'))
     }
 
     @Test
     fun testGetWordStart_CJK() { // Japanese HIRAGANA letter + KATAKANA letters
         val text = "\u3042\u30A2\u30A3\u30A4"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.JAPANESE)
-        assertThat(wordIterator.getWordStart(text.indexOf('\u3042')))
+        val wordBoundary = WordBoundary(Locale.JAPANESE, text)
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u3042')))
             .isEqualTo(text.indexOf('\u3042'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u30A2')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u30A2')))
             .isEqualTo(text.indexOf('\u3042'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\u30A4')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\u30A4')))
             .isEqualTo(text.indexOf('\u30A2'))
-        assertThat(wordIterator.getWordStart(text.length))
+        assertThat(wordBoundary.getWordStart(text.length))
             .isEqualTo(text.indexOf('\u30A2'))
     }
 
@@ -111,113 +113,113 @@ class WordBoundaryTest {
     fun testGetWordStart_apostropheMiddleOfWord() {
         // These tests confirm that the word "isn't" is treated like one word.
         val text = "isn't he"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        assertThat(wordIterator.getWordStart(text.indexOf('i')))
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        assertThat(wordBoundary.getWordStart(text.indexOf('i')))
             .isEqualTo(text.indexOf('i'))
-        assertThat(wordIterator.getWordStart(text.indexOf('n')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('n')))
             .isEqualTo(text.indexOf('i'))
-        assertThat(wordIterator.getWordStart(text.indexOf('\'')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('\'')))
             .isEqualTo(text.indexOf('i'))
-        assertThat(wordIterator.getWordStart(text.indexOf('t')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('t')))
             .isEqualTo(text.indexOf('i'))
-        assertThat(wordIterator.getWordStart(text.indexOf('t') + 1))
+        assertThat(wordBoundary.getWordStart(text.indexOf('t') + 1))
             .isEqualTo(text.indexOf('i'))
-        assertThat(wordIterator.getWordStart(text.indexOf('h')))
+        assertThat(wordBoundary.getWordStart(text.indexOf('h')))
             .isEqualTo(text.indexOf('h'))
     }
 
     @Test
     fun testGetWordStart_isOnPunctuation() {
         val text = "abc!? (^^;) def"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        assertThat(wordIterator.getWordStart(text.indexOf('!')))
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        assertThat(wordBoundary.getWordStart(text.indexOf('!')))
             .isEqualTo(text.indexOf('a'))
-        assertThat(wordIterator.getWordStart(text.indexOf('?') + 1))
+        assertThat(wordBoundary.getWordStart(text.indexOf('?') + 1))
             .isEqualTo(text.indexOf('!'))
-        assertThat(wordIterator.getWordStart(text.indexOf(';')))
+        assertThat(wordBoundary.getWordStart(text.indexOf(';')))
             .isEqualTo(text.indexOf(';'))
-        assertThat(wordIterator.getWordStart(text.indexOf(')')))
+        assertThat(wordBoundary.getWordStart(text.indexOf(')')))
             .isEqualTo(text.indexOf(';'))
-        assertThat(wordIterator.getWordStart(text.length)).isEqualTo(text.indexOf('d'))
+        assertThat(wordBoundary.getWordStart(text.length)).isEqualTo(text.indexOf('d'))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetWordEnd_out_of_boundary_too_small() {
         val text = "text"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        wordIterator.getWordEnd(-1)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        wordBoundary.getWordEnd(-1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetWordEnd_out_of_boundary_too_big() {
         val text = "text"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        wordIterator.getWordEnd(text.length + 1)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        wordBoundary.getWordEnd(text.length + 1)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetWordEnd_DONE() {
         val text = "text"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        wordIterator.getWordEnd(BreakIterator.DONE)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        wordBoundary.getWordEnd(BreakIterator.DONE)
     }
 
     @Test
     fun testGetWordEnd_Empty_String() {
-        val wordIterator = WordIterator("", 0, 0, Locale.ENGLISH)
-        assertThat(wordIterator.getWordEnd(0)).isEqualTo(0)
+        val wordBoundary = WordBoundary(Locale.ENGLISH, "")
+        assertThat(wordBoundary.getWordEnd(0)).isEqualTo(0)
     }
 
     @Test
     fun testGetWordEnd() {
         val text = "abc def-ghi. jkl"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        assertThat(wordIterator.getWordEnd(text.indexOf('a')))
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('a')))
             .isEqualTo(text.indexOf(' '))
-        assertThat(wordIterator.getWordEnd(text.indexOf('c')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('c')))
             .isEqualTo(text.indexOf(' '))
-        assertThat(wordIterator.getWordEnd(text.indexOf(' ')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf(' ')))
             .isEqualTo(text.indexOf(' '))
-        assertThat(wordIterator.getWordEnd(text.indexOf('d')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('d')))
             .isEqualTo(text.indexOf('-'))
-        assertThat(wordIterator.getWordEnd(text.indexOf('i')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('i')))
             .isEqualTo(text.indexOf('.'))
-        assertThat(wordIterator.getWordEnd(text.indexOf('k')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('k')))
             .isEqualTo(text.indexOf('l') + 1)
     }
 
     @Test
     fun testGetWordEnd_RTL() { // Hebrew -- "אבג דה-וז. חט"
         val text = "\u05d0\u05d1\u05d2 \u05d3\u05d4-\u05d5\u05d6. \u05d7\u05d8"
-        val wordIterator = WordIterator(text, 0, text.length, Locale("he", "IL"))
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u05d0')))
+        val wordBoundary = WordBoundary(Locale("he", "IL"), text)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d0')))
             .isEqualTo(text.indexOf(' '))
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u05d2')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d2')))
             .isEqualTo(text.indexOf(' '))
-        assertThat(wordIterator.getWordEnd(text.indexOf(' ')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf(' ')))
             .isEqualTo(text.indexOf(' '))
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u05d4')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d4')))
             .isEqualTo(text.indexOf('-'))
-        assertThat(wordIterator.getWordEnd(text.indexOf('-')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('-')))
             .isEqualTo(text.indexOf('-') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u05d5')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d5')))
             .isEqualTo(text.indexOf('.'))
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u05d6')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d6')))
             .isEqualTo(text.indexOf('.'))
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u05d7'))).isEqualTo(text.length)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u05d7'))).isEqualTo(text.length)
     }
 
     @Test
     fun testGetWordEnd_CJK() { // Japanese HIRAGANA letter + KATAKANA letters
         val text = "\u3042\u30A2\u30A3\u30A4"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.JAPANESE)
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u3042')))
+        val wordBoundary = WordBoundary(Locale.JAPANESE, text)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u3042')))
             .isEqualTo(text.indexOf('\u3042') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u30A2')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u30A2')))
             .isEqualTo(text.indexOf('\u30A4') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('\u30A4')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\u30A4')))
             .isEqualTo(text.indexOf('\u30A4') + 1)
-        assertThat(wordIterator.getWordEnd(text.length))
+        assertThat(wordBoundary.getWordEnd(text.length))
             .isEqualTo(text.indexOf('\u30A4') + 1)
     }
 
@@ -225,34 +227,34 @@ class WordBoundaryTest {
     fun testGetWordEnd_apostropheMiddleOfWord() {
         // These tests confirm that the word "isn't" is treated like one word.
         val text = "isn't he"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        assertThat(wordIterator.getWordEnd(text.indexOf('i')))
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('i')))
             .isEqualTo(text.indexOf('t') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('n')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('n')))
             .isEqualTo(text.indexOf('t') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('\'')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('\'')))
             .isEqualTo(text.indexOf('t') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('t')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('t')))
             .isEqualTo(text.indexOf('t') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('h')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('h')))
             .isEqualTo(text.indexOf('e') + 1)
     }
 
     @Test
     fun testGetWordEnd_isOnPunctuation() {
         val text = "abc!? (^^;) def"
-        val wordIterator = WordIterator(text, 0, text.length, Locale.ENGLISH)
-        assertThat(wordIterator.getWordEnd(text.indexOf('a')))
+        val wordBoundary = WordBoundary(Locale.ENGLISH, text)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('a')))
             .isEqualTo(text.indexOf('!'))
-        assertThat(wordIterator.getWordEnd(text.indexOf('?') + 1))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('?') + 1))
             .isEqualTo(text.indexOf('?') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('(')))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('(')))
             .isEqualTo(text.indexOf('(') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('(') + 2))
+        assertThat(wordBoundary.getWordEnd(text.indexOf('(') + 2))
             .isEqualTo(text.indexOf('(') + 2)
-        assertThat(wordIterator.getWordEnd(text.indexOf(')') + 1))
+        assertThat(wordBoundary.getWordEnd(text.indexOf(')') + 1))
             .isEqualTo(text.indexOf(')') + 1)
-        assertThat(wordIterator.getWordEnd(text.indexOf('d'))).isEqualTo(text.length)
-        assertThat(wordIterator.getWordEnd(text.length)).isEqualTo(text.length)
+        assertThat(wordBoundary.getWordEnd(text.indexOf('d'))).isEqualTo(text.length)
+        assertThat(wordBoundary.getWordEnd(text.length)).isEqualTo(text.length)
     }
 }

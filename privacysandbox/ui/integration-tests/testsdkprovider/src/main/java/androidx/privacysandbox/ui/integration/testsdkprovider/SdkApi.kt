@@ -32,45 +32,24 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebResourceRequest
-import android.webkit.WebResourceResponse
-import android.webkit.WebSettings
 import android.webkit.WebView
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
-import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
-import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
-import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
-import androidx.webkit.WebViewAssetLoader
-import androidx.webkit.WebViewClientCompat
 import java.util.concurrent.Executor
 
-class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
+class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
+    private var mContext: Context? = null
     private val handler = Handler(Looper.getMainLooper())
     private lateinit var bannerAd: BannerAd
 
-    override fun loadWebViewAd(): Bundle {
-        return WebViewBannerAd().toCoreLibInfo(sdkContext)
+    init {
+        mContext = sdkContext
     }
 
-    override fun loadLocalWebViewAd(): Bundle {
-        return LocalViewBannerAd().toCoreLibInfo(sdkContext)
-    }
-
-    override fun loadTestAd(text: String): Bundle {
-        return TestBannerAd(text).toCoreLibInfo(sdkContext)
-    }
-
-    override fun loadTestAdWithWaitInsideOnDraw(text: String): Bundle {
-        return TestBannerAdWithWaitInsideOnDraw(text).toCoreLibInfo(sdkContext)
-    }
-
-    override fun loadMediatedTestAd(count: Int, isAppMediatee: Boolean): Bundle {
-        val mediateeBannerAdBundle = getMediateeBannerAdBundle(count, isAppMediatee)
-        return MediatedBannerAd(mediateeBannerAdBundle).toCoreLibInfo(sdkContext)
+    override fun loadAd(isWebView: Boolean, text: String, withSlowDraw: Boolean): Bundle {
+        bannerAd = BannerAd(isWebView, withSlowDraw, text)
+        return bannerAd.toCoreLibInfo(mContext!!)
     }
 
     override fun requestResize(width: Int, height: Int) {
@@ -79,15 +58,17 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
 
     private fun isAirplaneModeOn(): Boolean {
         return Settings.Global.getInt(
-            sdkContext.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
+            mContext?.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
     }
 
-    private abstract inner class BannerAd() : SandboxedUiAdapter {
+    private inner class BannerAd(
+        private val isWebView: Boolean,
+        private val withSlowDraw: Boolean,
+        private val text: String
+    ) :
+        SandboxedUiAdapter {
         lateinit var sessionClientExecutor: Executor
         lateinit var sessionClient: SandboxedUiAdapter.SessionClient
-
-        abstract fun buildAdView(sessionContext: Context): View?
-
         override fun openSession(
             context: Context,
             windowInputToken: IBinder,
@@ -101,8 +82,26 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
             sessionClient = client
             handler.post(Runnable lambda@{
                 Log.d(TAG, "Session requested")
-                val adView: View = buildAdView(context) ?: return@lambda
-                adView.layoutParams = ViewGroup.LayoutParams(initialWidth, initialHeight)
+                lateinit var adView: View
+                if (isWebView) {
+                    // To test error cases.
+                    if (isAirplaneModeOn()) {
+                        clientExecutor.execute {
+                            client.onSessionError(
+                                Throwable("Cannot load WebView in airplane mode.")
+                            )
+                        }
+                        return@lambda
+                    }
+                    val webView = WebView(context)
+                    webView.loadUrl(AD_URL)
+                    webView.layoutParams = ViewGroup.LayoutParams(
+                        initialWidth, initialHeight
+                    )
+                    adView = webView
+                } else {
+                    adView = TestView(context, withSlowDraw, text)
+                }
                 clientExecutor.execute {
                     client.onSessionOpened(BannerAdSession(adView))
                 }
@@ -139,102 +138,11 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
-    private inner class WebViewBannerAd() : BannerAd() {
-        override fun buildAdView(sessionContext: Context): View? {
-            if (isAirplaneModeOn()) {
-                sessionClientExecutor.execute {
-                    sessionClient.onSessionError(
-                        Throwable("Cannot load WebView in airplane mode.")
-                    )
-                }
-                return null
-            }
-            val webView = WebView(sessionContext)
-            customizeWebViewSettings(webView.settings)
-            webView.loadUrl(GOOGLE_URL)
-            return webView
-        }
-    }
-
-    private inner class LocalViewBannerAd() : BannerAd() {
-        override fun buildAdView(sessionContext: Context): View {
-            val webView = WebView(sessionContext)
-            val assetLoader = WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(sdkContext))
-                .addPathHandler("/res/", WebViewAssetLoader.ResourcesPathHandler(sdkContext))
-                .build()
-            webView.webViewClient = LocalContentWebViewClient(assetLoader)
-            customizeWebViewSettings(webView.settings)
-            webView.loadUrl(LOCAL_WEB_VIEW_URL)
-            return webView
-        }
-    }
-
-    private inner class TestBannerAd(private val text: String) : BannerAd() {
-        override fun buildAdView(sessionContext: Context): View {
-            return TestView(sessionContext, false, text)
-        }
-    }
-
-    private inner class TestBannerAdWithWaitInsideOnDraw(private val text: String) : BannerAd() {
-        override fun buildAdView(sessionContext: Context): View {
-            return TestView(sessionContext, true, text)
-        }
-    }
-
-    private fun getMediateeBannerAdBundle(
-        count: Int,
-        isAppMediatee: Boolean
-    ): Bundle? {
-        val sdkSandboxControllerCompat = SdkSandboxControllerCompat.from(sdkContext)
-        if (isAppMediatee) {
-            val appOwnedSdkSandboxInterfaces = sdkSandboxControllerCompat
-                .getAppOwnedSdkSandboxInterfaces()
-            appOwnedSdkSandboxInterfaces.forEach {
-                appOwnedSdkSandboxInterfaceCompat ->
-                if (appOwnedSdkSandboxInterfaceCompat.getName().equals(MEDIATEE_SDK)) {
-                    val appOwnedMediateeSdkApi = IAppOwnedMediateeSdkApi.Stub
-                        .asInterface(appOwnedSdkSandboxInterfaceCompat.getInterface())
-                    return appOwnedMediateeSdkApi.loadTestAdWithWaitInsideOnDraw(count)
-                }
-            }
-        } else {
-            val sandboxedSdks = sdkSandboxControllerCompat.getSandboxedSdks()
-            sandboxedSdks.forEach {
-                sandboxedSdkCompat ->
-                if (sandboxedSdkCompat.getSdkInfo()?.name.equals(MEDIATEE_SDK)) {
-                    val mediateeSdkApi = IMediateeSdkApi.Stub
-                        .asInterface(sandboxedSdkCompat.getInterface())
-                    return mediateeSdkApi.loadTestAdWithWaitInsideOnDraw(count)
-                }
-            }
-        }
-        return null
-    }
-
-    private inner class MediatedBannerAd(private val mediateeBannerAdBundle: Bundle?) : BannerAd() {
-        override fun buildAdView(sessionContext: Context): View {
-            if (mediateeBannerAdBundle == null) {
-                return TestBannerAdWithWaitInsideOnDraw(
-                    "Mediated SDK is not loaded, this is a mediator Ad!"
-                ).buildAdView(sdkContext)
-            }
-
-            val view = SandboxedSdkView(sdkContext)
-            val adapter = SandboxedUiAdapterFactory.createFromCoreLibInfo(mediateeBannerAdBundle)
-            view.setAdapter(adapter)
-            return view
-        }
-    }
-
     private inner class TestView(
         context: Context,
         private val withSlowDraw: Boolean,
         private val text: String
     ) : View(context) {
-
-        private val viewColor = Color
-            .rgb((0..255).random(), (0..255).random(), (0..255).random())
 
         @SuppressLint("BanThreadSleep")
         override fun onDraw(canvas: Canvas) {
@@ -246,16 +154,18 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
 
             val paint = Paint()
             paint.textSize = 50F
+            canvas.drawColor(
+                Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
+            )
 
-            canvas.drawColor(viewColor)
             canvas.drawText(text, 75F, 75F, paint)
 
             setOnClickListener {
                 Log.i(TAG, "Click on ad detected")
                 val visitUrl = Intent(Intent.ACTION_VIEW)
-                visitUrl.data = Uri.parse(GOOGLE_URL)
+                visitUrl.data = Uri.parse(AD_URL)
                 visitUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                sdkContext.startActivity(visitUrl)
+                mContext!!.startActivity(visitUrl)
             }
         }
 
@@ -264,45 +174,8 @@ class SdkApi(val sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
-    private inner class LocalContentWebViewClient(private val assetLoader: WebViewAssetLoader) :
-        WebViewClientCompat() {
-        override fun shouldInterceptRequest(
-            view: WebView,
-            request: WebResourceRequest
-        ): WebResourceResponse? {
-            return assetLoader.shouldInterceptRequest(request.url)
-        }
-
-        @Deprecated("Deprecated in Java")
-        override fun shouldInterceptRequest(
-            view: WebView,
-            url: String
-        ): WebResourceResponse? {
-            return assetLoader.shouldInterceptRequest(Uri.parse(url))
-        }
-    }
-
-    private fun customizeWebViewSettings(settings: WebSettings) {
-        settings.javaScriptEnabled = true
-        settings.setGeolocationEnabled(true)
-        settings.setSupportZoom(true)
-        settings.databaseEnabled = true
-        settings.domStorageEnabled = true
-        settings.allowFileAccess = true
-        settings.allowContentAccess = true
-
-        // Default layout behavior for chrome on android.
-        settings.useWideViewPort = true
-        settings.loadWithOverviewMode = true
-        settings.layoutAlgorithm = WebSettings.LayoutAlgorithm.TEXT_AUTOSIZING
-    }
-
     companion object {
         private const val TAG = "TestSandboxSdk"
-        private const val GOOGLE_URL = "https://www.google.com/"
-        private const val LOCAL_WEB_VIEW_URL =
-            "https://appassets.androidplatform.net/assets/www/webview-test.html"
-        private const val MEDIATEE_SDK =
-            "androidx.privacysandbox.ui.integration.mediateesdkprovider"
+        private const val AD_URL = "https://www.google.com/"
     }
 }

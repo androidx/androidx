@@ -22,8 +22,8 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  * An item representing a navigation destination in a [ThreePaneScaffold].
  *
  * @param pane the pane destination of the navigation.
- * @param content the optional content, or an id representing the content of the destination.
- * The type [T] must be storable in a Bundle.
+ * @param content the optional content, or an id representing the content of the destination. The
+ *   type [T] must be storable in a Bundle.
  */
 @ExperimentalMaterial3AdaptiveApi
 class ThreePaneScaffoldDestinationItem<out T>(

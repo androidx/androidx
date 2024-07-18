@@ -16,7 +16,6 @@
 
 package androidx.wear.protolayout.expression;
 
-import static androidx.wear.protolayout.expression.DynamicBuilders.dynamicBoolFromProto;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_AND;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_EQUAL;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.LogicalOpType.LOGICAL_OP_TYPE_NOT_EQUAL;
@@ -27,8 +26,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
-import androidx.wear.protolayout.expression.proto.DynamicProto;
-import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -206,28 +203,5 @@ public final class DynamicBoolTest {
 
         assertThat(from.toDynamicBoolByteArray(new byte[100]))
                 .isEqualTo(from.toDynamicBoolByteArray().length);
-    }
-
-    @Test
-    public void serializing_deserializing_withFingerprint() {
-        DynamicBool from = DynamicBool.constant(true);
-        NodeFingerprint fingerprint = from.getFingerprint().toProto();
-
-        DynamicProto.DynamicBool to = from.toDynamicBoolProto(true);
-        assertThat(to.getFingerprint()).isEqualTo(fingerprint);
-
-        DynamicBool back = dynamicBoolFromProto(to);
-        assertThat(back.getFingerprint().toProto()).isEqualTo(fingerprint);
-    }
-
-    @Test
-    public void toByteArray_fromByteArray_withFingerprint() {
-        DynamicBool from = DynamicBool.constant(true);
-        byte[] buffer = from.toDynamicBoolByteArray();
-        DynamicProto.DynamicBool toProto =
-                DynamicBool.fromByteArray(buffer).toDynamicBoolProto(true);
-
-        assertThat(toProto.getFixed().getValue()).isTrue();
-        assertThat(toProto.getFingerprint()).isEqualTo(from.getFingerprint().toProto());
     }
 }

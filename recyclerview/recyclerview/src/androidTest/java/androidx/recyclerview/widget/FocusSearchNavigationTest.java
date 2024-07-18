@@ -29,6 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -76,11 +77,19 @@ public class FocusSearchNavigationTest {
 
     @Parameterized.Parameters(name = "orientation:{0},layoutDir:{1}")
     public static List<Object[]> params() {
-        return Arrays.asList(
-                new Object[]{VERTICAL, View.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, View.LAYOUT_DIRECTION_LTR},
-                new Object[]{HORIZONTAL, View.LAYOUT_DIRECTION_RTL}
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            return Arrays.asList(
+                    new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_RTL}
+            );
+        } else {
+            // Do not test RTL before API 17
+            return Arrays.asList(
+                    new Object[]{VERTICAL, ViewCompat.LAYOUT_DIRECTION_LTR},
+                    new Object[]{HORIZONTAL, ViewCompat.LAYOUT_DIRECTION_LTR}
+            );
+        }
     }
 
     private Activity mActivity;
@@ -118,7 +127,7 @@ public class FocusSearchNavigationTest {
         waitForIdleSync();
         assertThat("Assumption check", mRecyclerView.getLayoutManager().getLayoutDirection(),
                 is(mLayoutDir));
-        assertThat("Assumption check", mRecyclerView.getLayoutDirection(),
+        assertThat("Assumption check", ViewCompat.getLayoutDirection(mRecyclerView),
                 is(mLayoutDir));
     }
 

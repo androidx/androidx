@@ -68,8 +68,10 @@ public class LocalesLateOnCreateActivity extends LocalesUpdateActivity {
         Configuration conf = context.getResources().getConfiguration();
         if (Build.VERSION.SDK_INT >= 24) {
             conf.setLocales(LocaleList.forLanguageTags(locales.toLanguageTags()));
-        } else {
+        } else if (Build.VERSION.SDK_INT >= 17) {
             conf.setLocale(locales.get(0));
+        } else {
+            conf.locale = locales.get(0);
         }
         // updateConfiguration is required to make the configuration change stick.
         // updateConfiguration must be called before any use of the actual Resources.

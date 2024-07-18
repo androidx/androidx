@@ -70,16 +70,7 @@ internal abstract class JavacElement(
     override fun getAllAnnotations(): List<XAnnotation> {
         return element.annotationMirrors.map { mirror -> JavacAnnotation(env, mirror) }
             .flatMap { annotation ->
-                // TODO(b/313473892): Checking if an annotation needs to be unwrapped can be
-                //  expensive with the XProcessing API, especially if we don't really care about
-                //  annotation values, so do a quick check on the AnnotationMirror first to decide
-                //  if its repeatable. Remove this once we've optimized the general solution in
-                //  unwrapRepeatedAnnotationsFromContainer()
-                if (annotation.mirror.isRepeatable()) {
-                    annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
-                } else {
-                    listOf(annotation)
-                }
+                annotation.unwrapRepeatedAnnotationsFromContainer() ?: listOf(annotation)
             }
     }
 

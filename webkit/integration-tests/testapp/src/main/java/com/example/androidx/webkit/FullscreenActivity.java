@@ -66,17 +66,11 @@ public class FullscreenActivity extends AppCompatActivity {
             // At this point, the WebView is no longer drawing the content. We should cover it up
             // with the new View.
             mFullScreenView = view;
-            addDeprecatedFullScreenFlag();
+            mWindow.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             mWindow.addContentView(mFullScreenView,
                     new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                             ViewGroup.LayoutParams.MATCH_PARENT));
             mCustomViewCallback = callback;
-        }
-
-        /** @noinspection RedundantSuppression*/
-        @SuppressWarnings("deprecation") /* b/180503860 */
-        private void addDeprecatedFullScreenFlag() {
-            mWindow.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
         @Override
@@ -84,16 +78,10 @@ public class FullscreenActivity extends AppCompatActivity {
             // At this point, mFullScreenView is no longer drawing content. Remove this from the
             // layout to show the underlying WebView, and remove the reference to the View so it can
             // be GC'ed.
-            clearDeprecatedFullScreenFlag();
+            mWindow.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             ((ViewGroup) mFullScreenView.getParent()).removeView(mFullScreenView);
             mFullScreenView = null;
             mCustomViewCallback = null;
-        }
-
-        /** @noinspection RedundantSuppression*/
-        @SuppressWarnings("deprecation") /* b/180503860 */
-        private void clearDeprecatedFullScreenFlag() {
-            mWindow.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
 
         /* package */ void exitFullScreen() {

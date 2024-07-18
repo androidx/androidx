@@ -28,8 +28,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.core.tryAcquireToken
-import androidx.camera.camera2.pipe.internal.FrameCaptureQueue
+import androidx.camera.camera2.pipe.core.TokenLockImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -40,7 +39,6 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -53,6 +51,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class CameraGraphSessionImplTest {
+    private val tokenLock = TokenLockImpl(1)
 
     private val graphState3A = GraphState3A()
     private val listener3A = Listener3A()
@@ -70,17 +69,9 @@ internal class CameraGraphSessionImplTest {
                 )
             ), graphState3A, listener3A
         )
-    private val frameCaptureQueue = FrameCaptureQueue()
-    private val sessionMutex = Mutex()
-    private val sessionToken = sessionMutex.tryAcquireToken()!!
 
     private val session =
-        CameraGraphSessionImpl(
-            sessionToken,
-            graphProcessor,
-            controller3A,
-            frameCaptureQueue
-        )
+        CameraGraphSessionImpl(tokenLock.acquireOrNull(1, 1)!!, graphProcessor, controller3A)
 
     @Test
     fun createCameraGraphSession() {
@@ -129,7 +120,7 @@ internal class CameraGraphSessionImplTest {
     }
 
     @Test
-    fun lock3AShouldFailWhenInvokedBeforeStartRepeating() = runTest {
+    fun Lock3AShouldFailWhenInvokedBeforeStartRepeating() = runTest {
         graphProcessor.onGraphStarted(fakeGraphRequestProcessor)
 
         val afResult = session.lock3A(afLockBehavior = Lock3ABehavior.IMMEDIATE).await()
@@ -140,7 +131,7 @@ internal class CameraGraphSessionImplTest {
     }
 
     @Test
-    fun lock3AShouldSucceedWhenInvokedAfterStartRepeatingAndConverged() = runTest {
+    fun Lock3AShouldSucceedWhenInvokedAfterStartRepeatingAndConverged() = runTest {
         val streamId = StreamId(1)
         val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
         val surface = Surface(surfaceTexture)
@@ -174,7 +165,7 @@ internal class CameraGraphSessionImplTest {
     }
 
     @Test
-    fun lock3AShouldFailWhenInvokedAfterStartAndStopRepeating() = runTest {
+    fun Lock3AShouldFailWhenInvokedAfterStartAndStopRepeating() = runTest {
         val streamId = StreamId(1)
         val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
         val surface = Surface(surfaceTexture)

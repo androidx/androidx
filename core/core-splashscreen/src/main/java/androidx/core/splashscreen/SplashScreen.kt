@@ -425,11 +425,9 @@ class SplashScreen private constructor(activity: Activity) {
 
         override fun install() {
             setPostSplashScreenTheme(activity.theme, TypedValue())
-            if (SDK_INT < 33) {
-                (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(
-                    hierarchyListener
-                )
-            }
+            (activity.window.decorView as ViewGroup).setOnHierarchyChangeListener(
+                hierarchyListener
+            )
         }
 
         override fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
@@ -456,9 +454,7 @@ class SplashScreen private constructor(activity: Activity) {
             exitAnimationListener: OnExitAnimationListener
         ) {
             activity.splashScreen.setOnExitAnimationListener { splashScreenView ->
-                if (SDK_INT < 33) {
-                    applyAppSystemUiTheme()
-                }
+                applyAppSystemUiTheme()
                 val splashScreenViewProvider = SplashScreenViewProvider(splashScreenView, activity)
                 exitAnimationListener.onSplashScreenExit(splashScreenViewProvider)
             }
@@ -494,6 +490,14 @@ class SplashScreen private constructor(activity: Activity) {
                 } else {
                     window.clearFlags(LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
                 }
+            }
+
+            if (theme.resolveAttribute(attr.enforceNavigationBarContrast, tv, true)) {
+                window.isNavigationBarContrastEnforced = tv.data != 0
+            }
+
+            if (theme.resolveAttribute(attr.enforceStatusBarContrast, tv, true)) {
+                window.isStatusBarContrastEnforced = tv.data != 0
             }
 
             val decorView = window.decorView as ViewGroup

@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter
 import java.util.Locale
@@ -41,6 +42,7 @@ import java.util.Locale
  * @see SurfaceSorter
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class SurfaceOrderQuirk : Quirk {
     companion object {
         private val BUILD_HARDWARE_SET = listOf("samsungexynos7570", "samsungexynos7870")

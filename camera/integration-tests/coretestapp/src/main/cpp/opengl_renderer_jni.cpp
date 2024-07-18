@@ -361,12 +361,8 @@ R"SRC(#version 300 es
 
         int renderType = dynamicRange != RENDERER_DYN_RNG_SDR
                 ? EGL_OPENGL_ES3_BIT : EGL_OPENGL_ES2_BIT;
-
-        // TODO(b/319277249): It will crash on older Samsung devices for HDR video 10-bi
-        //  because EGLExt.EGL_RECORDABLE_ANDROID is only supported from OneUI 6.1. We need to
-        //  check by GPU Driver version when new OS is release.
         int recordableAndroid = dynamicRange != RENDERER_DYN_RNG_SDR
-                                ? EGL_DONT_CARE : EGL_TRUE;
+                ? EGL_FALSE : EGL_TRUE;
         int configAttribs[] = { EGL_RED_SIZE, bitDepth,
                                 EGL_GREEN_SIZE, bitDepth,
                                 EGL_BLUE_SIZE, bitDepth,

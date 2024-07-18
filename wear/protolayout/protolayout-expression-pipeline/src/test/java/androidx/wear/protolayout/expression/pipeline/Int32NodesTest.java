@@ -18,17 +18,10 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.DAILY_STEPS;
 import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HEART_RATE_BPM;
-import static androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE;
-import static androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType.ARITHMETIC_OP_TYPE_UNDEFINED;
-import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_CEILING;
-import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_FLOOR;
-import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_ROUND;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
@@ -43,7 +36,6 @@ import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
-import androidx.wear.protolayout.expression.pipeline.Int32Nodes.ArithmeticInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
@@ -51,7 +43,6 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformIn
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
-import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
@@ -73,7 +64,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.mockito.stubbing.Answer;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -85,11 +75,6 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class Int32NodesTest {
-    private static final PlatformDataValues STEPS_70 =
-            PlatformDataValues.of(DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(70));
-    private static final PlatformDataValues STEPS_80 =
-            PlatformDataValues.of(DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(80));
-
     @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock private DynamicTypeValueReceiverWithPreUpdate<Integer> mMockValueReceiver;
@@ -108,71 +93,6 @@ public class Int32NodesTest {
         node.init();
 
         assertThat(results).containsExactly(56);
-    }
-
-    @Test
-    public void testArithmeticOperation_unknownOp_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                1,
-                                1,
-                                ARITHMETIC_OP_TYPE_UNDEFINED.getNumber(),
-                                new AddToListCallback<>(new ArrayList<>())));
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        evaluateArithmeticExpression(
-                                /* lhs= */ 1,
-                                /* rhs= */ 1,
-                                -1 /* UNRECOGNIZED */,
-                                new AddToListCallback<>(new ArrayList<>())));
-    }
-
-    @Test
-    public void testArithmeticOperation_validResult_invalidateNotCalled() {
-        List<Integer> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-
-        evaluateArithmeticExpression(
-                /* lhs= */ 4,
-                /* rhs= */ 3,
-                ARITHMETIC_OP_TYPE_DIVIDE.getNumber(),
-                new AddToListCallback<>(results, invalidList));
-
-        assertThat(results).containsExactly(1);
-        assertThat(invalidList).isEmpty();
-    }
-
-    @Test
-    public void testArithmeticOperation_arithmeticExceptionThrown_invalidate() {
-        List<Integer> results = new ArrayList<>();
-        List<Boolean> invalidList = new ArrayList<>();
-
-        evaluateArithmeticExpression(
-                /* lhs= */ 0,
-                /* rhs= */ 0,
-                ARITHMETIC_OP_TYPE_DIVIDE.getNumber(),
-                new AddToListCallback<>(results, invalidList));
-
-        assertThat(results).isEmpty();
-        assertThat(invalidList).containsExactly(true);
-    }
-
-    @Test
-    public void testGetDurationPartOpNode_unknownPart_throws() {
-        Duration duration = Duration.ofSeconds(123456);
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        createGetDurationPartOpNodeAndGetPart(
-                                duration, DurationPartType.DURATION_PART_TYPE_UNDEFINED));
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> createGetDurationPartOpNodeAndGetPart(duration, -1 /* UNRECOGNIZED */));
     }
 
     @Test
@@ -256,14 +176,10 @@ public class Int32NodesTest {
     }
 
     private int createGetDurationPartOpNodeAndGetPart(Duration duration, DurationPartType part) {
-        return createGetDurationPartOpNodeAndGetPart(duration, part.getNumber());
-    }
-
-    private int createGetDurationPartOpNodeAndGetPart(Duration duration, int part) {
         List<Integer> results = new ArrayList<>();
         GetDurationPartOpNode node =
                 new GetDurationPartOpNode(
-                        GetDurationPartOp.newBuilder().setDurationPartValue(part).build(),
+                        GetDurationPartOp.newBuilder().setDurationPart(part).build(),
                         new AddToListCallback<>(results));
         node.getIncomingCallback().onData(duration);
         return results.get(0);
@@ -354,42 +270,17 @@ public class Int32NodesTest {
         verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
         PlatformDataReceiver receiver = receiverCaptor.getValue();
-        receiver.onData(STEPS_70);
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(70)));
+        assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        receiver.onData(STEPS_80);
-        assertThat(results).containsExactly(70, 80).inOrder();
-    }
-
-    @Test
-    public void stateInt32Source_init_callsOnDataOnlyOnce() {
-        doAnswer(
-                        (Answer<Void>)
-                                invocation -> {
-                                    ((PlatformDataReceiver) invocation.getArgument(1))
-                                            .onData(STEPS_70);
-                                    return null;
-                                })
-                .when(mMockDataProvider)
-                .setReceiver(any(), any());
-        PlatformDataStore platformDataStore =
-                new PlatformDataStore(
-                        Collections.singletonMap(
-                                PlatformHealthSources.Keys.DAILY_STEPS, mMockDataProvider));
-        StateInt32Source dailyStepsSource =
-                StateInt32Source.newBuilder()
-                        .setSourceKey(PlatformHealthSources.Keys.DAILY_STEPS.getKey())
-                        .setSourceNamespace(PlatformHealthSources.Keys.DAILY_STEPS.getNamespace())
-                        .build();
-        List<Integer> results = new ArrayList<>();
-        StateInt32SourceNode dailyStepsSourceNode =
-                new StateInt32SourceNode(
-                        platformDataStore, dailyStepsSource, new AddToListCallback<>(results));
-
-        dailyStepsSourceNode.preInit();
-        dailyStepsSourceNode.init();
-
-        assertThat(results).containsExactly(70);
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(80)));
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70, 80);
     }
 
     @Test
@@ -403,9 +294,9 @@ public class Int32NodesTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
-        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedInt32Node node =
-                new AnimatableFixedInt32Node(protoNode, addToListCallback, quotaManager);
+                new AnimatableFixedInt32Node(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -415,7 +306,6 @@ public class Int32NodesTest {
         assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(startValue);
         assertThat(Iterables.getLast(results)).isEqualTo(endValue);
-        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -429,9 +319,9 @@ public class Int32NodesTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
-        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedInt32Node node =
-                new AnimatableFixedInt32Node(protoNode, addToListCallback, quotaManager);
+                new AnimatableFixedInt32Node(
+                        protoNode, new AddToListCallback<>(results), quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -440,7 +330,6 @@ public class Int32NodesTest {
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(endValue);
-        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -482,10 +371,11 @@ public class Int32NodesTest {
                                         .setInt32Val(
                                                 FixedInt32.newBuilder().setValue(value1).build())
                                         .build()));
-        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         DynamicAnimatedInt32Node int32Node =
                 new DynamicAnimatedInt32Node(
-                        addToListCallback, AnimationSpec.getDefaultInstance(), quotaManager);
+                        new AddToListCallback<>(results),
+                        AnimationSpec.getDefaultInstance(),
+                        quotaManager);
         int32Node.setVisibility(false);
         StateInt32SourceNode stateNode =
                 new StateInt32SourceNode(
@@ -506,6 +396,7 @@ public class Int32NodesTest {
         shadowOf(Looper.getMainLooper()).idle();
 
         // Only contains last value.
+        assertThat(results).hasSize(1);
         assertThat(results).containsExactly(value2);
 
         int32Node.setVisibility(true);
@@ -523,7 +414,6 @@ public class Int32NodesTest {
         assertThat(results.get(0)).isEqualTo(value2);
         assertThat(Iterables.getLast(results)).isEqualTo(value3);
         assertThat(results).isInOrder();
-        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -561,7 +451,8 @@ public class Int32NodesTest {
                 PlatformDataValues.of(
                         HEART_RATE_BPM, DynamicDataBuilders.DynamicDataValue.fromFloat(80.0f)));
 
-        assertThat(results).containsExactly(70, 80).inOrder();
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70, 80);
     }
 
     @Test
@@ -587,13 +478,19 @@ public class Int32NodesTest {
         verify(mMockDataProvider).setReceiver(any(), receiverCaptor.capture());
 
         PlatformDataReceiver receiver = receiverCaptor.getValue();
-        receiver.onData(STEPS_70);
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(70)));
 
+        assertThat(results).hasSize(1);
         assertThat(results).containsExactly(70);
 
-        receiver.onData(STEPS_80);
+        receiver.onData(
+                PlatformDataValues.of(
+                        DAILY_STEPS, DynamicDataBuilders.DynamicDataValue.fromInt(80)));
 
-        assertThat(results).containsExactly(70, 80).inOrder();
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(70, 80);
     }
 
     @Test
@@ -671,77 +568,5 @@ public class Int32NodesTest {
                         createGetZonedDateTimeOpNodeAndGetPart(
                                 zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_SECOND))
                 .isEqualTo(0);
-    }
-
-    @Test
-    public void testFloatToInt32Node() {
-        assertThat(evaluateFloatToInt32Expression(12.49f, ROUND_MODE_CEILING)).isEqualTo(13);
-        assertThat(evaluateFloatToInt32Expression(12.99f, ROUND_MODE_FLOOR)).isEqualTo(12);
-        assertThat(evaluateFloatToInt32Expression(12.49f, ROUND_MODE_ROUND)).isEqualTo(12);
-        assertThat(evaluateFloatToInt32Expression(12.50f, ROUND_MODE_ROUND)).isEqualTo(13);
-    }
-
-    @Test
-    public void testFloatToInt32Node_unspecifiedRoundingMode_defaultsToFloor() {
-        assertThat(evaluateFloatToInt32Expression(12.001f)).isEqualTo(12);
-        assertThat(evaluateFloatToInt32Expression(12.999f)).isEqualTo(12);
-        assertThat(evaluateFloatToInt32Expression(13.000f)).isEqualTo(13);
-    }
-
-    @Test
-    public void testFloatToInt32Node__unrecognizedRoundType_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateFloatToInt32Expression(12.34f, -1 /* UNRECOGNIZED */));
-    }
-
-    private static void evaluateArithmeticExpression(
-            int lhs, int rhs, int opType, DynamicTypeValueReceiverWithPreUpdate<Integer> receiver) {
-        DynamicProto.ArithmeticInt32Op protoNode =
-                DynamicProto.ArithmeticInt32Op.newBuilder().setOperationTypeValue(opType).build();
-
-        ArithmeticInt32Node node = new ArithmeticInt32Node(protoNode, receiver);
-
-        FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(lhs).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
-
-        FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(rhs).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
-        lhsNode.preInit();
-        rhsNode.preInit();
-
-        lhsNode.init();
-        rhsNode.init();
-    }
-
-    private static int evaluateFloatToInt32Expression(
-            float value, DynamicProto.FloatToInt32RoundMode roundMode) {
-        return evaluateFloatToInt32Expression(value, roundMode.getNumber());
-    }
-
-    private static int evaluateFloatToInt32Expression(float value, int roundMode) {
-        List<Integer> results = new ArrayList<>();
-        Int32Nodes.FloatToInt32Node node =
-                new Int32Nodes.FloatToInt32Node(
-                        DynamicProto.FloatToInt32Op.newBuilder()
-                                .setRoundModeValue(roundMode)
-                                .build(),
-                        new AddToListCallback<>(results));
-        node.getIncomingCallback().onPreUpdate();
-        node.getIncomingCallback().onData(value);
-
-        return results.get(0);
-    }
-
-    private static int evaluateFloatToInt32Expression(float value) {
-        List<Integer> results = new ArrayList<>();
-        Int32Nodes.FloatToInt32Node node =
-                new Int32Nodes.FloatToInt32Node(
-                        DynamicProto.FloatToInt32Op.newBuilder().build(),
-                        new AddToListCallback<>(results));
-        node.getIncomingCallback().onPreUpdate();
-        node.getIncomingCallback().onData(value);
-
-        return results.get(0);
     }
 }

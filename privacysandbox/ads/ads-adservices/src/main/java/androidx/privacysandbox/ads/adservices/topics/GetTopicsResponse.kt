@@ -16,31 +16,22 @@
 
 package androidx.privacysandbox.ads.adservices.topics
 
-import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import java.util.Objects
 
 /** Represent the result from the getTopics API. */
-@OptIn(ExperimentalFeatures.Ext11OptIn::class)
-class GetTopicsResponse @ExperimentalFeatures.Ext11OptIn constructor(
-    val topics: List<Topic>,
-    val encryptedTopics: List<EncryptedTopic>,
-) {
-    constructor(topics: List<Topic>) : this(topics, listOf())
-
+class GetTopicsResponse(val topics: List<Topic>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is GetTopicsResponse) return false
-        if (topics.size != other.topics.size ||
-            encryptedTopics.size != other.encryptedTopics.size) return false
-        return HashSet(this.topics) == HashSet(other.topics) &&
-            HashSet(this.encryptedTopics) == HashSet(other.encryptedTopics)
+        if (topics.size != other.topics.size) return false
+        return HashSet(this.topics) == HashSet(other.topics)
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(topics, encryptedTopics)
+        return Objects.hash(topics)
     }
 
     override fun toString(): String {
-        return "GetTopicsResponse: Topics=$topics, EncryptedTopics=$encryptedTopics"
+        return "Topics=$topics"
     }
 }

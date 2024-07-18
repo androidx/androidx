@@ -90,7 +90,8 @@ public class StandardResourceResolvers {
     }
 
     /**
-     * Get a builder pre-populated with resolvers resources hosted within another app on the device.
+     * Get a builder pre-populated with resolvers for the resources of a {@link TileService}, hosted
+     * within another app on the device.
      *
      * <p>Use {@code setFooAccessor} calls to change the pre-populated ones or add others.
      *

@@ -21,13 +21,11 @@ import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.createCompilationParams
-import androidx.wear.compose.integration.macrobenchmark.test.disableChargingExperience
-import androidx.wear.compose.integration.macrobenchmark.test.enableChargingExperience
 import java.lang.Thread.sleep
-import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -42,14 +40,12 @@ class PositionIndicatorBenchmark(
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
+    private lateinit var device: UiDevice
+
     @Before
     fun setUp() {
-        disableChargingExperience()
-    }
-
-    @After
-    fun destroy() {
-        enableChargingExperience()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        device = UiDevice.getInstance(instrumentation)
     }
 
     @Test
@@ -75,30 +71,26 @@ class PositionIndicatorBenchmark(
 
             // By default indicator visibility is Show
             // Increase and decrease indicator 10 times 1 direction and 10 times another
-            repeatIncrementAndDecrement(device, 10, 200)
+            repeatIncrementAndDecrement(10, 200)
 
             // Switch from Show to AutoHide
             buttonVisibilityAutoHide?.click()
 
             // Increase and decrease indicator with delay shorter than hiding delay
-            repeatIncrementAndDecrement(device, 10, 200)
+            repeatIncrementAndDecrement(10, 200)
 
             // Increase and decrease indicator with delay longer than hiding delay
-            repeatIncrementAndDecrement(device, 3, 2500)
+            repeatIncrementAndDecrement(3, 2500)
 
             // Switch from Autohide to Hide
             buttonVisibilityHide?.click()
 
             // Increase and decrease indicator 10 times 1 direction and 10 times another
-            repeatIncrementAndDecrement(device, 10, 200)
+            repeatIncrementAndDecrement(10, 200)
         }
     }
 
-    private fun repeatIncrementAndDecrement(
-        device: UiDevice,
-        times: Int,
-        delayBetweenClicks: Long
-    ) {
+    private fun repeatIncrementAndDecrement(times: Int, delayBetweenClicks: Long) {
         val buttonIncrease = device.findObject(By.desc(INCREASE_POSITION))
         val buttonDecrease = device.findObject(By.desc(DECREASE_POSITION))
 

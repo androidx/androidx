@@ -66,8 +66,11 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeCustomAnimation(@NonNull Context context,
             int enterResId, int exitResId) {
-        return new ActivityOptionsCompatImpl(
-                ActivityOptions.makeCustomAnimation(context, enterResId, exitResId));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return new ActivityOptionsCompatImpl(
+                    Api16Impl.makeCustomAnimation(context, enterResId, exitResId));
+        }
+        return new ActivityOptionsCompat();
     }
 
     /**
@@ -93,9 +96,11 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeScaleUpAnimation(@NonNull View source,
             int startX, int startY, int startWidth, int startHeight) {
-        return new ActivityOptionsCompatImpl(
-                ActivityOptions.makeScaleUpAnimation(source, startX, startY, startWidth,
-                        startHeight));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return new ActivityOptionsCompatImpl(Api16Impl.makeScaleUpAnimation(source, startX,
+                    startY, startWidth, startHeight));
+        }
+        return new ActivityOptionsCompat();
     }
 
     /**
@@ -144,8 +149,11 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(@NonNull View source,
             @NonNull Bitmap thumbnail, int startX, int startY) {
-        return new ActivityOptionsCompatImpl(
-                ActivityOptions.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return new ActivityOptionsCompatImpl(
+                    Api16Impl.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY));
+        }
+        return new ActivityOptionsCompat();
     }
 
     /**
@@ -243,6 +251,7 @@ public class ActivityOptionsCompat {
         return new ActivityOptionsCompat();
     }
 
+    @RequiresApi(16)
     private static class ActivityOptionsCompatImpl extends ActivityOptionsCompat {
         private final ActivityOptions mActivityOptions;
 
@@ -400,6 +409,30 @@ public class ActivityOptionsCompat {
     @NonNull
     public ActivityOptionsCompat setShareIdentityEnabled(boolean shareIdentity) {
         return this;
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions makeCustomAnimation(Context context, int enterResId, int exitResId) {
+            return ActivityOptions.makeCustomAnimation(context, enterResId, exitResId);
+        }
+
+        @DoNotInline
+        static ActivityOptions makeScaleUpAnimation(View source, int startX, int startY, int width,
+                int height) {
+            return ActivityOptions.makeScaleUpAnimation(source, startX, startY, width, height);
+        }
+
+        @DoNotInline
+        static ActivityOptions makeThumbnailScaleUpAnimation(View source, Bitmap thumbnail,
+                int startX, int startY) {
+            return ActivityOptions.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY);
+        }
     }
 
     @RequiresApi(23)

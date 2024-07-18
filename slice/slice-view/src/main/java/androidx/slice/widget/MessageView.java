@@ -29,6 +29,7 @@ import android.util.TypedValue;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceQuery;
@@ -38,6 +39,7 @@ import java.util.List;
 /**
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public class MessageView extends SliceChildView {
 

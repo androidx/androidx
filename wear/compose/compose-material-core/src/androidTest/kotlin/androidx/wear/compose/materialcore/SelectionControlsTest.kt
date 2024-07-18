@@ -851,7 +851,7 @@ class SelectionControlsTest {
             },
         enabled: Boolean = true,
         onCheckedChange: ((Boolean) -> Unit)? = null,
-        interactionSource: MutableInteractionSource? = null,
+        interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
         drawBox: FunctionDrawBox = FunctionDrawBox { _, _, _, _ -> },
         width: Dp = 24.dp,
         height: Dp = 24.dp
@@ -867,8 +867,7 @@ class SelectionControlsTest {
         progressAnimationSpec =
         tween(200, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
         width = width,
-        height = height,
-        ripple = EmptyIndication
+        height = height
     )
 
     @Composable
@@ -877,7 +876,9 @@ class SelectionControlsTest {
         checked: Boolean = true,
         enabled: Boolean = true,
         onCheckedChange: ((Boolean) -> Unit)? = null,
-        interactionSource: MutableInteractionSource? = null,
+        interactionSource: MutableInteractionSource = remember {
+            MutableInteractionSource()
+        },
         trackFillColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color> =
             { isEnabled, isChecked ->
                 selectionControlColor(
@@ -927,8 +928,7 @@ class SelectionControlsTest {
         progressAnimationSpec =
         tween(150, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
         width = width,
-        height = height,
-        ripple = EmptyIndication
+        height = height
     )
 
     @Composable
@@ -951,7 +951,9 @@ class SelectionControlsTest {
                 )
             },
         onClick: (() -> Unit)? = null,
-        interactionSource: MutableInteractionSource? = null,
+        interactionSource: MutableInteractionSource = remember {
+            MutableInteractionSource()
+        },
         dotRadiusProgressDuration: FunctionDotRadiusProgressDuration =
             FunctionDotRadiusProgressDuration { _ -> 200 },
         dotAlphaProgressDuration: Int = 200,
@@ -973,8 +975,7 @@ class SelectionControlsTest {
         dotAlphaProgressDelay = dotAlphaProgressDelay,
         easing = progressAnimationEasing,
         width = width,
-        height = height,
-        ripple = EmptyIndication
+        height = height
     )
 
     private fun setupCheckBoxWithCustomColors(checked: Boolean, enabled: Boolean) {

@@ -22,7 +22,7 @@ package androidx.wear.compose.material3.tokens
 import androidx.compose.ui.unit.dp
 
 internal object FilledTonalButtonTokens {
-    val ContainerColor = ColorSchemeKeyTokens.SurfaceContainer
+    val ContainerColor = ColorSchemeKeyTokens.Surface
     val ContainerHeight = 52.0.dp
     val ContainerShape = ShapeKeyTokens.CornerLarge
     val DisabledContainerColor = ColorSchemeKeyTokens.OnSurface

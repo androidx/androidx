@@ -26,17 +26,12 @@ import androidx.benchmark.Shell
 import androidx.benchmark.ShellScript
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.net.ConnectException
 import java.net.HttpURLConnection
 import java.net.URL
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
 import perfetto.protos.AppendTraceDataResult
 import perfetto.protos.ComputeMetricArgs
 import perfetto.protos.ComputeMetricResult
@@ -62,9 +57,9 @@ internal class PerfettoHttpServer {
         private const val PATH_RESTORE_INITIAL_TABLES = "/restore_initial_tables"
 
         private const val TAG = "PerfettoHttpServer"
+        private const val SERVER_START_TIMEOUT_MS = 5000
+        private const val READ_TIMEOUT_SECONDS = 300000
         private const val SERVER_PROCESS_NAME = "trace_processor_shell"
-        private val WAIT_INTERVAL = 5.milliseconds
-        private val READ_TIMEOUT = 30.seconds
 
         // Note that trace processor http server has a hard limit of 64Mb for payload size.
         // https://cs.android.com/android/platform/superproject/+/master:external/perfetto/src/base/http/http_server.cc;l=33
@@ -106,7 +101,7 @@ internal class PerfettoHttpServer {
      * @throws IllegalStateException if the server is not running by the end of the timeout.
      */
     @SuppressLint("BanThreadSleep")
-    fun startServer(timeout: Duration) = inMemoryTrace("PerfettoHttpServer#startServer") {
+    fun startServer() = inMemoryTrace("PerfettoHttpServer#startServer") {
         if (processId != null) {
             Log.w(TAG, "Tried to start a trace shell processor that is already running.")
             return@inMemoryTrace
@@ -136,11 +131,11 @@ internal class PerfettoHttpServer {
             .toInt()
 
         // Wait for the trace_processor_shell server to start.
-        var elapsed = 0.milliseconds
+        var elapsed = 0
         while (!isRunning()) {
-            Thread.sleep(WAIT_INTERVAL.toLong(DurationUnit.MILLISECONDS))
-            elapsed += WAIT_INTERVAL
-            if (elapsed >= timeout) {
+            Thread.sleep(5)
+            elapsed += 5
+            if (elapsed >= SERVER_START_TIMEOUT_MS) {
 
                 // In the event that the instrumentation app cannot connect to the
                 // trace_processor_shell server, trying to read the full stderr may make the
@@ -190,12 +185,6 @@ internal class PerfettoHttpServer {
             val statusResult = status()
             return@inMemoryTrace statusResult.api_version != null && statusResult.api_version > 0
         } catch (e: ConnectException) {
-            // Note that this is fired when the server port is not bound yet.
-            // This can happen before the perfetto trace processor server is fully started.
-            false
-        } catch (e: FileNotFoundException) {
-            // Note that this is fired when the endpoint queried does not exist.
-            // This can happen before the perfetto trace processor server is fully started.
             false
         }
     }
@@ -217,16 +206,11 @@ internal class PerfettoHttpServer {
     /**
      * Computes the given metrics on a previously parsed trace.
      */
-    fun computeMetric(
-        metrics: List<String>,
-        resultFormat: ComputeMetricArgs.ResultFormat
-    ): ComputeMetricResult =
+    fun computeMetric(metrics: List<String>): ComputeMetricResult =
         httpRequest(
             method = METHOD_POST,
             url = PATH_COMPUTE_METRIC,
-            encodeBlock = {
-                ComputeMetricArgs.ADAPTER.encode(it, ComputeMetricArgs(metrics, resultFormat))
-            },
+            encodeBlock = { ComputeMetricArgs.ADAPTER.encode(it, ComputeMetricArgs(metrics)) },
             decodeBlock = { ComputeMetricResult.ADAPTER.decode(it) }
         )
 
@@ -295,7 +279,7 @@ internal class PerfettoHttpServer {
                 .openConnection() as HttpURLConnection
         ) {
             requestMethod = method
-            readTimeout = READ_TIMEOUT.toInt(DurationUnit.MILLISECONDS)
+            readTimeout = READ_TIMEOUT_SECONDS
             setRequestProperty("Content-Type", contentType)
             if (encodeBlock != null) {
                 doOutput = true

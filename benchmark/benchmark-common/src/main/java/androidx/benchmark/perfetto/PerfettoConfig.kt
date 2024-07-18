@@ -34,7 +34,6 @@ import perfetto.protos.SysStatsConfig
 import perfetto.protos.TraceConfig
 import perfetto.protos.TraceConfig.BufferConfig
 import perfetto.protos.TraceConfig.BufferConfig.FillPolicy
-import perfetto.protos.TrackEventConfig
 
 /**
  * Configuration for Perfetto trace recording.
@@ -42,7 +41,7 @@ import perfetto.protos.TrackEventConfig
  * For more info, see https://perfetto.dev/docs/concepts/config
  */
 @ExperimentalPerfettoCaptureApi
-sealed class PerfettoConfig(
+sealed class PerfettoConfig constructor(
     internal val isTextProto: Boolean
 ) {
     @RequiresApi(23)
@@ -108,43 +107,7 @@ sealed class PerfettoConfig(
             )
         }
     }
-
-    /**
-     * Only used by group-internal tests
-     *
-     * Most minimal config possible
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    class MinimalTest(
-        private val appTagPackages: List<String>
-    ) : PerfettoConfig(isTextProto = false) {
-        @RequiresApi(23)
-        override fun writeTo(file: File) {
-            file.writeBytes(
-                configOf(
-                    listOf(
-                        minimalAtraceDataSource(atraceApps = appTagPackages)
-                    )
-                ).validateAndEncode()
-            )
-        }
-    }
 }
-
-private fun minimalAtraceDataSource(
-    atraceApps: List<String>
-) = TraceConfig.DataSource(
-    config = DataSourceConfig(
-        name = "linux.ftrace",
-        target_buffer = 0,
-        ftrace_config = FtraceConfig(
-            ftrace_events = emptyList(),
-            atrace_categories = emptyList(),
-            atrace_apps = atraceApps,
-            compact_sched = null
-        )
-    )
-)
 
 private fun ftraceDataSource(
     atraceApps: List<String>
@@ -188,7 +151,6 @@ private fun ftraceDataSource(
                 AtraceTag.Idle,
                 AtraceTag.Input,
                 AtraceTag.MemReclaim,
-                AtraceTag.Power,
                 AtraceTag.Resources,
                 AtraceTag.Scheduling,
                 AtraceTag.Synchronization,
@@ -351,27 +313,6 @@ private fun stackSamplingSource(
     return sources
 }
 
-private fun configOf(
-    dataSources: List<TraceConfig.DataSource>
-) = TraceConfig(
-    buffers = listOf(
-        BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
-        BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
-    ),
-    data_sources = dataSources,
-    // periodically dump to file, so we don't overrun our ring buffer
-    // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
-    write_into_file = true,
-    file_write_period_ms = 2500,
-
-    // multiple of file_write_period_ms, enables trace processor to work in batches
-    flush_period_ms = 5000,
-
-    // reduce timeout to reduce trace capture overhead when devices have data source issues
-    // See b/323601788 and b/307649002.
-    data_source_stop_timeout_ms = 2500,
-)
-
 /**
  * Config for perfetto.
  *
@@ -391,19 +332,27 @@ internal fun perfettoConfig(
         TraceConfig.DataSource(DataSourceConfig("android.gpu.memory")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frame")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
-        TraceConfig.DataSource(DataSourceConfig(
-            "track_event",
-            track_event_config = TrackEventConfig(
-                enabled_categories = listOf("*") // required by tracing-perfetto
-            )
-        ))
+        TraceConfig.DataSource(DataSourceConfig("track_event")) // required by tracing-perfetto
     )
     if (stackSamplingConfig != null) {
         dataSources += stackSamplingSource(
             config = stackSamplingConfig
         )
     }
-    return configOf(dataSources)
+    return TraceConfig(
+        buffers = listOf(
+            BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
+            BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
+        ),
+        data_sources = dataSources,
+        // periodically dump to file, so we don't overrun our ring buffer
+        // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
+        write_into_file = true,
+        file_write_period_ms = 2500,
+
+        // multiple of file_write_period_ms, enables trace processor to work in batches
+        flush_period_ms = 5000
+    )
 }
 
 @RequiresApi(21) // needed for shell access

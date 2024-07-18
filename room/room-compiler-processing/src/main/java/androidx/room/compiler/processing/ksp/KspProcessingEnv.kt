@@ -18,7 +18,6 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XExecutableElementStore
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
@@ -30,9 +29,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
-import com.google.devtools.ksp.processing.JsPlatformInfo
 import com.google.devtools.ksp.processing.JvmPlatformInfo
-import com.google.devtools.ksp.processing.NativePlatformInfo
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.ClassKind
@@ -62,16 +59,6 @@ internal class KspProcessingEnv(
         delegate.platforms.filterIsInstance<JvmPlatformInfo>().firstOrNull()
     }
 
-    override val targetPlatforms: Set<XProcessingEnv.Platform> =
-        delegate.platforms.map { platform ->
-            when (platform) {
-                is JvmPlatformInfo -> XProcessingEnv.Platform.JVM
-                is NativePlatformInfo -> XProcessingEnv.Platform.NATIVE
-                is JsPlatformInfo -> XProcessingEnv.Platform.JS
-                else -> XProcessingEnv.Platform.UNKNOWN
-            }
-        }.toSet()
-
     override val jvmVersion by lazy {
        when (val jvmTarget = jvmPlatformInfo?.jvmTarget) {
            // Special case "1.8" since it is the only valid value with the 1.x notation, it is
@@ -82,17 +69,14 @@ internal class KspProcessingEnv(
        }
     }
 
-    internal val isKsp2 by lazy {
-        delegate.kspVersion >= KotlinVersion(2, 0)
-    }
-
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
     /**
      * Variance resolver to find JVM types of KSType. See [KSTypeVarianceResolver] docs for details.
      */
-    private val ksTypeVarianceResolver
-        get() = KSTypeVarianceResolver(resolver)
+    private val ksTypeVarianceResolver by lazy {
+        KSTypeVarianceResolver(resolver)
+    }
 
     private var _resolver: Resolver? = null
 
@@ -119,19 +103,16 @@ internal class KspProcessingEnv(
             }
         )
 
-    private val executableElementStore =
-        XExecutableElementStore(
-            wrap = { functionDeclaration: KSFunctionDeclaration ->
-                KspExecutableElement.create(this, functionDeclaration)
-            }
-        )
-
     override val messager: XMessager = KspMessager(logger)
 
-    private val arrayTypeFactory
-        get() = KspArrayType.Factory(this)
+    private val arrayTypeFactory by lazy {
+        KspArrayType.Factory(this)
+    }
 
     override val filer: XFiler = KspFiler(codeGenerator, messager)
+
+    val commonTypes
+        get() = CommonTypes()
 
     val voidType
         get() = KspVoidType(
@@ -146,10 +127,6 @@ internal class KspProcessingEnv(
 
     override fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[qName]
-    }
-
-    fun wrapFunctionDeclaration(ksFunction: KSFunctionDeclaration): KspExecutableElement {
-        return executableElementStore[ksFunction]
     }
 
     @OptIn(KspExperimental::class)
@@ -381,6 +358,10 @@ internal class KspProcessingEnv(
             }
         }
         return returnType(type1).isSameType(returnType(type2))
+    }
+
+    inner class CommonTypes() {
+        val anyType: XType = requireType("kotlin.Any")
     }
 
     internal enum class JvmDefaultMode(val option: String) {

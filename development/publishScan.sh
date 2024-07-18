@@ -67,7 +67,7 @@ function uploadScan() {
   rm -f "$log"
   echo
   echo uploading build scan
-  ./gradlew :buildScanPublishPrevious
+  ./gradlew buildScanPublishPrevious
   sleep 2
   if cat "$log" 2>/dev/null; then
     echo upload failed

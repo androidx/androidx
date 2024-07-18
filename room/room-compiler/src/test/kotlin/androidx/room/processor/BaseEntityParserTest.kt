@@ -65,7 +65,6 @@ abstract class BaseEntityParserTest {
                 code = ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement) +
                     input + ENTITY_SUFFIX
             ),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             classpath = classpathFiles
         ) { invocation ->
             val entity = invocation.roundEnv

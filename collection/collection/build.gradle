@@ -127,6 +127,20 @@ kotlin {
         tvosX64Test.dependsOn(tvOsTest)
         tvosSimulatorArm64Main.dependsOn(tvOsMain)
         tvosSimulatorArm64Test.dependsOn(tvOsTest)
+
+        def commonNonWebTest = sourceSets.create("commonNonWebTest")
+        commonNonWebTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinTestAnnotationsCommon)
+            implementation(libs.kotlinCoroutinesCore)
+        }
+        nativeTest.dependsOn(commonNonWebTest)
+        jvmTest.dependsOn(commonNonWebTest)
+
+        def webTest = sourceSets.create("webTest")
+        webTest.dependsOn(commonTest)
+        jsTest.dependsOn(webTest)
+        wasmJsTest.dependsOn(webTest)
     }
 }
 
@@ -148,4 +162,11 @@ androidx {
 
 androidxCompose {
     composeCompilerPluginEnabled = false
+}
+
+project.tasks.withType(org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile) { task ->
+    if (task.name.toLowerCase().contains("test")) {
+        // It's needed for tests only: https://youtrack.jetbrains.com/issue/KT-59081
+        kotlinOptions.freeCompilerArgs += "-Xwasm-enable-array-range-checks"
+    }
 }

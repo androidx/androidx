@@ -293,7 +293,7 @@ library in this situation to skip versions, e.g. move directly from
 
 #### Kotlin Multiplatform library versions {#modules-kmp-versioning}
 
-When a library adds [Kotlin Multiplatform](/docs/kmp.md)
+When a library adds [Kotlin Multiplatform](/company/teams/androidx/kmp.md)
 support, it is permitted to have different versions for the multiplatform
 artifacts until they reach alpha quality.
 
@@ -373,7 +373,7 @@ for more details on the platform-side implementation of extension libraries,
 including motivations for their use.
 
 See
-[Platform extension (sidecar JAR) dependencies](/docs/api_guidelines#dependencies-sidecar)
+[Platform extension (sidecar JAR) dependencies](/company/teams/androidx/api_guidelines#dependencies-sidecar)
 for guidelines on depending on extension libraries defined externally or within
 Jetpack.
 

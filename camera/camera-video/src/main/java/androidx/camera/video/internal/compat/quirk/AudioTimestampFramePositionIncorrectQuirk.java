@@ -28,13 +28,12 @@ import java.util.Locale;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 245518008, 301067226, 338868178
+ *     Bug Id: 245518008, 301067226
  *     Description: Quirk which denotes {@link android.media.AudioTimestamp#framePosition} queried
  *                  by {@link android.media.AudioRecord#getTimestamp(AudioTimestamp, int)} returns
  *                  incorrect info. On some devices, the frame position will become negative after
  *                  multiple recordings.
- *     Device(s): LG K10 (2017), Moto C, Realme C2, Redmi 6A, Vivo 1820, Vivo Y17 and some Oppo
- *                devices.
+ *     Device(s): LG K10 (2017), Moto C, Realme C2, Redmi 6A, Vivo 1820 and some Oppo devices.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
@@ -48,7 +47,7 @@ public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
 
     static boolean load() {
         return isAffectedOppoDevices() || isLgK10() || isMotoC() || isRealmeC2() || isRedmi6A()
-                || isVivo1820() || isVivoY17();
+                || isVivo1820();
     }
 
     private static boolean isAffectedOppoDevices() {
@@ -74,9 +73,5 @@ public class AudioTimestampFramePositionIncorrectQuirk implements Quirk {
 
     private static boolean isVivo1820() {
         return "vivo".equalsIgnoreCase(Build.BRAND) && "vivo 1820".equalsIgnoreCase(Build.MODEL);
-    }
-
-    private static boolean isVivoY17() {
-        return "vivo".equalsIgnoreCase(Build.BRAND) && "VIVO Y17".equalsIgnoreCase(Build.MODEL);
     }
 }

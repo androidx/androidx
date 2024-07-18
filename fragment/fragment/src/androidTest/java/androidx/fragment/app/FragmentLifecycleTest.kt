@@ -24,6 +24,7 @@ import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.app.test.FragmentTestActivity
@@ -200,7 +201,7 @@ class FragmentLifecycleTest {
         val view = f1.requireView()
         assertWithMessage("fragment 1 returned null from getView").that(view).isNotNull()
         assertWithMessage("fragment 1's view is not attached to a window")
-            .that(view.isAttachedToWindow()).isTrue()
+            .that(ViewCompat.isAttachedToWindow(view)).isTrue()
 
         fm.beginTransaction().remove(f1).commit()
         executePendingTransactions(fm)
@@ -209,7 +210,7 @@ class FragmentLifecycleTest {
         assertWithMessage("fragment 1 returned non-null from getView after removal")
             .that(f1.view).isNull()
         assertWithMessage("fragment 1's previous view is still attached to a window")
-            .that(view.isAttachedToWindow()).isFalse()
+            .that(ViewCompat.isAttachedToWindow(view)).isFalse()
     }
 
     @Test
@@ -228,7 +229,7 @@ class FragmentLifecycleTest {
         val origView1 = f1.requireView()
         assertWithMessage("fragment 1 returned null view").that(origView1).isNotNull()
         assertWithMessage("fragment 1's view not attached")
-            .that(origView1.isAttachedToWindow()).isTrue()
+            .that(ViewCompat.isAttachedToWindow(origView1)).isTrue()
 
         fm.beginTransaction().replace(android.R.id.content, f2).addToBackStack("stack1").commit()
         executePendingTransactions(fm)
@@ -237,11 +238,11 @@ class FragmentLifecycleTest {
         assertWithMessage("fragment 2 is added").that(f2.isAdded).isTrue()
         assertWithMessage("fragment 1 returned non-null view").that(f1.view).isNull()
         assertWithMessage("fragment 1's old view still attached")
-            .that(origView1.isAttachedToWindow()).isFalse()
+            .that(ViewCompat.isAttachedToWindow(origView1)).isFalse()
         val origView2 = f2.requireView()
         assertWithMessage("fragment 2 returned null view").that(origView2).isNotNull()
         assertWithMessage("fragment 2's view not attached")
-            .that(origView2.isAttachedToWindow()).isTrue()
+            .that(ViewCompat.isAttachedToWindow(origView2)).isTrue()
 
         fm.popBackStack()
         executePendingTransactions(fm)
@@ -250,12 +251,12 @@ class FragmentLifecycleTest {
         assertWithMessage("fragment 2 is added").that(f2.isAdded).isFalse()
         assertWithMessage("fragment 2 returned non-null view").that(f2.view).isNull()
         assertWithMessage("fragment 2's view still attached")
-            .that(origView2.isAttachedToWindow()).isFalse()
+            .that(ViewCompat.isAttachedToWindow(origView2)).isFalse()
         val newView1 = f1.requireView()
         assertWithMessage("fragment 1 had same view from last attachment")
             .that(newView1).isNotSameInstanceAs(origView1)
         assertWithMessage("fragment 1's view not attached")
-            .that(newView1.isAttachedToWindow()).isTrue()
+            .that(ViewCompat.isAttachedToWindow(newView1)).isTrue()
     }
 
     @Test

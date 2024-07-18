@@ -19,5 +19,4 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Грешка на Glance App Widget"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"Проверете ја точната грешка со "<b><tt>"adb logcat"</tt></b>" при пребарување "<b><tt>"GlanceAppWidget"</tt></b></string>
-    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"Не може да се прикажат содржините"</string>
 </resources>

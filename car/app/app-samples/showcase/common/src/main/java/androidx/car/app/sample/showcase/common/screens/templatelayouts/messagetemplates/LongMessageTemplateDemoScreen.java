@@ -27,7 +27,6 @@ import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.LongMessageTemplate;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.ParkedOnlyOnClickListener;
@@ -47,9 +46,9 @@ public class LongMessageTemplateDemoScreen extends Screen {
         if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
             return new MessageTemplate.Builder(
                     getCarContext().getString(R.string.long_msg_template_not_supported_text))
-                    .setHeader(new Header.Builder().setTitle(getCarContext()
-                            .getString(R.string.long_msg_template_not_supported_title))
-                            .setStartHeaderAction(BACK).build())
+                    .setTitle(getCarContext().getString(
+                            R.string.long_msg_template_not_supported_title))
+                    .setHeaderAction(Action.BACK)
                     .build();
         }
 

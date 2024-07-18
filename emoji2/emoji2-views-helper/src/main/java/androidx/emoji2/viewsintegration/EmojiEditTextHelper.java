@@ -15,6 +15,7 @@
  */
 package androidx.emoji2.viewsintegration;
 
+import android.os.Build;
 import android.text.method.KeyListener;
 import android.text.method.NumberKeyListener;
 import android.view.inputmethod.EditorInfo;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.emoji2.text.EmojiCompat;
@@ -67,11 +69,10 @@ import androidx.emoji2.text.EmojiSpan;
  *
  */
 public final class EmojiEditTextHelper {
+    private final HelperInternal mHelper;
     private int mMaxEmojiCount = EmojiDefaults.MAX_EMOJI_COUNT;
     @EmojiCompat.ReplaceStrategy
     private int mEmojiReplaceStrategy = EmojiCompat.REPLACE_STRATEGY_DEFAULT;
-    private final EditText mEditText;
-    private final EmojiTextWatcher mTextWatcher;
 
     /**
      * Default constructor.
@@ -103,10 +104,11 @@ public final class EmojiEditTextHelper {
     public EmojiEditTextHelper(@NonNull EditText editText,
             boolean expectInitializedEmojiCompat) {
         Preconditions.checkNotNull(editText, "editText cannot be null");
-        mEditText = editText;
-        mTextWatcher = new EmojiTextWatcher(mEditText, expectInitializedEmojiCompat);
-        mEditText.addTextChangedListener(mTextWatcher);
-        mEditText.setEditableFactory(EmojiEditableFactory.getInstance());
+        if (Build.VERSION.SDK_INT < 19) {
+            mHelper = new HelperInternal();
+        } else {
+            mHelper = new HelperInternal19(editText, expectInitializedEmojiCompat);
+        }
     }
 
     /**
@@ -124,7 +126,7 @@ public final class EmojiEditTextHelper {
         Preconditions.checkArgumentNonnegative(maxEmojiCount,
                 "maxEmojiCount should be greater than 0");
         mMaxEmojiCount = maxEmojiCount;
-        mTextWatcher.setMaxEmojiCount(maxEmojiCount);
+        mHelper.setMaxEmojiCount(maxEmojiCount);
     }
 
     /**
@@ -150,22 +152,7 @@ public final class EmojiEditTextHelper {
     @SuppressWarnings("ExecutorRegistration")
     @Nullable
     public KeyListener getKeyListener(@Nullable final KeyListener keyListener) {
-        if (keyListener instanceof EmojiKeyListener) {
-            return keyListener;
-        }
-        if (keyListener == null) {
-            // don't wrap null key listener, as developer has explicitly request that editing
-            // be disabled (this causes keyboard and soft keyboard interactions to not be
-            // possible, and the EmojiKeyListener is not required)
-            return null;
-        }
-        if (keyListener instanceof NumberKeyListener) {
-            // don't wrap NumberKeyListener as it will never allow emoji input and TextView
-            // needs the original type to do correct locale setting (b/207119921)
-            return keyListener;
-        }
-        // make a KeyListener as it's always correct even if disabled
-        return new EmojiKeyListener(keyListener);
+        return mHelper.getKeyListener(keyListener);
     }
 
     /**
@@ -184,12 +171,7 @@ public final class EmojiEditTextHelper {
     public InputConnection onCreateInputConnection(@Nullable final InputConnection inputConnection,
             @NonNull final EditorInfo outAttrs) {
         if (inputConnection == null) return null;
-        if (inputConnection instanceof EmojiInputConnection) {
-            return inputConnection;
-        }
-        // make an EmojiInputConnection even when disabled, as we may become enabled before
-        // input connection is closed and it incurs little overhead
-        return new EmojiInputConnection(mEditText, inputConnection, outAttrs);
+        return mHelper.onCreateInputConnection(inputConnection, outAttrs);
     }
 
     /**
@@ -204,7 +186,7 @@ public final class EmojiEditTextHelper {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
         mEmojiReplaceStrategy = replaceStrategy;
-        mTextWatcher.setEmojiReplaceStrategy(replaceStrategy);
+        mHelper.setEmojiReplaceStrategy(replaceStrategy);
     }
 
     /**
@@ -227,7 +209,7 @@ public final class EmojiEditTextHelper {
      * @return true if the helper will process emoji spans.
      */
     public boolean isEnabled() {
-        return mTextWatcher.isEnabled();
+        return mHelper.isEnabled();
     }
 
     /**
@@ -240,10 +222,104 @@ public final class EmojiEditTextHelper {
      * @param isEnabled if this helper should process spans
      */
     public void setEnabled(boolean isEnabled) {
-        mTextWatcher.setEnabled(isEnabled);
-        // EmojiKeyListener and EmojiInputConnection are just for processing existing spans,
-        // and should be left enabled
+        mHelper.setEnabled(isEnabled);
+    }
 
-        // EmojiEditableFactory is just an optimization and should be left enabled
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static class HelperInternal {
+
+        @Nullable
+        KeyListener getKeyListener(@Nullable KeyListener keyListener) {
+            return keyListener;
+        }
+
+        InputConnection onCreateInputConnection(@NonNull InputConnection inputConnection,
+                @NonNull EditorInfo outAttrs) {
+            return inputConnection;
+        }
+
+        void setMaxEmojiCount(int maxEmojiCount) {
+            // do nothing
+        }
+
+        void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+            // do nothing
+        }
+
+        void setEnabled(boolean isEnabled) {
+            // do nothing
+        }
+
+        boolean isEnabled() {
+            return false;
+        }
+    }
+
+    @RequiresApi(19)
+    private static class HelperInternal19 extends HelperInternal {
+        private final EditText mEditText;
+        private final EmojiTextWatcher mTextWatcher;
+
+        HelperInternal19(@NonNull EditText editText, boolean expectInitializedEmojiCompat) {
+            mEditText = editText;
+            mTextWatcher = new EmojiTextWatcher(mEditText, expectInitializedEmojiCompat);
+            mEditText.addTextChangedListener(mTextWatcher);
+            mEditText.setEditableFactory(EmojiEditableFactory.getInstance());
+        }
+
+        @Override
+        void setMaxEmojiCount(int maxEmojiCount) {
+            mTextWatcher.setMaxEmojiCount(maxEmojiCount);
+        }
+
+        @Override
+        void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
+            mTextWatcher.setEmojiReplaceStrategy(replaceStrategy);
+        }
+
+        @Override
+        KeyListener getKeyListener(@Nullable final KeyListener keyListener) {
+            if (keyListener instanceof EmojiKeyListener) {
+                return keyListener;
+            }
+            if (keyListener == null) {
+                // don't wrap null key listener, as developer has explicitly request that editing
+                // be disabled (this causes keyboard and soft keyboard interactions to not be
+                // possible, and the EmojiKeyListener is not required)
+                return null;
+            }
+            if (keyListener instanceof NumberKeyListener) {
+                // don't wrap NumberKeyListener as it will never allow emoji input and TextView
+                // needs the original type to do correct locale setting (b/207119921)
+                return keyListener;
+            }
+            // make a KeyListener as it's always correct even if disabled
+            return new EmojiKeyListener(keyListener);
+        }
+
+        @Override
+        InputConnection onCreateInputConnection(@NonNull final InputConnection inputConnection,
+                @NonNull final EditorInfo outAttrs) {
+            if (inputConnection instanceof EmojiInputConnection) {
+                return inputConnection;
+            }
+            // make an EmojiInputConnection even when disabled, as we may become enabled before
+            // input connection is closed and it incurs little overhead
+            return new EmojiInputConnection(mEditText, inputConnection, outAttrs);
+        }
+
+        @Override
+        void setEnabled(boolean isEnabled) {
+            mTextWatcher.setEnabled(isEnabled);
+            // EmojiKeyListener and EmojiInputConnection are just for processing existing spans,
+            // and should be left enabled
+
+            // EmojiEditableFactory is just an optimization and should be left enabled
+        }
+
+        @Override
+        boolean isEnabled() {
+            return mTextWatcher.isEnabled();
+        }
     }
 }

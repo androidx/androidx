@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A class that can perform work asynchronously in {@link WorkManager}.  For most cases, we
@@ -66,7 +65,7 @@ public abstract class ListenableWorker {
     private @NonNull Context mAppContext;
     private @NonNull WorkerParameters mWorkerParams;
 
-    private final AtomicInteger mStopReason = new AtomicInteger(STOP_REASON_NOT_STOPPED);
+    private volatile int mStopReason = STOP_REASON_NOT_STOPPED;
 
     private boolean mUsed;
 
@@ -253,13 +252,12 @@ public abstract class ListenableWorker {
      */
     @NonNull
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
-        return CallbackToFutureAdapter.getFuture((completer) -> {
-            String message =
-                    "Expedited WorkRequests require a ListenableWorker to provide an implementation"
-                            + " for`getForegroundInfoAsync()`";
-            completer.setException(new IllegalStateException(message));
-            return "default failing getForegroundInfoAsync";
-        });
+        SettableFuture<ForegroundInfo> future = SettableFuture.create();
+        String message =
+                "Expedited WorkRequests require a ListenableWorker to provide an implementation for"
+                        + " `getForegroundInfoAsync()`";
+        future.setException(new IllegalStateException(message));
+        return future;
     }
 
     /**
@@ -271,7 +269,7 @@ public abstract class ListenableWorker {
      * @return {@code true} if the work operation has been interrupted
      */
     public final boolean isStopped() {
-        return mStopReason.get() != STOP_REASON_NOT_STOPPED;
+        return mStopReason != STOP_REASON_NOT_STOPPED;
     }
 
     /**
@@ -285,16 +283,15 @@ public abstract class ListenableWorker {
     @StopReason
     @RequiresApi(31)
     public final int getStopReason() {
-        return mStopReason.get();
+        return mStopReason;
     }
 
     /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void stop(int reason) {
-        if (mStopReason.compareAndSet(STOP_REASON_NOT_STOPPED, reason)) {
-            onStopped();
-        }
+        mStopReason = reason;
+        onStopped();
     }
 
     /**

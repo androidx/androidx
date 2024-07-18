@@ -188,7 +188,7 @@ public final class ViewPager2 extends ViewGroup {
                 : new BasicAccessibilityProvider();
 
         mRecyclerView = new RecyclerViewImpl(context);
-        mRecyclerView.setId(View.generateViewId());
+        mRecyclerView.setId(ViewCompat.generateViewId());
         mRecyclerView.setDescendantFocusability(FOCUS_BEFORE_DESCENDANTS);
 
         mLayoutManager = new LinearLayoutManagerImpl(context);
@@ -553,7 +553,7 @@ public final class ViewPager2 extends ViewGroup {
         int snapPosition = mLayoutManager.getPosition(snapView);
 
         if (snapPosition != mCurrentItem && getScrollState() == SCROLL_STATE_IDLE) {
-            /* TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
+            /** TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
             mPageChangeEventDispatcher.onPageSelected(snapPosition);
         }
 
@@ -583,7 +583,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     boolean isRtl() {
-        return mLayoutManager.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
+        return mLayoutManager.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
     /**
@@ -945,6 +945,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     @Override
+    @RequiresApi(17)
     public void setLayoutDirection(int layoutDirection) {
         super.setLayoutDirection(layoutDirection);
         mAccessibilityProvider.onSetLayoutDirection();
@@ -956,6 +957,7 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
+    @RequiresApi(16)
     @Override
     public boolean performAccessibilityAction(int action, @Nullable Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
@@ -1370,7 +1372,8 @@ public final class ViewPager2 extends ViewGroup {
         @Override
         public void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
                 @NonNull RecyclerView recyclerView) {
-            recyclerView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            ViewCompat.setImportantForAccessibility(recyclerView,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
             mAdapterDataObserver = new DataSetChangeObserver() {
                 @Override
@@ -1379,9 +1382,10 @@ public final class ViewPager2 extends ViewGroup {
                 }
             };
 
-            if (ViewPager2.this.getImportantForAccessibility()
-                    == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-                ViewPager2.this.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+            if (ViewCompat.getImportantForAccessibility(ViewPager2.this)
+                    == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+                ViewCompat.setImportantForAccessibility(ViewPager2.this,
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
             }
         }
 
@@ -1445,7 +1449,9 @@ public final class ViewPager2 extends ViewGroup {
         public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
             AccessibilityNodeInfoCompat infoCompat = AccessibilityNodeInfoCompat.wrap(info);
             addCollectionInfo(infoCompat);
-            addScrollActions(infoCompat);
+            if (Build.VERSION.SDK_INT >= 16) {
+                addScrollActions(infoCompat);
+            }
         }
 
         @Override

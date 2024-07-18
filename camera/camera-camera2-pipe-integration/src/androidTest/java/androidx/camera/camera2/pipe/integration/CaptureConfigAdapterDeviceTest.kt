@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration
 
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.camera2.pipe.testing.toCameraControlAdapter
 import androidx.camera.core.CameraSelector
@@ -118,29 +121,23 @@ class CaptureConfigAdapterDeviceTest {
         val tagKey = "TestTagBundleKey"
         val tagValue = "testing"
         val captureConfig = CaptureConfig.Builder().apply {
-            templateType = CameraDevice.TEMPLATE_PREVIEW
-            addTag(tagKey, tagValue)
-            addSurface(testDeferrableSurface)
-            addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCompleted(
-                    captureConfigId: Int,
-                    cameraCaptureResult: CameraCaptureResult
-                ) {
-                    deferred.complete(cameraCaptureResult)
-                }
+                templateType = CameraDevice.TEMPLATE_PREVIEW
+                addTag(tagKey, tagValue)
+                addSurface(testDeferrableSurface)
+                addCameraCaptureCallback(object : CameraCaptureCallback() {
+                    override fun onCaptureCompleted(cameraCaptureResult: CameraCaptureResult) {
+                        deferred.complete(cameraCaptureResult)
+                    }
 
-                override fun onCaptureFailed(
-                    captureConfigId: Int,
-                    failure: CameraCaptureFailure
-                ) {
-                    deferred.completeExceptionally(Throwable(failure.reason.toString()))
-                }
+                    override fun onCaptureFailed(failure: CameraCaptureFailure) {
+                        deferred.completeExceptionally(Throwable(failure.reason.toString()))
+                    }
 
-                override fun onCaptureCancelled(captureConfigId: Int) {
-                    deferred.cancel()
-                }
-            })
-        }.build()
+                    override fun onCaptureCancelled() {
+                        deferred.cancel()
+                    }
+                })
+            }.build()
 
         // Act
         cameraControl!!.submitStillCaptureRequests(
@@ -155,50 +152,6 @@ class CaptureConfigAdapterDeviceTest {
                 deferred.await()
             }!!.tagBundle.getTag(tagKey)
         ).isEqualTo(tagValue)
-    }
-
-    @Test
-    fun captureConfigIdTest() = runBlocking {
-        // Arrange
-        val deferredCompleted = CompletableDeferred<Int>()
-        val deferredStarted = CompletableDeferred<Int>()
-        val expectedCaptureConfigId = 101
-        val captureConfig = CaptureConfig.Builder().apply {
-            templateType = CameraDevice.TEMPLATE_PREVIEW
-            setId(expectedCaptureConfigId)
-            addSurface(testDeferrableSurface)
-            addCameraCaptureCallback(object : CameraCaptureCallback() {
-                override fun onCaptureCompleted(
-                    captureConfigId: Int,
-                    cameraCaptureResult: CameraCaptureResult
-                ) {
-                    deferredCompleted.complete(captureConfigId)
-                }
-
-                override fun onCaptureStarted(captureConfigId: Int) {
-                    deferredStarted.complete(captureConfigId)
-                }
-            })
-        }.build()
-
-        // Act
-        cameraControl!!.submitStillCaptureRequests(
-            listOf(captureConfig),
-            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
-            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
-        )
-
-        // Assert
-        Truth.assertThat(
-            withTimeoutOrNull(timeMillis = 5000) {
-                deferredStarted.await()
-            }
-        ).isEqualTo(expectedCaptureConfigId)
-        Truth.assertThat(
-            withTimeoutOrNull(timeMillis = 5000) {
-                deferredCompleted.await()
-            }
-        ).isEqualTo(expectedCaptureConfigId)
     }
 
     private class FakeTestUseCase(

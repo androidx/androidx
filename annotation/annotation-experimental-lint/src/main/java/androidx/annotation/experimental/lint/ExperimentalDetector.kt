@@ -473,7 +473,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                 // compiler handles that already. Allow either Java or Kotlin annotations, since
                 // we can enforce both and it's possible that a Kotlin-sourced experimental library
                 // is being used from Java without the Kotlin stdlib in the classpath.
-                if (!isKotlin(usage.lang)) {
+                if (!isKotlin(usage.sourcePsi)) {
                     checkExperimentalUsage(
                         context,
                         annotation,
@@ -633,7 +633,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val lintFixes = fix().alternatives()
         var addedFix = false
         usage.getContainingUMethod()?.let { containingMethod ->
-            val isKotlin = isKotlin(usage.lang)
+            val isKotlin = isKotlin(usage.sourcePsi)
             val optInAnnotation = if (isKotlin) {
                 "@androidx.annotation.OptIn($annotation::class)"
             } else {

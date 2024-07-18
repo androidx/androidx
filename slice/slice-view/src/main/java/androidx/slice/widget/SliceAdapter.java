@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,6 +53,7 @@ import java.util.Set;
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @SuppressWarnings("HiddenSuperclass")
+@RequiresApi(19)
 @Deprecated
 public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHolder>
         implements SliceActionView.SliceActionLoadingListener {

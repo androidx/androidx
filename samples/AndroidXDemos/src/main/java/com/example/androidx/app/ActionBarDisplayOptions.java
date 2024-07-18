@@ -76,41 +76,47 @@ public class ActionBarDisplayOptions extends AppCompatActivity
     public void onClick(View v) {
         final ActionBar bar = getSupportActionBar();
         int flags = 0;
-        int id = v.getId();
-        if (id == R.id.toggle_home_as_up) {
-            flags = ActionBar.DISPLAY_HOME_AS_UP;
-        } else if (id == R.id.toggle_show_home) {
-            flags = ActionBar.DISPLAY_SHOW_HOME;
-        } else if (id == R.id.toggle_use_logo) {
-            flags = ActionBar.DISPLAY_USE_LOGO;
-        } else if (id == R.id.toggle_show_title) {
-            flags = ActionBar.DISPLAY_SHOW_TITLE;
-        } else if (id == R.id.toggle_show_custom) {
-            flags = ActionBar.DISPLAY_SHOW_CUSTOM;
-        } else if (id == R.id.cycle_custom_gravity) {
-            ActionBar.LayoutParams lp = mCustomViewLayoutParams;
-            int newGravity = 0;
-            switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
-                case Gravity.LEFT:
-                    newGravity = Gravity.CENTER_HORIZONTAL;
-                    break;
-                case Gravity.CENTER_HORIZONTAL:
-                    newGravity = Gravity.RIGHT;
-                    break;
-                case Gravity.RIGHT:
-                    newGravity = Gravity.LEFT;
-                    break;
+        switch (v.getId()) {
+            case R.id.toggle_home_as_up:
+                flags = ActionBar.DISPLAY_HOME_AS_UP;
+                break;
+            case R.id.toggle_show_home:
+                flags = ActionBar.DISPLAY_SHOW_HOME;
+                break;
+            case R.id.toggle_use_logo:
+                flags = ActionBar.DISPLAY_USE_LOGO;
+                break;
+            case R.id.toggle_show_title:
+                flags = ActionBar.DISPLAY_SHOW_TITLE;
+                break;
+            case R.id.toggle_show_custom:
+                flags = ActionBar.DISPLAY_SHOW_CUSTOM;
+                break;
+            case R.id.cycle_custom_gravity: {
+                ActionBar.LayoutParams lp = mCustomViewLayoutParams;
+                int newGravity = 0;
+                switch (lp.gravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
+                    case Gravity.LEFT:
+                        newGravity = Gravity.CENTER_HORIZONTAL;
+                        break;
+                    case Gravity.CENTER_HORIZONTAL:
+                        newGravity = Gravity.RIGHT;
+                        break;
+                    case Gravity.RIGHT:
+                        newGravity = Gravity.LEFT;
+                        break;
+                }
+                lp.gravity = (lp.gravity & ~Gravity.HORIZONTAL_GRAVITY_MASK) | newGravity;
+                bar.setCustomView(mCustomView, lp);
+                return;
             }
-            lp.gravity = (lp.gravity & ~Gravity.HORIZONTAL_GRAVITY_MASK) | newGravity;
-            bar.setCustomView(mCustomView, lp);
-            return;
-        } else if (id == R.id.toggle_visibility) {
-            if (bar.isShowing()) {
-                bar.hide();
-            } else {
-                bar.show();
-            }
-            return;
+            case R.id.toggle_visibility:
+                if (bar.isShowing()) {
+                    bar.hide();
+                } else {
+                    bar.show();
+                }
+                return;
         }
 
         int change = bar.getDisplayOptions() ^ flags;

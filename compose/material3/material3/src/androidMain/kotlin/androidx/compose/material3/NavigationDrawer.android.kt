@@ -77,7 +77,9 @@ internal actual fun DrawerPredictiveBackHandler(
                     animate(
                         initialValue = drawerPredictiveBackState.scaleXDistance,
                         targetValue = 0f
-                    ) { value, _ -> drawerPredictiveBackState.scaleXDistance = value }
+                    ) { value, _ ->
+                        drawerPredictiveBackState.scaleXDistance = value
+                    }
                     drawerPredictiveBackState.clear()
                 }
             }

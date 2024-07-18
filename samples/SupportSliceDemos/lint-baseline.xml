@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="ListContent can only be accessed from within the same library (androidx.slice:slice-view)"
-        errorLine1="        ListContent content = new ListContent(loadedSlice);"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"

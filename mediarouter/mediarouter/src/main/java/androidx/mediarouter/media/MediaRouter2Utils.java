@@ -21,48 +21,24 @@ import static android.media.MediaRoute2Info.FEATURE_LIVE_VIDEO;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_AUDIO_PLAYBACK;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_PLAYBACK;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_VIDEO_PLAYBACK;
-import static android.media.MediaRoute2Info.TYPE_BLE_HEADSET;
-import static android.media.MediaRoute2Info.TYPE_BLUETOOTH_A2DP;
-import static android.media.MediaRoute2Info.TYPE_BUILTIN_SPEAKER;
-import static android.media.MediaRoute2Info.TYPE_DOCK;
 import static android.media.MediaRoute2Info.TYPE_GROUP;
-import static android.media.MediaRoute2Info.TYPE_HDMI;
-import static android.media.MediaRoute2Info.TYPE_HEARING_AID;
 import static android.media.MediaRoute2Info.TYPE_REMOTE_AUDIO_VIDEO_RECEIVER;
 import static android.media.MediaRoute2Info.TYPE_REMOTE_SPEAKER;
 import static android.media.MediaRoute2Info.TYPE_REMOTE_TV;
 import static android.media.MediaRoute2Info.TYPE_UNKNOWN;
-import static android.media.MediaRoute2Info.TYPE_USB_ACCESSORY;
-import static android.media.MediaRoute2Info.TYPE_USB_DEVICE;
-import static android.media.MediaRoute2Info.TYPE_USB_HEADSET;
-import static android.media.MediaRoute2Info.TYPE_WIRED_HEADPHONES;
-import static android.media.MediaRoute2Info.TYPE_WIRED_HEADSET;
 
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_AUDIO_VIDEO_RECEIVER;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_BLE_HEADSET;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_BLUETOOTH_A2DP;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_BUILTIN_SPEAKER;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_CAR;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_COMPUTER;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_DOCK;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_GAME_CONSOLE;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_GROUP;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HDMI;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HDMI_ARC;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HDMI_EARC;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_HEARING_AID;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTPHONE;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTWATCH;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET_DOCKED;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TV;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_USB_ACCESSORY;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_USB_DEVICE;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_USB_HEADSET;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_WIRED_HEADPHONES;
-import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_WIRED_HEADSET;
 
 import android.content.IntentFilter;
 import android.media.MediaRoute2Info;
@@ -106,6 +82,7 @@ class MediaRouter2Utils {
 
     // TODO(b/282263784): Remove the following constants in favor of using instead SDK constants,
     // once the SDK constants become available.
+    private static final int TYPE_REMOTE_AUDIO_VIDEO_RECEIVER = 1003;
     private static final int TYPE_REMOTE_TABLET = 1004;
     private static final int TYPE_REMOTE_TABLET_DOCKED = 1005;
     private static final int TYPE_REMOTE_COMPUTER = 1006;
@@ -113,8 +90,7 @@ class MediaRouter2Utils {
     private static final int TYPE_REMOTE_CAR = 1008;
     private static final int TYPE_REMOTE_SMARTWATCH = 1009;
     private static final int TYPE_REMOTE_SMARTPHONE = 1010;
-    private static final int TYPE_HDMI_ARC = 10;
-    private static final int TYPE_HDMI_EARC = 29;
+    private static final int TYPE_GROUP = 2000;
 
     private MediaRouter2Utils() {}
 
@@ -153,7 +129,7 @@ class MediaRouter2Utils {
             case DEVICE_TYPE_TV:
                 builder.addFeature(FEATURE_REMOTE_VIDEO_PLAYBACK);
                 // fall through
-            case DEVICE_TYPE_REMOTE_SPEAKER:
+            case DEVICE_TYPE_SPEAKER:
                 builder.addFeature(FEATURE_REMOTE_AUDIO_PLAYBACK);
         }
         if (!descriptor.getGroupMemberIds().isEmpty()) {
@@ -354,7 +330,7 @@ class MediaRouter2Utils {
             case TYPE_REMOTE_TV:
                 return DEVICE_TYPE_TV;
             case TYPE_REMOTE_SPEAKER:
-                return DEVICE_TYPE_REMOTE_SPEAKER;
+                return DEVICE_TYPE_SPEAKER;
             case TYPE_REMOTE_AUDIO_VIDEO_RECEIVER:
                 return DEVICE_TYPE_AUDIO_VIDEO_RECEIVER;
             case TYPE_REMOTE_TABLET:
@@ -371,32 +347,6 @@ class MediaRouter2Utils {
                 return DEVICE_TYPE_SMARTWATCH;
             case TYPE_REMOTE_SMARTPHONE:
                 return DEVICE_TYPE_SMARTPHONE;
-            case TYPE_BUILTIN_SPEAKER:
-                return DEVICE_TYPE_BUILTIN_SPEAKER;
-            case TYPE_WIRED_HEADSET:
-                return DEVICE_TYPE_WIRED_HEADSET;
-            case TYPE_WIRED_HEADPHONES:
-                return DEVICE_TYPE_WIRED_HEADPHONES;
-            case TYPE_HDMI:
-                return DEVICE_TYPE_HDMI;
-            case TYPE_HDMI_ARC:
-                return DEVICE_TYPE_HDMI_ARC;
-            case TYPE_HDMI_EARC:
-                return DEVICE_TYPE_HDMI_EARC;
-            case TYPE_USB_DEVICE:
-                return DEVICE_TYPE_USB_DEVICE;
-            case TYPE_USB_ACCESSORY:
-                return DEVICE_TYPE_USB_ACCESSORY;
-            case TYPE_DOCK:
-                return DEVICE_TYPE_DOCK;
-            case TYPE_USB_HEADSET:
-                return DEVICE_TYPE_USB_HEADSET;
-            case TYPE_HEARING_AID:
-                return DEVICE_TYPE_HEARING_AID;
-            case TYPE_BLE_HEADSET:
-                return DEVICE_TYPE_BLE_HEADSET;
-            case TYPE_BLUETOOTH_A2DP:
-                return DEVICE_TYPE_BLUETOOTH_A2DP;
             case TYPE_GROUP:
                 return DEVICE_TYPE_GROUP;
             default:
@@ -409,7 +359,7 @@ class MediaRouter2Utils {
         switch (androidXDeviceType) {
             case DEVICE_TYPE_TV:
                 return TYPE_REMOTE_TV;
-            case DEVICE_TYPE_REMOTE_SPEAKER:
+            case DEVICE_TYPE_SPEAKER:
                 return TYPE_REMOTE_SPEAKER;
             case DEVICE_TYPE_AUDIO_VIDEO_RECEIVER:
                 return TYPE_REMOTE_AUDIO_VIDEO_RECEIVER;
@@ -427,32 +377,6 @@ class MediaRouter2Utils {
                 return TYPE_REMOTE_SMARTWATCH;
             case DEVICE_TYPE_SMARTPHONE:
                 return TYPE_REMOTE_SMARTPHONE;
-            case DEVICE_TYPE_BUILTIN_SPEAKER:
-                return TYPE_BUILTIN_SPEAKER;
-            case DEVICE_TYPE_WIRED_HEADSET:
-                return TYPE_WIRED_HEADSET;
-            case DEVICE_TYPE_WIRED_HEADPHONES:
-                return TYPE_WIRED_HEADPHONES;
-            case DEVICE_TYPE_HDMI:
-                return TYPE_HDMI;
-            case DEVICE_TYPE_HDMI_ARC:
-                return TYPE_HDMI_ARC;
-            case DEVICE_TYPE_HDMI_EARC:
-                return TYPE_HDMI_EARC;
-            case DEVICE_TYPE_USB_DEVICE:
-                return TYPE_USB_DEVICE;
-            case DEVICE_TYPE_USB_ACCESSORY:
-                return TYPE_USB_ACCESSORY;
-            case DEVICE_TYPE_DOCK:
-                return TYPE_DOCK;
-            case DEVICE_TYPE_USB_HEADSET:
-                return TYPE_USB_HEADSET;
-            case DEVICE_TYPE_HEARING_AID:
-                return TYPE_HEARING_AID;
-            case DEVICE_TYPE_BLE_HEADSET:
-                return TYPE_BLE_HEADSET;
-            case DEVICE_TYPE_BLUETOOTH_A2DP:
-                return TYPE_BLUETOOTH_A2DP;
             case DEVICE_TYPE_GROUP:
                 return TYPE_GROUP;
             default:

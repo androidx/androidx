@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -32,6 +25,7 @@ android {
     defaultConfig {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 23
+        targetSdkVersion 33
         // Increment this to generate signed builds for uploading to Playstore
         // Make sure this is different from the showcase-automotive version
         versionCode 106

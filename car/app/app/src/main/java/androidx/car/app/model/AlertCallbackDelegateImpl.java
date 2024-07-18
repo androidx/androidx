@@ -43,7 +43,7 @@ public class AlertCallbackDelegateImpl implements AlertCallbackDelegate {
 
     @NonNull
     @SuppressLint("ExecutorRegistration")
-    public static AlertCallbackDelegate create(@NonNull AlertCallback callback) {
+    static AlertCallbackDelegate create(@NonNull AlertCallback callback) {
         return new AlertCallbackDelegateImpl(callback);
     }
 

@@ -80,7 +80,8 @@ public final class AudioManagerSystemRoutesSource extends SystemRoutesSource {
     @NonNull
     @Override
     public SystemRoutesSourceItem getSourceItem() {
-        return new SystemRoutesSourceItem(/* name= */ "AudioManager");
+        return new SystemRoutesSourceItem.Builder(SystemRoutesSourceItem.ROUTE_SOURCE_AUDIO_MANAGER)
+                .build();
     }
 
     @NonNull

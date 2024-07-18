@@ -137,9 +137,9 @@ class BackupHdrProfileEncoderProfilesProviderTest(
             cameraSelector
         ).cameraInfo as CameraInfoInternal
         baseProvider = if (implName == CameraPipeConfig::class.simpleName) {
-            EncoderProfilesProviderAdapter(cameraId, cameraInfo.cameraQuirks)
+            EncoderProfilesProviderAdapter(cameraId)
         } else {
-            Camera2EncoderProfilesProvider(cameraId, cameraInfo.cameraQuirks)
+            Camera2EncoderProfilesProvider(cameraId)
         }
     }
 

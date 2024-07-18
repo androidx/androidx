@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleableRes;
 import androidx.slice.view.R;
@@ -29,6 +30,7 @@ import androidx.slice.view.R;
  * Holds style information shared between child views of a row
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public class RowStyle {
     public static final int UNBOUNDED = -1;

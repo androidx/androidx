@@ -19,6 +19,7 @@ package androidx.transition;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.TimeInterpolator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -111,6 +112,8 @@ public class TransitionSet extends Transition {
     public TransitionSet() {
     }
 
+    @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
+    // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
     public TransitionSet(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
         TypedArray a = context.obtainStyledAttributes(attrs, Styleable.TRANSITION_SET);

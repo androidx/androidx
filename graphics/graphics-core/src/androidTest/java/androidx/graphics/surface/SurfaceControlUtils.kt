@@ -19,85 +19,18 @@ package androidx.graphics.surface
 import android.app.Instrumentation
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Rect
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.os.SystemClock
-import android.view.SurfaceHolder
-import android.view.SurfaceView
 import android.view.Window
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.Lifecycle
-import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import org.junit.Assert
 
 @SdkSuppress(minSdkVersion = 29)
 internal class SurfaceControlUtils {
     companion object {
-
-        @RequiresApi(Build.VERSION_CODES.Q)
-        fun surfaceControlTestHelper(
-            onSurfaceCreated: (SurfaceView, CountDownLatch) -> Unit,
-            verifyOutput: (Bitmap, Rect) -> Boolean
-        ) {
-            val setupLatch = CountDownLatch(1)
-            var surfaceView: SurfaceView? = null
-            val destroyLatch = CountDownLatch(1)
-            val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(
-                    Lifecycle.State.CREATED
-                ).onActivity {
-                    it.setDestroyCallback { destroyLatch.countDown() }
-                    val callback = object : SurfaceHolder.Callback {
-                        override fun surfaceCreated(sh: SurfaceHolder) {
-                            surfaceView = it.mSurfaceView
-                            onSurfaceCreated(surfaceView!!, setupLatch)
-                        }
-
-                        override fun surfaceChanged(
-                            holder: SurfaceHolder,
-                            format: Int,
-                            width: Int,
-                            height: Int
-                        ) {
-                            // NO-OP
-                        }
-
-                        override fun surfaceDestroyed(holder: SurfaceHolder) {
-                            // NO-OP
-                        }
-                    }
-
-                    it.addSurface(it.mSurfaceView, callback)
-                    surfaceView = it.mSurfaceView
-                }
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
-
-            Assert.assertTrue(setupLatch.await(3000, TimeUnit.MILLISECONDS))
-            val coords = intArrayOf(0, 0)
-            surfaceView!!.getLocationOnScreen(coords)
-            try {
-                validateOutput { bitmap ->
-                    verifyOutput(
-                        bitmap,
-                        Rect(
-                            coords[0],
-                            coords[1],
-                            coords[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                            coords[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT
-                        )
-                    )
-                }
-            } finally {
-                scenario.moveToState(Lifecycle.State.DESTROYED)
-                Assert.assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
-            }
-        }
 
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         fun validateOutput(window: Window, block: (bitmap: Bitmap) -> Boolean) {

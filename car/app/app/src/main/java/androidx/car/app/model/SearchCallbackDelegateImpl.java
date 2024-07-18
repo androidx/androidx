@@ -78,7 +78,7 @@ public class SearchCallbackDelegateImpl implements SearchCallbackDelegate {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static SearchCallbackDelegate create(@NonNull SearchCallback callback) {
+    static SearchCallbackDelegate create(@NonNull SearchCallback callback) {
         return new SearchCallbackDelegateImpl(callback);
     }
 

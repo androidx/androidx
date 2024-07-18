@@ -24,12 +24,10 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
-import androidx.camera.camera2.internal.Camera2PhysicalCameraInfoImpl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.core.util.Preconditions;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -39,30 +37,15 @@ import java.util.Map;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2CameraInfo {
     private static final String TAG = "Camera2CameraInfo";
-
-    @Nullable
-    private Camera2CameraInfoImpl mCamera2CameraInfoImpl;
-
-    // TODO: clean up by passing in CameraId, CameraCharacteristicCompat and CameraManager
-    //  instead of concrete implementation.
-    @Nullable
-    private Camera2PhysicalCameraInfoImpl mCamera2PhysicalCameraInfo;
+    private final Camera2CameraInfoImpl mCamera2CameraInfoImpl;
 
     /**
-     * Creates a new logical camera information with Camera2 implementation.
+     * Creates a new camera information with Camera2 implementation.
      *
      */
     @RestrictTo(Scope.LIBRARY)
     public Camera2CameraInfo(@NonNull Camera2CameraInfoImpl camera2CameraInfoImpl) {
         mCamera2CameraInfoImpl = camera2CameraInfoImpl;
-    }
-
-    /**
-     * Creates a new physical camera information with Camera2 implementation.
-     */
-    @RestrictTo(Scope.LIBRARY)
-    public Camera2CameraInfo(@NonNull Camera2PhysicalCameraInfoImpl camera2PhysicalCameraInfo) {
-        mCamera2PhysicalCameraInfo = camera2PhysicalCameraInfo;
     }
 
     /**
@@ -76,10 +59,6 @@ public final class Camera2CameraInfo {
      */
     @NonNull
     public static Camera2CameraInfo from(@NonNull CameraInfo cameraInfo) {
-        if (cameraInfo instanceof Camera2PhysicalCameraInfoImpl) {
-            return ((Camera2PhysicalCameraInfoImpl) cameraInfo).getCamera2CameraInfo();
-        }
-
         CameraInfoInternal cameraInfoImpl =
                 ((CameraInfoInternal) cameraInfo).getImplementation();
         Preconditions.checkArgument(cameraInfoImpl instanceof Camera2CameraInfoImpl,
@@ -106,9 +85,6 @@ public final class Camera2CameraInfo {
      */
     @NonNull
     public String getCameraId() {
-        if (mCamera2PhysicalCameraInfo != null) {
-            return mCamera2PhysicalCameraInfo.getCameraId();
-        }
         return mCamera2CameraInfoImpl.getCameraId();
     }
 
@@ -125,9 +101,6 @@ public final class Camera2CameraInfo {
      */
     @Nullable
     public <T> T getCameraCharacteristic(@NonNull CameraCharacteristics.Key<T> key) {
-        if (mCamera2PhysicalCameraInfo != null) {
-            return mCamera2PhysicalCameraInfo.getCameraCharacteristicsCompat().get(key);
-        }
         return mCamera2CameraInfoImpl.getCameraCharacteristicsCompat().get(key);
     }
 
@@ -149,12 +122,6 @@ public final class Camera2CameraInfo {
     @NonNull
     public static CameraCharacteristics extractCameraCharacteristics(
             @NonNull CameraInfo cameraInfo) {
-        if (cameraInfo instanceof Camera2PhysicalCameraInfoImpl) {
-            return ((Camera2PhysicalCameraInfoImpl) cameraInfo)
-                    .getCameraCharacteristicsCompat()
-                    .toCameraCharacteristics();
-        }
-
         CameraInfoInternal cameraInfoImpl = ((CameraInfoInternal) cameraInfo).getImplementation();
         Preconditions.checkState(cameraInfoImpl instanceof Camera2CameraInfoImpl,
                 "CameraInfo does not contain any Camera2 information.");
@@ -173,9 +140,6 @@ public final class Camera2CameraInfo {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public Map<String, CameraCharacteristics> getCameraCharacteristicsMap() {
-        if (mCamera2PhysicalCameraInfo != null) {
-            return Collections.emptyMap();
-        }
         return mCamera2CameraInfoImpl.getCameraCharacteristicsMap();
     }
 }

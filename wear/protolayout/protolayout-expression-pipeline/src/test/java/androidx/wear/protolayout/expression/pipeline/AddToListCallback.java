@@ -25,9 +25,6 @@ public class AddToListCallback<T> implements DynamicTypeValueReceiverWithPreUpda
     private final List<T> mListToUpdate;
     @Nullable private final List<Boolean> mInvalidListToUpdate;
 
-    private int mPreUpdateCallCounts = 0;
-    private int mUpdateCallCount = 0;
-
     public AddToListCallback(List<T> list) {
         this.mListToUpdate = list;
         this.mInvalidListToUpdate = null;
@@ -39,23 +36,17 @@ public class AddToListCallback<T> implements DynamicTypeValueReceiverWithPreUpda
     }
 
     @Override
-    public void onPreUpdate() { mPreUpdateCallCounts++; }
+    public void onPreUpdate() {}
 
     @Override
     public void onData(@NonNull T newData) {
-        mUpdateCallCount++;
         mListToUpdate.add(newData);
     }
 
     @Override
     public void onInvalidated() {
-        mUpdateCallCount++;
         if (mInvalidListToUpdate != null) {
             mInvalidListToUpdate.add(true);
         }
-    }
-
-    public boolean isPreUpdateAndUpdateInSync() {
-        return mPreUpdateCallCounts == mUpdateCallCount;
     }
 }

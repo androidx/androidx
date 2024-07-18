@@ -20,6 +20,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.util.ExperimentalAppActions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +29,7 @@ import kotlinx.coroutines.flow.asStateFlow
 @ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
 internal class ParticipantClientActionsImpl(
+    internal val mScope: CoroutineScope,
     internal var mNegotiatedActions: Set<Int>,
     internal var mOnInitializationComplete: (ParticipantClientActions) -> Unit
 ) : ParticipantClientActions, IParticipantStateListener.Stub() {
@@ -64,14 +67,18 @@ internal class ParticipantClientActionsImpl(
         val resultCallback = ActionsResultCallback()
         mActions.toggleHandRaised(resultCallback)
 
-        return resultCallback.waitForResponse()
+        return mScope.async {
+            resultCallback.waitForResponse()
+        }.await()
     }
 
     override suspend fun kickParticipant(participantId: Int): CallControlResult {
         val resultCallback = ActionsResultCallback()
         mActions.kickParticipant(participantId, resultCallback)
 
-        return resultCallback.waitForResponse()
+        return mScope.async {
+            resultCallback.waitForResponse()
+        }.await()
     }
 
     override fun updateParticipants(participants: Array<out Participant>?) {

@@ -25,13 +25,12 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
-import androidx.core.telecom.extensions.ICapabilityExchange
+import androidx.core.telecom.extensions.CapabilityExchange
 import androidx.core.telecom.internal.CallChannels
-import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.CoroutineContext
 
 @RequiresApi(Build.VERSION_CODES.O)
-@ExperimentalAppActions
+@androidx.annotation.OptIn(androidx.core.telecom.util.ExperimentalAppActions::class)
 internal class VoipExtensionManager(
     private val context: Context,
     private val coroutineContext: CoroutineContext?,
@@ -120,8 +119,8 @@ internal class VoipExtensionManager(
     ) {
         Log.i(logTag, "initiateVoipAppCapabilityExchange: Begin capability exchange")
         // Retrieve binder from ICS.
-        val capabilityExchange: ICapabilityExchange? = ICapabilityExchange.Stub.asInterface(
-            extras.getBinder(CallsManager.EXTRA_CAPABILITY_EXCHANGE_BINDER))
+        val capabilityExchange: CapabilityExchange? = extras.getBinder(
+            CallsManager.EXTRA_CAPABILITY_EXCHANGE_BINDER) as CapabilityExchange?
 
         // Initialize capability exchange listener and set it on binder
         val capabilityExchangeListener = CapabilityExchangeListener(

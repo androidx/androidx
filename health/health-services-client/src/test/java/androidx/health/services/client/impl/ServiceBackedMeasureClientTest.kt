@@ -115,15 +115,6 @@ class ServiceBackedMeasureClientTest {
     }
 
     @Test
-        fun unregisterCallback_callbackNotRegistered_noOp() {
-            val resultFuture = client.unregisterMeasureCallbackAsync(HEART_RATE_BPM, callback)
-            shadowOf(Looper.getMainLooper()).idle()
-
-            assertThat(fakeService.unregisterEvents).isEmpty()
-            assertThat(resultFuture.get()).isNull()
-        }
-
-    @Test
     fun dataPointsReachAppCallback() {
         val event = MeasureCallbackEvent.createDataPointsUpdateEvent(
             DataPointsResponse(

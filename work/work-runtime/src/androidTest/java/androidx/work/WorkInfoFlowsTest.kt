@@ -70,12 +70,12 @@ class WorkInfoFlowsTest {
         assertThat(tester.awaitNext()).isNull()
         workManager.enqueue(unrelatedRequest)
         workManager.enqueue(request)
-        assertThat(tester.awaitNext()!!.state).isEqualTo(WorkInfo.State.ENQUEUED)
+        assertThat(tester.awaitNext().state).isEqualTo(WorkInfo.State.ENQUEUED)
         fakeChargingTracker.constraintState = true
-        assertThat(tester.awaitNext()!!.state).isEqualTo(WorkInfo.State.RUNNING)
+        assertThat(tester.awaitNext().state).isEqualTo(WorkInfo.State.RUNNING)
         val worker = workerFactory.awaitWorker(request.id) as LatchWorker
         worker.mLatch.countDown()
-        assertThat(tester.awaitNext()!!.state).isEqualTo(WorkInfo.State.SUCCEEDED)
+        assertThat(tester.awaitNext().state).isEqualTo(WorkInfo.State.SUCCEEDED)
     }
 
     @Test

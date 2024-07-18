@@ -29,18 +29,15 @@ import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.XTypeSpec.Builder.Companion.addOriginatingElement
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
-import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
-import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER_COMPAT
-import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER
-import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER_COMPAT
+import androidx.room.ext.RoomTypeNames.INSERTION_ADAPTER
 import androidx.room.ext.RoomTypeNames.ROOM_DB
-import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER
-import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER_COMPAT
+import androidx.room.ext.RoomTypeNames.SHARED_SQLITE_STMT
+import androidx.room.ext.RoomTypeNames.UPSERTION_ADAPTER
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.capitalize
 import androidx.room.processor.OnConflictProcessor
@@ -50,18 +47,17 @@ import androidx.room.solver.KotlinDefaultMethodDelegateBinder
 import androidx.room.solver.types.getRequiredTypeConverters
 import androidx.room.vo.Dao
 import androidx.room.vo.DeleteOrUpdateShortcutMethod
-import androidx.room.vo.InsertMethod
+import androidx.room.vo.InsertionMethod
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
+import androidx.room.vo.QueryMethod
 import androidx.room.vo.RawQueryMethod
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.UpdateMethod
-import androidx.room.vo.UpsertMethod
+import androidx.room.vo.UpsertionMethod
 import androidx.room.vo.WriteQueryMethod
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.jvm.jvmName
 import java.util.Locale
 
 /**
@@ -70,8 +66,8 @@ import java.util.Locale
 class DaoWriter(
     val dao: Dao,
     private val dbElement: XElement,
-    writerContext: WriterContext,
-) : TypeWriter(writerContext) {
+    codeLanguage: CodeLanguage
+) : TypeWriter(codeLanguage) {
     private val declaredDao = dao.element.type
 
     // TODO nothing prevents this from conflicting, we should fix.
@@ -104,13 +100,25 @@ class DaoWriter(
     override fun createTypeSpecBuilder(): XTypeSpec.Builder {
         val builder = XTypeSpec.classBuilder(codeLanguage, dao.implTypeName)
 
-        val preparedQueries = dao.queryMethods.filterIsInstance<WriteQueryMethod>()
-
+        /**
+         * For prepared statements that perform insert/update/delete/upsert,
+         * we check if there are any arguments of variable length (e.g. "IN (:var)").
+         * If not, we should re-use the statement.
+         * This requires more work but creates good performance.
+         */
+        val groupedPreparedQueries = dao.queryMethods
+            .filterIsInstance<WriteQueryMethod>()
+            .groupBy { it.parameters.any { it.queryParamAdapter?.isMultiple ?: true } }
+        // queries that can be prepared ahead of time
+        val preparedQueries = groupedPreparedQueries[false] ?: emptyList()
+        // queries that must be rebuilt every single time
+        val oneOffPreparedQueries = groupedPreparedQueries[true] ?: emptyList()
         val shortcutMethods = buildList {
-            addAll(createInsertMethods())
-            addAll(createDeleteMethods())
+            addAll(createInsertionMethods())
+            addAll(createDeletionMethods())
             addAll(createUpdateMethods())
             addAll(createTransactionMethods())
+            addAll(createPreparedQueries(preparedQueries))
             addAll(createUpsertMethods())
         }
 
@@ -140,14 +148,11 @@ class DaoWriter(
             shortcutMethods.forEach {
                 addFunction(it.functionImpl)
             }
+
             dao.queryMethods.filterIsInstance<ReadQueryMethod>().forEach { method ->
                 addFunction(createSelectMethod(method))
-                if (codeLanguage == CodeLanguage.KOTLIN && method.isProperty) {
-                    // DAO function is a getter from a Kotlin property, generate property override.
-                    addProperty(createSelectProperty(method))
-                }
             }
-            preparedQueries.forEach {
+            oneOffPreparedQueries.forEach {
                 addFunction(createPreparedQueryMethod(it))
             }
             dao.rawQueryMethods.forEach {
@@ -197,10 +202,7 @@ class DaoWriter(
             } else {
                 val placeholders = requiredTypeConverters.joinToString(",") { "%L" }
                 val requiredTypeConvertersLiterals = requiredTypeConverters.map {
-                    when (language) {
-                        CodeLanguage.JAVA -> XCodeBlock.ofJavaClassLiteral(language, it)
-                        CodeLanguage.KOTLIN -> XCodeBlock.ofKotlinClassLiteral(language, it)
-                    }
+                    XCodeBlock.ofJavaClassLiteral(language, it)
                 }.toTypedArray()
                 when (language) {
                     CodeLanguage.JAVA ->
@@ -224,18 +226,61 @@ class DaoWriter(
             javaMethodBuilder = {
                 addModifiers(javax.lang.model.element.Modifier.STATIC)
             },
-            kotlinFunctionBuilder = {},
+            kotlinFunctionBuilder = {
+                addAnnotation(kotlin.jvm.JvmStatic::class)
+            },
         ).apply {
             returns(
                 CommonTypeNames.LIST.parametrizedBy(
-                    when (language) {
-                        CodeLanguage.JAVA -> CommonTypeNames.JAVA_CLASS
-                        CodeLanguage.KOTLIN -> CommonTypeNames.KOTLIN_CLASS
-                    }.parametrizedBy(XTypeName.ANY_WILDCARD)
+                    CommonTypeNames.JAVA_CLASS.parametrizedBy(XTypeName.ANY_WILDCARD)
                 )
             )
             addCode(body)
         }.build()
+    }
+
+    private fun createPreparedQueries(
+        preparedQueries: List<WriteQueryMethod>
+    ): List<PreparedStmtQuery> {
+        return preparedQueries.map { method ->
+            val fieldSpec = getOrCreateProperty(PreparedStatementProperty(method))
+            val queryWriter = QueryWriter(method)
+            val fieldImpl = PreparedStatementWriter(queryWriter)
+                .createAnonymous(this@DaoWriter, dbProperty)
+            val methodBody =
+                createPreparedQueryMethodBody(method, fieldSpec, queryWriter)
+            PreparedStmtQuery(
+                mapOf(PreparedStmtQuery.NO_PARAM_FIELD to (fieldSpec to fieldImpl)),
+                methodBody
+            )
+        }
+    }
+
+    private fun createPreparedQueryMethodBody(
+        method: WriteQueryMethod,
+        preparedStmtField: XPropertySpec,
+        queryWriter: QueryWriter
+    ): XFunSpec {
+        val scope = CodeGenScope(this)
+        method.preparedQueryResultBinder.executeAndReturn(
+            prepareQueryStmtBlock = {
+                val stmtName = getTmpVar("_stmt")
+                builder.addLocalVal(
+                    stmtName,
+                    SupportDbTypeNames.SQLITE_STMT,
+                    "%N.acquire()",
+                    preparedStmtField
+                )
+                queryWriter.bindArgs(stmtName, emptyList(), this)
+                stmtName
+            },
+            preparedStmtProperty = preparedStmtField,
+            dbProperty = dbProperty,
+            scope = scope
+        )
+        return overrideWithoutAnnotations(method.element, declaredDao)
+            .addCode(scope.generate())
+            .build()
     }
 
     private fun createTransactionMethods(): List<PreparedStmtQuery> {
@@ -247,6 +292,7 @@ class DaoWriter(
     private fun createTransactionMethodBody(method: TransactionMethod): XFunSpec {
         val scope = CodeGenScope(this)
         method.methodBinder.executeAndReturn(
+            returnType = method.returnType,
             parameterNames = method.parameterNames,
             daoName = dao.typeName,
             daoImplName = dao.implTypeName,
@@ -290,43 +336,8 @@ class DaoWriter(
 
     private fun createSelectMethod(method: ReadQueryMethod): XFunSpec {
         return overrideWithoutAnnotations(method.element, declaredDao)
-            .apply(
-                javaMethodBuilder = { },
-                kotlinFunctionBuilder = {
-                    // TODO: Update XPoet to better handle this case.
-                    if (method.isProperty) {
-                        // When the DAO function is from a Kotlin property, we'll still generate
-                        // a DAO function, but it won't be an override and it'll be private, to be
-                        // called from the overridden property's getter.
-                        modifiers.remove(KModifier.OVERRIDE)
-                        modifiers.removeAll(
-                            listOf(KModifier.PUBLIC, KModifier.INTERNAL, KModifier.PROTECTED)
-                        )
-                        addModifiers(KModifier.PRIVATE)
-
-                        // For JVM emit a @JvmName to avoid same-signature conflict with
-                        // actual property.
-                        if (
-                            context.targetPlatforms.size == 1 &&
-                            context.targetPlatforms.contains(XProcessingEnv.Platform.JVM)
-                        ) {
-                            jvmName("_private${method.element.name.capitalize(Locale.US)}")
-                        }
-                    }
-                }
-            )
             .addCode(createQueryMethodBody(method))
             .build()
-    }
-
-    private fun createSelectProperty(method: ReadQueryMethod): XPropertySpec {
-        return XPropertySpec.overridingBuilder(
-            language = codeLanguage,
-            element = method.element,
-            owner = declaredDao
-        ).getter(
-            XCodeBlock.of(codeLanguage, "return %L()", method.element.name)
-        ).build()
     }
 
     private fun createRawQueryMethod(method: RawQueryMethod): XFunSpec {
@@ -391,68 +402,55 @@ class DaoWriter(
     }
 
     /**
-     * Groups all insert methods based on the insert statement they will use then creates all
-     * field specs, EntityInsertAdapterWriter and actual insert methods.
+     * Groups all insertion methods based on the insert statement they will use then creates all
+     * field specs, EntityInsertionAdapterWriter and actual insert methods.
      */
-    private fun createInsertMethods(): List<PreparedStmtQuery> {
-        return dao.insertMethods
-            .map { insertMethod ->
-                val onConflict = OnConflictProcessor.onConflictText(insertMethod.onConflict)
-                val entities = insertMethod.entities
-                val useDriverApi = insertMethod.methodBinder?.isMigratedToDriver() == true
+    private fun createInsertionMethods(): List<PreparedStmtQuery> {
+        return dao.insertionMethods
+            .map { insertionMethod ->
+                val onConflict = OnConflictProcessor.onConflictText(insertionMethod.onConflict)
+                val entities = insertionMethod.entities
 
                 val fields = entities.mapValues {
-                    val spec = getOrCreateProperty(
-                        InsertMethodProperty(it.value, onConflict, useDriverApi))
-                    val impl = EntityInsertAdapterWriter.create(it.value, onConflict)
-                        .createAnonymous(this@DaoWriter, dbProperty, useDriverApi)
+                    val spec = getOrCreateProperty(InsertionMethodProperty(it.value, onConflict))
+                    val impl = EntityInsertionAdapterWriter.create(it.value, onConflict)
+                        .createAnonymous(this@DaoWriter, dbProperty)
                     spec to impl
                 }
                 val methodImpl = overrideWithoutAnnotations(
-                    insertMethod.element,
+                    insertionMethod.element,
                     declaredDao
                 ).apply {
-                    addCode(createInsertMethodBody(insertMethod, fields))
+                    addCode(createInsertionMethodBody(insertionMethod, fields))
                 }.build()
                 PreparedStmtQuery(fields, methodImpl)
             }
     }
 
-    private fun createInsertMethodBody(
-        method: InsertMethod,
-        insertAdapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
+    private fun createInsertionMethodBody(
+        method: InsertionMethod,
+        insertionAdapters: Map<String, Pair<XPropertySpec, XTypeSpec>>
     ): XCodeBlock {
-        if (insertAdapters.isEmpty() || method.methodBinder == null) {
+        if (insertionAdapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
-        val useDriverApi = method.methodBinder.isMigratedToDriver()
-        val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
-        if (useDriverApi) {
-            method.methodBinder.convertAndReturn(
-                parameters = method.parameters,
-                adapters = insertAdapters,
-                dbProperty = dbProperty,
-                scope = scope
-            )
-        } else {
-            method.methodBinder.convertAndReturnCompat(
-                parameters = method.parameters,
-                adapters = insertAdapters,
-                dbProperty = dbProperty,
-                scope = scope
-            )
-        }
+        val scope = CodeGenScope(this)
+        method.methodBinder.convertAndReturn(
+            parameters = method.parameters,
+            adapters = insertionAdapters,
+            dbProperty = dbProperty,
+            scope = scope
+        )
         return scope.generate()
     }
 
     /**
-     * Creates EntityUpdateAdapter for each delete method.
+     * Creates EntityUpdateAdapter for each deletion method.
      */
-    private fun createDeleteMethods(): List<PreparedStmtQuery> {
-        return createShortcutMethods(dao.deleteMethods, "delete") { deleteMethod, entity ->
-            val useDriverApi = deleteMethod.methodBinder?.isMigratedToDriver() == true
-            EntityDeleteAdapterWriter.create(entity)
-                .createAnonymous(this@DaoWriter, dbProperty.name, useDriverApi)
+    private fun createDeletionMethods(): List<PreparedStmtQuery> {
+        return createShortcutMethods(dao.deletionMethods, "deletion") { _, entity ->
+            EntityDeletionAdapterWriter.create(entity)
+                .createAnonymous(this@DaoWriter, dbProperty.name)
         }
     }
 
@@ -462,9 +460,8 @@ class DaoWriter(
     private fun createUpdateMethods(): List<PreparedStmtQuery> {
         return createShortcutMethods(dao.updateMethods, "update") { update, entity ->
             val onConflict = OnConflictProcessor.onConflictText(update.onConflictStrategy)
-            val useDriverApi = update.methodBinder?.isMigratedToDriver() == true
             EntityUpdateAdapterWriter.create(entity, onConflict)
-                .createAnonymous(this@DaoWriter, dbProperty.name, useDriverApi)
+                .createAnonymous(this@DaoWriter, dbProperty.name)
         }
     }
 
@@ -483,15 +480,9 @@ class DaoWriter(
                 } else {
                     ""
                 }
-                val useDriverApi = method.methodBinder?.isMigratedToDriver() == true
                 val fields = entities.mapValues {
                     val spec = getOrCreateProperty(
-                        DeleteOrUpdateAdapterProperty(
-                            it.value,
-                            methodPrefix,
-                            onConflict,
-                            useDriverApi
-                        )
+                        DeleteOrUpdateAdapterProperty(it.value, methodPrefix, onConflict)
                     )
                     val impl = implCallback(method, it.value)
                     spec to impl
@@ -511,99 +502,60 @@ class DaoWriter(
         if (adapters.isEmpty() || method.methodBinder == null) {
             return XCodeBlock.builder(codeLanguage).build()
         }
-        val useDriverApi = method.methodBinder.isMigratedToDriver()
-        val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
-        if (useDriverApi) {
-            method.methodBinder.convertAndReturn(
-                parameters = method.parameters,
-                adapters = adapters,
-                dbProperty = dbProperty,
-                scope = scope
-            )
-        } else {
-            method.methodBinder.convertAndReturnCompat(
-                parameters = method.parameters,
-                adapters = adapters,
-                dbProperty = dbProperty,
-                scope = scope
-            )
-        }
-        return scope.generate()
-    }
+        val scope = CodeGenScope(this)
 
-    /**
-     * Groups all upsert methods based on the upsert statement they will use then creates all
-     * field specs, EntityUpsertAdapterWriter and actual upsert methods.
-     */
-    private fun createUpsertMethods(): List<PreparedStmtQuery> {
-        return dao.upsertMethods
-            .map { upsertMethod ->
-                val entities = upsertMethod.entities
-                val fields = entities.mapValues {
-                    val useDriverApi = upsertMethod.methodBinder?.isMigratedToDriver() == true
-                    val spec = getOrCreateProperty(UpsertAdapterProperty(it.value, useDriverApi))
-                    val impl = EntityUpsertAdapterWriter.create(it.value)
-                        .createConcrete(it.value, this@DaoWriter, dbProperty, useDriverApi)
-                    spec to impl
-                }
-                val methodImpl = overrideWithoutAnnotations(
-                    upsertMethod.element,
-                    declaredDao
-                ).apply {
-                    addCode(createUpsertMethodBody(upsertMethod, fields))
-                }.build()
-                PreparedStmtQuery(fields, methodImpl)
-            }
-    }
-
-    private fun createUpsertMethodBody(
-        method: UpsertMethod,
-        upsertAdapters: Map<String, Pair<XPropertySpec, XCodeBlock>>
-    ): XCodeBlock {
-        if (upsertAdapters.isEmpty() || method.methodBinder == null) {
-            return XCodeBlock.builder(codeLanguage).build()
-        }
-        val useDriverApi = method.methodBinder.isMigratedToDriver()
-        val scope = CodeGenScope(writer = this, useDriverApi = useDriverApi)
-
-        if (useDriverApi) {
-            method.methodBinder.convertAndReturn(
-                parameters = method.parameters,
-                adapters = upsertAdapters,
-                dbProperty = dbProperty,
-                scope = scope
-            )
-        } else {
-            method.methodBinder.convertAndReturnCompat(
-                parameters = method.parameters,
-                adapters = upsertAdapters,
-                dbProperty = dbProperty,
-                scope = scope
-            )
-        }
-        return scope.generate()
-    }
-
-    private fun createPreparedQueryMethodBody(method: WriteQueryMethod): XCodeBlock {
-        if (!method.preparedQueryResultBinder.isMigratedToDriver()) {
-            return compatCreatePreparedQueryMethodBody(method)
-        }
-
-        val scope = CodeGenScope(this, useDriverApi = true)
-        val queryWriter = QueryWriter(method)
-        val sqlVar = scope.getTmpVar("_sql")
-        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
-        method.preparedQueryResultBinder.executeAndReturn(
-            sqlQueryVar = sqlVar,
+        method.methodBinder.convertAndReturn(
+            parameters = method.parameters,
+            adapters = adapters,
             dbProperty = dbProperty,
-            bindStatement = { stmtVar -> queryWriter.bindArgs(stmtVar, listSizeArgs, this) },
-            returnTypeName = method.returnType.asTypeName(),
             scope = scope
         )
         return scope.generate()
     }
 
-    private fun compatCreatePreparedQueryMethodBody(method: WriteQueryMethod): XCodeBlock {
+    /**
+     * Groups all upsertion methods based on the upsert statement they will use then creates all
+     * field specs, EntityIUpsertionAdapterWriter and actual upsert methods.
+     */
+    private fun createUpsertMethods(): List<PreparedStmtQuery> {
+        return dao.upsertionMethods
+            .map { upsertionMethod ->
+                val entities = upsertionMethod.entities
+                val fields = entities.mapValues {
+                    val spec = getOrCreateProperty(UpsertionAdapterProperty(it.value))
+                    val impl = EntityUpsertionAdapterWriter.create(it.value)
+                        .createConcrete(it.value, this@DaoWriter, dbProperty)
+                    spec to impl
+                }
+                val methodImpl = overrideWithoutAnnotations(
+                    upsertionMethod.element,
+                    declaredDao
+                ).apply {
+                    addCode(createUpsertionMethodBody(upsertionMethod, fields))
+                }.build()
+                PreparedStmtQuery(fields, methodImpl)
+            }
+    }
+
+    private fun createUpsertionMethodBody(
+        method: UpsertionMethod,
+        upsertionAdapters: Map<String, Pair<XPropertySpec, XCodeBlock>>
+    ): XCodeBlock {
+        if (upsertionAdapters.isEmpty() || method.methodBinder == null) {
+            return XCodeBlock.builder(codeLanguage).build()
+        }
+        val scope = CodeGenScope(this)
+
+        method.methodBinder.convertAndReturn(
+            parameters = method.parameters,
+            adapters = upsertionAdapters,
+            dbProperty = dbProperty,
+            scope = scope
+        )
+        return scope.generate()
+    }
+
+    private fun createPreparedQueryMethodBody(method: WriteQueryMethod): XCodeBlock {
         val scope = CodeGenScope(this)
         method.preparedQueryResultBinder.executeAndReturn(
             prepareQueryStmtBlock = {
@@ -629,28 +581,6 @@ class DaoWriter(
     }
 
     private fun createQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
-        if (!method.queryResultBinder.isMigratedToDriver()) {
-            return compatCreateQueryMethodBody(method)
-        }
-
-        val scope = CodeGenScope(this, useDriverApi = true)
-        val queryWriter = QueryWriter(method)
-        val sqlVar = scope.getTmpVar("_sql")
-        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
-        method.queryResultBinder.convertAndReturn(
-            sqlQueryVar = sqlVar,
-            dbProperty = dbProperty,
-            bindStatement = { stmtVar ->
-                queryWriter.bindArgs(stmtVar, listSizeArgs, this)
-            },
-            returnTypeName = method.returnType.asTypeName(),
-            inTransaction = method.inTransaction,
-            scope = scope
-        )
-        return scope.generate()
-    }
-
-    private fun compatCreateQueryMethodBody(method: ReadQueryMethod): XCodeBlock {
         val queryWriter = QueryWriter(method)
         val scope = CodeGenScope(this)
         val sqlVar = scope.getTmpVar("_sql")
@@ -725,25 +655,15 @@ class DaoWriter(
         }
     }
 
-    private class InsertMethodProperty(
+    private class InsertionMethodProperty(
         val shortcutEntity: ShortcutEntity,
-        val onConflictText: String,
-        val useDriverApi: Boolean
+        val onConflictText: String
     ) : SharedPropertySpec(
-        baseName = if (useDriverApi) {
-            "insertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
-        } else {
-            "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
-               },
-        type = if (useDriverApi) {
-            INSERT_ADAPTER
-        } else {
-            INSERT_ADAPTER_COMPAT
-        }.parametrizedBy(shortcutEntity.pojo.typeName)
+        baseName = "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
+        type = INSERTION_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
-                "$onConflictText-$useDriverApi"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
         }
 
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
@@ -753,49 +673,43 @@ class DaoWriter(
     class DeleteOrUpdateAdapterProperty(
         val shortcutEntity: ShortcutEntity,
         val methodPrefix: String,
-        val onConflictText: String,
-        val useDriverApi: Boolean
+        val onConflictText: String
     ) : SharedPropertySpec(
-        baseName = if (useDriverApi) {
-            "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
-        } else {
-            "${methodPrefix}CompatAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
-               },
-        type = if (useDriverApi) {
-            DELETE_OR_UPDATE_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
-        } else {
-            DELETE_OR_UPDATE_ADAPTER_COMPAT.parametrizedBy(shortcutEntity.pojo.typeName)
-        }
+        baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
+        type = DELETE_OR_UPDATE_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
         }
 
         override fun getUniqueKey(): String {
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}" +
-                "$methodPrefix$onConflictText-$useDriverApi"
+                "$methodPrefix$onConflictText"
         }
     }
 
-    class UpsertAdapterProperty(
-        val shortcutEntity: ShortcutEntity,
-        val useDriverApi: Boolean
+    class UpsertionAdapterProperty(
+        val shortcutEntity: ShortcutEntity
     ) : SharedPropertySpec(
-        baseName = if (useDriverApi) {
-            "upsertAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
-        } else {
-            "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}"
-               },
-        type = if (useDriverApi) {
-            UPSERT_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
-        } else {
-            UPSERT_ADAPTER_COMPAT.parametrizedBy(shortcutEntity.pojo.typeName)
-        }
+        baseName = "upsertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
+        type = UPSERTION_ADAPTER.parametrizedBy(shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
-            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}-$useDriverApi"
+            return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}"
         }
 
         override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
+        }
+    }
+
+    class PreparedStatementProperty(val method: QueryMethod) : SharedPropertySpec(
+        baseName = "preparedStmtOf${method.element.name.capitalize(Locale.US)}",
+        type = SHARED_SQLITE_STMT
+    ) {
+        override fun prepare(writer: TypeWriter, builder: XPropertySpec.Builder) {
+        }
+
+        override fun getUniqueKey(): String {
+            return method.query.original
         }
     }
 }

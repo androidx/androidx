@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,8 +23,9 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.8.0")
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation(androidxArtifact(":annotation:annotation"))
+    // TODO: artifact is not found, so commented out
+//    implementation(androidxArtifact(":annotation:annotation-experimental"))
     implementation(libs.kotlinStdlib)
 }
 

@@ -16,8 +16,6 @@
 
 package androidx.privacysandbox.tools.apicompiler.parser
 
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
-import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.ValueProperty
 import com.google.devtools.ksp.isPublic
@@ -29,84 +27,43 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 
 internal class ValueParser(private val logger: KSPLogger, private val typeParser: TypeParser) {
-    fun parseValue(annotatedValue: KSAnnotated): AnnotatedValue? {
-        val isDataClass =
-            (annotatedValue is KSClassDeclaration &&
-                annotatedValue.classKind == ClassKind.CLASS &&
-                annotatedValue.modifiers.contains(Modifier.DATA))
-        val isEnumClass =
-            (annotatedValue is KSClassDeclaration &&
-                annotatedValue.classKind == ClassKind.ENUM_CLASS &&
-                annotatedValue.modifiers.contains(Modifier.ENUM))
-        if (!isDataClass && !isEnumClass) {
+    fun parseValue(value: KSAnnotated): AnnotatedValue? {
+        if (value !is KSClassDeclaration ||
+            value.classKind != ClassKind.CLASS ||
+            !value.modifiers.contains(Modifier.DATA)
+        ) {
             logger.error(
-                "Only data classes and enum classes can be annotated with @PrivacySandboxValue."
+                "Only data classes can be annotated with @PrivacySandboxValue."
             )
             return null
         }
-        val value = annotatedValue as KSClassDeclaration
-        val name = value.qualifiedName?.getFullName() ?: value.simpleName.getFullName()
 
+        val name = value.qualifiedName?.getFullName() ?: value.simpleName.getFullName()
         if (!value.isPublic()) {
             logger.error("Error in $name: annotated values should be public.")
         }
-        ensureNoCompanion(value, name)
-        ensureNoTypeParameters(value, name)
-        ensureNoSuperTypes(value, name)
 
-        return if (isDataClass) {
-            AnnotatedDataClass(
-                type = typeParser.parseFromDeclaration(value),
-                properties = value.getAllProperties().map(::parseProperty).toList()
-            )
-        } else {
-            parseEnumClass(value)
-        }
-    }
-
-    private fun parseEnumClass(classDeclaration: KSClassDeclaration): AnnotatedEnumClass {
-        val variants = classDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
-            .map { it.simpleName.asString() }
-            .toList()
-        return AnnotatedEnumClass(
-            type = typeParser.parseFromDeclaration(classDeclaration),
-            variants = variants
-        )
-    }
-
-    private fun ensureNoCompanion(classDeclaration: KSClassDeclaration, name: String) {
-        if (classDeclaration.declarations.filterIsInstance<KSClassDeclaration>()
+        if (value.declarations.filterIsInstance<KSClassDeclaration>()
                 .any(KSClassDeclaration::isCompanionObject)
         ) {
             logger.error(
                 "Error in $name: annotated values cannot declare companion objects."
             )
         }
-    }
 
-    private fun ensureNoTypeParameters(classDeclaration: KSClassDeclaration, name: String) {
-        if (classDeclaration.typeParameters.isNotEmpty()) {
+        if (value.typeParameters.isNotEmpty()) {
             logger.error(
                 "Error in $name: annotated values cannot declare type parameters (${
-                    classDeclaration.typeParameters.map { it.simpleName.getShortName() }.sorted()
+                    value.typeParameters.map { it.simpleName.getShortName() }.sorted()
                         .joinToString(limit = 3)
                 })."
             )
         }
-    }
 
-    private fun ensureNoSuperTypes(classDeclaration: KSClassDeclaration, name: String) {
-        val supertypes =
-            classDeclaration.superTypes.map {
-                it.resolve().declaration.qualifiedName?.getFullName()
-                    ?: it.resolve().declaration.simpleName.getShortName()
-            }
-        if (!supertypes.all { it in listOf("kotlin.Any", "kotlin.Enum") }) {
-            logger.error(
-                "Error in $name: values annotated with @PrivacySandboxValue may not " +
-                    "inherit other types (${supertypes.joinToString(limit = 3)})"
-            )
-        }
+        return AnnotatedValue(
+            type = typeParser.parseFromDeclaration(value),
+            properties = value.getAllProperties().map(::parseProperty).toList()
+        )
     }
 
     private fun parseProperty(property: KSPropertyDeclaration): ValueProperty {

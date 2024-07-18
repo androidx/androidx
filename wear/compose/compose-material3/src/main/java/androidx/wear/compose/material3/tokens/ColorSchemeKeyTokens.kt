@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_42
+// VERSION: v0_7
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -22,10 +22,8 @@ package androidx.wear.compose.material3.tokens
 internal enum class ColorSchemeKeyTokens {
     Background,
     Error,
-    ErrorContainer,
     OnBackground,
     OnError,
-    OnErrorContainer,
     OnPrimary,
     OnPrimaryContainer,
     OnSecondary,
@@ -42,9 +40,9 @@ internal enum class ColorSchemeKeyTokens {
     Secondary,
     SecondaryContainer,
     SecondaryDim,
-    SurfaceContainer,
-    SurfaceContainerHigh,
-    SurfaceContainerLow,
+    Surface,
+    SurfaceBright,
+    SurfaceDim,
     Tertiary,
     TertiaryContainer,
     TertiaryDim,

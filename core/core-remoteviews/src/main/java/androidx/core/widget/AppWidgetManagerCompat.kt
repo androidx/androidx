@@ -99,7 +99,14 @@ public fun createExactSizeAppWidget(
                 factory
             )
         }
-        else -> createExactSizeAppWidgetInner(appWidgetManager, appWidgetId, factory)
+        SDK_INT >= 16 -> {
+            AppWidgetManagerApi16Impl.createExactSizeAppWidget(
+                appWidgetManager,
+                appWidgetId,
+                factory
+            )
+        }
+        else -> createAppWidgetFromProviderInfo(appWidgetManager, appWidgetId, factory)
     }
 }
 
@@ -168,7 +175,15 @@ public fun createResponsiveSizeAppWidget(
     require(dpSizes.size <= 16) { "At most 16 sizes may be provided" }
     return when {
         SDK_INT >= 31 -> AppWidgetManagerApi31Impl.createResponsiveSizeAppWidget(dpSizes, factory)
-        else -> createResponsiveSizeAppWidgetInner(appWidgetManager, appWidgetId, dpSizes, factory)
+        SDK_INT >= 16 -> {
+            AppWidgetManagerApi16Impl.createResponsiveSizeAppWidget(
+                appWidgetManager,
+                appWidgetId,
+                dpSizes,
+                factory
+            )
+        }
+        else -> createAppWidgetFromProviderInfo(appWidgetManager, appWidgetId, factory)
     }
 }
 
@@ -193,7 +208,11 @@ private object AppWidgetManagerApi31Impl {
                 "App widget SizeF sizes not found in the options bundle, falling back to the " +
                     "min/max sizes"
             )
-            return createExactSizeAppWidgetInner(appWidgetManager, appWidgetId, factory)
+            return AppWidgetManagerApi16Impl.createExactSizeAppWidget(
+                appWidgetManager,
+                appWidgetId,
+                factory
+            )
         }
         return RemoteViews(sizes.associateWith { factory(it.toSizeFCompat()) })
     }
@@ -209,85 +228,90 @@ private object AppWidgetManagerApi31Impl {
     private fun SizeF.toSizeFCompat() = SizeFCompat.toSizeFCompat(this)
 }
 
-internal fun createExactSizeAppWidgetInner(
-    appWidgetManager: AppWidgetManager,
-    appWidgetId: Int,
-    factory: (SizeFCompat) -> RemoteViews
-): RemoteViews {
-    val (landscapeSize, portraitSize) =
-        getSizesFromOptionsBundle(appWidgetManager, appWidgetId)
-            ?: run {
-                Log.w(
-                    LogTag,
-                    "App widget sizes not found in the options bundle, falling back to the " +
-                        "provider size"
-                )
-                return createAppWidgetFromProviderInfo(appWidgetManager, appWidgetId, factory)
-            }
-    return createAppWidget(landscapeSize = landscapeSize, portraitSize = portraitSize, factory)
-}
+@RequiresApi(16)
+private object AppWidgetManagerApi16Impl {
+    @DoNotInline
+    fun createExactSizeAppWidget(
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        factory: (SizeFCompat) -> RemoteViews
+    ): RemoteViews {
+        val (landscapeSize, portraitSize) =
+            getSizesFromOptionsBundle(appWidgetManager, appWidgetId)
+                ?: run {
+                    Log.w(
+                        LogTag,
+                        "App widget sizes not found in the options bundle, falling back to the " +
+                            "provider size"
+                    )
+                    return createAppWidgetFromProviderInfo(appWidgetManager, appWidgetId, factory)
+                }
+        return createAppWidget(landscapeSize = landscapeSize, portraitSize = portraitSize, factory)
+    }
 
-internal fun createResponsiveSizeAppWidgetInner(
-    appWidgetManager: AppWidgetManager,
-    appWidgetId: Int,
-    sizes: Collection<SizeFCompat>,
-    factory: (SizeFCompat) -> RemoteViews
-): RemoteViews {
-    val minSize = sizes.minByOrNull { it.area } ?: error("Sizes cannot be empty")
-    val (landscapeSize, portraitSize) =
-        getSizesFromOptionsBundle(appWidgetManager, appWidgetId)
-            ?: run {
-                Log.w(
-                    LogTag,
-                    "App widget sizes not found in the options bundle, falling back to the " +
-                        "smallest supported size ($minSize)"
-                )
-                LandscapePortraitSizes(minSize, minSize)
-            }
-    val effectiveLandscapeSize =
-        sizes.filter { landscapeSize approxDominates it }.maxByOrNull { it.area } ?: minSize
-    val effectivePortraitSize =
-        sizes.filter { portraitSize approxDominates it }.maxByOrNull { it.area } ?: minSize
-    return createAppWidget(
-        landscapeSize = effectiveLandscapeSize,
-        portraitSize = effectivePortraitSize,
-        factory
-    )
-}
-
-private fun createAppWidget(
-    landscapeSize: SizeFCompat,
-    portraitSize: SizeFCompat,
-    factory: (SizeFCompat) -> RemoteViews
-): RemoteViews {
-    return if (landscapeSize == portraitSize) {
-        factory(landscapeSize)
-    } else {
-        RemoteViews(
-            /* landscape= */ factory(landscapeSize),
-            /* portrait= */ factory(portraitSize)
+    @DoNotInline
+    fun createResponsiveSizeAppWidget(
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        sizes: Collection<SizeFCompat>,
+        factory: (SizeFCompat) -> RemoteViews
+    ): RemoteViews {
+        val minSize = sizes.minByOrNull { it.area } ?: error("Sizes cannot be empty")
+        val (landscapeSize, portraitSize) =
+            getSizesFromOptionsBundle(appWidgetManager, appWidgetId)
+                ?: run {
+                    Log.w(
+                        LogTag,
+                        "App widget sizes not found in the options bundle, falling back to the " +
+                            "smallest supported size ($minSize)"
+                    )
+                    LandscapePortraitSizes(minSize, minSize)
+                }
+        val effectiveLandscapeSize =
+            sizes.filter { landscapeSize approxDominates it }.maxByOrNull { it.area } ?: minSize
+        val effectivePortraitSize =
+            sizes.filter { portraitSize approxDominates it }.maxByOrNull { it.area } ?: minSize
+        return createAppWidget(
+            landscapeSize = effectiveLandscapeSize,
+            portraitSize = effectivePortraitSize,
+            factory
         )
     }
-}
 
-private fun getSizesFromOptionsBundle(
-    appWidgetManager: AppWidgetManager,
-    appWidgetId: Int
-): LandscapePortraitSizes? {
-    val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+    private fun createAppWidget(
+        landscapeSize: SizeFCompat,
+        portraitSize: SizeFCompat,
+        factory: (SizeFCompat) -> RemoteViews
+    ): RemoteViews {
+        return if (landscapeSize == portraitSize) {
+            factory(landscapeSize)
+        } else {
+            RemoteViews(
+                /* landscape= */ factory(landscapeSize),
+                /* portrait= */ factory(portraitSize)
+            )
+        }
+    }
 
-    val portWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, -1)
-    val portHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, -1)
-    if (portWidthDp < 0 || portHeightDp < 0) return null
+    private fun getSizesFromOptionsBundle(
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int
+    ): LandscapePortraitSizes? {
+        val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
 
-    val landWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, -1)
-    val landHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, -1)
-    if (landWidthDp < 0 || landHeightDp < 0) return null
+        val portWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, -1)
+        val portHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, -1)
+        if (portWidthDp < 0 || portHeightDp < 0) return null
 
-    return LandscapePortraitSizes(
-        landscape = SizeFCompat(landWidthDp.toFloat(), landHeightDp.toFloat()),
-        portrait = SizeFCompat(portWidthDp.toFloat(), portHeightDp.toFloat())
-    )
+        val landWidthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH, -1)
+        val landHeightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, -1)
+        if (landWidthDp < 0 || landHeightDp < 0) return null
+
+        return LandscapePortraitSizes(
+            landscape = SizeFCompat(landWidthDp.toFloat(), landHeightDp.toFloat()),
+            portrait = SizeFCompat(portWidthDp.toFloat(), portHeightDp.toFloat())
+        )
+    }
 }
 
 internal fun createAppWidgetFromProviderInfo(

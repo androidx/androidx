@@ -18,12 +18,11 @@ package androidx.bluetooth
 
 import android.bluetooth.le.AdvertiseData as FwkAdvertiseData
 import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
-import android.bluetooth.le.AdvertisingSetParameters as FwkAdvertisingSetParameters
 import android.os.Build
 import android.os.ParcelUuid
 import androidx.annotation.DoNotInline
-import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
+import java.time.Duration
 import java.util.UUID
 
 /**
@@ -46,13 +45,12 @@ class AdvertiseParams(
      */
     val isDiscoverable: Boolean = false,
     /**
-     * Advertising duration in milliseconds.
+     * Advertising duration.
      *
-     * It must not exceed 180000 milliseconds. A value of 0 means advertising continues
+     * It must not exceed 655350 milliseconds. A value of 0 means advertising continues
      * until it is stopped explicitly.
-     * @throws IllegalArgumentException if it is not in the range [0..180000].
      */
-    @IntRange(from = 0, to = 180000) val durationMillis: Long = 0,
+    val duration: Duration = Duration.ZERO,
     /**
      * A map of company identifiers to manufacturer specific data.
      * <p>
@@ -81,12 +79,6 @@ class AdvertiseParams(
         fun setDiscoverable(builder: FwkAdvertiseSettings.Builder, isDiscoverable: Boolean) {
             builder.setDiscoverable(isDiscoverable)
         }
-
-        @JvmStatic
-        @DoNotInline
-        fun setDiscoverable(builder: FwkAdvertisingSetParameters.Builder, isDiscoverable: Boolean) {
-            builder.setDiscoverable(isDiscoverable)
-        }
     }
 
     @RequiresApi(31)
@@ -98,38 +90,19 @@ class AdvertiseParams(
         }
     }
 
-    @RequiresApi(26)
-    private object AdvertiseParamsApi26Impl {
-        @JvmStatic
-        @DoNotInline
-        fun fwkAdvertiseSetParams(
-            isConnectable: Boolean,
-            isDiscoverable: Boolean
-        ): FwkAdvertisingSetParameters = FwkAdvertisingSetParameters.Builder().run {
-            setConnectable(isConnectable)
-            if (Build.VERSION.SDK_INT >= 34) {
-                AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
-            }
-            build()
-        }
-    }
-
     internal val fwkAdvertiseSettings: FwkAdvertiseSettings
         get() = FwkAdvertiseSettings.Builder().run {
             setConnectable(isConnectable)
-            if (durationMillis > 0) {
-                setTimeout(durationMillis.toInt())
+            duration.toMillis().let {
+                if (it !in 0..655350)
+                    throw IllegalArgumentException("Advertise duration must be in [0, 655350]")
+                setTimeout(it.toInt())
             }
             if (Build.VERSION.SDK_INT >= 34) {
                 AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
             }
             build()
         }
-
-    @RequiresApi(26)
-    internal fun fwkAdvertiseSetParams(): FwkAdvertisingSetParameters {
-        return AdvertiseParamsApi26Impl.fwkAdvertiseSetParams(isConnectable, isDiscoverable)
-    }
 
     internal val fwkAdvertiseData: FwkAdvertiseData
         get() = FwkAdvertiseData.Builder().run {
@@ -150,9 +123,4 @@ class AdvertiseParams(
             }
             build()
         }
-
-    init {
-        if (durationMillis !in 0..180000)
-            throw IllegalArgumentException("Advertise duration must be in [0, 180000]")
-    }
 }

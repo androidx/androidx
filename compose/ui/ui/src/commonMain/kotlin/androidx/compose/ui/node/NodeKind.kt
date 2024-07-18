@@ -110,6 +110,10 @@ internal object Nodes {
         get() = NodeKind<SoftKeyboardInterceptionModifierNode>(0b1 shl 17)
     @JvmStatic
     inline val Traversable get() = NodeKind<TraversableNode>(0b1 shl 18)
+
+    @JvmStatic
+    inline val Unplaced
+        get() = NodeKind<OnUnplacedModifierNode>(0b1 shl 19)
     // ...
 }
 
@@ -215,6 +219,9 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         }
         if (node is TraversableNode) {
             mask = mask or Nodes.Traversable
+        }
+        if (node is OnUnplacedModifierNode) {
+            mask = mask or Nodes.Unplaced
         }
         mask
     }

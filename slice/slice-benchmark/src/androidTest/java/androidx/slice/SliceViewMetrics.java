@@ -25,6 +25,7 @@ import androidx.benchmark.junit4.BenchmarkRule;
 import androidx.slice.widget.SliceView;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -37,6 +38,7 @@ import java.util.Arrays;
 
 @RunWith(Parameterized.class)
 @SmallTest
+@SdkSuppress(minSdkVersion = 19)
 @SuppressWarnings("deprecation")
 public class SliceViewMetrics {
 

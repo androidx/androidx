@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.kruth.assertThat
+import androidx.paging.ContiguousPagedListTest.Companion.EXCEPTION
 import androidx.paging.LoadType.REFRESH
 import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
@@ -185,7 +186,6 @@ class PagedListTest {
     fun setState_Error() {
         var onStateChangeCalls = 0
 
-        val exception = Exception()
         @Suppress("DEPRECATION")
         val loadStateManager = object : PagedList.LoadStateManager() {
             override fun onStateChanged(type: LoadType, state: LoadState) {
@@ -193,8 +193,8 @@ class PagedListTest {
             }
         }
 
-        loadStateManager.setState(REFRESH, LoadState.Error(exception))
-        loadStateManager.setState(REFRESH, LoadState.Error(exception))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
+        loadStateManager.setState(REFRESH, LoadState.Error(EXCEPTION))
 
         assertEquals(1, onStateChangeCalls)
     }

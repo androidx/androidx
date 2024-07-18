@@ -96,7 +96,7 @@ public class AccessibilityDelegateCompatTest extends
             // Use a group, so it has a child
             mView = (ViewGroup) activity.findViewById(androidx.core.test.R.id.view).getParent();
             // On KitKat, some delegate methods aren't called for non-important views
-            mView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+            ViewCompat.setImportantForAccessibility(mView, View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         });
     }
 
@@ -173,7 +173,8 @@ public class AccessibilityDelegateCompatTest extends
         final AccessibilityDelegateCompat mockDelegate = mock(
                 AccessibilityDelegateCompat.class);
         mActivityTestRule.runOnUiThread(() -> {
-            mView.setAccessibilityLiveRegion(View.ACCESSIBILITY_LIVE_REGION_POLITE);
+            ViewCompat.setAccessibilityLiveRegion(mView,
+                    ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
 
             ViewCompat.setAccessibilityPaneTitle(mView, "Sample title");
 
@@ -242,7 +243,8 @@ public class AccessibilityDelegateCompatTest extends
         mActivityTestRule.runOnUiThread(() -> {
             mChildView = activity.findViewById(androidx.core.test.R.id.view);
             // On KitKat, some delegate methods aren't called for non-important views
-            mChildView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+            ViewCompat.setImportantForAccessibility(mChildView,
+                    View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         });
         final CharSequence title = "Sample title";
         ViewCompat.setAccessibilityPaneTitle(mChildView, title);
@@ -299,14 +301,15 @@ public class AccessibilityDelegateCompatTest extends
         mActivityTestRule.runOnUiThread(() -> {
             mChildView = activity.findViewById(androidx.core.test.R.id.view);
             // On KitKat, some delegate methods aren't called for non-important views
-            mChildView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+            ViewCompat.setImportantForAccessibility(mChildView,
+                    View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         });
         final CharSequence title = "Sample title";
         ViewCompat.setAccessibilityPaneTitle(mChildView, title);
 
         // Validity check
-        assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_YES,
-                mChildView.getImportantForAccessibility());
+        assertEquals(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                ViewCompat.getImportantForAccessibility(mChildView));
         assertEquals(mChildView.getVisibility(), View.VISIBLE);
 
         sUiAutomation.executeAndWaitForEvent(
@@ -348,8 +351,8 @@ public class AccessibilityDelegateCompatTest extends
         ViewCompat.setAccessibilityPaneTitle(mView, title);
 
         // Validity check
-        assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_YES,
-                mView.getImportantForAccessibility());
+        assertEquals(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
+                ViewCompat.getImportantForAccessibility(mView));
 
         final Activity activity = mActivityTestRule.getActivity();
         sUiAutomation.executeAndWaitForEvent(
@@ -423,7 +426,7 @@ public class AccessibilityDelegateCompatTest extends
         int actionId = integerArgumentCaptor.getValue();
 
         //The service would end up calling the same thing ViewCompat calls
-        mView.performAccessibilityAction(actionId, args);
+        ViewCompat.performAccessibilityAction(mView, actionId, args);
         verify(span2).onClick(mView);
     }
 
@@ -472,7 +475,7 @@ public class AccessibilityDelegateCompatTest extends
     public void testAccessibilityActionPerformIsCalled() {
         final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
         final int id = ViewCompat.addAccessibilityAction(mView, "Asad's action", action);
-        mView.performAccessibilityAction(id, null);
+        ViewCompat.performAccessibilityAction(mView, id, null);
         verify(action).perform(mView, null);
     }
 
@@ -484,7 +487,7 @@ public class AccessibilityDelegateCompatTest extends
             AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
             final int id = ViewCompat.addAccessibilityAction(mView,
                     "Test" + Integer.valueOf(i).toString(), action);
-            mView.performAccessibilityAction(id, null);
+            ViewCompat.performAccessibilityAction(mView, id, null);
             verify(action).perform(mView, null);
             actionIdToBeRemoved = id;
         }
@@ -492,7 +495,7 @@ public class AccessibilityDelegateCompatTest extends
 
         AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
         final int id = ViewCompat.addAccessibilityAction(mView, "Last test", action);
-        mView.performAccessibilityAction(id, null);
+        ViewCompat.performAccessibilityAction(mView, id, null);
         verify(action).perform(mView, null);
     }
 
@@ -504,7 +507,8 @@ public class AccessibilityDelegateCompatTest extends
         ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
                 "Focus title", action);
 
-        mView.performAccessibilityAction(AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
+        ViewCompat.performAccessibilityAction(mView,
+                AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
         verify(action).perform(mView, null);
     }
 
@@ -521,7 +525,8 @@ public class AccessibilityDelegateCompatTest extends
         ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
                 expectedLabel, action2);
 
-        mView.performAccessibilityAction(AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
+        ViewCompat.performAccessibilityAction(mView,
+                AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
         verify(action2).perform(mView, null);
         verify(action, never()).perform(mView, null);
     }
@@ -556,7 +561,7 @@ public class AccessibilityDelegateCompatTest extends
         final boolean extendSelection = true;
         bundle.putBoolean(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN,
                 extendSelection);
-        mView.performAccessibilityAction(
+        ViewCompat.performAccessibilityAction(mView,
                 AccessibilityNodeInfoCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, bundle);
         AccessibilityViewCommand.MoveAtGranularityArguments args =
                 new AccessibilityViewCommand.MoveAtGranularityArguments();
@@ -572,23 +577,23 @@ public class AccessibilityDelegateCompatTest extends
     @Test
     @SdkSuppress(minSdkVersion = 21)
     public void testSetAccessibilityDelegate_viewAutoImportant_makesViewImportant() {
-        mView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        ViewCompat.setImportantForAccessibility(mView, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
         assertThat(mView.getImportantForAccessibility()).isEqualTo(
-                View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
         ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
         assertThat(mView.getImportantForAccessibility()).isEqualTo(
-                View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
     @SdkSuppress(minSdkVersion = 21)
     @Test
     public void testSetAccessibilityDelegate_viewUnimportant_doesNotMakeViewImportant() {
-        mView.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        ViewCompat.setImportantForAccessibility(mView, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
         Truth.assertThat(mView.getImportantForAccessibility()).isEqualTo(
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
         ViewCompat.setAccessibilityDelegate(mView, new AccessibilityDelegateCompat());
         Truth.assertThat(mView.getImportantForAccessibility()).isEqualTo(
-                View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
     }
 
     @Test
@@ -704,14 +709,16 @@ public class AccessibilityDelegateCompatTest extends
         mView.requestSendAccessibilityEvent(childView, event);
         verify(mockDelegate).onRequestSendAccessibilityEvent(mView, childView, event);
 
-        mView.getAccessibilityNodeProvider();
-        verify(mockDelegate).getAccessibilityNodeProvider(mView);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mView.getAccessibilityNodeProvider();
+            verify(mockDelegate).getAccessibilityNodeProvider(mView);
 
-        final Bundle bundle = new Bundle();
-        mView.performAccessibilityAction(
-                AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-        verify(mockDelegate).performAccessibilityAction(
-                mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+            final Bundle bundle = new Bundle();
+            mView.performAccessibilityAction(
+                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+            verify(mockDelegate).performAccessibilityAction(
+                    mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+        }
     }
 
     private void assertMockBridgedAccessibilityDelegateCompatWorkingOnView(

@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -33,7 +26,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.work.multiprocess"
@@ -44,9 +37,8 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     api(libs.guavaListenableFuture)
-    implementation("androidx.core:core:1.12.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0-alpha03")
-    implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.core:core:1.9.0")
+    implementation("androidx.room:room-runtime:2.5.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -59,7 +51,7 @@ dependencies {
 
 androidx {
     name = "WorkManager Multiprocess"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false

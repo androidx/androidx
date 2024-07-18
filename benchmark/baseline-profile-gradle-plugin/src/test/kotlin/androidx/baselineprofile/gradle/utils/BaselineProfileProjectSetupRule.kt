@@ -16,7 +16,6 @@
 
 package androidx.baselineprofile.gradle.utils
 
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_1
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.testing.platform.proto.api.core.LabelProto
 import com.google.testing.platform.proto.api.core.PathProto
@@ -37,14 +36,11 @@ import org.junit.runners.model.Statement
 internal const val ANDROID_APPLICATION_PLUGIN = "com.android.application"
 internal const val ANDROID_LIBRARY_PLUGIN = "com.android.library"
 internal const val ANDROID_TEST_PLUGIN = "com.android.test"
-internal const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
 
 class BaselineProfileProjectSetupRule(
     private val forceAgpVersion: String? = null,
     private val addKotlinGradlePluginToClasspath: Boolean = false
 ) : ExternalResource() {
-
-    private val forcedTestAgpVersion = TestAgpVersion.fromVersionString(forceAgpVersion)
 
     /**
      * Root folder for the project setup that contains 3 modules.
@@ -219,64 +215,6 @@ class BaselineProfileProjectSetupRule(
             base.evaluate()
         }
     }
-
-    fun baselineProfileFile(variantName: String): File {
-        // Warning: support for baseline profile source sets in library module was added with
-        // agp 8.3.0 alpha 15 (b/309858620). Therefore, before then, we can only always merge into
-        // main and always output only in src/main/baseline-prof.txt.
-        return if (
-            consumer.isLibraryModule == false ||
-            (consumer.isLibraryModule == true &&
-                forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_1))
-        ) {
-            File(
-                consumer.rootDir,
-                "src/$variantName/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
-            )
-        } else if (consumer.isLibraryModule == true /* and version is not at least AGP 8.3.0 */) {
-            if (variantName != "main") {
-                throw IllegalArgumentException(
-                    """
-                    Invalid variant name `$variantName` for library pre-agp 8.3.0. Only main is supported.
-                """.trimIndent()
-                )
-            }
-            File(
-                consumer.rootDir,
-                "src/main/baseline-prof.txt"
-            )
-        } else {
-            // This happens only when trying to read the baseline profile file before defining
-            // the consumer type (library or app).
-            throw IllegalStateException("Consumer is nether a library or app.")
-        }
-    }
-
-    fun startupProfileFile(variantName: String) = File(
-        consumer.rootDir,
-        "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
-    )
-
-    fun mergedArtProfile(variantName: String): File {
-        // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
-        // Before that, the folder was omitted in path.
-        val taskNameFolder =
-            if (forcedTestAgpVersion.isAtLeast(TEST_AGP_VERSION_8_3_1)) {
-                camelCase("merge", variantName, "artProfile")
-            } else {
-                ""
-            }
-        return File(
-            consumer.rootDir,
-            "build/intermediates/merged_art_profile/$variantName/$taskNameFolder/baseline-prof.txt"
-        )
-    }
-
-    fun readBaselineProfileFileContent(variantName: String): List<String> =
-        baselineProfileFile(variantName).readLines()
-
-    fun readStartupProfileFileContent(variantName: String): List<String> =
-        startupProfileFile(variantName).readLines()
 }
 
 data class VariantProfile(
@@ -332,8 +270,9 @@ class AppTargetModule(
     override val name: String,
 ) : Module {
 
-    fun setup(
-        buildGradleContent: String = """
+    fun setup() {
+        setBuildGradle(
+            """
                 plugins {
                     id("com.android.application")
                     id("androidx.baselineprofile.apptarget")
@@ -342,8 +281,7 @@ class AppTargetModule(
                     namespace 'com.example.namespace'
                 }
             """.trimIndent()
-    ) {
-        setBuildGradle(buildGradleContent)
+        )
     }
 }
 
@@ -626,8 +564,6 @@ class ConsumerModule(
     private val dependencyName: String,
 ) : Module {
 
-    var isLibraryModule: Boolean? = null
-
     fun setup(
         androidPlugin: String,
         flavors: Boolean = false,
@@ -668,7 +604,6 @@ class ConsumerModule(
         baselineProfileBlock: String = "",
         additionalGradleCodeBlock: String = "",
     ) {
-        isLibraryModule = androidPlugin == ANDROID_LIBRARY_PLUGIN
         setBuildGradle(
             """
                 plugins {

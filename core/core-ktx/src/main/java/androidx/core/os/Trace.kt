@@ -29,11 +29,12 @@ import android.os.Trace
         imports = arrayOf("androidx.tracing.trace")
     )
 )
+@Suppress("DEPRECATION")
 public inline fun <T> trace(sectionName: String, block: () -> T): T {
-    Trace.beginSection(sectionName)
+    TraceCompat.beginSection(sectionName)
     try {
         return block()
     } finally {
-        Trace.endSection()
+        TraceCompat.endSection()
     }
 }

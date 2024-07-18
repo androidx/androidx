@@ -94,7 +94,7 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         assertThat(channel.receive())
             .containsExactly("book")
 
-        booksDao.addPublisher(TestUtil.PUBLISHER2)
+        booksDao.addPublisherSuspend(TestUtil.PUBLISHER2)
         drain() // drain async invalidate
         yield()
 

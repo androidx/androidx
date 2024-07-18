@@ -16,6 +16,8 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import android.util.Log;
+
 import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
@@ -54,11 +56,6 @@ class BoolNodes {
         @Override
         @UiThread
         public void destroy() {}
-
-        @Override
-        public int getCost() {
-            return FIXED_NODE_COST;
-        }
     }
 
     /** Dynamic boolean node that gets value from the state. */
@@ -102,13 +99,10 @@ class BoolNodes {
                                 return unboxedLhs > unboxedRhs;
                             case COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO:
                                 return unboxedLhs >= unboxedRhs;
-                            case COMPARISON_OP_TYPE_UNDEFINED:
-                            case UNRECOGNIZED:
-                                break;
+                            default:
+                                Log.e(TAG, "Unknown operation type in ComparisonInt32Node");
+                                return false;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in ComparisonInt32Node: "
-                                        + protoNode.getOperationType());
                     });
         }
     }
@@ -144,13 +138,10 @@ class BoolNodes {
                             case COMPARISON_OP_TYPE_GREATER_THAN_OR_EQUAL_TO:
                                 return (unboxedLhs > unboxedRhs)
                                         || equalFloats(unboxedLhs, unboxedRhs);
-                            case COMPARISON_OP_TYPE_UNDEFINED:
-                            case UNRECOGNIZED:
-                                break;
+                            default:
+                                Log.e(TAG, "Unknown operation type in ComparisonInt32Node");
+                                return false;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in ComparisonFloatNode: "
-                                        + protoNode.getOperationType());
                     });
         }
 
@@ -185,13 +176,10 @@ class BoolNodes {
                                 return a.equals(b);
                             case LOGICAL_OP_TYPE_NOT_EQUAL:
                                 return !a.equals(b);
-                            case LOGICAL_OP_TYPE_UNDEFINED:
-                            case UNRECOGNIZED:
-                                break;
+                            default:
+                                Log.e(TAG, "Unknown operation type in LogicalBoolOp");
+                                return false;
                         }
-                        throw new IllegalArgumentException(
-                                "Unknown operation type in LogicalBoolOp: "
-                                        + protoNode.getOperationType());
                     });
         }
     }

@@ -219,25 +219,6 @@ class AppWidgetSessionTest {
         assertThat(caught).isEqualTo(null)
     }
 
-    @Test
-    fun waitForReadyResumesWhenEventIsReceived() = runTest {
-        launch {
-            session.waitForReady().join()
-            session.close()
-        }
-        session.receiveEvents(context) {}
-    }
-
-    @Test
-    fun waitForReadyResumesWhenSessionIsClosed() = runTest {
-        launch {
-            session.waitForReady().join()
-        }
-        // Advance until waitForReady suspends.
-        this.testScheduler.advanceUntilIdle()
-        session.close()
-    }
-
     private class TestGlanceState : ConfigManager {
 
         val getValueCalls = mutableListOf<String>()

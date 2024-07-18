@@ -72,20 +72,8 @@ internal abstract class KspType(
      */
     private val xTypeName: XTypeName by lazy {
         val jvmWildcardType = env.resolveWildcards(typeAlias ?: ksType, scope).let {
-            if (ksType == it) {
-                if (ksType.arguments != it.arguments) {
-                    // Replacing the type arguments to retain the variances resolved in
-                    // `resolveWildcards`. See https://github.com/google/ksp/issues/1778.
-                    copy(
-                        env = env,
-                        ksType = ksType.replace(it.arguments),
-                        originalKSAnnotations = originalKSAnnotations,
-                        scope = scope,
-                        typeAlias = typeAlias
-                    )
-                } else {
-                    this
-                }
+            if (it == ksType) {
+                this
             } else {
                 env.wrap(
                     ksType = it,
@@ -113,8 +101,7 @@ internal abstract class KspType(
     }
 
     override val superTypes: List<XType> by lazy {
-        val anyType = env.requireType(Any::class)
-        if (this == anyType) {
+        if (xTypeName == XTypeName.ANY_OBJECT) {
             // The object class doesn't have any supertypes.
             return@lazy emptyList<XType>()
         }
@@ -126,16 +113,16 @@ internal abstract class KspType(
             env.wrap(
                 ksType = resolveTypeArguments(it.resolve(), resolvedTypeArguments),
                 allowPrimitives = false
-            ).makeNonNullable()
+            )
         } ?: emptyList()
         val (superClasses, superInterfaces) = superTypes.partition {
             it.typeElement?.isClass() == true
         }
         // Per documentation, always return the class before the interfaces.
         if (superClasses.isEmpty()) {
-            // Return Any / Object when there's no explicit super class specified on the\
-            // class/interface. This matches javac's Types#directSupertypes().
-            listOf(anyType) + superInterfaces
+            // Return Object when there's no explicit super class specified on the class/interface.
+            // This matches javac's Types#directSupertypes().
+            listOf(env.requireType(TypeName.OBJECT)) + superInterfaces
         } else {
             check(superClasses.size == 1) {
                 "Class ${this.typeName} should have only one super class. Found" +

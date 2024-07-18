@@ -32,9 +32,11 @@ data class ShortcutQueryParameter(
     /**
      * Method name in entity insertion or update adapter.
      */
-    val handleMethodName = if (isMultiple) {
-        "handleMultiple"
-    } else {
-        "handle"
+    fun handleMethodName(): String {
+        return if (isMultiple) {
+            "handleMultiple"
+        } else {
+            "handle"
+        }
     }
 }

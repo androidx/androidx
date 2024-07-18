@@ -34,6 +34,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.PaintCompat;
 import androidx.emoji.widget.SpannableBuilder;
@@ -49,6 +50,7 @@ import java.util.List;
  */
 @AnyThread
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@RequiresApi(19)
 final class EmojiProcessor {
 
     /**

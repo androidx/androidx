@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -34,7 +27,6 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesGuava)
-    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.emoji2:emoji2:1.2.0")
     implementation("androidx.recyclerview:recyclerview:1.2.1")
@@ -47,13 +39,14 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":internal-testutils-runtime"))
+
+    samples(project(":emoji2:emoji2-emojipicker:emoji2-emojipicker-samples"))
 }
 
 
 android {
     defaultConfig {
         minSdkVersion 21
-        vectorDrawables.useSupportLibrary = true
     }
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/emoji2/emoji2-emojipicker"

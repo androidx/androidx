@@ -24,7 +24,6 @@ import androidx.room.processor.Context
 import java.io.File
 import loadTestSource
 import org.jetbrains.kotlin.config.JvmDefaultMode
-import writeTestSource
 
 abstract class BaseDaoKotlinCodeGenTest {
     protected fun getTestGoldenPath(testName: String): String {
@@ -51,21 +50,12 @@ abstract class BaseDaoKotlinCodeGenTest {
                 it.roundEnv.isProcessingOver
             )
             it.assertCompilationResult {
-                val expectedSrc = loadTestSource(
-                    expectedFilePath,
-                    "MyDao_Impl"
-                )
-                // Set ROOM_TEST_WRITE_SRCS env variable to make tests write expected sources,
-                // handy for big sweeping code gen changes. ;)
-                if (System.getenv("ROOM_TEST_WRITE_SRCS") != null) {
-                    writeTestSource(
-                        checkNotNull(this.findGeneratedSource(expectedSrc.relativePath)) {
-                            "Couldn't find gen src: $expectedSrc"
-                        },
-                        expectedFilePath
+                this.generatedSource(
+                    loadTestSource(
+                        expectedFilePath,
+                        "MyDao_Impl"
                     )
-                }
-                this.generatedSource(expectedSrc)
+                )
                 this.hasNoWarnings()
             }
             handler.invoke(it)

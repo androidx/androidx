@@ -365,8 +365,8 @@ class InterfaceParserTest {
     fun parameterWithGenerics_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: MutableList<Int>)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitives, lists, data/enum classes " +
-                    "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
+                    "with @PrivacySandboxValue, interfaces annotated with " +
                     "@PrivacySandboxCallback or @PrivacySandboxInterface, and " +
                     "SdkActivityLaunchers are supported as parameter types."
             )
@@ -384,8 +384,8 @@ class InterfaceParserTest {
     fun parameterLambda_fails() {
         checkSourceFails(serviceMethod("suspend fun foo(x: (Int) -> Int)"))
             .containsExactlyErrors(
-                "Error in com.mysdk.MySdk.foo: only primitives, lists, data/enum classes " +
-                    "annotated with @PrivacySandboxValue, interfaces annotated with " +
+                "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated " +
+                    "with @PrivacySandboxValue, interfaces annotated with " +
                     "@PrivacySandboxCallback " + "or @PrivacySandboxInterface, and " +
                     "SdkActivityLaunchers are supported as parameter types."
             )
@@ -406,9 +406,9 @@ class InterfaceParserTest {
                 """
         )
         checkSourceFails(source).containsExactlyErrors(
-            "Error in com.mysdk.MySdk.foo: only primitives, lists, data/enum classes annotated " +
-                "with @PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, " +
-                "and SdkActivityLaunchers are supported as return types."
+            "Error in com.mysdk.MySdk.foo: only primitives, lists, data classes annotated with " +
+                "@PrivacySandboxValue, interfaces annotated with @PrivacySandboxInterface, and " +
+                "SdkActivityLaunchers are supported as return types."
         )
     }
 

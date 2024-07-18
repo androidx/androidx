@@ -191,9 +191,8 @@ internal constructor(private val iHeadlessWatchFace: IHeadlessWatchFace) : Headl
             )
     }
 
-    override val previewReferenceInstant: Instant by lazy {
-        Instant.ofEpochMilli(iHeadlessWatchFace.previewReferenceTimeMillis)
-    }
+    override val previewReferenceInstant: Instant
+        get() = Instant.ofEpochMilli(iHeadlessWatchFace.previewReferenceTimeMillis)
 
     override val userStyleSchema: UserStyleSchema
         get() = UserStyleSchema(iHeadlessWatchFace.userStyleSchema)

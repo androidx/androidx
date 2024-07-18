@@ -34,8 +34,7 @@ import kotlin.jvm.JvmOverloads
 /**
  * [FloatList] is a [List]-like collection for [Float] values. It allows retrieving
  * the elements without boxing. [FloatList] is always backed by a [MutableFloatList],
- * its [MutableList]-like subclass. The purpose of this class is to avoid the performance
- * overhead of auto-boxing due to generics since [Collection] classes all operate on objects.
+ * its [MutableList]-like subclass.
  *
  * This implementation is not thread-safe: if multiple threads access this
  * container concurrently, and one or more threads modify the structure of
@@ -63,18 +62,6 @@ public sealed class FloatList(initialCapacity: Int) {
     @get:androidx.annotation.IntRange(from = 0)
     public val size: Int
         get() = _size
-
-    /**
-     * The current backing [FloatArray] for the contents of [FloatList].
-     *
-     * Modifying this array may affect the contents of the [FloatList]. The values are stored in
-     * indices 0 to [lastIndex], but any values after [lastIndex] can be any value.
-     *
-     * This should only be used for highly-optimized code that needs direct access to the backing
-     * array.
-     */
-    public val internalArray: FloatArray
-        get() = content
 
     /**
      * Returns the last valid index in the [FloatList]. This can be `-1` when the list is empty.

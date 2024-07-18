@@ -34,14 +34,11 @@ import org.junit.runners.JUnit4
 class NavGraphNavigatorTest {
 
     companion object {
-        @IdRes
-        private const val FIRST_DESTINATION_ID = 1
-        @IdRes
-        private const val SECOND_DESTINATION_ID = 2
+        @IdRes private const val FIRST_DESTINATION_ID = 1
+        @IdRes private const val SECOND_DESTINATION_ID = 2
     }
 
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    @get:Rule val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var provider: NavigatorProvider
     private lateinit var noOpState: TestNavigatorState
@@ -53,44 +50,41 @@ class NavGraphNavigatorTest {
     @Before
     fun setup() {
         Dispatchers.setMain(UnconfinedTestDispatcher())
-        provider = NavigatorProvider().apply {
-            addNavigator(NoOpNavigator().also { noOpNavigator = it })
-            addNavigator(
-                NavGraphNavigator(this).also {
-                    navGraphNavigator = it
-                }
-            )
-        }
+        provider =
+            NavigatorProvider().apply {
+                addNavigator(NoOpNavigator().also { noOpNavigator = it })
+                addNavigator(NavGraphNavigator(this).also { navGraphNavigator = it })
+            }
         noOpState = TestNavigatorState()
         noOpNavigator.onAttach(noOpState)
         navGraphState = TestNavigatorState()
         navGraphNavigator.onAttach(navGraphState)
     }
 
-    private fun createFirstDestination() = noOpNavigator.createDestination().apply {
-        id = FIRST_DESTINATION_ID
-    }
+    private fun createFirstDestination() =
+        noOpNavigator.createDestination().apply { id = FIRST_DESTINATION_ID }
 
-    private fun createSecondDestination() = noOpNavigator.createDestination().apply {
-        id = SECOND_DESTINATION_ID
-    }
+    private fun createSecondDestination() =
+        noOpNavigator.createDestination().apply { id = SECOND_DESTINATION_ID }
 
     private fun createGraphWithDestination(
         destination: NavDestination,
         startId: Int = destination.id
-    ) = navGraphNavigator.createDestination().apply {
-        addDestination(destination)
-        setStartDestination(startId)
-    }
+    ) =
+        navGraphNavigator.createDestination().apply {
+            addDestination(destination)
+            setStartDestination(startId)
+        }
 
     @Test(expected = IllegalStateException::class)
     fun navigateWithoutStartDestination() {
         val destination = createFirstDestination()
-        val graph = navGraphNavigator.createDestination().apply {
-            addDestination(destination)
-            id = 2 // can't match id of first destination or the start destination
-            setStartDestination(0)
-        }
+        val graph =
+            navGraphNavigator.createDestination().apply {
+                addDestination(destination)
+                id = 2 // can't match id of first destination or the start destination
+                setStartDestination(0)
+            }
         val entry = navGraphState.createBackStackEntry(graph, null)
         navGraphNavigator.navigate(listOf(entry), null, null)
     }
@@ -101,7 +95,6 @@ class NavGraphNavigatorTest {
         val graph = createGraphWithDestination(destination)
         val entry = navGraphState.createBackStackEntry(graph, null)
         navGraphNavigator.navigate(listOf(entry), null, null)
-        assertThat(noOpState.backStack.value.map { it.destination })
-            .containsExactly(destination)
+        assertThat(noOpState.backStack.value.map { it.destination }).containsExactly(destination)
     }
 }

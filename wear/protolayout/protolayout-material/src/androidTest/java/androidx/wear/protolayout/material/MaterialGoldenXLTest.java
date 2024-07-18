@@ -19,13 +19,10 @@ package androidx.wear.protolayout.material;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
-import static androidx.wear.protolayout.material.RunnerUtils.convertToTestParameters;
 import static androidx.wear.protolayout.material.RunnerUtils.runSingleScreenshotTest;
 import static androidx.wear.protolayout.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.protolayout.material.TestCasesGenerator.XXXL_SCALE_SUFFIX;
 import static androidx.wear.protolayout.material.TestCasesGenerator.generateTestCases;
-import static androidx.wear.protolayout.material.TestCasesGenerator.generateTextTestCasesLtrOnly;
-import static androidx.wear.protolayout.material.TestCasesGenerator.generateTextTestCasesRtlOnly;
 
 import android.content.Context;
 import android.util.DisplayMetrics;
@@ -36,16 +33,16 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.protolayout.material.RunnerUtils.TestCase;
+import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
 @LargeTest
@@ -59,15 +56,15 @@ public class MaterialGoldenXLTest {
 
     private static final float FONT_SCALE_XXXL = 1.24f;
 
-    private final TestCase mTestCase;
+    private final LayoutElement mLayoutElement;
     private final String mExpected;
 
     @Rule
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-protolayout-material");
 
-    public MaterialGoldenXLTest(String expected, TestCase testCase) {
-        mTestCase = testCase;
+    public MaterialGoldenXLTest(String expected, LayoutElement layoutElement) {
+        mLayoutElement = layoutElement;
         mExpected = expected;
     }
 
@@ -108,22 +105,8 @@ public class MaterialGoldenXLTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        List<Object[]> testCaseList = new ArrayList<>();
-        testCaseList.addAll(
-                convertToTestParameters(
-                        generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX),
-                        /* isForRtl= */ true,
-                        /* isForLtr= */ true));
-        testCaseList.addAll(
-                convertToTestParameters(
-                        generateTextTestCasesRtlOnly(context, deviceParameters, XXXL_SCALE_SUFFIX),
-                        /* isForRtl= */ true,
-                        /* isForLtr= */ false));
-        testCaseList.addAll(
-                convertToTestParameters(
-                        generateTextTestCasesLtrOnly(context, deviceParameters, XXXL_SCALE_SUFFIX),
-                        /* isForRtl= */ false,
-                        /* isForLtr= */ true));
+        Map<String, LayoutElement> testCases =
+                generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX);
 
         // Restore state before this method, so other test have correct context.
         InstrumentationRegistry.getInstrumentation()
@@ -139,7 +122,9 @@ public class MaterialGoldenXLTest {
 
         waitForNotificationToDisappears();
 
-        return testCaseList;
+        return testCases.entrySet().stream()
+                .map(test -> new Object[] {test.getKey(), test.getValue()})
+                .collect(Collectors.toList());
     }
 
     @Parameterized.BeforeParam
@@ -155,6 +140,6 @@ public class MaterialGoldenXLTest {
 
     @Test
     public void test() {
-        runSingleScreenshotTest(mScreenshotRule, mTestCase, mExpected);
+        runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);
     }
 }

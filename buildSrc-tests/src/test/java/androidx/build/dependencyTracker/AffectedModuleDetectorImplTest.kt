@@ -18,11 +18,11 @@ package androidx.build.dependencyTracker
 
 import java.io.File
 import java.util.function.BiFunction
+import java.util.function.Predicate
 import org.gradle.api.Project
 import org.gradle.api.Transformer
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.provider.Provider
-import org.gradle.api.specs.Spec
 import org.gradle.testfixtures.ProjectBuilder
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
@@ -171,24 +171,26 @@ class AffectedModuleDetectorImplTest {
     class TestProvider(private val list: List<String>) : Provider<List<String>> {
         override fun get(): List<String> = list
         override fun getOrNull(): List<String> = list
-        override fun isPresent(): Boolean = TODO("unused")
-        override fun forUseAtConfigurationTime(): Provider<List<String>> = TODO("unused")
+        override fun isPresent(): Boolean = TODO("used")
+        override fun forUseAtConfigurationTime(): Provider<List<String>> = TODO("used")
         override fun <U : Any?, R : Any?> zip(
             right: Provider<U>,
             combiner: BiFunction<in List<String>, in U, out R?>
-        ): Provider<R> = TODO("unused")
+        ): Provider<R> = TODO("used")
         override fun orElse(provider: Provider<out List<String>>): Provider<List<String>> {
-            TODO("unused")
+            TODO("used")
         }
-        override fun orElse(value: List<String>): Provider<List<String>> = TODO("unused")
+        override fun orElse(value: List<String>): Provider<List<String>> = TODO("used")
         override fun <S : Any?> flatMap(
             transformer: Transformer<out Provider<out S>?, in List<String>>
-        ): Provider<S> = TODO("unused")
-        override fun filter(spec: Spec<in List<String>>): Provider<List<String>> = TODO("unused")
+        ): Provider<S> = TODO("used")
+        override fun filter(predicate: Predicate<in List<String>>): Provider<List<String>> {
+            TODO("used")
+        }
         override fun <S : Any?> map(
             transformer: Transformer<out S?, in List<String>>
-        ): Provider<S> = TODO("unused")
-        override fun getOrElse(defaultValue: List<String>): List<String> = TODO("unused")
+        ): Provider<S> = TODO("used")
+        override fun getOrElse(defaultValue: List<String>): List<String> = TODO("used")
     }
 
     @Test

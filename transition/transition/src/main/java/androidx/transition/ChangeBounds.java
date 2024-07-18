@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -34,6 +35,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
+import androidx.core.view.ViewCompat;
 
 import java.util.Map;
 
@@ -143,6 +145,8 @@ public class ChangeBounds extends Transition {
     public ChangeBounds() {
     }
 
+    @SuppressLint("RestrictedApi") // remove once core lib would be released with the new
+    // LIBRARY_GROUP_PREFIX restriction. tracking in b/127286008
     public ChangeBounds(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context, attrs);
 
@@ -195,12 +199,12 @@ public class ChangeBounds extends Transition {
     private void captureValues(TransitionValues values) {
         View view = values.view;
 
-        if (view.isLaidOut() || view.getWidth() != 0 || view.getHeight() != 0) {
+        if (ViewCompat.isLaidOut(view) || view.getWidth() != 0 || view.getHeight() != 0) {
             values.values.put(PROPNAME_BOUNDS, new Rect(view.getLeft(), view.getTop(),
                     view.getRight(), view.getBottom()));
             values.values.put(PROPNAME_PARENT, values.view.getParent());
             if (mResizeClip) {
-                values.values.put(PROPNAME_CLIP, view.getClipBounds());
+                values.values.put(PROPNAME_CLIP, ViewCompat.getClipBounds(view));
             }
         }
     }
@@ -329,7 +333,7 @@ public class ChangeBounds extends Transition {
                 }
                 ObjectAnimator clipAnimator = null;
                 if (!startClip.equals(endClip)) {
-                    view.setClipBounds(startClip);
+                    ViewCompat.setClipBounds(view, startClip);
                     clipAnimator = ObjectAnimator.ofObject(view, "clipBounds", sRectEvaluator,
                             startClip, endClip);
                     ClipListener listener = new ClipListener(view,
@@ -453,7 +457,7 @@ public class ChangeBounds extends Transition {
             ViewUtils.setLeftTopRightBottom(mView, left, top, left + maxWidth, top + maxHeight);
 
             Rect clip = isReverse ? mEndClip : mStartClip;
-            mView.setClipBounds(clip);
+            ViewCompat.setClipBounds(mView, clip);
         }
 
         @Override
@@ -464,7 +468,7 @@ public class ChangeBounds extends Transition {
             Rect clip = isReverse
                     ? (mStartClipIsNull ? null : mStartClip)
                     : (mEndClipIsNull ? null : mEndClip);
-            mView.setClipBounds(clip);
+            ViewCompat.setClipBounds(mView, clip);
             if (isReverse) {
                 ViewUtils.setLeftTopRightBottom(mView, mStartLeft, mStartTop, mStartRight,
                         mStartBottom);
@@ -480,17 +484,17 @@ public class ChangeBounds extends Transition {
 
         @Override
         public void onTransitionPause(@NonNull Transition transition) {
-            Rect pauseClip = mView.getClipBounds();
+            Rect pauseClip = ViewCompat.getClipBounds(mView);
             mView.setTag(R.id.transition_clip, pauseClip);
             Rect clip = mEndClipIsNull ? null : mEndClip;
-            mView.setClipBounds(clip);
+            ViewCompat.setClipBounds(mView, clip);
         }
 
         @Override
         public void onTransitionResume(@NonNull Transition transition) {
             Rect pauseClip = (Rect) mView.getTag(R.id.transition_clip);
             mView.setTag(R.id.transition_clip, null);
-            mView.setClipBounds(pauseClip);
+            ViewCompat.setClipBounds(mView, pauseClip);
         }
 
         @Override

@@ -16,31 +16,19 @@
 
 package androidx.wear.protolayout.material.layouts;
 
-import static androidx.annotation.Dimension.DP;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
-import static androidx.wear.protolayout.DimensionBuilders.wrap;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_HORIZONTAL_PERCENT;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_VERTICAL_PERCENT;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.LAYOUTS_LABEL_PADDING_PERCENT;
-import static androidx.wear.protolayout.material.layouts.LayoutDefaults.insetElementWithPadding;
 import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
 import static androidx.wear.protolayout.materialcore.Helper.checkTag;
 import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagBytes;
 import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
 import static androidx.wear.protolayout.materialcore.Helper.isRoundDevice;
 
-import static java.lang.Math.min;
-
-import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,7 +36,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.protolayout.DimensionBuilders.DpProp;
-import androidx.wear.protolayout.DimensionBuilders.SpacerDimension;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.Column;
@@ -70,7 +57,7 @@ import java.util.List;
  * ProtoLayout layout that represents the suggested layout style for Material ProtoLayout, which has
  * content around the edge of the screen (e.g. a ProgressIndicator) and the given content inside of
  * it with the recommended margin and padding applied. Optional primary or secondary label can be
- * added above and below the additional content, respectively.
+ * added above and below the main content, respectively.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:
@@ -122,29 +109,23 @@ public class EdgeContentLayout implements LayoutElement {
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the primary label is present or not.
      */
-    static final int PRIMARY_LABEL_PRESENT = 1 << 1;
+    static final int PRIMARY_LABEL_PRESENT = 0x2;
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the secondary label is present or not.
      */
-    static final int SECONDARY_LABEL_PRESENT = 1 << 2;
+    static final int SECONDARY_LABEL_PRESENT = 0x4;
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
-     * the additional content is present or not.
+     * the main content is present or not.
      */
-    static final int CONTENT_PRESENT = 1 << 3;
+    static final int CONTENT_PRESENT = 0x8;
 
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
-     * the edge content is added before the additional content (0) or after it (1).
+     * the edge content is added before the main content (0) or after it (1).
      */
-    static final int EDGE_CONTENT_POSITION = 1 << 4;
-
-    /**
-     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
-     * the responsive content inset is used or not.
-     */
-    static final int CONTENT_INSET_USED = 1 << 5;
+    static final int EDGE_CONTENT_POSITION = 0x10;
 
     @RestrictTo(Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -155,15 +136,30 @@ public class EdgeContentLayout implements LayoutElement {
                 PRIMARY_LABEL_PRESENT,
                 SECONDARY_LABEL_PRESENT,
                 CONTENT_PRESENT,
-                EDGE_CONTENT_POSITION,
-                CONTENT_INSET_USED
+                EDGE_CONTENT_POSITION
             })
     @interface ContentBits {}
 
     @NonNull private final Box mImpl;
 
+    // This contains optional labels, spacers and main content.
+    @NonNull private final List<LayoutElement> mInnerColumn;
+
+    // This contains edge content;
+    @Nullable private final LayoutElement mEdgeContent;
+    private final boolean mIsEdgeContentBehind;
+
     EdgeContentLayout(@NonNull Box layoutElement) {
         this.mImpl = layoutElement;
+        // This contains inner columns and edge content.
+        List<LayoutElement> contents = mImpl.getContents();
+        int edgeContentIndex = (getMetadataTag()[FLAG_INDEX] & EDGE_CONTENT_POSITION) == 0 ? 0 : 1;
+        int contentIndex = 1 - edgeContentIndex;
+        this.mInnerColumn =
+                ((Column) ((Box) contents.get(contentIndex)).getContents().get(0)).getContents();
+        this.mEdgeContent =
+                areElementsPresent(EDGE_CONTENT_PRESENT) ? contents.get(edgeContentIndex) : null;
+        mIsEdgeContentBehind = edgeContentIndex == 0;
     }
 
     /** Builder class for {@link EdgeContentLayout}. */
@@ -174,88 +170,18 @@ public class EdgeContentLayout implements LayoutElement {
         @Nullable private LayoutElement mSecondaryLabelText = null;
         @Nullable private LayoutElement mContent = null;
         private byte mMetadataContentByte = 0;
-        // Default for non responsive behaviour is false (for backwards compatibility) and for
-        // responsive behaviour, only true is used.
-        @Nullable private Boolean mIsEdgeContentBehind = null;
-        private boolean mIsResponsiveInsetEnabled = false;
-        @Nullable private Float mEdgeContentThickness = null;
-        @NonNull
-        private DpProp mVerticalSpacerHeight =
-                EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP;
+        private boolean mIsEdgeContentBehind = false;
 
         /**
-         * Creates a builder for the {@link EdgeContentLayout}. Custom content inside of it can
+         * Creates a builder for the {@link EdgeContentLayout}t. Custom content inside of it can
          * later be set with ({@link #setContent}.
-         *
-         * <p>For optimal layouts across different screen sizes and better alignment with UX
-         * guidelines, it is highly recommended to call {@link #setResponsiveContentInsetEnabled}.
          */
         public Builder(@NonNull DeviceParameters deviceParameters) {
             this.mDeviceParameters = deviceParameters;
         }
 
         /**
-         * Changes this {@link EdgeContentLayout} to better follow guidelines for type of layout
-         * that has content around the edge.
-         *
-         * <p>These updates include:
-         * 1. Using responsive insets for its content primary and secondary label by adding some
-         * additional space on the sides of these elements to avoid content going off the screen
-         * edge.
-         * 2. Changing layout padding to responsive to better follow different screen sizes.
-         * 3. Positioning primary label at a fixed place on top of the screen rather than
-         * following additional content.
-         *
-         * <p>It is highly recommended to call this method with {@code true} when using this layout
-         * to optimize it for different screen sizes.
-         *
-         * @throws IllegalStateException if this and
-         * {@link #setEdgeContentBehindAllOtherContent(boolean)} are used together.
-         */
-        @NonNull
-        public Builder setResponsiveContentInsetEnabled(boolean enabled) {
-            if (mIsEdgeContentBehind != null && !mIsEdgeContentBehind) {
-                // We don't allow mixing above content with responsiveness, as content should always
-                // be behind.
-                throw new IllegalStateException(
-                        "Setters setResponsiveContentInsetEnabled and "
-                                + "setEdgeContentBehindAllOtherContent can't be used together. "
-                                + "Please use only setResponsiveContentInsetEnabled, which will "
-                                + "always place the edge content behind other content.");
-            }
-
-            this.mIsResponsiveInsetEnabled = enabled;
-            mMetadataContentByte =
-                    (byte)
-                            (enabled
-                                    ? (mMetadataContentByte | CONTENT_INSET_USED)
-                                    : (mMetadataContentByte & ~CONTENT_INSET_USED));
-            return this;
-        }
-
-        /**
-         * Sets the thickness of the hollow edge content so that other content is correctly placed.
-         * In other words, sets the space that should be reserved exclusively for the edge
-         * content and not be overdrawn by other inner content.
-         *
-         * <p>For example, for {@link CircularProgressIndicator} or {@link
-         * androidx.wear.protolayout.LayoutElementBuilders.ArcLine} elements, this should be equal
-         * to their stroke width/thickness.
-         *
-         * <p>Note that, calling this method when responsiveness is not set with
-         * {@link #setResponsiveContentInsetEnabled}, will be ignored.
-         */
-        @NonNull
-        public Builder setEdgeContentThickness(@Dimension(unit = DP) float thickness) {
-            this.mEdgeContentThickness = thickness;
-            return this;
-        }
-
-        /**
          * Sets the content to be around the edges. This can be {@link CircularProgressIndicator}.
-         *
-         * <p>If this content is something other that {@link CircularProgressIndicator}, please add
-         * its thickness with {@link #setEdgeContentThickness} for best results.
          */
         @NonNull
         public Builder setEdgeContent(@NonNull LayoutElement edgeContent) {
@@ -264,17 +190,7 @@ public class EdgeContentLayout implements LayoutElement {
             return this;
         }
 
-        /**
-         * Sets the content in the primary label slot.
-         *
-         * <p>Depending on whether {@link #setResponsiveContentInsetEnabled} is set to true or
-         * not, this label will be placed as following:
-         * - If responsive behaviour is set, label will be above the additional content, on a fixed
-         * place to ensure Tiles consistency with other layouts. Additionally, the label will
-         * also have an inset to prevent it from going off the screen.
-         * - If responsive behaviour is not set or called, label will be above the additional
-         * content, centered in the remaining space.
-         */
+        /** Sets the content in the primary label slot which will be above the main content. */
         @NonNull
         public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
             this.mPrimaryLabelText = primaryLabelText;
@@ -283,11 +199,8 @@ public class EdgeContentLayout implements LayoutElement {
         }
 
         /**
-         * Sets the content in the secondary label slot which will be below the additional content.
-         * It is highly recommended to have primary label set when having secondary label.
-         *
-         * <p>Note that when {@link #setResponsiveContentInsetEnabled} is set to {@code true}, the
-         * label will also have an inset to prevent it from going off the screen.
+         * Sets the content in the secondary label slot which will be below the main content. It is
+         * highly recommended to have primary label set when having secondary label.
          */
         @NonNull
         public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
@@ -305,43 +218,12 @@ public class EdgeContentLayout implements LayoutElement {
         }
 
         /**
-         * Sets the space size between the additional content and secondary label if there is any.
-         * If one of those is not present, spacer is not used. If not set,
-         * {@link LayoutDefaults#EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP} will
-         * be used.
-         *
-         * <p>Note that, this method should be used together with
-         * {@link #setResponsiveContentInsetEnabled}, otherwise it will be ignored.
-         */
-        @NonNull
-        public Builder setContentAndSecondaryLabelSpacing(@NonNull DpProp height) {
-            this.mVerticalSpacerHeight = height;
-            return this;
-        }
-
-        /**
          * Sets whether the edge content passed in with {@link #setEdgeContent} should be positioned
          * behind all other content in this layout or above it. If not set, defaults to {@code
          * false}, meaning that the edge content will be placed above all other content.
-         *
-         * <p>Note that, if {@link #setResponsiveContentInsetEnabled} is set to {@code true}, edge
-         * content will always go behind all other content and this method call will throw as those
-         * shouldn't be mixed.
-         *
-         * @throws IllegalStateException if this and {@link #setResponsiveContentInsetEnabled} are
-         *     used together.
          */
         @NonNull
         public Builder setEdgeContentBehindAllOtherContent(boolean isBehind) {
-            if (mIsResponsiveInsetEnabled && !isBehind) {
-                // We don't allow mixing this method with responsiveness.
-                throw new IllegalStateException(
-                        "Setters setResponsiveContentInsetEnabled and "
-                                + "setEdgeContentBehindAllOtherContent can't be used together. "
-                                + "Please use only setResponsiveContentInsetEnabled, which will "
-                                + "always place the edge content behind other content.");
-            }
-
             this.mIsEdgeContentBehind = isBehind;
             return this;
         }
@@ -350,154 +232,6 @@ public class EdgeContentLayout implements LayoutElement {
         @NonNull
         @Override
         public EdgeContentLayout build() {
-            if (mIsResponsiveInsetEnabled
-                    && mIsEdgeContentBehind != null
-                    && !mIsEdgeContentBehind) {
-                // We don't allow mixing requesting for edge content to be above with
-                // responsiveness.
-                throw new IllegalStateException(
-                        "Setters setResponsiveContentInsetEnabled and "
-                                + "setEdgeContentBehindAllOtherContent can't be used together. "
-                                + "Please use only setResponsiveContentInsetEnabled, which will "
-                                + "always place the edge content behind other content.");
-            }
-
-            return mIsResponsiveInsetEnabled ? responsiveLayoutBuild() : legacyLayoutBuild();
-        }
-
-        @NonNull
-        private EdgeContentLayout responsiveLayoutBuild() {
-            // Calculate what is the inset box max size, i.e., the size that all content can occupy
-            // without the edge content.
-            // Use provided thickness if set. Otherwise, see if we can get it from
-            // CircularProgressIndicator.
-            float edgeContentSize = getEdgeContentSize();
-
-            DpProp contentHeight = dp(
-                    mDeviceParameters.getScreenWidthDp() - edgeContentSize);
-            DpProp contentWidth = dp(
-                    mDeviceParameters.getScreenHeightDp() - edgeContentSize);
-
-            float outerMargin =
-                    mEdgeContent instanceof CircularProgressIndicator
-                            && ((CircularProgressIndicator) mEdgeContent).isOuterMarginApplied()
-                            ? 0 // CPI has this margin already.
-                            : EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP;
-
-            // Horizontal and vertical padding added to the inner content.
-            float horizontalPaddingDp =
-                    EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_HORIZONTAL_PERCENT
-                            * mDeviceParameters.getScreenWidthDp();
-            float verticalPaddingDp =
-                    EDGE_CONTENT_LAYOUT_RESPONSIVE_MARGIN_VERTICAL_PERCENT
-                            * mDeviceParameters.getScreenWidthDp();
-
-            // Padding to restrict labels from going off the screen.
-            float labelHorizontalPaddingDp =
-                    mDeviceParameters.getScreenWidthDp() * LAYOUTS_LABEL_PADDING_PERCENT;
-
-            Modifiers modifiers =
-                    new Modifiers.Builder()
-                            .setPadding(
-                                    new Padding.Builder()
-                                            .setRtlAware(true)
-                                            .setStart(dp(horizontalPaddingDp))
-                                            .setEnd(dp(horizontalPaddingDp))
-                                            .setTop(dp(verticalPaddingDp))
-                                            .setBottom(dp(verticalPaddingDp))
-                                            .build())
-                            .build();
-
-            // In this variant, it's always behind so resetting the flag to 0.
-            mMetadataContentByte = (byte) (mMetadataContentByte & ~EDGE_CONTENT_POSITION);
-            byte[] metadata = METADATA_TAG_BASE.clone();
-            metadata[FLAG_INDEX] = mMetadataContentByte;
-
-            Box.Builder layout =
-                    new Box.Builder()
-                            .setWidth(dp(mDeviceParameters.getScreenWidthDp()))
-                            .setHeight(dp(mDeviceParameters.getScreenHeightDp()))
-                            .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setMetadata(
-                                                    new ElementMetadata.Builder()
-                                                            .setTagData(metadata).build())
-                                            .setPadding(
-                                                    new Padding.Builder()
-                                                            .setAll(dp(outerMargin))
-                                                            .setRtlAware(true).build())
-                                            .build());
-
-            if (mEdgeContent != null) {
-                layout.addContent(mEdgeContent);
-            }
-
-            // Contains primary label, additional content and secondary label.
-            Column.Builder allInnerContent =
-                    new Column.Builder()
-                            .setWidth(contentWidth)
-                            .setHeight(contentHeight)
-                            .setModifiers(modifiers);
-
-            if (mPrimaryLabelText != null) {
-                allInnerContent.addContent(
-                        insetElementWithPadding(mPrimaryLabelText, labelHorizontalPaddingDp));
-                allInnerContent.addContent(
-                        new Spacer.Builder()
-                                .setHeight(EDGE_CONTENT_LAYOUT_RESPONSIVE_PRIMARY_LABEL_SPACING_DP)
-                                .build());
-            }
-
-            // Contains additional content and secondary label with wrapped height so it can be put
-            // inside of the Box to be centered. This is because primary label stays on top at
-            // the fixed place, while this content should be centered in the remaining space.
-            Column.Builder contentSecondaryLabel =
-                    new Column.Builder().setWidth(expand()).setHeight(wrap());
-
-            if (mContent != null) {
-                contentSecondaryLabel.addContent(mContent);
-            }
-
-            if (mSecondaryLabelText != null) {
-                if (mContent != null) {
-                    contentSecondaryLabel.addContent(
-                            new Spacer.Builder().setHeight(mVerticalSpacerHeight).build());
-                }
-                contentSecondaryLabel.addContent(
-                        insetElementWithPadding(mSecondaryLabelText, labelHorizontalPaddingDp));
-            }
-
-            allInnerContent.addContent(
-                    new Box.Builder()
-                            .setWidth(expand())
-                            .setHeight(expand())
-                            .addContent(contentSecondaryLabel.build())
-                            .build());
-
-            layout.addContent(allInnerContent.build());
-
-            return new EdgeContentLayout(layout.build());
-        }
-
-        private float getEdgeContentSize() {
-            float edgeContentThickness =
-                    mEdgeContentThickness == null
-                            ?
-                            // When not set, we try to get the thickness from CPI, otherwise we can
-                            // only use 0.
-                            (mEdgeContent instanceof CircularProgressIndicator
-                                    ? ((CircularProgressIndicator) mEdgeContent)
-                                    .getStrokeWidth().getValue()
-                                    : 0)
-                            : mEdgeContentThickness;
-            return 2 * (EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP + edgeContentThickness);
-        }
-
-        @NonNull
-        private EdgeContentLayout legacyLayoutBuild() {
-            if (mIsEdgeContentBehind == null) {
-                mIsEdgeContentBehind = false;
-            }
             float thicknessDp =
                     mEdgeContent instanceof CircularProgressIndicator
                             ? ((CircularProgressIndicator) mEdgeContent).getStrokeWidth().getValue()
@@ -507,24 +241,23 @@ public class EdgeContentLayout implements LayoutElement {
                             ? EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP
                             : EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
             float indicatorWidth = 2 * (thicknessDp + DEFAULT_PADDING.getValue());
-            float contentHeightDp = mDeviceParameters.getScreenHeightDp() - indicatorWidth;
-            float contentWidthDp = mDeviceParameters.getScreenWidthDp() - indicatorWidth;
+            float mainContentHeightDp = mDeviceParameters.getScreenHeightDp() - indicatorWidth;
+            float mainContentWidthDp = mDeviceParameters.getScreenWidthDp() - indicatorWidth;
 
-            DpProp contentHeight = dp(min(contentHeightDp, contentWidthDp));
-            DpProp contentWidth = dp(min(contentHeightDp, contentWidthDp));
+            DpProp mainContentHeight = dp(Math.min(mainContentHeightDp, mainContentWidthDp));
+            DpProp mainContentWidth = dp(Math.min(mainContentHeightDp, mainContentWidthDp));
 
             Modifiers modifiers =
                     new Modifiers.Builder()
                             .setPadding(
                                     new Padding.Builder()
-                                            .setRtlAware(true)
                                             .setStart(dp(horizontalPaddingDp))
                                             .setEnd(dp(horizontalPaddingDp))
                                             .build())
                             .build();
 
             if (!mIsEdgeContentBehind) {
-                // If the edge content is above the additional one, then its index should be 1.
+                // If the edge content is above the main one, then its index should be 1.
                 // Otherwise it's 0.
                 mMetadataContentByte = (byte) (mMetadataContentByte | EDGE_CONTENT_POSITION);
             }
@@ -578,8 +311,8 @@ public class EdgeContentLayout implements LayoutElement {
                             .setModifiers(modifiers)
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-                            .setHeight(contentHeight)
-                            .setWidth(contentWidth)
+                            .setHeight(mainContentHeight)
+                            .setWidth(mainContentWidth)
                             .addContent(innerContentBuilder.build())
                             .build();
 
@@ -615,23 +348,10 @@ public class EdgeContentLayout implements LayoutElement {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
-        if (isResponsiveContentInsetEnabled()) {
-            return getInnerColumnContentsForResponsive().get(0);
-        } else {
-            // By tag we know that content exists. It will be at position 0 if there is no primary
-            // label, or at position 2 (primary label, spacer - content) otherwise.
-            int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
-            Box box = (Box) getInnerContent(contentPosition);
-            return box.getContents().get(0);
-        }
-    }
-
-    /**
-     * Returns element from the inner content that is on the given index. It is a callers
-     * responsibility to pass in the correct index.
-     */
-    private LayoutElement getInnerContent(int contentPosition) {
-        return getAllContent().getContents().get(contentPosition);
+        // By tag we know that content exists. It will be at position 0 if there is no primary
+        // label, or at position 2 (primary label, spacer - content) otherwise.
+        int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
+        return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
     }
 
     /** Get the primary label content from this layout. */
@@ -640,11 +360,8 @@ public class EdgeContentLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that primary label exists. It will always be at position 0 in the inner
-        // content area.
-        return isResponsiveContentInsetEnabled()
-                ? ((Box) getInnerContent(0)).getContents().get(0)
-                : getInnerContent(0);
+        // By tag we know that primary label exists. It will always be at position 0.
+        return mInnerColumn.get(0);
     }
 
     /** Get the secondary label content from this layout. */
@@ -653,90 +370,19 @@ public class EdgeContentLayout implements LayoutElement {
         if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
             return null;
         }
-        if (isResponsiveContentInsetEnabled()) {
-            List<LayoutElement> innerColumnContents = getInnerColumnContentsForResponsive();
-            return ((Box) innerColumnContents.get(innerColumnContents.size() - 1))
-                    .getContents().get(0);
-        } else {
-            // By tag we know that secondary label exists. It will always be at last position.
-            List<LayoutElement> mInnerColumn = getAllContent().getContents();
-            return mInnerColumn.get(mInnerColumn.size() - 1);
-        }
-    }
-
-    /** Get the size of spacing between content and secondary from this layout. */
-    @Dimension(unit = Dimension.DP)
-    public float getContentAndSecondaryLabelSpacing() {
-        if (!isResponsiveContentInsetEnabled()) {
-            return EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP.getValue();
-        }
-
-        List<LayoutElement> innerColumnContents = getInnerColumnContentsForResponsive();
-        if (areElementsPresent(CONTENT_PRESENT) && areElementsPresent(SECONDARY_LABEL_PRESENT)) {
-            LayoutElement element =
-                    ((Box) innerColumnContents.get(innerColumnContents.size() - 2))
-                            .getContents().get(0);
-            if (element instanceof Spacer) {
-                SpacerDimension height = ((Spacer) element).getHeight();
-                if (height instanceof DpProp) {
-                    return ((DpProp) height).getValue();
-                }
-            }
-        }
-        return EDGE_CONTENT_LAYOUT_CONTENT_AND_SECONDARY_LABEL_SPACING_DP.getValue();
+        // By tag we know that secondary label exists. It will always be at last position.
+        return mInnerColumn.get(mInnerColumn.size() - 1);
     }
 
     /** Returns the edge content from this layout. */
     @Nullable
     public LayoutElement getEdgeContent() {
-        return areElementsPresent(EDGE_CONTENT_PRESENT)
-                ? mImpl.getContents().get(getEdgeContentPosition()) : null;
-    }
-
-    private int getEdgeContentPosition() {
-        return isEdgeContentBehindAllOtherContent() ? 0 : 1;
+        return mEdgeContent;
     }
 
     /** Returns if the edge content has been placed behind the other contents. */
     public boolean isEdgeContentBehindAllOtherContent() {
-        return (getMetadataTag()[FLAG_INDEX] & EDGE_CONTENT_POSITION) == 0;
-    }
-
-    /** Returns whether the contents from this layout are using responsive inset. */
-    public boolean isResponsiveContentInsetEnabled() {
-        return areElementsPresent(CONTENT_INSET_USED);
-    }
-
-    /** Returns the total size of the edge content including margins. */
-    public float getEdgeContentThickness() {
-        Column allContent = getAllContent();
-        if (mImpl.getWidth() instanceof DpProp && allContent.getWidth() instanceof DpProp) {
-            float edgeContentTotalThickness =
-                    ((DpProp) mImpl.getWidth()).getValue()
-                            - ((DpProp) allContent.getWidth()).getValue();
-            return edgeContentTotalThickness / 2 - EDGE_CONTENT_LAYOUT_RESPONSIVE_OUTER_MARGIN_DP;
-        }
-        return 0;
-    }
-
-    /** Returns Column that may contain primary label, additional content and secondary label. */
-    private Column getAllContent() {
-        int contentIndex = 1 - getEdgeContentPosition();
-        return (Column) (isResponsiveContentInsetEnabled()
-                ? mImpl.getContents().get(areElementsPresent(EDGE_CONTENT_PRESENT)
-                    ? 1 : 0)
-                : ((Box) mImpl.getContents().get(contentIndex)).getContents().get(0));
-    }
-
-    /**
-     * Returns all content inside of the inner Column that may contain additional content, spacer
-     * and secondary label.
-     */
-    private List<LayoutElement> getInnerColumnContentsForResponsive() {
-        List<LayoutElement> allContent = getAllContent().getContents();
-        Box box = (Box) allContent.get(allContent.size() - 1);
-        Column column = (Column) box.getContents().get(0);
-        return column.getContents();
+        return mIsEdgeContentBehind;
     }
 
     /**

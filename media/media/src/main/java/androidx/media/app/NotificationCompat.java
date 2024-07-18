@@ -320,8 +320,9 @@ public class NotificationCompat {
             if (!tombstone) {
                 button.setOnClickPendingIntent(R.id.action0, action.getActionIntent());
             }
-            CharSequence contentDescription = action.getTitle();
-            button.setContentDescription(R.id.action0, contentDescription);
+            if (Build.VERSION.SDK_INT >= 15) {
+                Api15Impl.setContentDescription(button, R.id.action0, action.getTitle());
+            }
             return button;
         }
 
@@ -535,6 +536,17 @@ public class NotificationCompat {
                     : mBuilder.mContext.getResources().getColor(
                             R.color.notification_material_background_media_default_color);
             views.setInt(R.id.status_bar_latest_event_content, "setBackgroundColor", color);
+        }
+    }
+
+    @RequiresApi(15)
+    private static class Api15Impl {
+        private Api15Impl() {}
+
+        @DoNotInline
+        static void setContentDescription(RemoteViews remoteViews, int viewId,
+                CharSequence contentDescription) {
+            remoteViews.setContentDescription(viewId, contentDescription);
         }
     }
 

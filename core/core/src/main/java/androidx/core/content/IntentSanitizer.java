@@ -207,8 +207,10 @@ public class IntentSanitizer {
             }
         }
 
-        sanitizeClipData(in, intent, mAllowedClipData, mAllowClipDataText, mAllowedClipDataUri,
-                penalty);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            Api16Impl.sanitizeClipData(in, intent, mAllowedClipData, mAllowClipDataText,
+                    mAllowedClipDataUri, penalty);
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mAllowIdentifier) {
@@ -218,10 +220,12 @@ public class IntentSanitizer {
             }
         }
 
-        if (mAllowSelector) {
-            intent.setSelector(in.getSelector());
-        } else if (in.getSelector() != null) {
-            penalty.accept("Selector is not allowed: " + in.getSelector());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            if (mAllowSelector) {
+                Api15Impl.setSelector(intent, Api15Impl.getSelector(in));
+            } else if (Api15Impl.getSelector(in) != null) {
+                penalty.accept("Selector is not allowed: " + Api15Impl.getSelector(in));
+            }
         }
 
         if (mAllowSourceBounds) {
@@ -875,87 +879,111 @@ public class IntentSanitizer {
         }
     }
 
-    static void sanitizeClipData(@NonNull Intent in, Intent out,
-            Predicate<ClipData> mAllowedClipData,
-            boolean mAllowClipDataText,
-            Predicate<Uri> mAllowedClipDataUri, Consumer<String> penalty) {
-        ClipData clipData = in.getClipData();
-
-        if (clipData == null) return;
-
-        ClipData newClipData = null;
-        if (mAllowedClipData != null && mAllowedClipData.test(clipData)) {
-            out.setClipData(clipData);
-        } else {
-            for (int i = 0; i < clipData.getItemCount(); i++) {
-                ClipData.Item item = clipData.getItemAt(i);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Api31Impl.checkOtherMembers(i, item, penalty);
-                } else {
-                    checkOtherMembers(i, item, penalty);
-                }
-
-                CharSequence itemText = null;
-                if (mAllowClipDataText) {
-                    itemText = item.getText();
-                } else {
-                    if (item.getText() != null) {
-                        penalty.accept(
-                                "Item text cannot contain value. Item position: " + i + "."
-                                        + " Text: " + item.getText());
-                    }
-                }
-
-                Uri itemUri = null;
-                if (mAllowedClipDataUri == null) {
-                    if (item.getUri() != null) {
-                        penalty.accept(
-                                "Item URI is not allowed. Item position: " + i + ". URI: "
-                                        + item.getUri());
-                    }
-                } else {
-                    if (item.getUri() == null || mAllowedClipDataUri.test(item.getUri())) {
-                        itemUri = item.getUri();
-                    } else {
-                        penalty.accept(
-                                "Item URI is not allowed. Item position: " + i + ". URI: "
-                                        + item.getUri());
-                    }
-                }
-
-                if (itemText != null || itemUri != null) {
-                    if (newClipData == null) {
-                        newClipData = new ClipData(clipData.getDescription(),
-                                new ClipData.Item(itemText, null, itemUri));
-                    } else {
-                        newClipData.addItem(new ClipData.Item(itemText, null, itemUri));
-                    }
-                }
-            }
-            if (newClipData != null) {
-                out.setClipData(newClipData);
-            }
-        }
-    }
-
-    private static void checkOtherMembers(int i, ClipData.Item item, Consumer<String> penalty) {
-        if (item.getHtmlText() != null || item.getIntent() != null) {
-            penalty.accept("ClipData item at position " + i + " contains htmlText, "
-                    + "textLinks or intent: " + item);
-        }
-    }
-
-    @RequiresApi(31)
-    private static class Api31Impl {
-        private Api31Impl() {
+    @RequiresApi(15)
+    private static class Api15Impl {
+        private Api15Impl() {
+            // This class is not instantiable.
         }
 
         @DoNotInline
-        static void checkOtherMembers(int i, ClipData.Item item, Consumer<String> penalty) {
-            if (item.getHtmlText() != null || item.getIntent() != null
-                    || item.getTextLinks() != null) {
+        static void setSelector(Intent intent, Intent selector) {
+            intent.setSelector(selector);
+        }
+
+        @DoNotInline
+        static Intent getSelector(Intent intent) {
+            return intent.getSelector();
+        }
+    }
+
+    @RequiresApi(16)
+    private static class Api16Impl {
+        private Api16Impl() {
+        }
+
+        @DoNotInline
+        static void sanitizeClipData(@NonNull Intent in, Intent out,
+                Predicate<ClipData> mAllowedClipData,
+                boolean mAllowClipDataText,
+                Predicate<Uri> mAllowedClipDataUri, Consumer<String> penalty) {
+            ClipData clipData = in.getClipData();
+
+            if (clipData == null) return;
+
+            ClipData newClipData = null;
+            if (mAllowedClipData != null && mAllowedClipData.test(clipData)) {
+                out.setClipData(clipData);
+            } else {
+                for (int i = 0; i < clipData.getItemCount(); i++) {
+                    ClipData.Item item = clipData.getItemAt(i);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Api31Impl.checkOtherMembers(i, item, penalty);
+                    } else {
+                        checkOtherMembers(i, item, penalty);
+                    }
+
+                    CharSequence itemText = null;
+                    if (mAllowClipDataText) {
+                        itemText = item.getText();
+                    } else {
+                        if (item.getText() != null) {
+                            penalty.accept(
+                                    "Item text cannot contain value. Item position: " + i + "."
+                                            + " Text: " + item.getText());
+                        }
+                    }
+
+                    Uri itemUri = null;
+                    if (mAllowedClipDataUri == null) {
+                        if (item.getUri() != null) {
+                            penalty.accept(
+                                    "Item URI is not allowed. Item position: " + i + ". URI: "
+                                            + item.getUri());
+                        }
+                    } else {
+                        if (item.getUri() == null || mAllowedClipDataUri.test(item.getUri())) {
+                            itemUri = item.getUri();
+                        } else {
+                            penalty.accept(
+                                    "Item URI is not allowed. Item position: " + i + ". URI: "
+                                            + item.getUri());
+                        }
+                    }
+
+                    if (itemText != null || itemUri != null) {
+                        if (newClipData == null) {
+                            newClipData = new ClipData(clipData.getDescription(),
+                                    new ClipData.Item(itemText, null, itemUri));
+                        } else {
+                            newClipData.addItem(new ClipData.Item(itemText, null, itemUri));
+                        }
+                    }
+                }
+                if (newClipData != null) {
+                    out.setClipData(newClipData);
+                }
+            }
+        }
+
+        private static void checkOtherMembers(int i, ClipData.Item item, Consumer<String> penalty) {
+            if (item.getHtmlText() != null || item.getIntent() != null) {
                 penalty.accept("ClipData item at position " + i + " contains htmlText, "
                         + "textLinks or intent: " + item);
+            }
+        }
+
+        @RequiresApi(31)
+        private static class Api31Impl {
+            private Api31Impl() {
+            }
+
+            @DoNotInline
+            static void checkOtherMembers(int i, ClipData.Item item, Consumer<String> penalty) {
+                if (item.getHtmlText() != null || item.getIntent() != null
+                        || item.getTextLinks() != null) {
+                    penalty.accept("ClipData item at position " + i + " contains htmlText, "
+                            + "textLinks or intent: " + item);
+                }
             }
         }
     }

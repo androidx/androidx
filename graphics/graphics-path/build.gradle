@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -51,28 +44,28 @@ android {
         minSdkVersion 21 // Limited to 21+ due to native changes before that release
         externalNativeBuild {
             cmake {
-                cppFlags.addAll([
-                    "-std=c++17",
-                    "-Wno-unused-command-line-argument",
-                    "-Wl,--hash-style=both", // Required to support API levels below 23
-                    "-fno-exceptions",
-                    "-fno-unwind-tables",
-                    "-fno-asynchronous-unwind-tables",
-                    "-fno-rtti",
-                    "-ffast-math",
-                    "-ffp-contract=fast",
-                    "-fvisibility-inlines-hidden",
-                    "-fvisibility=hidden",
-                    "-fomit-frame-pointer",
-                    "-ffunction-sections",
-                    "-fdata-sections",
-                    "-Wl,--gc-sections",
-                    "-Wl,-Bsymbolic-functions",
-                    "-nostdlib++"
+                cppFlags.addAll(
+                        [
+                        "-std=c++17",
+                        "-Wno-unused-command-line-argument",
+                        "-Wl,--hash-style=both", // Required to support API levels below 23
+                        "-fno-stack-protector",
+                        "-fno-exceptions",
+                        "-fno-unwind-tables",
+                        "-fno-asynchronous-unwind-tables",
+                        "-fno-rtti",
+                        "-ffast-math",
+                        "-ffp-contract=fast",
+                        "-fvisibility-inlines-hidden",
+                        "-fvisibility=hidden",
+                        "-fomit-frame-pointer",
+                        "-ffunction-sections",
+                        "-fdata-sections",
+                        "-Wl,--gc-sections",
+                        "-Wl,-Bsymbolic-functions",
                 ])
             }
         }
-        consumerProguardFiles "proguard-rules.pro"
     }
 
     externalNativeBuild {
@@ -81,6 +74,7 @@ android {
             version libs.versions.cmake.get()
         }
     }
+
 }
 
 androidx {

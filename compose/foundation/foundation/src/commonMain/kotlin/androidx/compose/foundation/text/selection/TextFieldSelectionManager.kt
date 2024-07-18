@@ -1079,7 +1079,12 @@ internal fun TextFieldSelectionHandle(
 /**
  * Whether the selection handle is in the visible bound of the TextField.
  */
-internal fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+internal expect fun TextFieldSelectionManager.isSelectionHandleInVisibleBound(
+    isStartHandle: Boolean
+): Boolean
+
+
+internal fun TextFieldSelectionManager.isSelectionHandleInVisibleBoundDefault(
     isStartHandle: Boolean
 ): Boolean = state?.layoutCoordinates?.visibleBounds()?.containsInclusive(
     getHandlePosition(isStartHandle)

@@ -29,7 +29,6 @@ import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This class represents one of the results obtained from an AppSearch query.
@@ -84,38 +83,14 @@ public final class SearchResult {
      *
      * <p>This is equivalent to calling {@code getGenericDocument().toDocumentClass(T.class)}.
      *
-     * @param documentClass the document class to be passed to
-     *                      {@link GenericDocument#toDocumentClass(Class)}.
      * @return Document object which matched the query.
      * @throws AppSearchException if no factory for this document class could be found on the
      *       classpath.
-     * @see GenericDocument#toDocumentClass(Class)
      */
     @NonNull
     public <T> T getDocument(@NonNull Class<T> documentClass) throws AppSearchException {
-        return getDocument(documentClass, /* documentClassMap= */null);
-    }
-
-    /**
-     * Contains the matching document, converted to the given document class.
-     *
-     * <p>This is equivalent to calling {@code getGenericDocument().toDocumentClass(T.class,
-     * documentClassMap)}.
-     *
-     * @param documentClass the document class to be passed to
-     *                      {@link GenericDocument#toDocumentClass(Class, Map)}.
-     * @param documentClassMap the document class map to be passed to
-     *                         {@link GenericDocument#toDocumentClass(Class, Map)}.
-     * @return Document object which matched the query.
-     * @throws AppSearchException if no factory for this document class could be found on the
-     *                            classpath.
-     * @see GenericDocument#toDocumentClass(Class, Map)
-     */
-    @NonNull
-    public <T> T getDocument(@NonNull Class<T> documentClass,
-            @Nullable Map<String, List<String>> documentClassMap) throws AppSearchException {
         Preconditions.checkNotNull(documentClass);
-        return getGenericDocument().toDocumentClass(documentClass, documentClassMap);
+        return getGenericDocument().toDocumentClass(documentClass);
     }
 // @exportToFramework:endStrip()
 

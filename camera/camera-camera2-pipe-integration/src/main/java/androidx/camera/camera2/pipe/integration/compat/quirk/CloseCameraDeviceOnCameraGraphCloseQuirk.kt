@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.Quirk
  *
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @SuppressLint("CameraXQuirksClassDetector")
 class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
     companion object {

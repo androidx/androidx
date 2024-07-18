@@ -29,7 +29,7 @@ they **must** move to open-source.
 #### Closed-source dependencies
 
 In specific cases, libraries *may* include closed-source dependencies. See the
-[Open-source compatibility](/docs/api_guidelines/index.md#dependencies-aosp)
+[Open-source compatibility](/company/teams/androidx/api_guidelines/index.md#dependencies-aosp)
 section of the API Guidelines for implementation details.
 
 ### Examples of products that are _not_ open-source

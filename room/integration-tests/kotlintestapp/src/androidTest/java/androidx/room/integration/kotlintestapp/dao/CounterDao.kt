@@ -18,7 +18,6 @@ package androidx.room.integration.kotlintestapp.dao
 
 import androidx.room.Dao
 import androidx.room.Query
-import androidx.room.SkipQueryVerification
 import androidx.room.Upsert
 import androidx.room.integration.kotlintestapp.vo.Counter
 
@@ -29,8 +28,4 @@ interface CounterDao {
 
     @Query("SELECT * FROM Counter WHERE id = :id")
     suspend fun getCounter(id: Long): Counter
-
-    @SkipQueryVerification // ModifiedCounter is not an entity
-    @Query("INSERT OR REPLACE INTO Counter SELECT * FROM ModifiedCounter WHERE id = :id")
-    fun conditionalInsert(id: Long): Long
 }

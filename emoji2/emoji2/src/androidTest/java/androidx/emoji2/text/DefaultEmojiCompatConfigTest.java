@@ -44,6 +44,7 @@ import androidx.core.provider.FontRequest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,6 +73,9 @@ public class DefaultEmojiCompatConfigTest {
 
     @SuppressWarnings("deprecation")
     private boolean providerOnSystem() {
+        if (Build.VERSION.SDK_INT < 19) {
+            return false;
+        }
         List<ResolveInfo> result = ApplicationProvider.getApplicationContext()
                 .getPackageManager().queryIntentContentProviders(generateIntent(), 0);
         for (ResolveInfo resolveInfo : result) {
@@ -85,6 +89,7 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenNoLookup_returnsNull() throws PackageManager.NameNotFoundException {
         Context mockContext = mock(Context.class);
         when(mockContext.getPackageManager()).thenReturn(mock(PackageManager.class));
@@ -97,6 +102,7 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenProviderFound_returnsConfig() throws PackageManager.NameNotFoundException {
         ResolveInfo info = generateResolveInfo(
                 "some package", "some authority", ApplicationInfo.FLAG_SYSTEM
@@ -117,6 +123,7 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenProviderFound_butNotSystemInstalled_returnsNull()
             throws PackageManager.NameNotFoundException {
         ResolveInfo info = generateResolveInfo(
@@ -136,6 +143,7 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenQueryingIntent_usesRightIntent() throws PackageManager.NameNotFoundException {
         ResolveInfo info = generateResolveInfo(
                 "some package", "some authority", 0
@@ -159,6 +167,7 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenProviderFound_configMapsCorrectly()
             throws PackageManager.NameNotFoundException {
         String packageName = "queried package name";
@@ -184,6 +193,7 @@ public class DefaultEmojiCompatConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void whenProviderFound_returnsDifferentConfig_everyCallToGet()
             throws PackageManager.NameNotFoundException {
         ResolveInfo info = generateResolveInfo(
@@ -215,8 +225,11 @@ public class DefaultEmojiCompatConfigTest {
         Object result = reflectHelper.get(factory);
         int apiVersion = Build.VERSION.SDK_INT;
         Class<?> helperClass = Objects.requireNonNull(result).getClass();
-        if (apiVersion < 28) {
+        if (apiVersion < 19) {
             assertEquals(DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper.class,
+                    helperClass);
+        } else if (apiVersion < 28) {
+            assertEquals(DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper_API19.class,
                     helperClass);
         } else {
             assertEquals(DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper_API28.class,

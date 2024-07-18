@@ -958,7 +958,6 @@ private fun WithConsistentTextStyle(
     )
 }
 
-@OptIn(ExperimentalMotionApi::class)
 private fun Density.createCornerToCornerMotionScene(
     boxId: String,
     boxSizePx: Int,

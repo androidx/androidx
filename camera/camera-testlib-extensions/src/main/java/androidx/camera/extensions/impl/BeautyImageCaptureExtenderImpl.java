@@ -60,7 +60,6 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     private static final int EFFECT = CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE;
 
     private CameraCharacteristics mCameraCharacteristics;
-    private BeautyImageCaptureExtenderCaptureProcessorImpl mCaptureProcessor;
 
     public BeautyImageCaptureExtenderImpl() {
     }
@@ -101,8 +100,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mCaptureProcessor = new BeautyImageCaptureExtenderCaptureProcessorImpl();
-            return mCaptureProcessor;
+            return new BeautyImageCaptureExtenderCaptureProcessorImpl();
         } else {
             return new NoOpCaptureProcessorImpl();
         }
@@ -117,9 +115,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
 
     @Override
     public void onDeInit() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mCaptureProcessor != null) {
-            mCaptureProcessor.release();
-        }
+
     }
 
     @Nullable
@@ -181,8 +177,14 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
 
         if (map != null) {
             // The sample implementation only retrieves originally supported resolutions from
-            // CameraCharacteristics for YUV_420_888 formats to return.
-            Size[] outputSizes = map.getOutputSizes(ImageFormat.YUV_420_888);
+            // CameraCharacteristics for JPEG and YUV_420_888 formats to return.
+            Size[] outputSizes = map.getOutputSizes(ImageFormat.JPEG);
+
+            if (outputSizes != null) {
+                formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, outputSizes));
+            }
+
+            outputSizes = map.getOutputSizes(ImageFormat.YUV_420_888);
 
             if (outputSizes != null) {
                 formatResolutionsPairList.add(Pair.create(ImageFormat.YUV_420_888, outputSizes));
@@ -241,48 +243,19 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
                         "Unable to process since images does not contain all stages.");
                 return;
             } else {
-                Image outputImage = mImageWriter.dequeueInputImage();
-                Image image = result.first;
+                Image image = mImageWriter.dequeueInputImage();
 
-                // copy y plane
-                Image.Plane inYPlane = image.getPlanes()[0];
-                Image.Plane outYPlane = outputImage.getPlanes()[0];
-                ByteBuffer inYBuffer = inYPlane.getBuffer();
-                ByteBuffer outYBuffer = outYPlane.getBuffer();
-                int inYPixelStride = inYPlane.getPixelStride();
-                int inYRowStride = inYPlane.getRowStride();
-                int outYPixelStride = outYPlane.getPixelStride();
-                int outYRowStride = outYPlane.getRowStride();
-                for (int x = 0; x < outputImage.getHeight(); x++) {
-                    for (int y = 0; y < outputImage.getWidth(); y++) {
-                        int inIndex = x * inYRowStride + y * inYPixelStride;
-                        int outIndex = x * outYRowStride + y * outYPixelStride;
-                        outYBuffer.put(outIndex, inYBuffer.get(inIndex));
-                    }
-                }
+                // Do processing here
+                ByteBuffer yByteBuffer = image.getPlanes()[0].getBuffer();
+                ByteBuffer uByteBuffer = image.getPlanes()[2].getBuffer();
+                ByteBuffer vByteBuffer = image.getPlanes()[1].getBuffer();
 
-                // Copy UV
-                for (int i = 1; i < 3; i++) {
-                    Image.Plane inPlane = image.getPlanes()[i];
-                    Image.Plane outPlane = outputImage.getPlanes()[i];
-                    ByteBuffer inBuffer = inPlane.getBuffer();
-                    ByteBuffer outBuffer = outPlane.getBuffer();
-                    int inPixelStride = inPlane.getPixelStride();
-                    int inRowStride = inPlane.getRowStride();
-                    int outPixelStride = outPlane.getPixelStride();
-                    int outRowStride = outPlane.getRowStride();
-                    // UV are half width compared to Y
-                    for (int x = 0; x < outputImage.getHeight() / 2; x++) {
-                        for (int y = 0; y < outputImage.getWidth() / 2; y++) {
-                            int inIndex = x * inRowStride + y * inPixelStride;
-                            int outIndex = x * outRowStride + y * outPixelStride;
-                            byte b = inBuffer.get(inIndex);
-                            outBuffer.put(outIndex, b);
-                        }
-                    }
-                }
-                outputImage.setTimestamp(image.getTimestamp());
-                mImageWriter.queueInputImage(outputImage);
+                // Sample here just simply copy/paste the capture image result
+                yByteBuffer.put(result.first.getPlanes()[0].getBuffer());
+                uByteBuffer.put(result.first.getPlanes()[2].getBuffer());
+                vByteBuffer.put(result.first.getPlanes()[1].getBuffer());
+
+                mImageWriter.queueInputImage(image);
             }
 
             Log.d(TAG, "Completed beauty CaptureProcessor");
@@ -319,12 +292,6 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
                 @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
                 @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
             throw new UnsupportedOperationException("Postview is not supported");
-        }
-
-        public void release() {
-            if (mImageWriter != null) {
-                mImageWriter.close();
-            }
         }
     }
 

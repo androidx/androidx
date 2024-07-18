@@ -109,21 +109,6 @@ class TranslationAnimationCreator {
         }
 
         @Override
-        public void onAnimationEnd(@NonNull Animator animation, boolean isReverse) {
-            if (!isReverse) {
-                // Reset the translation for the mMovingView in case it is used again
-                // after the Transition completes.
-                mMovingView.setTranslationX(mTerminalX);
-                mMovingView.setTranslationY(mTerminalY);
-            }
-        }
-
-        @Override
-        public void onAnimationEnd(@NonNull Animator animation) {
-            onAnimationEnd(animation, false);
-        }
-
-        @Override
         public void onTransitionStart(@NonNull Transition transition) {
         }
 
@@ -131,6 +116,10 @@ class TranslationAnimationCreator {
         public void onTransitionEnd(@NonNull Transition transition, boolean isReverse) {
             if (!mIsTransitionCanceled) {
                 mViewInHierarchy.setTag(R.id.transition_position, null);
+            }
+            if (!isReverse) {
+                mMovingView.setTranslationX(mTerminalX);
+                mMovingView.setTranslationY(mTerminalY);
             }
         }
 

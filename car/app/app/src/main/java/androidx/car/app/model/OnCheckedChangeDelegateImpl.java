@@ -66,7 +66,7 @@ public class OnCheckedChangeDelegateImpl implements OnCheckedChangeDelegate {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnCheckedChangeDelegate create(@NonNull OnCheckedChangeListener listener) {
+    static OnCheckedChangeDelegate create(@NonNull OnCheckedChangeListener listener) {
         return new OnCheckedChangeDelegateImpl(listener);
     }
 

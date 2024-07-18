@@ -65,7 +65,7 @@ object PowerRail {
 
                 adb shell $DUMPSYS_POWERSTATS
 
-                To check at runtime for this, use PowerMetric.deviceSupportsPowerEnergy()
+                To check at runtime for this, use PowerRail.hasMetrics()
 
                 """.trimIndent()
             )

@@ -53,11 +53,13 @@ public class MainActivity extends Activity {
     private View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            int id = view.getId();
-            if (id == R.id.push_targets) {
-                pushDirectShareTargets();
-            } else if (id == R.id.remove_targets) {
-                removeAllDirectShareTargets();
+            switch (view.getId()) {
+                case R.id.push_targets:
+                    pushDirectShareTargets();
+                    break;
+                case R.id.remove_targets:
+                    removeAllDirectShareTargets();
+                    break;
             }
         }
     };

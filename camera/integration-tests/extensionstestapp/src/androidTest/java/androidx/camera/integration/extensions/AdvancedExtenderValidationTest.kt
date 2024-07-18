@@ -16,10 +16,9 @@
 
 package androidx.camera.integration.extensions
 
-import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
-import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
 import androidx.camera.testing.impl.CameraUtil
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -41,26 +40,19 @@ import org.junit.runners.Parameterized
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 28)
-class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
-    private val validation = AdvancedExtenderValidation(
-        config.cameraXConfig, config.cameraId, config.extensionMode
-    )
+class AdvancedExtenderValidationTest(config: CameraIdExtensionModePair) {
+    private val validation = AdvancedExtenderValidation(config.cameraId, config.extensionMode)
 
     companion object {
         @JvmStatic
         @get:Parameterized.Parameters(name = "config = {0}")
-        val parameters: Collection<CameraXExtensionTestParams>
+        val parameters: Collection<CameraIdExtensionModePair>
             get() = CameraXExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
-
-    @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(config.cameraXConfig)
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
     @Before
@@ -108,24 +100,4 @@ class AdvancedExtenderValidationTest(config: CameraXExtensionTestParams) {
     @Test
     fun initSessionWithAnalysis_medianSize_canConfigureSession() =
         validation.initSessionWithAnalysis_medianSize_canConfigureSession()
-
-    @Test
-    fun initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession() =
-        validation.initSessionWithOutputSurfaceConfigurationImpl_maxSize_canConfigureSession()
-
-    @Test
-    fun validateSessionTypeSupport_sinceVersion_1_4() =
-        validation.validateSessionTypeSupport_sinceVersion_1_4()
-
-    @Test
-    fun validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4() =
-        validation.validateSessionTypeSupportWithOutputSurfaceConfigurationImpl_sinceVersion_1_4()
-
-    @Test
-    fun validatePostviewSupport_sinceVersion_1_4() =
-        validation.validatePostviewSupport_sinceVersion_1_4()
-
-    @Test
-    fun validateProcessProgressSupport_sinceVersion_1_4() =
-        validation.validateProcessProgressSupport_sinceVersion_1_4()
 }

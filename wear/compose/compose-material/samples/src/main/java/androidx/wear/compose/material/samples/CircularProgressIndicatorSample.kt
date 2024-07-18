@@ -75,6 +75,6 @@ public fun CircularProgressIndicatorFullscreenWithGap() {
         startAngle = 295.5f,
         endAngle = 245.5f,
         progress = 0.3f,
-        strokeWidth = ProgressIndicatorDefaults.FullScreenStrokeWidth
+        strokeWidth = 5.dp
     )
 }

@@ -19,6 +19,7 @@ package android.support.mediacompat.testlib.util;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 
@@ -56,7 +57,9 @@ public class IntentUtil {
     public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {
         Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD);
-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
         context.sendBroadcast(intent);
     }
 
@@ -66,7 +69,9 @@ public class IntentUtil {
     public static void callMediaSessionMethod(int methodId, Object arg, Context context) {
         Intent intent = createIntent(SERVICE_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_SESSION_METHOD);
-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
         context.sendBroadcast(intent);
     }
 
@@ -78,7 +83,9 @@ public class IntentUtil {
         Intent intent = createIntent(CLIENT_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_MEDIA_CONTROLLER_METHOD);
         intent.putExtra(KEY_SESSION_TOKEN, token);
-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
         context.sendBroadcast(intent);
     }
 
@@ -90,7 +97,9 @@ public class IntentUtil {
         Intent intent = createIntent(CLIENT_RECEIVER_COMPONENT_NAME, methodId, arg);
         intent.setAction(ACTION_CALL_TRANSPORT_CONTROLS_METHOD);
         intent.putExtra(KEY_SESSION_TOKEN, token);
-        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        if (Build.VERSION.SDK_INT >= 16) {
+            intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        }
         context.sendBroadcast(intent);
     }
 

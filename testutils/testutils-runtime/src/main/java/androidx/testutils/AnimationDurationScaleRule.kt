@@ -18,8 +18,10 @@ package androidx.testutils
 
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
+import android.os.Build
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
+import org.junit.runners.model.Statement
 
 /**
  * This rule allows test to control animation duration scale for tests.
@@ -60,9 +62,22 @@ abstract class AnimationDurationScaleRule : TestWatcher() {
         internal fun create(
             forcedAnimationDurationScale: Float? = null
         ): AnimationDurationScaleRule {
-            return AnimationDurationScaleRuleImpl(forcedAnimationDurationScale)
+            return if (Build.VERSION.SDK_INT >= 16) {
+                AnimationDurationScaleRuleImpl(
+                    forcedAnimationDurationScale
+                )
+            } else {
+                NoOpAnimationDurationScaleRule()
+            }
         }
     }
+}
+
+private class NoOpAnimationDurationScaleRule : AnimationDurationScaleRule() {
+    override fun setAnimationDurationScale(animationDurationScale: Float) {
+    }
+
+    override fun apply(base: Statement, description: Description) = base
 }
 
 private class AnimationDurationScaleRuleImpl(

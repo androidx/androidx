@@ -254,9 +254,10 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         setupForInsets();
         super.setOnHierarchyChangeListener(new HierarchyChangeListener());
 
-        if (this.getImportantForAccessibility()
-                == View.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-            setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        if (ViewCompat.getImportantForAccessibility(this)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(this,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
     }
 
@@ -315,11 +316,11 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                     mStatusBarBackground.setState(getDrawableState());
                 }
                 DrawableCompat.setLayoutDirection(mStatusBarBackground,
-                        getLayoutDirection());
+                        ViewCompat.getLayoutDirection(this));
                 mStatusBarBackground.setVisible(getVisibility() == VISIBLE, false);
                 mStatusBarBackground.setCallback(this);
             }
-            postInvalidateOnAnimation();
+            ViewCompat.postInvalidateOnAnimation(this);
         }
     }
 
@@ -815,8 +816,8 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int paddingTop = getPaddingTop();
         final int paddingRight = getPaddingRight();
         final int paddingBottom = getPaddingBottom();
-        final int layoutDirection = getLayoutDirection();
-        final boolean isRtl = layoutDirection == View.LAYOUT_DIRECTION_RTL;
+        final int layoutDirection = ViewCompat.getLayoutDirection(this);
+        final boolean isRtl = layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL;
         final int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         final int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -947,7 +948,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     @Override
     @SuppressWarnings("unchecked")
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int layoutDirection = getLayoutDirection();
+        final int layoutDirection = ViewCompat.getLayoutDirection(this);
         final int childCount = mDependencySortedChildren.size();
         for (int i = 0; i < childCount; i++) {
             final View child = mDependencySortedChildren.get(i);
@@ -1182,7 +1183,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         final int childWidth = child.getMeasuredWidth();
         final int childHeight = child.getMeasuredHeight();
 
-        if (layoutDirection == View.LAYOUT_DIRECTION_RTL) {
+        if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_RTL) {
             keyline = width - keyline;
         }
 
@@ -1348,7 +1349,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
      */
     @SuppressWarnings("unchecked")
     final void onChildViewsChanged(@DispatchChangeEvent final int type) {
-        final int layoutDirection = getLayoutDirection();
+        final int layoutDirection = ViewCompat.getLayoutDirection(this);
         final int childCount = mDependencySortedChildren.size();
         final Rect inset = acquireTempRect();
         final Rect drawRect = acquireTempRect();
@@ -1454,7 +1455,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
     @SuppressWarnings("unchecked")
     private void offsetChildByInset(final View child, final Rect inset, final int layoutDirection) {
-        if (!child.isLaidOut()) {
+        if (!ViewCompat.isLaidOut(child)) {
             // The view has not been laid out yet, so we can't obtain its bounds.
             return;
         }
@@ -3303,7 +3304,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
         @SuppressWarnings("unchecked")
         boolean dependsOn(CoordinatorLayout parent, View child, View dependency) {
             return dependency == mAnchorDirectChild
-                    || shouldDodge(dependency, parent.getLayoutDirection())
+                    || shouldDodge(dependency, ViewCompat.getLayoutDirection(parent))
                     || (mBehavior != null && mBehavior.layoutDependsOn(parent, child, dependency));
         }
 

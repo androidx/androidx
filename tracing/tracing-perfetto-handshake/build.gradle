@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.BuildServerConfigurationKt
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -41,8 +34,7 @@ tasks.withType(Jar) {
 
 androidx {
     name = "Tracing Perfetto Handshake"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto Handshake"
-    metalavaK2UastEnabled = true
 }

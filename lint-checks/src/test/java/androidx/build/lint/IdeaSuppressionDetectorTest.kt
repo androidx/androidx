@@ -18,7 +18,6 @@
 
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -61,15 +60,7 @@ src/androidx/IdeaSuppressionJava.java:5: Error: Uses IntelliJ-specific suppressi
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        lint()
-            .files(
-                *stubs,
-                input
-            )
-            .allowDuplicates()
-            .skipTestModes(TestMode.SUPPRESSIBLE)
-            .run()
-            .expect(expected)
+        check(input).expect(expected)
     }
 
     @Test
@@ -103,14 +94,7 @@ src/androidx/IdeaSuppressionKotlin.kt:5: Error: Uses IntelliJ-specific suppressi
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
-        lint()
-            .files(
-                *stubs,
-                input
-            )
-            .allowDuplicates()
-            .skipTestModes(TestMode.SUPPRESSIBLE)
-            .run()
-            .expect(expected)
+
+        check(input).expect(expected)
     }
 }

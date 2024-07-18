@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.hilt
-
 import androidx.hilt.work.WorkerStep
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
+import com.google.auto.service.AutoService
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
@@ -30,6 +29,7 @@ class AndroidXHiltKspProcessor(
 ) {
     override fun processingSteps() = listOf(WorkerStep())
 
+    @AutoService(SymbolProcessorProvider::class)
     class Provider : SymbolProcessorProvider {
         override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
             return AndroidXHiltKspProcessor(environment)

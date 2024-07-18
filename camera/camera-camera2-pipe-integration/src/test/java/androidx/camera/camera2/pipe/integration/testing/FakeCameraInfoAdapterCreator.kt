@@ -18,12 +18,10 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Range
 import android.util.Size
-import androidx.camera.camera2.pipe.CameraBackendId
-import androidx.camera.camera2.pipe.CameraDevices
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
@@ -44,8 +42,6 @@ import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.TorchControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
-import androidx.camera.camera2.pipe.integration.internal.CameraFovInfo
-import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.impl.ImageFormatConstants
 import com.google.common.util.concurrent.MoreExecutors
@@ -55,10 +51,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
+@RequiresApi(21)
 object FakeCameraInfoAdapterCreator {
     private val CAMERA_ID_0 = CameraId("0")
-    private val PHYSICAL_CAMERA_ID_5 = CameraId("5")
-    private val PHYSICAL_CAMERA_ID_6 = CameraId("6")
 
     val useCaseThreads by lazy {
         val executor = MoreExecutors.directExecutor()
@@ -86,9 +81,6 @@ object FakeCameraInfoAdapterCreator {
             Range(24, 24),
             Range(30, 30),
             Range(60, 60)
-        ),
-        CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to intArrayOf(
-            CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
         )
     )
 
@@ -99,22 +91,11 @@ object FakeCameraInfoAdapterCreator {
         cameraProperties: CameraProperties = FakeCameraProperties(
             FakeCameraMetadata(
                 cameraId = cameraId,
-                characteristics = cameraCharacteristics,
-                physicalMetadata = mapOf(
-                    PHYSICAL_CAMERA_ID_5 to FakeCameraMetadata(),
-                    PHYSICAL_CAMERA_ID_6 to FakeCameraMetadata())
+                characteristics = cameraCharacteristics
             ),
             cameraId
         ),
         zoomControl: ZoomControl = this.zoomControl,
-        cameraDevices: CameraDevices = FakeCameraDevices(
-            defaultCameraBackendId = CameraBackendId(cameraId.value),
-            concurrentCameraBackendIds = emptySet(),
-            cameraMetadataMap = mapOf(
-                CameraBackendId(cameraId.value) to listOf(cameraProperties.metadata)
-            )
-        )
-
     ): CameraInfoAdapter {
         val fakeUseCaseCamera = FakeUseCaseCamera()
         val fakeStreamConfigurationMap = StreamConfigurationMapCompat(
@@ -128,7 +109,7 @@ object FakeCameraInfoAdapterCreator {
         val state3AControl = State3AControl(
             cameraProperties,
             NoOpAutoFlashAEModeDisabler,
-            AeFpsRange(fakeCameraQuirks),
+            AeFpsRange(fakeCameraQuirks)
         ).apply {
             useCaseCamera = fakeUseCaseCamera
         }
@@ -154,9 +135,8 @@ object FakeCameraInfoAdapterCreator {
                 useCaseCamera = fakeUseCaseCamera
             },
             fakeCameraQuirks,
-            EncoderProfilesProviderAdapter(cameraId.value, fakeCameraQuirks.quirks),
+            EncoderProfilesProviderAdapter(cameraId.value),
             fakeStreamConfigurationMap,
-            CameraFovInfo(cameraDevices, cameraProperties),
         )
     }
 }

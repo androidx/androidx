@@ -77,15 +77,10 @@ public interface SurfaceProcessor {
     /**
      * Invoked when CameraX requires an input {@link Surface} for reading original frames.
      *
-     * <p>CameraX requests {@link Surface}s when the upstream pipeline is reconfigured. For
-     * example, when {@link UseCase}s are bound to lifecycle.
-     *
      * <p>With OpenGL, the implementation should create a {@link Surface} backed by
      * {@link SurfaceTexture} with the size of {@link SurfaceRequest#getResolution()}, then
      * listen for the {@link SurfaceTexture#setOnFrameAvailableListener} to get the incoming
-     * frames. The {@link Surface} should not be released until the callback provided in
-     * {@link SurfaceRequest#provideSurface} is invoked. CameraX may request new input
-     * {@link Surface} before releasing the existing one.
+     * frames.
      *
      * <p>If the implementation encounters errors in creating the input {@link Surface}, it
      * should throw an {@link ProcessingException} to notify CameraX.
@@ -129,16 +124,11 @@ public interface SurfaceProcessor {
     /**
      * Invoked when CameraX provides output Surface(s) for drawing processed frames.
      *
-     * <p>CameraX provides the output {@link Surface}s when the downstream pipeline is
-     * reconfigured, for example, when {@link UseCase}s are bound or the preview viewfinder is
-     * reset.
-     *
      * <p>The provided {@link Surface}s are for drawing processed frames. The implementation must
      * get the {@link Surface} via {@link SurfaceOutput#getSurface} and provide a
      * {@link Consumer<SurfaceOutput.Event>} listening to the end-of-life event of the
      * {@link Surface}. Then, the implementation should call {@link SurfaceOutput#close()} after it
-     * stops drawing to the {@link Surface}. CameraX may provide new output {@link Surface}
-     * before requesting to close the existing one.
+     * stops drawing to the {@link Surface}.
      *
      * <p>If the implementation encounters an error and cannot consume the {@link Surface},
      * it should throw an {@link ProcessingException} to notify CameraX.

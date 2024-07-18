@@ -96,6 +96,7 @@ import java.util.Set;
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @VersionedParcelize(allowSerialization = true, isCustom = true)
+@RequiresApi(19)
 @Deprecated
 public final class Slice extends CustomVersionedParcelable implements VersionedParcelable {
 

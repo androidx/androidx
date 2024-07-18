@@ -36,6 +36,7 @@ import android.view.animation.Interpolator;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
@@ -305,7 +306,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
      * Used to detect long press.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    GestureDetector mGestureDetector;
+    GestureDetectorCompat mGestureDetector;
 
     /**
      * Callback for when long press occurs.
@@ -512,7 +513,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
 
     private void startGestureDetection() {
         mItemTouchHelperGestureListener = new ItemTouchHelperGestureListener();
-        mGestureDetector = new GestureDetector(mRecyclerView.getContext(),
+        mGestureDetector = new GestureDetectorCompat(mRecyclerView.getContext(),
                 mItemTouchHelperGestureListener);
     }
 
@@ -1204,7 +1205,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         final int originalMovementFlags = mCallback.getMovementFlags(mRecyclerView, viewHolder);
         final int absoluteMovementFlags = mCallback.convertToAbsoluteDirection(
                 originalMovementFlags,
-                mRecyclerView.getLayoutDirection());
+                ViewCompat.getLayoutDirection(mRecyclerView));
         final int flags = (absoluteMovementFlags
                 & ACTION_MODE_SWIPE_MASK) >> (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT);
         if (flags == 0) {
@@ -1219,7 +1220,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 if ((originalFlags & swipeDir) == 0) {
                     // convert to relative
                     return Callback.convertToRelativeDirection(swipeDir,
-                            mRecyclerView.getLayoutDirection());
+                            ViewCompat.getLayoutDirection(mRecyclerView));
                 }
                 return swipeDir;
             }
@@ -1235,7 +1236,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 if ((originalFlags & swipeDir) == 0) {
                     // convert to relative
                     return Callback.convertToRelativeDirection(swipeDir,
-                            mRecyclerView.getLayoutDirection());
+                            ViewCompat.getLayoutDirection(mRecyclerView));
                 }
                 return swipeDir;
             }
@@ -1494,7 +1495,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 return flags; // does not have any abs flags, good.
             }
             flags &= ~masked; //remove left / right.
-            if (layoutDirection == View.LAYOUT_DIRECTION_LTR) {
+            if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
                 // no change. just OR with 2 bits shifted mask and return
                 flags |= masked << 2; // START is 2 bits after LEFT, END is 2 bits after RIGHT.
                 return flags;
@@ -1585,7 +1586,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
                 return flags; // does not have any relative flags, good.
             }
             flags &= ~masked; //remove start / end
-            if (layoutDirection == View.LAYOUT_DIRECTION_LTR) {
+            if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
                 // no change. just OR with 2 bits shifted mask and return
                 flags |= masked >> 2; // START is 2 bits after LEFT, END is 2 bits after RIGHT.
                 return flags;
@@ -1601,7 +1602,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
         final int getAbsoluteMovementFlags(RecyclerView recyclerView,
                 ViewHolder viewHolder) {
             final int flags = getMovementFlags(recyclerView, viewHolder);
-            return convertToAbsoluteDirection(flags, recyclerView.getLayoutDirection());
+            return convertToAbsoluteDirection(flags, ViewCompat.getLayoutDirection(recyclerView));
         }
 
         boolean hasDragFlag(RecyclerView recyclerView, ViewHolder viewHolder) {

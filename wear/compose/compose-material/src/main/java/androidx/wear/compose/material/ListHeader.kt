@@ -17,10 +17,8 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -35,7 +33,7 @@ import androidx.compose.ui.unit.dp
 /**
  * A slot based composable for creating a list header item. List header items are typically expected
  * to be text. The contents provided will have text and colors effects applied based on the
- * MaterialTheme. The contents will be start and end padded and should cover up to 3 lines of text.
+ * MaterialTheme. The contents will be start and end padded.
  *
  * Example usage:
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
@@ -43,7 +41,6 @@ import androidx.compose.ui.unit.dp
  * @param modifier The modifier for the list header
  * @param backgroundColor The background color to apply - typically Color.Transparent
  * @param contentColor The color to apply to content
- * @param content Slot for displayed header text
  */
 @Composable
 public fun ListHeader(
@@ -53,9 +50,7 @@ public fun ListHeader(
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
-        modifier = modifier
-            .defaultMinSize(minHeight = 48.dp)
-            .height(IntrinsicSize.Min)
+        modifier = modifier.height(48.dp)
             .wrapContentSize()
             .background(backgroundColor)
             .padding(horizontal = 14.dp)

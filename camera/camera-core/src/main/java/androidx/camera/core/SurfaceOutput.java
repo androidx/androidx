@@ -156,7 +156,8 @@ public interface SurfaceOutput extends Closeable {
      *
      * <p>The value is a mapping from sensor coordinates to buffer coordinates, which is,
      * from the rect of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to the
-     * rect defined by {@code (0, 0, #getSize()#getWidth(), #getSize()#getHeight())}. The matrix can
+     * rect defined by {@code (0, 0, SurfaceRequest#getResolution#getWidth(),
+     * SurfaceRequest#getResolution#getHeight())}. The matrix can
      * be used to map the coordinates from one {@link UseCase} to another. For example,
      * detecting face with {@link ImageAnalysis}, and then highlighting the face in
      * {@link Preview}.
@@ -173,6 +174,7 @@ public interface SurfaceOutput extends Closeable {
      *  analysisToEffect.postConcat(sensorToEffect);
      * </pre></code>
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     default Matrix getSensorToBufferTransform() {
         return new Matrix();

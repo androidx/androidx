@@ -40,6 +40,7 @@ import androidx.tv.material3.tokens.Elevation
 /**
  * Contains the default values used by selectable [NavigationDrawerItem]
  */
+@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 object NavigationDrawerItemDefaults {
     /**
      * The default Icon size used by [NavigationDrawerItem]
@@ -57,15 +58,11 @@ object NavigationDrawerItemDefaults {
     val ExpandedDrawerItemWidth = 256.dp
 
     /**
-     * The default content padding [PaddingValues] used by [NavigationDrawerItem] with 1 line when
-     * the drawer is expanded
+     * The default content padding [PaddingValues] used by [NavigationDrawerItem] when the drawer
+     * is expanded
      */
-    val ContainerHeightOneLine = 56.dp
 
-    /**
-     * The default content padding [PaddingValues] used by [NavigationDrawerItem] with 2 lines when
-     * the drawer is expanded
-     */
+    val ContainerHeightOneLine = 56.dp
     val ContainerHeightTwoLine = 64.dp
 
     /**
@@ -120,7 +117,6 @@ object NavigationDrawerItemDefaults {
      * Creates a trailing badge for [NavigationDrawerItem]
      */
     @Composable
-    @OptIn(ExperimentalTvMaterial3Api::class) // TODO: This will be removed once Text API is marked as stable
     fun TrailingBadge(
         text: String,
         containerColor: Color = TrailingBadgeContainerColor,

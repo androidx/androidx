@@ -87,7 +87,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun initialLoad() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.refresh()
         val result = single.await() as LoadResult.Page
@@ -98,7 +98,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun simpleAppend() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.append(key = 15)
         val result = single.await() as LoadResult.Page
@@ -109,7 +109,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun simplePrepend() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.prepend(key = 20)
         val result = single.await() as LoadResult.Page
@@ -120,7 +120,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun initialLoad_invalidationTracker_isRegistered() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.refresh()
         // run loadSingle to register InvalidationTracker
@@ -131,7 +131,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun nonInitialLoad_invalidationTracker_isRegistered() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.prepend(key = 20)
         // run loadSingle to register InvalidationTracker
@@ -142,7 +142,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun refresh_singleImmediatelyReturn() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.refresh()
 
@@ -163,7 +163,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun append_singleImmediatelyReturn() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.append(key = 10)
 
@@ -184,7 +184,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun prepend_singleImmediatelyReturn() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.prepend(key = 15)
 
@@ -205,7 +205,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun dbUpdate_invalidatesPagingSource() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.append(key = 50)
 
@@ -218,7 +218,7 @@ class LimitOffsetRxPagingSourceTest {
         assertFalse(pagingSource.invalid)
 
         // this should cause refreshVersionsSync to invalidate pagingSource
-        db.getDao().addItem(TestItem(113))
+        db.dao.addItem(TestItem(113))
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
 
         assertTrue(pagingSource.invalid)
@@ -230,7 +230,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun append_returnsInvalid() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.append(key = 50)
 
@@ -248,7 +248,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun prepend_returnsInvalid() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.prepend(key = 50)
 
@@ -268,7 +268,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun refresh_consecutively() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
         val single = pagingSource.refresh()
         val result = single.await() as LoadResult.Page
@@ -286,7 +286,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun append_consecutively() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
 
         val single = pagingSource.append(key = 15)
@@ -310,7 +310,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun prepend_consecutively() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
 
         val single = pagingSource.prepend(key = 15)
@@ -334,7 +334,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun refreshAgain_afterDispose() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
 
         var isDisposed = false
@@ -359,7 +359,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun appendAgain_afterDispose() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
 
         var isDisposed = false
@@ -384,7 +384,7 @@ class LimitOffsetRxPagingSourceTest {
 
     @Test
     fun prependAgain_afterDispose() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(db)
 
         var isDisposed = false
@@ -416,7 +416,7 @@ class LimitOffsetRxPagingSourceTest {
         ).setQueryExecutor(queryExecutor)
             .build()
 
-        testDb.getDao().addAllItems(ITEMS_LIST)
+        testDb.dao.addAllItems(ITEMS_LIST)
         queryExecutor.executeAll() // add items first
 
         runTest {
@@ -454,7 +454,7 @@ class LimitOffsetRxPagingSourceTest {
             LimitOffsetTestDb::class.java
         ).build()
 
-        testDb.getDao().addAllItems(ITEMS_LIST)
+        testDb.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetRxPagingSourceImpl(testDb)
 
         runBlocking {
@@ -490,7 +490,7 @@ class LimitOffsetRxPagingSourceTest {
             }
         }
 
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val single = pagingSource.refresh()
         val result = single.await() as LoadResult.Page
         assertThat(result.data).containsExactlyElementsIn(
@@ -509,7 +509,7 @@ class LimitOffsetRxPagingSourceTest {
             }
         }
 
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val single = pagingSource.append(key = 15)
         val result = single.await() as LoadResult.Page
         assertThat(result.data).containsExactlyElementsIn(
@@ -528,7 +528,7 @@ class LimitOffsetRxPagingSourceTest {
             }
         }
 
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val single = pagingSource.prepend(key = 15)
         val result = single.await() as LoadResult.Page
         assertThat(result.data).containsExactlyElementsIn(
@@ -673,7 +673,7 @@ private fun ThreadSafeInvalidationObserver.privateRegisteredState(): AtomicBoole
 
 @Database(entities = [TestItem::class], version = 1, exportSchema = false)
 abstract class LimitOffsetTestDb : RoomDatabase() {
-    abstract fun getDao(): TestItemDao
+    abstract val dao: TestItemDao
 }
 
 @Entity(tableName = "TestItem")

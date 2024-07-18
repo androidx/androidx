@@ -17,7 +17,7 @@
 package androidx.paging.rxjava3
 
 import androidx.paging.PagingData
-import androidx.paging.TestPagingDataPresenter
+import androidx.paging.TestPagingDataDiffer
 import io.reactivex.rxjava3.core.Maybe
 import io.reactivex.rxjava3.core.Single
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -36,27 +36,27 @@ class RxPagingDataTest {
 
     private val testDispatcher = UnconfinedTestDispatcher()
     val testScope = TestScope(testDispatcher)
-    private val presenter = TestPagingDataPresenter<String>(testDispatcher)
+    private val differ = TestPagingDataDiffer<String>(testDispatcher)
 
     @Test
     fun map() = testScope.runTest {
         val transformed = original.mapAsync { Single.just(it + it) }
-        presenter.collectFrom(transformed)
-        assertEquals(listOf("aa", "bb", "cc"), presenter.currentList)
+        differ.collectFrom(transformed)
+        assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
     fun flatMap() = testScope.runTest {
         val transformed = original.flatMapAsync { Single.just(listOf(it, it) as Iterable<String>) }
-        presenter.collectFrom(transformed)
-        assertEquals(listOf("a", "a", "b", "b", "c", "c"), presenter.currentList)
+        differ.collectFrom(transformed)
+        assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
     fun filter() = testScope.runTest {
         val filtered = original.filterAsync { Single.just(it != "b") }
-        presenter.collectFrom(filtered)
-        assertEquals(listOf("a", "c"), presenter.currentList)
+        differ.collectFrom(filtered)
+        assertEquals(listOf("a", "c"), differ.currentList)
     }
 
     @Test
@@ -64,7 +64,7 @@ class RxPagingDataTest {
         val separated = original.insertSeparatorsAsync { left, right ->
             if (left == null || right == null) Maybe.empty() else Maybe.just("|")
         }
-        presenter.collectFrom(separated)
-        assertEquals(listOf("a", "|", "b", "|", "c"), presenter.currentList)
+        differ.collectFrom(separated)
+        assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
     }
 }

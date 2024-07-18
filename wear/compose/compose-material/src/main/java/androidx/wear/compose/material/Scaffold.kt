@@ -51,7 +51,6 @@ import androidx.compose.ui.Modifier
  * page indicator is a pager with horizontally swipeable pages.
  * @param timeText time and potential application status message to display at the top middle of the
  * screen. Expected to be a TimeText component.
- * @param content Slot for composable screen content
  */
 @Composable
 public fun Scaffold(

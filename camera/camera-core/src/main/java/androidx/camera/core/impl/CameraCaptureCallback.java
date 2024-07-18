@@ -29,31 +29,26 @@ public abstract class CameraCaptureCallback {
 
     /**
      * This method is called when a capture request starts to be processed.
-     *
-     * @param captureConfigId  the ID of {@link CaptureConfig} that triggers the callback.
      */
-    public void onCaptureStarted(int captureConfigId) {
+    public void onCaptureStarted() {
     }
 
     /**
      * This method is called when an image capture has fully completed and all the result metadata
      * is available.
      *
-     * @param captureConfigId  the ID of {@link CaptureConfig} that triggers the callback.
      * @param cameraCaptureResult The output metadata from the capture.
      */
-    public void onCaptureCompleted(int captureConfigId,
-            @NonNull CameraCaptureResult cameraCaptureResult) {
+    public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
     }
 
     /**
      * This method is called instead of {@link #onCaptureCompleted} when the camera device failed to
      * produce a {@link CameraCaptureResult} for the request.
      *
-     * @param captureConfigId  the ID of {@link CaptureConfig} that triggers the callback.
      * @param failure The output failure from the capture, including the failure reason.
      */
-    public void onCaptureFailed(int captureConfigId, @NonNull CameraCaptureFailure failure) {
+    public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
     }
 
 
@@ -61,18 +56,7 @@ public abstract class CameraCaptureCallback {
      * This method is called when the capture request was not submitted to camera device. For
      * Example, requests are cancelled when it is in an inappropriate state (such as closed). After
      * onCaptureCancelled is called, other methods won't be called.
-     *
-     * @param captureConfigId  the ID of {@link CaptureConfig} that triggers the callback.
      */
-    public void onCaptureCancelled(int captureConfigId) {
-    }
-
-    /**
-     * This method is called to notify the client of the progress in the processing stage.
-     *
-     * @param captureConfigId  the ID of {@link CaptureConfig} that triggers the callback.
-     */
-    public void onCaptureProcessProgressed(int captureConfigId, int progress) {
-
+    public void onCaptureCancelled() {
     }
 }

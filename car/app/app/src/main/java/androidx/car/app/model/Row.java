@@ -28,10 +28,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.ActionsConstraints;
@@ -64,9 +62,8 @@ public final class Row implements Item {
      *
      */
     @RestrictTo(LIBRARY)
-    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE, IMAGE_TYPE_EXTRA_SMALL})
+    @IntDef(value = {IMAGE_TYPE_SMALL, IMAGE_TYPE_ICON, IMAGE_TYPE_LARGE})
     @Retention(RetentionPolicy.SOURCE)
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public @interface RowImageType {
     }
 
@@ -99,16 +96,6 @@ public final class Row implements Item {
      * default tint color as determined by the host will be applied.
      */
     public static final int IMAGE_TYPE_ICON = (1 << 2);
-
-    /**
-     * Represents an extra small image to be displayed in the row.
-     *
-     * <p>To minimize scaling artifacts across a wide range of car screens, apps should provide
-     * images targeting a 48 x 48 dp bounding box. If necessary, the image will be scaled down while
-     * preserving its aspect ratio.
-     */
-    @ExperimentalCarApi
-    public static final int IMAGE_TYPE_EXTRA_SMALL = (1 << 3);
 
     private final boolean mIsEnabled;
     @Nullable

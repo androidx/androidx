@@ -21,6 +21,12 @@ BuilderSetStyle: androidx.camera.core.FocusMeteringAction.Builder#disableAutoCan
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.camera.core.FocusMeteringAction.Builder.disableAutoCancel()
 
 
+GenericCallbacks: androidx.camera.core.ImageCapture.OnImageCapturedCallback:
+    ImageCapture.OnImageCapturedCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+GenericCallbacks: androidx.camera.core.ImageCapture.OnImageSavedCallback:
+    ImageCapture.OnImageSavedCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+
+
 MissingGetterMatchingBuilder: androidx.camera.core.CameraSelector.Builder#addCameraFilter(androidx.camera.core.CameraFilter):
     androidx.camera.core.CameraSelector does not declare a `getCameraFilters()` method matching method androidx.camera.core.CameraSelector.Builder.addCameraFilter(androidx.camera.core.CameraFilter)
 MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#addPoint(androidx.camera.core.MeteringPoint):
@@ -29,8 +35,16 @@ MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#a
     androidx.camera.core.FocusMeteringAction does not declare a `getPoints()` method matching method androidx.camera.core.FocusMeteringAction.Builder.addPoint(androidx.camera.core.MeteringPoint,int)
 MissingGetterMatchingBuilder: androidx.camera.core.FocusMeteringAction.Builder#setAutoCancelDuration(long, java.util.concurrent.TimeUnit):
     androidx.camera.core.FocusMeteringAction does not declare a `getAutoCancelDuration()` method matching method androidx.camera.core.FocusMeteringAction.Builder.setAutoCancelDuration(long,java.util.concurrent.TimeUnit)
+MissingGetterMatchingBuilder: androidx.camera.core.ImageAnalysis.Builder#setTargetName(String):
+    androidx.camera.core.ImageAnalysis does not declare a `getTargetName()` method matching method androidx.camera.core.ImageAnalysis.Builder.setTargetName(String)
+MissingGetterMatchingBuilder: androidx.camera.core.ImageCapture.Builder#setIoExecutor(java.util.concurrent.Executor):
+    androidx.camera.core.ImageCapture does not declare a `getIoExecutor()` method matching method androidx.camera.core.ImageCapture.Builder.setIoExecutor(java.util.concurrent.Executor)
+MissingGetterMatchingBuilder: androidx.camera.core.ImageCapture.Builder#setTargetName(String):
+    androidx.camera.core.ImageCapture does not declare a `getTargetName()` method matching method androidx.camera.core.ImageCapture.Builder.setTargetName(String)
 MissingGetterMatchingBuilder: androidx.camera.core.ImageCapture.OutputFileOptions.Builder#setMetadata(androidx.camera.core.ImageCapture.Metadata):
     androidx.camera.core.ImageCapture.OutputFileOptions does not declare a `getMetadata()` method matching method androidx.camera.core.ImageCapture.OutputFileOptions.Builder.setMetadata(androidx.camera.core.ImageCapture.Metadata)
+MissingGetterMatchingBuilder: androidx.camera.core.Preview.Builder#setTargetName(String):
+    androidx.camera.core.Preview does not declare a `getTargetName()` method matching method androidx.camera.core.Preview.Builder.setTargetName(String)
 
 
 StaticFinalBuilder: androidx.camera.core.ExtendableBuilder:

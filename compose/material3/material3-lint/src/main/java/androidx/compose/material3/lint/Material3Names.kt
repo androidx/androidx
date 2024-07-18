@@ -18,9 +18,7 @@ package androidx.compose.material3.lint
 
 import androidx.compose.lint.Package
 
-/**
- * Contains common names used for Material3 lint checks.
- */
+/** Contains common names used for Material3 lint checks. */
 object Material3Names {
     object Material3 {
         val PackageName = Package("androidx.compose.material3")

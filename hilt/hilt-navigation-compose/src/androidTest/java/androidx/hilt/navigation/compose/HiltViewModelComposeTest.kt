@@ -43,9 +43,6 @@ import androidx.navigation.navigation
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -253,27 +250,6 @@ class HiltViewModelComposeTest {
         assertThat(firstFactory).isNotSameInstanceAs(secondFactory)
     }
 
-    @Test
-    fun hiltViewModelAssisted() {
-        lateinit var viewModel: SimpleAssistedViewModel
-        composeTestRule.setContent {
-            val navController = rememberNavController()
-            NavHost(navController, startDestination = "Main") {
-                composable("Main") {
-                    viewModel = hiltViewModel<
-                            SimpleAssistedViewModel,
-                            SimpleAssistedViewModel.Factory> {
-                        it.create(42)
-                    }
-                }
-            }
-        }
-        composeTestRule.waitForIdle()
-
-        assertThat(viewModel).isNotNull()
-        assertThat(viewModel.i).isEqualTo(42)
-    }
-
     @Composable
     private fun NavigateButton(text: String, listener: () -> Unit = { }) {
         Button(onClick = listener) {
@@ -292,21 +268,6 @@ class HiltViewModelComposeTest {
         //  resolved.
         @ApplicationContext val context: Context
     ) : ViewModel()
-
-    @HiltViewModel(assistedFactory = SimpleAssistedViewModel.Factory::class)
-    class SimpleAssistedViewModel @AssistedInject constructor(
-        val handle: SavedStateHandle,
-        val logger: MyLogger,
-        // TODO(kuanyingchou) Remove this after https://github.com/google/dagger/issues/3601 is
-        //  resolved.
-        @ApplicationContext val context: Context,
-        @Assisted val i: Int
-    ) : ViewModel() {
-        @AssistedFactory
-        interface Factory {
-            fun create(i: Int): SimpleAssistedViewModel
-        }
-    }
 
     class TestFragment(val composable: @Composable (Fragment) -> Unit) : Fragment() {
         override fun onCreateView(

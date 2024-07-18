@@ -198,34 +198,6 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     var target = this
     val isButton = target is EmittableButton
 
-    // Button ignores background modifiers.
-    if (isButton && Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
-        // Buttons cannot have a background image modifier. Remove BackgroundModifier.Image from
-        // the button if it exists.
-        val (maybeBgImageModifier, modifiersMinusBgImage) =
-            target.modifier.extractModifier<BackgroundModifier.Image>()
-        if (maybeBgImageModifier != null) {
-            Log.w(
-                GlanceAppWidgetTag,
-                "Glance Buttons should not have a background image modifier. " +
-                    "Consider an image with a clickable modifier."
-            )
-            target.modifier = modifiersMinusBgImage
-        }
-
-        // Buttons ignore background color modifier. Remove it.
-        val (maybeBgColorModifier, modifiersMinusBgColor) =
-            target.modifier.extractModifier<BackgroundModifier.Image>()
-        if (maybeBgColorModifier != null) {
-            Log.w(
-                GlanceAppWidgetTag,
-                "Glance Buttons should not have a background color modifier. " +
-                    "Consider a tinted image with a clickable modifier"
-            )
-            target.modifier = modifiersMinusBgColor
-        }
-    }
-
     val shouldWrapTargetInABox = target.modifier.any {
         // Background images (i.e. BitMap or drawable resources) are emulated by placing the image
         // before the target in the wrapper box. This allows us to support content scale as well as
@@ -247,7 +219,6 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
     var rippleImage: EmittableImage? = null
 
     val (bgModifier, targetModifiersMinusBg) = target.modifier.extractModifier<BackgroundModifier>()
-
     if (bgModifier != null) {
         if (isButton) {
             // Emulate rounded corners (fixed radius) using a drawable and apply background colors

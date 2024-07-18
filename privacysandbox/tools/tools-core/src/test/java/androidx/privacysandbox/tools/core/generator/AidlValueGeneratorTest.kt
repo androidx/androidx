@@ -16,9 +16,8 @@
 
 package androidx.privacysandbox.tools.core.generator
 
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
-import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
+import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
 import androidx.privacysandbox.tools.core.model.Parameter
 import androidx.privacysandbox.tools.core.model.ParsedApi
@@ -37,23 +36,16 @@ import org.junit.runners.JUnit4
 class AidlValueGeneratorTest {
     @Test
     fun generate() {
-        val innerEnum = AnnotatedEnumClass(
-            Type(packageName = "com.mysdk", simpleName = "InnerEnum"),
-            listOf("ONE, TWO, THREE")
-        )
-        val innerValue = AnnotatedDataClass(
+        val innerValue = AnnotatedValue(
             Type(packageName = "com.mysdk", simpleName = "InnerValue"),
             listOf(
                 ValueProperty("intProperty", Types.int),
                 ValueProperty("booleanProperty", Types.boolean),
                 ValueProperty("longProperty", Types.long),
                 ValueProperty("maybeFloatProperty", Types.float.asNullable()),
-                ValueProperty("enumProperty", innerEnum.type),
-                ValueProperty("bundleProperty", Types.bundle),
-                ValueProperty("maybeBundleProperty", Types.bundle.asNullable())
             )
         )
-        val outerValue = AnnotatedDataClass(
+        val outerValue = AnnotatedValue(
             Type(packageName = "com.mysdk", simpleName = "OuterValue"),
             listOf(
                 ValueProperty("innerValue", innerValue.type),
@@ -111,7 +103,7 @@ class AidlValueGeneratorTest {
                     )
                 )
             ),
-            values = setOf(innerEnum, innerValue, outerValue)
+            values = setOf(innerValue, outerValue)
         )
 
         val (aidlGeneratedSources, javaGeneratedSources) = AidlTestHelper.runGenerator(api)
@@ -120,7 +112,6 @@ class AidlValueGeneratorTest {
                 "com.mysdk" to "IMySdk",
                 "com.mysdk" to "ParcelableOuterValue",
                 "com.mysdk" to "ParcelableInnerValue",
-                "com.mysdk" to "ParcelableInnerEnum",
                 "com.mysdk" to "IUnitTransactionCallback",
                 "com.mysdk" to "IOuterValueTransactionCallback",
                 "com.mysdk" to "IListOuterValueTransactionCallback",

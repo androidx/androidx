@@ -23,6 +23,7 @@ import android.text.TextPaint;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -30,6 +31,7 @@ import androidx.annotation.RestrictTo;
  *
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@RequiresApi(19)
 public final class TypefaceEmojiSpan extends EmojiSpan {
 
     /**

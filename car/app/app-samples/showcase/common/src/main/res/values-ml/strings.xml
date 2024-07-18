@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"ലഭ്യമല്ല"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"EV കണക്റ്റർ തരങ്ങൾ"</string>
     <string name="example_title" msgid="530257630320010494">"ഉദാഹരണം %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"ഈ ടെക്സ്റ്റിൽ "<annotation color="red">"ചുവന്ന"</annotation>" നിറമുണ്ട്"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"ഈ ടെക്സ്റ്റിൽ "<annotation color="green">"പച്ച"</annotation>" നിറമുണ്ട്"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"ഈ ടെക്സ്റ്റിൽ "<annotation color="blue">"നീല"</annotation>" നിറമുണ്ട്"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"ഈ ടെക്സ്റ്റിൽ "<annotation color="yellow">"മഞ്ഞ"</annotation>" നിറമുണ്ട്"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"ഈ ടെക്സ്റ്റിൽ ചുവന്ന നിറമുണ്ട്"</string>
+    <string name="example_2_text" msgid="718820705318661440">"ഈ ടെക്സ്റ്റിൽ പച്ച നിറമുണ്ട്"</string>
+    <string name="example_3_text" msgid="977269832109695627">"ഈ ടെക്സ്റ്റിൽ നീല നിറമുണ്ട്"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"ഈ ടെക്സ്റ്റിൽ മഞ്ഞ നിറമുണ്ട്"</string>
     <string name="example_5_text" msgid="8828804968749423500">"ഈ ടെക്സ്റ്റ് പ്രാഥമിക നിറം ഉപയോഗിക്കുന്നു"</string>
     <string name="example_6_text" msgid="7991523168517599600">"ഈ ടെക്സ്റ്റ് ദ്വിതീയ നിറം ഉപയോഗിക്കുന്നു"</string>
     <string name="color_demo" msgid="1822427636476178993">"നിറത്തിന്റെ ഡെമോ"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"സ്ഥലങ്ങൾ ബ്രൗസ് ചെയ്യുക"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Search ടെംപ്ലേറ്റിന്റെ ഡെമോ"</string>
     <string name="search_hint" msgid="978495498991026792">"ഇവിടെ തിരയുക"</string>
-    <string name="additional_text" msgid="5755100726890686184">"ഞങ്ങളുടെ "<annotation link="terms_of_service">"സേവന നിബന്ധനകള്‍"</annotation>" അവലോകനം ചെയ്യുക"</string>
+    <string name="additional_text" msgid="8410289578276941586">"ഞങ്ങളുടെ സേവന നിബന്ധനകൾ അവലോകനം ചെയ്യുക"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google സൈൻ ഇൻ"</string>
     <string name="use_pin" msgid="7850893299484337431">"പിൻ ഉപയോഗിക്കുക"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR കോഡ്"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"വഴി ഓപ്‌ഷനുകൾ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"ദേശീയപാതകൾ ഒഴിവാക്കുക"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ഫെറി ഒഴിവാക്കുക"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"മാപ്പ് ഡെമോകൾ"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ഉള്ളടക്കമുള്ള മാപ്പിന്റെ ഡെമോകൾ"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"സന്ദേശ ടെംപ്ലേറ്റുളള മാപ്പിന്റെ ഡെമോ"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ഗ്രിഡ് ടെംപ്ലേറ്റുള്ള മാപ്പിന്റെ ഡെമോ"</string>
 </resources>

@@ -25,7 +25,6 @@ import static androidx.car.app.utils.LogTags.TAG;
 import static java.util.Objects.requireNonNull;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -33,20 +32,15 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
-import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.Display;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.car.app.annotations.ExperimentalCarApi;
@@ -623,11 +617,7 @@ public class CarContext extends ContextWrapper {
                 new Intent(REQUEST_PERMISSIONS_ACTION).setComponent(appActivityComponent)
                         .putExtras(extras)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Bundle activityOptionsBundle = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            activityOptionsBundle = Api26Impl.makeBasicActivityOptionsBundle();
-        }
-        startActivity(intent, activityOptionsBundle);
+        startActivity(intent);
     }
 
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
@@ -765,15 +755,5 @@ public class CarContext extends ContextWrapper {
         };
 
         lifecycle.addObserver(observer);
-    }
-
-    @RequiresApi(api = VERSION_CODES.O)
-    private static class Api26Impl {
-
-        @DoNotInline
-        static Bundle makeBasicActivityOptionsBundle() {
-            return ActivityOptions.makeBasic()
-                    .setLaunchDisplayId(Display.DEFAULT_DISPLAY).toBundle();
-        }
     }
 }

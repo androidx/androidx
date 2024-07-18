@@ -122,22 +122,6 @@
                 android:layout_gravity="top|right"
                 android:layout_marginRight="15dp"
                 android:layout_marginTop="15dp" />
-
-            <ToggleButton
-                android:id="@+id/dual_selfie"
-                android:textOn="@string/dual_selfie_on"
-                android:textOff="@string/dual_selfie_off"
-                android:layout_width="46dp"
-                android:layout_height="wrap_content"
-                android:scaleType="fitXY"
-                android:textColor="#EEEEEE"
-                android:textSize="10dp"
-                android:checked="false"
-                android:background="@drawable/round_toggle_button"
-                android:visibility="gone"
-                android:layout_gravity="top|right"
-                android:layout_marginRight="15dp"
-                android:layout_marginTop="15dp" />
         </LinearLayout>
     </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

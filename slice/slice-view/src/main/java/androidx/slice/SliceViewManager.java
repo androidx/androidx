@@ -23,6 +23,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 
@@ -38,6 +39,7 @@ import java.util.concurrent.Executor;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@RequiresApi(19)
 @Deprecated
 public abstract class SliceViewManager {
 

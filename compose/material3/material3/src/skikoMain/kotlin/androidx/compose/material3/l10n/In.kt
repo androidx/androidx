@@ -31,6 +31,7 @@ internal fun Translations.`in`() = mapOf(
     Strings.Dialog to "Dialog",
     Strings.MenuExpanded to "Diperluas",
     Strings.MenuCollapsed to "Diciutkan",
+    Strings.ToggleDropdownMenu to "Aktifkan/nonaktifkan menu dropdown",
     Strings.SnackbarDismiss to "Tutup",
     Strings.SearchBarSearch to "Telusuri",
     Strings.SuggestionsAvailable to "Saran di bawah",

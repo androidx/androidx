@@ -27,10 +27,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Checkbox
 import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.RadioButton
 import androidx.wear.compose.material.SplitToggleChip
 import androidx.wear.compose.material.Switch
 import androidx.wear.compose.material.Text
@@ -61,9 +64,49 @@ fun ToggleChipWithSwitch() {
             Switch(
                 checked = checked,
                 enabled = true,
+                modifier = Modifier.semantics {
+                    this.contentDescription =
+                        if (checked) "On" else "Off"
+                }
             )
         },
         onCheckedChange = { checked = it },
+        appIcon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+                contentDescription = "airplane",
+                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+            )
+        },
+        enabled = true,
+    )
+}
+
+@Sampled
+@Composable
+fun ToggleChipWithRadioButton() {
+    var selected by remember { mutableStateOf(true) }
+    // The primary label should have a maximum 3 lines of text
+    // and the secondary label should have max 2 lines of text.
+    ToggleChip(
+        label = {
+            Text("RadioIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
+        },
+        secondaryLabel = {
+            Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
+        },
+        checked = selected,
+        toggleControl = {
+            RadioButton(
+                selected = selected,
+                enabled = true,
+                modifier = Modifier.semantics {
+                    this.contentDescription =
+                        if (selected) "On" else "Off"
+                }
+            )
+        },
+        onCheckedChange = { selected = it },
         appIcon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
@@ -90,6 +133,10 @@ fun SplitToggleChipWithCheckbox() {
             Checkbox(
                 checked = checked,
                 enabled = true,
+                modifier = Modifier.semantics {
+                    this.contentDescription =
+                        if (checked) "Checked" else "Unchecked"
+                }
             )
         },
         onCheckedChange = { checked = it },

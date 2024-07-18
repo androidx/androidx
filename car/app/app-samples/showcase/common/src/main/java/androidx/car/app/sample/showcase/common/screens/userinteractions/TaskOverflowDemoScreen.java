@@ -16,12 +16,12 @@
 
 package androidx.car.app.sample.showcase.common.screens.userinteractions;
 
+import static androidx.car.app.model.Action.BACK;
+
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
-import androidx.car.app.model.Action;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -101,10 +101,8 @@ public class TaskOverflowDemoScreen extends Screen {
         }
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext().getString(R.string.application_overflow_title))
-                        .setStartHeaderAction(Action.BACK)
-                        .build())
+                .setTitle(getCarContext().getString(R.string.application_overflow_title))
+                .setHeaderAction(BACK)
                 .build();
     }
 }

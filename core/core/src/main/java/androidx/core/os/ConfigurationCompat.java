@@ -57,7 +57,20 @@ public final class ConfigurationCompat {
             @NonNull Configuration configuration, @NonNull LocaleListCompat locales) {
         if (SDK_INT >= 24) {
             Api24Impl.setLocales(configuration, locales);
-        } else {
+        } else if (SDK_INT >= 17) {
+            Api17Impl.setLocale(configuration, locales);
+        }
+    }
+
+    @RequiresApi(17)
+    static class Api17Impl {
+        private Api17Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setLocale(
+                @NonNull Configuration configuration, @NonNull LocaleListCompat locales) {
             if (!locales.isEmpty()) {
                 configuration.setLocale(locales.get(0));
             }

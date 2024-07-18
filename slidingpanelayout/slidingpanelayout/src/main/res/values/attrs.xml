@@ -19,11 +19,6 @@
         <attr name="isOverlappingEnabled" format="boolean"/>
         <attr name="isUserResizingEnabled" format="boolean"/>
         <attr name="userResizingDividerDrawable" format="reference"/>
-        <attr name="isChildClippingToResizeDividerEnabled" format="boolean"/>
-        <attr name="userResizeBehavior" format="enum">
-            <enum name="relayoutWhenComplete" value="0"/>
-            <enum name="relayoutWhenMoved" value="1"/>
-        </attr>
     </declare-styleable>
     <declare-styleable name="SlidingPaneLayout_Layout">
         <attr name="android:layout_weight"/>

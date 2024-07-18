@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -49,8 +50,9 @@ fun collect(
     val startTime = System.nanoTime()
     // Ensure the device is awake
     scope.device.wakeUp()
+    val killProcessBlock = scope.killProcessBlock()
     // always kill the process at beginning of a collection.
-    scope.killProcess()
+    killProcessBlock.invoke()
 
     try {
         var stableCount = 1
@@ -67,8 +69,9 @@ fun collect(
                 if (iteration == 1) {
                     Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
                     mode.resetAndCompile(
-                        scope,
+                        packageName = packageName,
                         allowCompilationSkipping = false,
+                        killProcessBlock = killProcessBlock
                     ) {
                         scope.iteration = iteration
                         profileBlock(scope)
@@ -76,8 +79,11 @@ fun collect(
                 } else {
                     // Don't reset for subsequent iterations
                     Log.d(TAG, "Killing package $packageName")
-                    scope.killProcess()
-                    mode.compileImpl(scope) {
+                    killProcessBlock()
+                    mode.compileImpl(
+                        packageName = packageName,
+                        killProcessBlock = killProcessBlock
+                    ) {
                         scope.iteration = iteration
                         Log.d(TAG, "Compile iteration (${scope.iteration}) for $packageName")
                         profileBlock(scope)
@@ -136,7 +142,7 @@ fun collect(
             includeInStartupProfile = includeInStartupProfile
         )
     } finally {
-        scope.killProcess()
+        killProcessBlock.invoke()
     }
 }
 
@@ -157,6 +163,21 @@ private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
         packageName,
         launchWithClearTask = true
     )
+}
+
+/**
+ * Builds a function that can kill the target process using the provided [MacrobenchmarkScope].
+ */
+@SuppressLint("BanThreadSleep")
+private fun MacrobenchmarkScope.killProcessBlock(): () -> Unit {
+    val killProcessBlock = {
+        // When generating baseline profiles we want to default to using
+        // killProcess if the session is rooted. This is so we can collect
+        // baseline profiles for System Apps.
+        this.killProcess(useKillAll = Shell.isSessionRooted())
+        Thread.sleep(Arguments.killProcessDelayMillis)
+    }
+    return killProcessBlock
 }
 
 /**

@@ -28,10 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -40,20 +37,15 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.material.PageIndicatorDefaults.MaxNumberOfIndicators
-import androidx.wear.compose.materialcore.BoundsLimiter
 import androidx.wear.compose.materialcore.PagesState
 import androidx.wear.compose.materialcore.isRoundDevice
 import java.lang.Integer.min
-import kotlin.math.roundToInt
 
 /**
  * A horizontal indicator for a Pager, representing
@@ -155,15 +147,13 @@ public fun HorizontalPageIndicator(
 
     val spacerLeft = @Composable {
         Spacer(
-            Modifier
-                .width((pagesState.leftSpacerSizeRatio * spacerDefaultSize).dp)
+            Modifier.width((pagesState.leftSpacerSizeRatio * spacerDefaultSize).dp)
                 .height(indicatorSize)
         )
     }
     val spacerRight = @Composable {
         Spacer(
-            Modifier
-                .width((pagesState.rightSpacerSizeRatio * spacerDefaultSize).dp)
+            Modifier.width((pagesState.rightSpacerSizeRatio * spacerDefaultSize).dp)
                 .height(indicatorSize)
 
         )
@@ -180,41 +170,13 @@ public fun HorizontalPageIndicator(
             )
         }
         PageIndicatorStyle.Curved -> {
-            var containerSize by remember { mutableStateOf(IntSize.Zero) }
-
-            val boundsSize: Density.() -> IntSize = {
-
-                val size = IntSize(
-                    width = ((indicatorSize + spacing).toPx() * pagesOnScreen).roundToInt(),
-                    height = (indicatorSize * 2).toPx().roundToInt().coerceAtLeast(0)
-                )
-                size
-            }
-
-            val boundsOffset: Density.() -> IntOffset = {
-                val measuredSize = boundsSize()
-                // Offset here is the distance between top left corner of the outer container to
-                // the top left corner of the indicator. Its placement should look similar to
-                // Alignment.BottomCenter.
-                IntOffset(
-                    x = (containerSize.width - measuredSize.width) / 2,
-                    y = containerSize.height - measuredSize.height,
-                )
-            }
-
-            BoundsLimiter(
-                offset = boundsOffset,
-                size = boundsSize,
+            CurvedPageIndicator(
                 modifier = modifier,
-                onSizeChanged = { containerSize = it }) {
-
-                CurvedPageIndicator(
-                    pagesOnScreen = pagesOnScreen,
-                    indicatorFactory = indicatorFactory,
-                    spacerLeft = spacerLeft,
-                    spacerRight = spacerRight
-                )
-            }
+                pagesOnScreen = pagesOnScreen,
+                indicatorFactory = indicatorFactory,
+                spacerLeft = spacerLeft,
+                spacerRight = spacerRight
+            )
         }
     }
 }
@@ -285,31 +247,30 @@ private fun LinearPageIndicator(
     spacerRight: @Composable () -> Unit
 
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = modifier.align(Alignment.BottomCenter),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            // drawing 1 extra spacer for transition
-            spacerLeft()
-            for (page in 0..pagesOnScreen) {
-                indicatorFactory(page)
-            }
-            spacerRight()
+    Row(
+        modifier = modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        // drawing 1 extra spacer for transition
+        spacerLeft()
+        for (page in 0..pagesOnScreen) {
+            indicatorFactory(page)
         }
+        spacerRight()
     }
 }
 
 @Composable
 private fun CurvedPageIndicator(
+    modifier: Modifier,
     pagesOnScreen: Int,
     indicatorFactory: @Composable (Int) -> Unit,
     spacerLeft: @Composable () -> Unit,
     spacerRight: @Composable () -> Unit
 ) {
     CurvedLayout(
-        modifier = Modifier,
+        modifier = modifier,
         // 90 degrees equals to 6 o'clock position, at the bottom of the screen
         anchor = 90f,
         angularDirection = CurvedDirection.Angular.Reversed

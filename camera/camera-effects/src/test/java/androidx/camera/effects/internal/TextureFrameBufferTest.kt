@@ -92,7 +92,7 @@ class TextureFrameBufferTest {
 
         // Assert: the frame has the correct values.
         assertThat(frame.textureId).isEqualTo(1)
-        assertThat(frame.timestampNanos).isEqualTo(TIMESTAMP_1)
+        assertThat(frame.timestampNs).isEqualTo(TIMESTAMP_1)
         assertThat(frame.transform.contentEquals(transform1)).isTrue()
         assertThat(frame.transform).isNotSameInstanceAs(transform1)
         assertThat(frame.surface).isSameInstanceAs(surface1)

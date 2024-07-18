@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Indisponível"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Tipos de conetores de VE"</string>
     <string name="example_title" msgid="530257630320010494">"%d de exemplo"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Este texto tem cor "<annotation color="red">"vermelha"</annotation></string>
-    <string name="example_2_text" msgid="1359373957397219102">"Este texto tem cor "<annotation color="green">"verde"</annotation></string>
-    <string name="example_3_text" msgid="2409207170762049673">"Este texto tem cor "<annotation color="blue">"azul"</annotation></string>
-    <string name="example_4_text" msgid="9055989886645433000">"Este texto tem cor "<annotation color="yellow">"amarela"</annotation></string>
+    <string name="example_1_text" msgid="8456567953748293512">"Este texto tem cor vermelha"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Este texto tem cor verde"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Este texto tem cor azul"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Este texto tem cor amarela"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Este texto usa a cor principal"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Este texto usa a cor secundária"</string>
     <string name="color_demo" msgid="1822427636476178993">"Demonstração de cor"</string>
@@ -236,8 +236,8 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Procurar locais"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demonstração do modelo de pesquisa"</string>
     <string name="search_hint" msgid="978495498991026792">"Pesquise aqui"</string>
-    <string name="additional_text" msgid="5755100726890686184">"Reveja os nossos "<annotation link="terms_of_service">"Termos de Utilização"</annotation></string>
-    <string name="google_sign_in" msgid="6556259799319701727">"Início de sessão da Google"</string>
+    <string name="additional_text" msgid="8410289578276941586">"Consulte os nossos Termos de Utilização"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Início de sessão do Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Usar PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Código QR"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"O anfitrião não suporta o modelo de início de sessão"</string>
@@ -253,7 +253,7 @@
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Escreva este PIN no telemóvel"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Leia o código QR para iniciar sessão"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Iniciar sessão com o Google"</string>
-    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Use este botão para concluir o Início de sessão da Google"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Use este botão para concluir o Início de sessão do Google"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Iniciou sessão!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Início de sessão concluído"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demonstração do modelo de início de sessão"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opções do trajeto"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Evitar autoestradas"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Evitar ferry"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Mapeie demonstrações"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapeie com demonstrações de conteúdo"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapeie com uma demonstração do modelo de mensagem"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapeie com uma demonstração do modelo de grelha"</string>
 </resources>

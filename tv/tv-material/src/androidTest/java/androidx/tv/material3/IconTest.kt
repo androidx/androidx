@@ -148,8 +148,8 @@ class IconTest {
 
     @Test
     fun painter_noIntrinsicSize_dimensions() {
-        val width = 20.dp
-        val height = 20.dp
+        val width = 24.dp
+        val height = 24.dp
         val painter = ColorPainter(Color.Red)
         val testTag = "testTag"
 

@@ -31,6 +31,7 @@ internal fun Translations.eu() = mapOf(
     Strings.Dialog to "Leihoa",
     Strings.MenuExpanded to "Zabalduta",
     Strings.MenuCollapsed to "Tolestuta",
+    Strings.ToggleDropdownMenu to "Zabaldu/Tolestu goitibeherako menua",
     Strings.SnackbarDismiss to "Baztertu",
     Strings.SearchBarSearch to "Bilatu",
     Strings.SuggestionsAvailable to "Iradokizunak daude behean",

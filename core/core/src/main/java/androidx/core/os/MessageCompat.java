@@ -61,6 +61,8 @@ public final class MessageCompat {
      * synchronous messages although they are always delivered in order among themselves.
      * If the relative order of these messages matters then they probably should not be
      * asynchronous in the first place.  Use with caution.
+     * <p>
+     * This API has no effect prior to API 16.
      *
      * @param message message for this to set the mode.
      * @param async True if the message is asynchronous.
@@ -74,7 +76,7 @@ public final class MessageCompat {
             Api22Impl.setAsynchronous(message, async);
             return;
         }
-        if (sTrySetAsynchronous) {
+        if (sTrySetAsynchronous && Build.VERSION.SDK_INT >= 16) {
             // Since this was an @hide method made public, we can link directly against it with a
             // try/catch for its absence instead of doing the same dance through reflection.
             try {
@@ -89,7 +91,7 @@ public final class MessageCompat {
      * Returns true if the message is asynchronous, meaning that it is not
      * subject to {@link Looper} synchronization barriers.
      *
-     * @return True if the message is asynchronous.
+     * @return True if the message is asynchronous. Always false prior to API 16.
      *
      * @see #setAsynchronous(Message, boolean)
      * @see Message#isAsynchronous()
@@ -99,7 +101,7 @@ public final class MessageCompat {
         if (Build.VERSION.SDK_INT >= 22) {
             return Api22Impl.isAsynchronous(message);
         }
-        if (sTryIsAsynchronous) {
+        if (sTryIsAsynchronous && Build.VERSION.SDK_INT >= 16) {
             // Since this was an @hide method made public, we can link directly against it with a
             // try/catch for its absence instead of doing the same dance through reflection.
             try {

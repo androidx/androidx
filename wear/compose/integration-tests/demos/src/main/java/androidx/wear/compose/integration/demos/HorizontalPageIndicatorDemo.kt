@@ -18,39 +18,21 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.SwipeToDismissBoxState
-import androidx.wear.compose.foundation.edgeSwipeToDismiss
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.HorizontalPageIndicator
-import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PageIndicatorState
-import androidx.wear.compose.material.Text
 
 @Composable
 fun CustomizedHorizontalPageIndicator() {
@@ -58,7 +40,7 @@ fun CustomizedHorizontalPageIndicator() {
     var selectedPage by remember { mutableIntStateOf(0) }
     val animatedSelectedPage by animateFloatAsState(
         targetValue = selectedPage.toFloat(),
-        animationSpec = TweenSpec(durationMillis = 500), label = "page-indicator"
+        animationSpec = TweenSpec(durationMillis = 500)
     )
 
     val pageIndicatorState: PageIndicatorState = remember {
@@ -87,73 +69,6 @@ fun CustomizedHorizontalPageIndicator() {
             indicatorSize = 15.dp,
             indicatorShape = TriangleShape,
             spacing = 8.dp
-        )
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun PagerWithIndicator(swipeState: SwipeToDismissBoxState) {
-    val pagesCount = 3
-    val pagerState = rememberPagerState { pagesCount }
-    var background by remember { mutableStateOf(Color.Black) }
-    var selectedPage by remember { mutableIntStateOf(0) }
-    val animatedSelectedPage by animateFloatAsState(
-        targetValue = pagerState.targetPage.toFloat(), label = "page-indicator",
-    ) {
-        selectedPage = it.toInt()
-    }
-
-    val pageIndicatorState: PageIndicatorState = remember {
-        object : PageIndicatorState {
-            override val pageOffset: Float
-                get() = animatedSelectedPage - selectedPage
-            override val selectedPage: Int
-                get() = selectedPage
-            override val pageCount: Int
-                get() = pagesCount
-        }
-    }
-
-    Box(modifier = Modifier.background(background)) {
-        HorizontalPager(
-            modifier = Modifier.fillMaxSize().edgeSwipeToDismiss(swipeState),
-            state = pagerState,
-            flingBehavior =
-                PagerDefaults.flingBehavior(
-                    pagerState,
-                    snapAnimationSpec = tween(150, 0),
-                )
-        ) { page ->
-            val scrollState = rememberScalingLazyListState()
-            ScalingLazyColumn(
-                state = scrollState,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                item {
-                    ListHeader { Text("Page $page") }
-                }
-                items(4) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Chip(
-                            onClick = {
-                                background =
-                                    if (background == Color.Black) Color.DarkGray else Color.Black
-                            },
-                            label = {
-                                Text(text = "Click", color = Color.Black)
-                            },
-                            enabled = !pagerState.isScrollInProgress
-                        )
-                    }
-                }
-            }
-        }
-        HorizontalPageIndicator(
-            pageIndicatorState = pageIndicatorState,
         )
     }
 }

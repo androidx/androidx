@@ -18,8 +18,8 @@ package org.chromium.android_webview.js_sandbox.common;
 
 /**
  * Callbacks for isolate events, not specific to evaluations.
+ * @hide
  */
- @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxIsolateClient {
     // These crash codes may be generated on either the client or service side.
 

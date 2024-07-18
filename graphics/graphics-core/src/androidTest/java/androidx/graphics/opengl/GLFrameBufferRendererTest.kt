@@ -23,7 +23,6 @@ import android.opengl.Matrix
 import android.os.Build
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import androidx.graphics.lowlatency.BufferInfo
 import androidx.graphics.lowlatency.Rectangle
@@ -466,106 +465,6 @@ class GLFrameBufferRendererTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testInvalidWidth() {
-        testRenderWithDimensions(0, 100)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testInvalidHeight() {
-        testRenderWithDimensions(100, 0)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testNegativeWidth() {
-        testRenderWithDimensions(-19, 100)
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
-    fun testNegativeHeight() {
-        testRenderWithDimensions(100, -82)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun testRenderWithDimensions(renderWidth: Int, renderHeight: Int) {
-        val renderLatch = CountDownLatch(1)
-        val callbacks = object : GLFrameBufferRenderer.Callback {
-
-            val mProjectionMatrix = FloatArray(16)
-            val mOrthoMatrix = FloatArray(16)
-
-            override fun onDrawFrame(
-                eglManager: EGLManager,
-                width: Int,
-                height: Int,
-                bufferInfo: BufferInfo,
-                transform: FloatArray
-            ) {
-                GLES20.glViewport(0, 0, bufferInfo.width, bufferInfo.height)
-                Matrix.orthoM(
-                    mOrthoMatrix,
-                    0,
-                    0f,
-                    bufferInfo.width.toFloat(),
-                    0f,
-                    bufferInfo.height.toFloat(),
-                    -1f,
-                    1f
-                )
-                Matrix.multiplyMM(mProjectionMatrix, 0, mOrthoMatrix, 0, transform, 0)
-                Rectangle().draw(mProjectionMatrix, Color.RED, 0f, 0f, 100f, 100f)
-            }
-
-            override fun onDrawComplete(
-                targetSurfaceControl: SurfaceControlCompat,
-                transaction: SurfaceControlCompat.Transaction,
-                frameBuffer: FrameBuffer,
-                syncFence: SyncFenceCompat?
-            ) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    transaction.addTransactionCommittedListener(
-                        Executors.newSingleThreadExecutor(),
-                        object : SurfaceControlCompat.TransactionCommittedListener {
-                            override fun onTransactionCommitted() {
-                                renderLatch.countDown()
-                            }
-                        }
-                    )
-                } else {
-                    renderLatch.countDown()
-                }
-            }
-        }
-        var renderer: GLFrameBufferRenderer? = null
-        var surfaceView: SurfaceView?
-
-        try {
-            val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    val target = SurfaceView(it)
-                    surfaceView = target
-                    it.setContentView(target, FrameLayout.LayoutParams(renderWidth, renderHeight))
-                    renderer = GLFrameBufferRenderer.Builder(surfaceView!!, callbacks).build()
-                }
-
-            val resumeLatch = CountDownLatch(1)
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer?.render()
-                resumeLatch.countDown()
-            }
-            assertTrue(resumeLatch.await(3000, TimeUnit.MILLISECONDS))
-            // Invalid dimension should not render
-            assertFalse(renderLatch.await(500, TimeUnit.MILLISECONDS))
-        } finally {
-            renderer.blockingRelease()
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    @Test
     fun testRenderedOnSurfaceRedraw() {
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLFrameBufferRenderer.Callback {
@@ -715,6 +614,8 @@ class GLFrameBufferRendererTest {
             }
             assertTrue(destroyLatch.await(timeoutMillis, TimeUnit.MILLISECONDS))
             assertFalse(isValid())
+        } else {
+            fail("GLFrameBufferRenderer is not initialized")
         }
     }
 }

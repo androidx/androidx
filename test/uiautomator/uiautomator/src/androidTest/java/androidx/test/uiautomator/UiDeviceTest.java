@@ -22,13 +22,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
@@ -64,21 +61,18 @@ public class UiDeviceTest {
     public TemporaryFolder mTmpDir = new TemporaryFolder();
 
     private Instrumentation mInstrumentation;
-    private UiAutomation mUiAutomation;
     private UiDevice mDevice;
     private int mDefaultFlags;
 
     @Before
     public void setUp() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            // Configure spies on API 28+ (min version supported by dexmaker-mockito-inline).
-            mInstrumentation = spy(InstrumentationRegistry.getInstrumentation());
-            mUiAutomation = spy(InstrumentationRegistry.getInstrumentation().getUiAutomation());
-            doReturn(mUiAutomation).when(mInstrumentation).getUiAutomation(anyInt());
-            mDevice = new UiDevice(mInstrumentation);
-        } else {
-            mDevice = new UiDevice(InstrumentationRegistry.getInstrumentation());
+        mInstrumentation = spy(InstrumentationRegistry.getInstrumentation());
+        UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        doReturn(automation).when(mInstrumentation).getUiAutomation();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            doReturn(automation).when(mInstrumentation).getUiAutomation(anyInt());
         }
+        mDevice = new UiDevice(mInstrumentation);
         mDefaultFlags = Configurator.getInstance().getUiAutomationFlags();
     }
 
@@ -88,6 +82,7 @@ public class UiDeviceTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testGetDisplayMetrics() throws IOException {
         String densityCmdOutput = mDevice.executeShellCommand("wm density");
         Pattern densityPattern = Pattern.compile("^Physical\\sdensity:\\s(\\d+)\\D+.*");
@@ -183,7 +178,15 @@ public class UiDeviceTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.M)
+    public void testGetUiAutomation_withoutFlags() {
+        mDevice.getUiAutomation();
+        // Verify that the UiAutomation instance was obtained without flags (prior to N).
+        verify(mInstrumentation, atLeastOnce()).getUiAutomation();
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     public void testGetUiAutomation_withDefaultFlags() {
         mDevice.getUiAutomation();
         // Verify that the UiAutomation instance was obtained with default flags (N+).
@@ -191,7 +194,7 @@ public class UiDeviceTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     public void testGetUiAutomation_withCustomFlags() {
         int customFlags = 5;
         Configurator.getInstance().setUiAutomationFlags(customFlags);
@@ -201,6 +204,7 @@ public class UiDeviceTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
     public void testExecuteShellCommand() throws IOException {
         String output = mDevice.executeShellCommand("pm list packages");
         assertTrue(output.contains("package:androidx.test.uiautomator.test"));
@@ -232,30 +236,5 @@ public class UiDeviceTest {
     public void testInaccessibleDisplay() {
         assertThrows(IllegalArgumentException.class, () -> mDevice.getDisplayRotation(1000));
         assertThrows(IllegalArgumentException.class, () -> mDevice.getDisplaySize(1000));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    public void testWaitForIdle() throws Exception {
-        mDevice.waitForIdle();
-        long defaultTimeout = Configurator.getInstance().getWaitForIdleTimeout();
-        verify(mUiAutomation, times(1)).waitForIdle(anyLong(), eq(defaultTimeout));
-
-        mDevice.waitForIdle(123L);
-        verify(mUiAutomation, times(1)).waitForIdle(anyLong(), eq(123L));
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    public void testWaitForIdle_watcher() throws Exception {
-        UiWatcher watcher = () -> {
-            mDevice.waitForIdle();
-            return true;
-        };
-        mDevice.registerWatcher(WATCHER_NAME, watcher);
-        mDevice.runWatchers();
-
-        // Wait for idle skipped during watcher execution.
-        verify(mUiAutomation, never()).waitForIdle(anyLong(), anyLong());
     }
 }

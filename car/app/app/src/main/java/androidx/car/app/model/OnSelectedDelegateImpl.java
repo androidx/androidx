@@ -64,7 +64,7 @@ public class OnSelectedDelegateImpl implements OnSelectedDelegate {
     @NonNull
     // This listener relates to UI event and is expected to be triggered on the main thread.
     @SuppressLint("ExecutorRegistration")
-    public static OnSelectedDelegate create(@NonNull OnSelectedListener listener) {
+    static OnSelectedDelegate create(@NonNull OnSelectedListener listener) {
         return new OnSelectedDelegateImpl(listener);
     }
 

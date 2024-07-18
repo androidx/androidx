@@ -21,6 +21,7 @@ import androidx.stableaidl.api.StableAidlExtension
 import androidx.stableaidl.tasks.StableAidlCheckApi
 import androidx.stableaidl.tasks.UpdateStableAidlApiTask
 import com.android.build.api.variant.SourceDirectories
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import java.io.File
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
@@ -66,14 +67,4 @@ open class StableAidlExtensionImpl : StableAidlExtension {
 
     internal val importSourceDirs = mutableListOf<SourceDirectories.Flat>()
     internal val allTasks = mutableMapOf<String, Set<TaskProvider<*>>>()
-
-    internal fun <T : Task> TaskProvider<out T>.dependsOn(
-        vararg tasks: TaskProvider<out Task>
-    ): TaskProvider<out T> {
-        if (tasks.isEmpty().not()) {
-            configure { it.dependsOn(*tasks) }
-        }
-
-        return this
-    }
 }

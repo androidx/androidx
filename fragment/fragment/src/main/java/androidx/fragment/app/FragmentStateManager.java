@@ -238,7 +238,7 @@ class FragmentStateManager {
         }
         // Fragments that are transitioning are part of a seeking effect and must be at least
         // AWAITING_EXIT_EFFECTS
-        if (mFragment.mTransitioning && mFragment.mContainer != null) {
+        if (mFragment.mTransitioning) {
             maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
         }
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
@@ -580,7 +580,7 @@ class FragmentStateManager {
                 mFragment.mView.setVisibility(View.GONE);
             }
             // How I wish we could use doOnAttach
-            if (mFragment.mView.isAttachedToWindow()) {
+            if (ViewCompat.isAttachedToWindow(mFragment.mView)) {
                 ViewCompat.requestApplyInsets(mFragment.mView);
             } else {
                 final View fragmentView = mFragment.mView;

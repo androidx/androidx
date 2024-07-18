@@ -1,0 +1,273 @@
+// Signature format: 4.0
+package androidx.media2.common {
+
+  @Deprecated public class CallbackMediaItem extends androidx.media2.common.MediaItem {
+    method @Deprecated public androidx.media2.common.DataSourceCallback getDataSourceCallback();
+  }
+
+  @Deprecated public static final class CallbackMediaItem.Builder extends androidx.media2.common.MediaItem.Builder {
+    ctor @Deprecated public CallbackMediaItem.Builder(androidx.media2.common.DataSourceCallback);
+    method @Deprecated public androidx.media2.common.CallbackMediaItem build();
+    method @Deprecated public androidx.media2.common.CallbackMediaItem.Builder setEndPosition(long);
+    method @Deprecated public androidx.media2.common.CallbackMediaItem.Builder setMetadata(androidx.media2.common.MediaMetadata?);
+    method @Deprecated public androidx.media2.common.CallbackMediaItem.Builder setStartPosition(long);
+  }
+
+  @Deprecated public abstract class DataSourceCallback implements java.io.Closeable {
+    ctor @Deprecated public DataSourceCallback();
+    method @Deprecated public abstract long getSize() throws java.io.IOException;
+    method @Deprecated public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
+  }
+
+  @Deprecated public class FileMediaItem extends androidx.media2.common.MediaItem {
+    method @Deprecated public long getFileDescriptorLength();
+    method @Deprecated public long getFileDescriptorOffset();
+    method @Deprecated public android.os.ParcelFileDescriptor getParcelFileDescriptor();
+    field @Deprecated public static final long FD_LENGTH_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
+  }
+
+  @Deprecated public static final class FileMediaItem.Builder extends androidx.media2.common.MediaItem.Builder {
+    ctor @Deprecated public FileMediaItem.Builder(android.os.ParcelFileDescriptor);
+    method @Deprecated public androidx.media2.common.FileMediaItem build();
+    method @Deprecated public androidx.media2.common.FileMediaItem.Builder setEndPosition(long);
+    method @Deprecated public androidx.media2.common.FileMediaItem.Builder setFileDescriptorLength(long);
+    method @Deprecated public androidx.media2.common.FileMediaItem.Builder setFileDescriptorOffset(long);
+    method @Deprecated public androidx.media2.common.FileMediaItem.Builder setMetadata(androidx.media2.common.MediaMetadata?);
+    method @Deprecated public androidx.media2.common.FileMediaItem.Builder setStartPosition(long);
+  }
+
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public class MediaItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+    method @Deprecated public long getEndPosition();
+    method @Deprecated public androidx.media2.common.MediaMetadata? getMetadata();
+    method @Deprecated public long getStartPosition();
+    method @Deprecated public void setMetadata(androidx.media2.common.MediaMetadata?);
+    field @Deprecated public static final long POSITION_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
+  }
+
+  @Deprecated public static class MediaItem.Builder {
+    ctor @Deprecated public MediaItem.Builder();
+    method @Deprecated public androidx.media2.common.MediaItem build();
+    method @Deprecated public androidx.media2.common.MediaItem.Builder setEndPosition(long);
+    method @Deprecated public androidx.media2.common.MediaItem.Builder setMetadata(androidx.media2.common.MediaMetadata?);
+    method @Deprecated public androidx.media2.common.MediaItem.Builder setStartPosition(long);
+  }
+
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public final class MediaMetadata extends androidx.versionedparcelable.CustomVersionedParcelable {
+    method @Deprecated public boolean containsKey(String);
+    method @Deprecated public android.graphics.Bitmap? getBitmap(String);
+    method @Deprecated public android.os.Bundle? getExtras();
+    method @Deprecated public float getFloat(String);
+    method @Deprecated public long getLong(String);
+    method @Deprecated public String? getMediaId();
+    method @Deprecated public androidx.media2.common.Rating? getRating(String);
+    method @Deprecated public String? getString(String);
+    method @Deprecated public CharSequence? getText(String);
+    method @Deprecated public java.util.Set<java.lang.String!> keySet();
+    method @Deprecated public int size();
+    field @Deprecated public static final long BROWSABLE_TYPE_ALBUMS = 2L; // 0x2L
+    field @Deprecated public static final long BROWSABLE_TYPE_ARTISTS = 3L; // 0x3L
+    field @Deprecated public static final long BROWSABLE_TYPE_GENRES = 4L; // 0x4L
+    field @Deprecated public static final long BROWSABLE_TYPE_MIXED = 0L; // 0x0L
+    field @Deprecated public static final long BROWSABLE_TYPE_NONE = -1L; // 0xffffffffffffffffL
+    field @Deprecated public static final long BROWSABLE_TYPE_PLAYLISTS = 5L; // 0x5L
+    field @Deprecated public static final long BROWSABLE_TYPE_TITLES = 1L; // 0x1L
+    field @Deprecated public static final long BROWSABLE_TYPE_YEARS = 6L; // 0x6L
+    field @Deprecated public static final String METADATA_KEY_ADVERTISEMENT = "androidx.media2.metadata.ADVERTISEMENT";
+    field @Deprecated public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
+    field @Deprecated public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
+    field @Deprecated public static final String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
+    field @Deprecated public static final String METADATA_KEY_ALBUM_ART_URI = "android.media.metadata.ALBUM_ART_URI";
+    field @Deprecated public static final String METADATA_KEY_ART = "android.media.metadata.ART";
+    field @Deprecated public static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
+    field @Deprecated public static final String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
+    field @Deprecated public static final String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
+    field @Deprecated public static final String METADATA_KEY_BROWSABLE = "androidx.media2.metadata.BROWSABLE";
+    field @Deprecated public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
+    field @Deprecated public static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
+    field @Deprecated public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
+    field @Deprecated public static final String METADATA_KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_DESCRIPTION = "android.media.metadata.DISPLAY_DESCRIPTION";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_ICON = "android.media.metadata.DISPLAY_ICON";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_ICON_URI = "android.media.metadata.DISPLAY_ICON_URI";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_SUBTITLE = "android.media.metadata.DISPLAY_SUBTITLE";
+    field @Deprecated public static final String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
+    field @Deprecated public static final String METADATA_KEY_DOWNLOAD_STATUS = "androidx.media2.metadata.DOWNLOAD_STATUS";
+    field @Deprecated public static final String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
+    field @Deprecated public static final String METADATA_KEY_EXTRAS = "androidx.media2.metadata.EXTRAS";
+    field @Deprecated public static final String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
+    field @Deprecated public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
+    field @Deprecated public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
+    field @Deprecated public static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
+    field @Deprecated public static final String METADATA_KEY_PLAYABLE = "androidx.media2.metadata.PLAYABLE";
+    field @Deprecated public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
+    field @Deprecated public static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
+    field @Deprecated public static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
+    field @Deprecated public static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
+    field @Deprecated public static final String METADATA_KEY_WRITER = "android.media.metadata.WRITER";
+    field @Deprecated public static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
+    field @Deprecated public static final long STATUS_DOWNLOADED = 2L; // 0x2L
+    field @Deprecated public static final long STATUS_DOWNLOADING = 1L; // 0x1L
+    field @Deprecated public static final long STATUS_NOT_DOWNLOADED = 0L; // 0x0L
+  }
+
+  @Deprecated public static final class MediaMetadata.Builder {
+    ctor @Deprecated public MediaMetadata.Builder();
+    ctor @Deprecated public MediaMetadata.Builder(androidx.media2.common.MediaMetadata);
+    method @Deprecated public androidx.media2.common.MediaMetadata build();
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder putBitmap(String, android.graphics.Bitmap?);
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder putFloat(String, float);
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder putLong(String, long);
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder putRating(String, androidx.media2.common.Rating?);
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder putString(String, String?);
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder putText(String, CharSequence?);
+    method @Deprecated public androidx.media2.common.MediaMetadata.Builder setExtras(android.os.Bundle?);
+  }
+
+  @Deprecated public interface Rating extends androidx.versionedparcelable.VersionedParcelable {
+    method @Deprecated public boolean isRated();
+  }
+
+  @Deprecated public abstract class SessionPlayer implements java.io.Closeable {
+    ctor @Deprecated public SessionPlayer();
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
+    method @Deprecated @CallSuper public void close();
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> deselectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
+    method @Deprecated public abstract androidx.media.AudioAttributesCompat? getAudioAttributes();
+    method @Deprecated public abstract long getBufferedPosition();
+    method @Deprecated public abstract int getBufferingState();
+    method @Deprecated protected final java.util.List<androidx.core.util.Pair<androidx.media2.common.SessionPlayer.PlayerCallback!,java.util.concurrent.Executor!>!> getCallbacks();
+    method @Deprecated public abstract androidx.media2.common.MediaItem? getCurrentMediaItem();
+    method @Deprecated @IntRange(from=androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX) public abstract int getCurrentMediaItemIndex();
+    method @Deprecated public abstract long getCurrentPosition();
+    method @Deprecated public abstract long getDuration();
+    method @Deprecated @IntRange(from=androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX) public abstract int getNextMediaItemIndex();
+    method @Deprecated public abstract float getPlaybackSpeed();
+    method @Deprecated public abstract int getPlayerState();
+    method @Deprecated public abstract java.util.List<androidx.media2.common.MediaItem!>? getPlaylist();
+    method @Deprecated public abstract androidx.media2.common.MediaMetadata? getPlaylistMetadata();
+    method @Deprecated @IntRange(from=androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX) public abstract int getPreviousMediaItemIndex();
+    method @Deprecated public abstract int getRepeatMode();
+    method @Deprecated public androidx.media2.common.SessionPlayer.TrackInfo? getSelectedTrack(int);
+    method @Deprecated public abstract int getShuffleMode();
+    method @Deprecated public java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!> getTracks();
+    method @Deprecated public androidx.media2.common.VideoSize getVideoSize();
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> movePlaylistItem(@IntRange(from=0) int, @IntRange(from=0) int);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> pause();
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> play();
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> prepare();
+    method @Deprecated public final void registerPlayerCallback(java.util.concurrent.Executor, androidx.media2.common.SessionPlayer.PlayerCallback);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> removePlaylistItem(@IntRange(from=0) int);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> replacePlaylistItem(int, androidx.media2.common.MediaItem);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long);
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> selectTrack(androidx.media2.common.SessionPlayer.TrackInfo);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioAttributes(androidx.media.AudioAttributesCompat);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setMediaItem(androidx.media2.common.MediaItem);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackSpeed(float);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaylist(java.util.List<androidx.media2.common.MediaItem!>, androidx.media2.common.MediaMetadata?);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setRepeatMode(int);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setShuffleMode(int);
+    method @Deprecated public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setSurface(android.view.Surface?);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToNextPlaylistItem();
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPlaylistItem(@IntRange(from=0) int);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPreviousPlaylistItem();
+    method @Deprecated public final void unregisterPlayerCallback(androidx.media2.common.SessionPlayer.PlayerCallback);
+    method @Deprecated public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> updatePlaylistMetadata(androidx.media2.common.MediaMetadata?);
+    field @Deprecated public static final int BUFFERING_STATE_BUFFERING_AND_PLAYABLE = 1; // 0x1
+    field @Deprecated public static final int BUFFERING_STATE_BUFFERING_AND_STARVED = 2; // 0x2
+    field @Deprecated public static final int BUFFERING_STATE_COMPLETE = 3; // 0x3
+    field @Deprecated public static final int BUFFERING_STATE_UNKNOWN = 0; // 0x0
+    field @Deprecated public static final int INVALID_ITEM_INDEX = -1; // 0xffffffff
+    field @Deprecated public static final int PLAYER_STATE_ERROR = 3; // 0x3
+    field @Deprecated public static final int PLAYER_STATE_IDLE = 0; // 0x0
+    field @Deprecated public static final int PLAYER_STATE_PAUSED = 1; // 0x1
+    field @Deprecated public static final int PLAYER_STATE_PLAYING = 2; // 0x2
+    field @Deprecated public static final int REPEAT_MODE_ALL = 2; // 0x2
+    field @Deprecated public static final int REPEAT_MODE_GROUP = 3; // 0x3
+    field @Deprecated public static final int REPEAT_MODE_NONE = 0; // 0x0
+    field @Deprecated public static final int REPEAT_MODE_ONE = 1; // 0x1
+    field @Deprecated public static final int SHUFFLE_MODE_ALL = 1; // 0x1
+    field @Deprecated public static final int SHUFFLE_MODE_GROUP = 2; // 0x2
+    field @Deprecated public static final int SHUFFLE_MODE_NONE = 0; // 0x0
+    field @Deprecated public static final long UNKNOWN_TIME = -9223372036854775808L; // 0x8000000000000000L
+  }
+
+  @Deprecated public abstract static class SessionPlayer.PlayerCallback {
+    ctor @Deprecated public SessionPlayer.PlayerCallback();
+    method @Deprecated public void onAudioAttributesChanged(androidx.media2.common.SessionPlayer, androidx.media.AudioAttributesCompat?);
+    method @Deprecated public void onBufferingStateChanged(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaItem?, int);
+    method @Deprecated public void onCurrentMediaItemChanged(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaItem?);
+    method @Deprecated public void onPlaybackCompleted(androidx.media2.common.SessionPlayer);
+    method @Deprecated public void onPlaybackSpeedChanged(androidx.media2.common.SessionPlayer, float);
+    method @Deprecated public void onPlayerStateChanged(androidx.media2.common.SessionPlayer, int);
+    method @Deprecated public void onPlaylistChanged(androidx.media2.common.SessionPlayer, java.util.List<androidx.media2.common.MediaItem!>?, androidx.media2.common.MediaMetadata?);
+    method @Deprecated public void onPlaylistMetadataChanged(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaMetadata?);
+    method @Deprecated public void onRepeatModeChanged(androidx.media2.common.SessionPlayer, int);
+    method @Deprecated public void onSeekCompleted(androidx.media2.common.SessionPlayer, long);
+    method @Deprecated public void onShuffleModeChanged(androidx.media2.common.SessionPlayer, int);
+    method @Deprecated public void onSubtitleData(androidx.media2.common.SessionPlayer, androidx.media2.common.MediaItem, androidx.media2.common.SessionPlayer.TrackInfo, androidx.media2.common.SubtitleData);
+    method @Deprecated public void onTrackDeselected(androidx.media2.common.SessionPlayer, androidx.media2.common.SessionPlayer.TrackInfo);
+    method @Deprecated public void onTrackSelected(androidx.media2.common.SessionPlayer, androidx.media2.common.SessionPlayer.TrackInfo);
+    method @Deprecated public void onTracksChanged(androidx.media2.common.SessionPlayer, java.util.List<androidx.media2.common.SessionPlayer.TrackInfo!>);
+    method @Deprecated public void onVideoSizeChanged(androidx.media2.common.SessionPlayer, androidx.media2.common.VideoSize);
+  }
+
+  @Deprecated public static class SessionPlayer.PlayerResult {
+    ctor @Deprecated public SessionPlayer.PlayerResult(int, androidx.media2.common.MediaItem?);
+    method @Deprecated public long getCompletionTime();
+    method @Deprecated public androidx.media2.common.MediaItem? getMediaItem();
+    method @Deprecated public int getResultCode();
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_ERROR_UNKNOWN = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
+    field public static final int RESULT_SUCCESS = 0; // 0x0
+  }
+
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize(isCustom=true) public static class SessionPlayer.TrackInfo extends androidx.versionedparcelable.CustomVersionedParcelable {
+    ctor @Deprecated public SessionPlayer.TrackInfo(int, int, android.media.MediaFormat?);
+    ctor @Deprecated public SessionPlayer.TrackInfo(int, int, android.media.MediaFormat?, boolean);
+    method @Deprecated public android.media.MediaFormat? getFormat();
+    method @Deprecated public int getId();
+    method @Deprecated public java.util.Locale getLanguage();
+    method @Deprecated public int getTrackType();
+    method @Deprecated public boolean isSelectable();
+    field @Deprecated public static final int MEDIA_TRACK_TYPE_AUDIO = 2; // 0x2
+    field @Deprecated public static final int MEDIA_TRACK_TYPE_METADATA = 5; // 0x5
+    field @Deprecated public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4; // 0x4
+    field @Deprecated public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0; // 0x0
+    field @Deprecated public static final int MEDIA_TRACK_TYPE_VIDEO = 1; // 0x1
+  }
+
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize public final class SubtitleData implements androidx.versionedparcelable.VersionedParcelable {
+    ctor @Deprecated public SubtitleData(long, long, byte[]);
+    method @Deprecated public byte[] getData();
+    method @Deprecated public long getDurationUs();
+    method @Deprecated public long getStartTimeUs();
+  }
+
+  @Deprecated public class UriMediaItem extends androidx.media2.common.MediaItem {
+    method @Deprecated public android.net.Uri getUri();
+    method @Deprecated public java.util.List<java.net.HttpCookie!>? getUriCookies();
+    method @Deprecated public java.util.Map<java.lang.String!,java.lang.String!>? getUriHeaders();
+  }
+
+  @Deprecated public static final class UriMediaItem.Builder extends androidx.media2.common.MediaItem.Builder {
+    ctor @Deprecated public UriMediaItem.Builder(android.net.Uri);
+    ctor @Deprecated public UriMediaItem.Builder(android.net.Uri, java.util.Map<java.lang.String!,java.lang.String!>?, java.util.List<java.net.HttpCookie!>?);
+    method @Deprecated public androidx.media2.common.UriMediaItem build();
+    method @Deprecated public androidx.media2.common.UriMediaItem.Builder setEndPosition(long);
+    method @Deprecated public androidx.media2.common.UriMediaItem.Builder setMetadata(androidx.media2.common.MediaMetadata?);
+    method @Deprecated public androidx.media2.common.UriMediaItem.Builder setStartPosition(long);
+  }
+
+  @Deprecated @androidx.versionedparcelable.VersionedParcelize public class VideoSize implements androidx.versionedparcelable.VersionedParcelable {
+    ctor @Deprecated public VideoSize(@IntRange(from=0) int, @IntRange(from=0) int);
+    method @Deprecated @IntRange(from=0) public int getHeight();
+    method @Deprecated @IntRange(from=0) public int getWidth();
+  }
+
+}
+

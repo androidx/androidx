@@ -35,19 +35,19 @@ import java.util.Map;
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
 public class UserStyleFlavorWireFormat implements VersionedParcelable, Parcelable {
-    /** User style identifier. */
     @ParcelField(1)
     @NonNull
+    /** User style identifier. */
     public String mId = "";
 
-    /** User style definition of the flavor. */
     @ParcelField(2)
     @NonNull
+    /** User style definition of the flavor. */
     public UserStyleWireFormat mStyle = new UserStyleWireFormat();
 
-    /** Map of ComplicationSlot id to complication's default for the flavor. */
     @ParcelField(3)
     @NonNull
+    /** Map of ComplicationSlot id to complication's default for the flavor. */
     public Map<Integer, DefaultComplicationDataSourcePolicyWireFormat> mComplications =
             new HashMap<>();
 

@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
+import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import androidx.arch.core.executor.ArchTaskExecutor
@@ -154,7 +155,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
     }
 
-    @OptIn(androidx.room.ExperimentalRoomApi::class)
     @Test
     fun allBookSuspend_autoClose() {
         val context: Context = ApplicationProvider.getApplicationContext()
@@ -440,25 +440,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     booksDao.insertBookSuspend(TestUtil.BOOK_2)
                 }
                 booksDao.deleteUnsoldBooks()
-            }
-            assertThat(booksDao.getBooksSuspend())
-                .isEqualTo(listOf(TestUtil.BOOK_2))
-        }
-    }
-
-    @Test
-    fun withTransaction_nested_daoTransaction() {
-        runBlocking {
-            database.withTransaction {
-                booksDao.insertPublisherSuspend(
-                    TestUtil.PUBLISHER.publisherId,
-                    TestUtil.PUBLISHER.name
-                )
-                database.withTransaction {
-                    booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
-                    booksDao.insertBookSuspend(TestUtil.BOOK_2)
-                }
-                booksDao.deleteBooksWithZeroSales()
             }
             assertThat(booksDao.getBooksSuspend())
                 .isEqualTo(listOf(TestUtil.BOOK_2))
@@ -824,7 +805,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 TestUtil.PUBLISHER.name
             )
 
-            @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread1")) {
                 database.withTransaction {
                     delay(100)
@@ -832,7 +813,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
 
-            @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread2")) {
                 database.withTransaction {
                     delay(100)
@@ -1036,11 +1017,16 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     database.endTransaction()
                 }
             } catch (ex: IllegalStateException) {
-                assertThat(ex).hasMessageThat()
-                    .contains(
-                        "Cannot perform this operation because there is no current " +
-                            "transaction"
-                    )
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    assertThat(ex).hasMessageThat()
+                        .contains(
+                            "Cannot perform this operation because there is no current " +
+                                "transaction"
+                        )
+                } else {
+                    assertThat(ex).hasMessageThat()
+                        .contains("Don't have database lock")
+                }
             }
         }
     }
@@ -1058,11 +1044,16 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     throw RuntimeException()
                 }
             } catch (ex: IllegalStateException) {
-                assertThat(ex).hasMessageThat()
-                    .contains(
-                        "Cannot perform this operation because there is no current " +
-                            "transaction"
-                    )
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+                    assertThat(ex).hasMessageThat()
+                        .contains(
+                            "Cannot perform this operation because there is no current " +
+                                "transaction"
+                        )
+                } else {
+                    assertThat(ex).hasMessageThat()
+                        .contains("Don't have database lock")
+                }
             }
         }
     }
@@ -1355,6 +1346,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun withTransaction_runTest() {
         runTest {
             database.withTransaction {

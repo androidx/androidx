@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -31,8 +25,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    api(project(':camera:camera-viewfinder-core'))
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.3.1")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
@@ -85,7 +78,8 @@ android {
 
 androidx {
     name = "Camera ViewFinder"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
     metalavaK2UastEnabled = true

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="MissingPermission"
@@ -336,7 +336,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            enumName = (String) nameMethod.invoke(obj);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -345,7 +345,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            Object obj = converter.invoke(null, binder);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -354,7 +354,7 @@
 
     <issue
         id="BanUncheckedReflection"
-        message="Method.invoke requires both an upper and lower SDK bounds checks to be safe, and the upper bound must be below SdkVersionInfo.HIGHEST_KNOWN_API."
+        message="Calling `Method.invoke` without an SDK check"
         errorLine1="            return nameMethod.invoke(null, enumName);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -362,39 +362,12 @@
     </issue>
 
     <issue
-        id="UnspecifiedRegisterReceiverFlag"
-        message="`mBroadcastReceiver` is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected broadcasts registered for androidx.car.app.connection.action.CAR_CONNECTION_UPDATED"
-        errorLine1="            mContext.registerReceiver(mBroadcastReceiver, filter);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="class PersonsEqualityHelper {"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/connection/CarConnectionTypeLiveData.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private final List&lt;CarZone> mCarZones;"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarValue.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private final Badge mBadge;"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/GridItem.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        Badge mBadge;"
-        errorLine2="        ~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/GridItem.java"/>
+            file="src/main/java/androidx/car/app/messaging/model/PersonsEqualityHelper.java"/>
     </issue>
 
     <issue

@@ -5,8 +5,7 @@ public object ResponseConverter {
         val annotatedValue = Response(
                 response = parcelable.response,
                 uiInterface = MyUiInterfaceClientProxy(parcelable.uiInterface.binder,
-                        parcelable.uiInterface.coreLibInfo),
-                myEnum = com.sdkwithcallbacks.MyEnumConverter.fromParcelable(parcelable.myEnum))
+                        parcelable.uiInterface.coreLibInfo))
         return annotatedValue
     }
 
@@ -16,7 +15,6 @@ public object ResponseConverter {
         parcelable.uiInterface =
                 IMyUiInterfaceCoreLibInfoAndBinderWrapperConverter.toParcelable((annotatedValue.uiInterface
                 as MyUiInterfaceClientProxy).coreLibInfo, annotatedValue.uiInterface.remote)
-        parcelable.myEnum = com.sdkwithcallbacks.MyEnumConverter.toParcelable(annotatedValue.myEnum)
         return parcelable
     }
 }

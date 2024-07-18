@@ -17,7 +17,7 @@
 package androidx.benchmark.macro
 
 import android.util.Log
-import androidx.benchmark.Measurements
+import androidx.benchmark.BenchmarkResult
 import androidx.benchmark.MetricResult
 import kotlin.math.abs
 
@@ -97,7 +97,7 @@ internal fun List<Metric.Measurement>.merge(
  * For !requireSingleValue SubResults, this becomes a MetricResult used to extract
  * P50/P90/P95/P99 from a flattened list of all samples, pooled together.
  */
-internal fun List<List<Metric.Measurement>>.mergeMultiIterResults() = Measurements(
+internal fun List<List<Metric.Measurement>>.mergeMultiIterResults() = BenchmarkResult.Measurements(
     singleMetrics = this.map {
         it.filter { measurement ->
             measurement.requireSingleValue

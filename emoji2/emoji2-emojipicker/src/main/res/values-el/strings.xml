@@ -29,14 +29,4 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"ΣΗΜΑΙΕΣ"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Δεν υπάρχουν διαθέσιμα emoji"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Δεν έχετε χρησιμοποιήσει κανένα emoji ακόμα"</string>
-    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"αμφίδρομο στοιχείο εναλλαγής emoji"</string>
-    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"έγινε εναλλαγή της κατεύθυνσης που είναι στραμμένο το emoji"</string>
-    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"επιλογέας παραλλαγής emoji"</string>
-    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s και %2$s"</string>
-    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"σκιά"</string>
-    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"ανοιχτός τόνος επιδερμίδας"</string>
-    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"μεσαίος προς ανοιχτός τόνος επιδερμίδας"</string>
-    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"μεσαίος τόνος επιδερμίδας"</string>
-    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"μεσαίος προς σκούρος τόνος επιδερμίδας"</string>
-    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"σκούρος τόνος επιδερμίδας"</string>
 </resources>

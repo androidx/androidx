@@ -500,7 +500,7 @@ class PathIteratorTest {
             // Preserve conics and count
             iterator = path.iterator(PathIterator.ConicEvaluation.AsConic)
             assertEquals(10, iterator.calculateSize())
-            assertEquals(iterator.calculateSize(false), iterator.calculateSize())
+            assertEquals(iterator.calculateSize(true), iterator.calculateSize())
         }
 
         // Convert conics and count
@@ -510,7 +510,7 @@ class PathIteratorTest {
             assertEquals(10, iterator.calculateSize(false))
         } else {
             // round rects pre-API22 used line/quad/quad for each corner
-            assertEquals(14, iterator.calculateSize(false))
+            assertEquals(14, iterator.calculateSize())
         }
         // now get the size with converted conics
         assertEquals(14, iterator.calculateSize())

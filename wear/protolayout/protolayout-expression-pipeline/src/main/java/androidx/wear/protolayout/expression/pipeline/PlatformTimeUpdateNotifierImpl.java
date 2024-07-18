@@ -86,7 +86,7 @@ public class PlatformTimeUpdateNotifierImpl implements PlatformTimeUpdateNotifie
             mUiHandler.removeCallbacks(this.mNotifyAndSchedule, this);
         } else if (mRegisteredReceiver != null) {
             mLastScheduleTimeMillis = SystemClock.uptimeMillis();
-            notifyAndScheduleNextSecond();
+            scheduleNextSecond();
         }
     }
 

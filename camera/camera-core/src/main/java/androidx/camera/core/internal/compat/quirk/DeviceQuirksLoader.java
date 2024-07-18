@@ -55,9 +55,6 @@ public class DeviceQuirksLoader {
         if (LargeJpegImageQuirk.load()) {
             quirks.add(new LargeJpegImageQuirk());
         }
-        if (IncorrectJpegMetadataQuirk.load()) {
-            quirks.add(new IncorrectJpegMetadataQuirk());
-        }
 
         return quirks;
     }

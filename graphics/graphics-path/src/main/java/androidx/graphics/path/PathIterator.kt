@@ -29,7 +29,7 @@ import android.os.Build
  * [PathIterator] objects are created implicitly through a given [Path] object; to create a
  * [PathIterator], call one of the two [Path.iterator] extension functions.
  */
-@Suppress("NotCloseable")
+@Suppress("NotCloseable", "IllegalExperimentalApiUsage")
 class PathIterator constructor(
     val path: Path,
     val conicEvaluation: ConicEvaluation = ConicEvaluation.AsQuadratics,

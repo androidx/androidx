@@ -22,7 +22,6 @@ import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.os.Looper
-import android.os.RemoteException
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission
@@ -85,11 +84,9 @@ import org.junit.runner.RunWith
 import org.robolectric.Shadows
 
 private const val PROVIDER_PACKAGE_NAME = "com.google.fake.provider"
-private const val PROVIDER_ACTION = "FakeProvider"
 
 private val API_METHOD_LIST =
     listOf<suspend HealthConnectClientImpl.() -> Unit>(
-        { getGrantedPermissions() },
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
@@ -133,7 +130,7 @@ class HealthConnectClientImplTest {
     @Before
     fun setup() {
         val clientConfig =
-            ClientConfiguration("FakeAHPProvider", PROVIDER_PACKAGE_NAME, PROVIDER_ACTION)
+            ClientConfiguration("FakeAHPProvider", PROVIDER_PACKAGE_NAME, "FakeProvider")
 
         healthConnectClient =
             HealthConnectClientImpl(
@@ -148,7 +145,7 @@ class HealthConnectClientImplTest {
             )
         fakeAhpServiceStub = FakeHealthDataService()
 
-        Shadows.shadowOf(ApplicationProvider.getApplicationContext<Application>())
+        Shadows.shadowOf(ApplicationProvider.getApplicationContext<Context>() as Application)
             .setComponentNameAndServiceForBindServiceForIntent(
                 Intent()
                     .setPackage(clientConfig.servicePackageName)
@@ -181,28 +178,6 @@ class HealthConnectClientImplTest {
                 response.await()
             }
         }
-    }
-
-    @Test
-    fun apiMethods_bindingFails_throwsRemoteException() = runTest {
-        Shadows.shadowOf(ApplicationProvider.getApplicationContext<Application>())
-            .declareActionUnbindable(PROVIDER_ACTION)
-
-        val responseList = mutableListOf<Deferred<Any>>()
-        for (method in API_METHOD_LIST) {
-            responseList.add(
-                async {
-                    val e = assertFailsWith(RemoteException::class) { healthConnectClient.method() }
-                    // Assert that we've wrapped the exception to expose a useful stack.
-                    assertThat(e.stackTrace.map { it.className }.toSet()).contains(
-                        HealthConnectClientImpl::class.qualifiedName
-                    )
-                }
-            )
-        }
-        advanceUntilIdle()
-        waitForMainLooperIdle()
-        responseList.map { it.await() }
     }
 
     @Test
@@ -280,7 +255,7 @@ class HealthConnectClientImplTest {
                         endTime = Instant.ofEpochMilli(5678L),
                         endZoneOffset = null,
                         metadata =
-                        Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
+                            Metadata(recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED)
                     )
                 )
             )
@@ -461,10 +436,10 @@ class HealthConnectClientImplTest {
                     endTime = Instant.ofEpochMilli(5678L),
                     endZoneOffset = null,
                     metadata =
-                    Metadata(
-                        id = "testUid",
-                        recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
-                    )
+                        Metadata(
+                            id = "testUid",
+                            recordingMethod = Metadata.RECORDING_METHOD_ACTIVELY_RECORDED,
+                        )
                 )
             )
     }

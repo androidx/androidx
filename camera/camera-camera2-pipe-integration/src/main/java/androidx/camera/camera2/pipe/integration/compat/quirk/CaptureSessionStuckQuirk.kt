@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -32,6 +33,7 @@ import androidx.camera.core.impl.Quirk
  * - Device(s):   Devices in LEGACY camera hardware level.
  */
 @SuppressLint("CameraXQuirksClassDetector")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureSessionStuckQuirk : Quirk {
     companion object {
         /**

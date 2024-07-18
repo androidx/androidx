@@ -31,268 +31,282 @@ import org.junit.runners.JUnit4
 class ThreePaneMotionTest {
     @Test
     fun noPane_noMotion() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(ThreePaneMotion.NoMotion)
     }
 
     @Test
     fun singlePane_firstToSecond_movesLeft() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
     fun singlePane_firstToThird_movesLeft() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
     fun singlePane_secondToThird_movesLeft() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
     fun singlePane_secondToFirst_movesRight() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
     fun singlePane_thirdToFirst_movesRight() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
     fun singlePane_thirdToSecond_movesRight() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
     fun dualPane_hidesFirstShowsThird_movesLeft() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToLeftMotion(SpacerSize))
     }
 
     @Test
     fun dualPane_hidesThirdShowsFirst_movesRight() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(MovePanesToRightMotion(SpacerSize))
     }
 
     @Test
     fun dualPane_hidesSecondShowsThird_switchRightTwoPanes() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(SwitchRightTwoPanesMotion(SpacerSize))
     }
 
     @Test
     fun dualPane_hidesThirdShowsSecond_switchRightTwoPanes() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(SwitchRightTwoPanesMotion(SpacerSize))
     }
 
     @Test
     fun dualPane_hidesFirstShowsSecond_switchLeftTwoPanes() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(SwitchLeftTwoPanesMotion(SpacerSize))
     }
 
     @Test
     fun dualPane_hidesSecondShowsFirst_switchLeftTwoPanes() {
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(SwitchLeftTwoPanesMotion(SpacerSize))
     }
 
     @Test
     fun changeNumberOfPanes_noMotion() {
         // TODO(conradchen): Update this when we support motions in this case
-        val motions = calculateThreePaneMotion(
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Expanded
-            ),
-            ThreePaneScaffoldValue(
-                PaneAdaptedValue.Expanded,
-                PaneAdaptedValue.Hidden,
-                PaneAdaptedValue.Hidden
-            ),
-            PaneOrder,
-            SpacerSize
-        )
+        val motions =
+            calculateThreePaneMotion(
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Expanded
+                ),
+                ThreePaneScaffoldValue(
+                    PaneAdaptedValue.Expanded,
+                    PaneAdaptedValue.Hidden,
+                    PaneAdaptedValue.Hidden
+                ),
+                PaneOrder,
+                SpacerSize
+            )
         assertThat(motions).isEqualTo(ThreePaneMotion.NoMotion)
     }
 
@@ -301,19 +315,17 @@ class ThreePaneMotionTest {
         val delayedRatio = 0.5f
 
         val originalSpec =
-            spring(
-                dampingRatio = 0.7f,
-                stiffness = 500f,
-                visibilityThreshold = 0.1f
-            ).vectorize(Float.VectorConverter)
+            spring(dampingRatio = 0.7f, stiffness = 500f, visibilityThreshold = 0.1f)
+                .vectorize(Float.VectorConverter)
 
         val delayedSpec =
             DelayedSpringSpec(
-                dampingRatio = 0.7f,
-                stiffness = 500f,
-                visibilityThreshold = 0.1f,
-                delayedRatio = delayedRatio,
-            ).vectorize(Float.VectorConverter)
+                    dampingRatio = 0.7f,
+                    stiffness = 500f,
+                    visibilityThreshold = 0.1f,
+                    delayedRatio = delayedRatio,
+                )
+                .vectorize(Float.VectorConverter)
 
         val originalDurationNanos = originalSpec.getDurationNanos()
         val delayedNanos = (originalDurationNanos * delayedRatio).toLong()
@@ -353,5 +365,5 @@ class ThreePaneMotionTest {
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val PaneOrder = ThreePaneScaffoldDefaults.SupportingPaneLayoutPaneOrder
+internal val PaneOrder = SupportingPaneScaffoldDefaults.PaneOrder
 internal const val SpacerSize = 123

@@ -35,7 +35,7 @@ import androidx.room.vo.AutoMigration
 // TODO: (b/183435544) Support downgrades in AutoMigrations.
 class AutoMigrationProcessor(
     val context: Context,
-    val spec: XType?,
+    val spec: XType,
     val fromSchemaBundle: DatabaseBundle,
     val toSchemaBundle: DatabaseBundle
 ) {
@@ -46,8 +46,7 @@ class AutoMigrationProcessor(
      * @return the AutoMigrationResult containing the schema changes detected
      */
     fun process(): AutoMigration? {
-
-        val (specElement, isSpecProvided) = if (spec != null && !spec.isTypeOf(Any::class)) {
+        val (specElement, isSpecProvided) = if (!spec.isTypeOf(Any::class)) {
             val typeElement = spec.typeElement
             if (typeElement == null) {
                 context.logger.e(AUTOMIGRATION_SPEC_MUST_BE_CLASS)

@@ -43,7 +43,7 @@ import androidx.annotation.RestrictTo;
  * <li>Rendering a texture in the queue to the output Surface.
  * </ul>
  *
- * <p>It also allows the caller to overlay a texture when rendering to Surface.
+ * <p>It also allows the caller to upload a bitmap and overlay it when rendering to Surface.
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 @RestrictTo(RestrictTo.Scope.LIBRARY)

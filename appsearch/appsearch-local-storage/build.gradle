@@ -14,15 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +27,7 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         // TODO(b/161836669): Minifiation is currently disabled because if it is on, the aar gets
         //   desugared twice in some workflows, which fails. Decide how to handle this (e.g.
         //   splitting targets, continuing with the consumerProguardFiles solution here, fixing the
@@ -66,26 +59,24 @@ android {
     namespace "androidx.appsearch.localstorage"
 }
 
-// Bundles dependency in bundleInside() inside of the libs/ directory of the aar.
 BundleInsideHelper.forInsideAar(
     project,
-    /* relocations = */ null,
-    /* dropResourcesWithSuffix = */ null
+    /* from = */ "com.google.protobuf",
+    /* to =   */ "com.google.android.icing.protobuf",
+    // proto-lite dependency includes .proto files, which are not used and would clash if
+    // users also use proto library directly
+    /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
-
-    // icing project brings in repackaged protos only (not the runtime lib)
     bundleInside(project(":icing"))
 
-    // Repackaged protobufLite brought in by
-    // project(":appsearch:appsearch-external-protobuf") and used at runtime
-    implementation(project(":appsearch:appsearch-external-protobuf"))
+    api("androidx.annotation:annotation:1.1.0")
+
     implementation(project(":appsearch:appsearch"))
     implementation('androidx.collection:collection:1.2.0')
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.core:core:1.6.0")
+    implementation("androidx.core:core:1.2.0")
 
     androidTestImplementation project(':appsearch:appsearch-test-util')
     androidTestImplementation(libs.multidex)
@@ -99,7 +90,7 @@ dependencies {
 
 androidx {
     name = "AppSearch Local Storage"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description =
         "An implementation of AppSearchSession which uses local app storage and a local copy of " +

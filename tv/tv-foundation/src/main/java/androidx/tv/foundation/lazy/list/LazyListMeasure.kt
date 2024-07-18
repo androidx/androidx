@@ -40,6 +40,7 @@ import kotlin.math.sign
  * Measures and calculates the positions for the requested items. The result is produced
  * as a [LazyListMeasureResult] which contains all the calculations.
  */
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class)
 internal fun measureLazyList(
     itemsCount: Int,

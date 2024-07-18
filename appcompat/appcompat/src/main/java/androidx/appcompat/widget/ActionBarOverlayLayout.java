@@ -78,6 +78,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     // Content overlay drawable - generally the action bar's shadow
     private Drawable mWindowContentOverlay;
+    private boolean mIgnoreWindowContentOverlay;
 
     private boolean mOverlayMode;
     private boolean mHasNonEmbeddedTabs;
@@ -88,7 +89,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     private final Rect mBaseContentInsets = new Rect();
     private final Rect mLastBaseContentInsets = new Rect();
     private final Rect mContentInsets = new Rect();
-    private final Rect mTmpRect = new Rect();
 
     // Used on API < 21
     private final Rect mBaseInnerInsetsRect = new Rect();
@@ -150,29 +150,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     private final NestedScrollingParentHelper mParentHelper;
 
-    // Used to test if the framework will consume the system window insets while none of
-    // View#SYSTEM_UI_LAYOUT_FLAGS is applied.
-    private final NoSystemUiLayoutFlagView mNoSystemUiLayoutFlagView;
-
-    private static final WindowInsetsCompat NON_EMPTY_SYSTEM_WINDOW_INSETS =
-            new WindowInsetsCompat.Builder().setSystemWindowInsets(
-                    Insets.of(0, 1, 0, 1)).build();
-    private static final Rect ZERO_INSETS = new Rect();
-
-    private static final class NoSystemUiLayoutFlagView extends View {
-        NoSystemUiLayoutFlagView(Context context) {
-            super(context);
-            setWillNotDraw(true);
-        }
-
-        @Override
-        public int getWindowSystemUiVisibility() {
-            // Pretending that the window doesn't have any of SYSTEM_UI_LAYOUT_FLAGS. Used to see if
-            // the framework still won't consume system window insets.
-            return 0;
-        }
-    }
-
     public ActionBarOverlayLayout(@NonNull Context context) {
         this(context, null);
     }
@@ -182,8 +159,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         init(context);
 
         mParentHelper = new NestedScrollingParentHelper(this);
-        mNoSystemUiLayoutFlagView = new NoSystemUiLayoutFlagView(context);
-        addView(mNoSystemUiLayoutFlagView);
     }
 
     private void init(Context context) {
@@ -192,6 +167,9 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         mWindowContentOverlay = ta.getDrawable(1);
         setWillNotDraw(mWindowContentOverlay == null);
         ta.recycle();
+
+        mIgnoreWindowContentOverlay = context.getApplicationInfo().targetSdkVersion <
+                Build.VERSION_CODES.KITKAT;
 
         mFlingEstimator = new OverScroller(context);
     }
@@ -218,6 +196,14 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     public void setOverlayMode(boolean overlayMode) {
         mOverlayMode = overlayMode;
+
+        /*
+         * Drawing the window content overlay was broken before K so starting to draw it
+         * again unexpectedly will cause artifacts in some apps. They should fix it.
+         */
+        mIgnoreWindowContentOverlay = overlayMode &&
+                getContext().getApplicationInfo().targetSdkVersion <
+                        Build.VERSION_CODES.KITKAT;
     }
 
     public boolean isInOverlayMode() {
@@ -263,7 +249,9 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     @Override
     @SuppressWarnings("deprecation") /* SYSTEM_UI_FLAG_LAYOUT_* */
     public void onWindowSystemUiVisibilityChanged(int visible) {
-        super.onWindowSystemUiVisibilityChanged(visible);
+        if (Build.VERSION.SDK_INT >= 16) {
+            super.onWindowSystemUiVisibilityChanged(visible);
+        }
         pullChildren();
         final int diff = mLastSystemUiVisibility ^ visible;
         mLastSystemUiVisibility = visible;
@@ -350,12 +338,6 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
         // bar elements. fitSystemWindows() happens before the measure pass, so we can't
         // do that here. Instead we will take this up in onMeasure().
         return true;
-    }
-
-    private boolean decorFitsSystemWindows() {
-        ViewCompat.computeSystemWindowInsets(
-                mNoSystemUiLayoutFlagView, NON_EMPTY_SYSTEM_WINDOW_INSETS, mTmpRect);
-        return !mTmpRect.equals(ZERO_INSETS);
     }
 
     @RequiresApi(21)
@@ -472,7 +454,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
             mInnerInsetsRect.set(mBaseInnerInsetsRect);
         }
 
-        if (!mOverlayMode && !stable && decorFitsSystemWindows()) {
+        if (!mOverlayMode && !stable) {
             mContentInsets.top += topInset;
             mContentInsets.bottom += bottomInset;
 
@@ -558,7 +540,7 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
     @Override
     public void draw(@NonNull Canvas c) {
         super.draw(c);
-        if (mWindowContentOverlay != null) {
+        if (mWindowContentOverlay != null && !mIgnoreWindowContentOverlay) {
             final int top = mActionBarTop.getVisibility() == VISIBLE ?
                     (int) (mActionBarTop.getBottom() + mActionBarTop.getTranslationY() + 0.5f)
                     : 0;

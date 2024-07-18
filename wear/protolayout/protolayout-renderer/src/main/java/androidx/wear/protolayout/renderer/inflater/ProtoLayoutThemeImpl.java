@@ -26,7 +26,6 @@ import android.graphics.Typeface;
 import android.util.TypedValue;
 
 import androidx.annotation.AttrRes;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.annotation.StyleableRes;
@@ -106,6 +105,15 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
         return new ProtoLayoutThemeImpl(context.getResources(), R.style.ProtoLayoutBaseTheme);
     }
 
+    /**
+     * Creates a ProtoLayoutTheme for the default theme, based on R.style.ProtoLayoutBaseTheme and
+     * R.attr.protoLayoutFallbackAppearance from the local package.
+     */
+    @NonNull
+    public static ProtoLayoutTheme defaultTheme(@NonNull Resources resources) {
+        return new ProtoLayoutThemeImpl(resources, R.style.ProtoLayoutBaseTheme);
+    }
+
     private final Map<Integer, FontSet> mVariantToFontSet = new ArrayMap<>();
     private final Theme mTheme;
     @AttrRes private final int mFallbackTextAppearanceAttrId;
@@ -182,11 +190,5 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
     @AttrRes
     public int getFallbackTextAppearanceResId() {
         return mFallbackTextAppearanceAttrId;
-    }
-
-    @Override
-    @DrawableRes
-    public int getRippleResId() {
-        return 0;
     }
 }

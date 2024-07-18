@@ -56,6 +56,8 @@ import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SeriesRecord
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SleepStageRecord.Companion.STAGE_TYPE_INT_TO_STRING_MAP
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
@@ -293,7 +295,8 @@ fun Record.toProto(): DataProto.DataPoint =
                         enumValFromInt(
                             exerciseType,
                             ExerciseSessionRecord.EXERCISE_TYPE_INT_TO_STRING_MAP
-                        ) ?: enumVal("workout")
+                        )
+                            ?: enumVal("workout")
                     putValues("activityType", exerciseType)
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
@@ -495,6 +498,15 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
+                }
+                .build()
+        is SleepStageRecord ->
+            intervalProto()
+                .setDataType(protoDataType("SleepStage"))
+                .apply {
+                    enumValFromInt(stage, STAGE_TYPE_INT_TO_STRING_MAP)?.let {
+                        putValues("stage", it)
+                    }
                 }
                 .build()
         is StepsRecord ->

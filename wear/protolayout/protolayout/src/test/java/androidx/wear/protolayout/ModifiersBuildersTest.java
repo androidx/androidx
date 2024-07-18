@@ -16,24 +16,19 @@
 
 package androidx.wear.protolayout;
 
-import static androidx.wear.protolayout.ColorBuilders.argb;
-import static androidx.wear.protolayout.DimensionBuilders.dp;
-
 import static com.google.common.truth.Truth.assertThat;
-
-import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ModifiersProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class ModifiersBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =
@@ -61,190 +56,5 @@ public class ModifiersBuildersTest {
         assertThat(background1Proto.getColor().getArgb()).isEqualTo(COLOR.getArgb());
         assertThat(background1Proto.getColor().getDynamicValue().getStateSource().getSourceKey())
                 .isEqualTo(STATE_KEY);
-    }
-
-    @Test
-    public void buildShadow() {
-        float blurRadius = 5f;
-        int color = Color.BLUE;
-        ModifiersBuilders.Shadow shadow =
-                new ModifiersBuilders.Shadow.Builder()
-                        .setBlurRadius(dp(blurRadius))
-                        .setColor(argb(color))
-                        .build();
-
-        ModifiersProto.Shadow shadowProto = shadow.toProto();
-        assertThat(shadowProto.getBlurRadius().getValue()).isEqualTo(blurRadius);
-        assertThat(shadowProto.getColor().getArgb()).isEqualTo(color);
-    }
-
-    @Test
-    public void buildShadow_noSupportForDynamicValues() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new ModifiersBuilders.Shadow.Builder()
-                                .setBlurRadius(
-                                        new DimensionBuilders.DpProp.Builder(5f)
-                                                .setDynamicValue(
-                                                        DynamicBuilders.DynamicFloat.constant(7f))
-                                                .build()));
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new ModifiersBuilders.Shadow.Builder()
-                                .setColor(
-                                        new ColorBuilders.ColorProp.Builder(Color.BLACK)
-                                                .setDynamicValue(
-                                                        DynamicBuilders.DynamicColor.constant(
-                                                                Color.GRAY))
-                                                .build()));
-    }
-
-    @Test
-    public void buildTransformationModifier() {
-        DimensionBuilders.DpProp translation =
-                new DimensionBuilders.DpProp.Builder(42)
-                        .setDynamicValue(
-                                DynamicBuilders.DynamicFloat.from(new AppDataKey<>("some-state")))
-                        .build();
-        TypeBuilders.FloatProp scaleX = new TypeBuilders.FloatProp.Builder(0.8f).build();
-        TypeBuilders.FloatProp scaleY = new TypeBuilders.FloatProp.Builder(1.2f).build();
-        DimensionBuilders.DegreesProp rotation =
-                new DimensionBuilders.DegreesProp.Builder(210.f).build();
-        DimensionBuilders.PivotDimension pivotDimensionX =
-                new DimensionBuilders.DpProp.Builder(42)
-                        .setDynamicValue(
-                                DynamicBuilders.DynamicFloat.from(new AppDataKey<>("other-state")))
-                        .build();
-        DimensionBuilders.PivotDimension pivotDimensionY =
-                new DimensionBuilders.BoundingBoxRatio.Builder(
-                                new TypeBuilders.FloatProp.Builder(0.8f)
-                                        .setDynamicValue(
-                                                DynamicBuilders.DynamicFloat.constant(0.2f))
-                                        .build())
-                        .build();
-
-        ModifiersBuilders.Transformation transformationModifier =
-                new ModifiersBuilders.Transformation.Builder()
-                        .setTranslationX(translation)
-                        .setTranslationY(translation)
-                        .setRotation(rotation)
-                        .setScaleX(scaleX)
-                        .setScaleY(scaleY)
-                        .setPivotX(pivotDimensionX)
-                        .setPivotY(pivotDimensionY)
-                        .build();
-
-        ModifiersProto.Transformation transformationProto = transformationModifier.toProto();
-        assertThat(transformationProto.getTranslationX()).isEqualTo(translation.toProto());
-        assertThat(transformationProto.getTranslationY())
-                .isEqualTo(transformationProto.getTranslationX());
-        assertThat(transformationProto.getRotation()).isEqualTo(rotation.toProto());
-        assertThat(transformationProto.getScaleX()).isNotEqualTo(transformationProto.getScaleY());
-        assertThat(transformationProto.getScaleX().getValue()).isEqualTo(0.8f);
-        assertThat(transformationProto.getScaleY().getValue()).isEqualTo(1.2f);
-        assertThat(transformationProto.getPivotX())
-                .isEqualTo(pivotDimensionX.toPivotDimensionProto());
-        assertThat(transformationProto.getPivotY())
-                .isEqualTo(pivotDimensionY.toPivotDimensionProto());
-    }
-
-    @Test
-    public void defaultRipple() {
-        ModifiersBuilders.Clickable clickableRippleNotSet =
-                new ModifiersBuilders.Clickable.Builder().build();
-
-        assertThat(clickableRippleNotSet.isVisualFeedbackEnabled()).isTrue();
-    }
-
-    @Test
-    public void disableRipple() {
-        ModifiersBuilders.Clickable clickableRippleDisabled =
-                new ModifiersBuilders.Clickable.Builder().setVisualFeedbackEnabled(false).build();
-
-        assertThat(clickableRippleDisabled.isVisualFeedbackEnabled()).isFalse();
-    }
-
-    @Test
-    public void buildAsymmetricalCornerModifier() {
-        float [] values = new float[]{1f, 2f, 3f, 4f, 5f, 6f, 7f, 8f};
-        ModifiersBuilders.Corner cornerModifier =
-                new ModifiersBuilders.Corner.Builder()
-                        .setTopLeftRadius(dp(values[0]), dp(values[1]))
-                        .setTopRightRadius(dp(values[2]), dp(values[3]))
-                        .setBottomRightRadius(dp(values[4]), dp(values[5]))
-                        .setBottomLeftRadius(dp(values[6]), dp(values[7]))
-                        .build();
-
-        ModifiersProto.Corner cornerProto = cornerModifier.toProto();
-        ModifiersProto.CornerRadius cornerRadius = cornerProto.getTopLeftRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(values[0]);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(values[1]);
-        cornerRadius = cornerProto.getTopRightRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(values[2]);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(values[3]);
-        cornerRadius = cornerProto.getBottomRightRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(values[4]);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(values[5]);
-        cornerRadius = cornerProto.getBottomLeftRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(values[6]);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(values[7]);
-    }
-
-    @Test
-    public void buildAsymmetricalCornerModifier_dynamicValueX_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new ModifiersBuilders.Corner.Builder()
-                                .setTopLeftRadius(
-                                        new DimensionBuilders.DpProp.Builder(2.f)
-                                                .setDynamicValue(
-                                                        DynamicBuilders.DynamicFloat.animate(
-                                                                2.f,
-                                                                5.f))
-                                                .build(),
-                                        dp(1f))
-                );
-    }
-
-    @Test
-    public void buildAsymmetricalCornerModifier_dynamicValueY_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        new ModifiersBuilders.Corner.Builder()
-                                .setTopLeftRadius(
-                                        dp(1f),
-                                        new DimensionBuilders.DpProp.Builder(2.f)
-                                                .setDynamicValue(
-                                                        DynamicBuilders.DynamicFloat.animate(
-                                                                2.f,
-                                                                5.f))
-                                                .build()));
-    }
-
-    @Test
-    public void asymmetricalCornerModifierGetters_returnDefaultValues() {
-        ModifiersBuilders.Corner cornerModifier =
-                new ModifiersBuilders.Corner.Builder()
-                        .setRadius(dp(5f))
-                        .setTopLeftRadius(dp(1f), dp(2f))
-                        .build();
-
-        ModifiersBuilders.CornerRadius cornerRadius = cornerModifier.getTopLeftRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(1f);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(2f);
-        cornerRadius = cornerModifier.getTopRightRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(5f);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(5f);
-        cornerRadius = cornerModifier.getBottomRightRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(5f);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(5f);
-        cornerRadius = cornerModifier.getBottomLeftRadius();
-        assertThat(cornerRadius.getX().getValue()).isEqualTo(5f);
-        assertThat(cornerRadius.getY().getValue()).isEqualTo(5f);
     }
 }

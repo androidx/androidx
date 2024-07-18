@@ -118,9 +118,9 @@ fun <T : Any> SavedStateHandle.saveable(
     saver: Saver<T, out Any> = autoSaver(),
     init: () -> T,
 ): PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, T>> =
-    PropertyDelegateProvider { thisRef, property ->
+    PropertyDelegateProvider { _, property ->
         val value = saveable(
-            key = getSaveableKeyPrefix(thisRef) + property.name,
+            key = property.name,
             saver = saver,
             init = init
         )
@@ -152,13 +152,13 @@ fun <T : Any> SavedStateHandle.saveable(
  */
 @SavedStateHandleSaveableApi
 @JvmName("saveableMutableState")
-fun <T, M : MutableState<T>> SavedStateHandle.saveable(
+fun <T : Any, M : MutableState<T>> SavedStateHandle.saveable(
     stateSaver: Saver<T, out Any> = autoSaver(),
     init: () -> M,
 ): PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> =
-    PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> { thisRef, property ->
+    PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> { _, property ->
         val mutableState = saveable(
-            key = getSaveableKeyPrefix(thisRef) + property.name,
+            key = property.name,
             stateSaver = stateSaver,
             init = init
         )
@@ -195,5 +195,3 @@ private fun <T> mutableStateSaver(inner: Saver<T, out Any>) = with(inner as Save
         }
     )
 }
-
-internal expect fun getSaveableKeyPrefix(thisRef: Any?): String

@@ -16,6 +16,8 @@
 
 package com.example.androidx.view;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -238,15 +240,15 @@ public class SystemUIModes extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.show_tabs) {
-            getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-            item.setChecked(true);
-            return true;
-        } else if (itemId == R.id.hide_tabs) {
-            getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-            item.setChecked(true);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.show_tabs:
+                getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+                item.setChecked(true);
+                return true;
+            case R.id.hide_tabs:
+                getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+                item.setChecked(true);
+                return true;
         }
         return false;
     }
@@ -330,7 +332,9 @@ public class SystemUIModes extends AppCompatActivity
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 mode.setTitle("My Action Mode!");
                 mode.setSubtitle(null);
-                mode.setTitleOptionalHint(false);
+                if (SDK_INT >= 16) {
+                    mode.setTitleOptionalHint(false);
+                }
                 menu.add("Sort By Size").setIcon(android.R.drawable.ic_menu_sort_by_size);
                 menu.add("Sort By Alpha").setIcon(android.R.drawable.ic_menu_sort_alphabetically);
                 return true;

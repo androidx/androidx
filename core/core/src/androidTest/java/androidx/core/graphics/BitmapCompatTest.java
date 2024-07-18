@@ -30,6 +30,7 @@ import android.graphics.Rect;
 import android.hardware.HardwareBuffer;
 import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -38,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 @SmallTest
 public class BitmapCompatTest {
 
@@ -379,6 +381,7 @@ public class BitmapCompatTest {
     // For a resize smaller than 1/2 of the original dimensions, the result should basically be
     // uniform grey, so the higher quality the resize, the lower the variance in grey values is
     // expected to be.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     private void scaledBitmapAndAssertQuality(int scaledWidth, int scaledHeight,
             boolean scaleInLinearSpace,
             float expectedMeanValue, float expectedVariance, Bitmap.Config inputConfig) {
@@ -432,6 +435,7 @@ public class BitmapCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testQualityDownscaleNonLinear() {
         scaledBitmapAndAssertQuality(19, 19, false, 127.0f, DOWNSCALE_VARIANCE,
                 Bitmap.Config.ARGB_8888);
@@ -445,6 +449,7 @@ public class BitmapCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testQualityUpscaleNonLinear() {
         scaledBitmapAndAssertQuality(1213, 1213, false, 127.0f, UPSCALE_VARIANCE,
                 Bitmap.Config.ARGB_8888);

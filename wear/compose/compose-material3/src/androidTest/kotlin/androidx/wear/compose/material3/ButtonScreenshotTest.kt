@@ -38,7 +38,6 @@ import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.CenteredText
-import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
@@ -66,56 +65,46 @@ class ButtonScreenshotTest {
 
     @Test
     fun button_enabled() = verifyScreenshot() {
-        BaseButton()
+        sampleBaseButton()
     }
 
     @Test
     fun button_disabled() = verifyScreenshot() {
-        BaseButton(enabled = false)
+        sampleBaseButton(enabled = false)
     }
 
     @Test
     fun three_slot_button_ltr() = verifyScreenshot(layoutDirection = LayoutDirection.Ltr) {
-        ThreeSlotButton()
+        sampleThreeSlotButton()
     }
 
     @Test
     fun three_slot_button_rtl() = verifyScreenshot(layoutDirection = LayoutDirection.Rtl) {
-        ThreeSlotButton()
+        sampleThreeSlotButton()
     }
 
     @Test
     fun button_outlined_enabled() = verifyScreenshot() {
-        OutlinedButton()
+        sampleOutlinedButton()
     }
 
     @Test
     fun button_outlined_disabled() = verifyScreenshot() {
-        OutlinedButton(enabled = false)
+        sampleOutlinedButton(enabled = false)
     }
 
     @Test
     fun button_image_background_enabled() = verifyScreenshot {
-        ImageBackgroundButton()
+        sampleImageBackgroundButton()
     }
 
     @Test
     fun button_image_background_disabled() = verifyScreenshot {
-        ImageBackgroundButton(enabled = false)
-    }
-
-    @Test
-    fun compact_button_enabled() = verifyScreenshot {
-        CompactButton()
-    }
-
-    @Test
-    fun compact_button_disabled() = verifyScreenshot {
-        CompactButton(enabled = false)
+        sampleImageBackgroundButton(enabled = false)
     }
 
     @Composable
-    private fun BaseButton(enabled: Boolean = true) {
+    private fun sampleBaseButton(enabled: Boolean = true) {
         Button(
             enabled = enabled,
             onClick = {},
@@ -126,7 +115,7 @@ class ButtonScreenshotTest {
     }
 
     @Composable
-    private fun ThreeSlotButton(enabled: Boolean = true) {
+    private fun sampleThreeSlotButton(enabled: Boolean = true) {
         Button(
             enabled = enabled,
             onClick = {},
@@ -138,7 +127,7 @@ class ButtonScreenshotTest {
     }
 
     @Composable
-    private fun OutlinedButton(enabled: Boolean = true) {
+    private fun sampleOutlinedButton(enabled: Boolean = true) {
         OutlinedButton(
             enabled = enabled,
             onClick = {},
@@ -149,7 +138,7 @@ class ButtonScreenshotTest {
     }
 
     @Composable
-    private fun ImageBackgroundButton(enabled: Boolean = true) {
+    private fun sampleImageBackgroundButton(enabled: Boolean = true) {
         Button(
             enabled = enabled,
             onClick = {},
@@ -159,17 +148,6 @@ class ButtonScreenshotTest {
                 backgroundImagePainter = painterResource(R.drawable.backgroundimage1)
             ),
             icon = { TestIcon() },
-            modifier = Modifier.testTag(TEST_TAG)
-        )
-    }
-
-    @Composable
-    private fun CompactButton(enabled: Boolean = true) {
-        CompactButton(
-            onClick = {},
-            label = { Text("Compact Button") },
-            icon = { TestIcon() },
-            enabled = enabled,
             modifier = Modifier.testTag(TEST_TAG)
         )
     }

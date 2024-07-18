@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -123,15 +123,6 @@
         message="Exif.getRotation can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="        override fun getRotation() = exif.rotation"
         errorLine2="                                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Exif can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        private val exif: Exif"
-        errorLine2="                          ~~~~">
         <location
             file="src/main/java/androidx/camera/integration/uiwidgets/rotations/ImageCaptureResult.kt"/>
     </issue>

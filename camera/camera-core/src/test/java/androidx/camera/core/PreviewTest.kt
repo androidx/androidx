@@ -396,7 +396,7 @@ class PreviewTest {
         // Act: create pipeline
         val preview = createPreview(effect, backCamera)
         // Assert
-        assertThat(preview.cameraEdge.isMirroring).isFalse()
+        assertThat(preview.cameraEdge.mirroring).isFalse()
     }
 
     @Test
@@ -404,7 +404,7 @@ class PreviewTest {
         // Act: create pipeline
         val preview = createPreview(effect, frontCamera)
         // Assert
-        assertThat(preview.cameraEdge.isMirroring).isTrue()
+        assertThat(preview.cameraEdge.mirroring).isTrue()
     }
 
     @Test
@@ -505,6 +505,19 @@ class PreviewTest {
     }
 
     @Test
+    fun noCameraTransform_rotationDegreesIsZero() {
+        // Act: create preview with hasCameraTransform == false
+        frontCamera.hasTransform = false
+        val preview = createPreview(
+            effect,
+            frontCamera,
+            targetRotation = ROTATION_90
+        )
+        // Assert: rotationDegrees is 0.
+        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
+    }
+
+    @Test
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Act: create preview with hasCameraTransform == false
         frontCamera.hasTransform = false
@@ -515,7 +528,7 @@ class PreviewTest {
         )
         // Assert
         assertThat(preview.cameraEdge.hasCameraTransform()).isFalse()
-        assertThat(preview.cameraEdge.isMirroring).isFalse()
+        assertThat(preview.cameraEdge.mirroring).isFalse()
     }
 
     @Test
@@ -528,7 +541,7 @@ class PreviewTest {
             targetRotation = ROTATION_90
         )
         // Assert
-        assertThat(preview.cameraEdge.isMirroring).isFalse()
+        assertThat(preview.cameraEdge.mirroring).isFalse()
     }
 
     @Test
@@ -772,21 +785,6 @@ class PreviewTest {
         val preview = Preview.Builder().setPreviewStabilizationEnabled(true)
             .build()
         assertThat(preview.isPreviewStabilizationEnabled).isTrue()
-    }
-
-    @Test
-    fun canSetDynamicRange() {
-        // Use an unspecified dynamic range that isn't the default, UNSPECIFIED.
-        val preview = Preview.Builder().setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT).build()
-
-        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.HDR_UNSPECIFIED_10_BIT)
-    }
-
-    @Test
-    fun defaultDynamicRange_isUnspecified() {
-        val preview = Preview.Builder().build()
-
-        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.UNSPECIFIED)
     }
 
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {

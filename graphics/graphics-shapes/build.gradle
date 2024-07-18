@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -45,7 +38,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                implementation("androidx.collection:collection:1.4.0")
+                implementation project(':collection:collection')
                 implementation("androidx.annotation:annotation:1.1.0")
             }
         }
@@ -70,8 +63,8 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation("androidx.core:core-ktx:1.10.0")
-                implementation("androidx.annotation:annotation-experimental:1.4.0-rc01")
+                implementation("androidx.core:core-ktx:1.10.0-rc01")
+                implementation("androidx.core:core-ktx:1.8.0")
             }
         }
 
@@ -135,4 +128,5 @@ androidx {
     mavenVersion = LibraryVersions.GRAPHICS_SHAPES
     inceptionYear = "2022"
     description = "create and render rounded polygonal shapes"
+    metalavaK2UastEnabled = true
 }

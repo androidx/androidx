@@ -17,16 +17,10 @@
 package androidx.datastore.preferences.core
 
 import androidx.datastore.core.okio.OkioSerializer
-import okio.BufferedSink
-import okio.BufferedSource
 
 /**
  * Proto based serializer for Preferences. Can be used to manually create
  * [DataStore][androidx.datastore.core.DataStore] using the
  * [DataStoreFactory#create][androidx.datastore.core.DataStoreFactory.create] function.
  */
-expect object PreferencesSerializer : OkioSerializer<Preferences> {
-    override val defaultValue: Preferences
-    override suspend fun readFrom(source: BufferedSource): Preferences
-    override suspend fun writeTo(t: Preferences, sink: BufferedSink)
-}
+expect object PreferencesSerializer : OkioSerializer<Preferences>

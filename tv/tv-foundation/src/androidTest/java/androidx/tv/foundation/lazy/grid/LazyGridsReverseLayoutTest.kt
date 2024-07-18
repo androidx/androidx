@@ -34,20 +34,16 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
 import androidx.tv.foundation.lazy.list.setContentWithTestViewConfiguration
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-private const val ContainerTag = "ContainerTag"
-
-@MediumTest
-@RunWith(AndroidJUnit4::class)
 class LazyGridsReverseLayoutTest {
+
+    private val ContainerTag = "ContainerTag"
+
     @get:Rule
     val rule = createComposeRule()
 
@@ -168,7 +164,7 @@ class LazyGridsReverseLayoutTest {
         }
 
         // we scroll down and as the scrolling is reversed it shouldn't affect anything
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 2)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_UP, 2)
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
@@ -197,7 +193,7 @@ class LazyGridsReverseLayoutTest {
             }
         }
 
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 1)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 2)
 
         val scrolled = rule.runOnIdle {
             assertThat(state.firstVisibleItemScrollOffset).isGreaterThan(0)

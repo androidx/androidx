@@ -36,7 +36,6 @@ import androidx.wear.watchface.ComplicationSlotInflationFactory
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.StatefulWatchFaceService
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -155,92 +154,6 @@ class TestXmlWatchFaceService(
         )
 }
 
-class TestState(val value: Int)
-
-class TestStatefulXmlWatchFaceService(
-    testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
-) : StatefulWatchFaceService<TestState>() {
-    init {
-        attachBaseContext(testContext)
-    }
-
-    override fun createExtra() = TestState(123)
-
-    override fun getXmlWatchFaceResourceId() = R.xml.xml_watchface
-
-    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
-
-    class TestCanvasComplicationFactory(val extra: TestState) : CanvasComplicationFactory {
-        override fun create(
-            watchState: WatchState,
-            invalidateCallback: CanvasComplication.InvalidateCallback
-        ): CanvasComplication =
-            object : CanvasComplication {
-                override fun render(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    zonedDateTime: ZonedDateTime,
-                    renderParameters: RenderParameters,
-                    slotId: Int
-                ) {}
-
-                override fun drawHighlight(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    boundsType: Int,
-                    zonedDateTime: ZonedDateTime,
-                    color: Int
-                ) {}
-
-                override fun getData() = NoDataComplicationData()
-
-                override fun loadData(
-                    complicationData: ComplicationData,
-                    loadDrawablesAsynchronous: Boolean
-                ) {}
-            }
-    }
-
-    override fun getComplicationSlotInflationFactory(
-        currentUserStyleRepository: CurrentUserStyleRepository,
-        extra: TestState
-    ) =
-        object : ComplicationSlotInflationFactory() {
-            override fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory {
-                return TestCanvasComplicationFactory(extra)
-            }
-        }
-
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState,
-        complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository,
-        extra: TestState
-    ) =
-        WatchFace(
-            WatchFaceType.DIGITAL,
-            @Suppress("deprecation")
-            object :
-                Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    16L
-                ) {
-                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
-
-                override fun renderHighlightLayer(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    zonedDateTime: ZonedDateTime
-                ) {}
-            }
-        )
-}
-
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
@@ -249,6 +162,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     val mocks = MockitoJUnit.rule()
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
+
     @Mock private lateinit var surface: Surface
 
     private val bitmap = Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)
@@ -479,39 +393,6 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                         "secondary(null, null), " +
                         "system(16, SHORT_TEXT)]}]"
                 )
-        }
-    }
-
-    @Test
-    @Suppress("Deprecation", "NewApi") // userStyleSettings
-    public fun testStatefulXmlWatchFaceService() {
-        val service =
-            TestStatefulXmlWatchFaceService(
-                ApplicationProvider.getApplicationContext<Context>(),
-                surfaceHolder
-            )
-
-        Mockito.`when`(surfaceHolder.surfaceFrame)
-            .thenReturn(Rect(0, 0, BITMAP_WIDTH, BITMAP_HEIGHT))
-        Mockito.`when`(surfaceHolder.lockHardwareCanvas()).thenReturn(canvas)
-        Mockito.`when`(surfaceHolder.surface).thenReturn(surface)
-        Mockito.`when`(surface.isValid).thenReturn(false)
-
-        setPendingWallpaperInteractiveWatchFaceInstance()
-
-        val wrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
-        assertThat(initLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue()
-
-        runBlocking {
-            val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
-            val factory = watchFaceImpl
-                .complicationSlotsManager
-                .complicationSlots[10]!!
-                .canvasComplicationFactory as
-                    TestStatefulXmlWatchFaceService.TestCanvasComplicationFactory
-
-            // Assert the extra was passed to the TestCanvasComplicationFactory.
-            assertThat(factory.extra.value).isEqualTo(123)
         }
     }
 }

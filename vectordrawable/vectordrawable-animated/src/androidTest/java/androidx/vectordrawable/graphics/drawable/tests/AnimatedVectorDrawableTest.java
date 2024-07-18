@@ -40,6 +40,7 @@ import android.widget.ImageButton;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
@@ -309,7 +310,7 @@ public class AnimatedVectorDrawableTest {
             public void run() {
                 AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
                         R.drawable.animated_color_fill);
-                imageButton.setBackground(avd);
+                ViewCompat.setBackground(imageButton, avd);
                 avd.start();
             }
         });
@@ -391,7 +392,7 @@ public class AnimatedVectorDrawableTest {
 
         AnimatedVectorDrawableCompat avd = AnimatedVectorDrawableCompat.create(mContext,
                 R.drawable.animation_vector_drawable_grouping_1); // Duration is 50 ms.
-        imageButton.setBackground(avd);
+        ViewCompat.setBackground(imageButton, avd);
         return avd;
     }
 

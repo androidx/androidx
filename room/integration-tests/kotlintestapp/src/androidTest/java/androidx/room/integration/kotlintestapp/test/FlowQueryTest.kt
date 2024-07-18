@@ -187,32 +187,6 @@ class FlowQueryTest : TestDatabaseTest() {
     }
 
     @Test
-    fun receiveBooks_update_viaSupportDatabase() = runBlocking {
-        booksDao.addAuthors(TestUtil.AUTHOR_1)
-        booksDao.addPublishers(TestUtil.PUBLISHER)
-        booksDao.addBooks(TestUtil.BOOK_1)
-
-        val channel = booksDao.getBooksFlow().produceIn(this)
-
-        assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1)
-
-        // Update table without going through Room's transaction APIs
-        database.openHelper.writableDatabase.execSQL(
-            "UPDATE Book SET salesCnt = 5 WHERE bookId = 'b1'"
-        )
-        // Ask for a refresh to occur, validating trigger is installed without going through Room's
-        // transaction APIs.
-        database.invalidationTracker.refreshVersionsAsync()
-        drain() // drain async invalidate
-        yield()
-
-        assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1.copy(salesCnt = 5))
-        assertThat(channel.isEmpty).isTrue()
-
-        channel.cancel()
-    }
-
-    @Test
     fun receiveBooks_update_multipleChannels() = runBlocking {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)

@@ -26,9 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,7 +38,7 @@ class CaptureResultImageMatcher {
     private static final int INVALID_TIMESTAMP = -1;
     /** TotalCaptureResults that haven't been matched with Image. */
     @GuardedBy("mLock")
-    private final LongSparseArray<List<TotalCaptureResult>> mPendingCaptureResults =
+    private final LongSparseArray<TotalCaptureResult> mPendingCaptureResults =
             new LongSparseArray<>();
 
     /** To store the capture stage ids for each TotalCaptureResult */
@@ -49,7 +47,7 @@ class CaptureResultImageMatcher {
 
     /** Images that haven't been matched with timestamp. */
     @GuardedBy("mLock")
-    private final LongSparseArray<List<ImageReference>> mPendingImages = new LongSparseArray<>();
+    private final LongSparseArray<ImageReference> mPendingImages = new LongSparseArray<>();
 
     @GuardedBy("mLock")
     ImageReferenceListener mImageReferenceListener;
@@ -62,9 +60,7 @@ class CaptureResultImageMatcher {
             mPendingCaptureResults.clear();
             for (int i = 0; i < mPendingImages.size(); i++) {
                 long key = mPendingImages.keyAt(i);
-                for (ImageReference imageReference : mPendingImages.get(key)) {
-                    imageReference.decrement();
-                }
+                mPendingImages.get(key).decrement();
             }
             mPendingImages.clear();
             mCaptureStageIdMap.clear();
@@ -87,28 +83,9 @@ class CaptureResultImageMatcher {
     void imageIncoming(@NonNull ImageReference imageReference) {
         synchronized (mLock) {
             Image image = imageReference.get();
-            addToList(mPendingImages, image.getTimestamp(), imageReference);
+            mPendingImages.put(image.getTimestamp(), imageReference);
         }
         matchImages();
-    }
-
-    private <T> void addToList(LongSparseArray<List<T>>  array, long key, T object) {
-        List<T> list = array.get(key);
-        if (list == null) {
-            list = new ArrayList<>();
-            array.put(key, list);
-        }
-        list.add(object);
-    }
-
-    private <T> void removeFromList(LongSparseArray<List<T>> array, long key, T object) {
-        List<T> list = array.get(key);
-        if (list != null) {
-            list.remove(object);
-            if (list.isEmpty()) {
-                array.remove(key);
-            }
-        }
     }
 
     void captureResultIncoming(@NonNull TotalCaptureResult captureResult) {
@@ -123,7 +100,7 @@ class CaptureResultImageMatcher {
                 return;
             }
             // Add the incoming CameraCaptureResult to pending list and do the matching logic.
-            addToList(mPendingCaptureResults, timestamp, captureResult);
+            mPendingCaptureResults.put(timestamp, captureResult);
             mCaptureStageIdMap.put(captureResult, captureStageId);
         }
         matchImages();
@@ -184,10 +161,8 @@ class CaptureResultImageMatcher {
             if (minCaptureResultTimestamp > minImageRefTimestamp) {
                 for (int i = mPendingImages.size() - 1; i >= 0; i--) {
                     if (mPendingImages.keyAt(i) < minCaptureResultTimestamp) {
-                        List<ImageReference> imageReferences = mPendingImages.valueAt(i);
-                        for (ImageReference imageReference : imageReferences) {
-                            imageReference.decrement();
-                        }
+                        ImageReference imageReference = mPendingImages.valueAt(i);
+                        imageReference.decrement();
                         mPendingImages.removeAt(i);
                     }
                 }
@@ -207,24 +182,16 @@ class CaptureResultImageMatcher {
         synchronized (mLock) {
             // Iterate in reverse order so that capture result can be removed in place
             for (int i = mPendingCaptureResults.size() - 1; i >= 0; i--) {
-                List<TotalCaptureResult> captureResultList = mPendingCaptureResults.valueAt(i);
-                if (!captureResultList.isEmpty()) {
-                    TotalCaptureResult captureResult = captureResultList.get(0);
-                    long timestamp = getTimeStampFromCaptureResult(captureResult);
-                    Preconditions.checkState(timestamp == mPendingCaptureResults.keyAt(i));
-                    List<ImageReference> imageReferenceList = mPendingImages.get(timestamp);
-                    if (imageReferenceList != null && !imageReferenceList.isEmpty()) {
-                        ImageReference imageReference = imageReferenceList.get(0);
-                        removeFromList(mPendingImages, timestamp, imageReference);
+                TotalCaptureResult captureResult = mPendingCaptureResults.valueAt(i);
+                long timestamp = getTimeStampFromCaptureResult(captureResult);
 
-                        captureResultList.remove(captureResult);
-                        if (captureResultList.isEmpty()) {
-                            mPendingCaptureResults.removeAt(i);
-                        }
-                        imageToNotify = imageReference;
-                        resultToNotify = captureResult;
-                        break;
-                    }
+                ImageReference imageReference = mPendingImages.get(timestamp);
+
+                if (imageReference != null) {
+                    mPendingImages.remove(timestamp);
+                    mPendingCaptureResults.removeAt(i);
+                    imageToNotify = imageReference;
+                    resultToNotify = captureResult;
                 }
             }
             removeStaleData();

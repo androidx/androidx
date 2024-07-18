@@ -1,10 +1,3 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -30,6 +23,7 @@ android {
 androidx {
     name = "Glance Preview"
     type = LibraryType.PUBLISHED_LIBRARY
+    mavenVersion = LibraryVersions.GLANCE_PREVIEW
     inceptionYear = "2022"
     description = "Glance preview library. This library provides the API required for marking the" +
             "glance @Composable components that should have preview in the Android Studio."

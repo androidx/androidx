@@ -19,6 +19,7 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.builders.SelectionBuilder;
@@ -26,6 +27,7 @@ import androidx.slice.builders.SelectionBuilder;
 /**
  */
 @RestrictTo(LIBRARY)
+@RequiresApi(19)
 @Deprecated
 public abstract class SelectionBuilderImpl extends TemplateBuilderImpl {
     private final SelectionBuilder mSelectionBuilder;

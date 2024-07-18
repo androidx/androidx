@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
+import androidx.core.view.ViewCompat;
 
 /**
  * This class acts as a container for the action bar view and action mode context views.
@@ -60,7 +61,7 @@ public class ActionBarContainer extends FrameLayout {
 
         // Set a transparent background so that we project appropriately.
         final Drawable bg = new ActionBarBackgroundDrawable(this);
-        setBackground(bg);
+        ViewCompat.setBackground(this, bg);
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.ActionBar);

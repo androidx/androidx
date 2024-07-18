@@ -24,15 +24,12 @@ import androidx.work.Constraints.ContentUriTrigger
 import androidx.work.NetworkType
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
-import androidx.work.impl.utils.NetworkRequest28
-import androidx.work.impl.utils.NetworkRequestCompat
-import androidx.work.impl.utils.capabilitiesCompat
-import androidx.work.impl.utils.transportTypesCompat
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
+import java.lang.IllegalArgumentException
 
 /**
  * TypeConverters for WorkManager enums and classes.
@@ -281,43 +278,5 @@ object WorkTypeConverters {
             }
         }
         return triggers
-    }
-
-    @JvmStatic
-    @TypeConverter
-    internal fun toNetworkRequest(bytes: ByteArray): NetworkRequestCompat {
-        if (Build.VERSION.SDK_INT < 28 || bytes.isEmpty()) {
-            return NetworkRequestCompat(null)
-        }
-        return ByteArrayInputStream(bytes).use {
-            ObjectInputStream(it).use { inputStream ->
-                val transports = IntArray(inputStream.readInt())
-                repeat(transports.size) { i -> transports[i] = inputStream.readInt() }
-                val capabilities = IntArray(inputStream.readInt())
-                repeat(capabilities.size) { i -> capabilities[i] = inputStream.readInt() }
-                NetworkRequest28.createNetworkRequestCompat(capabilities, transports)
-            }
-        }
-    }
-
-    @JvmStatic
-    @TypeConverter
-    internal fun fromNetworkRequest(requestCompat: NetworkRequestCompat): ByteArray {
-        if (Build.VERSION.SDK_INT < 28) {
-            return ByteArray(0)
-        }
-        val request = requestCompat.networkRequest ?: return ByteArray(0)
-        val outputStream = ByteArrayOutputStream()
-        outputStream.use {
-            ObjectOutputStream(it).use { outputStream ->
-                val transports = request.transportTypesCompat
-                val capabilities = request.capabilitiesCompat
-                outputStream.writeInt(transports.size)
-                transports.forEach { t -> outputStream.writeInt(t) }
-                outputStream.writeInt(capabilities.size)
-                capabilities.forEach { c -> outputStream.writeInt(c) }
-            }
-        }
-        return outputStream.toByteArray()
     }
 }

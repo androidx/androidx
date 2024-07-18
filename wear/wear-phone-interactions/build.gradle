@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -35,7 +28,6 @@ dependencies {
     api("androidx.core:core:1.6.0")
     api("androidx.wear:wear:1.2.0")
     api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
 
     // Needed for Assert.assertThrows
     testImplementation(libs.junit)
@@ -45,11 +37,6 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
-    testImplementation(libs.mockitoKotlin4)
-
-    // Includes the wear-sdk jar
-    compileOnly files("../../wear/wear_sdk/wear-sdk.jar")
-    testImplementation(files("../../wear/wear_sdk/wear-sdk.jar"))
 }
 
 android {
@@ -63,7 +50,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         stableAidl {
             version 1
         }
@@ -73,10 +60,8 @@ android {
 
 androidx {
     name = "Android Wear Phone Interactions"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR_PHONE_INTERACTIONS
     inceptionYear = "2021"
     description = "Android Wear Phone Interactions"
-    metalavaK2UastEnabled = true
-    samples(project(":wear:wear-phone-interactions-samples"))
 }

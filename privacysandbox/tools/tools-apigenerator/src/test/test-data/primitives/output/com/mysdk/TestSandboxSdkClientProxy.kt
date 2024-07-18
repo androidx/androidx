@@ -1,6 +1,5 @@
 package com.mysdk
 
-import android.os.Bundle
 import com.mysdk.PrivacySandboxThrowableParcelConverter.fromThrowableParcel
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -29,29 +28,6 @@ public class TestSandboxSdkClientProxy(
             }
         }
         remote.doSomethingAsync(first, second, third, transactionCallback)
-        it.invokeOnCancellation {
-            mCancellationSignal?.cancel()
-        }
-    }
-
-    public override suspend fun doSomethingWithBundlesAsync(first: Int, second: Bundle): Bundle =
-            suspendCancellableCoroutine {
-        var mCancellationSignal: ICancellationSignal? = null
-        val transactionCallback = object: IBundleTransactionCallback.Stub() {
-            override fun onCancellable(cancellationSignal: ICancellationSignal) {
-                if (it.isCancelled) {
-                    cancellationSignal.cancel()
-                }
-                mCancellationSignal = cancellationSignal
-            }
-            override fun onSuccess(result: Bundle) {
-                it.resumeWith(Result.success(result))
-            }
-            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
-                it.resumeWithException(fromThrowableParcel(throwableParcel))
-            }
-        }
-        remote.doSomethingWithBundlesAsync(first, second, transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }
@@ -103,29 +79,6 @@ public class TestSandboxSdkClientProxy(
             }
         }
         remote.processBooleanList(x.toBooleanArray(), transactionCallback)
-        it.invokeOnCancellation {
-            mCancellationSignal?.cancel()
-        }
-    }
-
-    public override suspend fun processBundleList(x: List<Bundle>): List<Bundle> =
-            suspendCancellableCoroutine {
-        var mCancellationSignal: ICancellationSignal? = null
-        val transactionCallback = object: IListBundleTransactionCallback.Stub() {
-            override fun onCancellable(cancellationSignal: ICancellationSignal) {
-                if (it.isCancelled) {
-                    cancellationSignal.cancel()
-                }
-                mCancellationSignal = cancellationSignal
-            }
-            override fun onSuccess(result: Array<Bundle>) {
-                it.resumeWith(Result.success(result.toList()))
-            }
-            override fun onFailure(throwableParcel: PrivacySandboxThrowableParcel) {
-                it.resumeWithException(fromThrowableParcel(throwableParcel))
-            }
-        }
-        remote.processBundleList(x.toTypedArray(), transactionCallback)
         it.invokeOnCancellation {
             mCancellationSignal?.cancel()
         }

@@ -29,6 +29,10 @@ import kotlin.reflect.KClass
  * @see javax.annotation.processing.RoundEnvironment
  */
 interface XRoundEnv {
+    /**
+     * The root elements in the round.
+     */
+    val rootElements: Set<XElement>
 
     /**
      * Returns true if no further rounds of processing will be done.
@@ -61,7 +65,7 @@ interface XRoundEnv {
                     JavacRoundEnv(processingEnv, roundEnvironment)
                 }
                 is KspProcessingEnv -> {
-                    KspRoundEnv(if (isProcessingOver) null else processingEnv)
+                    KspRoundEnv(processingEnv, isProcessingOver)
                 }
                 else -> error("invalid processing environment type: $processingEnv")
             }

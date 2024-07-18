@@ -61,27 +61,16 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.lazy.AutoCenteringParams
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.ScalingParams
-import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
-import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
-import androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider
 import kotlinx.coroutines.launch
 
 /**
  * A scrollable list of items to pick from. By default, items will be repeated
  * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
- *
- * This overload has default support for rotary side button (crown) and bezel input devices.
- * The content will be scrolled when the rotary device is rotated
- * with a snap motion which will snap each item to the centre of the list
- * while it is rotated. It uses [RotaryScrollableDefaults.snapBehavior].
- * This behavior can be modified using the alternative Picker overload
- * that takes a custom `rotaryBehavior` parameter.
  *
  * Example of a simple picker to select one of five options:
  * @sample androidx.wear.compose.material.samples.SimplePicker
@@ -123,12 +112,8 @@ import kotlinx.coroutines.launch
  * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
  * align with the centrally selected Picker value.
  */
-@Deprecated(
-    "Please use the new overload with additional rotaryBehavior parameter",
-    level = DeprecationLevel.HIDDEN
-)
 @Composable
-fun Picker(
+public fun Picker(
     state: PickerState,
     contentDescription: String?,
     modifier: Modifier = Modifier,
@@ -142,108 +127,6 @@ fun Picker(
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
     userScrollEnabled: Boolean = true,
-    option: @Composable PickerScope.(optionIndex: Int) -> Unit
-) {
-    Picker(
-        state = state,
-        contentDescription = contentDescription,
-        modifier = modifier,
-        readOnly = readOnly,
-        readOnlyLabel = readOnlyLabel,
-        onSelected = onSelected,
-        scalingParams = scalingParams,
-        separation = separation,
-        gradientRatio = gradientRatio,
-        gradientColor = gradientColor,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
-        rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(
-            state,
-            state.toRotarySnapLayoutInfoProvider()
-        ),
-        option = option
-    )
-}
-
-/**
- * A scrollable list of items to pick from. By default, items will be repeated
- * "infinitely" in both directions, unless [PickerState#repeatItems] is specified as false.
- *
- * This overload supports rotary input. Rotary input allows users to scroll the content
- * of the [Picker] - by using a crown or a rotating bezel on their Wear OS device.
- * It can be modified with [rotaryScrollableBehavior] param.
- * Note that rotary scroll and touch scroll should be aligned.
- * If [rotaryScrollableBehavior] is set for snap (using [RotaryScrollableDefaults.snapBehavior]),
- * [flingBehavior] should be set for snap as well (using [PickerDefaults.flingBehavior]).
- *
- * Example of a simple picker to select one of five options:
- * @sample androidx.wear.compose.material.samples.SimplePicker
- *
- * Example of dual pickers, where clicking switches which one is editable and which is read-only:
- * @sample androidx.wear.compose.material.samples.DualPicker
- *
- * @param state The state of the component
- * @param contentDescription Text used by accessibility services to describe what the
- * selected option represents. This text should be localized, such as by using
- * [androidx.compose.ui.res.stringResource] or similar. Typically, the content description is
- * inferred via derivedStateOf to avoid unnecessary recompositions, like this:
- * val description by remember { derivedStateOf { /* expression using state.selectedOption */ } }
- * @param modifier Modifier to be applied to the Picker
- * @param readOnly Determines whether the Picker should display other available options for this
- * field, inviting the user to scroll to change the value. When readOnly = true,
- * only displays the currently selected option (and optionally a label). This is intended to be
- * used for screens that display multiple Pickers, only one of which has the focus at a time.
- * @param readOnlyLabel A slot for providing a label, displayed above the selected option
- * when the [Picker] is read-only. The label is overlaid with the currently selected
- * option within a Box, so it is recommended that the label is given [Alignment.TopCenter].
- * @param onSelected Action triggered when the Picker is selected by clicking. Used by
- * accessibility semantics, which facilitates implementation of multi-picker screens.
- * @param scalingParams The parameters to configure the scaling and transparency effects for the
- * component. See [ScalingParams]
- * @param separation The amount of separation in [Dp] between items. Can be negative, which can be
- * useful for Text if it has plenty of whitespace.
- * @param gradientRatio The size relative to the Picker height that the top and bottom gradients
- * take. These gradients blur the picker content on the top and bottom. The default is 0.33,
- * so the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
- * 0.5. Use 0.0 to disable the gradient.
- * @param gradientColor Should be the color outside of the Picker, so there is continuity.
- * @param flingBehavior logic describing fling behavior. Note that when configuring fling or snap
- * behavior, this flingBehavior parameter and the [rotaryScrollableBehavior] parameter that controls
- * rotary scroll are expected to be consistent.
- * @param userScrollEnabled Determines whether the picker should be scrollable or not. When
- * userScrollEnabled = true, picker is scrollable. This is different from [readOnly] as it changes
- * the scrolling behaviour.
- * @param rotaryScrollableBehavior Parameter for changing rotary behavior. Supports scroll
- * [RotaryScrollableDefaults.behavior] and snap [RotaryScrollableDefaults.snapBehavior].
- * We do recommend to use [RotaryScrollableDefaults.snapBehavior] as this is a recommended
- * behavior for Pickers. Note that when configuring fling or snap behavior, this rotaryBehavior
- * parameter and the [flingBehavior] parameter that controls touch scroll are expected to be
- * consistent. Can be null if rotary support is not required.
- * @param option A block which describes the content. Inside this block you can reference
- * [PickerScope.selectedOption] and other properties in [PickerScope]. When read-only mode is in
- * use on a screen, it is recommended that this content is given [Alignment.Center] in order to
- * align with the centrally selected Picker value.
- */
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-fun Picker(
-    state: PickerState,
-    contentDescription: String?,
-    modifier: Modifier = Modifier,
-    readOnly: Boolean = false,
-    readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
-    onSelected: () -> Unit = {},
-    scalingParams: ScalingParams = PickerDefaults.defaultScalingParams(),
-    separation: Dp = 0.dp,
-    @FloatRange(from = 0.0, to = 0.5)
-    gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
-    gradientColor: Color = MaterialTheme.colors.background,
-    flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
-    userScrollEnabled: Boolean = true,
-    rotaryScrollableBehavior: RotaryScrollableBehavior? = RotaryScrollableDefaults.snapBehavior(
-        state,
-        state.toRotarySnapLayoutInfoProvider()
-    ),
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
@@ -318,7 +201,6 @@ fun Picker(
                     }
                 }
             },
-            rotaryScrollableBehavior = rotaryScrollableBehavior,
             contentPadding = PaddingValues(0.dp),
             scalingParams = scalingParams,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -868,46 +750,6 @@ private fun convertToDefaultFoundationScalingParams(
         scalingParams.resolveViewportVerticalOffset(viewportConstraints)
     }
 )
-
-/**
- * An extension function for creating [RotarySnapLayoutInfoProvider] from [Picker]
- */
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-internal fun PickerState.toRotarySnapLayoutInfoProvider():
-    RotarySnapLayoutInfoProvider =
-    remember(this) { PickerRotarySnapLayoutInfoProvider(this) }
-
-/**
- * An implementation of RotaryScrollableAdapter for [Picker]
- */
-@ExperimentalWearFoundationApi
-internal class PickerRotarySnapLayoutInfoProvider(
-    private val scrollableState: PickerState
-) : RotarySnapLayoutInfoProvider {
-
-    /**
-     * Returns a height of a first item, as all items in picker have the same height.
-     */
-    override val averageItemSize: Float
-        get() = scrollableState.scalingLazyListState
-            .layoutInfo.visibleItemsInfo.firstOrNull()?.unadjustedSize?.toFloat() ?: 0f
-
-    /**
-     * Current (centred) item index
-     */
-    override val currentItemIndex: Int
-        get() = scrollableState.scalingLazyListState.centerItemIndex
-
-    /**
-     * An offset from the item centre
-     */
-    override val currentItemOffset: Float
-        get() = scrollableState.scalingLazyListState.centerItemScrollOffset.toFloat()
-
-    override val totalItemCount: Int
-        get() = scrollableState.scalingLazyListState.layoutInfo.totalItemsCount
-}
 
 @Stable
 private class PickerScopeImpl(

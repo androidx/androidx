@@ -23,15 +23,12 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import java.lang.IllegalArgumentException
 
-/**
- * Subclass of [NavHostController] that offers additional APIs for testing Navigation.
- */
+/** Subclass of [NavHostController] that offers additional APIs for testing Navigation. */
 public class TestNavHostController(context: Context) : NavHostController(context) {
 
-    /**
-     * Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack.
-     */
-    public val backStack: List<NavBackStackEntry> get() = currentBackStack.value
+    /** Gets an immutable copy of the [elements][NavBackStackEntry] currently on the back stack. */
+    public val backStack: List<NavBackStackEntry>
+        get() = currentBackStack.value
 
     init {
         navigatorProvider = TestNavigatorProvider()
@@ -39,8 +36,8 @@ public class TestNavHostController(context: Context) : NavHostController(context
 
     /**
      * Navigate directly to any destination on the current [androidx.navigation.NavGraph] via an
-     * explicit deep link. If an implicit deep link exists for this destination use
-     * [#navigate(Uri)] instead.
+     * explicit deep link. If an implicit deep link exists for this destination use [#navigate(Uri)]
+     * instead.
      *
      * @param destId The destination id to navigate to.
      * @param args The arguments to pass to the destination.
@@ -48,30 +45,26 @@ public class TestNavHostController(context: Context) : NavHostController(context
      */
     @JvmOverloads
     public fun setCurrentDestination(@IdRes destId: Int, args: Bundle = Bundle()) {
-        val taskStackBuilder = createDeepLink()
-            .setDestination(destId)
-            .setArguments(args)
-            .createTaskStackBuilder()
+        val taskStackBuilder =
+            createDeepLink().setDestination(destId).setArguments(args).createTaskStackBuilder()
         val intent = taskStackBuilder.editIntentAt(0)
         require(handleDeepLink(intent)) { "Destination does not exist on the NavGraph." }
     }
 
     /**
      * Navigate directly to any destination on the current [androidx.navigation.NavGraph] via an
-     * explicit deep link. If an implicit deep link exists for this destination use
-     * [#navigate(Uri)] instead.
+     * explicit deep link. If an implicit deep link exists for this destination use [#navigate(Uri)]
+     * instead.
      *
      * @param destRoute The destination route to navigate to.
      * @param args The arguments to pass to the destination.
      * @throws IllegalArgumentException If the [destination][destRoute] does not exist on the
-     * NavGraph.
+     *   NavGraph.
      */
     @JvmOverloads
     public fun setCurrentDestination(destRoute: String, args: Bundle = Bundle()) {
-        val taskStackBuilder = createDeepLink()
-            .setDestination(destRoute)
-            .setArguments(args)
-            .createTaskStackBuilder()
+        val taskStackBuilder =
+            createDeepLink().setDestination(destRoute).setArguments(args).createTaskStackBuilder()
         val intent = taskStackBuilder.editIntentAt(0)
         require(handleDeepLink(intent)) { "Destination does not exist on the NavGraph." }
     }

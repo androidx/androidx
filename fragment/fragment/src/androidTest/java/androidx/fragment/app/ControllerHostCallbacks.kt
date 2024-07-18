@@ -80,9 +80,9 @@ fun FragmentController.shutdown(
 }
 
 class ControllerHostCallbacks(
-    private val fragmentActivity: FragmentActivity,
+    private val activity: FragmentActivity,
     private val vmStore: ViewModelStore
-) : FragmentHostCallback<FragmentActivity>(fragmentActivity), ViewModelStoreOwner {
+) : FragmentHostCallback<FragmentActivity>(activity), ViewModelStoreOwner {
 
     override val viewModelStore: ViewModelStore = vmStore
 
@@ -95,19 +95,19 @@ class ControllerHostCallbacks(
     }
 
     override fun onShouldSaveFragmentState(fragment: Fragment): Boolean {
-        return !fragmentActivity.isFinishing
+        return !activity.isFinishing
     }
 
     override fun onGetLayoutInflater(): LayoutInflater {
-        return fragmentActivity.layoutInflater.cloneInContext(fragmentActivity)
+        return activity.layoutInflater.cloneInContext(activity)
     }
 
-    override fun onGetHost(): FragmentActivity {
-        return fragmentActivity
+    override fun onGetHost(): FragmentActivity? {
+        return activity
     }
 
     override fun onSupportInvalidateOptionsMenu() {
-        fragmentActivity.invalidateOptionsMenu()
+        activity.invalidateOptionsMenu()
     }
 
     override fun onStartActivityFromFragment(
@@ -115,7 +115,7 @@ class ControllerHostCallbacks(
         intent: Intent,
         requestCode: Int
     ) {
-        fragmentActivity.startActivityFromFragment(fragment, intent, requestCode)
+        activity.startActivityFromFragment(fragment, intent, requestCode)
     }
 
     override fun onStartActivityFromFragment(
@@ -124,17 +124,9 @@ class ControllerHostCallbacks(
         requestCode: Int,
         options: Bundle?
     ) {
-        fragmentActivity.startActivityFromFragment(fragment, intent, requestCode, options)
+        activity.startActivityFromFragment(fragment, intent, requestCode, options)
     }
 
-    @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated(
-        """Have your FragmentHostCallback implement {@link ActivityResultRegistryOwner}
-      to allow Fragments to use
-      {@link Fragment#registerForActivityResult(ActivityResultContract, ActivityResultCallback)}
-      with {@link RequestMultiplePermissions}. This method will still be called when Fragments
-      call the deprecated <code>requestPermissions()</code> method."""
-    )
     override fun onRequestPermissionsFromFragment(
         fragment: Fragment,
         permissions: Array<String>,
@@ -145,21 +137,21 @@ class ControllerHostCallbacks(
 
     override fun onShouldShowRequestPermissionRationale(permission: String): Boolean {
         return ActivityCompat.shouldShowRequestPermissionRationale(
-            fragmentActivity, permission
+            activity, permission
         )
     }
 
-    override fun onHasWindowAnimations() = fragmentActivity.window != null
+    override fun onHasWindowAnimations() = activity.window != null
 
     override fun onGetWindowAnimations() =
-        fragmentActivity.window?.attributes?.windowAnimations ?: 0
+        activity.window?.attributes?.windowAnimations ?: 0
 
     override fun onFindViewById(id: Int): View? {
-        return fragmentActivity.findViewById(id)
+        return activity.findViewById(id)
     }
 
     override fun onHasView(): Boolean {
-        val w = fragmentActivity.window
+        val w = activity.window
         return w?.peekDecorView() != null
     }
 }

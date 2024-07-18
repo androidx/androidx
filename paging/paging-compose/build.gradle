@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -36,9 +30,9 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api("androidx.compose.foundation:foundation:1.5.0")
+                api("androidx.compose.foundation:foundation:1.5.0-beta03")
                 api(project(":paging:paging-common"))
-                api("androidx.compose.runtime:runtime:1.5.0")
+                api("androidx.compose.runtime:runtime:1.5.0-beta03")
             }
         }
 
@@ -76,13 +70,17 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    samples(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
+}
+
 androidx {
     name = "Paging-Compose"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Compose integration with Paging"
+    runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
-    samples(project(":paging:paging-compose:paging-compose-samples"))
 }
 
 android {

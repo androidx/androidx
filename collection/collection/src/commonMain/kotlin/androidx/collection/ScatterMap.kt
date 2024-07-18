@@ -831,8 +831,8 @@ public class MutableScatterMap<K, V>(
         }
         _capacity = newCapacity
         initializeMetadata(newCapacity)
-        keys = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
-        values = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
+        keys = arrayOfNulls(newCapacity)
+        values = arrayOfNulls(newCapacity)
     }
 
     private fun initializeMetadata(capacity: Int) {
@@ -843,9 +843,9 @@ public class MutableScatterMap<K, V>(
             val size = (((capacity + 1 + ClonedMetadataCount) + 7) and 0x7.inv()) shr 3
             LongArray(size).apply {
                 fill(AllEmpty)
-                writeRawMetadata(this, capacity, Sentinel)
             }
         }
+        writeRawMetadata(metadata, capacity, Sentinel)
         initializeGrowth()
     }
 

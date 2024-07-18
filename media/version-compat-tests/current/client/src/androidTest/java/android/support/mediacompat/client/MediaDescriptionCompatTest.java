@@ -45,15 +45,8 @@ public class MediaDescriptionCompatTest {
         MediaDescriptionCompat restoredDescription = MediaDescriptionCompat.fromMediaDescription(
                 originalDescription.getMediaDescription());
 
-        // Test second round-trip as MediaDescriptionCompat keeps an internal reference to a
-        // previously restored platform instance.
-        MediaDescriptionCompat restoredDescription2 = MediaDescriptionCompat.fromMediaDescription(
-                restoredDescription.getMediaDescription());
-
         assertEquals(mediaUri, restoredDescription.getMediaUri());
         assertBundleEquals(createExtras(), restoredDescription.getExtras());
-        assertEquals(mediaUri, restoredDescription2.getMediaUri());
-        assertBundleEquals(createExtras(), restoredDescription2.getExtras());
     }
 
     @SdkSuppress(minSdkVersion = 21)

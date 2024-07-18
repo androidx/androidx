@@ -54,7 +54,6 @@ internal enum class AtraceTag(
             return rooted || api >= 24
         }
     },
-    Power("power"),
     Resources("res"),
     Scheduling("sched"),
     Synchronization("sync") {

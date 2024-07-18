@@ -214,29 +214,6 @@ class SuspendToFutureAdapterTest {
         assertWithMessage("dispatch count").that(dispatcher.count).isEqualTo(1)
     }
 
-    @Test
-    fun launchAfterFailedFuture() {
-        val first = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            error("future task failed")
-        }
-        assertWithMessage("first future task failed")
-            .that(runCatching { first.get() }.isFailure)
-            .isTrue()
-
-        val expected = Any()
-        val second = SuspendToFutureAdapter.launchFuture(Dispatchers.Unconfined) {
-            expected
-        }
-
-        assertWithMessage("second future succeeded")
-            .that(runCatching { second.get() }.isSuccess)
-            .isTrue()
-
-        assertWithMessage("second future value")
-            .that(second.get())
-            .isSameInstanceAs(expected)
-    }
-
     private class CountingDispatcher : CoroutineDispatcher() {
         private val _count = AtomicInteger(0)
         val count: Int

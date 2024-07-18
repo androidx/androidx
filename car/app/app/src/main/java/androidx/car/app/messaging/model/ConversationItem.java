@@ -281,11 +281,7 @@ public class ConversationItem implements Item {
             return this;
         }
 
-        /**
-         * Specifies a list of messages for the conversation
-         *
-         * <p> The messages should be sorted from oldest to newest.
-         */
+        /** Specifies a list of messages for the conversation */
         @NonNull
         public Builder setMessages(@NonNull List<CarMessage> messages) {
             mMessages = messages;

@@ -103,6 +103,8 @@ InvalidNullabilityOverride: androidx.mediarouter.app.MediaRouteControllerDialog#
     Invalid nullability on parameter `event` in method `onKeyUp`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#attachBaseContext(android.content.Context) parameter #0:
     Invalid nullability on parameter `context` in method `attachBaseContext`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaRouteProviderService#onBind(android.content.Intent) parameter #0:
     Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.mediarouter.media.MediaTransferReceiver#onReceive(android.content.Context, android.content.Intent) parameter #0:
@@ -159,3 +161,11 @@ NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallba
     Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onItemStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus, String itemId, androidx.mediarouter.media.MediaItemStatus itemStatus) is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: androidx.mediarouter.media.RemotePlaybackClient.StatusCallback#onSessionStatusChanged(android.os.Bundle, String, androidx.mediarouter.media.MediaSessionStatus) parameter #0:
     Type of parameter data in androidx.mediarouter.media.RemotePlaybackClient.StatusCallback.onSessionStatusChanged(android.os.Bundle data, String sessionId, androidx.mediarouter.media.MediaSessionStatus sessionStatus) is a nullable collection (`android.os.Bundle`); must be non-null
+
+
+RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.mediarouter.media.MediaRouter#removeCallback(androidx.mediarouter.media.MediaRouter.Callback):
+    Callback methods should be named register/unregister; was removeCallback

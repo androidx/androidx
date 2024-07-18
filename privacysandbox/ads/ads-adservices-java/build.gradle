@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -37,6 +30,7 @@ dependencies {
 
     // To use CallbackToFutureAdapter
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
+    implementation(libs.guavaAndroid)
     api(libs.guavaListenableFuture)
     implementation project(path: ':privacysandbox:ads:ads-adservices')
 
@@ -45,14 +39,12 @@ dependencies {
     androidTestImplementation project(path: ':javascriptengine:javascriptengine')
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTestJunit)
-    androidTestImplementation(libs.mockitoKotlin4)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":internal-testutils-truth"))
 
     androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
@@ -64,8 +56,6 @@ android {
         multiDexEnabled = true
     }
 
-    compileSdk = 34
-    compileSdkExtension = 11
     namespace "androidx.privacysandbox.ads.adservices.java"
 }
 

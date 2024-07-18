@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Inte tillgängligt"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Anslutningstyper för elfordon"</string>
     <string name="example_title" msgid="530257630320010494">"Exempel: %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Den här texten är "<annotation color="red">"röd"</annotation></string>
-    <string name="example_2_text" msgid="1359373957397219102">"Den här texten är "<annotation color="green">"grön"</annotation></string>
-    <string name="example_3_text" msgid="2409207170762049673">"Den här texten är "<annotation color="blue">"blå"</annotation></string>
-    <string name="example_4_text" msgid="9055989886645433000">"Den här texten är "<annotation color="yellow">"gul"</annotation></string>
+    <string name="example_1_text" msgid="8456567953748293512">"Den här texten är röd"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Den här texten är grön"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Den här texten är blå"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Den här texten är gul"</string>
     <string name="example_5_text" msgid="8828804968749423500">"För den här texten används den primära färgen"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Den här texten är den sekundära färgen"</string>
     <string name="color_demo" msgid="1822427636476178993">"Färgdemo"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Bläddra bland platser"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Demo för sökmall"</string>
     <string name="search_hint" msgid="978495498991026792">"Sök här"</string>
-    <string name="additional_text" msgid="5755100726890686184">"Läs igenom våra "<annotation link="terms_of_service">"användarvillkor"</annotation></string>
+    <string name="additional_text" msgid="8410289578276941586">"Läs igenom våra användarvillkor"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Inloggning med Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Använd pinkod"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR-kod"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Ruttalternativ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Undvik motorvägar"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Undvik att ta färjan"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Kartdemor"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Karta med innehållsdemor"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Karta med demo för meddelandemallar"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Karta med demo för elnätsmallar"</string>
 </resources>

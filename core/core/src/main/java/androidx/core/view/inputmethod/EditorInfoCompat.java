@@ -34,7 +34,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
-import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -104,8 +103,6 @@ public final class EditorInfoCompat {
     private static final String CONTENT_SELECTION_END_KEY =
             "androidx.core.view.inputmethod.EditorInfoCompat.CONTENT_SELECTION_END";
 
-    private static final String STYLUS_HANDWRITING_ENABLED_KEY =
-            "androidx.core.view.inputmethod.EditorInfoCompat.STYLUS_HANDWRITING_ENABLED";
 
     @Retention(SOURCE)
     @IntDef({Protocol.Unknown, Protocol.PlatformApi, Protocol.SupportLib, Protocol.AndroidX_1_0_0,
@@ -196,37 +193,6 @@ public final class EditorInfoCompat {
             }
             return result != null ? result : EMPTY_STRING_ARRAY;
         }
-    }
-
-    /**
-     * Set {@code true} if the editor has {@link InputMethodManager#startStylusHandwriting stylus
-     * handwriting} enabled.
-     * {@code false} by default, editor must set it {@code true} to indicate that it supports
-     * stylus handwriting.
-     * @param editorInfo the editor with which we set handwriting enabled.
-     * @param enabled {@code true} if stylus handwriting is enabled.
-     * @see View#setAutoHandwritingEnabled(boolean)
-     */
-    public static void setStylusHandwritingEnabled(@NonNull EditorInfo editorInfo,
-            boolean enabled) {
-        if (editorInfo.extras == null) {
-            editorInfo.extras = new Bundle();
-        }
-        editorInfo.extras.putBoolean(STYLUS_HANDWRITING_ENABLED_KEY, enabled);
-    }
-
-    /**
-     * Returns {@code true} when an editor has stylus handwriting enabled. {@code false} by default.
-     * @param editorInfo the editor from which we get stylus handwriting enabled.
-     * @see #setStylusHandwritingEnabled(EditorInfo, boolean)
-     * @see InputMethodManager#isStylusHandwritingAvailable()
-     */
-    public static boolean isStylusHandwritingEnabled(@NonNull EditorInfo editorInfo) {
-        if (editorInfo.extras == null) {
-            // disabled by default
-            return false;
-        }
-        return editorInfo.extras.getBoolean(STYLUS_HANDWRITING_ENABLED_KEY);
     }
 
     /**

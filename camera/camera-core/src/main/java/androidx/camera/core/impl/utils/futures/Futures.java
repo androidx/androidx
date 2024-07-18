@@ -418,11 +418,6 @@ public final class Futures {
      * Returns a future that delegates to the supplied future but will finish early
      * (via a TimeoutException) if the specified duration expires.
      *
-     * <p> The input future itself is not canceled at timeout and thus keeps continuing until it
-     * is completed (if ever). See
-     * {@link #makeTimeoutFuture(long, ScheduledExecutorService, Object, boolean, ListenableFuture)}
-     * if you need this behavior.
-     *
      * @param timeoutMillis     When to time out the future in milliseconds.
      * @param scheduledExecutor The executor service to enforce the timeout.
      * @param input             The future to delegate to.
@@ -450,19 +445,16 @@ public final class Futures {
      * Returns a future that delegates to the supplied future but will finish early normally with
      * the provided default value if the specified duration expires.
      *
-     * @param timeoutMillis        When to time out the future in milliseconds.
-     * @param scheduledExecutor    The executor service to enforce the timeout.
-     * @param defaultValue         The default value to complete output future with in case of
-     *                             timeout.
-     * @param cancelInputAtTimeout If true, the input future will be canceled at timeout.
-     * @param input                The future to delegate to.
+     * @param timeoutMillis     When to time out the future in milliseconds.
+     * @param scheduledExecutor The executor service to enforce the timeout.
+     * @param defaultValue      The default value to complete input future with in case of timeout.
+     * @param input             The future to delegate to.
      */
     @NonNull
     public static <V> ListenableFuture<V> makeTimeoutFuture(
             long timeoutMillis,
             @NonNull ScheduledExecutorService scheduledExecutor,
             @Nullable V defaultValue,
-            boolean cancelInputAtTimeout,
             @NonNull ListenableFuture<V> input) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             propagate(input, completer);
@@ -470,9 +462,6 @@ public final class Futures {
                 ScheduledFuture<?> timeoutFuture = scheduledExecutor.schedule(
                         () -> {
                             completer.set(defaultValue);
-                            if (cancelInputAtTimeout) {
-                                input.cancel(true);
-                            }
                         },
                         timeoutMillis, TimeUnit.MILLISECONDS);
                 input.addListener(

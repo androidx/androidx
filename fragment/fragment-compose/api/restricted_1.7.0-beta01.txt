@@ -1,9 +1,0 @@
-// Signature format: 4.0
-package androidx.fragment.compose {
-
-  public final class FragmentKt {
-    method public static androidx.compose.ui.platform.ComposeView content(androidx.fragment.app.Fragment, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-  }
-
-}
-

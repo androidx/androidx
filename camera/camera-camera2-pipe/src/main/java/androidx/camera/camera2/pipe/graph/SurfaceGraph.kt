@@ -18,12 +18,14 @@ package androidx.camera.camera2.pipe.graph
 
 import android.view.Surface
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.media.ImageSource
+import javax.inject.Inject
 
 /**
  * A SurfaceGraph tracks the current stream-to-surface mapping state for a [CameraGraph] instance.
@@ -31,16 +33,19 @@ import androidx.camera.camera2.pipe.media.ImageSource
  * It's primary responsibility is aggregating the current stream-to-surface mapping and passing the
  * most up to date version to the [CameraController] instance.
  */
-internal class SurfaceGraph(
+@RequiresApi(21)
+@CameraGraphScope
+internal class SurfaceGraph
+@Inject
+constructor(
     private val streamGraph: StreamGraphImpl,
     private val cameraController: CameraController,
-    private val surfaceManager: CameraSurfaceManager,
-    private val imageSources: Map<StreamId, ImageSource>
+    private val surfaceManager: CameraSurfaceManager
 ) {
     private val lock = Any()
 
     @GuardedBy("lock")
-    private val surfaceMap = imageSources.mapValuesTo(mutableMapOf()) { it.value.surface }
+    private val surfaceMap: MutableMap<StreamId, Surface> = mutableMapOf()
 
     @GuardedBy("lock")
     private val surfaceUsageMap: MutableMap<Surface, AutoCloseable> = mutableMapOf()
@@ -49,10 +54,6 @@ internal class SurfaceGraph(
     private var closed: Boolean = false
 
     operator fun set(streamId: StreamId, surface: Surface?) {
-        check(!imageSources.keys.contains(streamId)) {
-            "Cannot configure surface for $streamId, it is permanently assigned to " +
-                "${imageSources[streamId]}"
-        }
         val closeable =
             synchronized(lock) {
                 if (closed) {

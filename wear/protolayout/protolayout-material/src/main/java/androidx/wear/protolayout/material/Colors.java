@@ -53,10 +53,10 @@ public class Colors {
     @NonNull
     public static final Colors DEFAULT = new Colors(PRIMARY, ON_PRIMARY, SURFACE, ON_SURFACE);
 
-    @ColorInt private final int mPrimary;
-    @ColorInt private final int mOnPrimary;
-    @ColorInt private final int mSurface;
-    @ColorInt private final int mOnSurface;
+    private @ColorInt final int mPrimary;
+    private @ColorInt final int mOnPrimary;
+    private @ColorInt final int mSurface;
+    private @ColorInt final int mOnSurface;
 
     /**
      * Constructor for {@link Colors} object.

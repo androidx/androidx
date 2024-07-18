@@ -117,16 +117,40 @@ ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIntents(andr
     Method parameter should be Collection<Intent> (or subclass) instead of raw array; was `android.content.Intent[]`
 ArrayReturn: androidx.core.content.pm.ShortcutInfoCompat.Builder#setPersons(androidx.core.app.Person[]) parameter #0:
     Method parameter should be Collection<Person> (or subclass) instead of raw array; was `androidx.core.app.Person[]`
+ArrayReturn: androidx.core.graphics.PathParser#canMorph(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#canMorph(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #1:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#createNodesFromPathData(String):
+    Method should return Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode[]):
+    Method should return Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#deepCopyNodes(androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #1:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#interpolatePathDataNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[], float) parameter #2:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#updateNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser#updateNodes(androidx.core.graphics.PathParser.PathDataNode[], androidx.core.graphics.PathParser.PathDataNode[]) parameter #1:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
+ArrayReturn: androidx.core.graphics.PathParser.PathDataNode#nodesToPath(androidx.core.graphics.PathParser.PathDataNode[], android.graphics.Path) parameter #0:
+    Method parameter should be Collection<PathDataNode> (or subclass) instead of raw array; was `androidx.core.graphics.PathParser.PathDataNode[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays():
     Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
 ArrayReturn: androidx.core.hardware.display.DisplayManagerCompat#getDisplays(String):
     Method should return Collection<Display> (or subclass) instead of raw array; was `android.view.Display[]`
+ArrayReturn: androidx.core.os.ParcelableCompatCreatorCallbacks#newArray(int):
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.core.provider.FontsContractCompat#buildTypeface(android.content.Context, android.os.CancellationSignal, androidx.core.provider.FontsContractCompat.FontInfo[]) parameter #2:
     Method parameter should be Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
 ArrayReturn: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
     Method should return Collection<FontInfo> (or subclass) instead of raw array; was `androidx.core.provider.FontsContractCompat.FontInfo[]`
 ArrayReturn: androidx.core.text.PrecomputedTextCompat#getSpans(int, int, Class<T>):
-    Method should return Collection<Object> (or subclass) instead of raw array; was `T[]`
+    Method should return Collection<T> (or subclass) instead of raw array; was `T[]`
 ArrayReturn: androidx.core.widget.TextViewCompat#getCompoundDrawablesRelative(android.widget.TextView):
     Method should return Collection<Drawable> (or subclass) instead of raw array; was `android.graphics.drawable.Drawable[]`
 
@@ -173,10 +197,20 @@ BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#createChooserIntent
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.createChooserIntent()
 BuilderSetStyle: androidx.core.app.ShareCompat.IntentBuilder#startChooser():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.ShareCompat.IntentBuilder.startChooser()
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#create(android.content.Context):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.create(android.content.Context)
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#editIntentAt(int):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.editIntentAt(int)
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#startActivities():
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.startActivities()
+BuilderSetStyle: androidx.core.app.TaskStackBuilder#startActivities(android.os.Bundle):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.app.TaskStackBuilder.startActivities(android.os.Bundle)
 BuilderSetStyle: androidx.core.text.BidiFormatter.Builder#stereoReset(boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.core.text.BidiFormatter.Builder.stereoReset(boolean)
 
 
+ContextFirst: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
+    Context is distinct, so it must be the first argument (method `onCreateView`)
 ContextFirst: androidx.core.view.ViewConfigurationCompat#getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context) parameter #1:
     Context is distinct, so it must be the first argument (method `getScaledHorizontalScrollFactor`)
 ContextFirst: androidx.core.view.ViewConfigurationCompat#getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context) parameter #1:
@@ -187,6 +221,10 @@ ContextFirst: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcuts
 
 ExecutorRegistration: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler):
     Registration methods should have overload that accepts delivery Executor: `getFont`
+ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `authenticate`
+ExecutorRegistration: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnCancelListener`
 ExecutorRegistration: androidx.core.os.HandlerCompat#createAsync(android.os.Looper, android.os.Handler.Callback):
     Registration methods should have overload that accepts delivery Executor: `createAsync`
 ExecutorRegistration: androidx.core.provider.FontsContractCompat#requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler):
@@ -201,6 +239,14 @@ GetterOnBuilder: androidx.core.app.RemoteInput.Builder#getExtras():
     Getter should be on the built object, not the builder: method androidx.core.app.RemoteInput.Builder.getExtras()
 GetterOnBuilder: androidx.core.app.ShareCompat.IntentBuilder#getIntent():
     Getter should be on the built object, not the builder: method androidx.core.app.ShareCompat.IntentBuilder.getIntent()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getIntentCount():
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getIntentCount()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getIntents():
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getIntents()
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int):
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int)
+GetterOnBuilder: androidx.core.app.TaskStackBuilder#getPendingIntent(int, int, android.os.Bundle):
+    Getter should be on the built object, not the builder: method androidx.core.app.TaskStackBuilder.getPendingIntent(int,int,android.os.Bundle)
 
 
 GetterSetterNames: androidx.core.app.NotificationCompat.Action.WearableExtender#getHintDisplayActionInline():
@@ -221,6 +267,8 @@ GetterSetterNames: androidx.core.view.GestureDetectorCompat#setIsLongpressEnable
     Symmetric method for `isLongpressEnabled` must be named `setLongpressEnabled`; was `setIsLongpressEnabled`
 
 
+InvalidNullabilityOverride: androidx.core.app.JobIntentService#onBind(android.content.Intent) parameter #0:
+    Invalid nullability on parameter `intent` in method `onBind`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.content.FileProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #0:
     Invalid nullability on parameter `context` in method `attachInfo`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.content.FileProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #1:
@@ -229,6 +277,8 @@ InvalidNullabilityOverride: androidx.core.content.FileProvider#insert(android.ne
     Invalid nullability on parameter `values` in method `insert`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
 InvalidNullabilityOverride: androidx.core.content.FileProvider#update(android.net.Uri, android.content.ContentValues, String, String[]) parameter #1:
     Invalid nullability on parameter `values` in method `update`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
+InvalidNullabilityOverride: androidx.core.content.UnusedAppRestrictionsBackportService#onBind(android.content.Intent):
+    Invalid nullability on method `onBind` return. Overrides of unannotated super method cannot be Nullable.
 InvalidNullabilityOverride: androidx.core.location.LocationListenerCompat#onStatusChanged(String, int, android.os.Bundle) parameter #0:
     Invalid nullability on parameter `provider` in method `onStatusChanged`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.core.widget.NestedScrollView#addView(android.view.View) parameter #0:
@@ -275,6 +325,8 @@ ListenerInterface: androidx.core.view.OneShotPreDrawListener:
 
 ListenerLast: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler) parameter #3:
     Listeners should always be at end of argument list (method `getFont`)
+ListenerLast: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler) parameter #4:
+    Listeners should always be at end of argument list (method `authenticate`)
 ListenerLast: androidx.core.provider.FontsContractCompat#requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler) parameter #3:
     Listeners should always be at end of argument list (method `requestFont`)
 ListenerLast: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(android.content.Context, android.view.GestureDetector.OnGestureListener, android.os.Handler) parameter #2:
@@ -283,6 +335,8 @@ ListenerLast: androidx.core.view.GestureDetectorCompat#GestureDetectorCompat(and
 
 MissingBuildMethod: androidx.core.app.ShareCompat.IntentBuilder:
     androidx.core.app.ShareCompat.IntentBuilder does not declare a `build()` method, but builder classes are expected to
+MissingBuildMethod: androidx.core.app.TaskStackBuilder:
+    androidx.core.app.TaskStackBuilder does not declare a `build()` method, but builder classes are expected to
 
 
 MissingGetterMatchingBuilder: androidx.core.app.NotificationChannelCompat.Builder#setLightsEnabled(boolean):
@@ -391,6 +445,8 @@ MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setVi
     android.app.Notification does not declare a `getVisibility()` method matching method androidx.core.app.NotificationCompat.Builder.setVisibility(int)
 MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.Builder#setWhen(long):
     android.app.Notification does not declare a `getWhen()` method matching method androidx.core.app.NotificationCompat.Builder.setWhen(long)
+MissingGetterMatchingBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder#setReplyAction(android.app.PendingIntent, androidx.core.app.RemoteInput):
+    androidx.core.app.NotificationCompat.CarExtender.UnreadConversation does not declare a `getReplyAction()` method matching method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder.setReplyAction(android.app.PendingIntent,androidx.core.app.RemoteInput)
 MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowDataType(String, boolean):
     androidx.core.app.RemoteInput does not declare a `getAllowDataType()` method matching method androidx.core.app.RemoteInput.Builder.setAllowDataType(String,boolean)
 MissingGetterMatchingBuilder: androidx.core.app.RemoteInput.Builder#setAllowFreeFormInput(boolean):
@@ -413,6 +469,8 @@ MissingGetterMatchingBuilder: androidx.core.view.WindowInsetsCompat.Builder#setV
     androidx.core.view.WindowInsetsCompat does not declare a `getVisible()` method matching method androidx.core.view.WindowInsetsCompat.Builder.setVisible(int,boolean)
 
 
+MissingNullability: androidx.core.app.JobIntentService#onBind(android.content.Intent):
+    Missing nullability on method `onBind` return
 MissingNullability: androidx.core.app.NotificationCompat.Action#title:
     Missing nullability on field `title` in class `class androidx.core.app.NotificationCompat.Action`
 MissingNullability: androidx.core.app.NotificationCompatSideChannelService#cancel(String, int, String) parameter #0:
@@ -483,6 +541,22 @@ MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#getCol
     Missing nullability on method `getColorFilter` return
 MissingNullability: androidx.core.graphics.drawable.RoundedBitmapDrawable#setColorFilter(android.graphics.ColorFilter) parameter #0:
     Missing nullability on parameter `cf` in method `setColorFilter`
+MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback#onAuthenticationError(int, CharSequence) parameter #1:
+    Missing nullability on parameter `errString` in method `onAuthenticationError`
+MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback#onAuthenticationHelp(int, CharSequence) parameter #1:
+    Missing nullability on parameter `helpString` in method `onAuthenticationHelp`
+MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback#onAuthenticationSucceeded(androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationResult) parameter #0:
+    Missing nullability on parameter `result` in method `onAuthenticationSucceeded`
+MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationResult#AuthenticationResult(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject) parameter #0:
+    Missing nullability on parameter `crypto` in method `AuthenticationResult`
+MissingNullability: androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationResult#getCryptoObject():
+    Missing nullability on method `getCryptoObject` return
+MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #0:
+    Missing nullability on parameter `in` in method `createFromParcel`
+MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#createFromParcel(android.os.Parcel, ClassLoader) parameter #1:
+    Missing nullability on parameter `loader` in method `createFromParcel`
+MissingNullability: androidx.core.os.ParcelableCompatCreatorCallbacks#newArray(int):
+    Missing nullability on method `newArray` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontFamilyResult#getFonts():
     Missing nullability on method `getFonts` return
 MissingNullability: androidx.core.provider.FontsContractCompat.FontRequestCallback#onTypefaceRetrieved(android.graphics.Typeface) parameter #0:
@@ -593,6 +667,20 @@ MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#LTR:
     Missing nullability on field `LTR` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
 MissingNullability: androidx.core.text.TextDirectionHeuristicsCompat#RTL:
     Missing nullability on field `RTL` in class `class androidx.core.text.TextDirectionHeuristicsCompat`
+MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet):
+    Missing nullability on method `onCreateView` return
+MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #0:
+    Missing nullability on parameter `parent` in method `onCreateView`
+MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #1:
+    Missing nullability on parameter `name` in method `onCreateView`
+MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
+    Missing nullability on parameter `context` in method `onCreateView`
+MissingNullability: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #3:
+    Missing nullability on parameter `attrs` in method `onCreateView`
+MissingNullability: androidx.core.view.MenuItemCompat.OnActionExpandListener#onMenuItemActionCollapse(android.view.MenuItem) parameter #0:
+    Missing nullability on parameter `item` in method `onMenuItemActionCollapse`
+MissingNullability: androidx.core.view.MenuItemCompat.OnActionExpandListener#onMenuItemActionExpand(android.view.MenuItem) parameter #0:
+    Missing nullability on parameter `item` in method `onMenuItemActionExpand`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#addAction(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat) parameter #0:
     Missing nullability on parameter `action` in method `addAction`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#addChild(android.view.View) parameter #0:
@@ -879,6 +967,10 @@ NullableCollection: androidx.core.app.NotificationCompat.Action#getDataOnlyRemot
     Return type of method androidx.core.app.NotificationCompat.Action.getDataOnlyRemoteInputs() is a nullable collection (`androidx.core.app.RemoteInput[]`); must be non-null
 NullableCollection: androidx.core.app.NotificationCompat.Action#getRemoteInputs():
     Return type of method androidx.core.app.NotificationCompat.Action.getRemoteInputs() is a nullable collection (`androidx.core.app.RemoteInput[]`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getMessages():
+    Return type of method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.getMessages() is a nullable collection (`java.lang.String[]`); must be non-null
+NullableCollection: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation#getParticipants():
+    Return type of method androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.getParticipants() is a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.core.app.ShareCompat.IntentReader#getEmailBcc():
     Return type of method androidx.core.app.ShareCompat.IntentReader.getEmailBcc() is a nullable collection (`java.lang.String[]`); must be non-null
 NullableCollection: androidx.core.app.ShareCompat.IntentReader#getEmailCc():
@@ -929,6 +1021,8 @@ StaticFinalBuilder: androidx.core.app.NotificationChannelGroupCompat.Builder:
     Builder must be final: androidx.core.app.NotificationChannelGroupCompat.Builder
 StaticFinalBuilder: androidx.core.app.NotificationCompat.Builder:
     Builder must be final: androidx.core.app.NotificationCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder:
+    Builder must be final: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder
 StaticFinalBuilder: androidx.core.app.Person.Builder:
     Builder must be final: androidx.core.app.Person.Builder
 StaticFinalBuilder: androidx.core.app.ShareCompat.IntentBuilder:
@@ -945,3 +1039,17 @@ StreamFiles: androidx.core.os.EnvironmentCompat#getStorageState(java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.os.EnvironmentCompat.getStorageState(java.io.File)
 StreamFiles: androidx.core.util.AtomicFile#AtomicFile(java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: constructor androidx.core.util.AtomicFile(java.io.File)
+
+
+TopLevelBuilder: androidx.core.app.TaskStackBuilder:
+    Builder should be defined as inner class: androidx.core.app.TaskStackBuilder
+
+
+VisiblySynchronized: androidx.core.os.CancellationSignal#cancel():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.cancel()
+VisiblySynchronized: androidx.core.os.CancellationSignal#getCancellationSignalObject():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.getCancellationSignalObject()
+VisiblySynchronized: androidx.core.os.CancellationSignal#isCanceled():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.isCanceled()
+VisiblySynchronized: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener)

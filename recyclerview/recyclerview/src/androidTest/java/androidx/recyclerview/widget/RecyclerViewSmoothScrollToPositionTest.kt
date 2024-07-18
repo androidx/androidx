@@ -27,7 +27,6 @@ import java.util.concurrent.TimeUnit
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,7 +87,6 @@ class RecyclerViewSmoothScrollToPositionTest {
         assertThat(log[2], `is`(RecyclerView.SCROLL_STATE_IDLE))
     }
 
-    @Ignore("b/291327689")
     @Test
     @Throws(Throwable::class)
     fun smoothScroll_whenSmoothScrollerStops_destinationReached() {

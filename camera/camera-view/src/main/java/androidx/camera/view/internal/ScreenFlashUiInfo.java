@@ -26,12 +26,12 @@ import androidx.camera.view.ScreenFlashView;
 import java.util.Objects;
 
 /**
- * Internal data class that encapsulates an {@link ImageCapture.ScreenFlash} and its
+ * Internal data class that encapsulates an {@link ImageCapture.ScreenFlashUiControl} and its
  * provider.
  */
 public class ScreenFlashUiInfo {
     /**
-     * Since {@link ImageCapture.ScreenFlash} can be created from either the
+     * Since {@link ImageCapture.ScreenFlashUiControl} can be created from either the
      * {@link ScreenFlashView} set by user or the one internally used in {@link PreviewView},
      * {@link CameraController} needs to know where exactly the control is from so that it can
      * prioritize the user-set one when both are available.
@@ -45,12 +45,12 @@ public class ScreenFlashUiInfo {
     private final ProviderType mProviderType;
 
     @Nullable
-    private final ImageCapture.ScreenFlash mScreenFlash;
+    private final ImageCapture.ScreenFlashUiControl mScreenFlashUiControl;
 
     public ScreenFlashUiInfo(@NonNull ProviderType providerType,
-            @Nullable ImageCapture.ScreenFlash screenFlash) {
+            @Nullable ImageCapture.ScreenFlashUiControl screenFlashUiControl) {
         mProviderType = providerType;
-        mScreenFlash = screenFlash;
+        mScreenFlashUiControl = screenFlashUiControl;
     }
 
     @NonNull
@@ -59,8 +59,8 @@ public class ScreenFlashUiInfo {
     }
 
     @Nullable
-    public ImageCapture.ScreenFlash getScreenFlash() {
-        return mScreenFlash;
+    public ImageCapture.ScreenFlashUiControl getScreenFlashUiControl() {
+        return mScreenFlashUiControl;
     }
 
     @Override
@@ -68,12 +68,12 @@ public class ScreenFlashUiInfo {
         if (this == o) return true;
         if (!(o instanceof ScreenFlashUiInfo)) return false;
         ScreenFlashUiInfo that = (ScreenFlashUiInfo) o;
-        return mProviderType == that.mProviderType && Objects.equals(mScreenFlash,
-                that.mScreenFlash);
+        return mProviderType == that.mProviderType && Objects.equals(mScreenFlashUiControl,
+                that.mScreenFlashUiControl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mProviderType, mScreenFlash);
+        return Objects.hash(mProviderType, mScreenFlashUiControl);
     }
 }

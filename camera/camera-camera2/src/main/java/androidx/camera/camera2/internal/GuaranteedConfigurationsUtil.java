@@ -615,35 +615,6 @@ public final class GuaranteedConfigurationsUtil {
     }
 
     /**
-     * Returns the minimally guaranteed stream combinations for Ultra HDR.
-     */
-    @NonNull
-    public static List<SurfaceCombination> getUltraHdrSupportedCombinationList() {
-        // Due to the unique characteristics of JPEG/R, some devices might configure an extra 8-bit
-        // JPEG stream internally in addition to the 10-bit YUV stream. The 10-bit mandatory
-        // stream combination table is actually not suitable for use. Adds only (PRIV, PREVIEW) +
-        // (JPEG_R, MAXIMUM), which is guaranteed by CTS test, as the supported combination.
-
-        List<SurfaceCombination> combinationList = new ArrayList<>();
-
-        // (JPEG_R, MAXIMUM)
-        SurfaceCombination surfaceCombination1 = new SurfaceCombination();
-        surfaceCombination1.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination1);
-
-        // (PRIV, PREVIEW) + (JPEG_R, MAXIMUM)
-        SurfaceCombination surfaceCombination2 = new SurfaceCombination();
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.PRIV, ConfigSize.PREVIEW));
-        surfaceCombination2.addSurfaceConfig(
-                SurfaceConfig.create(ConfigType.JPEG_R, ConfigSize.MAXIMUM));
-        combinationList.add(surfaceCombination2);
-
-        return combinationList;
-    }
-
-    /**
      * Returns the at least supported stream combinations for concurrent cameras.
      */
     @NonNull

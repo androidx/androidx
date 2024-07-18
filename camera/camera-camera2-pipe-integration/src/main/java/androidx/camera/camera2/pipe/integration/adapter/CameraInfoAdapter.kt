@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
@@ -26,25 +28,18 @@ import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
-import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
-import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
-import androidx.camera.camera2.pipe.integration.compat.quirk.ZslDisablerQuirk
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
-import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.DeviceInfoLogger
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
-import androidx.camera.camera2.pipe.integration.internal.CameraFovInfo
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
@@ -62,7 +57,6 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
-import androidx.camera.core.impl.DynamicRanges
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
@@ -88,22 +82,8 @@ class CameraInfoAdapter @Inject constructor(
     private val cameraQuirks: CameraQuirks,
     private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
-    private val cameraFovInfo: CameraFovInfo,
 ) : CameraInfoInternal {
-    init {
-        DeviceInfoLogger.logDeviceInfo(cameraProperties)
-    }
-
-    private val _physicalCameraInfos by lazy {
-        cameraProperties.metadata.physicalCameraIds.mapTo(mutableSetOf<CameraInfo>()) {
-                physicalCameraId ->
-            val cameraProperties = CameraPipeCameraProperties(
-                CameraConfig(physicalCameraId),
-                cameraProperties.metadata.awaitPhysicalMetadata(physicalCameraId)
-            )
-            PhysicalCameraInfoAdapter(cameraProperties)
-        }
-    }
+    init { DeviceInfoLogger.logDeviceInfo(cameraProperties) }
 
     private val isLegacyDevice by lazy {
         cameraProperties.metadata[
@@ -116,28 +96,9 @@ class CameraInfoAdapter @Inject constructor(
         Camera2CameraInfo.create(cameraProperties)
     }
 
-    override fun isLogicalMultiCameraSupported(): Boolean {
-        return cameraProperties.metadata.supportsLogicalMultiCamera
-    }
-
-    override fun getPhysicalCameraInfos(): Set<CameraInfo> = _physicalCameraInfos
-
     override fun getCameraId(): String = cameraConfig.cameraId.value
     override fun getLensFacing(): Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
-
-    override fun getCameraCharacteristics() =
-        cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
-
-    override fun getPhysicalCameraCharacteristics(physicalCameraId: String): Any? {
-        val cameraId = CameraId.fromCamera2Id(physicalCameraId)
-        if (!cameraProperties.metadata.physicalCameraIds.contains(cameraId)) {
-            return null
-        }
-        return cameraProperties.metadata.awaitPhysicalMetadata(cameraId).unwrapAs(
-            CameraCharacteristics::class
-        )
-    }
 
     @CameraSelector.LensFacing
     private fun getCameraSelectorLensFacing(lensFacingInt: Int): Int {
@@ -204,10 +165,6 @@ class CameraInfoAdapter @Inject constructor(
         }
     }
 
-    override fun getSupportedOutputFormats(): Set<Int> {
-        return streamConfigurationMapCompat.getOutputFormats()?.toSet() ?: emptySet()
-    }
-
     @SuppressLint("ClassVerificationFailure")
     override fun getSupportedResolutions(format: Int): List<Size> {
         return streamConfigurationMapCompat.getOutputSizes(format)?.toList() ?: emptyList()
@@ -233,24 +190,26 @@ class CameraInfoAdapter @Inject constructor(
         ?: emptySet()
 
     override fun isZslSupported(): Boolean {
-        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported &&
-            DeviceQuirks[ZslDisablerQuirk::class.java] == null
+        Log.warn { "TODO: isZslSupported are not yet supported." }
+        return false
     }
 
     override fun isPrivateReprocessingSupported(): Boolean {
-        return cameraProperties.metadata.supportsPrivateReprocessing
+        Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
+        return false
     }
 
+    @SuppressLint("ClassVerificationFailure")
     override fun getSupportedDynamicRanges(): Set<DynamicRange> {
-        return DynamicRangeProfilesCompat
-            .fromCameraMetaData(cameraProperties.metadata)
-            .supportedDynamicRanges
-    }
-
-    override fun querySupportedDynamicRanges(
-        candidateDynamicRanges: Set<DynamicRange>
-    ): Set<DynamicRange> {
-        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges, supportedDynamicRanges)
+        // TODO: use DynamicRangesCompat instead after it is migrates from camera-camera2.
+        if (Build.VERSION.SDK_INT >= 33) {
+            val availableProfiles = cameraProperties.metadata[
+                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]
+            if (availableProfiles != null) {
+                return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
+            }
+        }
+        return setOf(SDR)
     }
 
     override fun isPreviewStabilizationSupported(): Boolean {
@@ -258,8 +217,7 @@ class CameraInfoAdapter @Inject constructor(
             CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
         return availableVideoStabilizationModes != null &&
             availableVideoStabilizationModes.contains(
-                CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-            )
+            CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
     }
 
     override fun isVideoStabilizationSupported(): Boolean {
@@ -267,21 +225,7 @@ class CameraInfoAdapter @Inject constructor(
             CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
         return availableVideoStabilizationModes != null &&
             availableVideoStabilizationModes.contains(
-                CONTROL_VIDEO_STABILIZATION_MODE_ON
-            )
-    }
-
-    override fun getIntrinsicZoomRatio(): Float {
-        var intrinsicZoomRatio = CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN
-        try {
-            intrinsicZoomRatio =
-                cameraFovInfo.getDefaultCameraDefaultViewAngleDegrees().toFloat() /
-                    cameraFovInfo.getDefaultViewAngleDegrees().toFloat()
-        } catch (e: Exception) {
-            Log.error(e) { "Failed to get the intrinsic zoom ratio" }
-        }
-
-        return intrinsicZoomRatio
+            CONTROL_VIDEO_STABILIZATION_MODE_ON)
     }
 
     private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {

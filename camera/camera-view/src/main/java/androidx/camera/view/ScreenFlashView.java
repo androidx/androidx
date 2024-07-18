@@ -32,7 +32,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.ScreenFlash;
+import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.Logger;
 import androidx.camera.view.internal.ScreenFlashUiInfo;
 import androidx.fragment.app.Fragment;
@@ -40,9 +41,9 @@ import androidx.fragment.app.Fragment;
 /**
  * Custom View that implements a basic UI for screen flash photo capture.
  *
- * <p> This class provides an {@link ScreenFlash} implementation with
- * {@link #getScreenFlash()} for the
- * {@link ImageCapture#setScreenFlash(ImageCapture.ScreenFlash)} API. If a
+ * <p> This class provides an {@link ScreenFlashUiControl} implementation with
+ * {@link #getScreenFlashUiControl()} for the
+ * {@link ImageCapture#setScreenFlashUiControl(ScreenFlashUiControl)} API. If a
  * {@link CameraController} is used for CameraX operations,{@link #setController(CameraController)}
  * should be used to set the controller to this view. Normally, this view is kept fully
  * transparent. It becomes fully visible for the duration of screen flash photo capture. The
@@ -60,14 +61,14 @@ import androidx.fragment.app.Fragment;
  * separately so that whole screen can be encompassed during screen flash operation.
  *
  * @see ImageCapture#FLASH_MODE_SCREEN
- * @see PreviewView#getScreenFlash
+ * @see PreviewView#getScreenFlashUiControl
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ScreenFlashView extends View {
     private static final String TAG = "ScreenFlashView";
     private CameraController mCameraController;
     private Window mScreenFlashWindow;
-    private ImageCapture.ScreenFlash mScreenFlash;
+    private ScreenFlashUiControl mScreenFlashUiControl;
 
     @UiThread
     public ScreenFlashView(@NonNull Context context) {
@@ -96,9 +97,9 @@ public final class ScreenFlashView extends View {
     }
 
     /**
-     * Sets the {@link CameraController}.
+     * Sets {@link ScreenFlashUiInfo} to a {@link CameraController}.
      *
-     * <p> Once set, the controller will use the {@code ScreenFlashView} for screen flash related UI
+     * <p> Once set, the controller will use {@link ScreenFlashView} for screen flash related UI
      * operations.
      *
      * @throws IllegalStateException If {@link ImageCapture#FLASH_MODE_SCREEN} is set to the
@@ -111,7 +112,7 @@ public final class ScreenFlashView extends View {
         checkMainThread();
 
         if (mCameraController != null && mCameraController != cameraController) {
-            // If already bound to a different controller, remove the ScreenFlash instance from the
+            // If already bound to a different controller, remove the ScreenFlashUiControl from the
             // old controller.
             setScreenFlashUiInfo(null);
         }
@@ -127,12 +128,12 @@ public final class ScreenFlashView extends View {
                     "No window set despite setting FLASH_MODE_SCREEN in CameraController");
         }
 
-        setScreenFlashUiInfo(getScreenFlash());
+        setScreenFlashUiInfo(getScreenFlashUiControl());
     }
 
-    private void setScreenFlashUiInfo(ImageCapture.ScreenFlash control) {
+    private void setScreenFlashUiInfo(ScreenFlashUiControl control) {
         if (mCameraController == null) {
-            Logger.d(TAG, "setScreenFlashUiInfo: mCameraController is null!");
+            Logger.d(TAG, "setScreenFlashUiControl: mCameraController is null!");
             return;
         }
         mCameraController.setScreenFlashUiInfo(new ScreenFlashUiInfo(
@@ -141,7 +142,7 @@ public final class ScreenFlashView extends View {
 
     /**
      * Sets a {@link Window} instance for subsequent photo capture requests with
-     * {@link ImageCapture} use case when {@link ImageCapture#FLASH_MODE_SCREEN} is set.
+     * {@link ImageCapture} use case when{@link ImageCapture#FLASH_MODE_SCREEN} is set.
      *
      * <p>The calling of this API will take effect for {@code ImageCapture#FLASH_MODE_SCREEN} only
      * and the {@code Window} will be ignored for other flash modes. During screen flash photo
@@ -162,21 +163,21 @@ public final class ScreenFlashView extends View {
     @UiThread
     public void setScreenFlashWindow(@Nullable Window screenFlashWindow) {
         checkMainThread();
-        updateScreenFlash(screenFlashWindow);
+        updateScreenFlashUiControl(screenFlashWindow);
         mScreenFlashWindow = screenFlashWindow;
-        setScreenFlashUiInfo(getScreenFlash());
+        setScreenFlashUiInfo(getScreenFlashUiControl());
     }
 
-    /** Update {@link #mScreenFlash} if required. */
-    private void updateScreenFlash(Window window) {
+    /** Update {@link #mScreenFlashUiControl} if required. */
+    private void updateScreenFlashUiControl(Window window) {
         if (mScreenFlashWindow != window) {
-            mScreenFlash = window == null ? null : new ScreenFlash() {
+            mScreenFlashUiControl = window == null ? null : new ScreenFlashUiControl() {
                 private float mPreviousBrightness;
 
                 @Override
-                public void apply(long expirationTimeMillis,
-                        @NonNull ImageCapture.ScreenFlashListener screenFlashListener) {
-                    Logger.d(TAG, "ScreenFlash#apply");
+                public void applyScreenFlashUi(
+                        @NonNull ScreenFlashUiCompleter screenFlashUiCompleter) {
+                    Logger.d(TAG, "ScreenFlashUiControl#applyScreenFlashUi");
 
                     setAlpha(1f);
 
@@ -186,12 +187,12 @@ public final class ScreenFlashView extends View {
                     layoutParam.screenBrightness = 1F;
                     mScreenFlashWindow.setAttributes(layoutParam);
 
-                    screenFlashListener.onCompleted();
+                    screenFlashUiCompleter.complete();
                 }
 
                 @Override
-                public void clear() {
-                    Logger.d(TAG, "ScreenFlash#clearScreenFlashUi");
+                public void clearScreenFlashUi() {
+                    Logger.d(TAG, "ScreenFlashUiControl#clearScreenFlashUi");
 
                     setAlpha(0f);
 
@@ -205,27 +206,27 @@ public final class ScreenFlashView extends View {
     }
 
     /**
-     * Returns an {@link ScreenFlash} implementation based on the {@link Window} instance
+     * Returns an {@link ScreenFlashUiControl} implementation based on the {@link Window} instance
      * set via {@link #setScreenFlashWindow(Window)}.
      *
-     * <p> When {@link ScreenFlash#apply(long, ImageCapture.ScreenFlashListener)} is invoked,
+     * <p> When {@link ScreenFlashUiControl#applyScreenFlashUi(ScreenFlashUiCompleter)} is invoked,
      * this view becomes fully visible and screen brightness is maximized using the provided
      * {@code Window}. The default color of the overlay view is {@link Color#WHITE}. To change
      * the color, use {@link #setBackgroundColor(int)}.
      *
-     * <p> When {@link ScreenFlash#clear()} is invoked, the view
+     * <p> When {@link ScreenFlashUiControl#clearScreenFlashUi()} is invoked, the view
      * becomes transparent and screen brightness is restored.
      *
      * <p> The {@code Window} instance parameter can usually be provided from the activity using
      * the {@link PreviewView}, see {@link Activity#getWindow()} for details. If a null {@code
      * Window} is set or none set at all, a null value will be returned by this method.
      *
-     * @return A simple {@link ScreenFlash} implementation, or null value if a non-null
+     * @return A simple {@link ScreenFlashUiControl} implementation, or null value if a non-null
      *         {@code Window} instance hasn't been set.
      */
     @UiThread
     @Nullable
-    public ScreenFlash getScreenFlash() {
-        return mScreenFlash;
+    public ScreenFlashUiControl getScreenFlashUiControl() {
+        return mScreenFlashUiControl;
     }
 }

@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +25,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation('androidx.core:core:1.5.0')
+    implementation('androidx.core:core:1.5.0-beta01')
     implementation('androidx.collection:collection:1.1.0')
 
     annotationProcessor(libs.nullaway)
@@ -65,7 +59,7 @@ android {
 
 androidx {
     name = "Metrics"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2021"
     description = "Library for tracking and reporting various runtime metrics for applications"
     metalavaK2UastEnabled = true

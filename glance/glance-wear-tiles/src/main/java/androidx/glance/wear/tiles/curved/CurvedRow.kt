@@ -124,7 +124,7 @@ private fun applyCurvedScope(
 
     return {
         curvedChildList.forEach { composable ->
-            object : CurvedChildScope {}.composable()
+            object : CurvedChildScope {}.apply { composable() }
         }
     }
 }

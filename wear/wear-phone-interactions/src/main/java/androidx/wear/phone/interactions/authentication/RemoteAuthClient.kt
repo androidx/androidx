@@ -32,11 +32,6 @@ import androidx.annotation.UiThread
 import java.util.ArrayDeque
 import java.util.Queue
 import java.util.concurrent.Executor
-import java.util.function.Consumer
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.flowOf
 
 /**
  * Provides a client for supporting remote authentication on Wear. The authentication session
@@ -91,7 +86,6 @@ import kotlinx.coroutines.flow.flowOf
  * ```
  */
 public class RemoteAuthClient internal constructor(
-    private val remoteInteractionsManager: IRemoteInteractionsManager,
     private val serviceBinder: ServiceBinder,
     private val uiThreadExecutor: Executor,
     private val packageName: String
@@ -136,32 +130,6 @@ public class RemoteAuthClient internal constructor(
         internal const val ACTION_AUTH: String =
             "android.support.wearable.authentication.action.OAUTH"
 
-        /**
-         * The remote auth's availability is unknown.
-         *
-         * On older devices, [STATUS_UNKNOWN] is returned as we can not determine the availability states. To preserve
-         * compatibility with existing devices behavior, try [sendAuthorizationRequest] and handle
-         * error codes accordingly.
-         */
-        public const val STATUS_UNKNOWN = 0
-
-        /**
-         * Indicates that remote auth is unavailable because there is no paired device capable of handling the remote interaction.
-         */
-        public const val STATUS_UNAVAILABLE = 1
-
-        /**
-         * Indicates that remote auth is temporarily unavailable.
-         *
-         * There is a known paired device, but it is not currently connected or reachable to handle the remote interaction.
-         */
-        public const val STATUS_TEMPORARILY_UNAVAILABLE = 2
-
-        /**
-         * Indicates that remote auth is available with a connected device capable to handle the remote interaction.
-         */
-        public const val STATUS_AVAILABLE = 3
-
         /** Indicates 3p authentication is finished without error  */
         public const val NO_ERROR: Int = -1
 
@@ -190,7 +158,6 @@ public class RemoteAuthClient internal constructor(
         public fun create(context: Context): RemoteAuthClient {
             val appContext: Context = context.applicationContext
             return RemoteAuthClient(
-                RemoteInteractionsManagerCompat(appContext),
                 object : ServiceBinder {
                     override fun bindService(
                         intent: Intent,
@@ -240,50 +207,6 @@ public class RemoteAuthClient internal constructor(
          */
         @UiThread
         public abstract fun onAuthorizationError(request: OAuthRequest, @ErrorCode errorCode: Int)
-    }
-
-    /**
-     * Returns status indicating whether remote auth operation (such as [sendAuthorizationRequest]) is available.
-     *
-     * In scenarios of restricted connection or temporary disconnection with a paired device,
-     * remote auth operations will not be available. Please check status before [sendAuthorizationRequest]
-     * to provide better experience for the user.
-     *
-     * On older wear devices which do not support availability status, it will always return [STATUS_UNKNOWN].
-     * Wear devices start to support determining the availability status from Wear Sdk WEAR_TIRAMISU_4.
-     *
-     * @sample androidx.wear.phone.interactions.samples.AuthAvailabilitySample
-     *
-     * @return a [Flow] with a stream of status updates that could be one of [STATUS_UNKNOWN],
-     *   [STATUS_UNAVAILABLE], [STATUS_TEMPORARILY_UNAVAILABLE], [STATUS_AVAILABLE].
-     *
-     */
-    public val availabilityStatus: Flow<Int> get() {
-        if (!remoteInteractionsManager.isAvailabilityStatusApiSupported) {
-            return flowOf(STATUS_UNKNOWN)
-        }
-
-        return getRemoteAuthAvailableInternal()
-    }
-
-    private fun getRemoteAuthAvailableInternal(): Flow<Int> {
-        return callbackFlow {
-            val callback =
-                object : Consumer<Int> {
-                    override fun accept(value: Int) {
-                        // Emit WearSDK values through AndroidX with 1:1 mapping.
-                        trySend(value)
-                    }
-                }
-
-            remoteInteractionsManager
-                .registerRemoteAuthClientStatusListener(Runnable::run, callback)
-
-            awaitClose {
-                remoteInteractionsManager
-                    .unregisterRemoteAuthClientStatusListener(callback)
-            }
-        }
     }
 
     /**

@@ -142,10 +142,8 @@ class CustomConverterProcessorTest {
     @Test
     fun parametrizedTypeSpecific() {
         val date = CommonTypeNames.DATE
-        val list = CommonTypeNames.MUTABLE_LIST.parametrizedBy(STRING.copy(nullable = true))
-        val map = CommonTypeNames.MUTABLE_MAP.parametrizedBy(
-            STRING.copy(nullable = true), date.copy(nullable = true)
-        )
+        val list = CommonTypeNames.MUTABLE_LIST.parametrizedBy(STRING)
+        val map = CommonTypeNames.MUTABLE_MAP.parametrizedBy(STRING, date)
         singleClass(createConverter(list, map)) { converter, _ ->
             assertThat(converter?.fromTypeName).isEqualTo(list)
             assertThat(converter?.toTypeName).isEqualTo(map)
@@ -280,12 +278,9 @@ class CustomConverterProcessorTest {
             )
             val converter = CustomConverterProcessor(invocation.context, element)
                 .process().firstOrNull()
-            assertThat(converter?.fromTypeName)
-                .isEqualTo(MUTABLE_LIST.parametrizedBy(STRING.copy(nullable = true)))
+            assertThat(converter?.fromTypeName).isEqualTo(MUTABLE_LIST.parametrizedBy(STRING))
             assertThat(converter?.toTypeName).isEqualTo(
-                CommonTypeNames.MUTABLE_MAP.parametrizedBy(
-                    XTypeName.BOXED_INT.copy(nullable = true), STRING.copy(nullable = true)
-                )
+                CommonTypeNames.MUTABLE_MAP.parametrizedBy(XTypeName.BOXED_INT, STRING)
             )
         }
     }

@@ -891,6 +891,7 @@ public class GridLayoutManagerUiAutomationTests extends BaseGridLayoutManagerTes
     }
 
     @NonNull
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     private UiAutomation setUpAndReturnUiAutomation() {
         UiAutomation uiAutomation = getInstrumentation().getUiAutomation();
         final AccessibilityServiceInfo info = uiAutomation.getServiceInfo();

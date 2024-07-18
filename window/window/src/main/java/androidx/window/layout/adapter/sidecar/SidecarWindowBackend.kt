@@ -130,7 +130,7 @@ internal class SidecarWindowBackend @VisibleForTesting constructor(
      * Checks if there are no more registered callbacks left for the activity and inform
      * extension if needed.
      */
-    @GuardedBy("globalLock")
+    @GuardedBy("sLock")
     private fun callbackRemovedForActivity(activity: Activity) {
         val hasRegisteredCallback = windowLayoutChangeCallbacks.any { wrapper ->
             wrapper.activity == activity

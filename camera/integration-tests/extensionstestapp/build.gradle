@@ -15,13 +15,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.ApkCopyHelperKt
 
 plugins {
@@ -52,31 +45,24 @@ android {
 dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
-    implementation(project(':camera:camera-camera2-pipe-integration'))
     implementation(project(":camera:camera-extensions"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
-    implementation(project(":camera:camera-video"))
+    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
+    implementation(libs.guavaListenableFuture)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     // Android Support Library
     api(libs.constraintLayout)
     implementation(libs.kotlinStdlib)
     implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.activity:activity-ktx:1.2.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
     implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.3.1")
-    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
 
     // Guava
     implementation(libs.guavaAndroid)
-    implementation(libs.guavaListenableFuture)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
-
-    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

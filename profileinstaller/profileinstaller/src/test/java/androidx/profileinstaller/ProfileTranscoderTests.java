@@ -65,7 +65,7 @@ public class ProfileTranscoderTests {
     @Test
     public void testTranscodeForN() throws IOException {
         assertGoldenTranscode(
-                testFile("baseline-p.prof"),
+                testFile("baseline.prof"),
                 testFile("baseline-n.prof"),
                 ProfileVersion.V001_N
         );
@@ -74,7 +74,7 @@ public class ProfileTranscoderTests {
     @Test
     public void testTranscodeForO() throws IOException {
         assertGoldenTranscode(
-                testFile("baseline-p.prof"),
+                testFile("baseline.prof"),
                 testFile("baseline-o.prof"),
                 ProfileVersion.V005_O
         );
@@ -83,7 +83,7 @@ public class ProfileTranscoderTests {
     @Test
     public void testTranscodeForO_MR1() throws IOException {
         assertGoldenTranscode(
-                testFile("baseline-p.prof"),
+                testFile("baseline.prof"),
                 testFile("baseline-o-mr1.prof"),
                 ProfileVersion.V009_O_MR1
         );
@@ -92,7 +92,7 @@ public class ProfileTranscoderTests {
     @Test
     public void testTranscodeForP() throws IOException {
         assertGoldenTranscode(
-                testFile("baseline-p.prof"),
+                testFile("baseline.prof"),
                 testFile("baseline-p.prof"),
                 ProfileVersion.V010_P
         );
@@ -104,17 +104,6 @@ public class ProfileTranscoderTests {
                 testFile("jetcaster/baseline-multidex-p.prof"),
                 testFile("jetcaster/baseline-multidex-s.profm"),
                 testFile("jetcaster/baseline-multidex-s.prof"),
-                ProfileVersion.V015_S,
-                "" /* apkName */
-        );
-    }
-
-    @Test
-    public void testTranscodeForS_methodBitmapStorage() throws IOException {
-        assertGoldenTranscodeWithMeta(
-                testFile("katana/baseline-p.prof"),
-                testFile("katana/baseline-s.profm"),
-                testFile("katana/baseline-s.prof"),
                 ProfileVersion.V015_S,
                 "" /* apkName */
         );
@@ -189,17 +178,6 @@ public class ProfileTranscoderTests {
                 testFile("finsky/baseline-multidex-s.prof"),
                 testFile("finsky/baseline-multidex.profm"),
                 testFile("finsky/baseline-multidex-golden.prof"),
-                ProfileVersion.V015_S,
-                "" /* apkName */
-        );
-    }
-
-    @Test
-    public void testTranscodeForS_ComposeLife() throws IOException {
-        assertGoldenTranscodeWithMeta(
-                testFile("composelife/baseline.prof"),
-                testFile("composelife/baseline.profm"),
-                testFile("composelife/baseline-s.prof"),
                 ProfileVersion.V015_S,
                 "" /* apkName */
         );

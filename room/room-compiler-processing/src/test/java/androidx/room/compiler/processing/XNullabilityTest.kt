@@ -29,6 +29,7 @@ import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.UNIT
 import com.squareup.kotlinpoet.javapoet.JTypeName
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -319,7 +320,15 @@ class XNullabilityTest {
                     assertThat(it.nullability).isEqualTo(NULLABLE)
                 }
                 if (invocation.isKsp) {
-                    assertThat(typeArg.asTypeName().kotlin).isEqualTo(INT.copy(nullable = true))
+                    assertThat(typeArg.asTypeName().kotlin).isEqualTo(
+                        when (it) {
+                            "KotlinClass" -> INT.copy(nullable = true)
+                            // A type arg from Java has unknown nullability,
+                            // so name defaults to not-null
+                            "JavaClass" -> INT
+                            else -> fail("Unknown src $it")
+                        }
+                    )
 
                     typeArg.makeNonNullable().let {
                         assertThat(it.asTypeName().kotlin).isEqualTo(INT)

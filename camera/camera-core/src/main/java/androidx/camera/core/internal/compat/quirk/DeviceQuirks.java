@@ -44,12 +44,6 @@ public class DeviceQuirks {
     private DeviceQuirks() {
     }
 
-    /** Returns all device specific quirks loaded on the current device. */
-    @NonNull
-    public static Quirks getAll() {
-        return QUIRKS;
-    }
-
     /**
      * Retrieves a specific device {@link Quirk} instance given its type.
      *

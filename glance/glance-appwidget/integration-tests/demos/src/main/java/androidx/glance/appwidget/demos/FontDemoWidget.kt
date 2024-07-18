@@ -22,26 +22,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
-import androidx.glance.GlanceTheme
-import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.components.Scaffold
-import androidx.glance.appwidget.components.TitleBar
+import androidx.glance.appwidget.background
 import androidx.glance.appwidget.provideContent
 import androidx.glance.layout.Column
 import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.layout.wrapContentHeight
 import androidx.glance.text.FontFamily
+import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 
 /**
@@ -63,36 +65,40 @@ class FontDemoWidget : GlanceAppWidget() {
         // showcase different fonts.
         var font by remember { mutableStateOf(FontFamily.Serif) }
 
-        Scaffold(
-            titleBar = {
-                TitleBar(
-                    startIcon = ImageProvider(R.drawable.ic_demo_app),
-                    title = "Font Demo Widget"
-                )
-            },
-            backgroundColor = GlanceTheme.colors.widgetBackground
+        Column(
+            modifier = GlanceModifier.fillMaxSize()
+                .background(day = Color.LightGray, night = Color.DarkGray).padding(8.dp),
         ) {
-            Column(modifier = GlanceModifier.fillMaxSize().padding(bottom = 16.dp)) {
-                Text(
-                    "Font: " + font.family,
-                    style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.SansSerif)
+            Text(
+                "Font Demo Widget",
+                modifier = GlanceModifier.fillMaxWidth().wrapContentHeight(),
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    textAlign = TextAlign.Center
                 )
-                Spacer(GlanceModifier.size(15.dp))
-                Text(
-                    "The quick brown fox jumps over the lazy dog.",
-                    style = TextStyle(fontSize = 18.sp, fontFamily = font)
-                )
-                Spacer(GlanceModifier.defaultWeight())
-                Button(text = "Toggle font", onClick = {
-                    font = when (font) {
-                        FontFamily.Serif -> FontFamily.SansSerif
-                        FontFamily.SansSerif -> FontFamily.Cursive
-                        FontFamily.Cursive -> FontFamily.Monospace
-                        FontFamily.Monospace -> FontFamily.Serif
-                        else -> FontFamily.SansSerif
-                    }
-                })
-            }
+            )
+            Spacer(GlanceModifier.size(15.dp))
+
+            Text(
+                "Font: " + font.family,
+                style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.SansSerif)
+            )
+            Spacer(GlanceModifier.size(15.dp))
+            Text(
+                "The quick brown fox jumps over the lazy dog.",
+                style = TextStyle(fontSize = 18.sp, fontFamily = font)
+            )
+            Spacer(GlanceModifier.defaultWeight())
+            Button(text = "Toggle font", onClick = {
+                font = when (font) {
+                    FontFamily.Serif -> FontFamily.SansSerif
+                    FontFamily.SansSerif -> FontFamily.Cursive
+                    FontFamily.Cursive -> FontFamily.Monospace
+                    FontFamily.Monospace -> FontFamily.Serif
+                    else -> FontFamily.SansSerif
+                }
+            })
         }
     }
 }

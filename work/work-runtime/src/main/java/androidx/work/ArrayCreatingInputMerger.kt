@@ -51,8 +51,7 @@ class ArrayCreatingInputMerger : InputMerger() {
                     // First time encountering this key.
                     if (valueClass.isArray) {
                         // Arrays carry over as-is.
-                        // if valueClass.isArray is true then value isn't null
-                        value as Any
+                        value
                     } else {
                         // Primitives get turned into size 1 arrays.
                         createArrayFor(value, valueClass)
@@ -63,8 +62,7 @@ class ArrayCreatingInputMerger : InputMerger() {
                     when {
                         existingValueClass == valueClass -> {
                             // The classes match; we can merge.
-                            // both classes are arrays in this case => value isn't null
-                            concatenateArrays(existingValue, value as Any)
+                            concatenateArrays(existingValue, value)
                         }
                         existingValueClass.componentType == valueClass -> {
                             // We have an existing array of the same type.

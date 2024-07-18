@@ -104,9 +104,13 @@ public final class AppOpsManagerCompat {
      */
     public static int noteOp(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        AppOpsManager appOpsManager =
-                (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        return appOpsManager.noteOp(op, uid, packageName);
+        if (SDK_INT >= 19) {
+            AppOpsManager appOpsManager =
+                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return Api19Impl.noteOp(appOpsManager, op, uid, packageName);
+        } else {
+            return MODE_IGNORED;
+        }
     }
 
     /**
@@ -120,9 +124,13 @@ public final class AppOpsManagerCompat {
      */
     public static int noteOpNoThrow(@NonNull Context context, @NonNull String op, int uid,
             @NonNull String packageName) {
-        AppOpsManager appOpsManager =
-                (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-        return appOpsManager.noteOpNoThrow(op, uid, packageName);
+        if (SDK_INT >= 19) {
+            AppOpsManager appOpsManager =
+                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            return Api19Impl.noteOpNoThrow(appOpsManager, op, uid, packageName);
+        } else {
+            return MODE_IGNORED;
+        }
     }
 
     /**
@@ -272,6 +280,24 @@ public final class AppOpsManagerCompat {
         static int noteProxyOpNoThrow(AppOpsManager appOpsManager, String op,
                 String proxiedPackageName) {
             return appOpsManager.noteProxyOpNoThrow(op, proxiedPackageName);
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int noteOpNoThrow(AppOpsManager appOpsManager, String op, int uid,
+                String packageName) {
+            return appOpsManager.noteOpNoThrow(op, uid, packageName);
+        }
+
+        @DoNotInline
+        static int noteOp(AppOpsManager appOpsManager, String op, int uid, String packageName) {
+            return appOpsManager.noteOp(op, uid, packageName);
         }
     }
 }

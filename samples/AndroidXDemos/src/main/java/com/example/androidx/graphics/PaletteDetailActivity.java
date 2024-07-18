@@ -96,27 +96,27 @@ public class PaletteDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.menu_num_colors_8) {
-            loadImage(8);
-            item.setChecked(true);
-            return true;
-        } else if (itemId == R.id.menu_num_colors_12) {
-            loadImage(12);
-            item.setChecked(true);
-            return true;
-        } else if (itemId == R.id.menu_num_colors_16) {
-            loadImage(16);
-            item.setChecked(true);
-            return true;
-        } else if (itemId == R.id.menu_num_colors_24) {
-            loadImage(24);
-            item.setChecked(true);
-            return true;
-        } else if (itemId == R.id.menu_num_colors_32) {
-            loadImage(32);
-            item.setChecked(true);
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_num_colors_8:
+                loadImage(8);
+                item.setChecked(true);
+                return true;
+            case R.id.menu_num_colors_12:
+                loadImage(12);
+                item.setChecked(true);
+                return true;
+            case R.id.menu_num_colors_16:
+                loadImage(16);
+                item.setChecked(true);
+                return true;
+            case R.id.menu_num_colors_24:
+                loadImage(24);
+                item.setChecked(true);
+                return true;
+            case R.id.menu_num_colors_32:
+                loadImage(32);
+                item.setChecked(true);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }

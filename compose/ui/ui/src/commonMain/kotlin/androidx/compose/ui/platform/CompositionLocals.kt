@@ -197,6 +197,10 @@ val LocalWindowInfo = staticCompositionLocalOf<WindowInfo> {
 /**
  * The CompositionLocal containing the current [LifecycleOwner].
  */
+@Deprecated(
+    "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
+    ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
+)
 expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
 
 internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconService?> {

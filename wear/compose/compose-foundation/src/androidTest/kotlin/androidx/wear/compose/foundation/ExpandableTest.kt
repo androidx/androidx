@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -49,8 +48,6 @@ import org.junit.Test
 class ExpandableTest {
     @get:Rule
     val rule = createComposeRule()
-
-    private val restorationTester = StateRestorationTester(rule)
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
@@ -105,24 +102,6 @@ class ExpandableTest {
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun expanded_click() = verifyClick(true)
-
-    @Test
-    fun restoreState_after_recomposition() {
-        var expandableState: ExpandableState? = null
-        restorationTester.setContent {
-            expandableState = rememberExpandableState() // initially set expanded to false
-            expandableState?.expanded = true
-        }
-
-        rule.runOnUiThread {
-            // set to null which signifies recomposition
-            expandableState = null
-        }
-
-        restorationTester.emulateSavedInstanceStateRestore()
-
-        assertEquals(expandableState?.expanded, true)
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun verifyClick(initiallyExpanded: Boolean) {

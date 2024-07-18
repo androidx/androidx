@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.RunApiTasks
 
-import androidx.build.LibraryType
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -35,7 +28,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
-    api("androidx.wear.protolayout:protolayout-expression:1.0.0")
+    api("androidx.wear.protolayout:protolayout-expression:1.0.0-beta01")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
@@ -66,7 +59,7 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 
@@ -77,7 +70,7 @@ android {
 
 androidx {
     name = "Android Wear Complications Data"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Wear Complications Data"
     metalavaK2UastEnabled = true

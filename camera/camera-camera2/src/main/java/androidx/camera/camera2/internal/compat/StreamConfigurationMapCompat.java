@@ -71,23 +71,6 @@ public class StreamConfigurationMapCompat {
         return new StreamConfigurationMapCompat(map, outputSizesCorrector);
     }
 
-
-    /**
-     * Get the image format output formats in this stream configuration.
-     *
-     * <p>All image formats returned by this function will be defined in either ImageFormat or in
-     * PixelFormat.
-     *
-     * @return an array of integer format
-     * @see ImageFormat
-     * @see PixelFormat
-     */
-    @Nullable
-    public int[] getOutputFormats() {
-        int[] result = mImpl.getOutputFormats();
-        return result == null ? null : result.clone();
-    }
-
     /**
      * Get a list of sizes compatible with the requested image {@code format}.
      *
@@ -184,9 +167,6 @@ public class StreamConfigurationMapCompat {
     }
 
     interface StreamConfigurationMapCompatImpl {
-
-        @Nullable
-        int[] getOutputFormats();
 
         @Nullable
         Size[] getOutputSizes(int format);

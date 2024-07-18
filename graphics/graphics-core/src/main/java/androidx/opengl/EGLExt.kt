@@ -375,7 +375,7 @@ class EGLExt private constructor() {
             hardwareBuffer: HardwareBuffer
         ): EGLImageKHR? {
             val handle = EGLBindings.nCreateImageFromHardwareBuffer(
-                eglDisplay.nativeHandle, hardwareBuffer
+                eglDisplay.obtainNativeHandle(), hardwareBuffer
             )
             return if (handle == 0L) {
                 null
@@ -404,7 +404,7 @@ class EGLExt private constructor() {
             eglDisplay: EGLDisplay,
             image: EGLImageKHR
         ): Boolean = EGLBindings.nDestroyImageKHR(
-            eglDisplay.nativeHandle,
+            eglDisplay.obtainNativeHandle(),
             image.nativeHandle
         )
 
@@ -451,7 +451,7 @@ class EGLExt private constructor() {
             attributes: EGLConfigAttributes?
         ): EGLSyncKHR? {
             val handle = EGLBindings.nCreateSyncKHR(
-                eglDisplay.nativeHandle, type, attributes?.attrs
+                eglDisplay.obtainNativeHandle(), type, attributes?.attrs
             )
             return if (handle == 0L) {
                 null
@@ -489,7 +489,7 @@ class EGLExt private constructor() {
             offset: Int
         ): Boolean =
             EGLBindings.nGetSyncAttribKHR(
-                eglDisplay.nativeHandle,
+                eglDisplay.obtainNativeHandle(),
                 sync.nativeHandle,
                 attribute,
                 value,
@@ -547,7 +547,7 @@ class EGLExt private constructor() {
             timeoutNanos: Long
         ): @EGLClientWaitResult Int =
             EGLBindings.nClientWaitSyncKHR(
-                eglDisplay.nativeHandle,
+                eglDisplay.obtainNativeHandle(),
                 sync.nativeHandle,
                 flags,
                 timeoutNanos
@@ -573,12 +573,13 @@ class EGLExt private constructor() {
          */
         @JvmStatic
         @Suppress("AcronymName")
+        @RequiresApi(Build.VERSION_CODES.KITKAT)
         internal fun eglDupNativeFenceFDANDROID(
             display: EGLDisplay,
             sync: EGLSyncKHR
         ): SyncFenceCompat {
             val fd = EGLBindings.nDupNativeFenceFDANDROID(
-                display.nativeHandle,
+                display.obtainNativeHandle(),
                 sync.nativeHandle
             )
             return if (fd >= 0) {
@@ -609,7 +610,7 @@ class EGLExt private constructor() {
             eglDisplay: EGLDisplay,
             eglSync: EGLSyncKHR
         ): Boolean = EGLBindings.nDestroySyncKHR(
-            eglDisplay.nativeHandle,
+            eglDisplay.obtainNativeHandle(),
             eglSync.nativeHandle
         )
 
@@ -620,6 +621,22 @@ class EGLExt private constructor() {
         @JvmStatic
         fun parseExtensions(queryString: String): Set<String> =
             HashSet<String>().apply { addAll(queryString.split(' ')) }
+
+        /**
+         * Helper method to obtain the corresponding native handle. Newer versions of Android
+         * represent the native pointer as a long instead of an integer to support 64 bits.
+         * For OS levels that support the wider bit format, invoke it otherwise cast the int
+         * to a long.
+         *
+         * This is internal to avoid synthetic accessors
+         */
+        internal fun EGLDisplay.obtainNativeHandle(): Long =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                EGLDisplayVerificationHelper.getNativeHandle(this)
+            } else {
+                @Suppress("DEPRECATION")
+                handle.toLong()
+            }
     }
 }
 
@@ -721,5 +738,18 @@ internal class EGLBindings {
         init {
             System.loadLibrary("graphics-core")
         }
+    }
+}
+
+/**
+ * Helper class to avoid class verification failures
+ */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+private class EGLDisplayVerificationHelper private constructor() {
+
+    companion object {
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+        @androidx.annotation.DoNotInline
+        fun getNativeHandle(eglDisplay: EGLDisplay): Long = eglDisplay.nativeHandle
     }
 }

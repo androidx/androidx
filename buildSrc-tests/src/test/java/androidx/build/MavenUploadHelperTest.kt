@@ -21,7 +21,6 @@ import androidx.build.testutils.POM_COLLECTION_JVM
 import androidx.build.testutils.POM_COMPOSE_UI_GEOMETRY
 import androidx.build.testutils.POM_CORE_CORE
 import androidx.build.testutils.XmlProviderImpl
-import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,7 +78,7 @@ class MavenUploadHelperTest {
       <groupId>androidx.collection</groupId>
       <artifactId>collection-jvm</artifactId>
       <version>1.3.0-alpha05</version>
-      <scope>compile</scope>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
@@ -137,7 +136,7 @@ class MavenUploadHelperTest {
       <artifactId>ui-geometry-android</artifactId>
       <version>1.6.0-alpha01</version>
       <type>aar</type>
-      <scope>compile</scope>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 </project>
@@ -1028,168 +1027,5 @@ class MavenUploadHelperTest {
 
         val actual = sortGradleMetadataDependencies(metadata)
         assertEquals(expected, actual)
-    }
-
-    @Test
-    fun testVerifyGradleMetadata() {
-        /* ktlint-disable max-line-length */
-        val metadata = """
-{
-  "formatVersion": "1.1",
-  "component": {
-    "group": "androidx.activity",
-    "module": "activity-ktx",
-    "version": "1.5.0-alpha03",
-    "attributes": {
-      "org.gradle.status": "release"
-    }
-  },
-  "createdBy": {
-    "gradle": {
-      "version": "7.4"
-    }
-  },
-  "variants": [
-    {
-      "name": "releaseVariantReleaseApiPublication",
-      "attributes": {
-        "org.gradle.category": "library",
-        "org.gradle.dependency.bundling": "external",
-        "org.gradle.libraryelements": "aar",
-        "org.gradle.usage": "java-api"
-      },
-      "dependencies": [
-        {
-          "group": "androidx.activity",
-          "module": "activity",
-          "version": {
-            "requires": "1.5.0-alpha03"
-          }
-        },
-        {
-          "group": "androidx.core",
-          "module": "core-ktx",
-          "version": {
-            "requires": "1.1.0"
-          },
-          "reason": "Mirror activity dependency graph for -ktx artifacts"
-        },
-        {
-          "group": "androidx.lifecycle",
-          "module": "lifecycle-runtime-ktx",
-          "version": {
-            "requires": "2.5.0-alpha03"
-          },
-          "reason": "Mirror activity dependency graph for -ktx artifacts"
-        },
-        {
-          "group": "androidx.lifecycle",
-          "module": "lifecycle-viewmodel-ktx",
-          "version": {
-            "requires": "2.5.0-alpha03"
-          }
-        },
-        {
-          "group": "androidx.savedstate",
-          "module": "savedstate-ktx",
-          "version": {
-            "requires": "1.2.0-alpha01"
-          },
-          "reason": "Mirror activity dependency graph for -ktx artifacts"
-        },
-        {
-          "group": "org.jetbrains.kotlin",
-          "module": "kotlin-stdlib",
-          "version": {
-            "requires": "1.6.10"
-          }
-        }
-      ],
-      "files": [
-        {
-          "name": "activity-ktx-1.5.0-alpha03.aar",
-          "url": "activity-ktx-1.5.0-alpha03.aar",
-          "size": 31645,
-          "sha512": "d4b175f956cd329698705ab7ecdb080c6668d689bf9ae99e8d7c53baa4383848af73c65e280baabb4938121d5d06367a900b5fc9c072eb29aa86e89b6f0c4595",
-          "sha256": "e30b007d69f63a2a0c56b5275faea7badf0f80a06caa1c50b2eba7129581793e",
-          "sha1": "9818a50c9ed22d6c089026f4edd3106b06eb4a4e",
-          "md5": "186145646501129b4bdfd0f804ba96d9"
-        }
-      ]
-    },
-    {
-      "name": "releaseVariantReleaseRuntimePublication",
-      "attributes": {
-        "org.gradle.category": "library",
-        "org.gradle.dependency.bundling": "external",
-        "org.gradle.libraryelements": "aar",
-        "org.gradle.usage": "java-runtime"
-      },
-      "dependencies": [
-        {
-          "group": "androidx.activity",
-          "module": "activity",
-          "version": {
-            "requires": "1.5.0-alpha03"
-          }
-        },
-        {
-          "group": "androidx.core",
-          "module": "core-ktx",
-          "version": {
-            "requires": "1.1.0"
-          },
-          "reason": "Mirror activity dependency graph for -ktx artifacts"
-        },
-        {
-          "group": "androidx.lifecycle",
-          "module": "lifecycle-runtime-ktx",
-          "version": {
-            "requires": "2.5.0-alpha03"
-          },
-          "reason": "Mirror activity dependency graph for -ktx artifacts"
-        },
-        {
-          "group": "androidx.lifecycle",
-          "module": "lifecycle-viewmodel-ktx",
-          "version": {
-            "requires": "2.5.0-alpha03"
-          }
-        },
-        {
-          "group": "androidx.savedstate",
-          "module": "savedstate-ktx",
-          "version": {
-            "requires": "1.2.0-alpha01"
-          },
-          "reason": "Mirror activity dependency graph for -ktx artifacts"
-        },
-        {
-          "group": "org.jetbrains.kotlin",
-          "module": "kotlin-stdlib",
-          "version": {
-            "requires": "1.6.10"
-          }
-        }
-      ],
-      "files": [
-        {
-          "name": "activity-ktx-1.5.0-alpha03.aar",
-          "url": "activity-ktx-1.5.0-alpha03.aar",
-          "size": 31645,
-          "sha512": "d4b175f956cd329698705ab7ecdb080c6668d689bf9ae99e8d7c53baa4383848af73c65e280baabb4938121d5d06367a900b5fc9c072eb29aa86e89b6f0c4595",
-          "sha256": "e30b007d69f63a2a0c56b5275faea7badf0f80a06caa1c50b2eba7129581793e",
-          "sha1": "9818a50c9ed22d6c089026f4edd3106b06eb4a4e",
-          "md5": "186145646501129b4bdfd0f804ba96d9"
-        }
-      ]
-    }
-  ]
-}
-        """.trimIndent()
-
-       val error =  assertThrows<Exception> { verifyGradleMetadata(metadata) }
-        error.hasMessageThat()
-            .isEqualTo("The sourcesElements variant must exist in the module file.")
     }
 }

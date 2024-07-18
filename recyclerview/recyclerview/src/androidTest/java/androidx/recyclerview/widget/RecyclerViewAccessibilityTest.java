@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,6 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SmallTest
 @RunWith(Parameterized.class)
 public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentationTest {
+    private static final boolean SUPPORTS_COLLECTION_INFO =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     private final boolean mVerticalScrollBefore;
     private final boolean mHorizontalScrollBefore;
     private final boolean mVerticalScrollAfter;
@@ -161,14 +164,16 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD) != 0);
         assertEquals(mHorizontalScrollAfter || mVerticalScrollAfter,
                 (info.getActions() & AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD) != 0);
-        final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo = info
-                .getCollectionInfo();
-        assertNotNull(collectionInfo);
-        if (recyclerView.getLayoutManager().canScrollVertically()) {
-            assertEquals(adapter.getItemCount(), collectionInfo.getRowCount());
-        }
-        if (recyclerView.getLayoutManager().canScrollHorizontally()) {
-            assertEquals(adapter.getItemCount(), collectionInfo.getColumnCount());
+        if (SUPPORTS_COLLECTION_INFO) {
+            final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo = info
+                    .getCollectionInfo();
+            assertNotNull(collectionInfo);
+            if (recyclerView.getLayoutManager().canScrollVertically()) {
+                assertEquals(adapter.getItemCount(), collectionInfo.getRowCount());
+            }
+            if (recyclerView.getLayoutManager().canScrollHorizontally()) {
+                assertEquals(adapter.getItemCount(), collectionInfo.getColumnCount());
+            }
         }
 
         final AccessibilityEvent event = AccessibilityEvent.obtain();
@@ -183,29 +188,31 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
         assertEquals(event.getItemCount(), adapter.getItemCount());
 
         getInstrumentation().waitForIdleSync();
-        for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
-            final View view = mRecyclerView.getChildAt(i);
-            final AccessibilityNodeInfoCompat childInfo = AccessibilityNodeInfoCompat.obtain();
-            mActivityRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    delegateCompat.getItemDelegate()
-                            .onInitializeAccessibilityNodeInfo(view, childInfo);
+        if (SUPPORTS_COLLECTION_INFO) {
+            for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
+                final View view = mRecyclerView.getChildAt(i);
+                final AccessibilityNodeInfoCompat childInfo = AccessibilityNodeInfoCompat.obtain();
+                mActivityRule.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        delegateCompat.getItemDelegate().
+                                onInitializeAccessibilityNodeInfo(view, childInfo);
+                    }
+                });
+                final AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo =
+                        childInfo.getCollectionItemInfo();
+                assertNotNull(collectionItemInfo);
+                if (recyclerView.getLayoutManager().canScrollHorizontally()) {
+                    assertEquals(i, collectionItemInfo.getColumnIndex());
+                } else {
+                    assertEquals(0, collectionItemInfo.getColumnIndex());
                 }
-            });
-            final AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfo =
-                    childInfo.getCollectionItemInfo();
-            assertNotNull(collectionItemInfo);
-            if (recyclerView.getLayoutManager().canScrollHorizontally()) {
-                assertEquals(i, collectionItemInfo.getColumnIndex());
-            } else {
-                assertEquals(0, collectionItemInfo.getColumnIndex());
-            }
 
-            if (recyclerView.getLayoutManager().canScrollVertically()) {
-                assertEquals(i, collectionItemInfo.getRowIndex());
-            } else {
-                assertEquals(0, collectionItemInfo.getRowIndex());
+                if (recyclerView.getLayoutManager().canScrollVertically()) {
+                    assertEquals(i, collectionItemInfo.getRowIndex());
+                } else {
+                    assertEquals(0, collectionItemInfo.getRowIndex());
+                }
             }
         }
 

@@ -23,7 +23,8 @@ package androidx.privacysandbox.tools
  * should be public interfaces that only declare functions without implementation, and they may not
  * extend any other interface. Callbacks run in the main thread by default.
  *
- * The allowed types and return types are the same as for [PrivacySandboxInterface].
+ * The allowed types are the same as for [PrivacySandboxInterface], except that functions may not
+ * return a value.
  *
  * Usage example:
  * ```
@@ -32,7 +33,6 @@ package androidx.privacysandbox.tools
  *     fun onComplete(response: Response)
  *     fun onClick(x: Int, y: Int)
  *     fun onCompleteInterface(myInterface: MyInterface)
- *     suspend fun getCallbackId(): String
  * }
  * ```
  */

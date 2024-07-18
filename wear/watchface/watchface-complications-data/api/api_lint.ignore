@@ -1,7 +1,7 @@
 // Baseline format: 1.0
-GetterSetterNames: androidx.wear.watchface.complications.data.ColorRamp#interpolated:
+GetterSetterNames: field ColorRamp.interpolated:
     Invalid name for boolean property `interpolated`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: androidx.wear.watchface.complications.data.ComplicationData#tapActionLostDueToSerialization:
+GetterSetterNames: field ComplicationData.tapActionLostDueToSerialization:
     Invalid name for boolean property `tapActionLostDueToSerialization`. Should start with one of `has`, `can`, `should`, `is`.
 
 

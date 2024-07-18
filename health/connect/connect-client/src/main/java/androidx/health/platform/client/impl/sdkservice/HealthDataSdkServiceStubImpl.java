@@ -46,6 +46,7 @@ final class HealthDataSdkServiceStubImpl extends IHealthDataSdkService.Stub {
     }
 
     @Override
+    @SuppressWarnings("RestrictedApi") // setCurrentToken safe to use within implementation
     public void setPermissionToken(
             @NonNull String healthDataPackageName,
             @NonNull String permissionToken,
@@ -66,6 +67,7 @@ final class HealthDataSdkServiceStubImpl extends IHealthDataSdkService.Stub {
                 });
     }
 
+    @SuppressWarnings("RestrictedApi") // setCurrentToken safe to use within implementation
     @Override
     public void getPermissionToken(
             @NonNull String healthDataPackageName, @NonNull IGetPermissionTokenCallback callback) {
@@ -85,6 +87,7 @@ final class HealthDataSdkServiceStubImpl extends IHealthDataSdkService.Stub {
                 });
     }
 
+    @SuppressWarnings("RestrictedApi") // isInForeground safe to use within SDK implementation
     @Override
     public void getIsInForeground(
             @NonNull String healthDataPackageName, @NonNull IGetIsInForegroundCallback callback) {

@@ -15,6 +15,7 @@
  */
 
 @file:Suppress("UNCHECKED_CAST")
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 
 package androidx.camera.camera2.pipe.testing
 
@@ -23,6 +24,7 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -110,9 +112,6 @@ class FakeCameraMetadata(
     }
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
-
-    override fun toString(): String =
-        "FakeCameraMetadata(camera: ${camera.value})"
 }
 
 /**
@@ -132,29 +131,6 @@ class FakeRequestMetadata(
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
-
-    companion object {
-        /**
-         * Initialize FakeRequestMetadata based on a specific [Request] object.
-         */
-        fun from(
-            request: Request,
-            streamToSurfaces: Map<StreamId, Surface>,
-            repeating: Boolean = false
-        ): FakeRequestMetadata {
-            check(streamToSurfaces.keys.containsAll(request.streams))
-            return FakeRequestMetadata(
-                requestParameters = request.parameters,
-                template = request.template ?: RequestTemplate(0),
-                streams = request.streams.map { it to streamToSurfaces[it]!! }.toMap(),
-                repeating = repeating,
-                request = request
-            )
-        }
-    }
-
-    override fun toString(): String =
-        "FakeRequestMetadata(requestNumber: ${requestNumber.value}, request: $request)"
 }
 
 /**
@@ -174,9 +150,6 @@ class FakeFrameMetadata(
     override fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
-
-    override fun toString(): String =
-        "FakeFrameMetadata(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }
 
 /**
@@ -196,7 +169,4 @@ class FakeFrameInfo(
         get() = metadata.frameNumber
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
-
-    override fun toString(): String =
-        "FakeFrameInfo(camera: ${camera.value}, frameNumber: ${frameNumber.value})"
 }

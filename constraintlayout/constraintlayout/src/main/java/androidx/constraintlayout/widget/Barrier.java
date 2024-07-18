@@ -18,6 +18,7 @@ package androidx.constraintlayout.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -157,18 +158,28 @@ public class Barrier extends ConstraintHelper {
 
     private void updateType(ConstraintWidget widget, int type, boolean isRtl) {
         mResolvedType = type;
-
-        if (isRtl) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            // Pre JB MR1, left/right should take precedence, unless they are
+            // not defined and somehow a corresponding start/end constraint exists
             if (mIndicatedType == START) {
-                mResolvedType = RIGHT;
-            } else if (mIndicatedType == END) {
                 mResolvedType = LEFT;
+            } else if (mIndicatedType == END) {
+                mResolvedType = RIGHT;
             }
         } else {
-            if (mIndicatedType == START) {
-                mResolvedType = LEFT;
-            } else if (mIndicatedType == END) {
-                mResolvedType = RIGHT;
+            // Post JB MR1, if start/end are defined, they take precedence over left/right
+            if (isRtl) {
+                if (mIndicatedType == START) {
+                    mResolvedType = RIGHT;
+                } else if (mIndicatedType == END) {
+                    mResolvedType = LEFT;
+                }
+            } else {
+                if (mIndicatedType == START) {
+                    mResolvedType = LEFT;
+                } else if (mIndicatedType == END) {
+                    mResolvedType = RIGHT;
+                }
             }
         }
         if (widget instanceof androidx.constraintlayout.core.widgets.Barrier) {

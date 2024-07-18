@@ -124,7 +124,7 @@ public class TestDsl {
 
         private LayoutElementProto.FontStyle toProto() {
             return LayoutElementProto.FontStyle.newBuilder()
-                    .addSize(sp(sizeSp))
+                    .setSize(sp(sizeSp))
                     .setItalic(bool(italic))
                     .setColor(color(colorArgb))
                     .build();

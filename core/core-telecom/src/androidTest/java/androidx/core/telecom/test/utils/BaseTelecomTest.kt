@@ -30,14 +30,12 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestExecutor
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert
@@ -69,9 +67,7 @@ abstract class BaseTelecomTest {
         mPackagePhoneAccountHandle = mCallsManager.getPhoneAccountHandleForPackage()
         mPreviousDefaultDialer = TestUtils.getDefaultDialer()
         TestUtils.setDefaultDialer(TestUtils.TEST_PACKAGE)
-        runBlocking {
-            maybeCleanupStuckCalls()
-        }
+        maybeCleanupStuckCalls()
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
     }
@@ -82,35 +78,20 @@ abstract class BaseTelecomTest {
         Utils.resetUtils()
         TestUtils.resetCallbackConfigs()
         TestUtils.setDefaultDialer(mPreviousDefaultDialer)
-        runBlocking {
-            maybeCleanupStuckCalls()
-        }
-    }
-
-    fun setInCallService(ics: InCallServiceType) {
-        MockInCallServiceDelegate.mInCallServiceType = ics
+        maybeCleanupStuckCalls()
     }
 
     fun setUpV2Test() {
         Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs")
         Utils.setUtils(TestUtils.mV2Build)
-        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
-        setInCallService(InCallServiceType.ICS_WITHOUT_EXTENSIONS)
-        logTelecomState()
-    }
-
-    fun setUpV2TestWithExtensions() {
-        Log.i(L_TAG, "setUpV2Test: core-telecom w/ [V2] APIs + Extension support")
-        Utils.setUtils(TestUtils.mV2Build)
-        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
-        setInCallService(InCallServiceType.ICS_WITH_EXTENSIONS)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
         logTelecomState()
     }
 
     fun setUpBackwardsCompatTest() {
         Log.i(L_TAG, "setUpBackwardsCompatTest: core-telecom w/ [ConnectionService] APIs")
         Utils.setUtils(TestUtils.mBackwardsCompatBuild)
-        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING)
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
         logTelecomState()
     }
 
@@ -130,13 +111,12 @@ abstract class BaseTelecomTest {
         return mContext.packageManager.hasSystemFeature(PackageManager.FEATURE_TELECOM)
     }
 
-    @OptIn(ExperimentalAppActions::class)
-    private suspend fun maybeCleanupStuckCalls() {
+    private fun maybeCleanupStuckCalls() {
         JetpackConnectionService.mPendingConnectionRequests.clear()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ManagedConnectionService.mPendingConnectionRequests.clear()
         }
-        MockInCallServiceDelegate.destroyAllCalls()
+        MockInCallService.destroyAllCalls()
         TestUtils.runShellCommand(TestUtils.COMMAND_CLEANUP_STUCK_CALLS)
     }
 

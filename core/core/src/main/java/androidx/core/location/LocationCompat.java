@@ -16,18 +16,21 @@
 
 package androidx.core.location;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Build.VERSION;
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -106,12 +109,13 @@ public final class LocationCompat {
      * based on the difference between system time and the location time. This should be taken as a
      * best "guess" at what the elapsed realtime might have been, but if the clock used for
      * location derivation is different from the system clock, the results may be inaccurate.
-     * @deprecated Call {@link Location#getElapsedRealtimeNanos()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "location.getElapsedRealtimeNanos()")
     public static long getElapsedRealtimeNanos(@NonNull Location location) {
-        return location.getElapsedRealtimeNanos();
+        if (VERSION.SDK_INT >= 17) {
+            return Api17Impl.getElapsedRealtimeNanos(location);
+        } else {
+            return MILLISECONDS.toNanos(getElapsedRealtimeMillis(location));
+        }
     }
 
     /**
@@ -120,7 +124,21 @@ public final class LocationCompat {
      * @see #getElapsedRealtimeNanos(Location)
      */
     public static long getElapsedRealtimeMillis(@NonNull Location location) {
-        return NANOSECONDS.toMillis(location.getElapsedRealtimeNanos());
+        if (VERSION.SDK_INT >= 17) {
+            return NANOSECONDS.toMillis(Api17Impl.getElapsedRealtimeNanos(location));
+        } else {
+            long timeDeltaMs = System.currentTimeMillis() - location.getTime();
+            long elapsedRealtimeMs = SystemClock.elapsedRealtime();
+            if (timeDeltaMs < 0) {
+                // don't return an elapsed realtime from the future
+                return elapsedRealtimeMs;
+            } else if (timeDeltaMs > elapsedRealtimeMs) {
+                // don't return an elapsed realtime from before boot
+                return 0;
+            } else {
+                return elapsedRealtimeMs - timeDeltaMs;
+            }
+        }
     }
 
     /**
@@ -339,18 +357,19 @@ public final class LocationCompat {
     /**
      * Returns the Mean Sea Level altitude of the location in meters.
      *
-     * <p>This is only valid if {@link #hasMslAltitude(Location)} is true.
-     *
      * <p>NOTE: On API levels below 34, the concept of Mean Sea Level altitude does not exist. In
      * order to allow for backwards compatibility and testing however, this method will attempt
      * to read a double extra with the key {@link #EXTRA_MSL_ALTITUDE} and return the result.
      *
+     * @throws IllegalStateException if the Mean Sea Level altitude of the location is not set
      * @see Location#getMslAltitudeMeters()
      */
     public static double getMslAltitudeMeters(@NonNull Location location) {
         if (VERSION.SDK_INT >= 34) {
             return Api34Impl.getMslAltitudeMeters(location);
         }
+        Preconditions.checkState(hasMslAltitude(location),
+                "The Mean Sea Level altitude of the location is not set.");
         return getOrCreateExtras(location).getDouble(EXTRA_MSL_ALTITUDE);
     }
 
@@ -412,20 +431,22 @@ public final class LocationCompat {
      * altitude of the location falls within {@link #getMslAltitudeMeters(Location)} +/- this
      * uncertainty.
      *
-     * <p>This is only valid if {@link #hasMslAltitudeAccuracy(Location)} is true.
-     *
      * <p>NOTE: On API levels below 34, the concept of Mean Sea Level altitude accuracy does not
      * exist. In order to allow for backwards compatibility and testing however, this method will
      * attempt to read a float extra with the key {@link #EXTRA_MSL_ALTITUDE_ACCURACY} and return
      * the result.
      *
-     * @see Location#getMslAltitudeAccuracyMeters()
+     * @throws IllegalStateException if the Mean Sea Level altitude accuracy of the location is not
+     *                               set
+     * @see Location#setMslAltitudeAccuracyMeters(float)
      */
     public static @FloatRange(from = 0.0) float getMslAltitudeAccuracyMeters(
             @NonNull Location location) {
         if (VERSION.SDK_INT >= 34) {
             return Api34Impl.getMslAltitudeAccuracyMeters(location);
         }
+        Preconditions.checkState(hasMslAltitudeAccuracy(location),
+                "The Mean Sea Level altitude accuracy of the location is not set.");
         return getOrCreateExtras(location).getFloat(EXTRA_MSL_ALTITUDE_ACCURACY);
     }
 
@@ -494,12 +515,18 @@ public final class LocationCompat {
      * this should be considered a mock location.
      *
      * @see android.location.LocationManager#addTestProvider
-     * @deprecated Call {@link Location#isFromMockProvider()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "location.isFromMockProvider()")
     public static boolean isMock(@NonNull Location location) {
-        return location.isFromMockProvider();
+        if (VERSION.SDK_INT >= 18) {
+            return Api18Impl.isMock(location);
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                return false;
+            }
+
+            return extras.getBoolean(EXTRA_IS_MOCK, false);
+        }
     }
 
     /**
@@ -510,9 +537,9 @@ public final class LocationCompat {
      * boolean extra with the key {@link #EXTRA_IS_MOCK} to mark the location as mock. Be aware that
      * this will overwrite any prior extra value under the same key.
      */
-    @SuppressLint("BanUncheckedReflection")
     public static void setMock(@NonNull Location location, boolean mock) {
-        try {
+        if (VERSION.SDK_INT >= 18) {
+            try {
                 getSetIsFromMockProviderMethod().invoke(location, mock);
             } catch (NoSuchMethodException e) {
                 Error error = new NoSuchMethodError();
@@ -525,6 +552,25 @@ public final class LocationCompat {
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            Bundle extras = location.getExtras();
+            if (extras == null) {
+                if (mock) {
+                    extras = new Bundle();
+                    extras.putBoolean(EXTRA_IS_MOCK, true);
+                    location.setExtras(extras);
+                }
+            } else {
+                if (mock) {
+                    extras.putBoolean(EXTRA_IS_MOCK, true);
+                } else {
+                    extras.remove(EXTRA_IS_MOCK);
+                    if (extras.isEmpty()) {
+                        location.setExtras(null);
+                    }
+                }
+            }
+        }
     }
 
     @RequiresApi(34)
@@ -911,6 +957,30 @@ public final class LocationCompat {
                 error.initCause(e);
                 throw error;
             }
+        }
+    }
+
+    @RequiresApi(18)
+    private static class Api18Impl {
+
+        private Api18Impl() {
+        }
+
+        @DoNotInline
+        static boolean isMock(Location location) {
+            return location.isFromMockProvider();
+        }
+    }
+
+    @RequiresApi(17)
+    private static class Api17Impl {
+
+        private Api17Impl() {
+        }
+
+        @DoNotInline
+        static long getElapsedRealtimeNanos(Location location) {
+            return location.getElapsedRealtimeNanos();
         }
     }
 

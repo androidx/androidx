@@ -25,7 +25,6 @@ class PrimitivesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
     override val relativePathsToExpectedAidlClasses = listOf(
         "com/mysdk/ITestSandboxSdk.java",
         "com/mysdk/IBooleanTransactionCallback.java",
-        "com/mysdk/IBundleTransactionCallback.java",
         "com/mysdk/ICancellationSignal.java",
         "com/mysdk/IUnitTransactionCallback.java",
         "com/mysdk/IListLongTransactionCallback.java",
@@ -33,7 +32,6 @@ class PrimitivesApiGeneratorDiffTest : AbstractApiGeneratorDiffTest() {
         "com/mysdk/IListShortTransactionCallback.java",
         "com/mysdk/IListStringTransactionCallback.java",
         "com/mysdk/IListBooleanTransactionCallback.java",
-        "com/mysdk/IListBundleTransactionCallback.java",
         "com/mysdk/IListFloatTransactionCallback.java",
         "com/mysdk/IListCharTransactionCallback.java",
         "com/mysdk/IListIntTransactionCallback.java",

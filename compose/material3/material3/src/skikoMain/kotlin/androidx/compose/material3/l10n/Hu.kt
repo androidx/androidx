@@ -31,6 +31,7 @@ internal fun Translations.hu() = mapOf(
     Strings.Dialog to "Párbeszédpanel",
     Strings.MenuExpanded to "Kibontva",
     Strings.MenuCollapsed to "Összecsukva",
+    Strings.ToggleDropdownMenu to "Legördülő menü átváltása",
     Strings.SnackbarDismiss to "Elvetés",
     Strings.SearchBarSearch to "Keresés",
     Strings.SuggestionsAvailable to "Javaslatok alább",

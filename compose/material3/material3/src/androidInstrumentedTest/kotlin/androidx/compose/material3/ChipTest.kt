@@ -93,8 +93,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ChipTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     @Test
     fun defaultSemantics_assistChip() {
@@ -103,11 +102,13 @@ class ChipTest {
                 AssistChip(
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -126,7 +127,8 @@ class ChipTest {
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsNotEnabled()
             .assertHasClickAction()
@@ -142,16 +144,14 @@ class ChipTest {
                 AssistChip(
                     onClick = onClick,
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text("Test chip") })
+                    label = { Text("Test chip") }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
-            .performClick()
+        rule.onNodeWithTag(TestChipTag).performClick()
 
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -163,8 +163,7 @@ class ChipTest {
             AssistChip(onClick = {}, label = { Text("Test chip") })
         }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsEqualTo(AssistChipDefaults.Height)
+        rule.onNode(hasClickAction()).assertHeightIsEqualTo(AssistChipDefaults.Height)
     }
 
     @Test
@@ -174,22 +173,17 @@ class ChipTest {
             AssistChip(
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Assist chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                })
+                label = { Text("Assist chip", Modifier.testTag(TestChipTag)) }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(16.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - 16.dp)
     }
@@ -201,29 +195,24 @@ class ChipTest {
             AssistChip(
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Assist chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                },
+                label = { Text("Assist chip", Modifier.testTag(TestChipTag)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
                         modifier = Modifier.size(AssistChipDefaults.IconSize)
                     )
-                })
+                }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp + AssistChipDefaults.IconSize + 8.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - AssistChipDefaults.IconSize - 16.dp)
     }
@@ -241,30 +230,29 @@ class ChipTest {
                     Icon(
                         Icons.Filled.Settings,
                         contentDescription = "Localized description",
-                        modifier = Modifier
-                            .testTag("Leading")
-                            .size(AssistChipDefaults.IconSize)
+                        modifier = Modifier.testTag("Leading").size(AssistChipDefaults.IconSize)
                     )
                 },
                 trailingIcon = {
                     Icon(
                         Icons.Filled.Settings,
                         contentDescription = "Localized description",
-                        modifier = Modifier
-                            .testTag("Trailing")
-                            .size(AssistChipDefaults.IconSize)
+                        modifier = Modifier.testTag("Trailing").size(AssistChipDefaults.IconSize)
                     )
                 },
             )
         }
 
-        rule.onNodeWithTag("Leading", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("Leading", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(horizontalPadding)
-        rule.onNodeWithText("Test chip", useUnmergedTree = true)
+        rule
+            .onNodeWithText("Test chip", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(
                 horizontalPadding + AssistChipDefaults.IconSize + horizontalPadding
             )
-        rule.onNodeWithTag("Trailing", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("Trailing", useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(
                 chipWidth - horizontalPadding - AssistChipDefaults.IconSize
             )
@@ -276,14 +264,10 @@ class ChipTest {
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
             expectedLabelColor = AssistChipTokens.LabelTextColor.value
-            AssistChip(onClick = {}, label = {
-                contentColor = LocalContentColor.current
-            })
+            AssistChip(onClick = {}, label = { contentColor = LocalContentColor.current })
         }
 
-        rule.runOnIdle {
-            assertThat(contentColor).isEqualTo(expectedLabelColor)
-        }
+        rule.runOnIdle { assertThat(contentColor).isEqualTo(expectedLabelColor) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -292,9 +276,10 @@ class ChipTest {
     fun elevatedDisabled_assistChip() {
         var containerColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            containerColor = AssistChipTokens.ElevatedDisabledContainerColor.value
-                .copy(alpha = AssistChipTokens.ElevatedDisabledContainerOpacity)
-                .compositeOver(MaterialTheme.colorScheme.surface)
+            containerColor =
+                AssistChipTokens.ElevatedDisabledContainerColor.value
+                    .copy(alpha = AssistChipTokens.ElevatedDisabledContainerOpacity)
+                    .compositeOver(MaterialTheme.colorScheme.surface)
             ElevatedAssistChip(
                 modifier = Modifier.testTag(TestChipTag),
                 onClick = {},
@@ -304,7 +289,8 @@ class ChipTest {
             )
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -323,11 +309,13 @@ class ChipTest {
                     selected = false,
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -342,11 +330,13 @@ class ChipTest {
                     selected = true,
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -367,7 +357,8 @@ class ChipTest {
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsNotEnabled()
             .assertHasClickAction()
@@ -383,11 +374,13 @@ class ChipTest {
                     selected = selected.value,
                     onClick = { selected.value = !selected.value },
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text("Test chip") })
+                    label = { Text("Test chip") }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assertIsNotSelected()
             .performClick()
             .assertIsSelected()
@@ -403,21 +396,16 @@ class ChipTest {
                 selected = false,
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Filter chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                })
+                label = { Text("Filter chip", Modifier.testTag(TestChipTag)) }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(16.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - 16.dp)
     }
@@ -430,28 +418,23 @@ class ChipTest {
                 selected = true,
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Filter chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                },
+                label = { Text("Filter chip", Modifier.testTag(TestChipTag)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
                         modifier = Modifier.size(FilterChipDefaults.IconSize)
                     )
-                })
+                }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 8.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - FilterChipDefaults.IconSize - 16.dp)
     }
@@ -464,12 +447,7 @@ class ChipTest {
                 selected = false,
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Filter chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                },
+                label = { Text("Filter chip", Modifier.testTag(TestChipTag)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Person,
@@ -483,20 +461,23 @@ class ChipTest {
                         contentDescription = "Localized Description",
                         modifier = Modifier.size(FilterChipDefaults.IconSize)
                     )
-                })
+                }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp + FilterChipDefaults.IconSize + 8.dp)
             .assertWidthIsEqualTo(
-                chipWidth - 16.dp - FilterChipDefaults.IconSize -
-                    FilterChipDefaults.IconSize - 16.dp
+                chipWidth -
+                    16.dp -
+                    FilterChipDefaults.IconSize -
+                    FilterChipDefaults.IconSize -
+                    16.dp
             )
     }
 
@@ -509,8 +490,7 @@ class ChipTest {
             FilterChip(selected = false, onClick = {}, label = { Text("Test chip") })
         }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsEqualTo(FilterChipDefaults.Height)
+        rule.onNode(hasClickAction()).assertHeightIsEqualTo(FilterChipDefaults.Height)
     }
 
     @Test
@@ -527,7 +507,8 @@ class ChipTest {
             }
         }
 
-        rule.onNode(hasClickAction())
+        rule
+            .onNode(hasClickAction())
             .assertHeightIsEqualTo(FilterChipDefaults.Height)
             .assertWidthIsEqualTo(labelWidth + horizontalPadding * 2)
     }
@@ -538,8 +519,12 @@ class ChipTest {
             FilterChip(
                 selected = false,
                 onClick = {},
-                label = { Text("Long long long long long long long long long long long long" +
-                    "long long long long long long long long long long long long long long long") },
+                label = {
+                    Text(
+                        "Long long long long long long long long long long long long" +
+                            "long long long long long long long long long long long long long long long"
+                    )
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Settings,
@@ -551,9 +536,7 @@ class ChipTest {
                     Icon(
                         imageVector = Icons.Filled.Settings,
                         contentDescription = "Localized Description",
-                        modifier = Modifier
-                            .testTag("Trailing")
-                            .size(FilterChipDefaults.IconSize)
+                        modifier = Modifier.testTag("Trailing").size(FilterChipDefaults.IconSize)
                     )
                 }
             )
@@ -568,14 +551,14 @@ class ChipTest {
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
             expectedLabelColor = FilterChipTokens.UnselectedLabelTextColor.value
-            FilterChip(selected = false, onClick = {}, label = {
-                contentColor = LocalContentColor.current
-            })
+            FilterChip(
+                selected = false,
+                onClick = {},
+                label = { contentColor = LocalContentColor.current }
+            )
         }
 
-        rule.runOnIdle {
-            assertThat(contentColor).isEqualTo(expectedLabelColor)
-        }
+        rule.runOnIdle { assertThat(contentColor).isEqualTo(expectedLabelColor) }
     }
 
     @Test
@@ -584,40 +567,50 @@ class ChipTest {
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
             expectedLabelColor = FilterChipTokens.SelectedLabelTextColor.value
-            FilterChip(selected = true, onClick = {}, label = {
-                contentColor = LocalContentColor.current
-            })
+            FilterChip(
+                selected = true,
+                onClick = {},
+                label = { contentColor = LocalContentColor.current }
+            )
         }
 
-        rule.runOnIdle {
-            assertThat(contentColor).isEqualTo(expectedLabelColor)
-        }
+        rule.runOnIdle { assertThat(contentColor).isEqualTo(expectedLabelColor) }
     }
 
     @Test
     fun defaultColors_elevatedFilterChip() {
         rule.setMaterialContent(lightColorScheme()) {
-            val expectedColors = SelectableChipColors(
-                containerColor = FilterChipTokens.ElevatedUnselectedContainerColor.value,
-                labelColor = FilterChipTokens.UnselectedLabelTextColor.value,
-                leadingIconColor = FilterChipTokens.UnselectedLeadingIconColor.value,
-                trailingIconColor = FilterChipTokens.UnselectedLeadingIconColor.value,
-                disabledContainerColor = FilterChipTokens.ElevatedDisabledContainerColor.value
-                    .copy(alpha = FilterChipTokens.ElevatedDisabledContainerOpacity),
-                disabledLabelColor = FilterChipTokens.DisabledLabelTextColor.value
-                    .copy(alpha = FilterChipTokens.DisabledLabelTextOpacity),
-                disabledLeadingIconColor = FilterChipTokens.DisabledLeadingIconColor.value
-                    .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
-                disabledTrailingIconColor = FilterChipTokens.DisabledLeadingIconColor.value
-                    .copy(alpha = FilterChipTokens.DisabledLeadingIconOpacity),
-                selectedContainerColor = FilterChipTokens.ElevatedSelectedContainerColor.value,
-                disabledSelectedContainerColor =
-                FilterChipTokens.ElevatedDisabledContainerColor.value
-                    .copy(alpha = FilterChipTokens.ElevatedDisabledContainerOpacity),
-                selectedLabelColor = FilterChipTokens.SelectedLabelTextColor.value,
-                selectedLeadingIconColor = FilterChipTokens.SelectedLeadingIconColor.value,
-                selectedTrailingIconColor = FilterChipTokens.SelectedLeadingIconColor.value
-            )
+            val expectedColors =
+                SelectableChipColors(
+                    containerColor = FilterChipTokens.ElevatedUnselectedContainerColor.value,
+                    labelColor = FilterChipTokens.UnselectedLabelTextColor.value,
+                    leadingIconColor = FilterChipTokens.UnselectedLeadingIconColor.value,
+                    trailingIconColor = FilterChipTokens.UnselectedLeadingIconColor.value,
+                    disabledContainerColor =
+                        FilterChipTokens.ElevatedDisabledContainerColor.value.copy(
+                            alpha = FilterChipTokens.ElevatedDisabledContainerOpacity
+                        ),
+                    disabledLabelColor =
+                        FilterChipTokens.DisabledLabelTextColor.value.copy(
+                            alpha = FilterChipTokens.DisabledLabelTextOpacity
+                        ),
+                    disabledLeadingIconColor =
+                        FilterChipTokens.DisabledLeadingIconColor.value.copy(
+                            alpha = FilterChipTokens.DisabledLeadingIconOpacity
+                        ),
+                    disabledTrailingIconColor =
+                        FilterChipTokens.DisabledLeadingIconColor.value.copy(
+                            alpha = FilterChipTokens.DisabledLeadingIconOpacity
+                        ),
+                    selectedContainerColor = FilterChipTokens.ElevatedSelectedContainerColor.value,
+                    disabledSelectedContainerColor =
+                        FilterChipTokens.ElevatedDisabledContainerColor.value.copy(
+                            alpha = FilterChipTokens.ElevatedDisabledContainerOpacity
+                        ),
+                    selectedLabelColor = FilterChipTokens.SelectedLabelTextColor.value,
+                    selectedLeadingIconColor = FilterChipTokens.SelectedLeadingIconColor.value,
+                    selectedTrailingIconColor = FilterChipTokens.SelectedLeadingIconColor.value
+                )
             val colors = FilterChipDefaults.elevatedFilterChipColors()
             assertThat(colors).isEqualTo(expectedColors)
         }
@@ -631,11 +624,13 @@ class ChipTest {
                     selected = false,
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -649,11 +644,13 @@ class ChipTest {
                     selected = false,
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -668,11 +665,13 @@ class ChipTest {
                     selected = true,
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -693,7 +692,8 @@ class ChipTest {
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox))
             .assertIsNotEnabled()
             .assertHasClickAction()
@@ -709,11 +709,13 @@ class ChipTest {
                     selected = selected.value,
                     onClick = { selected.value = !selected.value },
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text("Test chip") })
+                    label = { Text("Test chip") }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assertIsNotSelected()
             .performClick()
             .assertIsSelected()
@@ -730,8 +732,7 @@ class ChipTest {
             InputChip(selected = false, onClick = {}, label = { Text("Test chip") })
         }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsEqualTo(InputChipDefaults.Height)
+        rule.onNode(hasClickAction()).assertHeightIsEqualTo(InputChipDefaults.Height)
     }
 
     @Test
@@ -742,22 +743,17 @@ class ChipTest {
                 selected = false,
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Input chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                })
+                label = { Text("Input chip", Modifier.testTag(TestChipTag)) }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(12.dp)
             .assertWidthIsEqualTo(chipWidth - 12.dp - 12.dp)
     }
@@ -770,30 +766,25 @@ class ChipTest {
                 selected = false,
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Input chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                },
+                label = { Text("Input chip", Modifier.testTag(TestChipTag)) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
                         modifier = Modifier.size(InputChipDefaults.IconSize)
                     )
-                })
+                }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
         // Note that InputChip has slightly different padding than the other Chips.
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp + InputChipDefaults.IconSize + 8.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - InputChipDefaults.IconSize - 12.dp)
     }
@@ -806,30 +797,25 @@ class ChipTest {
                 selected = false,
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Input chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                },
+                label = { Text("Input chip", Modifier.testTag(TestChipTag)) },
                 avatar = {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
                         modifier = Modifier.size(InputChipDefaults.AvatarSize)
                     )
-                })
+                }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
         // Note that InputChip has slightly different padding than the other Chips.
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(4.dp + InputChipDefaults.AvatarSize + 8.dp)
             .assertWidthIsEqualTo(chipWidth - 12.dp - InputChipDefaults.AvatarSize - 12.dp)
     }
@@ -846,22 +832,16 @@ class ChipTest {
             InputChip(
                 selected = selected.value,
                 onClick = { selected.value = !selected.value },
-                label = {
-                    contentColor = LocalContentColor.current
-                },
+                label = { contentColor = LocalContentColor.current },
                 modifier = Modifier.testTag(TestChipTag)
             )
         }
 
-        rule.runOnIdle {
-            assertThat(contentColor).isEqualTo(unselectedLabelColor)
-        }
+        rule.runOnIdle { assertThat(contentColor).isEqualTo(unselectedLabelColor) }
 
         rule.onNodeWithTag(TestChipTag).performClick()
 
-        rule.runOnIdle {
-            assertThat(contentColor).isEqualTo(selectedLabelColor)
-        }
+        rule.runOnIdle { assertThat(contentColor).isEqualTo(selectedLabelColor) }
     }
 
     @Test
@@ -871,11 +851,13 @@ class ChipTest {
                 SuggestionChip(
                     onClick = {},
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text(TestChipTag) })
+                    label = { Text(TestChipTag) }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsEnabled()
             .assertHasClickAction()
@@ -894,7 +876,8 @@ class ChipTest {
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertIsNotEnabled()
             .assertHasClickAction()
@@ -910,16 +893,14 @@ class ChipTest {
                 SuggestionChip(
                     onClick = onClick,
                     modifier = Modifier.testTag(TestChipTag),
-                    label = { Text("Test chip") })
+                    label = { Text("Test chip") }
+                )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
-            .performClick()
+        rule.onNodeWithTag(TestChipTag).performClick()
 
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(1)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
     }
 
     @Test
@@ -931,8 +912,7 @@ class ChipTest {
             SuggestionChip(onClick = {}, label = { Text("Test chip") })
         }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsEqualTo(SuggestionChipDefaults.Height)
+        rule.onNode(hasClickAction()).assertHeightIsEqualTo(SuggestionChipDefaults.Height)
     }
 
     @Test
@@ -942,22 +922,17 @@ class ChipTest {
             SuggestionChip(
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Suggestion chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                })
+                label = { Text("Suggestion chip", Modifier.testTag(TestChipTag)) }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(16.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - 16.dp)
     }
@@ -969,29 +944,24 @@ class ChipTest {
             SuggestionChip(
                 onClick = {},
                 modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
-                label = {
-                    Text(
-                        "Suggestion chip",
-                        Modifier.testTag(TestChipTag)
-                    )
-                },
+                label = { Text("Suggestion chip", Modifier.testTag(TestChipTag)) },
                 icon = {
                     Icon(
                         imageVector = Icons.Filled.Done,
                         contentDescription = "Localized Description",
                         modifier = Modifier.size(SuggestionChipDefaults.IconSize)
                     )
-                })
+                }
+            )
         }
 
         var chipWidth = 0.dp
         rule.runOnIdle {
-            chipWidth = with(rule.density) {
-                chipCoordinates!!.boundsInWindow().width.toDp()
-            }
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
         }
 
-        rule.onNodeWithTag(TestChipTag, useUnmergedTree = true)
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
             .assertLeftPositionInRootIsEqualTo(8.dp + SuggestionChipDefaults.IconSize + 8.dp)
             .assertWidthIsEqualTo(chipWidth - 16.dp - SuggestionChipDefaults.IconSize - 16.dp)
     }
@@ -1002,14 +972,10 @@ class ChipTest {
         var contentColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
             expectedLabelColor = SuggestionChipTokens.LabelTextColor.value
-            SuggestionChip(onClick = {}, label = {
-                contentColor = LocalContentColor.current
-            })
+            SuggestionChip(onClick = {}, label = { contentColor = LocalContentColor.current })
         }
 
-        rule.runOnIdle {
-            assertThat(contentColor).isEqualTo(expectedLabelColor)
-        }
+        rule.runOnIdle { assertThat(contentColor).isEqualTo(expectedLabelColor) }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -1018,9 +984,10 @@ class ChipTest {
     fun elevatedDisabled_suggestionChip() {
         var containerColor = Color.Unspecified
         rule.setMaterialContent(lightColorScheme()) {
-            containerColor = SuggestionChipTokens.ElevatedDisabledContainerColor.value
-                .copy(alpha = SuggestionChipTokens.ElevatedDisabledContainerOpacity)
-                .compositeOver(MaterialTheme.colorScheme.surface)
+            containerColor =
+                SuggestionChipTokens.ElevatedDisabledContainerColor.value
+                    .copy(alpha = SuggestionChipTokens.ElevatedDisabledContainerOpacity)
+                    .compositeOver(MaterialTheme.colorScheme.surface)
             ElevatedSuggestionChip(
                 modifier = Modifier.testTag(TestChipTag),
                 onClick = {},
@@ -1030,7 +997,8 @@ class ChipTest {
             )
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .captureToImage()
             .assertShape(
                 density = rule.density,
@@ -1055,7 +1023,8 @@ class ChipTest {
                 )
             }
         }
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             // Confirm the chip starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
@@ -1068,16 +1037,10 @@ class ChipTest {
     @Test
     fun withLargeFontSizeIsLargerThenHeight() {
         rule.setMaterialContent(lightColorScheme()) {
-            SuggestionChip(onClick = {}, label = {
-                Text(
-                    text = "Test chip",
-                    fontSize = 50.sp
-                )
-            })
+            SuggestionChip(onClick = {}, label = { Text(text = "Test chip", fontSize = 50.sp) })
         }
 
-        rule.onNode(hasClickAction())
-            .assertHeightIsAtLeast(SuggestionChipDefaults.Height + 1.dp)
+        rule.onNode(hasClickAction()).assertHeightIsAtLeast(SuggestionChipDefaults.Height + 1.dp)
     }
 
     @Test
@@ -1085,11 +1048,13 @@ class ChipTest {
         var textStyle: TextStyle? = null
         var body2TextStyle: TextStyle? = null
         rule.setMaterialContent(lightColorScheme()) {
-            SuggestionChip(onClick = {}, label = {
-                textStyle = LocalTextStyle.current
-                body2TextStyle =
-                    SuggestionChipTokens.LabelTextFont.value
-            })
+            SuggestionChip(
+                onClick = {},
+                label = {
+                    textStyle = LocalTextStyle.current
+                    body2TextStyle = SuggestionChipTokens.LabelTextFont.value
+                }
+            )
         }
 
         rule.runOnIdle { assertThat(textStyle).isEqualTo(body2TextStyle) }
@@ -1103,24 +1068,17 @@ class ChipTest {
         rule.setMaterialContent(lightColorScheme()) {
             SuggestionChip(
                 onClick = {},
-                modifier = Modifier.onGloballyPositioned {
-                    chipBounds = it.boundsInRoot()
-                },
+                modifier = Modifier.onGloballyPositioned { chipBounds = it.boundsInRoot() },
                 label = {
                     Spacer(
-                        Modifier
-                            .requiredSize(10.dp)
-                            .onGloballyPositioned {
-                                item1Bounds = it.boundsInRoot()
-                            }
+                        Modifier.requiredSize(10.dp).onGloballyPositioned {
+                            item1Bounds = it.boundsInRoot()
+                        }
                     )
                     Spacer(
-                        Modifier
-                            .requiredWidth(10.dp)
-                            .requiredHeight(5.dp)
-                            .onGloballyPositioned {
-                                item2Bounds = it.boundsInRoot()
-                            }
+                        Modifier.requiredWidth(10.dp).requiredHeight(5.dp).onGloballyPositioned {
+                            item2Bounds = it.boundsInRoot()
+                        }
                     )
                 }
             )
@@ -1138,24 +1096,21 @@ class ChipTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.fillMaxSize()) {
                 SuggestionChip(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .testTag(TestChipTag)
-                        .requiredSize(10.dp),
+                    modifier =
+                        Modifier.align(Alignment.Center).testTag(TestChipTag).requiredSize(10.dp),
                     onClick = { clicked = !clicked },
                     label = { Box(Modifier.size(10.dp)) }
                 )
             }
         }
 
-        rule.onNodeWithTag(TestChipTag)
+        rule
+            .onNodeWithTag(TestChipTag)
             .assertWidthIsEqualTo(10.dp)
             .assertHeightIsEqualTo(10.dp)
             .assertTouchWidthIsEqualTo(48.dp)
             .assertTouchHeightIsEqualTo(48.dp)
-            .performTouchInput {
-                click(Offset(-1f, -1f))
-            }
+            .performTouchInput { click(Offset(-1f, -1f)) }
 
         assertThat(clicked).isTrue()
     }

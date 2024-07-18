@@ -202,8 +202,6 @@ public constructor(@IntRange(from = 1, to = MAX_VALUE) private var maxSize: Int)
      *
      * @param evicted `true` if the entry is being removed to make space, `false`
      * if the removal was caused by a [put] or [remove].
-     * @param key key of the entry that was evicted or removed.
-     * @param oldValue the original value of the entry that was evicted removed.
      * @param newValue the new value for [key], if it exists. If non-null, this removal was caused
      * by a [put]. Otherwise it was caused by an eviction or a [remove].
      */

@@ -63,16 +63,4 @@ public class CustomTabsCallbackTest {
                 ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET, Bundle.EMPTY);
         assertTrue(mCallback.hasActivityBeenLaidOut());
     }
-
-    @Test
-    public void testOnMinimized() throws Throwable {
-        mToken.getCallback().onMinimized(Bundle.EMPTY);
-        assertTrue(mCallback.wasMinimized());
-    }
-
-    @Test
-    public void testOnUnminimized() throws Throwable {
-        mToken.getCallback().onUnminimized(Bundle.EMPTY);
-        assertTrue(mCallback.wasUnminimized());
-    }
 }

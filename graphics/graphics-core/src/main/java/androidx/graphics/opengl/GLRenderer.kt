@@ -104,7 +104,7 @@ class GLRenderer(
         @WorkerThread onDetachComplete: ((RenderTarget) -> Unit)? = null
     ) {
         if (mRenderTargets.contains(target)) {
-            detachInternal(target, cancelPending) {
+            mGLThread?.detachSurface(target.token, cancelPending) {
                 // WorkerThread
                 target.release()
                 target.onDetach.invoke()
@@ -112,19 +112,6 @@ class GLRenderer(
             }
             mRenderTargets.remove(target)
         }
-    }
-
-    internal fun detachInternal(
-        target: RenderTarget,
-        cancelPending: Boolean,
-        @WorkerThread onDetachComplete: ((RenderTarget) -> Unit)? = null
-    ) {
-        val runnable = if (onDetachComplete != null) {
-            Runnable { onDetachComplete.invoke(target) }
-        } else {
-            null
-        }
-        mGLThread?.detachSurface(target.token, cancelPending, runnable)
     }
 
     /**
@@ -225,8 +212,7 @@ class GLRenderer(
 
     /**
      * Queue a [Runnable] to be executed on the GL rendering thread. Note it is important that this
-     * [Runnable] does not block otherwise it can stall the GL thread. The EGLContext will
-     * be created after [start] is invoked and before the runnable is executed.
+     * [Runnable] does not block otherwise it can stall the GL thread.
      *
      * @param runnable Runnable to be executed
      */
@@ -305,8 +291,8 @@ class GLRenderer(
         /**
          * Callback invoked on the backing thread after EGL dependencies are initialized.
          * This is guaranteed to be invoked before any instance of
-         * [RenderCallback.onSurfaceCreated] is called. This will be invoked after
-         * [GLRenderer.start].
+         * [RenderCallback.onSurfaceCreated] is called.
+         * This will be invoked lazily before the first request to [GLRenderer.requestRender]
          */
         // Suppressing CallbackMethodName due to b/238939160
         @Suppress("AcronymName", "CallbackMethodName")
@@ -504,18 +490,14 @@ class GLRenderer(
                  */
                 val detachLatch: CountDownLatch = CountDownLatch(1)
 
-                fun onDetachComplete() {
+                val renderTarget = RenderTarget(token, this@GLRenderer) @WorkerThread {
                     isAttached = false
+                    // SurfaceHolder.add/remove callback is thread safe
+                    holder.removeCallback(this)
                     // Countdown in case we have been detached while waiting for a render
                     // to be completed
                     renderLatch?.countDown()
                     detachLatch.countDown()
-                }
-
-                val renderTarget = RenderTarget(token, this@GLRenderer) @WorkerThread {
-                    // SurfaceHolder.add/remove callback is thread safe
-                    holder.removeCallback(this)
-                    onDetachComplete()
                 }
 
                 override fun surfaceRedrawNeeded(p0: SurfaceHolder) {
@@ -563,13 +545,11 @@ class GLRenderer(
                 }
 
                 override fun surfaceDestroyed(holder: SurfaceHolder) {
-                    // Issue a request to detach the [RenderTarget]. Even if it was
+                    // Issue a request to detech the [RenderTarget]. Even if it was
                     // previously detached this request is a no-op and the corresponding
                     // [CountDownLatch] will signal when the [RenderTarget] detachment is complete
                     // or instantaneously if it was already detached
-                    renderTarget.detachInternal(true) {
-                        onDetachComplete()
-                    }
+                    renderTarget.detach(true)
                     detachLatch.await()
                 }
             }
@@ -632,7 +612,6 @@ class GLRenderer(
                     height: Int
                 ) {
                     thread.attachSurface(token, Surface(surfaceTexture), width, height, renderer)
-                    renderTarget.requestRender()
                 }
 
                 override fun onSurfaceTextureSizeChanged(
@@ -645,13 +624,11 @@ class GLRenderer(
                 }
 
                 override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
-                    // Issue a request to detach the [RenderTarget]. Even if it was
+                    // Issue a request to detech the [RenderTarget]. Even if it was
                     // previously detached this request is a no-op and the corresponding
                     // [CountDownLatch] will signal when the [RenderTarget] detachment is complete
                     // or instantaneously if it was already detached
-                    renderTarget.detachInternal(true) {
-                        detachLatch.countDown()
-                    }
+                    renderTarget.detach(true)
                     detachLatch.await()
                     return true
                 }
@@ -668,7 +645,6 @@ class GLRenderer(
                     textureView.height,
                     renderer
                 )
-                renderTarget.requestRender()
             }
             mRenderTargets.add(renderTarget)
             return renderTarget
@@ -764,13 +740,6 @@ class GLRenderer(
         @JvmOverloads
         fun detach(cancelPending: Boolean, onDetachComplete: ((RenderTarget) -> Unit)? = null) {
             mManager?.detach(this, cancelPending, onDetachComplete)
-        }
-
-        internal fun detachInternal(
-            cancelPending: Boolean,
-            onDetachComplete: ((RenderTarget) -> Unit)? = null
-        ) {
-            mManager?.detachInternal(this, cancelPending, onDetachComplete)
         }
     }
 

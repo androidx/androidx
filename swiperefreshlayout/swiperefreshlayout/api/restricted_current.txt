@@ -59,7 +59,7 @@ package androidx.swiperefreshlayout.widget {
     method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
     method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
     method public void onStopNestedScroll(android.view.View, int);
-    method @Deprecated public void setColorScheme(@ColorRes int...!);
+    method @Deprecated public void setColorScheme(@ColorRes int...);
     method public void setColorSchemeColors(@ColorInt int...);
     method public void setColorSchemeResources(@ColorRes int...);
     method public void setDistanceToTriggerSync(int);

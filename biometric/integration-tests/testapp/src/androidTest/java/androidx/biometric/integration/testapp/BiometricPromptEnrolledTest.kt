@@ -28,7 +28,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
-import leakcanary.DetectLeaksAfterTestSuccess
 import org.hamcrest.Matchers.containsString
 import org.junit.After
 import org.junit.Assume.assumeFalse
@@ -44,9 +43,6 @@ class BiometricPromptEnrolledTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(BiometricPromptTestActivity::class.java)
-
-    @get:Rule
-    val rule = DetectLeaksAfterTestSuccess()
 
     private lateinit var context: Context
     private lateinit var device: UiDevice

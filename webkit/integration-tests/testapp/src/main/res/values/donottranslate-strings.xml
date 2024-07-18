@@ -93,10 +93,6 @@
     <string name="default_profile_text">Default Profile - Tap to print cookie.</string>
     <string name="first_profile_text">Created Profile - Tap to print cookie.</string>
     <string name="multi_profile_not_supported">Multi-Profile feature is not supported.</string>
-    <string name="mute_audio_activity_title">Mute Audio Demo</string>
-    <string name="mute_audio_not_supported">Mute Audio feature is not supported.</string>
-    <string name="mute_audio_audio_is_muted">Audio is muted.</string>
-    <string name="mute_audio_audio_is_unmuted">Audio is unmuted.</string>
 
     <!-- Proxy Override -->
     <string name="proxy_override_activity_title">Proxy Override</string>

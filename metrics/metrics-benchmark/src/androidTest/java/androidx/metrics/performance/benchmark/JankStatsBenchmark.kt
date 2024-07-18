@@ -114,6 +114,7 @@ class JankStatsBenchmark {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     fun getFrameData() {
         metricsStateHolder.state?.putState("Activity", "activity")
@@ -165,6 +166,7 @@ class JankStatsBenchmark {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     fun logFrameData() {
         metricsStateHolder.state?.putState("Activity", "activity")

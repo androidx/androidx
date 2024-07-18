@@ -94,23 +94,15 @@ internal object StartupTimingQuery {
     private fun findEndRenderTimeForUiFrame(
         uiSlices: List<Slice>,
         rtSlices: List<Slice>,
-        predicateErrorLabel: String,
         predicate: (Slice) -> Boolean
     ): Long {
         // find first UI slice that corresponds with the predicate
-        val uiSlice = uiSlices.firstOrNull(predicate)
-
-        check(uiSlice != null) { "No Choreographer#doFrame $predicateErrorLabel" }
+        val uiSlice = uiSlices.first(predicate)
 
         // find corresponding rt slice
-        val rtSlice = rtSlices.firstOrNull { rtSlice ->
+        val rtSlice = rtSlices.first { rtSlice ->
             rtSlice.ts > uiSlice.ts
         }
-
-        check(rtSlice != null) {
-            "No RT frame slice associated with UI thread frame slice $predicateErrorLabel"
-        }
-
         return rtSlice.endTs
     }
 
@@ -148,7 +140,7 @@ internal object StartupTimingQuery {
         val rtSlices = groupedData.getOrElse(StartupSliceType.FrameRenderThread) { listOf() }
 
         if (uiSlices.isEmpty() || rtSlices.isEmpty()) {
-            Log.w("Benchmark", "No UI / RT slices seen, not reporting startup.")
+            Log.d("Benchmark", "No UI / RT slices seen, not reporting startup.")
             return null
         }
 
@@ -159,23 +151,13 @@ internal object StartupTimingQuery {
             val launchingSlice = groupedData[StartupSliceType.Launching]?.firstOrNull {
                 // verify full name only on API 23+, since before package name not specified
                 (captureApiLevel < 23 || it.name == "launching: $targetPackageName")
-            } ?: run {
-                Log.w("Benchmark", "No launching slice seen, not reporting startup.")
-                return null
-            }
+            } ?: return null
 
             startTs = if (captureApiLevel >= 29) {
                 // Starting on API 29, expect to see 'notify started' system_server slice
                 val notifyStartedSlice = groupedData[StartupSliceType.NotifyStarted]?.lastOrNull {
                     it.ts < launchingSlice.ts
-                } ?: run {
-                    Log.w(
-                        "Benchmark",
-                        "No launchObserverNotifyIntentStarted slice seen before launching: " +
-                            "slice, not reporting startup."
-                    )
-                    return null
-                }
+                } ?: return null
                 notifyStartedSlice.ts
             } else {
                 launchingSlice.ts
@@ -185,26 +167,15 @@ internal object StartupTimingQuery {
             // both because on some platforms the launching slice may not wait for renderthread, but
             // also because this allows us to make the guarantee that timeToInitialDisplay ==
             // timeToFirstDisplay when they are the same frame.
-            initialDisplayTs = findEndRenderTimeForUiFrame(
-                uiSlices = uiSlices,
-                rtSlices = rtSlices,
-                predicateErrorLabel = "after launching slice"
-            ) { uiSlice ->
+            initialDisplayTs = findEndRenderTimeForUiFrame(uiSlices, rtSlices) { uiSlice ->
                 uiSlice.ts > launchingSlice.ts
             }
         } else {
             // Prior to API 29, hot starts weren't traced with the launching slice, so we do a best
             // guess - the time taken to Activity#onResume, and then produce the next frame.
             startTs = groupedData[StartupSliceType.ActivityResume]?.first()?.ts
-                ?: run {
-                    Log.w("Benchmark", "No activityResume slice, not reporting startup.")
-                    return null
-                }
-            initialDisplayTs = findEndRenderTimeForUiFrame(
-                uiSlices = uiSlices,
-                rtSlices = rtSlices,
-                predicateErrorLabel = "after activityResume"
-            ) { uiSlice ->
+                ?: return null
+            initialDisplayTs = findEndRenderTimeForUiFrame(uiSlices, rtSlices) { uiSlice ->
                 uiSlice.ts > startTs
             }
         }
@@ -214,11 +185,7 @@ internal object StartupTimingQuery {
         val reportFullyDrawnEndTs: Long? = reportFullyDrawnSlice?.let {
             // find first uiSlice with end after reportFullyDrawn (reportFullyDrawn may happen
             // during or before a given frame)
-            findEndRenderTimeForUiFrame(
-                uiSlices = uiSlices,
-                rtSlices = rtSlices,
-                predicateErrorLabel = "ends after reportFullyDrawn"
-            ) { uiSlice ->
+            findEndRenderTimeForUiFrame(uiSlices, rtSlices) { uiSlice ->
                 uiSlice.endTs > reportFullyDrawnSlice.ts
             }
         }

@@ -34,6 +34,7 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -42,6 +43,7 @@ import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class EmojiKeyListenerTest {
 
     private KeyListener mKeyListener;

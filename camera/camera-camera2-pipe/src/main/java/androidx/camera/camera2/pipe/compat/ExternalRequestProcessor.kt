@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
@@ -39,6 +40,7 @@ import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
+@RequiresApi(21)
 class ExternalCameraController(
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
@@ -80,6 +82,7 @@ class ExternalCameraController(
 }
 
 @Suppress("DEPRECATION")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class ExternalCaptureSequenceProcessor(
     private val graphConfig: CameraGraph.Config,
     private val processor: RequestProcessor
@@ -135,12 +138,9 @@ internal class ExternalCaptureSequenceProcessor(
         )
     }
 
-    override fun submit(captureSequence: ExternalCaptureSequence): Int? {
+    override fun submit(captureSequence: ExternalCaptureSequence): Int {
+        check(!closed.value)
         check(captureSequence.captureRequestList.isNotEmpty())
-        if (closed.value) {
-            Log.warn { "Cannot submit $captureSequence because $this is closed" }
-            return null
-        }
 
         if (captureSequence.repeating) {
             check(captureSequence.captureRequestList.size == 1)

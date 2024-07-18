@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.core.impl.Quirk
 
@@ -41,6 +42,7 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class AeFpsRangeLegacyQuirk(cameraMetadata: CameraMetadata) : Quirk {
     /**
      * Returns the fps range whose upper is 30 and whose lower is the smallest, or null if no

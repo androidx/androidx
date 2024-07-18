@@ -74,12 +74,12 @@ package androidx.lifecycle {
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass);
     method public default <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
     method public default <T extends androidx.lifecycle.ViewModel> T create(kotlin.reflect.KClass<T> modelClass, androidx.lifecycle.viewmodel.CreationExtras extras);
-    method public static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<? extends java.lang.Object!>... initializers);
+    method public static androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
     field public static final androidx.lifecycle.ViewModelProvider.Factory.Companion Companion;
   }
 
   public static final class ViewModelProvider.Factory.Companion {
-    method public androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<? extends java.lang.Object!>... initializers);
+    method public androidx.lifecycle.ViewModelProvider.Factory from(androidx.lifecycle.viewmodel.ViewModelInitializer<?>... initializers);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {

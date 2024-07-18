@@ -186,9 +186,6 @@ data class WorkSpec(
         defaultValue = "${WorkInfo.STOP_REASON_NOT_STOPPED}"
     )
     val stopReason: Int = WorkInfo.STOP_REASON_NOT_STOPPED,
-
-    @ColumnInfo(name = "trace_tag")
-    var traceTag: String? = null,
 ) {
     constructor(
         id: String,
@@ -218,7 +215,6 @@ data class WorkSpec(
         nextScheduleTimeOverride = other.nextScheduleTimeOverride,
         nextScheduleTimeOverrideGeneration = other.nextScheduleTimeOverrideGeneration,
         stopReason = other.stopReason,
-        traceTag = other.traceTag,
     )
 
     /**

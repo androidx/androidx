@@ -45,7 +45,7 @@ class TrackingRemoteWorkerFactory : WorkerFactory() {
             appContext,
             workerClassName,
             workerParameters
-        ).also {
+        )!!.also {
             val oldWorkers = createdWorkers.value[it.id]
             val workers = if (oldWorkers == null)
                 Workers(localProxy = it)

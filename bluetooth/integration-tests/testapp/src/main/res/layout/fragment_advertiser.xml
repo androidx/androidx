@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -25,7 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="16dp"
-        android:text="@string/configure_advertise_params"
+        android:text="@string/configure_advertising_packet"
         android:textColor="@color/black"
         android:textSize="21sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -73,24 +74,6 @@
         android:text="@string/discoverable"
         app:layout_constraintTop_toBottomOf="@+id/check_box_connectable" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/text_input_layout_duration"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/duration"
-        app:layout_constraintTop_toBottomOf="@+id/check_box_discoverable">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/text_input_edit_text_duration"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLines="1"
-            android:text="0"
-            tools:ignore="HardcodedText" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
     <TextView
         android:id="@+id/text_view_advertising_data"
         android:layout_width="wrap_content"
@@ -102,7 +85,7 @@
         android:textColor="@color/black"
         android:textSize="21sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_input_layout_duration" />
+        app:layout_constraintTop_toBottomOf="@+id/check_box_discoverable" />
 
     <Button
         android:id="@+id/button_add_data"

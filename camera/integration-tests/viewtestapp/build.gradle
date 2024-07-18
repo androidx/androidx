@@ -81,12 +81,10 @@ dependencies {
 
     // Compose UI
     implementation("androidx.compose.runtime:runtime:1.4.0")
-    implementation("androidx.compose.material:material:1.4.0")
     implementation("androidx.compose.ui:ui:1.4.0")
-    implementation("androidx.compose.foundation:foundation:1.4.0")
-
-    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.compose.material:material:1.4.0")
+    implementation("androidx.compose.ui:ui-tooling:1.4.0")
+    implementation("androidx.activity:activity-compose:1.3.1")
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
@@ -99,7 +97,6 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
     androidTestImplementation(project(":concurrent:concurrent-futures"))
-    androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(libs.truth)
     debugImplementation(libs.testCore)
     debugImplementation("androidx.fragment:fragment-testing:1.2.3")

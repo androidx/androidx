@@ -169,19 +169,25 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.preview_view) {
-            mFragmentType = FragmentType.PREVIEW_VIEW;
-        } else if (itemId == R.id.camera_controller) {
-            mFragmentType = FragmentType.CAMERA_CONTROLLER;
-        } else if (itemId == R.id.transform) {
-            mFragmentType = FragmentType.TRANSFORM;
-        } else if (itemId == R.id.compose_ui) {
-            mFragmentType = FragmentType.COMPOSE_UI;
-        } else if (itemId == R.id.mlkit) {
-            mFragmentType = FragmentType.MLKIT;
-        } else if (itemId == R.id.effects) {
-            mFragmentType = FragmentType.EFFECTS;
+        switch (item.getItemId()) {
+            case R.id.preview_view:
+                mFragmentType = FragmentType.PREVIEW_VIEW;
+                break;
+            case R.id.camera_controller:
+                mFragmentType = FragmentType.CAMERA_CONTROLLER;
+                break;
+            case R.id.transform:
+                mFragmentType = FragmentType.TRANSFORM;
+                break;
+            case R.id.compose_ui:
+                mFragmentType = FragmentType.COMPOSE_UI;
+                break;
+            case R.id.mlkit:
+                mFragmentType = FragmentType.MLKIT;
+                break;
+            case R.id.effects:
+                mFragmentType = FragmentType.EFFECTS;
+                break;
         }
         startFragment();
         return true;

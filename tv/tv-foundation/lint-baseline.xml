@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -267,6 +267,42 @@
         message="field _headerIndexes with type List&lt;Integer>: replace with IntList"
         errorLine1="    private var _headerIndexes: MutableList&lt;Int>? = null"
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getHeaderIndexes: replace with IntList"
+        errorLine1="    val headerIndexes: List&lt;Int> get() = _headerIndexes ?: emptyList()"
+        errorLine2="        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable vard55442a7 with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val headerIndexes: List&lt;Int> get() = _headerIndexes ?: emptyList()"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable headersIndexes with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable vard554f0be with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val headersIndexes = _headerIndexes ?: mutableListOf&lt;Int>().also {"
+        errorLine2="                             ^">
         <location
             file="src/main/java/androidx/tv/foundation/lazy/list/TvLazyListIntervalContent.kt"/>
     </issue>

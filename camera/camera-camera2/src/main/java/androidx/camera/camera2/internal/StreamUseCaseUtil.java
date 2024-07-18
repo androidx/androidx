@@ -155,18 +155,14 @@ public final class StreamUseCaseUtil {
                     // MeteringRepeating is attached after the StreamUseCase population logic and
                     // therefore won't have the StreamUseCase option. It should always have
                     // SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW
-                    Preconditions.checkState(!sessionConfig.getSurfaces().isEmpty(),
-                            "MeteringRepeating should contain a surface");
                     streamUseCaseMap.put(sessionConfig.getSurfaces().get(0),
                             Long.valueOf(CameraMetadata.SCALER_AVAILABLE_STREAM_USE_CASES_PREVIEW));
 
                 } else if (sessionConfig.getImplementationOptions().containsOption(
                         STREAM_USE_CASE_STREAM_SPEC_OPTION)) {
-                    if (!sessionConfig.getSurfaces().isEmpty()) {
-                        streamUseCaseMap.put(sessionConfig.getSurfaces().get(0),
-                                sessionConfig.getImplementationOptions().retrieveOption(
-                                        STREAM_USE_CASE_STREAM_SPEC_OPTION));
-                    }
+                    streamUseCaseMap.put(sessionConfig.getSurfaces().get(0),
+                            sessionConfig.getImplementationOptions().retrieveOption(
+                                    STREAM_USE_CASE_STREAM_SPEC_OPTION));
                 }
                 position++;
             }

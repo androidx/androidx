@@ -31,6 +31,7 @@ internal fun Translations.gu() = mapOf(
     Strings.Dialog to "સંવાદ",
     Strings.MenuExpanded to "મોટી કરેલી",
     Strings.MenuCollapsed to "નાની કરેલી",
+    Strings.ToggleDropdownMenu to "ડ્રૉપડાઉન મેનૂ ટૉગલ કરો",
     Strings.SnackbarDismiss to "છોડી દો",
     Strings.SearchBarSearch to "શોધો",
     Strings.SuggestionsAvailable to "સૂચનો નીચે છે",

@@ -20,6 +20,7 @@ import android.content.res.AssetManager;
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji2.text.flatbuffer.MetadataList;
 
@@ -34,6 +35,7 @@ import java.nio.ByteOrder;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @AnyThread
+@RequiresApi(19)
 class MetadataListReader {
 
     /**

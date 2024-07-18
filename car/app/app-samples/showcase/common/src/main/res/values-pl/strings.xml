@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Brak dostępu"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Typy złączy EV"</string>
     <string name="example_title" msgid="530257630320010494">"Przykład %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Ten tekst ma "<annotation color="red">"czerwony"</annotation>" kolor"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"Ten tekst ma "<annotation color="green">"zielony"</annotation>" kolor"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"Ten tekst ma "<annotation color="blue">"niebieski"</annotation>" kolor"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"Ten tekst ma "<annotation color="yellow">"żółty"</annotation>" kolor"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"Ten tekst ma czerwony kolor"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Ten tekst ma zielony kolor"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Ten tekst ma niebieski kolor"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Ten tekst ma żółty kolor"</string>
     <string name="example_5_text" msgid="8828804968749423500">"W ten tekście użyto koloru podstawowego"</string>
     <string name="example_6_text" msgid="7991523168517599600">"W ten tekście użyto koloru dodatkowego"</string>
     <string name="color_demo" msgid="1822427636476178993">"Wersja demonstracyjna koloru"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Przeglądaj miejsca"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Wersja demonstracyjna szablonu wyszukiwania"</string>
     <string name="search_hint" msgid="978495498991026792">"Wyszukaj tutaj"</string>
-    <string name="additional_text" msgid="5755100726890686184">"Zapoznaj się z "<annotation link="terms_of_service">"Warunkami korzystania z usługi"</annotation></string>
+    <string name="additional_text" msgid="8410289578276941586">"Zapoznaj się z Warunkami korzystania z usługi"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Logowanie przez Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"Użyj kodu PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"Kod QR"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opcje trasy"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Unikaj autostrad"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Unikaj promów"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Mapa w wersji demonstracyjnej"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Mapa z zawartością w wersji demonstracyjnej"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mapa z szablonem wiadomości w wersji demonstracyjnej"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Mapa z szablonem siatki w wersji demonstracyjnej"</string>
 </resources>

@@ -22,7 +22,7 @@ import androidx.appsearch.app.PropertyPath;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
-import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
+import androidx.appsearch.localstorage.DefaultIcingOptionsConfig;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 
@@ -96,7 +96,7 @@ public class SnippetTest {
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new DefaultIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match.getPropertyPath()).isEqualTo(propertyKeyString);
@@ -137,7 +137,7 @@ public class SnippetTest {
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new DefaultIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getMatchInfos()).isEmpty();
     }
@@ -194,7 +194,7 @@ public class SnippetTest {
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new DefaultIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match1.getPropertyPath()).isEqualTo("senderName");
@@ -281,7 +281,7 @@ public class SnippetTest {
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
                 SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()));
+                        new DefaultIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
         assertThat(match1.getPropertyPath()).isEqualTo("sender.name");

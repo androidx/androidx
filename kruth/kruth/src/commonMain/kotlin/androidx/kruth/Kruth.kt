@@ -48,8 +48,6 @@ fun <T : Long?> assertThat(actual: T): LongSubject = assert_().that(actual)
 
 fun assertThat(actual: Double?): DoubleSubject = assert_().that(actual)
 
-fun assertThat(actual: Float?): FloatSubject = assert_().that(actual)
-
 fun assertThat(actual: Int): IntegerSubject = assert_().that(actual)
 
 // Workaround for https://youtrack.jetbrains.com/issue/KT-645

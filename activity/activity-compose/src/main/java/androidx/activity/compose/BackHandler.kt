@@ -97,7 +97,6 @@ public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
     val backDispatcher = checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
         "No OnBackPressedDispatcherOwner was provided via LocalOnBackPressedDispatcherOwner"
     }.onBackPressedDispatcher
-    @Suppress("deprecation", "KotlinRedundantDiagnosticSuppress") // TODO b/330570365
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, backDispatcher) {
         // Add callback to the backDispatcher

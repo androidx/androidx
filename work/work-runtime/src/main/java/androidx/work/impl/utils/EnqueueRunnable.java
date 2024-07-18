@@ -26,8 +26,9 @@ import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.utils.EnqueueUtilsKt.checkContentUriTriggerWorkerLimits;
-import static androidx.work.impl.utils.EnqueueUtilsKt.wrapWorkSpecIfNeeded;
+import static androidx.work.impl.utils.EnqueueUtilsKt.wrapInConstraintTrackingWorkerIfNeeded;
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -35,12 +36,15 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
+import androidx.work.Operation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
+import androidx.work.impl.OperationImpl;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkName;
@@ -54,27 +58,54 @@ import java.util.Set;
 
 /**
  * Manages the enqueuing of a {@link WorkContinuationImpl}.
+ *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EnqueueRunnable {
-
-    private EnqueueRunnable() {
-    }
+public class EnqueueRunnable implements Runnable {
 
     private static final String TAG = Logger.tagWithPrefix("EnqueueRunnable");
 
+    private final WorkContinuationImpl mWorkContinuation;
+    private final OperationImpl mOperation;
+
+    public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
+        this(workContinuation, new OperationImpl());
+    }
+
+    public EnqueueRunnable(
+            @NonNull WorkContinuationImpl workContinuation,
+            @NonNull OperationImpl result) {
+        mWorkContinuation = workContinuation;
+        mOperation = result;
+    }
+
+    @Override
+    public void run() {
+        try {
+            if (mWorkContinuation.hasCycles()) {
+                throw new IllegalStateException(
+                        "WorkContinuation has cycles (" + mWorkContinuation + ")");
+            }
+            boolean needsScheduling = addToDatabase();
+            if (needsScheduling) {
+                // Enable RescheduleReceiver, only when there are Worker's that need scheduling.
+                final Context context =
+                        mWorkContinuation.getWorkManagerImpl().getApplicationContext();
+                PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
+                scheduleWorkInBackground();
+            }
+            mOperation.markState(Operation.SUCCESS);
+        } catch (Throwable exception) {
+            mOperation.markState(new Operation.State.FAILURE(exception));
+        }
+    }
+
     /**
-     * Enqueues the given workContinuation.
+     * @return The {@link Operation} that encapsulates the state of the {@link EnqueueRunnable}.
      */
-    public static void enqueue(@NonNull WorkContinuationImpl workContinuation) {
-        if (workContinuation.hasCycles()) {
-            throw new IllegalStateException(
-                    "WorkContinuation has cycles (" + workContinuation + ")");
-        }
-        boolean needsScheduling = addToDatabase(workContinuation);
-        if (needsScheduling) {
-            scheduleWorkInBackground(workContinuation);
-        }
+    @NonNull
+    public Operation getOperation() {
+        return mOperation;
     }
 
     /**
@@ -82,15 +113,14 @@ public class EnqueueRunnable {
      * Schedules work on the background scheduler, if transaction is successful.
      */
     @VisibleForTesting
-    @SuppressWarnings("deprecation")
-    public static boolean addToDatabase(@NonNull WorkContinuationImpl workContinuation) {
-        WorkManagerImpl workManagerImpl = workContinuation.getWorkManagerImpl();
+    public boolean addToDatabase() {
+        WorkManagerImpl workManagerImpl = mWorkContinuation.getWorkManagerImpl();
         WorkDatabase workDatabase = workManagerImpl.getWorkDatabase();
         workDatabase.beginTransaction();
         try {
             checkContentUriTriggerWorkerLimits(workDatabase,
-                    workManagerImpl.getConfiguration(), workContinuation);
-            boolean needsScheduling = processContinuation(workContinuation);
+                    workManagerImpl.getConfiguration(), mWorkContinuation);
+            boolean needsScheduling = processContinuation(mWorkContinuation);
             workDatabase.setTransactionSuccessful();
             return needsScheduling;
         } finally {
@@ -102,8 +132,8 @@ public class EnqueueRunnable {
      * Schedules work on the background scheduler.
      */
     @VisibleForTesting
-    public static void scheduleWorkInBackground(@NonNull WorkContinuationImpl workContinuation) {
-        WorkManagerImpl workManager = workContinuation.getWorkManagerImpl();
+    public void scheduleWorkInBackground() {
+        WorkManagerImpl workManager = mWorkContinuation.getWorkManagerImpl();
         Schedulers.schedule(
                 workManager.getConfiguration(),
                 workManager.getWorkDatabase(),
@@ -285,7 +315,7 @@ public class EnqueueRunnable {
             }
 
             workDatabase.workSpecDao().insertWorkSpec(
-                    wrapWorkSpecIfNeeded(
+                    wrapInConstraintTrackingWorkerIfNeeded(
                             workManagerImpl.getSchedulers(),
                             workSpec
                     )

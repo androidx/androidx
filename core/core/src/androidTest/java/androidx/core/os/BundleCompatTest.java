@@ -39,7 +39,6 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.HashSet;
 import java.util.Objects;
 
 @RunWith(AndroidJUnit4.class)
@@ -55,7 +54,6 @@ public class BundleCompatTest {
         assertEquals(Intent.class, Objects.requireNonNull(
                 BundleCompat.getParcelable(bundle, "parcelable", Intent.class)).getClass());
     }
-
 
     @Test
     public void getParcelable_returnsNullOnClassMismatch() {
@@ -194,32 +192,11 @@ public class BundleCompatTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     public void getBinder() {
         IBinder binder = new Binder();
         Bundle bundle = new Bundle();
         BundleCompat.putBinder(bundle, "binder", binder);
         IBinder result = BundleCompat.getBinder(bundle, "binder");
         assertEquals(binder, result);
-    }
-    @Test
-    public void getSerializable() {
-        Bundle bundle = new Bundle();
-        String s = "Hello World";
-        bundle.putSerializable("serializable", s);
-        parcelAndUnparcel(bundle);
-
-        assertEquals(s, Objects.requireNonNull(
-                BundleCompat.getSerializable(bundle, "serializable", String.class)));
-    }
-
-    @Test
-    public void getSerializable_returnsNullOnClassMismatch() {
-        Bundle bundle = new Bundle();
-        String s = "Hello World";
-        bundle.putSerializable("serializable", s);
-        parcelAndUnparcel(bundle);
-
-        assertNull(BundleCompat.getSerializable(bundle, "serializable", HashSet.class));
     }
 }

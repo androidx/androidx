@@ -51,7 +51,7 @@ class WorkManagerImplTestKt {
         preferenceUtils.lastCancelAllTimeMillis = 0L
 
         val testLifecycleOwner = TestLifecycleOwner()
-        val cancelAllTimeLiveData = workManager.getLastCancelAllTimeMillisLiveData()
+        val cancelAllTimeLiveData = workManager.lastCancelAllTimeMillisLiveData
         val firstValueLatch = CountDownLatch(1)
         val secondValueLatch = CountDownLatch(1)
         var firstCancelAll = -1L

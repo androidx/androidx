@@ -17,15 +17,12 @@
 package androidx.glance.appwidget.action
 
 import android.content.Context
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.glance.GlanceId
 import androidx.glance.action.Action
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 
-@RestrictTo(Scope.LIBRARY_GROUP)
-class RunCallbackAction(
+internal class RunCallbackAction(
     val callbackClass: Class<out ActionCallback>,
     val parameters: ActionParameters
 ) : Action {

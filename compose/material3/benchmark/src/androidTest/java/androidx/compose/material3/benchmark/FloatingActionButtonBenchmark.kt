@@ -43,8 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class FloatingActionButtonBenchmark {
 
-    @get:Rule
-    val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val fabTestCaseFactory = { FloatingActionButtonTestCase() }
     private val extendedFabTestCaseFactory = { ExtendedFloatingActionButtonTestCase() }
@@ -112,16 +111,12 @@ internal class FloatingActionButtonTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun MeasuredContent() {
-        FloatingActionButton(onClick = { /*TODO*/ }) {
-            Box(modifier = Modifier.size(24.dp))
-        }
+        FloatingActionButton(onClick = { /*TODO*/ }) { Box(modifier = Modifier.size(24.dp)) }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }
 
@@ -131,16 +126,13 @@ internal class ExtendedFloatingActionButtonTestCase : LayeredComposeTestCase() {
     override fun MeasuredContent() {
         ExtendedFloatingActionButton(
             text = { Text(text = "Extended FAB") },
-            icon = {
-                Box(modifier = Modifier.size(24.dp))
-            },
-            onClick = { /*TODO*/ })
+            icon = { Box(modifier = Modifier.size(24.dp)) },
+            onClick = { /*TODO*/ }
+        )
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme {
-            content()
-        }
+        MaterialTheme { content() }
     }
 }

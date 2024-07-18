@@ -269,6 +269,7 @@ public class LinearCurveFit extends CurveFit {
                 break;
             }
         }
+        return;
     }
 
     // @TODO: add description

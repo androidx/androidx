@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedClass: androidx.activity.result.ActivityResultCallerKt:
+    Removed class androidx.activity.result.ActivityResultCallerKt
+RemovedClass: androidx.activity.result.ActivityResultLauncherKt:
+    Removed class androidx.activity.result.ActivityResultLauncherKt

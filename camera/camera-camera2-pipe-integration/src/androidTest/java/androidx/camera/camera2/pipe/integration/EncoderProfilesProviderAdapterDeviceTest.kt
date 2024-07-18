@@ -16,24 +16,16 @@
 
 package androidx.camera.camera2.pipe.integration
 
-import android.hardware.camera2.CameraCharacteristics
 import android.media.CamcorderProfile
 import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.media.EncoderProfiles.VideoProfile.YUV_420
 import android.os.Build
-import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
-import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
-import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.InvalidVideoProfilesQuirk
-import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.LabTestRule
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -78,9 +70,6 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest()
 
-    @get:Rule
-    val labTestRule = LabTestRule()
-
     @Before
     fun setup() {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
@@ -91,18 +80,20 @@ class EncoderProfilesProviderAdapterDeviceTest(
     }
 
     private fun setUptEncoderProfileProvider() {
-        val cameraPipe =
-            CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
-        val cameraMetadata = cameraPipe.cameras().awaitCameraMetadata(CameraId(cameraId))!!
-        val streamConfigurationMap =
-            cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
-        val cameraQuirks = CameraQuirks(
-            cameraMetadata, StreamConfigurationMapCompat(
-                streamConfigurationMap,
-                OutputSizesCorrector(cameraMetadata, streamConfigurationMap)
-            )
-        )
-        encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId, cameraQuirks.quirks)
+        encoderProfilesProvider = EncoderProfilesProviderAdapter(cameraId)
+    }
+
+    @Test
+    fun hasProfile_returnSameResult() {
+        assertThat(encoderProfilesProvider.hasProfile(quality))
+            .isEqualTo(CamcorderProfile.hasProfile(intCameraId, quality))
+    }
+
+    @Test
+    fun hasProfile_getReturnNonNull() {
+        Assume.assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
+
+        assertThat(encoderProfilesProvider.getAll(quality)).isNotNull()
     }
 
     @Test
@@ -115,7 +106,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @Suppress("DEPRECATION")
     @Test
     fun hasSameContentAsCamcorderProfile() {
-        Assume.assumeTrue(encoderProfilesProvider.hasProfile(quality))
+        Assume.assumeTrue(CamcorderProfile.hasProfile(quality))
 
         val profile = CamcorderProfile.get(quality)
         val encoderProfiles = encoderProfilesProvider.getAll(quality)
@@ -138,11 +129,10 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @SdkSuppress(minSdkVersion = 31, maxSdkVersion = 32)
     @Test
     fun api31Api32_hasSameContentAsEncoderProfiles() {
-        Assume.assumeTrue(encoderProfilesProvider.hasProfile(quality))
+        Assume.assumeTrue(CamcorderProfile.hasProfile(quality))
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
-        Assume.assumeTrue(video != null)
         val audio = profiles.audioProfiles[0]
         val profilesProxy = encoderProfilesProvider.getAll(quality)
         val videoProxy = profilesProxy!!.videoProfiles[0]
@@ -171,11 +161,11 @@ class EncoderProfilesProviderAdapterDeviceTest(
     @SdkSuppress(minSdkVersion = 33)
     @Test
     fun afterApi33_hasSameContentAsEncoderProfiles() {
-        Assume.assumeTrue(encoderProfilesProvider.hasProfile(quality))
+        Assume.assumeTrue(CamcorderProfile.hasProfile(quality))
+        skipTestOnDevicesWithProblematicBuild()
 
         val profiles = CamcorderProfile.getAll(cameraId, quality)
         val video = profiles!!.videoProfiles[0]
-        Assume.assumeTrue(video != null)
         val audio = profiles.audioProfiles[0]
         val profilesProxy = encoderProfilesProvider.getAll(quality)
         val videoProxy = profilesProxy!!.videoProfiles[0]
@@ -199,16 +189,6 @@ class EncoderProfilesProviderAdapterDeviceTest(
         assertThat(audioProxy.sampleRate).isEqualTo(audio.sampleRate)
         assertThat(audioProxy.channels).isEqualTo(audio.channels)
         assertThat(audioProxy.profile).isEqualTo(audio.profile)
-    }
-
-    @LabTestRule.LabTestOnly
-    @SdkSuppress(minSdkVersion = 31)
-    @Test
-    fun detectNullVideoProfile() {
-        Assume.assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
-        skipTestOnDevicesWithProblematicBuild()
-        val profiles = CamcorderProfile.getAll(cameraId, quality)!!
-        assertThat(profiles.videoProfiles[0]).isNotNull()
     }
 
     private fun skipTestOnDevicesWithProblematicBuild() {

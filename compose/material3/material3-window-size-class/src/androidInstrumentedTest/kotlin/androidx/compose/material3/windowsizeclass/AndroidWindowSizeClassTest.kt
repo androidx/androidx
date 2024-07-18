@@ -36,8 +36,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 class AndroidWindowSizeClassTest {
 
-    @get:Rule
-    val rule = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun widthSizeClass_correctCalculation() {
@@ -50,12 +49,13 @@ class AndroidWindowSizeClassTest {
             assertThat(actualWindowWidthSizeClass).isNotNull()
 
             val width = getWindowBounds().width()
-            val expectedWindowWidthSizeClass = with(rule.density) {
-                WindowWidthSizeClass.fromWidth(
-                    width.toDp(),
-                    WindowWidthSizeClass.DefaultSizeClasses
-                )
-            }
+            val expectedWindowWidthSizeClass =
+                with(rule.density) {
+                    WindowWidthSizeClass.fromWidth(
+                        width.toDp(),
+                        WindowWidthSizeClass.DefaultSizeClasses
+                    )
+                }
             assertThat(expectedWindowWidthSizeClass).isEqualTo(actualWindowWidthSizeClass)
         }
     }
@@ -71,12 +71,13 @@ class AndroidWindowSizeClassTest {
             assertThat(actualWindowHeightSizeClass).isNotNull()
 
             val height = getWindowBounds().height()
-            val expectedWindowHeightSizeClass = with(rule.density) {
-                WindowHeightSizeClass.fromHeight(
-                    height.toDp(),
-                    WindowHeightSizeClass.DefaultSizeClasses
-                )
-            }
+            val expectedWindowHeightSizeClass =
+                with(rule.density) {
+                    WindowHeightSizeClass.fromHeight(
+                        height.toDp(),
+                        WindowHeightSizeClass.DefaultSizeClasses
+                    )
+                }
             assertThat(expectedWindowHeightSizeClass).isEqualTo(actualWindowHeightSizeClass)
         }
     }
@@ -94,10 +95,11 @@ class AndroidWindowSizeClassTest {
         }
 
         rule.runOnIdle {
-            val expectedWindowSizeClass = with(density.value) {
-                firstSize = getWindowDpSize()
-                WindowSizeClass.calculateFromSize(firstSize!!)
-            }
+            val expectedWindowSizeClass =
+                with(density.value) {
+                    firstSize = getWindowDpSize()
+                    WindowSizeClass.calculateFromSize(firstSize!!)
+                }
             assertThat(actualWindowSizeClass).isEqualTo(expectedWindowSizeClass)
         }
 
@@ -105,19 +107,21 @@ class AndroidWindowSizeClassTest {
         density.value = Density(10f)
 
         rule.runOnIdle {
-            val expectedWindowSizeClass = with(density.value) {
-                secondSize = getWindowDpSize()
-                WindowSizeClass.calculateFromSize(secondSize)
-            }
+            val expectedWindowSizeClass =
+                with(density.value) {
+                    secondSize = getWindowDpSize()
+                    WindowSizeClass.calculateFromSize(secondSize)
+                }
             assertThat(actualWindowSizeClass).isEqualTo(expectedWindowSizeClass)
 
             assertThat(firstSize!! / 10f).isEqualTo(secondSize)
         }
     }
 
-    private fun getWindowBounds() = with(rule.activity) {
-        WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this).bounds
-    }
+    private fun getWindowBounds() =
+        with(rule.activity) {
+            WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this).bounds
+        }
 
     private fun Density.getWindowDpSize(): DpSize {
         val bounds = getWindowBounds()

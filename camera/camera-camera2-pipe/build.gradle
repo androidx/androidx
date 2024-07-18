@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("com.google.devtools.ksp")
+    id("kotlin-kapt")
 }
 
 dependencies {
@@ -38,21 +32,20 @@ dependencies {
     implementation(libs.atomicFu)
     implementation(libs.dagger)
 
-    ksp(libs.daggerCompiler)
+    kapt(libs.daggerCompiler)
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
-    testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":internal-testutils-truth"))
 
-    kspTest(libs.daggerCompiler)
+    kaptTest(libs.daggerCompiler)
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -68,17 +61,19 @@ android {
     namespace "androidx.camera.camera2.pipe"
 }
 
-ksp {
-    arg("dagger.fastInit", "enabled")
-    arg("dagger.fullBindingGraphValidation", "ERROR")
+kapt {
+    javacOptions {
+        option("-Adagger.fastInit=enabled")
+        option("-Adagger.fullBindingGraphValidation=ERROR")
+    }
 }
 
 androidx {
     name = "Camera2 Pipe"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
     metalavaK2UastEnabled = true
-    doNotDocumentReason = "Not shipped externally"
 }

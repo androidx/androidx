@@ -20,12 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
-import static androidx.wear.protolayout.expression.DynamicBuilders.dynamicInt32FromProto;
-
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
-import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -193,28 +190,5 @@ public final class DynamicInt32Test {
 
         assertThat(from.toDynamicInt32ByteArray(new byte[100]))
                 .isEqualTo(from.toDynamicInt32ByteArray().length);
-    }
-
-    @Test
-    public void serializing_deserializing_withFingerprint() {
-        DynamicInt32 from = DynamicInt32.constant(CONSTANT_VALUE);
-        NodeFingerprint fingerprint = from.getFingerprint().toProto();
-
-        DynamicProto.DynamicInt32 to = from.toDynamicInt32Proto(true);
-        assertThat(to.getFingerprint()).isEqualTo(fingerprint);
-
-        DynamicInt32 back = dynamicInt32FromProto(to);
-        assertThat(back.getFingerprint().toProto()).isEqualTo(fingerprint);
-    }
-
-    @Test
-    public void toByteArray_fromByteArray_withFingerprint() {
-        DynamicInt32 from = DynamicInt32.constant(CONSTANT_VALUE);
-        byte[] buffer = from.toDynamicInt32ByteArray();
-        DynamicProto.DynamicInt32 toProto =
-                DynamicInt32.fromByteArray(buffer).toDynamicInt32Proto(true);
-
-        assertThat(toProto.getFixed().getValue()).isEqualTo(CONSTANT_VALUE);
-        assertThat(toProto.getFingerprint()).isEqualTo(from.getFingerprint().toProto());
     }
 }

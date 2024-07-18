@@ -28,9 +28,11 @@ import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.verifyWithPolling
 import androidx.tracing.Trace
 import androidx.tracing.trace
 import kotlin.test.assertEquals
+import kotlin.test.fail
 import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
@@ -92,6 +94,8 @@ class PerfettoCaptureSweepTest(
         val traceFilePath = linkRule.createReportedTracePath(Packages.TEST)
         val perfettoCapture = PerfettoCapture(unbundled)
 
+        verifyTraceEnable(false)
+
         perfettoCapture.start(
             PerfettoConfig.Benchmark(
                 appTagPackages = listOf(Packages.TEST),
@@ -99,10 +103,14 @@ class PerfettoCaptureSweepTest(
             )
         )
 
-        assertTrue(
-            "In-process tracing should be enabled immediately after trace capture is started",
-            Trace.isEnabled()
-        )
+        if (!Trace.isEnabled()) {
+            // Should be available immediately, but let's wait a while to see if it works slowly.
+            val delayMs = verifyTraceEnable(true)
+            fail(
+                "In-process tracing should be enabled immediately after trace " +
+                    "capture is started. Had to poll for approx $delayMs ms"
+            )
+        }
 
         /**
          * Trace section labels, in order
@@ -146,4 +154,28 @@ class PerfettoCaptureSweepTest(
             arrayOf(it)
         }
     }
+}
+
+fun verifyTraceEnable(enabled: Boolean): Long {
+    // We poll here, since we may need to wait for enable flags to propagate to apps
+    return verifyWithPolling(
+        "Timeout waiting for Trace.isEnabled == $enabled, tags=${getTags()}",
+        periodMs = 50,
+        timeoutMs = 5000
+    ) {
+        Trace.isEnabled() == enabled
+    }
+}
+
+private fun getTags(): String {
+    val method = android.os.Trace::class.java.getMethod(
+        "isTagEnabled",
+        Long::class.javaPrimitiveType
+    )
+    val never = method.invoke(null, /*TRACE_TAG_NEVER*/ 0)
+    val always = method.invoke(null, /*TRACE_TAG_ALWAYS*/ 1L shl 0)
+    val view = method.invoke(null, /*TRACE_TAG_VIEW*/ 1L shl 3)
+    val app = method.invoke(null, /*TRACE_TAG_APP*/ 1L shl 12)
+
+    return "n $never, a $always, v $view, app $app"
 }

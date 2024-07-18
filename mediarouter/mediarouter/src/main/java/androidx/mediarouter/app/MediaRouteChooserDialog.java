@@ -538,7 +538,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             switch (route.getDeviceType()) {
                 case MediaRouter.RouteInfo.DEVICE_TYPE_TV:
                     return mTvIcon;
-                case MediaRouter.RouteInfo.DEVICE_TYPE_REMOTE_SPEAKER:
+                case MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER:
                     return mSpeakerIcon;
             }
 

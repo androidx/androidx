@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.viewpager2.adapter {
 
-  public abstract class FragmentStateAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.viewpager2.adapter.FragmentViewHolder!> implements androidx.viewpager2.adapter.StatefulAdapter {
+  public abstract class FragmentStateAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.viewpager2.adapter.FragmentViewHolder> implements androidx.viewpager2.adapter.StatefulAdapter {
     ctor public FragmentStateAdapter(androidx.fragment.app.Fragment);
     ctor public FragmentStateAdapter(androidx.fragment.app.FragmentActivity);
     ctor public FragmentStateAdapter(androidx.fragment.app.FragmentManager, androidx.lifecycle.Lifecycle);

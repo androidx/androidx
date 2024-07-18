@@ -19,5 +19,4 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance ਐਪ ਵਿਜੇਟ ਸੰਬੰਧੀ ਗੜਬੜ"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"adb logcat"</tt>" ਦੀ ਵਰਤੋਂ ਨਾਲ "</b>", "<b><tt>"GlanceAppWidget"</tt></b>" ਦੀ ਖੋਜ ਕਰ ਕੇ ਸਟੀਕ ਗੜਬੜ ਦੀ ਜਾਂਚ ਕਰੋ"</string>
-    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"ਸਮੱਗਰੀ ਨਹੀਂ ਦਿਖਾਈ ਜਾ ਸਕਦੀ"</string>
 </resources>

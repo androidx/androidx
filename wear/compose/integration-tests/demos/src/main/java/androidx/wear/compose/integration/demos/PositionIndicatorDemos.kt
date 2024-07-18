@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.animation.core.snap
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,7 +50,6 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
 import androidx.wear.compose.material.PositionIndicatorAlignment
-import androidx.wear.compose.material.PositionIndicatorDefaults
 import androidx.wear.compose.material.PositionIndicatorState
 import androidx.wear.compose.material.PositionIndicatorVisibility
 import androidx.wear.compose.material.Scaffold
@@ -112,33 +110,6 @@ fun HideWhenFullSLCDemo() {
 }
 
 @Composable
-fun SLCWithPositionIndicatorDemo() {
-    val listState = rememberScalingLazyListState(5)
-    Scaffold(
-        positionIndicator = {
-            PositionIndicator(
-                scalingLazyListState = listState,
-                modifier = Modifier
-            )
-        }
-    ) {
-        ScalingLazyColumn(
-            state = listState,
-            autoCentering = null
-        ) {
-            items(
-                count = 15
-            ) {
-                Chip(
-                    onClick = {},
-                    label = { Text("SLC Item #$it") }
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun ControllablePositionIndicator() {
     val position = remember { mutableFloatStateOf(0.2f) }
     val size = remember { mutableFloatStateOf(0.5f) }
@@ -167,21 +138,9 @@ fun ControllablePositionIndicator() {
                     indicatorHeight = 76.dp,
                     indicatorWidth = 6.dp,
                     paddingHorizontal = 5.dp,
-                    fadeInAnimationSpec = if (showFadeInAnimation) {
-                        PositionIndicatorDefaults.visibilityAnimationSpec
-                    } else {
-                        snap()
-                    },
-                    fadeOutAnimationSpec = if (showFadeOutAnimation) {
-                        PositionIndicatorDefaults.visibilityAnimationSpec
-                    } else {
-                        snap()
-                    },
-                    positionAnimationSpec = if (showPositionAnimation) {
-                        PositionIndicatorDefaults.positionAnimationSpec
-                    } else {
-                        snap()
-                    },
+                    showFadeInAnimation = showFadeInAnimation,
+                    showFadeOutAnimation = showFadeOutAnimation,
+                    showPositionAnimation = showPositionAnimation,
                     color = MaterialTheme.colors.secondary,
                     reverseDirection = reverseDirection,
                     position = alignmentValues[alignment]

@@ -339,7 +339,7 @@ public open class ContiguousPagedList<K : Any, V : Any>(
         val appendItems = getAppendItemsRequested(
             config.prefetchDistance,
             index,
-            storage.placeholdersBefore + storage.dataCount
+            storage.placeholdersBefore + storage.storageCount
         )
 
         prependItemsRequested = maxOf(prependItems, prependItemsRequested)

@@ -79,11 +79,19 @@ public class ProfileInstallerInitializer
         }
         // If we made it this far, we are going to try and install the profile in the background,
         // but delay a bit to avoid interfering with app startup work.
-        Context appContext = context.getApplicationContext();
-        // schedule delay after first frame callback
-        Choreographer.getInstance().postFrameCallback(frameTimeNanos ->
-                installAfterDelay(appContext));
+        delayAfterFirstFrame(context.getApplicationContext());
         return new Result();
+    }
+
+    /**
+     * Wait until the first frame of the application to do anything.
+     *
+     * This allows startup code to run before the delay is scheduled.
+     */
+    @RequiresApi(16)
+    void delayAfterFirstFrame(@NonNull Context appContext) {
+        // schedule delay after first frame callback
+        Choreographer16Impl.postFrameCallback(() -> installAfterDelay(appContext));
     }
 
     /**
@@ -142,6 +150,17 @@ public class ProfileInstallerInitializer
      */
     public static class Result { }
 
+    @RequiresApi(16)
+    private static class Choreographer16Impl {
+        private Choreographer16Impl() {
+            // Non-instantiable.
+        }
+
+        @DoNotInline
+        public static void postFrameCallback(Runnable r) {
+            Choreographer.getInstance().postFrameCallback(frameTimeNanos -> r.run());
+        }
+    }
 
     @RequiresApi(28)
     private static class Handler28Impl {

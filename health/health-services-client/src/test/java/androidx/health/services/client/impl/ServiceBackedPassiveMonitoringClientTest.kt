@@ -48,6 +48,7 @@ import androidx.health.services.client.impl.response.PassiveMonitoringGoalRespon
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_GREATER_THAN
+import androidx.health.services.client.proto.DataProto.HealthEvent.HealthEventType.HEALTH_EVENT_TYPE_FALL_DETECTED
 import androidx.health.services.client.proto.DataProto.PassiveGoal.TriggerFrequency.TRIGGER_FREQUENCY_ONCE
 import androidx.health.services.client.proto.DataProto.UserActivityState.USER_ACTIVITY_STATE_PASSIVE
 import androidx.health.services.client.proto.ResponsesProto
@@ -144,7 +145,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     }
 
     @Test
-    fun setPassiveListenerCallback_registersCallback() {
+    fun registersPassiveListenerCallback() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(STEPS_DAILY),
             shouldUserActivityInfoBeRequested = true,
@@ -165,7 +166,7 @@ class ServiceBackedPassiveMonitoringClientTest {
     }
 
     @Test
-    fun setPassiveListenerCallback_fail() {
+    fun registersPassiveListenerCallback_fail() {
         val config = PassiveListenerConfig(
             dataTypes = setOf(CALORIES_DAILY),
             shouldUserActivityInfoBeRequested = true,
@@ -184,31 +185,6 @@ class ServiceBackedPassiveMonitoringClientTest {
         assertThat(callback.onRegistrationFailedThrowables[0]).hasMessageThat()
             .contains("Callback registration failed: DataType for the requested " +
                 "passive goal must be tracked")
-    }
-
-    @Test
-    fun setPassiveListenerCallback_multipleCallbacksRegistered() {
-        val config = PassiveListenerConfig(
-            dataTypes = setOf(STEPS_DAILY),
-            shouldUserActivityInfoBeRequested = true,
-            dailyGoals = setOf(),
-            healthEventTypes = setOf()
-        )
-        val callback = FakeCallback()
-        client.setPassiveListenerCallback(config, callback)
-        shadowOf(Looper.getMainLooper()).idle()
-
-        val callback2 = FakeCallback()
-        client.setPassiveListenerCallback(config, callback2)
-        shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(fakeService.registerCallbackRequests).hasSize(2)
-        assertThat(callback.onRegisteredCalls).isEqualTo(1)
-        assertThat(callback2.onRegisteredCalls).isEqualTo(1)
-        assertThat(fakeService.registeredCallbacks).hasSize(2)
-        // Stub is not reused.
-        assertThat(fakeService.registeredCallbacks[0]).isNotSameInstanceAs(
-            fakeService.registeredCallbacks[1])
     }
 
     @Test
@@ -314,7 +290,7 @@ class ServiceBackedPassiveMonitoringClientTest {
             HealthEventResponse(
                 ResponsesProto.HealthEventResponse.newBuilder().setHealthEvent(
                     DataProto.HealthEvent.newBuilder()
-                        .setHealthEventTypeId(FALL_DETECTED.id)
+                        .setType(HEALTH_EVENT_TYPE_FALL_DETECTED)
                         .build()
                 ).build()
             )
@@ -349,37 +325,6 @@ class ServiceBackedPassiveMonitoringClientTest {
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(callback.onPermissionLostCalls).isEqualTo(1)
-    }
-
-    @Test
-    fun clearPassiveListenerCallbackAsync_nothingRegistered_noOp() {
-        // Return value of future.get() is not used, but verifying no exceptions are thrown.
-        client.clearPassiveListenerCallbackAsync().get()
-        shadowOf(Looper.getMainLooper()).idle()
-
-        assertThat(fakeService.unregisterCallbackPackageNames).isEmpty()
-    }
-
-    @Test
-    fun clearPassiveListenerCallbackAsync_callbackRegistered_sendsRequest() {
-        val config = PassiveListenerConfig(
-            dataTypes = setOf(STEPS_DAILY),
-            shouldUserActivityInfoBeRequested = true,
-            dailyGoals = setOf(),
-            healthEventTypes = setOf()
-        )
-        val callback = FakeCallback()
-        client.setPassiveListenerCallback(config, callback)
-        shadowOf(Looper.getMainLooper()).idle()
-
-        // Return value of future.get() is not used, but verifying no exceptions are thrown.
-        val resultFuture = client.clearPassiveListenerCallbackAsync()
-        shadowOf(Looper.getMainLooper()).idle()
-        resultFuture.get()
-
-        assertThat(fakeService.unregisterCallbackPackageNames).hasSize(1)
-        assertThat(fakeService.unregisterCallbackPackageNames[0]).isEqualTo(
-            "androidx.health.services.client.test")
     }
 
     class FakeListenerService : PassiveListenerService()

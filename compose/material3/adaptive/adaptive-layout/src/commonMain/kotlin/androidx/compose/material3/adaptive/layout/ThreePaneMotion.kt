@@ -34,12 +34,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
-/**
- * Holds the transitions that can be applied to the different panes.
- */
+/** Holds the transitions that can be applied to the different panes. */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal open class ThreePaneMotion internal constructor(
+internal open class ThreePaneMotion
+internal constructor(
     internal val positionAnimationSpec: FiniteAnimationSpec<IntOffset> = snap(),
     internal val sizeAnimationSpec: FiniteAnimationSpec<IntSize> = snap(),
     private val firstPaneEnterTransition: EnterTransition = EnterTransition.None,
@@ -51,8 +50,8 @@ internal open class ThreePaneMotion internal constructor(
 ) {
 
     /**
-     * Resolves and returns the [EnterTransition] for the given [ThreePaneScaffoldRole]
-     * at the given [ThreePaneScaffoldHorizontalOrder].
+     * Resolves and returns the [EnterTransition] for the given [ThreePaneScaffoldRole] at the given
+     * [ThreePaneScaffoldHorizontalOrder].
      */
     fun enterTransition(
         role: ThreePaneScaffoldRole,
@@ -69,8 +68,8 @@ internal open class ThreePaneMotion internal constructor(
     }
 
     /**
-     * Resolves and returns the [ExitTransition] for the given [ThreePaneScaffoldRole]
-     * at the given [ThreePaneScaffoldHorizontalOrder].
+     * Resolves and returns the [ExitTransition] for the given [ThreePaneScaffoldRole] at the given
+     * [ThreePaneScaffoldHorizontalOrder].
      */
     fun exitTransition(
         role: ThreePaneScaffoldRole,
@@ -159,18 +158,17 @@ internal open class ThreePaneMotion internal constructor(
 
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class MovePanesToLeftMotion(
-    private val spacerSize: Int
-) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PanePositionAnimationSpec,
-    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
-    slideInFromRight(spacerSize),
-    slideOutToLeft(spacerSize),
-    slideInFromRight(spacerSize),
-    slideOutToLeft(spacerSize),
-    slideInFromRight(spacerSize),
-    slideOutToLeft(spacerSize)
-) {
+internal class MovePanesToLeftMotion(private val spacerSize: Int) :
+    ThreePaneMotion(
+        ThreePaneMotionDefaults.PanePositionAnimationSpec,
+        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
+        slideInFromRight(spacerSize),
+        slideOutToLeft(spacerSize),
+        slideInFromRight(spacerSize),
+        slideOutToLeft(spacerSize),
+        slideInFromRight(spacerSize),
+        slideOutToLeft(spacerSize)
+    ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MovePanesToLeftMotion) return false
@@ -185,18 +183,17 @@ internal class MovePanesToLeftMotion(
 
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class MovePanesToRightMotion(
-    private val spacerSize: Int
-) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PanePositionAnimationSpec,
-    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
-    slideInFromLeft(spacerSize),
-    slideOutToRight(spacerSize),
-    slideInFromLeft(spacerSize),
-    slideOutToRight(spacerSize),
-    slideInFromLeft(spacerSize),
-    slideOutToRight(spacerSize)
-) {
+internal class MovePanesToRightMotion(private val spacerSize: Int) :
+    ThreePaneMotion(
+        ThreePaneMotionDefaults.PanePositionAnimationSpec,
+        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
+        slideInFromLeft(spacerSize),
+        slideOutToRight(spacerSize),
+        slideInFromLeft(spacerSize),
+        slideOutToRight(spacerSize),
+        slideInFromLeft(spacerSize),
+        slideOutToRight(spacerSize)
+    ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is MovePanesToRightMotion) return false
@@ -211,18 +208,17 @@ internal class MovePanesToRightMotion(
 
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class SwitchLeftTwoPanesMotion(
-    private val spacerSize: Int
-) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PanePositionAnimationSpec,
-    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
-    slideInFromLeftDelayed(spacerSize),
-    slideOutToLeft(spacerSize),
-    slideInFromLeftDelayed(spacerSize),
-    slideOutToLeft(spacerSize),
-    EnterTransition.None,
-    ExitTransition.None
-) {
+internal class SwitchLeftTwoPanesMotion(private val spacerSize: Int) :
+    ThreePaneMotion(
+        ThreePaneMotionDefaults.PanePositionAnimationSpec,
+        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
+        slideInFromLeftDelayed(spacerSize),
+        slideOutToLeft(spacerSize),
+        slideInFromLeftDelayed(spacerSize),
+        slideOutToLeft(spacerSize),
+        EnterTransition.None,
+        ExitTransition.None
+    ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SwitchLeftTwoPanesMotion) return false
@@ -237,18 +233,17 @@ internal class SwitchLeftTwoPanesMotion(
 
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class SwitchRightTwoPanesMotion(
-    private val spacerSize: Int
-) : ThreePaneMotion(
-    ThreePaneMotionDefaults.PanePositionAnimationSpec,
-    ThreePaneMotionDefaults.PaneSizeAnimationSpec,
-    EnterTransition.None,
-    ExitTransition.None,
-    slideInFromRightDelayed(spacerSize),
-    slideOutToRight(spacerSize),
-    slideInFromRightDelayed(spacerSize),
-    slideOutToRight(spacerSize)
-) {
+internal class SwitchRightTwoPanesMotion(private val spacerSize: Int) :
+    ThreePaneMotion(
+        ThreePaneMotionDefaults.PanePositionAnimationSpec,
+        ThreePaneMotionDefaults.PaneSizeAnimationSpec,
+        EnterTransition.None,
+        ExitTransition.None,
+        slideInFromRightDelayed(spacerSize),
+        slideOutToRight(spacerSize),
+        slideInFromRightDelayed(spacerSize),
+        slideOutToRight(spacerSize)
+    ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is SwitchRightTwoPanesMotion) return false
@@ -278,49 +273,44 @@ internal fun calculateThreePaneMotion(
         return ThreePaneMotion.NoMotion
     }
     return when (previousExpandedCount) {
-        1 -> when (PaneAdaptedValue.Expanded) {
-            previousScaffoldValue[paneOrder.firstPane] -> {
-                MovePanesToLeftMotion(spacerSize)
+        1 ->
+            when (PaneAdaptedValue.Expanded) {
+                previousScaffoldValue[paneOrder.firstPane] -> {
+                    MovePanesToLeftMotion(spacerSize)
+                }
+                previousScaffoldValue[paneOrder.thirdPane] -> {
+                    MovePanesToRightMotion(spacerSize)
+                }
+                currentScaffoldValue[paneOrder.thirdPane] -> {
+                    MovePanesToLeftMotion(spacerSize)
+                }
+                else -> {
+                    MovePanesToRightMotion(spacerSize)
+                }
             }
+        2 ->
+            when {
+                previousScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded &&
+                    currentScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded -> {
+                    // The first pane stays, the right two panes switch
+                    SwitchRightTwoPanesMotion(spacerSize)
+                }
+                previousScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded &&
+                    currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
+                    // The third pane stays, the left two panes switch
+                    SwitchLeftTwoPanesMotion(spacerSize)
+                }
 
-            previousScaffoldValue[paneOrder.thirdPane] -> {
-                MovePanesToRightMotion(spacerSize)
-            }
-
-            currentScaffoldValue[paneOrder.thirdPane] -> {
-                MovePanesToLeftMotion(spacerSize)
-            }
-
-            else -> {
-                MovePanesToRightMotion(spacerSize)
-            }
-        }
-
-        2 -> when {
-            previousScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded &&
-                currentScaffoldValue[paneOrder.firstPane] == PaneAdaptedValue.Expanded -> {
-                // The first pane stays, the right two panes switch
-                SwitchRightTwoPanesMotion(spacerSize)
-            }
-
-            previousScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded &&
+                // Implies the second pane stays hereafter
                 currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
-                // The third pane stays, the left two panes switch
-                SwitchLeftTwoPanesMotion(spacerSize)
+                    // The third pane shows, all panes move left
+                    MovePanesToLeftMotion(spacerSize)
+                }
+                else -> {
+                    // The first pane shows, all panes move right
+                    MovePanesToRightMotion(spacerSize)
+                }
             }
-
-            // Implies the second pane stays hereafter
-            currentScaffoldValue[paneOrder.thirdPane] == PaneAdaptedValue.Expanded -> {
-                // The third pane shows, all panes move left
-                MovePanesToLeftMotion(spacerSize)
-            }
-
-            else -> {
-                // The first pane shows, all panes move right
-                MovePanesToRightMotion(spacerSize)
-            }
-        }
-
         else -> {
             // Should not happen
             ThreePaneMotion.NoMotion
@@ -335,6 +325,7 @@ internal class DelayedSpringSpec<T>(
     visibilityThreshold: T? = null
 ) : FiniteAnimationSpec<T> {
     private val originalSpringSpec = spring(dampingRatio, stiffness, visibilityThreshold)
+
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedFiniteAnimationSpec<V> =
@@ -399,14 +390,17 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
         targetValue: V,
         initialVelocity: V
     ) {
-        if (initialValue != cachedInitialValue ||
-            targetValue != cachedTargetValue ||
-            initialVelocity != cachedInitialVelocity) {
-            cachedOriginalDurationNanos = originalVectorizedSpringSpec.getDurationNanos(
-                initialValue,
-                targetValue,
-                initialVelocity
-            )
+        if (
+            initialValue != cachedInitialValue ||
+                targetValue != cachedTargetValue ||
+                initialVelocity != cachedInitialVelocity
+        ) {
+            cachedOriginalDurationNanos =
+                originalVectorizedSpringSpec.getDurationNanos(
+                    initialValue,
+                    targetValue,
+                    initialVelocity
+                )
             delayedTimeNanos = (cachedOriginalDurationNanos * delayedRatio).toLong()
         }
     }

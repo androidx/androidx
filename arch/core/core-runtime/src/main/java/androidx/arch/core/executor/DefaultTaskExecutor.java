@@ -82,7 +82,7 @@ public class DefaultTaskExecutor extends TaskExecutor {
     private static Handler createAsync(@NonNull Looper looper) {
         if (Build.VERSION.SDK_INT >= 28) {
             return Api28Impl.createAsync(looper);
-        } else {
+        } else if (Build.VERSION.SDK_INT >= 17) {
             try {
                 // This constructor was added as private in JB MR1:
                 // https://android.googlesource.com/platform/frameworks/base/+/refs/heads/jb-mr1-release/core/java/android/os/Handler.java

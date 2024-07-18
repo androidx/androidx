@@ -27,8 +27,6 @@ import androidx.health.services.client.data.ComparisonType
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.DataTypeAvailability
 import androidx.health.services.client.data.DataTypeCondition
-import androidx.health.services.client.data.DebouncedDataTypeCondition
-import androidx.health.services.client.data.DebouncedGoal
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
@@ -52,7 +50,6 @@ import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.AutoPauseAndResumeConfigRequest
 import androidx.health.services.client.impl.request.BatchingModeConfigRequest
 import androidx.health.services.client.impl.request.CapabilitiesRequest
-import androidx.health.services.client.impl.request.DebouncedGoalRequest
 import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
@@ -593,6 +590,7 @@ class ExerciseClientTest {
         Shadows.shadowOf(Looper.getMainLooper()).idle()
         statesList += (service.listener == null)
         val deferred = async {
+
             client.clearUpdateCallback(callback)
             statesList += (service.listener == null)
         }
@@ -600,17 +598,6 @@ class ExerciseClientTest {
         deferred.await()
 
         Truth.assertThat(statesList).containsExactly(false, true)
-    }
-
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    @Test
-    fun clearUpdateCallback_nothingRegistered_noOp() = runTest {
-        val deferred = async {
-            client.clearUpdateCallback(callback)
-        }
-        advanceMainLooperIdle()
-
-        Truth.assertThat(deferred.await()).isNull()
     }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -815,100 +802,6 @@ class ExerciseClientTest {
         Truth.assertThat(service.batchingModeOverrides?.size).isEqualTo(0)
     }
 
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    @Test
-    fun addDebouncedGoalToActiveExerciseShouldBeInvoked() = runTest {
-        val startExercise = async {
-            val exerciseConfig = ExerciseConfig(
-                ExerciseType.WALKING,
-                setOf(DataType.HEART_RATE_BPM),
-                isAutoPauseAndResumeEnabled = false,
-                isGpsEnabled = false,
-                debouncedGoals = listOf(
-                    DebouncedGoal.createSampleDebouncedGoal(
-                        DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                            DataType.HEART_RATE_BPM,
-                            120.0,
-                            ComparisonType.GREATER_THAN,
-                            /* initialDelay= */ 60,
-                            /* durationAtThreshold= */ 5
-                        )
-                    )
-                )
-            )
-            client.setUpdateCallback(callback)
-
-            client.startExercise(exerciseConfig)
-        }
-        advanceMainLooperIdle()
-        startExercise.await()
-        val addDebouncedGoalDeferred = async {
-            val proto = DebouncedGoal.createAggregateDebouncedGoal(
-                DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                    DataType.HEART_RATE_BPM_STATS,
-                    120.0,
-                    ComparisonType.GREATER_THAN,
-                    /* initialDelay= */ 60,
-                    /* durationAtThreshold= */ 5
-                )
-            ).proto
-            val debouncedGoal = DebouncedGoal.fromProto(proto)
-
-            client.addDebouncedGoalToActiveExercise(debouncedGoal)
-        }
-        advanceMainLooperIdle()
-        addDebouncedGoalDeferred.await()
-
-        Truth.assertThat(service.debouncedGoals).hasSize(2)
-    }
-
-    @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    @Test
-    fun removeDebouncedGoalFromActiveExerciseShouldBeInvoked() = runTest {
-        val debouncedGoal1 = DebouncedGoal.createAggregateDebouncedGoal(
-            DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                DataType.HEART_RATE_BPM_STATS,
-                120.0,
-                ComparisonType.GREATER_THAN,
-                /* initialDelay= */ 60,
-                /* durationAtThreshold= */ 5
-            )
-        )
-        val debouncedGoal2 = DebouncedGoal.createSampleDebouncedGoal(
-            DebouncedDataTypeCondition.createDebouncedDataTypeCondition(
-                DataType.HEART_RATE_BPM,
-                120.0,
-                ComparisonType.GREATER_THAN,
-                /* initialDelay= */ 60,
-                /* durationAtThreshold= */ 5
-            )
-        )
-        val startExercise = async {
-            val exerciseConfig = ExerciseConfig(
-                ExerciseType.WALKING,
-                setOf(DataType.HEART_RATE_BPM),
-                isAutoPauseAndResumeEnabled = false,
-                isGpsEnabled = false,
-                debouncedGoals = listOf(
-                    debouncedGoal1,
-                    debouncedGoal2
-                )
-            )
-            client.setUpdateCallback(callback)
-
-            client.startExercise(exerciseConfig)
-        }
-        advanceMainLooperIdle()
-        startExercise.await()
-        val removeGoalDeferred = async {
-            client.removeDebouncedGoalFromActiveExercise(debouncedGoal1)
-        }
-        advanceMainLooperIdle()
-        removeGoalDeferred.await()
-
-        Truth.assertThat(service.debouncedGoals).hasSize(1)
-    }
-
     class FakeExerciseUpdateCallback : ExerciseUpdateCallback {
         val availabilities = mutableMapOf<DataType<*, *>, Availability>()
         val registrationFailureThrowables = mutableListOf<Throwable>()
@@ -946,7 +839,6 @@ class ExerciseClientTest {
         var exerciseConfig: ExerciseConfig? = null
         override fun getApiVersion(): Int = 12
         val goals = mutableListOf<ExerciseGoal<*>>()
-        val debouncedGoals = mutableListOf<DebouncedGoal<*>>()
         var throwException = false
         var callingAppHasPermissions = true
         val registerGetCapabilitiesRequests = mutableListOf<CapabilitiesRequest>()
@@ -972,7 +864,6 @@ class ExerciseClientTest {
             if (callingAppHasPermissions) {
                 exerciseConfig = startExerciseRequest?.exerciseConfig
                 exerciseConfig?.exerciseGoals?.let { goals.addAll(it) }
-                exerciseConfig?.debouncedGoals?.let { debouncedGoals.addAll(it) }
                 statusCallbackAction.invoke(statusCallback)
                 testExerciseStates = TestExerciseStates.STARTED
             } else {
@@ -1063,26 +954,6 @@ class ExerciseClientTest {
         ) {
             if (request != null) {
                 goals.remove(request.exerciseGoal)
-            }
-            statusCallbackAction.invoke(statusCallback)
-        }
-
-        override fun addDebouncedGoalToActiveExercise(
-            request: DebouncedGoalRequest?,
-            statusCallback: IStatusCallback?
-        ) {
-            if (request != null) {
-                debouncedGoals.add(request.debouncedGoal)
-            }
-            statusCallbackAction.invoke(statusCallback)
-        }
-
-        override fun removeDebouncedGoalFromActiveExercise(
-            request: DebouncedGoalRequest?,
-            statusCallback: IStatusCallback?
-        ) {
-            if (request != null) {
-                debouncedGoals.remove(request.debouncedGoal)
             }
             statusCallbackAction.invoke(statusCallback)
         }

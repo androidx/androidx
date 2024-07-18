@@ -52,7 +52,6 @@ internal object AnnotatedClassReader {
             if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
                 services.add(parseKotlinMetadata(classNode))
             }
-            // TODO(b/323369085): Validate that enum variants don't have methods
             if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
                 values.add(parseKotlinMetadata(classNode))
             }
@@ -102,7 +101,7 @@ internal object AnnotatedClassReader {
             extraString = metadataValues["xs"] as? String?,
         )
 
-        return when (val metadata = KotlinClassMetadata.readStrict(metadataAnnotation)) {
+        return when (val metadata = KotlinClassMetadata.read(metadataAnnotation)) {
             is KotlinClassMetadata.Class -> metadata.kmClass
             else -> throw PrivacySandboxParsingException(
                 "Unable to parse Kotlin metadata from ${classNode.name}. " +

@@ -19,12 +19,14 @@ import android.app.Instrumentation
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
@@ -99,6 +101,7 @@ class FragmentTest {
 
     @LargeTest
     @Test
+    @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testChildFragmentManagerGone() {
         val activity = activityRule.activity
         val fragmentA = FragmentA()
@@ -143,6 +146,7 @@ class FragmentTest {
 
     @LargeTest
     @Test
+    @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testRemoveUnrelatedDuringAnimation() {
         val activity = activityRule.activity
         val unrelatedFragment = StrictFragment()
@@ -196,6 +200,7 @@ class FragmentTest {
         }
     }
 
+    @RequiresApi(16) // ViewTreeObserver.OnDrawListener was added in API 16
     private fun waitForHalfFadeIn(fragment: Fragment) {
         if (fragment.view == null) {
             activityRule.waitForExecution()

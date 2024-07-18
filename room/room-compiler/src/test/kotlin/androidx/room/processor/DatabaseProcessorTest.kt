@@ -487,7 +487,6 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, BOOK_DAO, DB1, DB2, db1_2),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             createProcessingSteps = { listOf(DatabaseProcessingStep()) }
         ) { result ->
             result.generatedSourceFileWithPath("foo/bar/Db1_Impl.java")
@@ -881,7 +880,7 @@ class DatabaseProcessorTest {
             USER, USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val insertionMethod = userDao.insertMethods.find { it.element.jvmName == "insert" }
+            val insertionMethod = userDao.insertionMethods.find { it.element.jvmName == "insert" }
             assertThat(insertionMethod, notNullValue())
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
@@ -1371,10 +1370,9 @@ class DatabaseProcessorTest {
             USER, AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorCount(2)
-                hasErrorContaining("Unable to read schema file")
+                hasErrorCount(1)
                 hasErrorContaining(
-                    ProcessorErrors.invalidAutoMigrationSchema(
+                    ProcessorErrors.autoMigrationSchemaIsEmpty(
                         1,
                         schemaFolder.root.absolutePath + File.separator + "foo.bar.MyDb"
                     )
@@ -1403,8 +1401,7 @@ class DatabaseProcessorTest {
             USER, AUTOMIGRATION,
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                hasErrorCount(2)
-                hasErrorContaining("Unable to read schema file")
+                hasErrorCount(1)
                 hasErrorContaining(
                     invalidAutoMigrationSchema(
                         1,
@@ -1466,10 +1463,7 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(dbSource, USER),
-            options = mapOf(
-                "room.schemaLocation" to "schemas/",
-                "room.generateKotlin" to "false"
-            )
+            options = mapOf("room.schemaLocation" to "schemas/")
         ) { invocation ->
             val dbAnnotationName = "androidx.room.Database"
             val roundElements = mapOf(
@@ -1541,10 +1535,7 @@ class DatabaseProcessorTest {
                 }
                 """
         )
-        runProcessorTest(
-            sources = listOf(jvmNameInDaoGetter),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
-        ) { invocation ->
+        runProcessorTest(sources = listOf(jvmNameInDaoGetter)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
             DatabaseProcessor(
                 baseContext = invocation.context,
@@ -1559,7 +1550,7 @@ class DatabaseProcessorTest {
     }
 
     @Test
-    fun allowPropertyDao() {
+    fun disallowPropertyDao() {
         val src = Source.kotlin(
             "MyDatabase.kt",
             """
@@ -1593,25 +1584,7 @@ class DatabaseProcessorTest {
                 element = element
             ).process()
             invocation.assertCompilationResult {
-                hasNoWarnings()
-            }
-        }
-    }
-
-    @Test
-    fun invalidVersion() {
-        singleDb(
-            """
-            @Database(entities = {User.class}, version = 0)
-            public abstract class MyDb extends RoomDatabase {
-                abstract UserDao userDao();
-            }
-            """,
-            USER, USER_DAO
-        ) { _, invocation ->
-            invocation.assertCompilationResult {
-                hasErrorCount(1)
-                hasErrorContaining(ProcessorErrors.INVALID_DATABASE_VERSION)
+                hasErrorContaining(ProcessorErrors.KOTLIN_PROPERTY_OVERRIDE)
             }
         }
     }
@@ -1621,8 +1594,7 @@ class DatabaseProcessorTest {
         body: (List<DatabaseView>, XTestInvocation) -> Unit
     ) {
         runProcessorTest(
-            sources = listOf(DB3, BOOK),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+            sources = listOf(DB3, BOOK)
         ) { invocation ->
             val database = invocation.roundEnv
                 .getElementsAnnotatedWith(
@@ -1673,7 +1645,6 @@ class DatabaseProcessorTest {
         )
         runProcessorTest(
             sources = listOf(BOOK, bookDao) + dbs,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
             createProcessingSteps = { listOf(DatabaseProcessingStep()) },
         ) {
             onCompilationResult?.invoke(it)
@@ -1694,8 +1665,7 @@ class DatabaseProcessorTest {
                 ),
             classpath = classpath,
             options = mapOf(
-                "room.schemaLocation" to schemaFolder.root.absolutePath,
-                Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"
+                "room.schemaLocation" to schemaFolder.root.absolutePath
             )
         ) { invocation ->
             val entity = invocation.roundEnv

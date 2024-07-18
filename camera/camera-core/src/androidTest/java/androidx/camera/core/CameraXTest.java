@@ -26,8 +26,6 @@ import android.util.Log;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeAppConfig;
-import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -49,8 +47,6 @@ import java.util.concurrent.TimeoutException;
 @SdkSuppress(minSdkVersion = 21)
 public final class CameraXTest {
 
-    private static final String CAMERA_ID_0 = "0";
-    private static final String CAMERA_ID_1 = "1";
     private Context mContext;
     private CameraXConfig.Builder mConfigBuilder;
 
@@ -130,10 +126,10 @@ public final class CameraXTest {
 
     @Test
     public void init_withDifferentCameraXConfig() throws ExecutionException, InterruptedException {
-        CameraFactory cameraFactory0 = createFakeCameraFactory();
+        CameraFactory cameraFactory0 = new FakeCameraFactory();
         CameraFactory.Provider cameraFactoryProvider0 =
                 (ignored0, ignored1, ignored2, ignored3) -> cameraFactory0;
-        CameraFactory cameraFactory1 = createFakeCameraFactory();
+        CameraFactory cameraFactory1 = new FakeCameraFactory();
         CameraFactory.Provider cameraFactoryProvider1 =
                 (ignored0, ignored1, ignored2, ignored3) -> cameraFactory1;
 
@@ -230,18 +226,5 @@ public final class CameraXTest {
 
         // Waits for the CameraX instance being shutdown successfully.
         cameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
-    }
-
-    private CameraFactory createFakeCameraFactory() {
-        FakeCameraFactory cameraFactory = new FakeCameraFactory();
-        cameraFactory.insertCamera(CameraSelector.LENS_FACING_BACK, CAMERA_ID_0,
-                () -> new FakeCamera(CAMERA_ID_0, null,
-                        new FakeCameraInfoInternal(CAMERA_ID_0, 0,
-                                CameraSelector.LENS_FACING_BACK)));
-        cameraFactory.insertCamera(CameraSelector.LENS_FACING_FRONT, CAMERA_ID_1,
-                () -> new FakeCamera(CAMERA_ID_1, null,
-                        new FakeCameraInfoInternal(CAMERA_ID_1, 0,
-                                CameraSelector.LENS_FACING_FRONT)));
-        return cameraFactory;
     }
 }

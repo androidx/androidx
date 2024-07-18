@@ -31,6 +31,7 @@ internal fun Translations.mn() = mapOf(
     Strings.Dialog to "Харилцах цонх",
     Strings.MenuExpanded to "Дэлгэсэн",
     Strings.MenuCollapsed to "Хураасан",
+    Strings.ToggleDropdownMenu to "Унадаг цэсийг асаах/унтраах",
     Strings.SnackbarDismiss to "Хаах",
     Strings.SearchBarSearch to "Хайх",
     Strings.SuggestionsAvailable to "Доорх зөвлөмжүүд",

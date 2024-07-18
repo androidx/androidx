@@ -20,5 +20,6 @@ import java.io.File
 
 interface CodeFile {
     fun writeTo(directory: File)
+
     fun fileName(): String
 }

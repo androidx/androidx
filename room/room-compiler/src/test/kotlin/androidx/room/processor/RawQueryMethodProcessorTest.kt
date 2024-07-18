@@ -63,7 +63,7 @@ class RawQueryMethodProcessorTest {
             )
             assertThat(
                 query.returnType.asTypeName(),
-                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT).copy(nullable = true))
+                `is`(XTypeName.getArrayName(XTypeName.PRIMITIVE_INT))
             )
         }
     }
@@ -201,7 +201,7 @@ class RawQueryMethodProcessorTest {
                     )
                 )
             )
-            assertThat(query.returnType.asTypeName(), `is`(pojo.copy(nullable = true)))
+            assertThat(query.returnType.asTypeName(), `is`(pojo))
             assertThat(query.observedTableNames, `is`(emptySet()))
         }
     }
@@ -672,8 +672,7 @@ class RawQueryMethodProcessorTest {
             COMMON.IMAGE_FORMAT, COMMON.CONVERTER
         )
         runProcessorTest(
-            sources = commonSources + inputSource,
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+            sources = commonSources + inputSource
         ) { invocation ->
             val (owner, methods) = invocation.roundEnv
                 .getElementsAnnotatedWith(Dao::class.qualifiedName!!)

@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.AndroidXConfig
 
 plugins {
@@ -92,10 +85,9 @@ dependencies {
 
 androidx {
     name = "Tracing Perfetto Binary"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "Provides native binaries required by AndroidX Tracing: Perfetto SDK " +
         "and is not intended to be used outside of that context."
     metalavaK2UastEnabled = true
-    doNotDocumentReason = "No public API"
 }

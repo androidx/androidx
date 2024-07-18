@@ -57,7 +57,6 @@ import androidx.test.espresso.util.HumanReadables;
 import androidx.test.espresso.util.TreeIterables;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 import androidx.wear.test.R;
 import androidx.wear.widget.drawer.DrawerTestActivity.DrawerStyle;
@@ -157,7 +156,6 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.ws_nav_drawer_text)).check(matches(withText("0")));
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/322538394
     @Test
     public void selectingNavItemChangesTextAndClosedDrawer() {
         // GIVEN an open top drawer
@@ -374,7 +372,6 @@ public class WearableDrawerLayoutEspressoTest {
         onView(withId(R.id.action_drawer)).perform(swipeDown()).check(matches(isOpened(true)));
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/322538394
     @Test
     public void actionDrawerPeekIconShouldNotBeNull() {
         // GIVEN a drawer layout with a peeking action drawer whose menu is initialized in XML
@@ -387,7 +384,6 @@ public class WearableDrawerLayoutEspressoTest {
         assertNotNull(peekIconView.getDrawable());
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/322538394
     @Test
     public void tappingActionDrawerPeekIconShouldTriggerFirstAction() {
         // GIVEN a drawer layout with a peeking action drawer, title, and mock click listener
@@ -412,7 +408,6 @@ public class WearableDrawerLayoutEspressoTest {
         verify(mockClickListener).onMenuItemClick(any(MenuItem.class));
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/322538394
     @Test
     public void tappingActionDrawerPeekIconShouldTriggerFirstActionAfterItWasOpened() {
         // GIVEN a drawer layout with an open action drawer with a title, and mock click listener

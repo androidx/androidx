@@ -87,11 +87,9 @@ package androidx.browser.customtabs {
     method public void onActivityLayout(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, int, android.os.Bundle);
     method public void onActivityResized(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, android.os.Bundle);
     method public void onMessageChannelReady(android.os.Bundle?);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalMinimizationCallback public void onMinimized(android.os.Bundle);
     method public void onNavigationEvent(int, android.os.Bundle?);
     method public void onPostMessage(String, android.os.Bundle?);
     method public void onRelationshipValidationResult(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, boolean, android.os.Bundle?);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalMinimizationCallback public void onUnminimized(android.os.Bundle);
     method public void onWarmupCompleted(android.os.Bundle);
     field public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET = 1; // 0x1
     field public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET_MAXIMIZED = 2; // 0x2
@@ -108,14 +106,12 @@ package androidx.browser.customtabs {
   }
 
   public class CustomTabsClient {
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public androidx.browser.customtabs.CustomTabsSession? attachSession(androidx.browser.customtabs.CustomTabsSession.PendingSession);
     method public static boolean bindCustomTabsService(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
     method public static boolean bindCustomTabsServicePreservePriority(android.content.Context, String?, androidx.browser.customtabs.CustomTabsServiceConnection);
     method public static boolean connectAndInitialize(android.content.Context, String);
     method public android.os.Bundle? extraCommand(String, android.os.Bundle?);
     method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?);
     method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?, boolean);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public static androidx.browser.customtabs.CustomTabsSession.PendingSession newPendingSession(android.content.Context, androidx.browser.customtabs.CustomTabsCallback?, int);
     method public androidx.browser.customtabs.CustomTabsSession? newSession(androidx.browser.customtabs.CustomTabsCallback?);
     method public androidx.browser.customtabs.CustomTabsSession? newSession(androidx.browser.customtabs.CustomTabsCallback?, int);
     method public boolean warmup(long);
@@ -227,7 +223,6 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActionButton(android.graphics.Bitmap, String, android.app.PendingIntent, boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetBreakpointDp(@Dimension(unit=androidx.annotation.Dimension.DP) int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetDecorationType(int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetMaximizationEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetPosition(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setActivitySideSheetRoundedCornersPosition(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setBackgroundInteractionEnabled(boolean);
@@ -246,7 +241,6 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
-    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public androidx.browser.customtabs.CustomTabsIntent.Builder setPendingSession(androidx.browser.customtabs.CustomTabsSession.PendingSession);
     method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarSwipeUpGesture(android.app.PendingIntent?);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[]?, android.app.PendingIntent?);
@@ -324,9 +318,6 @@ package androidx.browser.customtabs {
     method public boolean validateRelationship(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, android.os.Bundle?);
   }
 
-  @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public static class CustomTabsSession.PendingSession {
-  }
-
   public class CustomTabsSessionToken {
     method public static androidx.browser.customtabs.CustomTabsSessionToken createMockSessionTokenForTesting();
     method public androidx.browser.customtabs.CustomTabsCallback? getCallback();
@@ -338,12 +329,6 @@ package androidx.browser.customtabs {
     method public default void onGreatestScrollPercentageIncreased(@IntRange(from=1, to=100) int, android.os.Bundle);
     method public default void onSessionEnded(boolean, android.os.Bundle);
     method public default void onVerticalScrollEvent(boolean, android.os.Bundle);
-  }
-
-  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalMinimizationCallback {
-  }
-
-  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalPendingSession {
   }
 
   public class PostMessageService extends android.app.Service {

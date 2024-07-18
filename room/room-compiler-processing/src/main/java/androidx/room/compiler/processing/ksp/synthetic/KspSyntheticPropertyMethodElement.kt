@@ -125,8 +125,7 @@ internal sealed class KspSyntheticPropertyMethodElement(
     override val thrownTypes: List<XType> by lazy {
         env.resolver.getJvmCheckedException(accessor).map {
             env.wrap(
-                // Thrown exception types are never nullable
-                ksType = it.makeNotNullable(),
+                ksType = it,
                 allowPrimitives = false
             )
         }.toList()

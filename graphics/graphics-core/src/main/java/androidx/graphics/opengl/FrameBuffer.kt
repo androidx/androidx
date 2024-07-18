@@ -56,21 +56,21 @@ class FrameBuffer(
         private set
 
     // Int array used for creation of fbos/textures
-    private val tmpBuffer = IntArray(1)
+    private val buffer = IntArray(1)
 
     init {
         val image: EGLImageKHR = egl.eglCreateImageFromHardwareBuffer(hardwareBuffer)
             ?: throw IllegalArgumentException("Unable to create EGLImage from HardwareBuffer")
         eglImage = image
 
-        GLES20.glGenTextures(1, tmpBuffer, 0)
-        texture = tmpBuffer[0]
+        GLES20.glGenTextures(1, buffer, 0)
+        texture = buffer[0]
 
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture)
         EGLExt.glEGLImageTargetTexture2DOES(GLES20.GL_TEXTURE_2D, image)
 
-        GLES20.glGenFramebuffers(1, tmpBuffer, 0)
-        frameBuffer = tmpBuffer[0]
+        GLES20.glGenFramebuffers(1, buffer, 0)
+        frameBuffer = buffer[0]
     }
 
     /**
@@ -96,12 +96,12 @@ class FrameBuffer(
      */
     override fun close() {
         if (!isClosed) {
-            tmpBuffer[0] = frameBuffer
-            GLES20.glDeleteFramebuffers(1, tmpBuffer, 0)
+            buffer[0] = frameBuffer
+            GLES20.glDeleteBuffers(1, buffer, 0)
             frameBuffer = -1
 
-            tmpBuffer[0] = texture
-            GLES20.glDeleteTextures(1, tmpBuffer, 0)
+            buffer[0] = texture
+            GLES20.glDeleteTextures(1, buffer, 0)
             texture = -1
 
             eglImage?.let { egl.eglDestroyImageKHR(it) }

@@ -18,12 +18,24 @@ package androidx.navigation
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
+import androidx.navigation.NavType.Companion.BoolListType
+import androidx.navigation.NavType.Companion.FloatListType
+import androidx.navigation.NavType.Companion.IntListType
+import androidx.navigation.NavType.Companion.LongListType
+import androidx.navigation.serialization.generateRouteWithArgs
+import androidx.navigation.test.booleanArgument
 import androidx.navigation.test.intArgument
+import androidx.navigation.test.intArgumentUnknownDefault
+import androidx.navigation.test.intListArgument
 import androidx.navigation.test.nullableStringArgument
+import androidx.navigation.test.nullableStringArgumentUnknownDefault
 import androidx.navigation.test.stringArgument
 import androidx.navigation.test.stringArrayArgument
+import androidx.navigation.test.stringListArgument
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 // TODO: Move to commonTest once Uri overloads will be commonized
 class NavDeepLinkTest {
@@ -219,6 +231,288 @@ class NavDeepLinkTest {
             .isEqualTo(id)
     }
 
+    @Test
+    fun deepLinkPathEmptyString() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{name}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{name}", ""),
+                mapOf("name" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("name"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyInt() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{name}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{name}", ""),
+                mapOf("name" to intArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringTrailingSlash() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{name}/"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{name}", ""),
+                mapOf("name" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("name"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringTrailingQuestionMark() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{name}?"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{name}", ""),
+                mapOf("name" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("name"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringFirstArg() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{first}", "").replace("{last}", "last"),
+                mapOf("first" to stringArgument(), "last" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("last")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringCentreArg() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{centre}/{last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument
+                    .replace("{first}", "first")
+                    .replace("{centre}", "")
+                    .replace("{last}", "last"),
+                mapOf(
+                    "first" to stringArgument(),
+                    "centre" to stringArgument(),
+                    "last" to stringArgument()
+                )
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("first")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("centre"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("last")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringLastArg() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{first}", "first").replace("{last}", ""),
+                mapOf("first" to stringArgument(), "last" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("first")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringMultiple() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{centre}/{last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument
+                    .replace("{first}", "")
+                    .replace("{centre}", "centre")
+                    .replace("{last}", ""),
+                mapOf(
+                    "first" to stringArgument(),
+                    "centre" to stringArgument(),
+                    "last" to stringArgument()
+                )
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("centre"))
+            .isEqualTo("centre")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringConsecutive() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{centre}/{last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument
+                    .replace("{first}", "")
+                    .replace("{centre}", "")
+                    .replace("{last}", ""),
+                mapOf(
+                    "first" to stringArgument(),
+                    "centre" to stringArgument(),
+                    "last" to stringArgument()
+                )
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("centre"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringConsecutiveTrailingSlash() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{centre}/{last}/"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument
+                    .replace("{first}", "")
+                    .replace("{centre}", "")
+                    .replace("{last}", ""),
+                mapOf(
+                    "first" to stringArgument(),
+                    "centre" to stringArgument(),
+                    "last" to stringArgument()
+                )
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("centre"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringConsecutiveTrailingQuestionMark() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}/{centre}/{last}?"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument
+                    .replace("{first}", "")
+                    .replace("{centre}", "")
+                    .replace("{last}", ""),
+                mapOf(
+                    "first" to stringArgument(),
+                    "centre" to stringArgument(),
+                    "last" to stringArgument()
+                )
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("centre"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("")
+    }
+
+    @Test
+    fun deepLinkPathEmptyStringWithQuery() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}?last={last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{first}", "").replace("{last}", "last"),
+                mapOf("first" to stringArgument(), "last" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("last")
+    }
+
+    @Test
+    fun deepLinkPathAndQueryEmptyString() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/{first}?last={last}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument.replace("{first}", "").replace("{last}", ""),
+                mapOf("first" to stringArgument(), "last" to stringArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("first"))
+            .isEqualTo("")
+        assertWithMessage("Args should contain the id")
+            .that(matchArgs?.getString("last"))
+            .isEqualTo("")
+    }
+
     // Ensure that path arguments between two literals matches appropriately
     @Test
     fun deepLinkMultiCharacterArgumentMiddleMatchWithQueryParams() {
@@ -394,6 +688,25 @@ class NavDeepLinkTest {
 
     // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
     @Test
+    fun deepLinkQueryParamNullableStringCollectionArgumentMatchParamsInBraces() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument,
+                mapOf("myarg" to stringListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        // We allow {argName} values for String types
+        assertWithMessage("Args should contain the argument")
+            .that(matchArgs?.getStringArray("myarg"))
+            .asList()
+            .containsExactly("{myarg}")
+    }
+
+    // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
+    @Test
     fun deepLinkQueryParamNullableNonStringArgumentMatchParamsInBraces() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
         val deepLink = NavDeepLink(deepLinkArgument)
@@ -413,6 +726,47 @@ class NavDeepLinkTest {
         assertWithMessage("Args should not contain the argument")
             .that(matchArgs?.containsKey("myarg"))
             .isFalse()
+    }
+
+    // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
+    @Test
+    fun deepLinkQueryParamNullableNonStringCollectionArgumentMatchParamsInBraces() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+        val intArrayArg =
+            NavArgument.Builder().setType(NavType.IntArrayType).setIsNullable(true).build()
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument,
+                mapOf("myarg" to intArrayArg)
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        // For non-strings, {argName} values are invalid and considered lack of argument value
+        // If it's a collection type, it should default to emptyList when theres no default value
+        assertWithMessage("Args should an empty collection").that(matchArgsIntArray).isEmpty()
+    }
+
+    // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
+    @Test
+    fun deepLinkQueryParamNullableNonStringCollectionArgumentMatchParamsInBracesDeferToDefault() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+        val intArrayArg =
+            NavArgument.Builder()
+                .setType(NavType.IntArrayType)
+                .setIsNullable(true)
+                .setDefaultValue(intArrayOf(1, 2))
+                .build()
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                deepLinkArgument,
+                mapOf("myarg" to intArrayArg)
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
     }
 
     // Ensure case when matching the exact argument query (i.e. param names in braces) is handled
@@ -1085,12 +1439,11 @@ class NavDeepLinkTest {
     }
 
     @Test
-    fun deepLinkEmptyArgumentNoMatch() {
+    fun deepLinkEmptyArgumentMatches() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts"
         val deepLink = NavDeepLink(deepLinkArgument)
 
-        assertThat(deepLink.matches(deepLinkArgument.replace("{id}", "")))
-            .isFalse()
+        assertThat(deepLink.matches(deepLinkArgument.replace("{id}", ""))).isTrue()
     }
 
     @Test
@@ -1377,5 +1730,624 @@ class NavDeepLinkTest {
                 "argument and the pattern provided in your URI will be used to " +
                 "parse each query parameter instance."
         )
+    }
+
+    @Test
+    fun deepLinkStringListEmpty() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=",
+                mapOf("myarg" to stringListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should contain empty string")
+            .that(matchArgsStringArray)
+            .asList()
+            .containsExactly("")
+    }
+
+    @Test
+    fun deepLinkStringListMultipleEmpty() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=&myarg=",
+                mapOf("myarg" to stringListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should contain empty string")
+            .that(matchArgsStringArray)
+            .asList()
+            .containsExactly("", "")
+    }
+
+    @Test
+    fun deepLinkStringListMissing() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                DEEP_LINK_EXACT_HTTPS,
+                mapOf("myarg" to stringListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should be empty list").that(matchArgsStringArray).asList().isEmpty()
+    }
+
+    @Test
+    fun deepLinkStringListMissingDeferToDefault() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                DEEP_LINK_EXACT_HTTPS,
+                mapOf("myarg" to stringListArgument(listOf("one", "two")))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkStringListEmptyFirstValue() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=&myarg=two&myarg=three",
+                mapOf("myarg" to stringListArgument(listOf("default1", "default2")))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should contain all values")
+            .that(matchArgsStringArray)
+            .asList()
+            .containsExactly("", "two", "three")
+            .inOrder()
+    }
+
+    @Test
+    fun deepLinkStringListEmptyMiddleValue() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=one&myarg=&myarg=three",
+                mapOf("myarg" to stringListArgument(listOf("default1", "default2")))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should contain all values")
+            .that(matchArgsStringArray)
+            .asList()
+            .containsExactly("one", "", "three")
+            .inOrder()
+    }
+
+    @Test
+    fun deepLinkStringListEmptyLastValue() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=one&myarg=two&myarg=",
+                mapOf("myarg" to stringListArgument(listOf("default1", "default2")))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should contain all values")
+            .that(matchArgsStringArray)
+            .asList()
+            .containsExactly("one", "two", "")
+            .inOrder()
+    }
+
+    @Test
+    fun deepLinkStringListEmptySingleQueryParamValueOnly() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?{myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?",
+                mapOf("myarg" to stringListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsStringArray = matchArgs?.getStringArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsStringArray).isNotNull()
+        assertWithMessage("Args should be empty list")
+            .that(matchArgsStringArray)
+            .asList()
+            .containsExactly("")
+    }
+
+    @Test
+    fun deepLinkIntListEmpty() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=",
+                mapOf("myarg" to intListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should be empty list").that(matchArgsIntArray).asList().isEmpty()
+    }
+
+    @Test
+    fun deepLinkIntListMultipleEmpty() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=&myarg=",
+                mapOf("myarg" to intListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should be empty list").that(matchArgsIntArray).asList().isEmpty()
+    }
+
+    @Test
+    fun deepLinkIntListEmptyDeferToDefault() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=",
+                mapOf("myarg" to intListArgument(listOf(1, 2)))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkIntListMissing() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                DEEP_LINK_EXACT_HTTPS,
+                mapOf("myarg" to intListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should be empty list").that(matchArgsIntArray).asList().isEmpty()
+    }
+
+    @Test
+    fun deepLinkIntListMissingDeferToDefault() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                DEEP_LINK_EXACT_HTTPS,
+                mapOf("myarg" to intListArgument(listOf(1, 2)))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkIntListEmptyFirstValue() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=&myarg=2&myarg=3",
+                mapOf("myarg" to intListArgument(listOf(-1, -1)))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should contain non-empty values")
+            .that(matchArgsIntArray)
+            .asList()
+            .containsExactly(2, 3)
+            .inOrder()
+    }
+
+    @Test
+    fun deepLinkIntListEmptyMiddleValue() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=1&myarg=&myarg=3",
+                mapOf("myarg" to intListArgument(listOf(-1, -1)))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should contain non-empty values")
+            .that(matchArgsIntArray)
+            .asList()
+            .containsExactly(1, 3)
+            .inOrder()
+    }
+
+    @Test
+    fun deepLinkIntListEmptyLastValue() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?myarg={myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "$DEEP_LINK_EXACT_HTTPS?myarg=1&myarg=2&myarg=",
+                mapOf("myarg" to intListArgument(listOf(-1, -1)))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should contain non-empty values")
+            .that(matchArgsIntArray)
+            .asList()
+            .containsExactly(1, 2)
+            .inOrder()
+    }
+
+    @Test
+    fun deepLinkIntListMissingSingleQueryParamValueOnly() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?{myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "${DEEP_LINK_EXACT_HTTPS}?",
+                mapOf("myarg" to intListArgument())
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+        val matchArgsIntArray = matchArgs?.getIntArray("myarg")
+        assertWithMessage("Args list should not be null").that(matchArgsIntArray).isNotNull()
+        assertWithMessage("Args should be empty list").that(matchArgsIntArray).asList().isEmpty()
+    }
+
+    @Test
+    fun deepLinkIntListMissingSingleQueryParamValueOnlyDeferToDefault() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS?{myarg}"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "${DEEP_LINK_EXACT_HTTPS}?",
+                mapOf("myarg" to intListArgument(listOf(1, 2)))
+            )
+        assertWithMessage("Args should not be null").that(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassNoScheme() {
+        @Serializable class TestClass
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches("http://$uri"))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches("https://$uri"))
+            .isTrue()
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassPathArgNoScheme() {
+        @Serializable class TestClass(val arg: Int)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val expected = "http://$uri/{arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                expected.replace("{arg}", "1"),
+                mapOf("arg" to intArgument())
+            )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getInt("arg")).isEqualTo(1)
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassQueryArgNoScheme() {
+        @Serializable class TestClass(val arg: Int = 1)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val expected = "http://$uri?arg={arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                expected.replace("{arg}", "2"),
+                mapOf("arg" to intArgumentUnknownDefault())
+            )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getInt("arg")).isEqualTo(2)
+    }
+
+    @Test
+    fun deepLinkExactMatchFromKClassPathQueryArgNoScheme() {
+        @Serializable class TestClass(val arg: Int = 0, val arg2: Boolean)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val expected = "http://$uri/{arg2}?arg={arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                expected.replace("{arg}", "1").replace("{arg2}", "false"),
+                mapOf("arg" to intArgumentUnknownDefault(), "arg2" to booleanArgument())
+            )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getInt("arg")).isEqualTo(1)
+        assertThat(matchArgs.getBoolean("arg2")).isEqualTo(false)
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingRequiredArgNoDefault() {
+        @Serializable class TestClass(val arg: Int)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                // missing required arg in deeplink
+                "http://$uri",
+                mapOf("arg" to intArgument())
+            )
+        // should not match since missing default value
+        assertThat(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingRequiredArgWithDefault() {
+        @Serializable class TestClass(val arg: Int = 1)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                // missing required arg with default value
+                "http://$uri",
+                mapOf("arg" to intArgumentUnknownDefault())
+            )
+        // should still match successfully since the string arg has default value
+        assertThat(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingNullableArgNoDefault() {
+        @Serializable class TestClass(val arg: String?)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "http://$uri",
+                mapOf("arg" to nullableStringArgument())
+            )
+        // should not match since missing nullable arg with no default value
+        assertThat(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassMissingNullableArgWithDefault() {
+        @Serializable class TestClass(val arg: String? = null)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                "http://$uri",
+                mapOf("arg" to nullableStringArgumentUnknownDefault())
+            )
+        assertThat(matchArgs).isNotNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullString() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: String?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val argName = "arg"
+        val navArg = nullableStringArgument()
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments("http://$route", mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(navArg.type[matchArgs, argName]).isNull()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullStringList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<String>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val argName = "arg"
+        val navArg = stringListArgument()
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments("http://$route", mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(matchArgs.getStringArray(argName)?.toList()).isEmpty()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullIntList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Int>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(IntListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments("http://$route", mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(matchArgs.getIntArray(argName)?.toList()).isEmpty()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullBoolList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Boolean>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(BoolListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments("http://$route", mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(matchArgs.getBooleanArray(argName)?.toList()).isEmpty()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullLongList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Long>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(LongListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments("http://$route", mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(matchArgs.getLongArray(argName)?.toList()).isEmpty()
+    }
+
+    @Test
+    fun deepLinkFromKClassNullFloatList() {
+        @Serializable @SerialName("www.test.com") class TestClass(val arg: List<Float>?)
+
+        val uri = "www.test.com"
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val navArg = NavArgument.Builder().setType(FloatListType).setIsNullable(true).build()
+
+        val argName = "arg"
+        val route = generateRouteWithArgs(TestClass(null), mapOf(argName to navArg.type))
+
+        val matchArgs =
+            deepLink.getMatchingArguments("http://$route", mapOf(argName to navArg))
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.containsKey(argName)).isTrue()
+        assertThat(matchArgs.getFloatArray(argName)?.toList()).isEmpty()
+    }
+
+    @Test
+    fun deepLinkMatchFromKClassPartialMissingRequiredArgNoDefault() {
+        @Serializable class TestClass(val arg: Int, val arg2: Boolean)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val expected = "http://$uri/{arg}/{arg2}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                expected.replace("{arg2}", "false"),
+                mapOf("arg" to intArgument(), "arg2" to booleanArgument())
+            )
+        assertThat(matchArgs).isNull()
+    }
+
+    @Test
+    fun deepLinkMatchFromKClassPartialMissingRequiredArgWithDefault() {
+        @Serializable class TestClass(val arg: String? = "ffds", val arg2: Boolean)
+
+        val uri = "www.test.com"
+
+        val deepLink = NavDeepLink.Builder.fromUriPattern<TestClass>(uri).build()
+
+        val expected = "http://$uri/{arg2}?arg={arg}"
+        assertWithMessage("No scheme deep links should match http")
+            .that(deepLink.matches(expected))
+            .isTrue()
+        val matchArgs =
+            deepLink.getMatchingArguments(
+                expected.replace("{arg2}", "false"),
+                mapOf("arg" to nullableStringArgumentUnknownDefault(), "arg2" to booleanArgument())
+            )
+        assertThat(matchArgs).isNotNull()
+        assertThat(matchArgs!!.getBoolean("arg2")).isEqualTo(false)
     }
 }

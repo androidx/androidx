@@ -106,19 +106,5 @@ class ExtensionsConfig implements CameraConfig {
             mConfig.insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
-
-        @NonNull
-        @Override
-        public Builder setPostviewSupported(boolean supported) {
-            mConfig.insertOption(OPTION_POSTVIEW_SUPPORTED, supported);
-            return this;
-        }
-
-        @NonNull
-        @Override
-        public Builder setCaptureProcessProgressSupported(boolean supported) {
-            mConfig.insertOption(OPTION_CAPTURE_PROCESS_PROGRESS_SUPPORTED, supported);
-            return this;
-        }
     }
 }

@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api("androidx.activity:activity-ktx:1.8.1") {
+    api(projectOrArtifact(":activity:activity-ktx")) {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
     api("androidx.core:core-ktx:1.2.0") {
@@ -61,7 +55,7 @@ dependencies {
 
 androidx {
     name = "Fragment Kotlin Extensions"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'fragment' artifact"
     metalavaK2UastEnabled = true

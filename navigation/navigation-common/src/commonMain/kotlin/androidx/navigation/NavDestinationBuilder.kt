@@ -171,8 +171,7 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
      */
     @Suppress("BuilderSetStyle")
     public inline fun <reified T : Any> deepLink(
-        basePath: String,
-        noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+        basePath: String, noinline navDeepLink: NavDeepLinkDslBuilder.() -> Unit
     )
 
     /**
@@ -192,9 +191,7 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <T : Any> deepLink(
-        basePath: String,
-        route: KClass<T>,
-        navDeepLink: NavDeepLinkDslBuilder.() -> Unit
+        basePath: String, route: KClass<T>, navDeepLink: NavDeepLinkDslBuilder.() -> Unit
     )
 
     /**
@@ -232,9 +229,7 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
     public open fun build(): D
 }
 
-/**
- * DSL for constructing a new [NavArgument]
- */
+/** DSL for constructing a new [NavArgument] */
 @NavDestinationDsl
 public class NavArgumentBuilder {
     private val builder = NavArgument.Builder()
@@ -243,8 +238,8 @@ public class NavArgumentBuilder {
     /**
      * The NavType for this argument.
      *
-     * If you don't set a type explicitly, it will be inferred
-     * from the default value of this argument.
+     * If you don't set a type explicitly, it will be inferred from the default value of this
+     * argument.
      */
     public var type: NavType<*>
         set(value) {
@@ -255,9 +250,7 @@ public class NavArgumentBuilder {
             return _type ?: throw IllegalStateException("NavType has not been set on this builder.")
         }
 
-    /**
-     * Controls if this argument allows null values.
-     */
+    /** Controls if this argument allows null values. */
     public var nullable: Boolean = false
         set(value) {
             field = value
@@ -280,7 +273,6 @@ public class NavArgumentBuilder {
      *
      * Use with caution!! In general you should let [defaultValue] to automatically set this state.
      * This state should be set to true only if all these conditions are met:
-     *
      * 1. There is default value present
      * 2. You do not have access to actual default value (thus you can't use [defaultValue])
      * 3. You know the default value will never ever be null if [nullable] is true.
@@ -291,9 +283,7 @@ public class NavArgumentBuilder {
             builder.setUnknownDefaultValuePresent(value)
         }
 
-    /**
-     * Builds the NavArgument by calling [NavArgument.Builder.build].
-     */
+    /** Builds the NavArgument by calling [NavArgument.Builder.build]. */
     public fun build(): NavArgument {
         return builder.build()
     }

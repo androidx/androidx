@@ -25,12 +25,9 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
 import androidx.glance.appwidget.preview.test.R
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertNotNull
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -76,10 +73,9 @@ class GlanceAppWidgetViewAdapterTest {
     private fun initAndInflate(
         className: String,
         methodName: String,
-        size: DpSize,
     ) {
         activityTestRule.runOnUiThread {
-            glanceAppWidgetViewAdapter.init(className, methodName, size)
+            glanceAppWidgetViewAdapter.init(className, methodName)
             glanceAppWidgetViewAdapter.requestLayout()
         }
     }
@@ -102,60 +98,27 @@ class GlanceAppWidgetViewAdapterTest {
         "Could not find the $viewTypeName View matching $composableName"
 
     @Test
-    fun glanceAppWidgetPreview_unspecifiedSize() {
+    fun testFirstGlancePreview() {
         initAndInflate(
-            className = "androidx.glance.appwidget.preview.GlanceAppWidgetPreviewsKt",
-            methodName = "FirstGlancePreview",
-            size = DpSize.Unspecified
-        )
+            "androidx.glance.appwidget.preview.GlanceAppWidgetPreviewsKt",
+            "FirstGlancePreview")
 
         activityTestRule.runOnUiThread {
             val rootComposable = glanceAppWidgetViewAdapter.getChildAt(0) as ViewGroup
             val linearLayoutColumn = rootComposable.getChildOfType<LinearLayout>()
-            assertNotNull(linearLayoutColumn, viewNotFoundMsg("LinearLayout", "Column"))
-            val textView = linearLayoutColumn.getChildOfType<TextView>()
-            assertNotNull(textView, viewNotFoundMsg("TextView", "Text"))
-            assertThat(textView.text.toString())
-                .isEqualTo("First Glance widget, LocalSize = Unspecified")
+            assertNotNull(viewNotFoundMsg("LinearLayout", "Column"), linearLayoutColumn)
+            val textView = linearLayoutColumn!!.getChildOfType<TextView>()
+            assertNotNull(viewNotFoundMsg("TextView", "Text"), textView)
             val linearLayoutRow = linearLayoutColumn.getChildOfType<LinearLayout>()
-            assertNotNull(linearLayoutRow, viewNotFoundMsg("LinearLayout", "Row"))
+            assertNotNull(viewNotFoundMsg("LinearLayout", "Row"), linearLayoutRow)
             // Backport button are implemented using FrameLayout and depending on the API version
             // Button might be wrapped in the RelativeLayout.
-            val button1 = linearLayoutRow.getChildOfType<Button>()
+            val button1 = linearLayoutRow!!.getChildOfType<Button>()
                 ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<FrameLayout>()
             val button2 = linearLayoutRow.getChildOfType<Button>(1)
                 ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<FrameLayout>()
-            assertNotNull(button1, viewNotFoundMsg("FrameLayout", "Button"))
-            assertNotNull(button2, viewNotFoundMsg("FrameLayout", "Button"))
-        }
-    }
-
-    @Test
-    fun glanceAppWidgetPreview_withSize() {
-        initAndInflate(
-            className = "androidx.glance.appwidget.preview.GlanceAppWidgetPreviewsKt",
-            methodName = "FirstGlancePreview",
-            size = DpSize(Dp(123.0f), Dp(456.0f))
-        )
-
-        activityTestRule.runOnUiThread {
-            val rootComposable = glanceAppWidgetViewAdapter.getChildAt(0) as ViewGroup
-            val linearLayoutColumn = rootComposable.getChildOfType<LinearLayout>()
-            assertNotNull(linearLayoutColumn, viewNotFoundMsg("LinearLayout", "Column"))
-            val textView = linearLayoutColumn.getChildOfType<TextView>()
-            assertNotNull(textView, viewNotFoundMsg("TextView", "Text"))
-            assertThat(textView.text.toString())
-                .isEqualTo("First Glance widget, LocalSize = 123.0.dp x 456.0.dp")
-            val linearLayoutRow = linearLayoutColumn.getChildOfType<LinearLayout>()
-            assertNotNull(linearLayoutRow, viewNotFoundMsg("LinearLayout", "Row"))
-            // Backport button are implemented using FrameLayout and depending on the API version
-            // Button might be wrapped in the RelativeLayout.
-            val button1 = linearLayoutRow.getChildOfType<Button>()
-                ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<FrameLayout>()
-            val button2 = linearLayoutRow.getChildOfType<Button>(1)
-                ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<FrameLayout>()
-            assertNotNull(button1, viewNotFoundMsg("FrameLayout", "Button"))
-            assertNotNull(button2, viewNotFoundMsg("FrameLayout", "Button"))
+            assertNotNull(viewNotFoundMsg("FrameLayout", "Button"), button1)
+            assertNotNull(viewNotFoundMsg("FrameLayout", "Button"), button2)
         }
     }
 

@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -30,7 +23,6 @@ plugins {
     id("com.android.library")
     id("kotlin-android")
     id("com.squareup.wire")
-    id("com.google.devtools.ksp")
 }
 
 android {
@@ -74,14 +66,12 @@ wire {
 
 dependencies {
     implementation(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.7.0")
-    api("androidx.annotation:annotation-experimental:1.4.0")
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation-experimental:1.0.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
+    implementation(project(":tracing:tracing-perfetto-handshake"))
     implementation("androidx.test:monitor:1.6.1")
     implementation(libs.wireRuntime)
-    implementation(libs.moshi)
-    ksp(libs.moshiCodeGen)
 
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
@@ -90,7 +80,7 @@ dependencies {
 
 androidx {
     name = "Benchmark - Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
     metalavaK2UastEnabled = true
@@ -104,4 +94,11 @@ tasks.withType(KotlinCompile).configureEach {
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
         ]
     }
+}
+
+// https://github.com/square/wire/issues/1947
+// Remove when we upgrade to fixed wire library
+afterEvaluate {
+    tasks.named("compileReleaseKotlin").configure {it.dependsOn("generateDebugProtos")}
+    tasks.named("compileDebugKotlin").configure {it.dependsOn("generateReleaseProtos")}
 }

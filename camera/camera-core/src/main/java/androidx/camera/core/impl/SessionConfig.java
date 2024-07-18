@@ -55,8 +55,6 @@ public final class SessionConfig {
     public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
     private final List<OutputConfig> mOutputConfigs;
-    /** The {@link OutputConfig} for the postview. */
-    private final OutputConfig mPostviewOutputConfig;
     /** The state callback for a {@link CameraDevice}. */
     private final List<CameraDevice.StateCallback> mDeviceStateCallbacks;
     /** The state callback for a {@link CameraCaptureSession}. */
@@ -215,8 +213,7 @@ public final class SessionConfig {
             List<ErrorListener> errorListeners,
             CaptureConfig repeatingCaptureConfig,
             @Nullable InputConfiguration inputConfiguration,
-            int sessionType,
-            @Nullable OutputConfig postviewOutputConfig) {
+            int sessionType) {
         mOutputConfigs = outputConfigs;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
@@ -226,7 +223,6 @@ public final class SessionConfig {
         mRepeatingCaptureConfig = repeatingCaptureConfig;
         mInputConfiguration = inputConfiguration;
         mSessionType = sessionType;
-        mPostviewOutputConfig = postviewOutputConfig;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -240,8 +236,7 @@ public final class SessionConfig {
                 new ArrayList<>(0),
                 new CaptureConfig.Builder().build(),
                 /* inputConfiguration */ null,
-                DEFAULT_SESSION_TYPE,
-                /* postviewOutputConfig */ null);
+                DEFAULT_SESSION_TYPE);
     }
 
     @Nullable
@@ -269,11 +264,6 @@ public final class SessionConfig {
     @NonNull
     public List<OutputConfig> getOutputConfigs() {
         return mOutputConfigs;
-    }
-
-    @Nullable
-    public OutputConfig getPostviewOutputConfig() {
-        return mPostviewOutputConfig;
     }
 
     @NonNull
@@ -388,8 +378,6 @@ public final class SessionConfig {
         @Nullable
         InputConfiguration mInputConfiguration;
         int mSessionType = DEFAULT_SESSION_TYPE;
-        @Nullable
-        OutputConfig mPostviewOutputConfig;
     }
 
     /**
@@ -647,7 +635,7 @@ public final class SessionConfig {
          */
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface) {
-            return addSurface(surface, DynamicRange.SDR, null);
+            return addSurface(surface, DynamicRange.SDR);
         }
 
         /**
@@ -656,10 +644,8 @@ public final class SessionConfig {
          */
         @NonNull
         public Builder addSurface(@NonNull DeferrableSurface surface,
-                @NonNull DynamicRange dynamicRange,
-                @Nullable String physicalCameraId) {
+                @NonNull DynamicRange dynamicRange) {
             OutputConfig outputConfig = OutputConfig.builder(surface)
-                    .setPhysicalCameraId(physicalCameraId)
                     .setDynamicRange(dynamicRange)
                     .build();
             mOutputConfigs.add(outputConfig);
@@ -704,15 +690,6 @@ public final class SessionConfig {
                     .setDynamicRange(dynamicRange)
                     .build();
             mOutputConfigs.add(outputConfig);
-            return this;
-        }
-
-        /**
-         * Sets the postview surface.
-         */
-        @NonNull
-        public Builder setPostviewSurface(@NonNull DeferrableSurface surface) {
-            mPostviewOutputConfig = OutputConfig.builder(surface).build();
             return this;
         }
 
@@ -770,8 +747,7 @@ public final class SessionConfig {
                     new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
                     mInputConfiguration,
-                    mSessionType,
-                    mPostviewOutputConfig);
+                    mSessionType);
         }
     }
 
@@ -873,19 +849,6 @@ public final class SessionConfig {
                 }
             }
 
-            if (sessionConfig.mPostviewOutputConfig != null) {
-                if (mPostviewOutputConfig != sessionConfig.mPostviewOutputConfig
-                        && mPostviewOutputConfig != null) {
-                    String errorMessage =
-                            "Invalid configuration due to that two different postview output "
-                                    + "configs are set";
-                    Logger.d(TAG, errorMessage);
-                    mValid = false;
-                } else {
-                    mPostviewOutputConfig = sessionConfig.mPostviewOutputConfig;
-                }
-            }
-
             // The conflicting of options is handled in addImplementationOptions where it could
             // throw an IllegalArgumentException if the conflict cannot be resolved.
             mCaptureConfigBuilder.addImplementationOptions(
@@ -965,8 +928,7 @@ public final class SessionConfig {
                     new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
                     mInputConfiguration,
-                    mSessionType,
-                    mPostviewOutputConfig);
+                    mSessionType);
         }
 
         private int selectTemplateType(int type1, int type2) {

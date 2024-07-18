@@ -80,9 +80,6 @@
         <enum name="DATA_SOURCE_DAY_OF_WEEK" value="13" />
         <enum name="DATA_SOURCE_FAVORITE_CONTACT" value="14" />
         <enum name="DATA_SOURCE_DAY_AND_DATE" value="16" />
-        <!-- This requires Android U or above. It is an error to use this if the minSdk level in the
-        manifest is not Android U or above. -->
-        <enum name="DATA_SOURCE_HEART_RATE" value="17" />
     </attr>
 
     <!-- Required. The default [ComplicationType] for the default complication data source.

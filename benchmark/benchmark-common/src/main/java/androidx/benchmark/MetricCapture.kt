@@ -29,21 +29,12 @@ import android.os.Debug
  */
 @ExperimentalBenchmarkConfigApi
 abstract class MetricCapture(
-    /**
-     * List of names of metrics produced by this MetricCapture.
-     *
-     * The length of this list defines how many metrics will be produced by [captureStart] and
-     * [captureStop].
-     */
     val names: List<String>
 ) {
     /**
      * Starts collecting data for a run.
      *
      * Called at the start of each run.
-     *
-     * @param timeNs Current time, just before starting metrics. Can be used directly to drive a
-     * timing metric produced.
      */
     abstract fun captureStart(timeNs: Long)
 
@@ -63,7 +54,7 @@ abstract class MetricCapture(
      * }
      * ```
      *
-     * @param timeNs Time of metric capture start, in monotonic time ([java.lang.System.nanoTime])
+     * @param timeNs Time of metric capture start, in monotonic time (System..
      * @param output LongArray sized to hold all simultaneous sub metric outputs, use `offset` as
      *  the initial position in `output` to start writing submetrics.
      * @param offset Offset into the output array to start writing sub metrics.
@@ -92,13 +83,11 @@ abstract class MetricCapture(
 /**
  * Time metric, which reports time in nanos, based on the time passed to [captureStop].
  *
- * Reports elapsed time with the label from `name`, which defaults to `timeNs`.
- *
- * @param name Metric name of the measured time, defaults to `timeNs`.
+ * Reports "timeNs"
  */
 @ExperimentalBenchmarkConfigApi
-class TimeCapture @JvmOverloads constructor(name: String = "timeNs") : MetricCapture(
-    names = listOf(name)
+public class TimeCapture : MetricCapture(
+    names = listOf("timeNs")
 ) {
     private var currentStarted = 0L
     private var currentPausedStarted = 0L

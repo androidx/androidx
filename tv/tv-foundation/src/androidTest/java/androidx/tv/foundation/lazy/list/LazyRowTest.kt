@@ -46,7 +46,6 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class LazyRowTest {
-    @Suppress("PrivatePropertyName")
     private val LazyListTag = "LazyListTag"
 
     @get:Rule
@@ -145,7 +144,7 @@ class LazyRowTest {
             }
         }
 
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, 2)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_LEFT, 3)
 
         rule.runOnIdle {
             assertThat(state.firstVisibleItemIndex).isEqualTo(1)

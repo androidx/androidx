@@ -28,6 +28,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.os.CancellationSignal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -290,10 +291,9 @@ class FragmentTransitionCompat21 extends FragmentTransitionImpl {
      *
      * Destroying the view of the Fragment is how the Transition gets canceled.
      */
-    @SuppressWarnings("deprecation")
     @Override
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
-            @NonNull Object transition, @NonNull final androidx.core.os.CancellationSignal signal,
+            @NonNull Object transition, @NonNull final CancellationSignal signal,
             @NonNull final Runnable transitionCompleteRunnable) {
         ((Transition) transition).addListener(new Transition.TransitionListener() {
             @Override

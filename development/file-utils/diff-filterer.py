@@ -20,17 +20,15 @@ import datetime, filecmp, math, multiprocessing, os, shutil, subprocess, stat, s
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-input-states-are-correct] [--allow-goal-passing] [--work-path <workpath>] [--num-jobs <count>] [--timeout <seconds>] [--debug] <passingPath> <goalPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--work-path <workpath>] [--num-jobs <count>] [--timeout <seconds>] [--debug] <passingPath> <failingPath> <shellCommand>
 
-diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <goalPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
+diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
 OPTIONS
+  --assume-no-side-effects
+    Assume that the given shell command does not make any (relevant) changes to the given directory, and therefore don't wipe and repopulate the directory before each invocation of the command
   --assume-input-states-are-correct
-    Assume that <shellCommand> passes in <passingPath> and fails in <goalPath> rather than re-verifying this
-  --allow-goal-passing
-    If <goalPath> passes the test, report it as the best result rather than reporting an error.
-    Usually it's a mistake to pass a passing state as the goal path, because then the passing state is the best result. This usually means the inputs might be reversed or mistaken. It also means that the binary search is very short.
-    In some cases this can make sense if the caller hasn't already checked whether the goal state passes.
+    Assume that <shellCommand> passes in <passingPath> and fails in <failingPath> rather than re-verifying this
   --work-path <filepath>
     File path to use as the work directory for testing the shell command
     This file path will be overwritten and modified as needed for testing purposes, and will also be the working directory of the shell command when it is run
@@ -90,9 +88,6 @@ class FileIo(object):
       shutil.rmtree(filePath)
     elif os.path.isfile(filePath):
       os.remove(filePath)
-
-  def move(self, fromPath, toPath):
-    os.rename(fromPath, toPath)
 
   def join(self, path1, path2):
     return os.path.normpath(os.path.join(path1, path2))
@@ -331,19 +326,13 @@ class FilesState(object):
     return dirs
 
   # returns a FilesState having all of the entries from <self>, plus empty entries for any keys in <other> not in <self>
-  def expandedWithEmptyEntriesFor(self, other, listEmptyDirs=False):
+  def expandedWithEmptyEntriesFor(self, other):
     impliedDirs = self.listImpliedDirs()
     # now look for entries in <other> not present in <self>
     result = self.clone()
     for filePath in other.fileStates:
       if filePath not in result.fileStates and filePath not in impliedDirs:
         result.fileStates[filePath] = MissingFile_FileContent()
-    if listEmptyDirs:
-      newImpliedDirs = other.listImpliedDirs()
-      oldImpliedDirs = result.listImpliedDirs()
-      for impliedDir in newImpliedDirs:
-        if impliedDir not in oldImpliedDirs and impliedDir not in result.fileStates:
-          result.add(impliedDir, MissingFile_FileContent())
     return result
 
   def clone(self):
@@ -470,16 +459,16 @@ def filesStateFromTree(rootPath):
     state.add(path, states[path])
   return state
 
-# runs a Test in this process
-def runJobInSameProcess(shellCommand, workPath, previousTestState, clean, fullTestState, description, twoWayPipe):
-  job = Test(shellCommand, workPath, previousTestState, clean, fullTestState, description, twoWayPipe)
+# runs a Job in this process
+def runJobInSameProcess(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+  job = Job(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe)
   job.runAndReport()
 
-# starts a Test in a new process
-def runJobInOtherProcess(shellCommand, workPath, previousTestState, clean, fullTestState, description, queue, identifier):
+# starts a Job in a new process
+def runJobInOtherProcess(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, queue, identifier):
   parentWriter, childReader = multiprocessing.Pipe()
   childInfo = TwoWayPipe(childReader, queue, identifier)
-  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, previousTestState, clean, fullTestState, description, childInfo,))
+  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, childInfo,))
   process.start()
   return parentWriter
 
@@ -490,42 +479,41 @@ class TwoWayPipe(object):
     self.identifier = identifier
 
 # Stores a subprocess for running tests and some information about which tests to run
-class Test(object):
-  def __init__(self, shellCommand, workPath, previousTestState, clean, fullTestState, description, twoWayPipe):
+class Job(object):
+  def __init__(self, shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
     # the test to run
     self.shellCommand = shellCommand
     # directory to run the test in
     self.workPath = workPath
-    # The previous state that we were asked to test. If the test command didn't modify any files, then our working directly would exactly match this state
-    self.previousTestState = previousTestState
-    # whether to reset the worker's state to match the target state exactly
-    self.clean = clean
-    # the state to test
-    self.fullTestState = fullTestState
-    # description of changes
-    self.description = description
+    # the state of our working directory
+    self.originalState = originalState
+    # whether to assume that the test won't change anything important
+    self.assumeNoSideEffects = assumeNoSideEffects
+    # the best accepted state
+    self.full_resetTo_state = full_resetTo_state
+    # the changes we're considering
+    self.testState = testState
     self.pipe = twoWayPipe
 
   def runAndReport(self):
     succeeded = False
     postState = None
     try:
-      succeeded = self.run()
+      (succeeded, postState) = self.run()
     finally:
       print("^" * 100)
-      self.pipe.writerQueue.put((self.pipe.identifier, succeeded, self.clean))
+      self.pipe.writerQueue.put((self.pipe.identifier, succeeded, postState))
 
   def run(self):
     print("#" * 100)
-    print("Checking " + self.description + " at " + str(datetime.datetime.now()))
+    print("Checking " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") in " + str(self.workPath) + " at " + str(datetime.datetime.now()))
 
-    if self.clean:
-      # update all files to match the target state
-      currentState = filesStateFromTree(self.workPath)
-      self.fullTestState.expandedWithEmptyEntriesFor(currentState, True).withoutDuplicatesFrom(currentState).apply(self.workPath)
-    else:
-      # just apply the difference from previousTestState to full_resetTo_state
-      self.fullTestState.expandedWithEmptyEntriesFor(self.previousTestState).withoutDuplicatesFrom(self.previousTestState).apply(self.workPath)
+    # compute the state that we want the files to be in before we start the test
+    fullStateToTest = self.full_resetTo_state.expandedWithEmptyEntriesFor(self.testState).withConflictsFrom(self.testState, True)
+    #print("Starting with original worker state of " + str(self.originalState))
+
+    # update our files on disk to match the state we want to test
+    fullStateToTest.expandedWithEmptyEntriesFor(self.originalState).withoutDuplicatesFrom(self.originalState).apply(self.workPath)
 
     # run test
     testStartSeconds = time.time()
@@ -534,26 +522,36 @@ class Test(object):
     testEnd = datetime.datetime.now()
     duration = (testEnd - testStart).total_seconds()
 
+    if self.assumeNoSideEffects:
+      # assume that no relevant files changed
+      postState = fullStateToTest
+    else:
+      # determine which files weren't changed by the test command
+      postState = filesStateFromTree(self.workPath)
+      for key in postState.getKeys():
+        modified = postState.getContent(key)
+        if isinstance(modified, FileBacked_FileContent):
+          # If any filepath wasn't modified since the start of the test, then its content matches the original
+          # (If the content is known to match the original, we won't have to reset it next time)
+          referenceModification = fileIo.getModificationTime(modified.referencePath)
+          if referenceModification is not None and referenceModification < testStartSeconds:
+            original = fullStateToTest.getContent(key)
+            if original is not None:
+              if isinstance(original, FileBacked_FileContent):
+                modified.referencePath = original.referencePath
+
     # report results
     if returnCode == 0:
-      print("Passed: " + self.description + " at " + str(datetime.datetime.now()) + " in " + str(duration) + "s")
-      return True
+      print("Passed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
+      return (True, postState)
     else:
-      print("Failed: " + self.description + " at " + str(datetime.datetime.now()) + " in " + str(duration) + "s")
-      return False
+      print("Failed: " + self.testState.summarize() + " (job " + str(self.pipe.identifier) + ") at " + str(datetime.datetime.now()) + " in " + str(duration))
+      return (False, postState)
 
-# keeps track of a plan for running a Test
-class Job(object):
-  def __init__(self, testState, ancestorSucceeded):
-    self.testState = testState
-    self.ancestorSucceeded = ancestorSucceeded
-
-  def size(self):
-    return self.testState.size()
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeInputStatesAreCorrect, allowGoalPassing, maxNumJobsAtOnce, timeoutSeconds):
+  def __init__(self, failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce, timeoutSeconds):
     # some simple params
     self.workPath = os.path.abspath(workPath)
     self.bestState_path = fileIo.join(self.workPath, "bestResults")
@@ -563,8 +561,8 @@ class DiffRunner(object):
     fileIo.writeScript(self.testScript_path, shellCommand)
     self.originalPassingPath = os.path.abspath(passingPath)
     self.originalFailingPath = os.path.abspath(failingPath)
+    self.assumeNoSideEffects = assumeNoSideEffects
     self.assumeInputStatesAreCorrect = assumeInputStatesAreCorrect
-    self.allowGoalPassing = allowGoalPassing
     self.timeoutSeconds = timeoutSeconds
 
     # lists of all the files under the two dirs
@@ -601,8 +599,9 @@ class DiffRunner(object):
                 raise Exception("Failed to remove " + path, e)
 
   def runnerTest(self, testState, timeout = None):
-    self.cleanupTempDirs()
     workPath = self.getWorkPath(0)
+    # reset state if needed
+    fileIo.removePath(workPath)
     testState.apply(workPath)
     start = datetime.datetime.now()
     returnCode = ShellScript(self.testScript_path, workPath).process()
@@ -611,6 +610,9 @@ class DiffRunner(object):
     if returnCode == 0:
       return (True, duration)
     else:
+      if self.assumeNoSideEffects:
+        # unapply changes so that the contents of workPath should match self.resetTo_state
+        testState.withConflictsFrom(self.resetTo_state).apply(workPath)
       return (False, duration)
 
   def onSuccess(self, testState):
@@ -622,14 +624,8 @@ class DiffRunner(object):
     self.targetState = self.targetState.withoutDuplicatesFrom(testState)
     self.resetTo_state = self.resetTo_state.withConflictsFrom(testState).withoutDuplicatesFrom(testState)
     delta = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).withoutDuplicatesFrom(self.full_resetTo_state)
+    delta.apply(self.bestState_path)
     self.full_resetTo_state = self.full_resetTo_state.expandedWithEmptyEntriesFor(delta).withConflictsFrom(delta)
-    # Update results path for the user to look at
-    if os.path.exists(self.bestState_path):
-      # The previous results are still there, so we just apply the difference between the previous and new best results
-      delta.apply(self.bestState_path)
-    else:
-      # The previous results are missing (most likely moved/deleted by the user) so we save them again
-      self.full_resetTo_state.apply(self.bestState_path)
     if debug:
       if not filesStateFromTree(self.bestState_path).checkSameKeys(self.full_resetTo_state.withoutEmptyEntries()):
         print("Contents of " + self.bestState_path + " don't match self.full_resetTo_state at end of onSuccess")
@@ -648,13 +644,7 @@ class DiffRunner(object):
       print("Testing that the given failing state actually fails")
       fileIo.removePath(workPath)
       if self.runnerTest(self.originalFailingState)[0]:
-        if self.allowGoalPassing:
-          print("\nGiven goal state at " + self.originalFailingPath + " passes, so it is the best result")
-          self.cleanupTempDirs()
-          fileIo.removePath(self.bestState_path)
-          self.originalFailingState.apply(self.bestState_path)
-          return True
-        print("\nGiven goal state at " + self.originalFailingPath + " does not fail! Pass --allow-goal-passing if this is intentional")
+        print("\nGiven failing state at " + self.originalFailingPath + " does not actually fail!")
         return False
       # clean up temporary dirs in case any daemons remain running
       self.cleanupTempDirs()
@@ -681,13 +671,12 @@ class DiffRunner(object):
     jobId = 0
     workingDir = self.getWorkPath(jobId)
     queue = multiprocessing.Queue()
-    activeJobsById = {}
+    activeTestStatesById = {}
     workerStatesById = {}
-    consecutiveIncrementalBuildsById = {}
     initialSplitSize = 2
     if self.maxNumJobsAtOnce != "auto" and self.maxNumJobsAtOnce > 2:
       initialSplitSize = self.maxNumJobsAtOnce
-    availableJobs = [Job(testState, False) for testState in self.targetState.splitOnce(initialSplitSize)]
+    availableTestStates = self.targetState.splitOnce(initialSplitSize)
     numConsecutiveFailures = 0
     numFailuresSinceLastSplitOrSuccess = 0
     numCompletionsSinceLastPoolSizeChange = 0
@@ -701,11 +690,11 @@ class DiffRunner(object):
     summaryLog.write("diff-filterer.py starting at " + str(datetime.datetime.now()))
     summaryLog.flush()
     # continue until all files fail and no jobs are running
-    while (numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() and not timedOut) or len(activeJobsById) > 0:
+    while (numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() and not timedOut) or len(activeTestStatesById) > 0:
       # display status message
       now = datetime.datetime.now()
       elapsedDuration = now - start
-      minNumTestsRemaining = sum([math.log(job.testState.size(), 2) + 1 for job in availableJobs + list(activeJobsById.values())]) - numFailuresSinceLastSplitOrSuccess
+      minNumTestsRemaining = sum([math.log(box.size(), 2) + 1 for box in availableTestStates + list(activeTestStatesById.values())]) - numFailuresSinceLastSplitOrSuccess
       estimatedNumTestsRemaining = max(minNumTestsRemaining, 1)
       if numConsecutiveFailures >= 4 and numFailuresSinceLastSplitOrSuccess < 1:
         # If we are splitting often and failing often, then we probably haven't yet
@@ -714,76 +703,68 @@ class DiffRunner(object):
         # So, we estimate that the total work remaining is double what we've completed
         estimatedNumTestsRemaining *= 2
       estimatedRemainingDuration = datetime.timedelta(seconds = elapsedDuration.total_seconds() * float(estimatedNumTestsRemaining) / float(numCompletedTests))
-      message = "Elapsed duration: " + str(elapsedDuration) + ". Waiting for " + str(len(activeJobsById)) + " active subprocesses (" + str(len(availableJobs) + len(activeJobsById)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test, should take about " + str(estimatedNumTestsRemaining) + " tests, about " + str(estimatedRemainingDuration)
+      message = "Elapsed duration: " + str(elapsedDuration) + ". Waiting for " + str(len(activeTestStatesById)) + " active subprocesses (" + str(len(availableTestStates) + len(activeTestStatesById)) + " total available jobs). " + str(self.resetTo_state.size()) + " changes left to test, should take about " + str(estimatedNumTestsRemaining) + " tests, about " + str(estimatedRemainingDuration)
       print(message)
       if self.timeoutSeconds is not None:
         # what fraction of the time is left
         remainingTimeFraction = 1.0 - (elapsedDuration.total_seconds() / self.timeoutSeconds)
         # how many jobs there will be if we add another one
-        possibleNumPendingJobs = len(activeJobsById) + 1
+        possibleNumPendingJobs = len(activeTestStatesById) + 1
         if possibleNumPendingJobs / (numCompletedTests + possibleNumPendingJobs) > remainingTimeFraction:
           # adding one more job would be likely to cause us to exceed our time limit
           timedOut = True
 
-      if len(activeJobsById) > 0:
+      if len(activeTestStatesById) > 0:
         # wait for a response from a worker
-        identifier, didAcceptState, clean = queue.get()
-        job = activeJobsById[identifier]
+        identifier, didAcceptState, workerNewState = queue.get()
+        box = activeTestStatesById[identifier]
+        #print("main process received worker new state of " + str(workerNewState))
+        workerStatesById[identifier] = workerNewState
         numCompletedTests += 1
         numCompletionsSinceLastPoolSizeChange += 1
         if didAcceptState:
           numConsecutiveFailures = 0
           numFailuresSinceLastSplitOrSuccess = 0
-          acceptedState = job.testState
-          maxRunningSize = max([job.testState.size() for job in activeJobsById.values()])
-          maxRelevantSize = maxRunningSize / len(activeJobsById)
+          acceptedState = box #.getAllFiles()
+          summaryLog.write("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()) + "\n")
+          summaryLog.flush()
+          maxRunningSize = max([state.size() for state in activeTestStatesById.values()])
+          maxRelevantSize = maxRunningSize / len(activeTestStatesById)
           if acceptedState.size() < maxRelevantSize:
             print("Queuing a retest of response of size " + str(acceptedState.size()) + " from job " + str(identifier) + " because a much larger job of size " + str(maxRunningSize) + " is still running")
             probablyAcceptableStates.append(acceptedState)
           else:
             if identifier in invalidatedIds:
-              print("Queuing a retest of response from job " + str(identifier) + " due to previous invalidation. Successful state: " + str(acceptedState.summarize()))
+              # queue a retesting of this box
+              print("Queuing a re-test of response from job " + str(identifier) + " due to previous invalidation. Successful state: " + str(acceptedState.summarize()))
               probablyAcceptableStates.append(acceptedState)
             else:
-              if not clean:
-                print("Queuing a clean retest of incremental success from job " + str(identifier))
-                probablyAcceptableStates.append(acceptedState)
-              else:
-                print("Accepting clean success from job " + str(identifier))
-                summaryLog.write("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()) + "\n")
-                summaryLog.flush()
-                # A worker discovered a nonempty change that can be made successfully; update our best accepted state
-                self.onSuccess(acceptedState)
-                if debug:
-                  # The files in self.bestState_path should exactly match what's in workPath[identifier], except for files that didn't originally exist
-                  if not filesStateFromTree(self.bestState_path).checkSameKeys(filesStateFromTree(self.getWorkPath(identifier)).restrictedToKeysIn(self.originalPassingState.expandedWithEmptyEntriesFor(self.originalFailingState))):
-                    print("Successful state from work path " + str(identifier) + " wasn't correctly copied to bestState. Could the test command be deleting files that previously existed?")
-                    sys.exit(1)
-                # record that the results from any previously started process are no longer guaranteed to be valid
-                for i in activeJobsById.keys():
-                  if i != identifier:
-                    invalidatedIds.add(i)
-                # record our first success
-                if numJobsAtFirstSuccessAfterMerge is None:
-                  numJobsAtFirstSuccessAfterMerge = len(availableJobs) + len(activeJobsById)
+              # A worker discovered a nonempty change that can be made successfully; update our best accepted state
+              self.onSuccess(acceptedState)
+              if debug:
+                # The files in self.bestState_path should exactly match what's in workPath[identifier], except for files that didn't originally exist
+                if not filesStateFromTree(self.bestState_path).checkSameKeys(filesStateFromTree(self.getWorkPath(identifier)).restrictedToKeysIn(self.originalPassingState.expandedWithEmptyEntriesFor(self.originalFailingState))):
+                  print("Successful state from work path " + str(identifier) + " wasn't correctly copied to bestState. Could the test command be deleting files that previously existed?")
+                  sys.exit(1)
+              # record that the results from any previously started process are no longer guaranteed to be valid
+              for i in activeTestStatesById.keys():
+                if i != identifier:
+                  invalidatedIds.add(i)
+              # record our first success
+              if numJobsAtFirstSuccessAfterMerge is None:
+                numJobsAtFirstSuccessAfterMerge = len(availableTestStates)
         else:
-          testState = job.testState
           if not os.path.isdir(self.sampleFailure_path):
             # save sample failure path where user can see it
             print("Saving sample failed state to " + str(self.sampleFailure_path))
-            # write to a temporary directory so if a user looks at this path while we're writing, they don't see incomplete results
-            tempPath = self.sampleFailure_path + ".temp"
-            fileIo.removePath(tempPath)
-            fileIo.ensureDirExists(tempPath)
-            self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState, True).apply(tempPath)
-            # rename temporary directory
-            if os.path.exists(tempPath):
-              fileIo.move(tempPath, self.sampleFailure_path)
+            fileIo.ensureDirExists(self.sampleFailure_path)
+            self.full_resetTo_state.expandedWithEmptyEntriesFor(box).withConflictsFrom(box, True).apply(self.sampleFailure_path)
+          #print("Failed : " + box.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
           # count failures
           numConsecutiveFailures += 1
           numFailuresSinceLastSplitOrSuccess += 1
           # find any children that failed and queue a re-test of those children
-          updatedChild = testState.withoutDuplicatesFrom(testState.withConflictsFrom(self.resetTo_state))
+          updatedChild = box.withoutDuplicatesFrom(box.withConflictsFrom(self.resetTo_state))
           if updatedChild.size() > 0:
             if numConsecutiveFailures >= 4:
               # Suppose we are trying to identify n single-file changes that cause failures
@@ -802,51 +783,49 @@ class DiffRunner(object):
             split = updatedChild.splitOnce(splitFactor)
             if len(split) > 1:
               numFailuresSinceLastSplitOrSuccess = 0
-            for testState in split:
-              availableJobs.append(Job(testState, job.ancestorSucceeded))
+            availableTestStates += split
         # clear invalidation status
         if identifier in invalidatedIds:
           invalidatedIds.remove(identifier)
-        del activeJobsById[identifier]
+        del activeTestStatesById[identifier]
         # Check whether we've had enough failures lately to warrant checking for the possibility of dependencies among files
         if numJobsAtFirstSuccessAfterMerge is not None:
-          if len(availableJobs) > 3 * numJobsAtFirstSuccessAfterMerge:
+          if len(availableTestStates) > 3 * numJobsAtFirstSuccessAfterMerge:
             # It's plausible that every file in one directory depends on every file in another directory
             # If this happens, then after we delete the dependent directory, we can delete the dependency directory too
             # To make sure that we consider deleting the dependency directory, we recombine all of our states and start splitting from there
             print("#############################################################")
             print("#                                                           #")
-            print("# Lots of failures (" + str(len(availableJobs)) + " available jobs) since first success (" + str(numJobsAtFirstSuccessAfterMerge) + ")!")
+            print("# Lots of failures since first success!!!!!!!!!!!!!!!!!!!!! #")
             print("# Recombining all states in case we uncovered a dependency! #")
             print("#                                                           #")
             print("#############################################################")
             rejoinedState = FilesState()
-            for job in availableJobs:
-              state = job.testState
+            for state in availableTestStates:
               rejoinedState = rejoinedState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
             rejoinedState = rejoinedState.withoutDuplicatesFrom(self.resetTo_state)
-            availableJobs = [Job(testState, False) for testState in rejoinedState.splitOnce(initialSplitSize)]
+            availableTestStates = rejoinedState.splitOnce(initialSplitSize)
             numFailuresSinceLastSplitOrSuccess = 0
             numJobsAtFirstSuccessAfterMerge = None
             numCompletionsSinceLastPoolSizeChange = 0
 
       # if probablyAcceptableStates has become large enough, then retest its contents too
-      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= len(activeJobsById) + 1 or numConsecutiveFailures >= len(activeJobsById) or len(activeJobsById) < 1):
+      if len(probablyAcceptableStates) > 0 and (len(probablyAcceptableStates) >= len(activeTestStatesById) + 1 or numConsecutiveFailures >= len(activeTestStatesById) or len(activeTestStatesById) < 1):
         probablyAcceptableState = FilesState()
         for state in probablyAcceptableStates:
           probablyAcceptableState = probablyAcceptableState.expandedWithEmptyEntriesFor(state).withConflictsFrom(state)
         probablyAcceptableState = probablyAcceptableState.withoutDuplicatesFrom(self.resetTo_state)
         if probablyAcceptableState.size() > 0:
           print("Retesting " + str(len(probablyAcceptableStates)) + " previous likely successful states as a single test: " + probablyAcceptableState.summarize())
-          availableJobs = [Job(probablyAcceptableState, True)] + availableJobs
+          availableTestStates = [probablyAcceptableState] + availableTestStates
         probablyAcceptableStates = []
-      if len(availableJobs) < 1 and len(activeJobsById) < 1:
+      if len(availableTestStates) < 1 and len(activeTestStatesById) < 1:
         print("Error: no changes remain left to test. It was expected that applying all changes would fail")
         break
 
       # if we haven't checked everything yet, then try to queue more jobs
       if numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size():
-        availableJobs.sort(reverse=True, key=Job.size)
+        availableTestStates.sort(reverse=True, key=FilesState.size)
 
         if self.maxNumJobsAtOnce != "auto":
           targetNumJobs = self.maxNumJobsAtOnce
@@ -856,73 +835,40 @@ class DiffRunner(object):
             systemUsageStats = cpuStats.cpu_times_percent()
             systemIdleFraction = systemUsageStats.idle / 100
             if systemIdleFraction >= 0.5:
-              if numCompletionsSinceLastPoolSizeChange <= len(activeJobsById):
+              if numCompletionsSinceLastPoolSizeChange <= len(activeTestStatesById):
                 # Not much time has passed since the previous time we changed the pool size
-                targetNumJobs = len(activeJobsById) + 1 # just replace existing job
+                targetNumJobs = len(activeTestStatesById) + 1 # just replace existing job
               else:
                 # We've been using less than the target capacity for a while, so add another job
-                targetNumJobs = len(activeJobsById) + 2 # replace existing job and add a new one
+                targetNumJobs = len(activeTestStatesById) + 2 # replace existing job and add a new one
                 numCompletionsSinceLastPoolSizeChange = 0
             else:
-              targetNumJobs = len(activeJobsById) # don't replace existing job
+              targetNumJobs = len(activeTestStatesById) # don't replace existing job
               numCompletionsSinceLastPoolSizeChange = 0
 
               if targetNumJobs < 1:
                 targetNumJobs = 1
-            print("System idle = " + str(systemIdleFraction) + ", current num jobs = " + str(len(activeJobsById) + 1) + ", target num jobs = " + str(targetNumJobs))
+            print("System idle = " + str(systemIdleFraction) + ", current num jobs = " + str(len(activeTestStatesById) + 1) + ", target num jobs = " + str(targetNumJobs))
 
         if timedOut:
           print("Timeout reached, not starting new jobs")
         else:
-          while len(activeJobsById) < targetNumJobs and len(activeJobsById) < self.resetTo_state.size() and len(availableJobs) > 0:
+          while len(activeTestStatesById) < targetNumJobs and len(activeTestStatesById) < self.resetTo_state.size() and len(availableTestStates) > 0:
             # find next pending job
-            job = availableJobs[0]
+            box = availableTestStates[0]
             # find next unused job id
-            workerId = 0
-            while workerId in activeJobsById:
-              workerId += 1
+            jobId = 0
+            while jobId in activeTestStatesById:
+              jobId += 1
             # start job
-            workingDir = self.getWorkPath(workerId)
-            if workerId in workerStatesById:
-              workerPreviousState = workerStatesById[workerId]
+            workingDir = self.getWorkPath(jobId)
+            if jobId in workerStatesById:
+              workerPreviousState = workerStatesById[jobId]
             else:
               workerPreviousState = FilesState()
-            testState = job.testState
-
-            # If job.ancestorSucceeded, then this job came from another job that succeeded (it's either the union of several jobs that succeeded, or a piece of a job that succeeded).
-            # However, if we get here, then this job failed.
-            # So, joining or splitting this job's successful ancestor(s) created a failed job (this one).
-            # So, in the future it's also likely that we'll find jobs that succeed on their own but if joined will fail.
-            # So, in the future we don't want to join all successful jobs (because that could be likely to introduce a failure).
-            # Any successful jobs in the future that we don't accept, we join together.
-            # So, we want to accept a successful job soon.
-            # We can only accept the results of clean builds (because for incremental builds we're not sure that the results are reliable)
-            # So, if job.ancestorSucceeded, we make the descendants of this job be clean
-            #
-            # Also, we want each worker to occasionally use a new state in case so that incremental errors can't remain forever
-            clean = job.ancestorSucceeded
-            if workerId in consecutiveIncrementalBuildsById:
-              consecutiveIncrementalBuilds = consecutiveIncrementalBuildsById[workerId]
-              if consecutiveIncrementalBuilds >= 10:
-                clean = True
-                consecutiveIncrementalBuilds = 0
-            else:
-              consecutiveIncrementalBuilds = 0
-              # Also, if this worker hasn't run any jobs yet, then we don't expect it to have any leftover files, so an incremental test is essentially equivalent to a clean test anyway
-              # We ask the worker to run a clean test so that if it succeeds, we can detect that the success started from a clean state
-              clean = True
-            consecutiveIncrementalBuildsById[workerId] = 0
-            fullTestState = self.full_resetTo_state.expandedWithEmptyEntriesFor(testState).withConflictsFrom(testState)
-            description = testState.summarize() + " (job " + str(workerId) + ", "
-            if clean:
-              description += "clean"
-            else:
-              description += "incremental"
-            description += ")"
-            runJobInOtherProcess(self.testScript_path, workingDir, workerPreviousState, clean, fullTestState, description, queue, workerId)
-            activeJobsById[workerId] = job
-            workerStatesById[workerId] = fullTestState
-            availableJobs = availableJobs[1:]
+            runJobInOtherProcess(self.testScript_path, workingDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
+            activeTestStatesById[jobId] = box
+            availableTestStates = availableTestStates[1:]
 
     if timedOut:
       wasSuccessful = False
@@ -931,6 +877,8 @@ class DiffRunner(object):
       wasSuccessful = True
       if not self.runnerTest(filesStateFromTree(self.bestState_path))[0]:
         message = "Error: expected best state at " + self.bestState_path + " did not pass the second time. Could the test be non-deterministic?"
+        if self.assumeNoSideEffects:
+          message += " (it may help to remove the --assume-no-side-effects flag)"
         if self.assumeInputStatesAreCorrect:
           message += " (it may help to remove the --assume-input-states-are-correct flag)"
         print(message)
@@ -946,25 +894,24 @@ class DiffRunner(object):
     print("Done trying to transform the contents of passing path:\n " + self.originalPassingPath + "\ninto the contents of failing path:\n " + self.originalFailingPath)
     print("Of " + str(self.originalNumDifferences) + " differences, could not accept: " + filesDescription)
     print("The final accepted state can be seen at " + self.bestState_path)
-    print("Ran " + str(numCompletedTests) + " tests")
     if timedOut:
       print("Note that these results might not be optimal due to reaching the timeout of " + str(self.timeoutSeconds) + " seconds")
     return wasSuccessful
 
 def main(args):
+  assumeNoSideEffects = False
   assumeInputStatesAreCorrect = False
-  allowGoalPassing = False
   workPath = "/tmp/diff-filterer"
   timeoutSeconds = None
   maxNumJobsAtOnce = 1
   while len(args) > 0:
     arg = args[0]
-    if arg == "--assume-input-states-are-correct":
-      assumeInputStatesAreCorrect = True
+    if arg == "--assume-no-side-effects":
+      assumeNoSideEffects = True
       args = args[1:]
       continue
-    if arg == "--allow-goal-passing":
-      allowGoalPassing = True
+    if arg == "--assume-input-states-are-correct":
+      assumeInputStatesAreCorrect = True
       args = args[1:]
       continue
     if arg == "--work-path":
@@ -1011,7 +958,7 @@ def main(args):
   if not os.path.exists(failingPath):
     print("Specified failing path " + failingPath + " does not exist")
     sys.exit(1)
-  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeInputStatesAreCorrect, allowGoalPassing, maxNumJobsAtOnce, timeoutSeconds).run()
+  success = DiffRunner(failingPath, passingPath, shellCommand, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, maxNumJobsAtOnce, timeoutSeconds).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:

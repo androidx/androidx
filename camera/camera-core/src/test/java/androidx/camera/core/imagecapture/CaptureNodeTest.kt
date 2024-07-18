@@ -17,21 +17,15 @@
 package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat.JPEG
-import android.graphics.ImageFormat.YUV_420_888
 import android.os.Build
 import android.os.Looper.getMainLooper
-import android.util.Pair
 import android.util.Size
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.ImageReaderProxyProvider
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
-import androidx.camera.core.impl.TagBundle
+import androidx.camera.core.imagecapture.Utils.createFakeImage
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
-import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -51,9 +45,10 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class CaptureNodeTest {
 
     private val imagePropagated = mutableListOf<ImageProxy>()
+    private val requestsPropagated = mutableListOf<ProcessingRequest>()
 
     private lateinit var captureNodeIn: CaptureNode.In
-    private lateinit var captureNodeOut: ProcessingNode.In
+    private lateinit var captureNodeOut: CaptureNode.Out
 
     private val captureNode = CaptureNode()
 
@@ -61,8 +56,11 @@ class CaptureNodeTest {
     fun setUp() {
         captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null)
         captureNodeOut = captureNode.transform(captureNodeIn)
-        captureNodeOut.edge.setListener {
-            imagePropagated.add(it.imageProxy)
+        captureNodeOut.imageEdge.setListener {
+            imagePropagated.add(it)
+        }
+        captureNodeOut.requestEdge.setListener {
+            requestsPropagated.add(it)
         }
     }
 
@@ -111,105 +109,63 @@ class CaptureNodeTest {
     }
 
     @Test
-    fun requestAborted_imageArrivesBeforeNextRequestAvailable() {
-        // Arrange: Configure the CaptureNode with isVirtualCamera = true and FakeImageReaderProxy
-        // create 2 requests: A and B and prepare TagBundles.
-        val captureNode = CaptureNode()
-        val imageReaderProxy = FakeImageReaderProxy(2)
-        captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG,
-            /* isVirtualCamera */ true, { _, _, _, _, _ -> imageReaderProxy })
-        captureNodeOut = captureNode.transform(captureNodeIn)
-        captureNodeOut.edge.setListener {
-            imagePropagated.add(it.imageProxy)
-        }
-
-        // Create request A
-        val captureBundleA = createCaptureBundle(intArrayOf(1))
+    fun send2RequestsAndImages_requestsReceived() {
+        // Arrange: create 2 requests: A and B.
+        // A has two stages: 1 and 2.
+        val captureBundleA = createCaptureBundle(intArrayOf(1, 2))
         val callbackA = FakeTakePictureCallback()
-        var captureFutureCompleterA: CallbackToFutureAdapter.Completer<Void>? = null
-        val captureFuture1 = CallbackToFutureAdapter.getFuture {
-            captureFutureCompleterA = it
-            "test"
-        }
-        val requestA = FakeProcessingRequest(captureBundleA, callbackA, captureFuture1)
+        val requestA =
+            FakeProcessingRequest(captureBundleA, callbackA, Futures.immediateFuture(null))
         val tagBundleKeyA = captureBundleA.hashCode().toString()
-        val tagBundleA = TagBundle.create(Pair(tagBundleKeyA, /* stage id */1))
-
-        // Create request B
-        val captureBundleB = createCaptureBundle(intArrayOf(2))
+        val imageA1 = createFakeImage(tagBundleKeyA, 1)
+        val imageA2 = createFakeImage(tagBundleKeyA, 2)
+        // B has one stage: 1
+        val captureBundleB = createCaptureBundle(intArrayOf(1))
         val callbackB = FakeTakePictureCallback()
         val requestB =
             FakeProcessingRequest(captureBundleB, callbackB, Futures.immediateFuture(null))
         val tagBundleKeyB = captureBundleB.hashCode().toString()
-        val tagBundleB = TagBundle.create(Pair(tagBundleKeyB, /* stage id */2))
+        val imageB1 = createFakeImage(tagBundleKeyB, 1)
 
-        // Act: send request A and abort it
-        captureNodeIn.requestEdge.accept(requestA)
-        captureFutureCompleterA!!.setException(
-            ImageCaptureException(ImageCapture.ERROR_CAMERA_CLOSED, "aborted", null))
-
-        // Image from requestA arrives before sending request B
-        val imageA = imageReaderProxy.triggerImageAvailableSync(tagBundleA)
-        // send request B
-        captureNodeIn.requestEdge.accept(requestB)
-        // Image from requestB arrives
-        val imageB = imageReaderProxy.triggerImageAvailableSync(tagBundleB)
-
-        // Assert: onImageCaptured is not invoked on requestA and its image should be closed.
+        // Act: send request A.
+        captureNode.onRequestAvailable(requestA)
         assertThat(callbackA.onImageCapturedCalled).isFalse()
-        assertThat(imageA.isClosed).isTrue()
+        captureNode.onImageProxyAvailable(imageA1)
+        assertThat(callbackA.onImageCapturedCalled).isFalse()
+        captureNode.onImageProxyAvailable(imageA2)
 
-        // Assert: onImageCaptured is invoked on requestB and its image is propagated.
+        // Assert: A is received.
+        assertThat(callbackA.onImageCapturedCalled).isTrue()
+        assertThat(requestsPropagated).containsExactly(requestA)
+        assertThat(imagePropagated).containsExactly(imageA1, imageA2)
+
+        // Act: send request B.
+        captureNode.onRequestAvailable(requestB)
+        assertThat(callbackB.onImageCapturedCalled).isFalse()
+        captureNode.onImageProxyAvailable(imageB1)
         assertThat(callbackB.onImageCapturedCalled).isTrue()
-        assertThat(imageB.isClosed).isFalse()
-        assertThat(imagePropagated.size).isEqualTo(1)
-        assertThat(imagePropagated.get(0).imageInfo.tagBundle.getTag(tagBundleKeyB)).isEqualTo(2)
+
+        // Assert: B is received.
+        assertThat(callbackB.onImageCapturedCalled).isTrue()
+        assertThat(requestsPropagated).containsExactly(requestA, requestB)
+        assertThat(imagePropagated).containsExactly(imageA1, imageA2, imageB1)
     }
 
-    private fun FakeImageReaderProxy.triggerImageAvailableSync(
-        tagBundle: TagBundle,
-    ): FakeImageProxy {
-        val image = triggerImageAvailable(tagBundle, 100L)
-        shadowOf(getMainLooper()).idle()
-        return image
-    }
-
-    @Test
-    fun transformWithPostviewSizeAndYuv() {
-        // Arrange: set the postviewSize to the CaptureNode.In
-        val postviewSize = Size(640, 480)
-
-        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
-            postviewSize, YUV_420_888
+    @Test(expected = IllegalStateException::class)
+    fun receiveRequestWhenThePreviousOneUnfinished_throwException() {
+        // Arrange: create 2 requests: A and B.
+        val requestA = FakeProcessingRequest(
+            createCaptureBundle(intArrayOf(1)),
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
         )
-
-        // Act: transform.
-        val node = CaptureNode()
-        node.transform(input)
-
-        // Assert: postview surface is created
-        assertThat(input.postviewSurface).isNotNull()
-        assertThat(input.postviewSurface!!.prescribedSize).isEqualTo(postviewSize)
-        assertThat(input.postviewSurface!!.prescribedStreamFormat).isEqualTo(YUV_420_888)
-        node.release()
-    }
-
-    @Test
-    fun transformWithPostviewSizeAndJpeg() {
-        // Arrange: set the postviewSize to the CaptureNode.In
-        val postviewSize = Size(640, 480)
-
-        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
-            postviewSize, JPEG)
-
-        // Act: transform.
-        val node = CaptureNode()
-        node.transform(input)
-
-        // Assert: postview surface is created
-        assertThat(input.postviewSurface).isNotNull()
-        assertThat(input.postviewSurface!!.prescribedSize).isEqualTo(postviewSize)
-        assertThat(input.postviewSurface!!.prescribedStreamFormat).isEqualTo(JPEG)
-        node.release()
+        val requestB = FakeProcessingRequest(
+            createCaptureBundle(intArrayOf(1)),
+            FakeTakePictureCallback(),
+            Futures.immediateFuture(null)
+        )
+        // Act: Send B without A being finished.
+        captureNode.onRequestAvailable(requestA)
+        captureNode.onRequestAvailable(requestB)
     }
 }

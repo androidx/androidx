@@ -14,7 +14,6 @@ import java.lang.Override;
 import java.lang.String;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -99,8 +98,7 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc,
-      Map<String, List<String>> documentClassMap) throws AppSearchException {
+  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String namespaceConv = genericDoc.getNamespace();
     String idConv = genericDoc.getId();
     String[] stringPropCopy = genericDoc.getPropertyStringArray("stringProp");

@@ -24,6 +24,7 @@ import android.text.Spannable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import junit.framework.TestCase;
 
@@ -37,6 +38,7 @@ import java.util.Set;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = 19)
 public class EmojiProcessorTest extends TestCase {
     private EmojiProcessor mProcessor;
 

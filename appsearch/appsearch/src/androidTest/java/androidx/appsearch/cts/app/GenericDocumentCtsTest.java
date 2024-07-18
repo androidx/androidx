@@ -261,51 +261,7 @@ public class GenericDocumentCtsTest {
                 + "  }\n"
                 + "}";
 
-        String[] lines = expectedString.split("\n");
-        for (String line : lines) {
-            assertThat(documentString).contains(line);
-        }
-    }
-
-    @Test
-    public void testDocumentEmptyProperties_toString() {
-        GenericDocument document =
-                new GenericDocument.Builder<GenericDocument.Builder<?>>("namespace", "id1",
-                        "schemaType1")
-                        .setCreationTimestampMillis(1L)
-                        .setScore(1)
-                        .setTtlMillis(1L)
-                        .setPropertyString("stringKey1")
-                        .setPropertyBytes("bytesKey1")
-                        .setPropertyLong("longKey1")
-                        .setPropertyDouble("doubleKey1")
-                        .setPropertyBoolean("booleanKey1")
-                        .setPropertyDocument("documentKey1")
-                        .build();
-
-        String documentString = document.toString();
-
-        String expectedString = "{\n"
-                + "  namespace: \"namespace\",\n"
-                + "  id: \"id1\",\n"
-                + "  score: 1,\n"
-                + "  schemaType: \"schemaType1\",\n"
-                + "  creationTimestampMillis: 1,\n"
-                + "  timeToLiveMillis: 1,\n"
-                + "  properties: {\n"
-                + "    \"booleanKey1\": [],\n"
-                + "    \"bytesKey1\": [],\n"
-                + "    \"documentKey1\": [],\n"
-                + "    \"doubleKey1\": [],\n"
-                + "    \"longKey1\": [],\n"
-                + "    \"stringKey1\": []\n"
-                + "  }\n"
-                + "}";
-
-        String[] lines = expectedString.split("\n");
-        for (String line : lines) {
-            assertThat(documentString).contains(line);
-        }
+        assertThat(documentString).isEqualTo(expectedString);
     }
 
     @Test

@@ -17,32 +17,29 @@
 package androidx.camera.integration.avsync.model
 
 import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-import android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
-import android.util.Log
-import android.util.Range
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.annotation.MainThread
-import androidx.annotation.OptIn
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.Camera2Interop
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.Logger
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.FileUtil.canDeviceWriteToMediaStore
-import androidx.camera.testing.impl.FileUtil.generateVideoFileOutputOptions
-import androidx.camera.testing.impl.FileUtil.generateVideoMediaStoreOptions
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.MediaStoreOutputOptions
 import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.lifecycle.LifecycleOwner
+import java.io.File
 
 private const val TAG = "CameraHelper"
 
@@ -55,16 +52,14 @@ class CameraHelper {
     @MainThread
     suspend fun bindCamera(context: Context, lifecycleOwner: LifecycleOwner): Boolean {
         val cameraProvider = ProcessCameraProvider.getInstance(context).await()
+        val recorder = Recorder.Builder().build()
+        videoCapture = VideoCapture.withOutput(recorder)
 
         return try {
-            // Binds to lifecycle without use cases to get camera info for necessary checks.
-            val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector)
-            videoCapture = createVideoCapture(camera.cameraInfo)
-
             cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, videoCapture)
             true
         } catch (exception: Exception) {
-            Log.e(TAG, "Camera binding failed", exception)
+            Logger.e(TAG, "Camera binding failed", exception)
             videoCapture = null
             false
         }
@@ -86,6 +81,24 @@ class CameraHelper {
         }
     }
 
+    private fun prepareRecording(context: Context, recorder: Recorder): PendingRecording {
+        return if (canDeviceWriteToMediaStore()) {
+            recorder.prepareRecording(
+                context,
+                generateVideoMediaStoreOptions(context.contentResolver)
+            )
+        } else {
+            recorder.prepareRecording(
+                context,
+                generateVideoFileOutputOptions()
+            )
+        }
+    }
+
+    private fun canDeviceWriteToMediaStore(): Boolean {
+        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
+    }
+
     fun stopRecording() {
         activeRecording!!.stop()
         activeRecording = null
@@ -99,71 +112,52 @@ class CameraHelper {
         activeRecording!!.resume()
     }
 
-    companion object {
-        private val FPS_30 = Range(30, 30)
-
-        private fun createVideoCapture(cameraInfo: CameraInfo): VideoCapture<Recorder> {
-            val recorder = Recorder.Builder().build()
-            val videoCaptureBuilder = VideoCapture.Builder<Recorder>(recorder)
-            if (isLegacyDevice(cameraInfo)) {
-                // Set target FPS to 30 on legacy devices. Legacy devices use lower FPS to
-                // workaround exposure issues, but this makes the video timestamp info become
-                // fewer and causes A/V sync test to false alarm. See AeFpsRangeLegacyQuirk.
-                videoCaptureBuilder.setTargetFpsRange(FPS_30)
-            }
-
-            return videoCaptureBuilder.build()
+    private fun generateVideoFileOutputOptions(): FileOutputOptions {
+        val videoFileName = "${generateVideoFileName()}.mp4"
+        val videoFolder = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_MOVIES
+        )
+        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
+            Logger.e(TAG, "Failed to create directory: $videoFolder")
         }
+        return FileOutputOptions.Builder(File(videoFolder, videoFileName)).build()
+    }
 
-        @SuppressLint("NullAnnotationGroup")
-        @OptIn(ExperimentalCamera2Interop::class)
-        private fun VideoCapture.Builder<Recorder>.setTargetFpsRange(
-            range: Range<Int>
-        ): VideoCapture.Builder<Recorder> {
-            Log.d(TAG, "Set target fps to $range")
+    private fun generateVideoMediaStoreOptions(
+        contentResolver: ContentResolver
+    ): MediaStoreOutputOptions {
+        val contentValues = generateVideoContentValues(generateVideoFileName())
 
-            val camera2InterOp = Camera2Interop.Extender(this)
-            camera2InterOp.setCaptureRequestOption(CONTROL_AE_TARGET_FPS_RANGE, range)
-            return this
-        }
+        return MediaStoreOutputOptions.Builder(
+            contentResolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        ).setContentValues(contentValues).build()
+    }
 
-        @SuppressLint("NullAnnotationGroup")
-        @OptIn(ExperimentalCamera2Interop::class)
-        private fun isLegacyDevice(cameraInfo: CameraInfo): Boolean {
-            return Camera2CameraInfo.from(cameraInfo).getCameraCharacteristic(
-                INFO_SUPPORTED_HARDWARE_LEVEL
-            ) == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        }
+    private fun generateVideoFileName(): String {
+        return "video_" + System.currentTimeMillis()
+    }
 
-        private fun prepareRecording(context: Context, recorder: Recorder): PendingRecording {
-            val fileName = generateVideoFileName()
-            return if (canDeviceWriteToMediaStore()) {
-                recorder.prepareRecording(
-                    context,
-                    generateVideoMediaStoreOptions(context.contentResolver, fileName)
-                )
-            } else {
-                recorder.prepareRecording(
-                    context,
-                    generateVideoFileOutputOptions(fileName)
-                )
-            }
-        }
+    private fun generateVideoContentValues(fileName: String): ContentValues {
+        val res = ContentValues()
+        res.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+        res.put(MediaStore.Video.Media.TITLE, fileName)
+        res.put(MediaStore.Video.Media.DISPLAY_NAME, fileName)
+        res.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000)
+        res.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis())
 
-        private fun generateVideoFileName(): String {
-            return "video_" + System.currentTimeMillis()
-        }
+        return res
+    }
 
-        private fun generateVideoRecordEventListener(): Consumer<VideoRecordEvent> {
-            return Consumer<VideoRecordEvent> { videoRecordEvent ->
-                if (videoRecordEvent is VideoRecordEvent.Finalize) {
-                    val uri = videoRecordEvent.outputResults.outputUri
-                    if (videoRecordEvent.error == VideoRecordEvent.Finalize.ERROR_NONE) {
-                        Log.d(TAG, "Video saved to: $uri")
-                    } else {
-                        val msg = "save to uri $uri with error code (${videoRecordEvent.error})"
-                        Log.e(TAG, "Failed to save video: $msg")
-                    }
+    private fun generateVideoRecordEventListener(): Consumer<VideoRecordEvent> {
+        return Consumer<VideoRecordEvent> { videoRecordEvent ->
+            if (videoRecordEvent is VideoRecordEvent.Finalize) {
+                val uri = videoRecordEvent.outputResults.outputUri
+                if (videoRecordEvent.error == VideoRecordEvent.Finalize.ERROR_NONE) {
+                    Logger.d(TAG, "Video saved to: $uri")
+                } else {
+                    val msg = "save to uri $uri with error code (${videoRecordEvent.error})"
+                    Logger.e(TAG, "Failed to save video: $msg")
                 }
             }
         }

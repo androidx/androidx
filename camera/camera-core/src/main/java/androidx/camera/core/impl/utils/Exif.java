@@ -608,12 +608,6 @@ public final class Exif {
     }
 
     @VisibleForTesting
-    @Nullable
-    public String getMetadata() {
-        return mExifInterface.getAttribute(ExifInterface.TAG_XMP);
-    }
-
-    @VisibleForTesting
     @NonNull
     public ExifInterface getExifInterface() {
         return mExifInterface;

@@ -25,8 +25,6 @@ import org.junit.Test
 @SmallTest
 class PolygonTest {
     val square = RoundedPolygon(4)
-    val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.2f))
-    val pentagon = RoundedPolygon(5)
 
     @Test
     fun constructionTest() {
@@ -77,29 +75,11 @@ class PolygonTest {
 
     @Test
     fun boundsTest() {
-        var bounds = square.calculateBounds()
+        val bounds = square.calculateBounds()
         assertEqualish(-1f, bounds[0]) // Left
         assertEqualish(-1f, bounds[1]) // Top
         assertEqualish(1f, bounds[2]) // Right
         assertEqualish(1f, bounds[3]) // Bottom
-
-        var betterBounds = square.calculateBounds(approximate = false)
-        assertEqualish(-1f, betterBounds[0]) // Left
-        assertEqualish(-1f, betterBounds[1]) // Top
-        assertEqualish(1f, betterBounds[2]) // Right
-        assertEqualish(1f, betterBounds[3]) // Bottom
-
-        // roundedSquare's approximate bounds will be larger due to control points
-        bounds = roundedSquare.calculateBounds()
-        betterBounds = roundedSquare.calculateBounds(approximate = false)
-        assertTrue("bounds ${bounds[0]}, ${bounds[1]}, ${bounds[2]}, ${bounds[3]}, " +
-            "betterBounds = ${betterBounds[0]}, ${betterBounds[1]}, ${betterBounds[2]}, " +
-            "${betterBounds[3]}",
-            betterBounds[2] - betterBounds[0] < bounds[2] - bounds[0])
-
-        bounds = pentagon.calculateBounds()
-        val maxBounds = pentagon.calculateMaxBounds()
-        assertTrue(maxBounds[2] - maxBounds[0] > bounds[2] - bounds[0])
     }
 
     @Test
@@ -145,17 +125,18 @@ class PolygonTest {
     fun featuresTest() {
         val squareFeatures = square.features
 
-        // Verify that cubics of polygon == nonzero cubics of features of that polygon
-        // Note the Equalish test since some points may be adjusted in conversion from raw
-        // cubics in the feature to the cubics list for the shape
-        var nonzeroCubics = nonzeroCubics(squareFeatures.flatMap { it.cubics })
-        assertCubicListsEqualish(square.cubics, nonzeroCubics)
+        // Verify that cubics of polygon == cubics of features of that polygon
+        assertTrue(square.cubics == squareFeatures.flatMap { it.cubics })
+
+        // Same as above but with rounded corners
+        val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.1f))
+        val roundedFeatures = roundedSquare.features
+        assertTrue(roundedSquare.cubics == roundedFeatures.flatMap { it.cubics })
 
         // Same as the first polygon test, but with a copy of that polygon
         val squareCopy = RoundedPolygon(square)
         val squareCopyFeatures = squareCopy.features
-        nonzeroCubics = nonzeroCubics(squareCopyFeatures.flatMap { it.cubics })
-        assertCubicListsEqualish(squareCopy.cubics, nonzeroCubics)
+        assertTrue(squareCopy.cubics == squareCopyFeatures.flatMap { it.cubics })
 
         // Test other elements of Features
         val translator = translateTransform(1f, 2f)
@@ -180,13 +161,5 @@ class PolygonTest {
         }
         assertNotEquals(preTransformVertices, postTransformVertices)
         assertNotEquals(preTransformCenters, postTransformCenters)
-    }
-
-    private fun nonzeroCubics(original: List<Cubic>): List<Cubic> {
-        val result = mutableListOf<Cubic>()
-        for (i in original.indices) {
-            if (!original[i].zeroLength()) result.add(original[i])
-        }
-        return result
     }
 }

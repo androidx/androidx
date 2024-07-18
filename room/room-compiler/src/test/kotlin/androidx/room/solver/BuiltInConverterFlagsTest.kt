@@ -24,7 +24,6 @@ import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_CURSOR_READER
 import org.junit.Test
@@ -178,8 +177,7 @@ class BuiltInConverterFlagsTest {
             dbAnnotation = dbAnnotation
         )
         runProcessorTest(
-            sources = listOf(source),
-            options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
+            sources = listOf(source)
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("MyDatabase")
             DatabaseProcessingStep().process(

@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.dp
  * Wraps Compose content in a [MaterialTheme] and a [Surface].
  *
  * @param colorScheme a [ColorScheme] to provide to the theme. Usually a [lightColorScheme],
- * [darkColorScheme], or a dynamic one
+ *   [darkColorScheme], or a dynamic one
  * @param modifier a [Modifier] to be applied at the [Surface] wrapper
  */
 fun ComposeContentTestRule.setMaterialContent(
@@ -54,13 +54,12 @@ fun ComposeContentTestRule.setMaterialContent(
     }
 }
 
-private val WindowInfoFocused = object : WindowInfo {
-    override val isWindowFocused = true
-}
+private val WindowInfoFocused =
+    object : WindowInfo {
+        override val isWindowFocused = true
+    }
 
-/**
- * Constant to emulate very big but finite constraints
- */
+/** Constant to emulate very big but finite constraints */
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
 
@@ -75,10 +74,8 @@ fun ComposeContentTestRule.setMaterialContentForSizeAssertions(
             Surface {
                 Box {
                     Box(
-                        Modifier.sizeIn(
-                            maxWidth = parentMaxWidth,
-                            maxHeight = parentMaxHeight
-                        ).testTag("containerForSizeAssertion")
+                        Modifier.sizeIn(maxWidth = parentMaxWidth, maxHeight = parentMaxHeight)
+                            .testTag("containerForSizeAssertion")
                     ) {
                         content()
                     }

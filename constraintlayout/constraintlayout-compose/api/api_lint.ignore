@@ -5,9 +5,9 @@ ConcreteCollection: androidx.constraintlayout.compose.DesignElements#setMap(java
     Parameter type is concrete collection (`java.util.HashMap`); must be higher-level interface
 
 
-GetterSetterNames: androidx.constraintlayout.compose.DebugFlags#showBounds:
+GetterSetterNames: field DebugFlags.showBounds:
     Invalid name for boolean property `showBounds`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: androidx.constraintlayout.compose.DebugFlags#showKeyPositions:
+GetterSetterNames: field DebugFlags.showKeyPositions:
     Invalid name for boolean property `showKeyPositions`. Should start with one of `has`, `can`, `should`, `is`.
-GetterSetterNames: androidx.constraintlayout.compose.DebugFlags#showPaths:
+GetterSetterNames: field DebugFlags.showPaths:
     Invalid name for boolean property `showPaths`. Should start with one of `has`, `can`, `should`, `is`.

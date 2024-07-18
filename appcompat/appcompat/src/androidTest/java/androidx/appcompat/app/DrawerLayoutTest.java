@@ -56,7 +56,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
 import androidx.test.rule.ActivityTestRule;
 
@@ -485,7 +484,6 @@ public class DrawerLayoutTest {
         mDrawerLayout.removeDrawerListener(mockedListener);
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/321813959
     @Test
     @LargeTest
     public void testDrawerListenerCallbacksOnClosingViaSwipes() {

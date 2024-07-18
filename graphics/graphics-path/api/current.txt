@@ -18,20 +18,24 @@ package androidx.graphics.path {
   }
 
   public enum PathIterator.ConicEvaluation {
+    method public static androidx.graphics.path.PathIterator.ConicEvaluation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.graphics.path.PathIterator.ConicEvaluation[] values();
     enum_constant public static final androidx.graphics.path.PathIterator.ConicEvaluation AsConic;
     enum_constant public static final androidx.graphics.path.PathIterator.ConicEvaluation AsQuadratics;
   }
 
   public final class PathSegment {
-    method public android.graphics.PointF[] getPoints();
+    method public android.graphics.PointF![] getPoints();
     method public androidx.graphics.path.PathSegment.Type getType();
     method public float getWeight();
-    property public final android.graphics.PointF[] points;
+    property public final android.graphics.PointF![] points;
     property public final androidx.graphics.path.PathSegment.Type type;
     property public final float weight;
   }
 
   public enum PathSegment.Type {
+    method public static androidx.graphics.path.PathSegment.Type valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.graphics.path.PathSegment.Type[] values();
     enum_constant public static final androidx.graphics.path.PathSegment.Type Close;
     enum_constant public static final androidx.graphics.path.PathSegment.Type Conic;
     enum_constant public static final androidx.graphics.path.PathSegment.Type Cubic;

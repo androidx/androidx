@@ -27,7 +27,4 @@ data class TestingSerializerConfig(
     // TestSerializer uses the values from this list in sequence first before it always uses the
     // value of failReadWithCorruptionException.
     @Volatile var listOfFailReadWithCorruptionException: List<Boolean> = listOf(),
-    // This field enables the TestingSerializer to keep the count of file writes that is readable
-    // from the test methods.
-    @Volatile var writeCount: Int = 0,
 )

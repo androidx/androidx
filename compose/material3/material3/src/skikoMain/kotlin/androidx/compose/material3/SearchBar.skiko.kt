@@ -31,8 +31,3 @@ internal actual fun getScreenHeight(): Dp {
         windowInfo.containerSize.height.toDp()
     }
 }
-
-@Composable
-internal actual fun SearchBarCloseHandler(enabled: Boolean, onBack: () -> Unit) {
-    // Nothing
-}

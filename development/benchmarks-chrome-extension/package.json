@@ -1,7 +1,7 @@
 {
-  "name": "benchmark-chrome-extension",
+  "name": "plot-benchmarks",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "ext-dev": "rollup -c --watch",
@@ -12,18 +12,18 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-typescript": "^11.1.5",
-    "@sveltejs/vite-plugin-svelte" :"3.0.1",
-    "@tsconfig/svelte": "^5.0.2",
-    "rollup": "^4.9.2",
-    "svelte": "^4.2.8",
-    "svelte-check": "^3.6.2",
-    "tslib": "^2.6.2",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.10"
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-typescript": "^11.1.2",
+    "@sveltejs/vite-plugin-svelte": "^2.4.3",
+    "@tsconfig/svelte": "^5.0.0",
+    "rollup": "^3.27.2",
+    "svelte": "^4.1.1",
+    "svelte-check": "^3.4.6",
+    "tslib": "^2.6.1",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.7"
   },
   "dependencies": {
-    "chrome-types": "^0.1.246"
+    "chrome-types": "^0.1.219"
   }
 }

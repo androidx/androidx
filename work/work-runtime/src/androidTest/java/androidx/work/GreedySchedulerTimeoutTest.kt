@@ -64,10 +64,10 @@ class GreedySchedulerTimeoutTest {
         val worker = workerFactory.await(request.id)
         val tester = launchTester(workManager.getWorkInfoByIdFlow(request.id))
         val runningWorkInfo = tester.awaitNext()
-        assertThat(runningWorkInfo!!.state).isEqualTo(WorkInfo.State.RUNNING)
+        assertThat(runningWorkInfo.state).isEqualTo(WorkInfo.State.RUNNING)
         runnableScheduler.executedFutureRunnables(TimeUnit.HOURS.toMillis(2))
         val stopInfo = tester.awaitNext()
-        assertThat(stopInfo!!.state).isEqualTo(WorkInfo.State.ENQUEUED)
+        assertThat(stopInfo.state).isEqualTo(WorkInfo.State.ENQUEUED)
         assertThat(worker.stopReason).isEqualTo(STOP_REASON_TIMEOUT)
     }
 

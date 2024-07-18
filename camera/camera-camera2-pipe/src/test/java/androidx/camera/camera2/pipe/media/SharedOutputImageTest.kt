@@ -36,10 +36,8 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class SharedOutputImageTest {
-    private val streamId = StreamId(42)
-    private val outputId = OutputId(64)
     private val mockImage: ImageWrapper = mock { whenever(it.timestamp).thenReturn(1234) }
-    private val outputImage = OutputImage.from(streamId, outputId, mockImage)
+    private val outputImage = OutputImage.from(mockImage, StreamId(42), OutputId(64))
     private val finalizer: Finalizer<OutputImage> = mock()
 
     @Test

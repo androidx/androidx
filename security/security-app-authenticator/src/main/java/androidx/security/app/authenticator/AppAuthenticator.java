@@ -16,12 +16,7 @@
 
 package androidx.security.app.authenticator;
 
-import static android.os.Process.INVALID_PID;
-import static android.os.Process.INVALID_UID;
-
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Binder;
@@ -210,12 +205,10 @@ public class AppAuthenticator {
      * Enforces the specified {@code packageName} has the expected signing identity for the
      * provided {@code permission}.
      *
-     * <p>This method should be used for verifying the identity of a package when the UID / PID
-     * is not available. For instance, this should be used within an activity that was started
-     * with {@link Activity#startActivityForResult(Intent, int)} where the package name is
-     * available from {@link Activity#getCallingPackage()}. For instances where the calling
-     * UID is available but the calling PID is not available,
-     * ({@link #checkCallingAppIdentity(String, String, int)} should be preferred.
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
+     * This is the same as calling {@link #enforceCallingAppIdentity(String, String, int, int)} with
+     * the pid and uid returned by {@link Binder#getCallingPid()} and
+     * {@link Binder#getCallingUid()}.
      *
      * @param packageName the name of the package to be verified
      * @param permission the name of the permission as specified in the XML from which to verify the
@@ -224,36 +217,15 @@ public class AppAuthenticator {
      * for the permission
      */
     public void enforceCallingAppIdentity(@NonNull String packageName, @NonNull String permission) {
-        enforceCallingAppIdentity(packageName, permission, INVALID_PID, INVALID_UID);
-    }
-
-    /**
-     * Enforces the specified {@code packageName} belongs to the provided {@code uid}
-     * and has the expected signing identity for the {@code permission}.
-     *
-     * <p>This method should be used for verifying the identity of a package when the UID is
-     * available but the PID is not. For instance, this should be used within an activity that
-     * is started with {@link android.app.ActivityOptions#setShareIdentityEnabled(boolean)} set to
-     * true; the package name would then be accessible via {@link Activity#getLaunchedFromPackage()}
-     * and the UID from {@link Activity#getLaunchedFromUid()}.
-     *
-     * @param packageName the name of the package to be verified
-     * @param permission the name of the permission as specified in the XML from which to verify the
-     *                   package / signing identity
-     * @param uid the expected uid of the package
-     * @throws SecurityException if the uid does not belong to the specified package, or if the
-     * signing identity of the package does not match that defined for the permission
-     */
-    public void enforceCallingAppIdentity(@NonNull String packageName, @NonNull String permission,
-            int uid) {
-        enforceCallingAppIdentity(packageName, permission, INVALID_PID, uid);
+        enforceCallingAppIdentity(packageName, permission,
+                mAppAuthenticatorUtils.getCallingPid(), mAppAuthenticatorUtils.getCallingUid());
     }
 
     /**
      * Enforces the specified {@code packageName} belongs to the provided {@code pid} / {@code uid}
      * and has the expected signing identity for the {@code permission}.
      *
-     * <p>This method should be used for verifying the identity of a calling process of an IPC.
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
      *
      * @param packageName the name of the package to be verified
      * @param permission the name of the permission as specified in the XML from which to verify the
@@ -276,12 +248,10 @@ public class AppAuthenticator {
      * Checks the specified {@code packageName} has the expected signing identity for the
      * provided {@code permission}.
      *
-     * <p>This method should be used for verifying the identity of a package when the UID / PID
-     * is not available. For instance, this should be used within an activity that was started
-     * with {@link Activity#startActivityForResult(Intent, int)} where the package name is
-     * available from {@link Activity#getCallingPackage()}. For instances where the calling
-     * UID is available but the calling PID is not available,
-     * ({@link #checkCallingAppIdentity(String, String, int)} should be preferred.
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
+     * This is the same as calling {@link #checkCallingAppIdentity(String, String, int, int)} with
+     * the pid and uid returned by {@link Binder#getCallingPid()} and
+     * {@link Binder#getCallingUid()}.
      *
      * @param packageName the name of the package to be verified
      * @param permission the name of the permission as specified in the XML from which to verify the
@@ -292,46 +262,20 @@ public class AppAuthenticator {
      *     the expected signing identity for the provided {@code permission},<br>
      *     {@link #PERMISSION_DENIED_UNKNOWN_PACKAGE} if the specified {@code packageName} does not
      *     exist on the device,<br>
+     *     {@link #PERMISSION_DENIED_PACKAGE_UID_MISMATCH} if the uid as returned from
+     *     {@link Binder#getCallingUid()} does not match the uid assigned to the package
      */
     @AppIdentityPermissionResult
     public int checkCallingAppIdentity(@NonNull String packageName, @NonNull String permission) {
-        return checkCallingAppIdentity(packageName, permission, INVALID_PID, INVALID_UID);
+        return checkCallingAppIdentity(packageName, permission,
+                mAppAuthenticatorUtils.getCallingPid(), mAppAuthenticatorUtils.getCallingUid());
     }
 
     /**
-     * Checks the specified {@code packageName} running under {@code uid} has the expected
-     * signing identity for the provided {@code permission}.
+     * Checks the specified {@code packageName} has the expected signing identity for the
+     * provided {@code permission}.
      *
-     * <p>This method should be used for verifying the identity of a package when the UID is
-     * available but the PID is not. For instance, this should be used within an activity that
-     * is started with {@link android.app.ActivityOptions#setShareIdentityEnabled(boolean)} set to
-     * true; the package name would then be accessible via {@link Activity#getLaunchedFromPackage()}
-     * and the UID from {@link Activity#getLaunchedFromUid()}.
-     *
-     * @param packageName the name of the package to be verified
-     * @param permission the name of the permission as specified in the XML from which to verify the
-     *                   package / signing identity
-     * @param uid the expected uid of the package
-     * @return {@link #PERMISSION_GRANTED} if the specified {@code packageName} has the expected
-     * signing identity for the provided {@code permission},<br>
-     *     {@link #PERMISSION_DENIED_NO_MATCH} if the specified {@code packageName} does not have
-     *     the expected signing identity for the provided {@code permission},<br>
-     *     {@link #PERMISSION_DENIED_UNKNOWN_PACKAGE} if the specified {@code packageName} does not
-     *     exist on the device,<br>
-     *     {@link #PERMISSION_DENIED_PACKAGE_UID_MISMATCH} if the specified {@code uid} does not
-     *     match the uid assigned to the package
-     */
-    @AppIdentityPermissionResult
-    public int checkCallingAppIdentity(@NonNull String packageName, @NonNull String permission,
-            int uid) {
-        return checkCallingAppIdentity(packageName, permission, INVALID_PID, uid);
-    }
-
-    /**
-     * Checks the specified {@code packageName} running with {@code pid} and {@code uid} has the
-     * expected signing identity for the provided {@code permission}.
-     *
-     * <p>This method should be used for verifying the identity of a calling process of an IPC.
+     * <p>This method should be used when verifying the identity of a calling process of an IPC.
      *
      * @param packageName the name of the package to be verified
      * @param permission the name of the permission as specified in the XML from which to verify the
@@ -370,21 +314,18 @@ public class AppAuthenticator {
             String permission,
             int pid,
             int uid) {
-        // If a valid UID is provided, verify that the UID of the calling package matches the
-        // specified value.
-        if (uid != INVALID_UID) {
-            int packageUid;
-            try {
-                packageUid = mAppAuthenticatorUtils.getUidForPackage(packageName);
-            } catch (PackageManager.NameNotFoundException e) {
-                return AppAuthenticatorResult.create(PERMISSION_DENIED_UNKNOWN_PACKAGE,
-                        "The app " + packageName + " was not found on the device");
-            }
-            if (packageUid != uid) {
-                return AppAuthenticatorResult.create(PERMISSION_DENIED_PACKAGE_UID_MISMATCH,
-                        "The expected UID, " + uid + ", of the app " + packageName
-                                + " does not match the actual UID, " + packageUid);
-            }
+        // First verify that the UID of the calling package matches the specified value.
+        int packageUid;
+        try {
+            packageUid = mAppAuthenticatorUtils.getUidForPackage(packageName);
+        } catch (PackageManager.NameNotFoundException e) {
+            return AppAuthenticatorResult.create(PERMISSION_DENIED_UNKNOWN_PACKAGE,
+                    "The app " + packageName + " was not found on the device");
+        }
+        if (packageUid != uid) {
+            return AppAuthenticatorResult.create(PERMISSION_DENIED_PACKAGE_UID_MISMATCH,
+                    "The expected UID, " + uid + ", of the app " + packageName
+                            + " does not match the actual UID, " + packageUid);
         }
         if (mAppSignatureVerifier.verifySigningIdentity(packageName, permission)) {
             return AppAuthenticatorResult.create(PERMISSION_GRANTED, null);

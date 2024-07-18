@@ -328,8 +328,7 @@ class ColorProvidersTest {
                 outline = testColor,
                 inverseOnSurface = testColor,
                 inverseSurface = testColor,
-                inversePrimary = testColor,
-                widgetBackground = testColor
+                inversePrimary = testColor
             )
         )
     }

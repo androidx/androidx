@@ -46,27 +46,21 @@ fun NavSingleTopDemo() {
             placeholder = { Text("Search") }
         )
         NavigateButton("Search") {
-            navController.navigate(SearchScreen(query.value)) {
-                launchSingleTop = true
-            }
+            navController.navigate(SearchScreen(query.value)) { launchSingleTop = true }
         }
         NavHost(navController, startDestination = StartScreen::class) {
             composable<StartScreen> { StartScreen() }
             composable<SearchScreen> { backStackEntry ->
                 val args = backStackEntry.toRoute<SearchScreen>()
-                SearchResultScreen(
-                    args.query
-                )
+                SearchResultScreen(args.query)
             }
         }
     }
 }
 
-@Serializable
-object StartScreen
+@Serializable object StartScreen
 
-@Serializable
-data class SearchScreen(val query: String)
+@Serializable data class SearchScreen(val query: String)
 
 @Composable
 fun StartScreen() {

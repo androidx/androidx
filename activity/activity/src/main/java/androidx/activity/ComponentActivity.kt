@@ -65,7 +65,6 @@ import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.app.OnMultiWindowModeChangedProvider
 import androidx.core.app.OnNewIntentProvider
 import androidx.core.app.OnPictureInPictureModeChangedProvider
-import androidx.core.app.OnUserLeaveHintProvider
 import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.content.ContextCompat
 import androidx.core.content.OnConfigurationChangedProvider
@@ -123,7 +122,6 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
     OnNewIntentProvider,
     OnMultiWindowModeChangedProvider,
     OnPictureInPictureModeChangedProvider,
-    OnUserLeaveHintProvider,
     MenuHost,
     FullyDrawnReporterOwner {
     internal class NonConfigurationInstances {
@@ -238,7 +236,6 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
         CopyOnWriteArrayList<Consumer<MultiWindowModeChangedInfo>>()
     private val onPictureInPictureModeChangedListeners =
         CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>()
-    private val onUserLeaveHintListeners = CopyOnWriteArrayList<Runnable>()
     private var dispatchingOnMultiWindowModeChanged = false
     private var dispatchingOnPictureInPictureModeChanged = false
 
@@ -285,7 +282,7 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
         })
         savedStateRegistryController.performAttach()
         enableSavedStateHandles()
-        if (Build.VERSION.SDK_INT <= 23) {
+        if (Build.VERSION.SDK_INT in 19..23) {
             @Suppress("LeakingThis")
             lifecycle.addObserver(ImmLeaksCleaner(this))
         }
@@ -637,27 +634,18 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
                 }
             }
         }.also { dispatcher ->
-            if (Build.VERSION.SDK_INT >= 33) {
-                if (Looper.myLooper() != Looper.getMainLooper()) {
-                    Handler(Looper.getMainLooper()).post {
-                        addObserverForBackInvoker(dispatcher)
+            lifecycle.addObserver(LifecycleEventObserver { lifecycleOwner, event ->
+                if (event == Lifecycle.Event.ON_CREATE) {
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        dispatcher.setOnBackInvokedDispatcher(
+                            Api33Impl.getOnBackInvokedDispatcher(
+                                lifecycleOwner as ComponentActivity
+                            )
+                        )
                     }
-                } else {
-                    addObserverForBackInvoker(dispatcher)
                 }
-            }
+            })
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun addObserverForBackInvoker(dispatcher: OnBackPressedDispatcher) {
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_CREATE) {
-                dispatcher.setOnBackInvokedDispatcher(
-                    Api33Impl.getOnBackInvokedDispatcher(this@ComponentActivity)
-                )
-            }
-        })
     }
 
     final override val savedStateRegistry: SavedStateRegistry
@@ -1023,27 +1011,6 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
         listener: Consumer<PictureInPictureModeChangedInfo>
     ) {
         onPictureInPictureModeChangedListeners.remove(listener)
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatches this call to all listeners added via [addOnUserLeaveHintListener].
-     */
-    @CallSuper
-    override fun onUserLeaveHint() {
-        super.onUserLeaveHint()
-        for (listener in onUserLeaveHintListeners) {
-            listener.run()
-        }
-    }
-
-    final override fun addOnUserLeaveHintListener(listener: Runnable) {
-        onUserLeaveHintListeners.add(listener)
-    }
-
-    final override fun removeOnUserLeaveHintListener(listener: Runnable) {
-        onUserLeaveHintListeners.remove(listener)
     }
 
     override fun reportFullyDrawn() {

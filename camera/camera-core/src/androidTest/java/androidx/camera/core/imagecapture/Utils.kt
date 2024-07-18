@@ -47,9 +47,4 @@ object Utils {
         .also {
         it.timestamp = TIMESTAMP
     }
-    val EXIF_GAINMAP_PATTERNS = listOf(
-        "xmlns:hdrgm=\"http://ns.adobe.com/hdr-gain-map/",
-        "hdrgm:Version=",
-        "Item:Semantic=\"GainMap\"",
-    )
 }

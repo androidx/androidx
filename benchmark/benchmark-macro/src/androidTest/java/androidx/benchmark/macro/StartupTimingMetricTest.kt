@@ -215,7 +215,7 @@ class StartupTimingMetricTest {
 
         metric.configure(packageName)
         return PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            metric.getMeasurements(
+            metric.getResult(
                 captureInfo = Metric.CaptureInfo(
                     targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
                     testPackageName = "androidx.benchmark.integration.macrobenchmark.test",
@@ -239,7 +239,7 @@ class StartupTimingMetricTest {
         metric.configure(Packages.TEST)
 
         val measurements = PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
-            metric.getMeasurements(
+            metric.getResult(
                 captureInfo = Metric.CaptureInfo(
                     targetPackageName = Packages.TEST,
                     testPackageName = Packages.TEST,
@@ -317,7 +317,7 @@ internal fun measureStartup(
     )!!
 
     return PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-        metric.getMeasurements(
+        metric.getResult(
             captureInfo = Metric.CaptureInfo(
                 targetPackageName = packageName,
                 testPackageName = Packages.TEST,

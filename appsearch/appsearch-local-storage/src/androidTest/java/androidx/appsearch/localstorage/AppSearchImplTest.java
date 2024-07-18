@@ -114,7 +114,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -501,7 +501,7 @@ public class AppSearchImplTest {
         mAppSearchImpl.close();
         mAppSearchImpl = AppSearchImpl.create(
                 mAppSearchDir, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()),
+                        new DefaultIcingOptionsConfig()),
                 initStatsBuilder, ALWAYS_OPTIMIZE, /*visibilityChecker=*/null);
 
         // Check recovery state
@@ -733,7 +733,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -909,7 +909,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -2867,7 +2867,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -2939,7 +2939,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -3018,7 +3018,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -3145,7 +3145,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3224,7 +3224,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3281,7 +3281,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3318,7 +3318,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3431,7 +3431,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3527,7 +3527,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3584,7 +3584,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3737,7 +3737,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3820,7 +3820,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3877,7 +3877,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return Integer.MAX_VALUE;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -3923,7 +3923,7 @@ public class AppSearchImplTest {
                     public int getMaxSuggestionCount() {
                         return 2;
                     }
-                }, new LocalStorageIcingOptionsConfig()),
+                }, new DefaultIcingOptionsConfig()),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
@@ -4026,7 +4026,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4079,7 +4079,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4130,7 +4130,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4183,7 +4183,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4522,7 +4522,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4563,7 +4563,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4596,7 +4596,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4694,7 +4694,7 @@ public class AppSearchImplTest {
                 tempFolder,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
@@ -4783,7 +4783,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
@@ -4887,7 +4887,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
@@ -4949,7 +4949,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
@@ -5277,7 +5277,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
@@ -5435,7 +5435,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
@@ -5524,7 +5524,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,
@@ -5617,7 +5617,7 @@ public class AppSearchImplTest {
                 mAppSearchDir,
                 new AppSearchConfigImpl(
                         new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()
+                        new DefaultIcingOptionsConfig()
                 ),
                 /*initStatsBuilder=*/null,
                 ALWAYS_OPTIMIZE,

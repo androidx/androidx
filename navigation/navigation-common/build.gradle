@@ -183,11 +183,8 @@ kotlin {
 }
 
 android {
-    buildTypes.all {
+    buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
-    }
-    defaultConfig {
-        multiDexEnabled true
     }
     namespace "androidx.navigation.common"
 }
@@ -198,4 +195,5 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Common"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

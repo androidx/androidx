@@ -43,11 +43,24 @@ open class MeasurementManagerImplCommon(
     override suspend fun deleteRegistrations(deletionRequest: DeletionRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mMeasurementManager.deleteRegistrations(
-                deletionRequest.convertToAdServices(),
+                convertDeletionRequest(deletionRequest),
                 Runnable::run,
                 continuation.asOutcomeReceiver()
             )
         }
+    }
+
+    private fun convertDeletionRequest(
+        request: DeletionRequest
+    ): android.adservices.measurement.DeletionRequest {
+        return android.adservices.measurement.DeletionRequest.Builder()
+            .setDeletionMode(request.deletionMode)
+            .setMatchBehavior(request.matchBehavior)
+            .setStart(request.start)
+            .setEnd(request.end)
+            .setDomainUris(request.domainUris)
+            .setOriginUris(request.originUris)
+            .build()
     }
 
     @DoNotInline
@@ -79,7 +92,7 @@ open class MeasurementManagerImplCommon(
     override suspend fun registerWebSource(request: WebSourceRegistrationRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mMeasurementManager.registerWebSource(
-                request.convertToAdServices(),
+                convertWebSourceRequest(request),
                 Runnable::run,
                 continuation.asOutcomeReceiver())
         }
@@ -105,15 +118,65 @@ open class MeasurementManagerImplCommon(
         }
     }
 
+    private fun convertWebSourceRequest(
+        request: WebSourceRegistrationRequest
+    ): android.adservices.measurement.WebSourceRegistrationRequest {
+        return android.adservices.measurement.WebSourceRegistrationRequest
+            .Builder(
+                convertWebSourceParams(request.webSourceParams),
+                request.topOriginUri)
+            .setWebDestination(request.webDestination)
+            .setAppDestination(request.appDestination)
+            .setInputEvent(request.inputEvent)
+            .setVerifiedDestination(request.verifiedDestination)
+            .build()
+    }
+
+    private fun convertWebSourceParams(
+        request: List<WebSourceParams>
+    ): List<android.adservices.measurement.WebSourceParams> {
+        var result = mutableListOf<android.adservices.measurement.WebSourceParams>()
+        for (param in request) {
+            result.add(android.adservices.measurement.WebSourceParams
+                .Builder(param.registrationUri)
+                .setDebugKeyAllowed(param.debugKeyAllowed)
+                .build())
+        }
+        return result
+    }
+
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_ATTRIBUTION)
     override suspend fun registerWebTrigger(request: WebTriggerRegistrationRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mMeasurementManager.registerWebTrigger(
-                request.convertToAdServices(),
+                convertWebTriggerRequest(request),
                 Runnable::run,
                 continuation.asOutcomeReceiver())
         }
+    }
+
+    private fun convertWebTriggerRequest(
+        request: WebTriggerRegistrationRequest
+    ): android.adservices.measurement.WebTriggerRegistrationRequest {
+        return android.adservices.measurement.WebTriggerRegistrationRequest
+            .Builder(
+                convertWebTriggerParams(request.webTriggerParams),
+                request.destination)
+            .build()
+    }
+
+    private fun convertWebTriggerParams(
+        request: List<WebTriggerParams>
+    ): List<android.adservices.measurement.WebTriggerParams> {
+        var result = mutableListOf<android.adservices.measurement.WebTriggerParams>()
+        for (param in request) {
+            result.add(android.adservices.measurement.WebTriggerParams
+                .Builder(param.registrationUri)
+                .setDebugKeyAllowed(param.debugKeyAllowed)
+                .build())
+        }
+        return result
     }
 
     @DoNotInline

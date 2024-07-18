@@ -17,6 +17,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.Quirk
 
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ImageCapturePixelHDRPlusQuirk : Quirk {
     companion object {
         private val BUILD_MODELS = listOf(

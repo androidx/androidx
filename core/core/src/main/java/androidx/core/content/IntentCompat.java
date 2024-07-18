@@ -36,7 +36,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -121,7 +120,16 @@ public final class IntentCompat {
     @NonNull
     public static Intent makeMainSelectorActivity(@NonNull String selectorAction,
             @NonNull String selectorCategory) {
-        return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
+        if (Build.VERSION.SDK_INT >= 15) {
+            return Api15Impl.makeMainSelectorActivity(selectorAction, selectorCategory);
+        } else {
+            // Before api 15 you couldn't set a selector intent.
+            // Fall back and just return an intent with the requested action/category,
+            // even though it won't be a proper "main" intent.
+            Intent intent = new Intent(selectorAction);
+            intent.addCategory(selectorCategory);
+            return intent;
+        }
     }
 
     /**
@@ -200,7 +208,7 @@ public final class IntentCompat {
 
     /**
      * Retrieve extended data from the intent.
-     * <p>
+     *
      * Compatibility behavior:
      * <ul>
      *     <li>SDK 34 and later, this method matches platform behavior.
@@ -221,7 +229,6 @@ public final class IntentCompat {
     public static <T> T getParcelableExtra(@NonNull Intent in, @Nullable String name,
             @NonNull Class<T> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
-            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getParcelableExtra(in, name, clazz);
         } else {
             T extra = in.getParcelableExtra(name);
@@ -231,7 +238,7 @@ public final class IntentCompat {
 
     /**
      * Retrieve extended data from the intent.
-     * <p>
+     *
      * Compatibility behavior:
      * <ul>
      *     <li>SDK 34 and later, this method matches platform behavior.
@@ -253,7 +260,6 @@ public final class IntentCompat {
     public static Parcelable[] getParcelableArrayExtra(@NonNull Intent in, @Nullable String name,
             @NonNull Class<? extends Parcelable> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
-            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getParcelableArrayExtra(in, name, clazz);
         } else {
             return in.getParcelableArrayExtra(name);
@@ -262,7 +268,7 @@ public final class IntentCompat {
 
     /**
      * Retrieve extended data from the intent.
-     * <p>
+     *
      * Compatibility behavior:
      * <ul>
      *     <li>SDK 34 and later, this method matches platform behavior.
@@ -286,42 +292,21 @@ public final class IntentCompat {
     public static <T> ArrayList<T> getParcelableArrayListExtra(
             @NonNull Intent in, @Nullable String name, @NonNull Class<? extends T> clazz) {
         if (Build.VERSION.SDK_INT >= 34) {
-            // Don't call this API on SDK 33 due to b/232589966.
             return Api33Impl.getParcelableArrayListExtra(in, name, clazz);
         } else {
             return (ArrayList<T>) in.getParcelableArrayListExtra(name);
         }
     }
 
-    /**
-     * Returns the value associated with the given key or {@code null} if:
-     * <ul>
-     *     <li>No mapping of the desired type exists for the given key.
-     *     <li>A {@code null} value is explicitly associated with the key.
-     *     <li>The object is not of type {@code clazz}.
-     * </ul>
-     * Compatibility behavior:
-     * <ul>
-     *     <li>SDK 34 and above, this method matches platform behavior.
-     *     <li>SDK 33 and below, the object type is checked after deserialization.
-     * </ul>
-     *
-     *
-     * @param in The bundle to retrieve from.
-     * @param key a String, or {@code null}
-     * @param clazz The type of the object expected
-     * @return a Serializable value, or {@code null}
-     */
-    @SuppressWarnings({"deprecation", "unchecked"})
-    @Nullable
-    public static <T extends Serializable> T getSerializableExtra(@NonNull Intent in,
-            @Nullable String key, @NonNull Class<T> clazz) {
-        if (Build.VERSION.SDK_INT >= 34) {
-            // Don't call this API on SDK 33 due to b/232589966.
-            return Api33Impl.getSerializableExtra(in, key, clazz);
-        } else {
-            Serializable serializable = in.getSerializableExtra(key);
-            return clazz.isInstance(serializable) ? (T) serializable : null;
+    @RequiresApi(15)
+    static class Api15Impl {
+        private Api15Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {
+            return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
         }
     }
 
@@ -347,12 +332,6 @@ public final class IntentCompat {
         static <T> ArrayList<T> getParcelableArrayListExtra(@NonNull Intent in,
                 @Nullable String name, @NonNull Class<? extends T> clazz) {
             return in.getParcelableArrayListExtra(name, clazz);
-        }
-
-        @DoNotInline
-        static <T extends Serializable> T getSerializableExtra(@NonNull Intent in,
-                @Nullable String name, @NonNull Class<T> clazz) {
-            return in.getSerializableExtra(name, clazz);
         }
     }
 }

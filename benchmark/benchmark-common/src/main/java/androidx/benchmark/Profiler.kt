@@ -25,7 +25,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
-import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
 import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
@@ -47,13 +46,20 @@ import java.io.FileOutputStream
  * switching from warmup -> timing phase, when [start] would be called.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-sealed class Profiler() {
-    class ResultFile private constructor(
+sealed class Profiler {
+    class ResultFile(
         val label: String,
-        val type: ProfilerOutput.Type,
         val outputRelativePath: String,
-        val source: Profiler?,
+        val source: Profiler?
     ) {
+        constructor(
+            label: String,
+            absolutePath: String
+        ) : this(
+            label = label,
+            outputRelativePath = Outputs.relativePathFor(absolutePath),
+            source = null
+        )
 
         fun embedInPerfettoTrace(perfettoTracePath: String) {
             source?.embedInPerfettoTrace(
@@ -65,40 +71,6 @@ sealed class Profiler() {
             get() = outputRelativePath
                 .replace("(", "\\(")
                 .replace(")", "\\)")
-
-        companion object {
-            fun ofPerfettoTrace(
-                label: String,
-                absolutePath: String
-            ) = ResultFile(
-                label = label,
-                outputRelativePath = Outputs.relativePathFor(absolutePath),
-                type = ProfilerOutput.Type.PerfettoTrace,
-                source = null
-            )
-
-            fun ofMethodTrace(
-                label: String,
-                absolutePath: String
-            ) = ResultFile(
-                label = label,
-                outputRelativePath = Outputs.relativePathFor(absolutePath),
-                type = ProfilerOutput.Type.MethodTrace,
-                source = null
-            )
-
-            fun of(
-                label: String,
-                type: ProfilerOutput.Type,
-                outputRelativePath: String,
-                source: Profiler
-            ) = ResultFile(
-                label = label,
-                outputRelativePath = outputRelativePath,
-                type = type,
-                source = source
-            )
-        }
     }
 
     abstract fun start(traceUniqueName: String): ResultFile?
@@ -179,28 +151,14 @@ internal fun startRuntimeMethodTracing(
     ) {
         startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)
     } else {
-        // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version supports
-        // it. Note that this doesn't affect trace parsing, since this doesn't affect wall clock,
-        // it only removes the expensive thread time clock which our parser doesn't use.
-        // TODO: switch to platform-defined constant once available (b/329499422)
-        Debug.startMethodTracing(path, bufferSize, 0x10)
+        Debug.startMethodTracing(path, bufferSize, 0)
     }
 
-    return if (sampled) {
-        Profiler.ResultFile.of(
-            outputRelativePath = traceFileName,
-            label = "Stack Sampling (legacy) Trace",
-            type = ProfilerOutput.Type.StackSamplingTrace,
-            source = profiler
-        )
-    } else {
-        Profiler.ResultFile.of(
-            outputRelativePath = traceFileName,
-            label = "Method Trace",
-            type = ProfilerOutput.Type.MethodTrace,
-            source = profiler
-        )
-    }
+    return Profiler.ResultFile(
+        outputRelativePath = traceFileName,
+        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace",
+        source = profiler
+    )
 }
 
 internal fun stopRuntimeMethodTracing() {
@@ -230,20 +188,15 @@ internal object StackSamplingLegacy : Profiler() {
 
 internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String): ResultFile {
-        hasBeenUsed = true
-        inMemoryTrace("startMethodTrace") {
-            return startRuntimeMethodTracing(
-                traceFileName = traceName(traceUniqueName, "methodTracing"),
-                sampled = false,
-                profiler = this
-            )
-        }
+        return startRuntimeMethodTracing(
+            traceFileName = traceName(traceUniqueName, "methodTracing"),
+            sampled = false,
+            profiler = this
+        )
     }
 
     override fun stop() {
-        inMemoryTrace("stopMethodTrace") {
-            stopRuntimeMethodTracing()
-        }
+        stopRuntimeMethodTracing()
     }
 
     override val requiresSingleMeasurementIteration: Boolean = true
@@ -252,11 +205,7 @@ internal object MethodTracing : Profiler() {
         ArtTrace(profilerTrace)
             .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append = */ true))
     }
-
-    var hasBeenUsed: Boolean = false
-        private set
 }
-
 @SuppressLint("BanThreadSleep") // needed for connected profiling
 internal object ConnectedAllocation : Profiler() {
     override fun start(traceUniqueName: String): ResultFile? {
@@ -296,7 +245,6 @@ internal object ConnectedSampling : Profiler() {
  * Could potentially lower, but that would require root or debuggable.
  */
 internal object StackSamplingSimpleperf : Profiler() {
-
     @RequiresApi(29)
     private var session: ProfileSession? = null
 
@@ -334,10 +282,9 @@ internal object StackSamplingSimpleperf : Profiler() {
                     .setOutputFilename("simpleperf.data")
             )
         }
-        return ResultFile.of(
+        return ResultFile(
             label = "Stack Sampling Trace",
             outputRelativePath = outputRelativePath!!,
-            type = ProfilerOutput.Type.StackSamplingTrace,
             source = this
         )
     }
@@ -362,6 +309,4 @@ internal object StackSamplingSimpleperf : Profiler() {
     )
 
     override val requiresLibraryOutputDir: Boolean = false
-
-    override val requiresExtraRuntime: Boolean = true
 }

@@ -16,15 +16,27 @@
 
 package androidx.work.multiprocess;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.RemoteException;
+import android.text.TextUtils;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.futures.SettableFuture;
+import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableInterruptRequest;
+import androidx.work.multiprocess.parcelable.ParcelableRemoteWorkRequest;
+import androidx.work.multiprocess.parcelable.ParcelableResult;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -60,6 +72,19 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
     public static final String ARGUMENT_CLASS_NAME =
             "androidx.work.impl.workers.RemoteListenableWorker.ARGUMENT_CLASS_NAME";
 
+    // Synthetic access
+    final WorkerParameters mWorkerParameters;
+
+    // Synthetic access
+    final ListenableWorkerImplClient mClient;
+
+    // Synthetic access
+    @Nullable
+    String mWorkerClassName;
+
+    @Nullable
+    private ComponentName mComponentName;
+
     /**
      * @param appContext   The application {@link Context}
      * @param workerParams {@link WorkerParameters} to setup the internal state of this worker
@@ -68,13 +93,70 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
             @NonNull Context appContext,
             @NonNull WorkerParameters workerParams) {
         super(appContext, workerParams);
+        mWorkerParameters = workerParams;
+        mClient = new ListenableWorkerImplClient(appContext, getBackgroundExecutor());
     }
 
     @Override
     @NonNull
     public final ListenableFuture<Result> startWork() {
-        String message = "startWork() shouldn't never be called on RemoteListenableWorker";
-        return getFailedFuture(message);
+        SettableFuture<Result> future = SettableFuture.create();
+        Data data = getInputData();
+        final String id = mWorkerParameters.getId().toString();
+        String packageName = data.getString(ARGUMENT_PACKAGE_NAME);
+        String serviceClassName = data.getString(ARGUMENT_CLASS_NAME);
+
+        if (TextUtils.isEmpty(packageName)) {
+            String message = "Need to specify a package name for the Remote Service.";
+            Logger.get().error(TAG, message);
+            future.setException(new IllegalArgumentException(message));
+            return future;
+        }
+
+        if (TextUtils.isEmpty(serviceClassName)) {
+            String message = "Need to specify a class name for the Remote Service.";
+            Logger.get().error(TAG, message);
+            future.setException(new IllegalArgumentException(message));
+            return future;
+        }
+
+        mComponentName = new ComponentName(packageName, serviceClassName);
+
+        // This bit is safe, because we only run startWork() in the designated process.
+        final WorkManagerImpl workManager = WorkManagerImpl.getInstance(getApplicationContext());
+
+        ListenableFuture<byte[]> result = mClient.execute(
+                mComponentName,
+                new RemoteDispatcher<IListenableWorkerImpl>() {
+                    @Override
+                    public void execute(
+                            @NonNull IListenableWorkerImpl listenableWorkerImpl,
+                            @NonNull IWorkManagerImplCallback callback) throws RemoteException {
+
+                        WorkSpec workSpec = workManager.getWorkDatabase()
+                                .workSpecDao()
+                                .getWorkSpec(id);
+
+                        mWorkerClassName = workSpec.workerClassName;
+                        ParcelableRemoteWorkRequest remoteWorkRequest =
+                                new ParcelableRemoteWorkRequest(
+                                        workSpec.workerClassName, mWorkerParameters
+                                );
+                        byte[] request = ParcelConverters.marshall(remoteWorkRequest);
+                        listenableWorkerImpl.startWork(request, callback);
+                    }
+                });
+
+        return RemoteClientUtils.map(result, new Function<byte[], Result>() {
+            @Override
+            public Result apply(byte[] input) {
+                ParcelableResult parcelableResult = ParcelConverters.unmarshall(input,
+                        ParcelableResult.CREATOR);
+                Logger.get().debug(TAG, "Cleaning up");
+                mClient.unbindService();
+                return parcelableResult.getResult();
+            }
+        }, getBackgroundExecutor());
     }
 
     /**
@@ -97,11 +179,26 @@ public abstract class RemoteListenableWorker extends ListenableWorker {
     @NonNull
     public abstract ListenableFuture<Result> startRemoteWork();
 
-    private static ListenableFuture<Result> getFailedFuture(@NonNull String message) {
-        return CallbackToFutureAdapter.getFuture((completer) -> {
-            Logger.get().error(TAG, message);
-            completer.setException(new IllegalArgumentException(message));
-            return "RemoteListenableWorker Failed Future";
-        });
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressLint("NewApi")
+    @Override
+    @CallSuper
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void onStopped() {
+        super.onStopped();
+        int stopReason = getStopReason();
+        // Delegate interruptions to the remote process.
+        if (mComponentName != null) {
+            mClient.execute(mComponentName,
+                    (listenableWorkerImpl, callback) -> {
+                        ParcelableInterruptRequest interruptRequest =
+                                new ParcelableInterruptRequest(
+                                        mWorkerParameters.getId().toString(), stopReason);
+                        byte[] request = ParcelConverters.marshall(interruptRequest);
+                        listenableWorkerImpl.interrupt(request, callback);
+                    });
+        }
     }
 }

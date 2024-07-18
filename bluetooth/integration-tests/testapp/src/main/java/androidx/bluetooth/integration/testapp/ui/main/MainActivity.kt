@@ -58,8 +58,8 @@ class MainActivity : AppCompatActivity() {
 
     private val requestBluetoothPermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { perms ->
-            perms.entries.forEach { (key, value) ->
-                Log.d(TAG, "$key = $value")
+            perms.entries.forEach { permission ->
+                Log.d(TAG, "${permission.key} = ${permission.value}")
             }
         }
 
@@ -94,14 +94,13 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigationView.setupWithNavController(navController)
 
-        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
-        isBluetoothEnabled = bluetoothManager?.adapter?.isEnabled ?: false
+        val bluetoothManager = getSystemService(BluetoothManager::class.java)
+        isBluetoothEnabled = bluetoothManager.adapter.isEnabled
 
         binding.buttonEnable.setOnClickListener {
-            if (Build.VERSION.SDK_INT < 31 || (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) == PackageManager.PERMISSION_GRANTED)
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.BLUETOOTH_CONNECT
+                ) == PackageManager.PERMISSION_GRANTED
             ) {
                 startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             }

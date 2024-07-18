@@ -25,7 +25,7 @@ private val NEG_ZERO_BITS: Long = (-0.0).toRawBits()
  * Ensures that the given tolerance is a non-negative finite value, i.e. not [Double.NaN],
  * [Double.POSITIVE_INFINITY], or negative, including -0.0.
  */
-private fun checkTolerance(tolerance: Double) {
+internal fun checkTolerance(tolerance: Double) {
     require(!tolerance.isNaN()) { "tolerance cannot be NaN" }
     require(tolerance >= 0.0) { "tolerance $tolerance cannot be negative" }
     require(tolerance.toRawBits() != NEG_ZERO_BITS) {

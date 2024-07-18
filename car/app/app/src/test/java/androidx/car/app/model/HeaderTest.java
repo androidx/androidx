@@ -96,6 +96,19 @@ public class HeaderTest {
     }
 
     @Test
+    public void createInstance_addEndHeaderAction_invalidActionThrows() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Header.Builder()
+                        .setTitle("Title")
+                        .addEndHeaderAction(new Action.Builder()
+                                .setTitle("Action")
+                                .setOnClickListener(() -> {
+                                })
+                                .build())
+                        .build());
+    }
+
+    @Test
     public void createInstance_setStartHeaderAction_invalidActionThrows() {
         assertThrows(IllegalArgumentException.class,
                 () -> new Header.Builder()

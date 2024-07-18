@@ -72,6 +72,10 @@ val TextFields = Screen.Selection(
     Screen.Example("BasicTextField") {
         var text by remember { mutableStateOf("usage of BasicTextField") }
         BasicTextField(text, { text = it })
+    },
+
+    Screen.Example("RTL and BiDi") {
+        ClearFocusBox { RtlAndBidiTextfieldExample() }
     }
 )
 

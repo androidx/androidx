@@ -44,10 +44,9 @@ class EnumColumnTypeAdapter(
     ) {
         val stringToEnumMethod = stringToEnumMethod(scope)
         scope.builder.apply {
-            val getter = if (scope.useDriverApi) "getText" else "getString"
             fun XCodeBlock.Builder.addGetStringStatement() {
                 addStatement(
-                    "%L = %N(%L.$getter(%L))",
+                    "%L = %N(%L.getString(%L))",
                     outVarName,
                     stringToEnumMethod,
                     cursorVarName,
@@ -73,11 +72,10 @@ class EnumColumnTypeAdapter(
         scope: CodeGenScope
     ) {
         val enumToStringMethod = enumToStringMethod(scope)
-        val setter = if (scope.useDriverApi) "bindText" else "bindString"
         scope.builder.apply {
             fun XCodeBlock.Builder.addBindStringStatement() {
                 addStatement(
-                    "%L.$setter(%L, %N(%L))",
+                    "%L.bindString(%L, %N(%L))",
                     stmtName, indexVarName, enumToStringMethod, valueVarName,
                 )
             }
@@ -121,7 +119,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "default: throw new %T(%S + %L)",
-                                ExceptionTypeNames.JAVA_ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
                                 ENUM_TO_STRING_ERROR_MSG,
                                 paramName
                             )
@@ -186,7 +184,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "default: throw new %T(%S + %L)",
-                                ExceptionTypeNames.JAVA_ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
                                 STRING_TO_ENUM_ERROR_MSG,
                                 paramName
                             )
@@ -205,7 +203,7 @@ class EnumColumnTypeAdapter(
                             }
                             addStatement(
                                 "else -> throw %T(%S + %L)",
-                                ExceptionTypeNames.KOTLIN_ILLEGAL_ARG_EXCEPTION,
+                                ExceptionTypeNames.ILLEGAL_ARG_EXCEPTION,
                                 STRING_TO_ENUM_ERROR_MSG,
                                 paramName
                             )

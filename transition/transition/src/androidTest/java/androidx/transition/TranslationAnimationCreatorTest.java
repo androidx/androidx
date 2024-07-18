@@ -49,11 +49,12 @@ public class TranslationAnimationCreatorTest extends BaseTest {
 
         animator.start();
         animator.end();
-        // onAnimationEnd should reset the translation
-        assertEquals(0f, view.getTranslationX(), 0.01);
+        // verify that onAnimationEnd doesn't reset translation to the initial one
+        assertEquals(20, view.getTranslationX(), 0.01);
 
         verify(transition).addListener(listenerCaptor.capture());
         listenerCaptor.getValue().onTransitionEnd(transition, false);
+        // but onTransitionEnd does
         assertEquals(0, view.getTranslationX(), 0.01);
     }
 

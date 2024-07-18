@@ -25,7 +25,6 @@ import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentScannerBinding
 import androidx.bluetooth.integration.testapp.ui.common.getColor
-import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.bluetooth.integration.testapp.ui.main.MainViewModel
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -100,11 +99,6 @@ class ScannerFragment : Fragment() {
         } else {
             binding.buttonScan.text = getString(R.string.start_scanning)
             binding.buttonScan.backgroundTintList = getColor(R.color.indigo_500)
-        }
-
-        scannerUiState.resultMessage?.let {
-            toast(it).show()
-            viewModel.clearResultMessage()
         }
     }
 

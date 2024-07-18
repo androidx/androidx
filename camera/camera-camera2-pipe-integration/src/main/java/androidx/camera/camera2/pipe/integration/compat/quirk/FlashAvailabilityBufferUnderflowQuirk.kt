@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.Quirk
 import java.nio.BufferUnderflowException
 import java.util.Locale
@@ -36,6 +37,7 @@ import java.util.Locale
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FlashAvailabilityBufferUnderflowQuirk : Quirk {
 
     companion object {

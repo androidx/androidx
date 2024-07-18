@@ -99,5 +99,5 @@ if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
   export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 fi
 
-$SCRIPTS_DIR/impl/build.sh $androidxArguments --dependency-verification=off -Pandroidx.validateNoUnrecognizedMessages=false
+$SCRIPTS_DIR/impl/build.sh $androidxArguments --profile --dependency-verification=off -Pandroidx.validateNoUnrecognizedMessages=false
 echo "Completing $0 at $(date)"

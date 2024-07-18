@@ -29,11 +29,12 @@ import android.location.GnssMeasurementsEvent;
 import android.location.LocationManager;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
-import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
+import android.text.TextUtils;
 
+import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
@@ -62,9 +63,13 @@ public class LocationManagerCompatTest {
         boolean isLocationEnabled;
         if (VERSION.SDK_INT >= 28) {
             isLocationEnabled = mLocationManager.isLocationEnabled();
-        } else {
+        } else if (VERSION.SDK_INT >= 19) {
             isLocationEnabled = Settings.Secure.getInt(mContext.getContentResolver(), LOCATION_MODE,
                     LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
+        } else {
+            isLocationEnabled = !TextUtils.isEmpty(
+                    Settings.Secure.getString(mContext.getContentResolver(),
+                            Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
         }
 
         assertEquals(isLocationEnabled, LocationManagerCompat.isLocationEnabled(mLocationManager));
@@ -89,18 +94,6 @@ public class LocationManagerCompatTest {
     public void testGetCurrentLocation() {
         // can't do much to test this except check it doesn't crash
         CancellationSignal cs = new CancellationSignal();
-        LocationManagerCompat.getCurrentLocation(mLocationManager,
-                LocationManager.PASSIVE_PROVIDER, cs,
-                ExecutorCompat.create(new Handler(Looper.getMainLooper())),
-                location -> {});
-        cs.cancel();
-    }
-
-    @SuppressWarnings("deprecation")
-    @Test
-    public void testGetCurrentLocation_compat() {
-        // can't do much to test this except check it doesn't crash
-        androidx.core.os.CancellationSignal cs = new androidx.core.os.CancellationSignal();
         LocationManagerCompat.getCurrentLocation(mLocationManager,
                 LocationManager.PASSIVE_PROVIDER, cs,
                 ExecutorCompat.create(new Handler(Looper.getMainLooper())),

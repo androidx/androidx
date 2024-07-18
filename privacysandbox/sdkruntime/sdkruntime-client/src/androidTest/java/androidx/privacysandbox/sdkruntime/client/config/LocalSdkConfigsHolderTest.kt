@@ -51,7 +51,7 @@ class LocalSdkConfigsHolderTest {
             packageName = "androidx.privacysandbox.sdkruntime.testsdk.current",
             versionMajor = 42,
             dexPaths = listOf("test-sdks/current/classes.dex"),
-            entryPoint = "androidx.privacysandbox.sdkruntime.testsdk.CompatProvider",
+            entryPoint = "androidx.privacysandbox.sdkruntime.testsdk.current.CompatProvider",
         )
 
         assertThat(result).isEqualTo(expectedConfig)

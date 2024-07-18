@@ -37,7 +37,6 @@ public class ForceDarkActivity extends AppCompatActivity {
     private static final String DESCRIPTION =
             "<html><body><h1>Force Dark Mode is %s </h1></body></html>";
 
-    @SuppressWarnings("deprecation") /* b/180503860 */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +57,6 @@ public class ForceDarkActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressWarnings("deprecation") /* b/180503860 */
     private void setupWebView(WebView webView, int forceDarkMode) {
         webView.setWebViewClient(new WebViewClient());
         String formattedDescription;

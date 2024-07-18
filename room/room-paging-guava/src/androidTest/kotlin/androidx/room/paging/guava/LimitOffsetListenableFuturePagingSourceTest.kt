@@ -207,7 +207,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun refresh_consecutively() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db, true)
         val pagingSource2 = LimitOffsetListenableFuturePagingSourceImpl(db, true)
 
@@ -308,7 +308,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
         }
     @Test
     fun refresh_onSuccess() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db, true)
 
         val listenableFuture = pagingSource.refresh(key = 30)
@@ -336,7 +336,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun append_onSuccess() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
         pagingSource.itemCount.set(100) // bypass check for initial load
 
@@ -364,7 +364,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun prepend_onSuccess() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
         pagingSource.itemCount.set(100) // bypass check for initial load
 
@@ -632,7 +632,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun refresh_AfterCancellation() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db, true)
         pagingSource.itemCount.set(100) // bypass check for initial load
 
@@ -656,7 +656,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun appendAgain_afterFutureCanceled() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
         pagingSource.itemCount.set(100) // bypass check for initial load
 
@@ -680,7 +680,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
     @Test
     fun prependAgain_afterFutureCanceled() = setupAndRun { db ->
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetListenableFuturePagingSourceImpl(db)
         pagingSource.itemCount.set(100) // bypass check for initial load
 
@@ -721,7 +721,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
             // run this async separately from queryExecutor
             run {
-                db.getDao().addItem(TestItem(101))
+                db.dao.addItem(TestItem(101))
             }
 
             // tasks in queue [nonInitialLoad, InvalidationTracker(from additem)]
@@ -755,7 +755,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
 
             // run this async separately from queryExecutor
             run {
-                db.getDao().addItem(TestItem(101))
+                db.dao.addItem(TestItem(101))
             }
 
             // tasks in queue [nonInitialLoad, InvalidationTracker(from additem)]
@@ -789,7 +789,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             }
         }
 
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         val listenableFuture = pagingSource.refresh()
 
         val page = listenableFuture.await() as LoadResult.Page
@@ -812,7 +812,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             }
         }
 
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         pagingSource.itemCount.set(100)
         val listenableFuture = pagingSource.append(key = 50)
 
@@ -836,7 +836,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             }
         }
 
-        db.getDao().addAllItems(ITEMS_LIST)
+        db.dao.addAllItems(ITEMS_LIST)
         pagingSource.itemCount.set(100)
         val listenableFuture = pagingSource.prepend(key = 50)
 
@@ -875,7 +875,7 @@ class LimitOffsetListenableFuturePagingSourceTest {
             .build()
 
         runTest {
-            db.getDao().addAllItems(ITEMS_LIST)
+            db.dao.addAllItems(ITEMS_LIST)
             queryExecutor.executeAll() // InvalidationTracker from the addAllItems
           test(db, queryExecutor, transactionExecutor)
         }
@@ -1091,7 +1091,7 @@ private fun ListenableFuture<LoadResult<Int, TestItem>>.onFailure(
 
 @Database(entities = [TestItem::class], version = 1, exportSchema = false)
 abstract class LimitOffsetTestDb : RoomDatabase() {
-    abstract fun getDao(): TestItemDao
+    abstract val dao: TestItemDao
 }
 
 @Entity(tableName = "TestItem")

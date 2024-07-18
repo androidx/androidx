@@ -186,7 +186,7 @@ class CheckboxScreenshotTest(private val scheme: ColorSchemeWrapper) {
         assertToggeableAgainstGolden("checkBox_${scheme.name}_unchecked_animateToChecked")
     }
 
-    // @Test // b/328436857
+    @Test
     fun checkBox_checked_animateToUnchecked() {
         val isChecked = mutableStateOf(true)
         rule.setMaterialContent(scheme.colorScheme) {

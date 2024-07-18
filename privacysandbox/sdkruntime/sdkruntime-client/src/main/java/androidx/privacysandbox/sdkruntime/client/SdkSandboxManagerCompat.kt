@@ -24,19 +24,25 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
+import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfigsHolder
 import androidx.privacysandbox.sdkruntime.client.controller.AppOwnedSdkRegistry
+import androidx.privacysandbox.sdkruntime.client.controller.LocalControllerFactory
+import androidx.privacysandbox.sdkruntime.client.controller.LocallyLoadedSdks
 import androidx.privacysandbox.sdkruntime.client.controller.impl.LocalAppOwnedSdkRegistry
-import androidx.privacysandbox.sdkruntime.client.controller.impl.LocalSdkRegistry
 import androidx.privacysandbox.sdkruntime.client.controller.impl.PlatformAppOwnedSdkRegistry
-import androidx.privacysandbox.sdkruntime.client.loader.VersionHandshake
+import androidx.privacysandbox.sdkruntime.client.loader.SdkLoader
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_ALREADY_LOADED
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.toLoadCompatSdkException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
@@ -90,8 +96,10 @@ import org.jetbrains.annotations.TestOnly
  */
 class SdkSandboxManagerCompat private constructor(
     private val platformApi: PlatformApi,
-    private val localSdkRegistry: LocalSdkRegistry,
-    private val appOwnedSdkRegistry: AppOwnedSdkRegistry
+    private val configHolder: LocalSdkConfigsHolder,
+    private val localLocallyLoadedSdks: LocallyLoadedSdks,
+    private val appOwnedSdkRegistry: AppOwnedSdkRegistry,
+    private val sdkLoader: SdkLoader
 ) {
     /**
      * Load SDK in a SDK sandbox java process or locally.
@@ -122,28 +130,24 @@ class SdkSandboxManagerCompat private constructor(
         sdkName: String,
         params: Bundle
     ): SandboxedSdkCompat {
-        val isLocalSdk = localSdkRegistry.isResponsibleFor(sdkName)
-        if (isLocalSdk) {
-            return localSdkRegistry.loadSdk(sdkName, params)
+        if (localLocallyLoadedSdks.isLoaded(sdkName)) {
+            throw LoadSdkCompatException(LOAD_SDK_ALREADY_LOADED, "$sdkName already loaded")
         }
-        return platformApi.loadSdk(sdkName, params)
-    }
 
-    /**
-     * Load local SDK using different client-core protocol version [apiVersion].
-     *
-     * Could be used for:
-     * 1) Testing features in development (force future version for SDK binary with feature impl)
-     * 2) Testing loading newest SDK versions via old protocol version.
-     */
-    @TestOnly
-    internal fun loadLocalSdkWithVersionOverride(
-        sdkName: String,
-        params: Bundle,
-        apiVersion: Int
-    ): SandboxedSdkCompat {
-        val customHandshake = VersionHandshake(overrideApiVersion = apiVersion)
-        return localSdkRegistry.loadSdk(sdkName, params, customHandshake)
+        val sdkConfig = configHolder.getSdkConfig(sdkName)
+        if (sdkConfig != null) {
+            val sdkProvider = sdkLoader.loadSdk(sdkConfig)
+            val sandboxedSdkCompat = sdkProvider.onLoadSdk(params)
+            localLocallyLoadedSdks.put(
+                sdkName, LocallyLoadedSdks.Entry(
+                    sdkProvider = sdkProvider,
+                    sdk = sandboxedSdkCompat
+                )
+            )
+            return sandboxedSdkCompat
+        }
+
+        return platformApi.loadSdk(sdkName, params)
     }
 
     /**
@@ -156,11 +160,12 @@ class SdkSandboxManagerCompat private constructor(
      * @see [SdkSandboxManager.unloadSdk]
      */
     fun unloadSdk(sdkName: String) {
-        val isLocalSdk = localSdkRegistry.isResponsibleFor(sdkName)
-        if (isLocalSdk) {
-            localSdkRegistry.unloadSdk(sdkName)
-        } else {
+        val localEntry = localLocallyLoadedSdks.remove(sdkName)
+        if (localEntry == null) {
             platformApi.unloadSdk(sdkName)
+        } else {
+            localEntry.sdkProvider.beforeUnloadSdk()
+            LocalSdkActivityHandlerRegistry.unregisterAllActivityHandlersForSdk(sdkName)
         }
     }
 
@@ -207,7 +212,7 @@ class SdkSandboxManagerCompat private constructor(
      */
     fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         val platformResult = platformApi.getSandboxedSdks()
-        val localResult = localSdkRegistry.getLoadedSdks()
+        val localResult = localLocallyLoadedSdks.getLoadedSdks()
         return platformResult + localResult
     }
 
@@ -262,6 +267,10 @@ class SdkSandboxManagerCompat private constructor(
         platformApi.startSdkSandboxActivity(fromActivity, sdkActivityToken)
     }
 
+    @TestOnly
+    internal fun getLocallyLoadedSdk(sdkName: String): LocallyLoadedSdks.Entry? =
+        localLocallyLoadedSdks.get(sdkName)
+
     private interface PlatformApi {
         @DoNotInline
         suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
@@ -281,13 +290,14 @@ class SdkSandboxManagerCompat private constructor(
         )
 
         @DoNotInline
-        fun getSandboxedSdks(): List<SandboxedSdkCompat>
+        fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
 
         fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder)
     }
 
-    @RequiresApi(34)
-    private open class Api34Impl(context: Context) : PlatformApi {
+    @RequiresApi(33)
+    @RequiresExtension(extension = AD_SERVICES, version = 4)
+    private open class ApiAdServicesV4Impl(context: Context) : PlatformApi {
         protected val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java
         )
@@ -310,12 +320,6 @@ class SdkSandboxManagerCompat private constructor(
 
         override fun unloadSdk(sdkName: String) {
             sdkSandboxManager.unloadSdk(sdkName)
-        }
-
-        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
-            return sdkSandboxManager
-                .sandboxedSdks
-                .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
         }
 
         @DoNotInline
@@ -346,7 +350,9 @@ class SdkSandboxManagerCompat private constructor(
         }
 
         override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
-            sdkSandboxManager.startSdkSandboxActivity(fromActivity, sdkActivityToken)
+            throw UnsupportedOperationException(
+                "This API is only supported for devices run on Android U+"
+            )
         }
 
         private suspend fun loadSdkInternal(
@@ -373,6 +379,29 @@ class SdkSandboxManagerCompat private constructor(
         }
     }
 
+    @RequiresApi(33)
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
+    private open class ApiAdServicesV5Impl(
+        context: Context
+    ) : ApiAdServicesV4Impl(context) {
+        @DoNotInline
+        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+            return sdkSandboxManager
+                .sandboxedSdks
+                .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
+        }
+    }
+
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
+    @RequiresApi(34)
+    private class ApiAdServicesUDCImpl(
+        context: Context
+    ) : ApiAdServicesV5Impl(context) {
+        override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
+            sdkSandboxManager.startSdkSandboxActivity(fromActivity, sdkActivityToken)
+        }
+    }
+
     private class FailImpl : PlatformApi {
         @DoNotInline
         override suspend fun loadSdk(
@@ -384,8 +413,6 @@ class SdkSandboxManagerCompat private constructor(
 
         override fun unloadSdk(sdkName: String) {
         }
-
-        override fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
 
         override fun addSdkSandboxProcessDeathCallback(
             callbackExecutor: Executor,
@@ -419,13 +446,18 @@ class SdkSandboxManagerCompat private constructor(
                 val reference = sInstances[context]
                 var instance = reference?.get()
                 if (instance == null) {
+                    val configHolder = LocalSdkConfigsHolder.load(context)
+                    val localSdks = LocallyLoadedSdks()
                     val appOwnedSdkRegistry = AppOwnedSdkRegistryFactory.create(context)
-                    val localSdkRegistry = LocalSdkRegistry.create(context, appOwnedSdkRegistry)
+                    val controllerFactory = LocalControllerFactory(localSdks, appOwnedSdkRegistry)
+                    val sdkLoader = SdkLoader.create(context, controllerFactory)
                     val platformApi = PlatformApiFactory.create(context)
                     instance = SdkSandboxManagerCompat(
                         platformApi,
-                        localSdkRegistry,
-                        appOwnedSdkRegistry
+                        configHolder,
+                        localSdks,
+                        appOwnedSdkRegistry,
+                        sdkLoader
                     )
                     sInstances[context] = WeakReference(instance)
                 }
@@ -442,9 +474,14 @@ class SdkSandboxManagerCompat private constructor(
     }
 
     private object PlatformApiFactory {
+        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun create(context: Context): PlatformApi {
             return if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
-                Api34Impl(context)
+                ApiAdServicesUDCImpl(context)
+            } else if (AdServicesInfo.isAtLeastV5()) {
+                ApiAdServicesV5Impl(context)
+            } else if (AdServicesInfo.isAtLeastV4()) {
+                ApiAdServicesV4Impl(context)
             } else {
                 FailImpl()
             }

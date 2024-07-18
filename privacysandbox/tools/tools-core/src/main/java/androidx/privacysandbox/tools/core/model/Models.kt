@@ -24,7 +24,7 @@ fun ParsedApi.getOnlyService(): AnnotatedInterface {
 }
 
 fun ParsedApi.hasSuspendFunctions(): Boolean {
-    val annotatedInterfaces = services + interfaces + callbacks
+    val annotatedInterfaces = services + interfaces
     return annotatedInterfaces
         .flatMap(AnnotatedInterface::methods)
         .any(Method::isSuspend)
@@ -48,11 +48,7 @@ private fun AnnotatedInterface.containsSdkActivityLauncher(): Boolean {
 }
 
 private fun AnnotatedValue.containsSdkActivityLauncher(): Boolean =
-    when (this) {
-        is AnnotatedEnumClass -> false
-        is AnnotatedDataClass ->
-            properties.any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
-    }
+    properties.any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
 
 object Types {
     val unit = Type(packageName = "kotlin", simpleName = "Unit")
@@ -67,13 +63,10 @@ object Types {
     val primitiveTypes = setOf(unit, boolean, int, long, float, double, string, char, short)
 
     val any = Type("kotlin", simpleName = "Any")
-    val bundle = Type("android.os", "Bundle")
     val sandboxedUiAdapter =
         Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SandboxedUiAdapter")
-    val sdkActivityLauncher = Type(
-        packageName = "androidx.privacysandbox.activity.core",
-        simpleName = "SdkActivityLauncher"
-    )
+    val sdkActivityLauncher =
+        Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SdkActivityLauncher")
 
     fun list(elementType: Type) = Type(
         packageName = "kotlin.collections",

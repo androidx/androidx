@@ -132,14 +132,6 @@ public class RowTest {
     }
 
     @Test
-    public void setExtraSmallImage() {
-        CarIcon image1 = BACK;
-        Row row = new Row.Builder().setTitle("Title")
-                .setImage(image1, Row.IMAGE_TYPE_EXTRA_SMALL).build();
-        assertThat(image1).isEqualTo(row.getImage());
-    }
-
-    @Test
     public void setDecoration_positiveValue() {
         int decoration = 5;
         Row row = new Row.Builder().setTitle("Title").setNumericDecoration(decoration).build();

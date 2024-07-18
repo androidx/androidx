@@ -634,10 +634,6 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(capturedIds.contains(succeeded.getStringId()), is(false));
     }
 
-    // Suppressed NetworkRequestConstraintController.isCurrentlyConstrained isn't supported.
-    // NetworkRequestConstraintController is added starting with API 28.
-    // Given SystemAlarmScheduler runs only up to API 23, it is fine to limit this test.
-    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testConstraintsChanged_withFutureWork() throws InterruptedException {
         mBatteryChargingTracker.setSystemState(true);

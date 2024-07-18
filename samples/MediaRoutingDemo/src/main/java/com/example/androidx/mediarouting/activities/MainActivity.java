@@ -661,7 +661,9 @@ public class MainActivity extends AppCompatActivity {
 
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
                 mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
-                mPlayer.updatePresentation();
+                if (isPresentationApiSupported()) {
+                    mPlayer.updatePresentation();
+                }
                 mSessionManager.setPlayer(mPlayer);
             }
             updateUi();
@@ -676,7 +678,9 @@ public class MainActivity extends AppCompatActivity {
                 mMediaSession.setActive(false);
                 mSessionManager.stop();
 
-                mPlayer.updatePresentation();
+                if (isPresentationApiSupported()) {
+                    mPlayer.updatePresentation();
+                }
                 mPlayer.release();
             }
         }
@@ -690,7 +694,9 @@ public class MainActivity extends AppCompatActivity {
         public void onRoutePresentationDisplayChanged(
                 @NonNull MediaRouter router, @NonNull RouteInfo route) {
             Log.d(TAG, "onRoutePresentationDisplayChanged: route=" + route);
-            mPlayer.updatePresentation();
+            if (isPresentationApiSupported()) {
+                mPlayer.updatePresentation();
+            }
         }
 
         @Override
@@ -706,6 +712,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onProviderChanged(@NonNull MediaRouter router, @NonNull ProviderInfo provider) {
             Log.d(TAG, "onRouteProviderChanged: provider=" + provider);
+        }
+
+        private boolean isPresentationApiSupported() {
+            return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
         }
     }
 

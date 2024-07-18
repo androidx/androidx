@@ -77,25 +77,21 @@ class PendingIntentHandler {
                 Log.i(TAG, "Request not found in pendingIntent")
                 return frameworkReq
             }
-            return try {
-                ProviderCreateCredentialRequest(
-                    androidx.credentials.CreateCredentialRequest
-                        .createFrom(
-                            frameworkReq.type,
-                            frameworkReq.data,
-                            frameworkReq.data,
-                            requireSystemProvider = false,
-                            frameworkReq.callingAppInfo.origin
-                        ),
-                    CallingAppInfo(
-                        frameworkReq.callingAppInfo.packageName,
-                        frameworkReq.callingAppInfo.signingInfo,
+            return ProviderCreateCredentialRequest(
+                androidx.credentials.CreateCredentialRequest
+                    .createFrom(
+                        frameworkReq.type,
+                        frameworkReq.data,
+                        frameworkReq.data,
+                        requireSystemProvider = false,
                         frameworkReq.callingAppInfo.origin
-                    )
+                    ) ?: return null,
+                CallingAppInfo(
+                    frameworkReq.callingAppInfo.packageName,
+                    frameworkReq.callingAppInfo.signingInfo,
+                    frameworkReq.callingAppInfo.origin
                 )
-            } catch (e: IllegalArgumentException) {
-                return null
-            }
+            )
         }
 
         /**

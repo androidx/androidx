@@ -16,6 +16,7 @@
 
 package androidx.car.app.sample.showcase.common.screens.settings;
 
+import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.sample.showcase.common.screens.settings.LoadingScreen.loadingScreenTemplate;
 
 import android.content.Context;
@@ -26,8 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
-import androidx.car.app.model.Action;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -99,10 +98,8 @@ public class ContentLimitsDemoScreen extends Screen implements DefaultLifecycleO
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext().getString(R.string.content_limits))
-                        .setStartHeaderAction(Action.BACK)
-                        .build())
+                .setTitle(getCarContext().getString(R.string.content_limits))
+                .setHeaderAction(BACK)
                 .build();
     }
 

@@ -72,8 +72,12 @@ public fun HiltViewModelFactory(
                 "but instead found: $ctx"
         )
     }
+    // TODO(kuanyingchou): The `owner` is actually not used. We pass
+    //  `activity` here since it's a NonNull parameter. This can be removed with Dagger 2.45.
     return HiltViewModelFactory.createInternal(
         /* activity = */ activity,
+        /* owner = */ activity,
+        /* defaultArgs = */ null,
         /* delegateFactory = */ delegateFactory
     )
 }

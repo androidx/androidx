@@ -41,9 +41,8 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 AndroidManifestServiceExportedDetector.ISSUE,
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
-                BanVisibilityDocTags.HIDE_ISSUE,
-                BanVisibilityDocTags.SUPPRESS_ISSUE,
-                BanVisibilityDocTags.REMOVED_ISSUE,
+                BanHideAndSuppressTags.HIDE_ISSUE,
+                BanHideAndSuppressTags.SUPPRESS_ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
                 BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
                 BanInlineOptIn.ISSUE,
@@ -79,8 +78,6 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 PrereleaseSdkCoreDependencyDetector.ISSUE,
                 DeprecationMismatchDetector.ISSUE,
                 RestrictToDetector.RESTRICTED,
-                ObsoleteCompatDetector.ISSUE,
-                ReplaceWithDetector.ISSUE,
             )
         }
     }

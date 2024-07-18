@@ -342,23 +342,17 @@ public class ConfirmationOverlay {
         TextView messageView =
                 overlayView.findViewById(R.id.wearable_support_confirmation_overlay_message);
 
-        // Remove the message view from the view hierarchy if there's no message, as it changes the
-        // vertical alignment of other content in the overlay.
-        if (mMessage.length() == 0) {
-            messageView.setVisibility(View.GONE);
-        } else {
-            int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
-            int insetMarginPx = ResourcesUtil.getFractionOfScreenPx(
-                    context, screenWidthPx, R.fraction.confirmation_overlay_text_inset_margin);
+        int screenWidthPx = ResourcesUtil.getScreenWidthPx(context);
+        int insetMarginPx = ResourcesUtil.getFractionOfScreenPx(
+                context, screenWidthPx, R.fraction.confirmation_overlay_text_inset_margin);
 
-            MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
-            layoutParams.leftMargin = insetMarginPx;
-            layoutParams.rightMargin = insetMarginPx;
+        MarginLayoutParams layoutParams = (MarginLayoutParams) messageView.getLayoutParams();
+        layoutParams.leftMargin = insetMarginPx;
+        layoutParams.rightMargin = insetMarginPx;
 
-            messageView.setLayoutParams(layoutParams);
-            messageView.setText(mMessage);
-            messageView.setVisibility(View.VISIBLE);
-        }
+        messageView.setLayoutParams(layoutParams);
+        messageView.setText(mMessage);
+        messageView.setVisibility(View.VISIBLE);
     }
 
     @MainThread

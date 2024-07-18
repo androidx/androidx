@@ -58,8 +58,7 @@ class MultiProcessDataStoreSingleProcessFileTest :
         }
 
         Truth.assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
-        Truth.assertThat(result.exceptionOrNull()).hasCauseThat().hasMessageThat()
-            .contains("Permission denied")
+        Truth.assertThat(result.exceptionOrNull()).hasMessageThat().contains("Permission denied")
     }
 
     @Test
@@ -68,7 +67,7 @@ class MultiProcessDataStoreSingleProcessFileTest :
         testFile.file.writeText("")
         testFile.file.setReadable(false)
 
-        assertThrows<IOException> { store.data.first() }.hasCauseThat().hasMessageThat()
+        assertThrows<IOException> { store.data.first() }.hasMessageThat()
             .contains("Permission denied")
 
         testFile.file.setReadable(true)

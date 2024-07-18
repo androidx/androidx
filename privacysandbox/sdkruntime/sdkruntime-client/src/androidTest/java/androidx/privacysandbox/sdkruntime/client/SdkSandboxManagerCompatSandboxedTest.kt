@@ -22,10 +22,14 @@ import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
 import android.content.Context
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.OutcomeReceiver
+import android.os.ext.SdkExtensions.AD_SERVICES
+import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
+import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -35,6 +39,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
+import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,19 +52,23 @@ import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 // TODO(b/249982507) Test should be rewritten to use real SDK in sandbox instead of mocking manager
-@SdkSuppress(minSdkVersion = 34)
+// TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+@RequiresExtension(extension = AD_SERVICES, version = 4)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
 class SdkSandboxManagerCompatSandboxedTest {
 
     private lateinit var mContext: Context
 
     @Before
     fun setUp() {
+        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         mContext = Mockito.spy(ApplicationProvider.getApplicationContext<Context>())
     }
 
@@ -161,6 +171,7 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
     fun startSdkSandboxActivity_whenSandboxAvailable_delegateToPlatform() {
         val sdkSandboxManager = mockSandboxManager(mContext)
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
@@ -211,7 +222,43 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
-    fun getSandboxedSdks_whenSandboxAvailable_returnCombinedLocalAndPlatformResult() {
+    fun getSandboxedSdks_whenLoadedSdkListNotAvailable_dontDelegateToSandbox() {
+        assumeFalse("Requires getSandboxedSdks API not available", isAtLeastV5())
+
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        managerCompat.getSandboxedSdks()
+
+        verifyZeroInteractions(sdkSandboxManager)
+    }
+
+    @Test
+    fun getSandboxedSdks_whenLoadedSdkListNotAvailable_returnsLocallyLoadedSdkList() {
+        assumeFalse("Requires getSandboxedSdks API not available", isAtLeastV5())
+
+        // SdkSandboxManagerCompat.from require SandboxManager available for AdServices version >= 4
+        mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
+        }
+
+        val sandboxedSdks = managerCompat.getSandboxedSdks()
+
+        assertThat(sandboxedSdks).containsExactly(localSdk)
+    }
+
+    @Test
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
+    fun getSandboxedSdks_whenLoadedSdkListAvailable_returnCombinedLocalAndPlatformResult() {
+        assumeTrue("Requires getSandboxedSdks API available", isAtLeastV5())
+
         val sdkSandboxManager = mockSandboxManager(mContext)
         val sandboxedSdk = SandboxedSdk(Binder())
         `when`(sdkSandboxManager.sandboxedSdks)
@@ -232,7 +279,11 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
+    // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
+    @RequiresExtension(extension = AD_SERVICES, version = 5)
     fun sdkController_getSandboxedSdks_dontIncludeSandboxedSdk() {
+        assumeTrue("Requires getSandboxedSdks API available", isAtLeastV5())
+
         val sdkSandboxManager = mockSandboxManager(mContext)
         val sandboxedSdk = SandboxedSdk(Binder())
         `when`(sdkSandboxManager.sandboxedSdks)
@@ -255,46 +306,55 @@ class SdkSandboxManagerCompatSandboxedTest {
         assertThat(result).isEqualTo(localSdk.getInterface())
     }
 
-    private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
-        val sdkSandboxManager = mock(SdkSandboxManager::class.java)
-        `when`(spyContext.getSystemService(SdkSandboxManager::class.java))
-            .thenReturn(sdkSandboxManager)
-        return sdkSandboxManager
-    }
+    companion object SandboxApi {
 
-    private fun setupLoadSdkAnswer(
-        sdkSandboxManager: SdkSandboxManager,
-        sandboxedSdk: SandboxedSdk
-    ) {
-        val answer = { args: InvocationOnMock ->
-            val receiver = args.getArgument<OutcomeReceiver<SandboxedSdk, LoadSdkException>>(3)
-            receiver.onResult(sandboxedSdk)
-            null
-        }
-        doAnswer(answer)
-            .`when`(sdkSandboxManager).loadSdk(
-                any(),
-                any(),
-                any(),
-                any()
-            )
-    }
+        private fun isSandboxApiAvailable() =
+            AdServicesInfo.isAtLeastV4()
 
-    private fun setupLoadSdkAnswer(
-        sdkSandboxManager: SdkSandboxManager,
-        loadSdkException: LoadSdkException
-    ) {
-        val answer = { args: InvocationOnMock ->
-            val receiver = args.getArgument<OutcomeReceiver<SandboxedSdk, LoadSdkException>>(3)
-            receiver.onError(loadSdkException)
-            null
+        private fun isAtLeastV5() =
+            AdServicesInfo.isAtLeastV5()
+
+        private fun mockSandboxManager(spyContext: Context): SdkSandboxManager {
+            val sdkSandboxManager = mock(SdkSandboxManager::class.java)
+            `when`(spyContext.getSystemService(SdkSandboxManager::class.java))
+                .thenReturn(sdkSandboxManager)
+            return sdkSandboxManager
         }
-        doAnswer(answer)
-            .`when`(sdkSandboxManager).loadSdk(
-                any(),
-                any(),
-                any(),
-                any()
-            )
+
+        private fun setupLoadSdkAnswer(
+            sdkSandboxManager: SdkSandboxManager,
+            sandboxedSdk: SandboxedSdk
+        ) {
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<OutcomeReceiver<SandboxedSdk, LoadSdkException>>(3)
+                receiver.onResult(sandboxedSdk)
+                null
+            }
+            doAnswer(answer)
+                .`when`(sdkSandboxManager).loadSdk(
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+        }
+
+        private fun setupLoadSdkAnswer(
+            sdkSandboxManager: SdkSandboxManager,
+            loadSdkException: LoadSdkException
+        ) {
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<OutcomeReceiver<SandboxedSdk, LoadSdkException>>(3)
+                receiver.onError(loadSdkException)
+                null
+            }
+            doAnswer(answer)
+                .`when`(sdkSandboxManager).loadSdk(
+                    any(),
+                    any(),
+                    any(),
+                    any()
+                )
+        }
     }
 }

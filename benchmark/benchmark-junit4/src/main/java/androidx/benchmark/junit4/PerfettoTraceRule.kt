@@ -97,12 +97,7 @@ class PerfettoTraceRule(
                         InstrumentationResults.instrumentationReport {
                             reportSummaryToIde(
                                 testName = label,
-                                profilerResults = listOf(
-                                    Profiler.ResultFile.ofPerfettoTrace(
-                                        "Trace",
-                                        it.path
-                                    )
-                                )
+                                profilerResults = listOf(Profiler.ResultFile("Trace", it.path))
                             )
                         }
                         traceCallback?.invoke(it)

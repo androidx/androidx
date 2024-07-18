@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.internal
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraController
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
  *   [CameraController] to restart.
  */
 @Singleton
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class GraphLifecycleManager @Inject constructor(val threads: Threads) {
     private val lock = Any()
 

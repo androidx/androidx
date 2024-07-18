@@ -81,7 +81,7 @@ public class ConfirmationOverlayTest {
                 final Activity activity = setupActivity();
                 overlay.showOn(activity);
                 getOverlayViews(getContentView(activity));
-                assertEquals(View.GONE, mActualTextView.getVisibility());
+                assertEquals(View.VISIBLE, mActualTextView.getVisibility());
                 ConfirmationOverlay.OnAnimationFinishedListener onAnimationFinishedListener =
                         new ConfirmationOverlay.OnAnimationFinishedListener() {
                             @Override
@@ -103,21 +103,6 @@ public class ConfirmationOverlayTest {
     public void testDefaults_onView() {
         setupActivity();
         ConfirmationOverlay overlay = new ConfirmationOverlay();
-
-        overlay.showAbove(mLinearLayout);
-        getOverlayViews(mLinearLayout.getRootView());
-        assertEquals(View.GONE, mActualTextView.getVisibility());
-
-        overlay.hide();
-        assertEquals(0, mLinearLayout.getChildCount());
-    }
-
-    @Test
-    @UiThreadTest
-    public void testWithMessage_onView() {
-        setupActivity();
-        ConfirmationOverlay overlay = new ConfirmationOverlay();
-        overlay.setMessage((CharSequence) "Confirmation");
 
         overlay.showAbove(mLinearLayout);
         getOverlayViews(mLinearLayout.getRootView());

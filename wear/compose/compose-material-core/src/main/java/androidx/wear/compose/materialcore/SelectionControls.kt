@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -48,8 +49,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultBlendMo
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
@@ -76,7 +75,6 @@ import kotlin.math.sin
  * @param drawBox Draws the checkbox.
  * @param width Width of the checkbox.
  * @param height Height of the checkbox.
- * @param ripple Ripple used for the checkbox.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -87,12 +85,11 @@ fun Checkbox(
     checkmarkColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     enabled: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    interactionSource: MutableInteractionSource?,
+    interactionSource: MutableInteractionSource,
     progressAnimationSpec: TweenSpec<Float>,
     drawBox: FunctionDrawBox,
     width: Dp,
-    height: Dp,
-    ripple: Indication
+    height: Dp
 ) {
     val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState, label = "checkboxTransition")
@@ -111,15 +108,13 @@ fun Checkbox(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier = modifier
-            .semantics {
-                this.role = Role.Checkbox
-            }
             .maybeToggleable(
                 onCheckedChange,
                 enabled,
                 checked,
                 interactionSource,
-                ripple,
+                rememberRipple(),
+                Role.Checkbox,
                 width,
                 height
             )
@@ -127,16 +122,21 @@ fun Checkbox(
             {
                 onDrawWithContent {
                     drawBox(this, boxColorState.value, progress.value, isRtl)
-                    animateTick(
-                        enabled = enabled,
-                        checked = checked,
-                        tickColor = checkmarkColorState.value,
-                        tickProgress = progress.value,
-                        startXOffset = startXOffset
-                    )
+
+                    if (targetState == SelectionStage.Checked) {
+                        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
+                        drawTick(checkmarkColorState.value, progress.value, startXOffset, enabled)
+                    } else {
+                        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
+                        eraseTick(
+                            checkmarkColorState.value,
+                            progress.value,
+                            startXOffset,
+                            enabled
+                        )
+                    }
                 }
-            }
-    )
+            })
 }
 
 /**
@@ -164,7 +164,6 @@ fun Checkbox(
  * @param progressAnimationSpec Animation spec to animate the progress.
  * @param width Width of the switch.
  * @param height Height of the switch.
- * @param ripple Ripple used for the switch.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -173,7 +172,7 @@ fun Switch(
     checked: Boolean,
     enabled: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    interactionSource: MutableInteractionSource?,
+    interactionSource: MutableInteractionSource,
     trackFillColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     trackStrokeColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     thumbColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
@@ -184,7 +183,6 @@ fun Switch(
     progressAnimationSpec: TweenSpec<Float>,
     width: Dp,
     height: Dp,
-    ripple: Indication
 ) {
     val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState, label = "switchTransition")
@@ -205,15 +203,13 @@ fun Switch(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier = modifier
-            .semantics {
-                this.role = Role.Switch
-            }
             .maybeToggleable(
                 onCheckedChange,
                 enabled,
                 checked,
                 interactionSource,
-                ripple,
+                rememberRipple(),
+                Role.Switch,
                 width,
                 height
             )
@@ -260,7 +256,6 @@ fun Switch(
  * @param easing Animation spec to animate the progress.
  * @param width Width of the radio button.
  * @param height Height of the radio button.
- * @param ripple Ripple used for the radio button.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -271,14 +266,13 @@ fun RadioButton(
     ringColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     dotColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     onClick: (() -> Unit)?,
-    interactionSource: MutableInteractionSource?,
+    interactionSource: MutableInteractionSource,
     dotRadiusProgressDuration: FunctionDotRadiusProgressDuration,
     dotAlphaProgressDuration: Int,
     dotAlphaProgressDelay: Int,
     easing: CubicBezierEasing,
     width: Dp,
-    height: Dp,
-    ripple: Indication
+    height: Dp
 ) {
     val targetState = if (selected) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState)
@@ -310,11 +304,9 @@ fun RadioButton(
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
-        // NB We must set the semantic role to Role.RadioButton in the parent Button,
-        // not here in the selection control - see b/330869742
         modifier = modifier
             .maybeSelectable(
-                onClick, enabled, selected, interactionSource, ripple, width, height
+                onClick, enabled, selected, interactionSource, rememberRipple(), width, height
             )
             .drawWithCache
             {
@@ -399,24 +391,6 @@ fun interface FunctionDotRadiusProgressDuration {
     operator fun invoke(selected: Boolean): Int
 }
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun DrawScope.animateTick(
-    enabled: Boolean,
-    checked: Boolean,
-    tickColor: Color,
-    tickProgress: Float,
-    startXOffset: Dp,
-) {
-    val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
-    if (targetState == SelectionStage.Checked) {
-        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-        drawTick(tickColor, tickProgress, startXOffset, enabled)
-    } else {
-        // Passing startXOffset as we want checkbox to be aligned to the end of the canvas.
-        eraseTick(tickColor, tickProgress, startXOffset, enabled)
-    }
-}
-
 @Composable
 private fun animateProgress(
     transition: Transition<SelectionStage>,
@@ -437,8 +411,9 @@ private fun Modifier.maybeToggleable(
     onCheckedChange: ((Boolean) -> Unit)?,
     enabled: Boolean,
     checked: Boolean,
-    interactionSource: MutableInteractionSource?,
+    interactionSource: MutableInteractionSource,
     indication: Indication,
+    role: Role,
     canvasWidth: Dp,
     canvasHeight: Dp
 ): Modifier {
@@ -454,6 +429,7 @@ private fun Modifier.maybeToggleable(
                 enabled = enabled,
                 value = checked,
                 onValueChange = onCheckedChange,
+                role = role,
                 indication = indication,
                 interactionSource = interactionSource
             )
@@ -465,7 +441,7 @@ private fun Modifier.maybeSelectable(
     onClick: (() -> Unit)?,
     enabled: Boolean,
     selected: Boolean,
-    interactionSource: MutableInteractionSource?,
+    interactionSource: MutableInteractionSource,
     indication: Indication,
     canvasWidth: Dp,
     canvasHeight: Dp

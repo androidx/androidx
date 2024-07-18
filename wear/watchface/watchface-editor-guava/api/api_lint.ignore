@@ -7,5 +7,5 @@ AsyncSuffixFuture: androidx.wear.watchface.editor.ListenableEditorSession.Compan
     Methods returning com.google.common.util.concurrent.ListenableFuture should have a suffix *Async to reserve unmodified name for a suspend function
 
 
-GetterSetterNames: androidx.wear.watchface.editor.ListenableEditorSession#commitChangesOnClose:
+GetterSetterNames: field ListenableEditorSession.commitChangesOnClose:
     Invalid name for boolean property `commitChangesOnClose`. Should start with one of `has`, `can`, `should`, `is`.

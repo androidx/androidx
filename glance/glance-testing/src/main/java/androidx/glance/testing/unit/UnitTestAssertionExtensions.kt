@@ -36,6 +36,7 @@ internal typealias UnitTestAssertion = GlanceNodeAssertion<MappedNode, GlanceMap
  * @param text value to match.
  * @param ignoreCase whether to perform case insensitive matching
  */
+@JvmOverloads
 fun UnitTestAssertion.assertHasText(
     text: String,
     ignoreCase: Boolean = false
@@ -49,6 +50,7 @@ fun UnitTestAssertion.assertHasText(
  * @param text value to match.
  * @param ignoreCase whether to perform case insensitive matching
  */
+@JvmOverloads
 fun UnitTestAssertion.assertHasTextEqualTo(
     text: String,
     ignoreCase: Boolean = false
@@ -77,6 +79,7 @@ fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
+@JvmOverloads
 fun UnitTestAssertion.assertHasContentDescription(
     value: String,
     ignoreCase: Boolean = false
@@ -94,6 +97,7 @@ fun UnitTestAssertion.assertHasContentDescription(
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
+@JvmOverloads
 fun UnitTestAssertion.assertHasContentDescriptionEqualTo(
     value: String,
     ignoreCase: Boolean = false
@@ -130,31 +134,13 @@ fun UnitTestAssertion.assertHasClickAction(): UnitTestAssertion {
  *                        expected to have been passed in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-@PublishedApi // See b/316353540; a reified version of this is available in the public api.
-internal fun <T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
+@JvmOverloads
+fun <T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
     activityClass: Class<T>,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null
 ): UnitTestAssertion {
     return assert(hasStartActivityClickAction(activityClass, parameters, activityOptions))
-}
-
-/**
- * Asserts that a given node has a clickable set with action that starts an activity.
- *
- * @param T class of the activity that is expected to have been passed in the
- *          `actionStartActivity` method call
- * @param parameters the parameters associated with the action that are expected to have been passed
- *                      in the `actionStartActivity` method call
- * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
- *                        expected to have been passed in the `actionStartActivity` method call
- * @throws AssertionError if the matcher does not match or the node can no longer be found.
- */
-inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
-    parameters: ActionParameters = actionParametersOf(),
-    activityOptions: Bundle? = null
-): UnitTestAssertion {
-    return assert(hasStartActivityClickAction<T>(parameters, activityOptions))
 }
 
 /**
@@ -166,6 +152,7 @@ inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickA
  *                      in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
+@JvmOverloads
 fun UnitTestAssertion.assertHasStartActivityClickAction(
     componentName: ComponentName,
     parameters: ActionParameters = actionParametersOf()

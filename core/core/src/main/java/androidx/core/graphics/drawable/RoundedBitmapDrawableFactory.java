@@ -22,12 +22,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.graphics.BitmapCompat;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.ViewCompat;
 
 import java.io.InputStream;
 
@@ -60,7 +60,7 @@ public final class RoundedBitmapDrawableFactory {
         void gravityCompatApply(int gravity, int bitmapWidth, int bitmapHeight,
                 Rect bounds, Rect outRect) {
             GravityCompat.apply(gravity, bitmapWidth, bitmapHeight,
-                    bounds, outRect, View.LAYOUT_DIRECTION_LTR);
+                    bounds, outRect, ViewCompat.LAYOUT_DIRECTION_LTR);
         }
     }
 

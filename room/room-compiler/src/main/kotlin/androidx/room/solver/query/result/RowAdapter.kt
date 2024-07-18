@@ -51,7 +51,4 @@ abstract class RowAdapter(val out: XType) {
      * Gets the default index adapter for the implementation
      */
     abstract fun getDefaultIndexAdapter(): IndexAdapter
-
-    // TODO(b/319660042): Remove once migration to driver API is done.
-    open fun isMigratedToDriver(): Boolean = false
 }

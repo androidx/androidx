@@ -351,7 +351,12 @@ class DialogWithMaterialSlcBehaviourTest {
                     showDialog = showDialog,
                     onDismissRequest = { showDialog = false },
                 ) {
-                    Text("Text", modifier = Modifier.testTag(TEST_TAG))
+                    AlertWithMaterialSlc(
+                        icon = {},
+                        title = {},
+                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
+                        content = {},
+                    )
                 }
             }
         }

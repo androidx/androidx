@@ -24,7 +24,6 @@ import androidx.camera.core.Logger
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.video.internal.audio.AudioStreamImpl
 import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
-import androidx.camera.video.internal.config.AudioSettingsDefaultResolver
 import kotlinx.coroutines.runBlocking
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -61,17 +60,13 @@ class AudioChecker {
                 CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
             val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
             val supportedQualities = videoCapabilities.getSupportedQualities(sdr)
-            val audioSpec = AudioSpec.builder().build()
+            val quality = qualitySelector.getPrioritizedQualities(supportedQualities).first()
             // Get a config using the default audio spec.
-            val audioSettings = if (supportedQualities.isNotEmpty()) {
-                val quality = qualitySelector.getPrioritizedQualities(supportedQualities).first()
+            val audioSettings =
                 AudioSettingsAudioProfileResolver(
-                    audioSpec,
+                    AudioSpec.builder().build(),
                     videoCapabilities.getProfiles(quality, sdr)!!.defaultAudioProfile!!
                 ).get()
-            } else {
-                AudioSettingsDefaultResolver(audioSpec).get()
-            }
             with(AudioStreamImpl(audioSettings, null)) {
                 try {
                     start()

@@ -15,12 +15,14 @@
  */
 package androidx.activity
 
+import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver.OnDrawListener
 import androidx.core.view.OneShotPreDrawListener
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 class FullyDrawnReporterTest {
 
     @get:Rule

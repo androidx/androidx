@@ -25,7 +25,7 @@ package androidx.graphics.path
  * This object is stateful, using quadraticCount, currentQuadratic, and quadraticData
  * to send back the next quadratic when requested, in [nextQuadratic].
  */
-internal class ConicConverter {
+internal class ConicConverter() {
     /**
      * The total number of quadratics currently stored in the converter
      */

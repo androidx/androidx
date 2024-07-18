@@ -57,6 +57,7 @@ import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 19)
 public class SliceViewManagerTest {
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -110,7 +111,7 @@ public class SliceViewManagerTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 33) // b/262909049: Failing on SDK 34
     public void testPinList() {
         if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
             return; // b/262909049: Do not run this test on pre-release Android U.
@@ -139,7 +140,7 @@ public class SliceViewManagerTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 27)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
     @Test
     public void testCallback() {
         Uri uri = new Uri.Builder()
@@ -161,7 +162,7 @@ public class SliceViewManagerTest {
         verify(callback, timeout(2000)).onSliceUpdated(any(Slice.class));
     }
 
-    @SdkSuppress(maxSdkVersion = 27)
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
     @Test
     public void testPinnedSpecs() {
         Uri uri = new Uri.Builder()

@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 
 /**
  * Icon component that draws [imageVector] using [tint], defaulting to [LocalContentColor]. For a
- * clickable icon, see [IconButton].
+ * clickable icon, see Button.
  *
  * @param imageVector [ImageVector] to draw inside this Icon
  * @param contentDescription Text used by accessibility services to describe what this icon
@@ -44,7 +44,7 @@ fun Icon(
     imageVector: ImageVector,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
 ) {
     Icon(
         painter = rememberVectorPainter(imageVector),
@@ -72,7 +72,7 @@ fun Icon(
     bitmap: ImageBitmap,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
 ) {
     val painter = remember(bitmap) { BitmapPainter(bitmap) }
     Icon(
@@ -101,7 +101,7 @@ fun Icon(
     painter: Painter,
     contentDescription: String?,
     modifier: Modifier = Modifier,
-    tint: Color = LocalContentColor.current
+    tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
 ) {
     androidx.wear.compose.materialcore.Icon(
         painter = painter,

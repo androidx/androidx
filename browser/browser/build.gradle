@@ -1,11 +1,4 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -17,7 +10,7 @@ android {
     buildFeatures {
         aidl = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         stableAidl {
             version 1
         }
@@ -29,7 +22,6 @@ android {
 dependencies {
     api("androidx.core:core:1.1.0")
     api("androidx.annotation:annotation:1.2.0")
-    api("androidx.annotation:annotation-experimental:1.4.0")
     api(libs.guavaListenableFuture)
 
     implementation("androidx.collection:collection:1.1.0")
@@ -57,7 +49,7 @@ dependencies {
 
 androidx {
     name = "Browser"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "Provides support for embedding Custom Tabs in an app."
     metalavaK2UastEnabled = true

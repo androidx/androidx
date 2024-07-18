@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -54,10 +47,6 @@ dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
     implementation(libs.playServicesBasement)
     implementation(libs.playServicesWearable, { exclude group: "androidx.core"})
-
-    // Includes the wear-sdk jar
-    compileOnly files("../../wear/wear_sdk/wear-sdk.jar")
-    testImplementation(files("../../wear/wear_sdk/wear-sdk.jar"))
 }
 
 android {
@@ -72,10 +61,9 @@ android {
 
 androidx {
     name = "Android Wear Remote Interactions"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR_REMOTE_INTERACTIONS
     inceptionYear = "2020"
     description = "Android Wear Remote Interactions"
     metalavaK2UastEnabled = true
-    samples(project(":wear:wear-remote-interactions-samples"))
 }

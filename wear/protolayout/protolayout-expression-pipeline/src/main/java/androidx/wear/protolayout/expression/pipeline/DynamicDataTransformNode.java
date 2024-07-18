@@ -75,9 +75,4 @@ class DynamicDataTransformNode<I, O> implements DynamicDataNode<O> {
     public DynamicTypeValueReceiverWithPreUpdate<I> getIncomingCallback() {
         return mCallback;
     }
-
-    @Override
-    public int getCost() {
-        return DEFAULT_NODE_COST;
-    }
 }

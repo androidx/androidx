@@ -26,8 +26,7 @@ message OnConditionMetTrigger {
   androidx.wear.protolayout.expression.proto.DynamicBool condition = 1;
 }
 
-// The triggers that can be fired. These triggers can be used to allow acting on
-// events. For example some animations can be set to start based on a trigger.
+// The triggers that can be fired.
 message Trigger {
   oneof inner {
     OnVisibleTrigger on_visible_trigger = 1;

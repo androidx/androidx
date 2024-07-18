@@ -31,6 +31,7 @@ internal fun Translations.be() = mapOf(
     Strings.Dialog to "Дыялогавае акно",
     Strings.MenuExpanded to "Разгорнута",
     Strings.MenuCollapsed to "Згорнута",
+    Strings.ToggleDropdownMenu to "Уключыць (выключыць) выпадное меню",
     Strings.SnackbarDismiss to "Закрыць",
     Strings.SearchBarSearch to "Пошук",
     Strings.SuggestionsAvailable to "Прапановы ўнізе",

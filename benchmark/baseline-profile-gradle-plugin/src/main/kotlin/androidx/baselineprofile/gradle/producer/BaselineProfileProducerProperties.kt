@@ -16,11 +16,6 @@
 
 package androidx.baselineprofile.gradle.producer
 
-import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME
-
-private const val PROP_PREFIX_ANDROID_TEST_INSTRUMENTATION_RUNNER_ARG =
-    "android.testInstrumentationRunnerArguments."
-
 /**
  * This property determines whether the test task should actually run to generate the baseline
  * profile artifacts. When this property is set, the test tasks will be disabled and baseline
@@ -34,32 +29,3 @@ private const val PROP_PREFIX_ANDROID_TEST_INSTRUMENTATION_RUNNER_ARG =
  * -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect.
  */
 internal const val PROP_SKIP_GENERATION = "androidx.baselineprofile.skipgeneration"
-
-/**
- * This property determines whether the baselineProfile dsl specification for `managedDevices` and
- * `useConnectedDevices` is respected. When this property is set to to true only connected devices
- * are used and managed devices are ignored.
- */
-internal const val PROP_FORCE_ONLY_CONNECTED_DEVICES =
-    "androidx.baselineprofile.forceonlyconnecteddevices"
-
-/**
- * This property determines whether the testInstrumentationRunnerArguments
- * `androidx.benchmark.enabledRules` is set depending on which variants the tests are invoked on.
- * When this flag IS NOT SPECIFIED, the plugin injects the `enabledRules` argument in order to
- * enable tests with a specific rule, depending on the variant. For example, when running tests on
- * a `nonMinified` build type such as `connectedNonMinifiedReleaseAndroidTest`, the plugin injects
- * `android.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules=baselineprofile`.
- * When this flag IS SPECIFIED, the plugin will not inject any `enabledRules` argument and all
- * the tests, independent from the rule applied, will be run.
- */
-internal const val PROP_DONT_DISABLE_RULES = "androidx.baselineprofile.dontdisablerules"
-
-/**
- * This property specifies the target package name of the app to start when running the baseline
- * profile generator. Normally this is passed by the baseline profile gradle plugin and it's
- * specific per variant. It's possible to override this property manually directly specifying the
- * test instrumentation runner argument.
- */
-internal const val PROP_SEND_TARGET_PACKAGE_NAME =
-    "$PROP_PREFIX_ANDROID_TEST_INSTRUMENTATION_RUNNER_ARG$INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME"

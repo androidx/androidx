@@ -31,8 +31,7 @@ class SingleItemQueryResultAdapter(
         scope.builder.apply {
             rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
             addLocalVariable(outVarName, type.asTypeName())
-            val stepName = if (scope.useDriverApi) "step" else "moveToFirst"
-            beginControlFlow("if (%L.$stepName())", cursorVarName).apply {
+            beginControlFlow("if (%L.moveToFirst())", cursorVarName).apply {
                 rowAdapter.convert(outVarName, cursorVarName, scope)
             }
             nextControlFlow("else").apply {
@@ -54,6 +53,4 @@ class SingleItemQueryResultAdapter(
             endControlFlow()
         }
     }
-
-    override fun isMigratedToDriver(): Boolean = rowAdapter.isMigratedToDriver()
 }

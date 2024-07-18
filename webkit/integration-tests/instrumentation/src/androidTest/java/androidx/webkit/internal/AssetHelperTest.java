@@ -25,8 +25,6 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.webkit.WebkitUtils;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -254,12 +252,8 @@ public class AssetHelperTest {
         Assert.assertEquals("text/plain", AssetHelper.guessMimeType("A.myownfiletype"));
 
         // We added this because javascript mime types weren't being handled
-        // correctly so also adding a test for that to be safe.
-        // Depending on the Android version, this could be either text/javascript (newer),
-        // or application/javascript (older) so checking for both.
-        MatcherAssert.assertThat(
-                AssetHelper.guessMimeType("a js file.js"),
-                Matchers.isOneOf("text/javascript", "application/javascript"));
+        // correctly so also adding a test for that to be safe
+        Assert.assertEquals("application/javascript", AssetHelper.guessMimeType("a js file.js"));
 
         // Check that overridden mime map is prioritized
         final String expectedMime = "test/mime";

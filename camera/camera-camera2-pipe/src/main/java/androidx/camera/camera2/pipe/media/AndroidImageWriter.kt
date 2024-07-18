@@ -22,7 +22,7 @@ import android.os.Build
 import android.os.Handler
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.InputStreamId
+import androidx.camera.camera2.pipe.InputId
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.compat.Api29Compat
 import androidx.camera.camera2.pipe.core.Log
@@ -36,32 +36,15 @@ import kotlinx.atomicfu.atomic
 @RequiresApi(Build.VERSION_CODES.M)
 class AndroidImageWriter private constructor(
     private val imageWriter: ImageWriter,
-    private val inputStreamId: InputStreamId
+    private val inputId: InputId
 ) : ImageWriterWrapper, ImageWriter.OnImageReleasedListener {
     private val onImageReleasedListener = atomic<ImageWriterWrapper.OnImageReleasedListener?>(null)
     override val maxImages: Int = imageWriter.maxImages
 
     override val format: Int = imageWriter.format
 
-    override fun queueInputImage(image: ImageWrapper): Boolean {
-        return try {
-            val unwrappedImage = image.unwrapAs(Image::class)
-            if (unwrappedImage == null) {
-                Log.warn {
-                    "Failed to unwrap image wrapper $image"
-                }
-                return false
-            }
-            imageWriter.queueInputImage(unwrappedImage)
-            true
-        } catch (e: Throwable) {
-            Log.warn {
-                "Failed to queue image to $this due to error ${e.message}. " +
-                    "Ignoring failure and closing $image"
-            }
-            image.close()
-            false
-        }
+    override fun queueInputImage(image: ImageWrapper) {
+        imageWriter.queueInputImage(image.unwrapAs(Image::class))
     }
 
     override fun dequeueInputImage(): ImageWrapper {
@@ -76,7 +59,7 @@ class AndroidImageWriter private constructor(
     }
 
     override fun onImageReleased(writer: ImageWriter?) {
-        onImageReleasedListener.value?.onImageReleased(inputStreamId)
+        onImageReleasedListener.value?.onImageReleased(inputId)
     }
 
     override fun close() = imageWriter.close()
@@ -88,7 +71,8 @@ class AndroidImageWriter private constructor(
     }
 
     override fun toString(): String {
-        return "ImageWriter-${StreamFormat(imageWriter.format).name}-$inputStreamId"
+        return "ImageWriter-${StreamFormat(imageWriter.format).name}-" +
+            "inputId$inputId"
     }
 
     companion object {
@@ -99,9 +83,9 @@ class AndroidImageWriter private constructor(
          */
         fun create(
             surface: Surface,
-            inputStreamId: InputStreamId,
             maxImages: Int,
-            format: StreamFormat?,
+            format: Int?,
+            inputId: InputId,
             handler: Handler
         ): ImageWriterWrapper {
             require(maxImages > 0) { "Max images ($maxImages) must be > 0" }
@@ -110,14 +94,15 @@ class AndroidImageWriter private constructor(
                     "$IMAGEREADER_MAX_CAPACITY to prevent overloading downstream " +
                     "consumer components."
             }
+
             // Create and configure a new ImageWriter
             val imageWriter =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && format != null) {
-                    Api29Compat.imageWriterNewInstance(surface, maxImages, format.value)
+                    Api29Compat.imageWriterNewInstance(surface, maxImages, format)
                 } else {
                     if (format != null) {
                         Log.warn {
-                            "Ignoring format ($format) for $inputStreamId. Android " +
+                            "Ignoring format ($format) for $inputId. Android " +
                                 "${Build.VERSION.SDK_INT} does not support creating ImageWriters " +
                                 "with formats. This may lead to unexpected behaviors."
                         }
@@ -125,7 +110,7 @@ class AndroidImageWriter private constructor(
                     ImageWriter.newInstance(surface, maxImages)
                 }
 
-            val androidImageWriter = AndroidImageWriter(imageWriter, inputStreamId)
+            val androidImageWriter = AndroidImageWriter(imageWriter, inputId)
             imageWriter.setOnImageReleasedListener(
                 androidImageWriter, handler
             )

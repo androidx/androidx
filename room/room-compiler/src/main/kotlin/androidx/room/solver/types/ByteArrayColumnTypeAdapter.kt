@@ -74,8 +74,8 @@ class ByteArrayColumnTypeAdapter private constructor(
             val arrayType = env.getArrayType(env.requireType(XTypeName.PRIMITIVE_BYTE))
             return if (env.backend == XProcessingEnv.Backend.KSP) {
                 listOf(
-                    ByteArrayColumnTypeAdapter(arrayType.makeNullable()),
-                    ByteArrayColumnTypeAdapter(arrayType.makeNonNullable())
+                    ByteArrayColumnTypeAdapter(arrayType.makeNonNullable()),
+                    ByteArrayColumnTypeAdapter(arrayType.makeNullable())
                 )
             } else {
                 listOf(

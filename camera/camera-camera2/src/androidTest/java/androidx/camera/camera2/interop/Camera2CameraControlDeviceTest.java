@@ -117,7 +117,7 @@ public final class Camera2CameraControlDeviceTest {
         CaptureRequestOptions.Builder builder = new CaptureRequestOptions.Builder()
                 .setCaptureRequestOption(
                         CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
+                        CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
                 .setCaptureRequestOption(
                         CaptureRequest.COLOR_CORRECTION_MODE,
                         CameraMetadata.COLOR_CORRECTION_MODE_FAST);
@@ -125,7 +125,7 @@ public final class Camera2CameraControlDeviceTest {
 
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.CONTROL_CAPTURE_INTENT, null)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.COLOR_CORRECTION_MODE, null)).isEqualTo(
                 CameraMetadata.COLOR_CORRECTION_MODE_FAST);
@@ -135,14 +135,14 @@ public final class Camera2CameraControlDeviceTest {
     public void canSubmitCaptureRequestOptions_beforeBinding() {
         ListenableFuture<Void> future = updateCamera2Option(
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         bindUseCase();
 
         assertFutureCompletes(future);
 
         verifyCaptureRequestParameter(mMockCaptureCallback,
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
     }
 
     @Test
@@ -150,13 +150,13 @@ public final class Camera2CameraControlDeviceTest {
         bindUseCase();
         ListenableFuture<Void> future = updateCamera2Option(
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
 
         assertFutureCompletes(future);
 
         verifyCaptureRequestParameter(mMockCaptureCallback,
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
     }
 
     @Test
@@ -164,13 +164,13 @@ public final class Camera2CameraControlDeviceTest {
         bindUseCase();
         ListenableFuture<Void> future = updateCamera2Option(
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
 
         assertFutureCompletes(future);
 
         verifyCaptureRequestParameter(mMockCaptureCallback,
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
 
         future = updateCamera2Option(
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
@@ -189,7 +189,7 @@ public final class Camera2CameraControlDeviceTest {
         CaptureRequestOptions.Builder builder = new CaptureRequestOptions.Builder()
                 .setCaptureRequestOption(
                         CaptureRequest.CONTROL_CAPTURE_INTENT,
-                        CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW)
+                        CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL)
                 .setCaptureRequestOption(CaptureRequest.COLOR_CORRECTION_MODE,
                         CaptureRequest.COLOR_CORRECTION_MODE_FAST);
 
@@ -206,7 +206,7 @@ public final class Camera2CameraControlDeviceTest {
 
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.CONTROL_CAPTURE_INTENT, null)).isEqualTo(
-                CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
         assertThat(mCamera2CameraControl.getCaptureRequestOptions().getCaptureRequestOption(
                 CaptureRequest.COLOR_CORRECTION_MODE, null)).isEqualTo(null);
     }

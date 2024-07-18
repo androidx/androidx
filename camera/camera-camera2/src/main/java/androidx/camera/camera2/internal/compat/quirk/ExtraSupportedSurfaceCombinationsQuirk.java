@@ -56,8 +56,8 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
     private static final SurfaceCombination FULL_LEVEL_YUV_YUV_YUV_CONFIGURATION =
             createFullYuvYuvYuvConfiguration();
 
-    private static final SurfaceCombination LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION =
-            createLevel3PrivPrivYuvSubsetConfiguration();
+    private static final SurfaceCombination LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION =
+            createLevel3PrivPrivYuvRawConfiguration();
 
     private static final Set<String> SUPPORT_EXTRA_FULL_CONFIGURATIONS_SAMSUNG_MODELS =
             new HashSet<>(Arrays.asList(
@@ -217,16 +217,9 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
                     "PIXEL 7",
                     "PIXEL 7 PRO"));
 
-    private static final Set<String> SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS =
-            new HashSet<>(Arrays.asList(
-                    "SM-S926B", // Galaxy S24+
-                    "SM-S928U" // Galaxy S24 Ultra
-              ));
-
     static boolean load() {
         return isSamsungS7() || supportExtraFullConfigurationsSamsungDevice()
-                || supportExtraLevel3ConfigurationsGoogleDevice()
-                || supportExtraLevel3ConfigurationsSamsungDevice();
+                || supportExtraLevel3ConfigurationsGoogleDevice();
     }
 
     private static boolean isSamsungS7() {
@@ -254,16 +247,6 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_GOOGLE_MODELS.contains(capitalModelName);
     }
 
-    private static boolean supportExtraLevel3ConfigurationsSamsungDevice() {
-        if (!"samsung".equalsIgnoreCase(Build.BRAND)) {
-            return false;
-        }
-
-        String capitalModelName = Build.MODEL.toUpperCase(Locale.US);
-
-        return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
-    }
-
     /**
      * Returns the extra supported surface combinations for specific camera on the device.
      */
@@ -278,9 +261,8 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
             return getLimitedDeviceExtraSupportedFullConfigurations(hardwareLevel);
         }
 
-        if (supportExtraLevel3ConfigurationsGoogleDevice()
-                || supportExtraLevel3ConfigurationsSamsungDevice()) {
-            return Collections.singletonList(LEVEL_3_LEVEL_PRIV_PRIV_YUV_SUBSET_CONFIGURATION);
+        if (supportExtraLevel3ConfigurationsGoogleDevice()) {
+            return Collections.singletonList(LEVEL_3_LEVEL_PRIV_PRIV_YUV_RAW_CONFIGURATION);
         }
 
         return Collections.emptyList();
@@ -341,15 +323,7 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         return surfaceCombination;
     }
 
-    /**
-     * Creates (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) surface combination.
-     *
-     * <p>This is a subset of LEVEL_3 camera devices'
-     * (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
-     * guaranteed supported configuration. This configuration has been verified to make sure that
-     * the surface combination can work well on the target devices.
-     */
-    private static SurfaceCombination createLevel3PrivPrivYuvSubsetConfiguration() {
+    private static SurfaceCombination createLevel3PrivPrivYuvRawConfiguration() {
         // (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
         SurfaceCombination surfaceCombination = new SurfaceCombination();
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
@@ -357,6 +331,8 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
                 SurfaceConfig.ConfigSize.VGA));
         surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.YUV,
+                SurfaceConfig.ConfigSize.MAXIMUM));
+        surfaceCombination.addSurfaceConfig(SurfaceConfig.create(SurfaceConfig.ConfigType.RAW,
                 SurfaceConfig.ConfigSize.MAXIMUM));
 
         return surfaceCombination;

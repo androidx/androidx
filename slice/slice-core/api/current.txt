@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.slice {
 
-  @Deprecated public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
+  @Deprecated @RequiresApi(19) public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
     method @Deprecated public java.util.List<java.lang.String!> getHints();
     method @Deprecated public java.util.List<androidx.slice.SliceItem!> getItems();
     method @Deprecated public android.net.Uri getUri();
@@ -13,7 +13,7 @@ package androidx.slice {
     method @Deprecated public static androidx.slice.Slice? wrap(android.app.slice.Slice?, android.content.Context);
   }
 
-  @Deprecated public final class SliceItem implements androidx.versionedparcelable.VersionedParcelable {
+  @Deprecated @RequiresApi(19) public final class SliceItem implements androidx.versionedparcelable.VersionedParcelable {
     method @Deprecated public static android.text.ParcelableSpan createSensitiveSpan();
     method @Deprecated public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method @Deprecated public android.app.PendingIntent? getAction();
@@ -31,7 +31,7 @@ package androidx.slice {
     method @Deprecated public void onPreParceling(boolean);
   }
 
-  @Deprecated public abstract class SliceManager {
+  @Deprecated @RequiresApi(19) public abstract class SliceManager {
     method @Deprecated public abstract int checkSlicePermission(android.net.Uri, int, int);
     method @Deprecated public static androidx.slice.SliceManager getInstance(android.content.Context);
     method @Deprecated public abstract java.util.List<android.net.Uri!> getPinnedSlices();
@@ -43,22 +43,22 @@ package androidx.slice {
     ctor @Deprecated public SliceProvider();
     ctor @Deprecated public SliceProvider(java.lang.String!...);
     method @Deprecated public final int bulkInsert(android.net.Uri, android.content.ContentValues![]);
-    method @Deprecated public final android.net.Uri? canonicalize(android.net.Uri);
+    method @Deprecated @RequiresApi(19) public final android.net.Uri? canonicalize(android.net.Uri);
     method @Deprecated public final int delete(android.net.Uri, String?, String![]?);
-    method @Deprecated public java.util.List<android.net.Uri!> getPinnedSlices();
+    method @Deprecated @RequiresApi(19) public java.util.List<android.net.Uri!> getPinnedSlices();
     method @Deprecated public final String? getType(android.net.Uri);
     method @Deprecated public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
-    method @Deprecated public abstract androidx.slice.Slice? onBindSlice(android.net.Uri);
+    method @Deprecated @RequiresApi(19) public abstract androidx.slice.Slice? onBindSlice(android.net.Uri);
     method @Deprecated public final boolean onCreate();
     method @Deprecated public android.app.PendingIntent? onCreatePermissionRequest(android.net.Uri, String);
-    method @Deprecated public abstract boolean onCreateSliceProvider();
-    method @Deprecated public java.util.Collection<android.net.Uri!> onGetSliceDescendants(android.net.Uri);
-    method @Deprecated public android.net.Uri onMapIntentToUri(android.content.Intent);
-    method @Deprecated public void onSlicePinned(android.net.Uri);
-    method @Deprecated public void onSliceUnpinned(android.net.Uri);
+    method @Deprecated @RequiresApi(19) public abstract boolean onCreateSliceProvider();
+    method @Deprecated @RequiresApi(19) public java.util.Collection<android.net.Uri!> onGetSliceDescendants(android.net.Uri);
+    method @Deprecated @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent);
+    method @Deprecated @RequiresApi(19) public void onSlicePinned(android.net.Uri);
+    method @Deprecated @RequiresApi(19) public void onSliceUnpinned(android.net.Uri);
     method @Deprecated @RequiresApi(28) public final android.database.Cursor? query(android.net.Uri, String![]?, android.os.Bundle?, android.os.CancellationSignal?);
     method @Deprecated public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
-    method @Deprecated public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
+    method @Deprecated @RequiresApi(16) public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
     method @Deprecated public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
@@ -66,7 +66,7 @@ package androidx.slice {
 
 package androidx.slice.core {
 
-  @Deprecated public interface SliceAction {
+  @Deprecated @RequiresApi(19) public interface SliceAction {
     method @Deprecated public android.app.PendingIntent getAction();
     method @Deprecated public CharSequence? getContentDescription();
     method @Deprecated public androidx.core.graphics.drawable.IconCompat? getIcon();

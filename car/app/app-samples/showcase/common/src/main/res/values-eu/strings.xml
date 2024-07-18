@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"Ez dago erabilgarri"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"Ibilgailu elektrikoaren konektore motak"</string>
     <string name="example_title" msgid="530257630320010494">"Adibidea: %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"Testua "<annotation color="red">"gorriz"</annotation>" dago"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"Testua "<annotation color="green">"berdez"</annotation>" dago"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"Testua "<annotation color="blue">"urdinez"</annotation>" dago"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"Testua "<annotation color="yellow">"horiz"</annotation>" dago"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"Testua gorriz dago"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Testua berdez dago"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Testua urdinez dago"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Testua horiz dago"</string>
     <string name="example_5_text" msgid="8828804968749423500">"Testua kolore primario batean dago"</string>
     <string name="example_6_text" msgid="7991523168517599600">"Testua kolore sekundario batean dago"</string>
     <string name="color_demo" msgid="1822427636476178993">"Kolorearen demo-bertsioa"</string>
@@ -176,7 +176,7 @@
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"Nabigazioaren txantiloien (mapa soilik dutenak) demo-bertsioa"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"Nabigazioaren demo-bertsioak"</string>
     <string name="navigation_alert_title" msgid="8306554249264200848">"Radar mugikorrak al daude oraindik?"</string>
-    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Duela 10 minutu jakinarazi da"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Duela 10 min jakinarazi da"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"Ez dago bidesarien txartela atzitzeko baimenik."</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"Ez dago energia-maila atzitzeko baimenik."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"Ez dago abiadura atzitzeko baimenik."</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"Arakatu tokiak"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"Bilatzeko txantiloien demo-bertsioa"</string>
     <string name="search_hint" msgid="978495498991026792">"Bilatu hemen"</string>
-    <string name="additional_text" msgid="5755100726890686184">"Berrikusi gure "<annotation link="terms_of_service">"zerbitzu-baldintzak"</annotation></string>
+    <string name="additional_text" msgid="8410289578276941586">"Berrikusi gure zerbitzu-baldintzak"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google-ren saio-hasiera"</string>
     <string name="use_pin" msgid="7850893299484337431">"Erabili PINa"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR kodea"</string>
@@ -279,7 +279,7 @@
     <string name="png_bitmap_title" msgid="3385912074130977032">"Bit-mapa gisa bidalitako PNG bat"</string>
     <string name="just_row_title" msgid="965700021568970725">"Izen bat baino ez"</string>
     <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Aplikazioaren ikonoa duen izena"</string>
-    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Baliabide-identifikatzailearen irudia duen izena"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Baliabide IDaren irudia duen izena"</string>
     <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG irudi bat duen izena"</string>
     <string name="colored_secondary_row_title" msgid="5173288934252528929">"Bigarren mailako testu koloreztatua"</string>
     <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"Bigarren mailako hainbat testu-lerro dituen izena"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Ibilbidearen aukerak"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Saihestu autobideak"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Saihestu ferryak"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"Mapen demo-bertsioak"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Edukiaren demo-bertsioak dituen mapa"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Mezuen txantiloien demo-bertsioa duen mapa"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Sareten txantiloien demo-bertsioa duen mapa"</string>
 </resources>

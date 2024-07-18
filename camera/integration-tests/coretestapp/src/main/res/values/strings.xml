@@ -20,8 +20,6 @@
     <string name="switch_mode">Switch Mode</string>
     <string name="change_layout">Change Layout</string>
     <string name="toggle_camera">Toggle Camera</string>
-    <string name="dual_selfie_on">Dual Selfie On</string>
-    <string name="dual_selfie_off">Dual Selfie Off</string>
     <string name="toggle">Toggle</string>
     <string name="finish">Finish</string>
     <string name="is_front_primary">IsFrontPrimary</string>

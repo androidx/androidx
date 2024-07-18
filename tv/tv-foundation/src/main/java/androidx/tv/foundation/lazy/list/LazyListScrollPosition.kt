@@ -27,6 +27,7 @@ import androidx.tv.foundation.lazy.layout.LazyLayoutNearestRangeState
  * Contains the current scroll position represented by the first visible item index and the first
  * visible item scroll offset.
  */
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 internal class LazyListScrollPosition(
     initialIndex: Int = 0,
     initialScrollOffset: Int = 0
@@ -88,6 +89,7 @@ internal class LazyListScrollPosition(
      * there were items added or removed before our current first visible item and keep this item
      * as the first visible one even given that its index has been changed.
      */
+    @Suppress("IllegalExperimentalApiUsage") // TODO(b/233188423): Address before moving to beta
     @ExperimentalFoundationApi
     fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyListItemProvider,

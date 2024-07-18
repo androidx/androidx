@@ -18,7 +18,6 @@ package androidx.appcompat.app;
 
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 
@@ -28,7 +27,6 @@ public class BasicsTestCaseWithWindowDecor extends BaseBasicsTestCase<WindowDeco
         super(WindowDecorAppCompatActivity.class);
     }
 
-    @SdkSuppress(maxSdkVersion = 33) // b/322355781
     @Test
     @UiThreadTest
     public void testSupportActionModeAppCompatCallbacks() {

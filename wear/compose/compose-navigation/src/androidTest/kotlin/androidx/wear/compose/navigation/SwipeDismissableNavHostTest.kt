@@ -19,7 +19,6 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -95,7 +94,7 @@ class SwipeDismissableNavHostTest {
 
         // Click to move to next destination then swipe to dismiss.
         rule.onNodeWithText(START).performClick()
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
 
         // Should now display "start".
         rule.onNodeWithText(START).assertExists()
@@ -196,28 +195,23 @@ class SwipeDismissableNavHostTest {
                     composable(START) {
                         screenId.value = START
                         var toggle by rememberSaveable { mutableStateOf(false) }
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column {
-                                ToggleButton(
-                                    checked = toggle,
-                                    onCheckedChange = {
-                                        toggle = !toggle
-                                    },
-                                    content = { Text(text = if (toggle) "On" else "Off") },
-                                    modifier = Modifier.testTag("ToggleButton"),
-                                )
-                                Button(
-                                    onClick = { navController.navigate(NEXT) },
-                                ) {
-                                    Text("Go")
-                                }
+                        Column {
+                            ToggleButton(
+                                checked = toggle,
+                                onCheckedChange = {
+                                    toggle = !toggle
+                                },
+                                content = { Text(text = if (toggle) "On" else "Off") },
+                                modifier = Modifier.testTag("ToggleButton"),
+                            )
+                            Button(
+                                onClick = { navController.navigate(NEXT) },
+                            ) {
+                                Text("Go")
                             }
                         }
                     }
-                    composable(NEXT) {
+                    composable("next") {
                         screenId.value = NEXT
                         CompactChip(
                             onClick = {},
@@ -252,9 +246,7 @@ class SwipeDismissableNavHostTest {
                         holder.SaveableStateProvider(START) {
                             var toggle by rememberSaveable { mutableStateOf(false) }
                             Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp),
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -279,9 +271,7 @@ class SwipeDismissableNavHostTest {
                         holder.SaveableStateProvider(NEXT) {
                             var counter by rememberSaveable { mutableStateOf(0) }
                             Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(horizontal = 20.dp),
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
@@ -458,23 +448,13 @@ class SwipeDismissableNavHostTest {
             userSwipeEnabled = userSwipeEnabled
         ) {
             composable(START) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CompactChip(
-                        onClick = { navController.navigate(NEXT) },
-                        label = { Text(text = START) }
-                    )
-                }
+                CompactChip(
+                    onClick = { navController.navigate(NEXT) },
+                    label = { Text(text = START) }
+                )
             }
             composable("next") {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(NEXT)
-                }
+                Text(NEXT)
             }
         }
     }

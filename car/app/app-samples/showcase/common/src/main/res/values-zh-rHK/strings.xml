@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"無法使用"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"電動車連接器類型"</string>
     <string name="example_title" msgid="530257630320010494">"例子 %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"這是"<annotation color="red">"紅色"</annotation>"的文字"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"這是"<annotation color="green">"綠色"</annotation>"的文字"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"這是"<annotation color="blue">"藍色"</annotation>"的文字"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"這是"<annotation color="yellow">"黃色"</annotation>"的文字"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"這是紅色的文字"</string>
+    <string name="example_2_text" msgid="718820705318661440">"這是綠色的文字"</string>
+    <string name="example_3_text" msgid="977269832109695627">"這是藍色的文字"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"這是黃色的文字"</string>
     <string name="example_5_text" msgid="8828804968749423500">"這是使用主要顏色的文字"</string>
     <string name="example_6_text" msgid="7991523168517599600">"這是使用次要顏色的文字"</string>
     <string name="color_demo" msgid="1822427636476178993">"「顏色」示範"</string>
@@ -236,7 +236,7 @@
     <string name="browse_places_title" msgid="7246005909846715898">"瀏覽地點"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"「搜尋範本」示範"</string>
     <string name="search_hint" msgid="978495498991026792">"在這裡搜尋"</string>
-    <string name="additional_text" msgid="5755100726890686184">"請參閱我們的"<annotation link="terms_of_service">"《服務條款》"</annotation></string>
+    <string name="additional_text" msgid="8410289578276941586">"請詳閱我們的《服務條款》"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google 登入"</string>
     <string name="use_pin" msgid="7850893299484337431">"使用 PIN"</string>
     <string name="qr_code" msgid="5487041647280777397">"QR 碼"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"路線選項"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"避開高速公路"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"避開渡輪"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"地圖示範"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"含有內容示範的地圖"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"含有訊息範本示範的地圖"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"含有格線範本示範的地圖"</string>
 </resources>

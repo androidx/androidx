@@ -29,14 +29,4 @@
     <string name="emoji_category_flags" msgid="6185639503532784871">"დროშები"</string>
     <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"Emoji-ები მიუწვდომელია"</string>
     <string name="emoji_empty_recent_category" msgid="7863877827879290200">"Emoji-ებით ჯერ არ გისარგებლიათ"</string>
-    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"emoji-ს ორმიმართულებიანი გადამრთველი"</string>
-    <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"emoji-ის მიმართულება შეცვლილია"</string>
-    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"emoji-ს ვარიანტის ამომრჩევი"</string>
-    <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"%1$s და %2$s"</string>
-    <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"ჩრდილი"</string>
-    <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"კანის ღია ტონი"</string>
-    <string name="emoji_skin_tone_medium_light_content_desc" msgid="3968357909948619626">"კანის ღია საშუალო ტონი"</string>
-    <string name="emoji_skin_tone_medium_content_desc" msgid="8880212664699697283">"კანის საშუალო ტონი"</string>
-    <string name="emoji_skin_tone_medium_dark_content_desc" msgid="5500271767005002413">"კანის მუქი საშუალო ტონი"</string>
-    <string name="emoji_skin_tone_dark_content_desc" msgid="943874297162865134">"კანის მუქი ტონი"</string>
 </resources>

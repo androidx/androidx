@@ -23,9 +23,4 @@
          command and should not be translated. "GlanceAppWidget" is the exact term the developer
          needs to search for and should not be translated. [CHAR_LIMIT=NONE]. -->
     <string name="glance_error_layout_text">Check the exact error using <b><tt>adb logcat</tt></b>, searching for <b><tt>GlanceAppWidget</tt></b></string>
-    <!-- The body of an error message shown to users when an App Widget that has been made
-         with the Glance framework experiences an error and cannot render its typical UI. The
-         message is intentionally terse.
-          [CHAR_LIMIT=NONE]. -->
-    <string name="glance_error_layout_text_v2">Can\'t show content</string>
 </resources>

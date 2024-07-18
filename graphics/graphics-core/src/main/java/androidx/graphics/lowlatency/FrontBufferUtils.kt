@@ -21,13 +21,23 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.graphics.surface.SurfaceControlCompat
-import androidx.hardware.USAGE_COMPOSER_OVERLAY
 
 internal class FrontBufferUtils private constructor() {
 
     companion object {
 
         internal const val TAG = "FrontBufferUtils"
+
+        // Leverage the same value as HardwareBuffer.USAGE_COMPOSER_OVERLAY.
+        // While this constant was introduced in the SDK in the Android T release, it has
+        // been available within the NDK as part of
+        // AHardwareBuffer_UsageFlags#AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY for quite some time.
+        // This flag is required for usage of ASurfaceTransaction#setBuffer
+        // Use a separate constant with the same value to avoid SDK warnings of accessing the
+        // newly added constant in the SDK.
+        // See:
+        // developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
+        private const val USAGE_COMPOSER_OVERLAY: Long = 2048L
 
         /**
          * Flags that are expected to be supported on all [HardwareBuffer] instances

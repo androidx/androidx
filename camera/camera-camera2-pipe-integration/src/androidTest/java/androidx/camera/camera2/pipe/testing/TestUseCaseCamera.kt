@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.testing
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
-import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpInactiveSurfaceCloser
@@ -38,6 +42,7 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.integration.impl.CameraCallbackMap
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
+import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CapturePipeline
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
@@ -48,9 +53,7 @@ import androidx.camera.camera2.pipe.integration.impl.UseCaseManager.Companion.cr
 import androidx.camera.camera2.pipe.integration.impl.UseCaseSurfaceManager
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.impl.toMap
-import androidx.camera.core.ImageCapture
 import androidx.camera.core.UseCase
-import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.SessionConfig
@@ -92,10 +95,8 @@ class TestUseCaseCamera(
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
-        val cameraGraphConfig = createCameraGraphConfig(
-            sessionConfigAdapter, streamConfigMap, callbackMap, requestListener, cameraConfig,
-            cameraQuirks, null, ZslControlNoOpImpl()
-        )
+        val cameraGraphConfig = createCameraGraphConfig(sessionConfigAdapter, streamConfigMap,
+            callbackMap, requestListener, cameraConfig, cameraQuirks, null)
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 
         useCaseCameraGraphConfig = UseCaseCameraConfig(
@@ -103,8 +104,7 @@ class TestUseCaseCamera(
             sessionConfigAdapter,
             CameraStateAdapter(),
             cameraGraph,
-            streamConfigMap,
-            sessionProcessorManager = null
+            streamConfigMap
         ).provideUseCaseGraphConfig(
             useCaseSurfaceManager = useCaseSurfaceManager,
             cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
@@ -112,25 +112,24 @@ class TestUseCaseCamera(
     }
 
     override val requestControl: UseCaseCameraRequestControl = UseCaseCameraRequestControlImpl(
+        configAdapter = CaptureConfigAdapter(
+            CameraPipeCameraProperties(cameraConfig, cameraMetadata),
+            useCaseCameraGraphConfig,
+            threads
+        ),
         capturePipeline = object : CapturePipeline {
             override var template: Int = CameraDevice.TEMPLATE_PREVIEW
 
             override suspend fun submitStillCaptures(
-                configs: List<CaptureConfig>,
-                requestTemplate: RequestTemplate,
-                sessionConfigOptions: Config,
-                @ImageCapture.CaptureMode captureMode: Int,
-                @ImageCapture.FlashType flashType: Int,
-                @ImageCapture.FlashMode flashMode: Int
+                requests: List<Request>,
+                captureMode: Int,
+                flashType: Int,
+                flashMode: Int
             ): List<Deferred<Void?>> {
                 throw NotImplementedError("Not implemented")
             }
         },
-        state = UseCaseCameraState(
-            useCaseCameraGraphConfig,
-            threads,
-            sessionProcessorManager = null
-        ),
+        state = UseCaseCameraState(useCaseCameraGraphConfig, threads),
         useCaseGraphConfig = useCaseCameraGraphConfig,
     ).apply {
         SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
@@ -148,7 +147,6 @@ class TestUseCaseCamera(
                 streams = useCaseCameraGraphConfig.getStreamIdsFromSurfaces(
                     sessionConfig.repeatingCaptureConfig.surfaces
                 ),
-                sessionConfig = sessionConfig,
             )
         }
     }

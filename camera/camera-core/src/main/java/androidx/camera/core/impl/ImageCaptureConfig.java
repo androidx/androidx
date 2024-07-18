@@ -25,9 +25,9 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.internal.IoConfig;
-import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.concurrent.Executor;
 
@@ -42,15 +42,14 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     // *********************************************************************************************
 
     public static final Option<Integer> OPTION_IMAGE_CAPTURE_MODE =
-            Option.create("camerax.core.imageCapture.captureMode", int.class);
+            Option.create(
+                    "camerax.core.imageCapture.captureMode", int.class);
     public static final Option<Integer> OPTION_FLASH_MODE =
             Option.create("camerax.core.imageCapture.flashMode", int.class);
     public static final Option<CaptureBundle> OPTION_CAPTURE_BUNDLE =
             Option.create("camerax.core.imageCapture.captureBundle", CaptureBundle.class);
     public static final Option<Integer> OPTION_BUFFER_FORMAT =
             Option.create("camerax.core.imageCapture.bufferFormat", Integer.class);
-    public static final Option<Integer> OPTION_OUTPUT_FORMAT =
-            Option.create("camerax.core.imageCapture.outputFormat", Integer.class);
     public static final Option<Integer> OPTION_MAX_CAPTURE_STAGES =
             Option.create("camerax.core.imageCapture.maxCaptureStages", Integer.class);
     public static final Option<ImageReaderProxyProvider> OPTION_IMAGE_READER_PROXY_PROVIDER =
@@ -62,16 +61,9 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashType", int.class);
     public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
             Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
-    public static final Option<ImageCapture.ScreenFlash> OPTION_SCREEN_FLASH =
-            Option.create("camerax.core.imageCapture.screenFlash", ImageCapture.ScreenFlash.class);
-    public static final Option<ResolutionSelector> OPTION_POSTVIEW_RESOLUTION_SELECTOR =
-            Option.create("camerax.core.useCase.postviewResolutionSelector",
-                    ResolutionSelector.class);
-
-    public static final Option<Boolean> OPTION_POSTVIEW_ENABLED =
-            Option.create("camerax.core.useCase.isPostviewEnabled",
-                    Boolean.class);
-
+    public static final Option<ScreenFlashUiControl> OPTION_SCREEN_FLASH_UI_CONTROL =
+            Option.create("camerax.core.imageCapture.screenFlashUiControl",
+                    ScreenFlashUiControl.class);
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
@@ -273,26 +265,11 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     }
 
     /**
-     * Gets the caller provided {@link ImageCapture.ScreenFlash} instance.
+     * Gets the caller provided {@link ScreenFlashUiControl}.
      */
     @Nullable
-    public ImageCapture.ScreenFlash getScreenFlash() {
-        return retrieveOption(OPTION_SCREEN_FLASH, null);
-    }
-
-    /**
-     * @return the {@link ResolutionSelector} used to determine the size of the postview.
-     */
-    @Nullable
-    public ResolutionSelector getPostviewResolutionSelector() {
-        return retrieveOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR, null);
-    }
-
-    /**
-     * @return if postview is enabled.
-     */
-    public boolean isPostviewEnabled() {
-        return retrieveOption(OPTION_POSTVIEW_ENABLED, false);
+    public ScreenFlashUiControl getScreenFlashUiControl() {
+        return retrieveOption(OPTION_SCREEN_FLASH_UI_CONTROL, null);
     }
 
     // Implementations of IO default methods

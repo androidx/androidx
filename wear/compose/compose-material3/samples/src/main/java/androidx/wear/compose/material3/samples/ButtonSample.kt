@@ -19,15 +19,12 @@ package androidx.wear.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
-import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.OutlinedButton
@@ -135,58 +132,4 @@ fun ChildButtonSample() {
             )
         }
     )
-}
-
-@Sampled
-@Composable
-fun CompactButtonSample() {
-    CompactButton(
-        onClick = { /* Do something */ },
-        icon = {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.SmallIconSize)
-            )
-        }
-    ) {
-        Text("Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-@Sampled
-@Composable
-fun FilledTonalCompactButtonSample() {
-    CompactButton(
-        onClick = { /* Do something */ },
-        icon = {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite icon",
-                modifier = Modifier.size(ButtonDefaults.SmallIconSize)
-            )
-        },
-        colors = ButtonDefaults.filledTonalButtonColors()
-    ) {
-        Text("Filled Tonal Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
-}
-
-@Sampled
-@Composable
-fun OutlinedCompactButtonSample() {
-    CompactButton(
-        onClick = { /* Do something */ },
-        icon = {
-            Icon(
-                Icons.Filled.ArrowDropDown,
-                contentDescription = "Expand",
-                modifier = Modifier.size(ButtonDefaults.SmallIconSize)
-            )
-        },
-        colors = ButtonDefaults.outlinedButtonColors(),
-        border = ButtonDefaults.outlinedButtonBorder(enabled = true)
-    ) {
-        Text("Show More", maxLines = 1, overflow = TextOverflow.Ellipsis)
-    }
 }

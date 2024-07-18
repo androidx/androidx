@@ -1,136 +1,168 @@
 import androidx.room.RoomDatabase
-import androidx.room.util.appendPlaceholders
-import androidx.room.util.getLastInsertedRowId
-import androidx.room.util.getTotalChangedRows
-import androidx.room.util.performBlocking
-import androidx.sqlite.SQLiteStatement
+import androidx.room.SharedSQLiteStatement
+import androidx.sqlite.db.SupportSQLiteStatement
+import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
-import kotlin.reflect.KClass
-import kotlin.text.StringBuilder
+import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION", "REMOVAL"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
-  __db: RoomDatabase,
+    __db: RoomDatabase,
 ) : MyDao {
-  private val __db: RoomDatabase
-  init {
-    this.__db = __db
-  }
+    private val __db: RoomDatabase
 
-  public override fun insertEntity(id: Long) {
-    val _sql: String = "INSERT INTO MyEntity (id) VALUES (?)"
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
+    private val __preparedStmtOfInsertEntity: SharedSQLiteStatement
+
+    private val __preparedStmtOfUpdateEntity: SharedSQLiteStatement
+
+    private val __preparedStmtOfUpdateEntityReturnInt: SharedSQLiteStatement
+
+    private val __preparedStmtOfDeleteEntity: SharedSQLiteStatement
+    init {
+        this.__db = __db
+        this.__preparedStmtOfInsertEntity = object : SharedSQLiteStatement(__db) {
+            public override fun createQuery(): String {
+                val _query: String = "INSERT INTO MyEntity (id) VALUES (?)"
+                return _query
+            }
+        }
+        this.__preparedStmtOfUpdateEntity = object : SharedSQLiteStatement(__db) {
+            public override fun createQuery(): String {
+                val _query: String = "UPDATE MyEntity SET text = ?"
+                return _query
+            }
+        }
+        this.__preparedStmtOfUpdateEntityReturnInt = object : SharedSQLiteStatement(__db) {
+            public override fun createQuery(): String {
+                val _query: String = "UPDATE MyEntity SET text = ? WHERE id = ?"
+                return _query
+            }
+        }
+        this.__preparedStmtOfDeleteEntity = object : SharedSQLiteStatement(__db) {
+            public override fun createQuery(): String {
+                val _query: String = "DELETE FROM MyEntity"
+                return _query
+            }
+        }
+    }
+
+    public override fun insertEntity(id: Long) {
+        __db.assertNotSuspendingTransaction()
+        val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertEntity.acquire()
         var _argIndex: Int = 1
         _stmt.bindLong(_argIndex, id)
-        _stmt.step()
-      } finally {
-        _stmt.close()
-      }
+        try {
+            __db.beginTransaction()
+            try {
+                _stmt.executeInsert()
+                __db.setTransactionSuccessful()
+            } finally {
+                __db.endTransaction()
+            }
+        } finally {
+            __preparedStmtOfInsertEntity.release(_stmt)
+        }
     }
-  }
 
-  public override fun insertEntityReturnLong(id: Long): Long {
-    val _sql: String = "INSERT INTO MyEntity (id) VALUES (?)"
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
+    public override fun insertEntityReturnLong(id: Long): Long {
+        __db.assertNotSuspendingTransaction()
+        val _stmt: SupportSQLiteStatement = __preparedStmtOfInsertEntity.acquire()
         var _argIndex: Int = 1
         _stmt.bindLong(_argIndex, id)
-        _stmt.step()
-        getLastInsertedRowId(_connection)
-      } finally {
-        _stmt.close()
-      }
+        try {
+            __db.beginTransaction()
+            try {
+                val _result: Long = _stmt.executeInsert()
+                __db.setTransactionSuccessful()
+                return _result
+            } finally {
+                __db.endTransaction()
+            }
+        } finally {
+            __preparedStmtOfInsertEntity.release(_stmt)
+        }
     }
-  }
 
-  public override fun updateEntity(text: String) {
-    val _sql: String = "UPDATE MyEntity SET text = ?"
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
+    public override fun updateEntity(text: String) {
+        __db.assertNotSuspendingTransaction()
+        val _stmt: SupportSQLiteStatement = __preparedStmtOfUpdateEntity.acquire()
         var _argIndex: Int = 1
-        _stmt.bindText(_argIndex, text)
-        _stmt.step()
-      } finally {
-        _stmt.close()
-      }
+        _stmt.bindString(_argIndex, text)
+        try {
+            __db.beginTransaction()
+            try {
+                _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+            } finally {
+                __db.endTransaction()
+            }
+        } finally {
+            __preparedStmtOfUpdateEntity.release(_stmt)
+        }
     }
-  }
 
-  public override fun updateEntityReturnInt(id: Long, text: String): Int {
-    val _sql: String = "UPDATE MyEntity SET text = ? WHERE id = ?"
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
+    public override fun updateEntityReturnInt(id: Long, text: String): Int {
+        __db.assertNotSuspendingTransaction()
+        val _stmt: SupportSQLiteStatement = __preparedStmtOfUpdateEntityReturnInt.acquire()
         var _argIndex: Int = 1
-        _stmt.bindText(_argIndex, text)
+        _stmt.bindString(_argIndex, text)
         _argIndex = 2
         _stmt.bindLong(_argIndex, id)
-        _stmt.step()
-        getTotalChangedRows(_connection)
-      } finally {
-        _stmt.close()
-      }
-    }
-  }
-
-  public override fun deleteEntity() {
-    val _sql: String = "DELETE FROM MyEntity"
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        _stmt.step()
-      } finally {
-        _stmt.close()
-      }
-    }
-  }
-
-  public override fun deleteEntityReturnInt(): Int {
-    val _sql: String = "DELETE FROM MyEntity"
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        _stmt.step()
-        getTotalChangedRows(_connection)
-      } finally {
-        _stmt.close()
-      }
-    }
-  }
-
-  public override fun deleteEntitiesIn(ids: List<Long>) {
-    val _stringBuilder: StringBuilder = StringBuilder()
-    _stringBuilder.append("DELETE FROM MyEntity WHERE id IN (")
-    val _inputSize: Int = ids.size
-    appendPlaceholders(_stringBuilder, _inputSize)
-    _stringBuilder.append(")")
-    val _sql: String = _stringBuilder.toString()
-    return performBlocking(__db, false, true) { _connection ->
-      val _stmt: SQLiteStatement = _connection.prepare(_sql)
-      try {
-        var _argIndex: Int = 1
-        for (_item: Long in ids) {
-          _stmt.bindLong(_argIndex, _item)
-          _argIndex++
+        try {
+            __db.beginTransaction()
+            try {
+                val _result: Int = _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+                return _result
+            } finally {
+                __db.endTransaction()
+            }
+        } finally {
+            __preparedStmtOfUpdateEntityReturnInt.release(_stmt)
         }
-        _stmt.step()
-      } finally {
-        _stmt.close()
-      }
     }
-  }
 
-  public companion object {
-    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
-  }
+    public override fun deleteEntity() {
+        __db.assertNotSuspendingTransaction()
+        val _stmt: SupportSQLiteStatement = __preparedStmtOfDeleteEntity.acquire()
+        try {
+            __db.beginTransaction()
+            try {
+                _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+            } finally {
+                __db.endTransaction()
+            }
+        } finally {
+            __preparedStmtOfDeleteEntity.release(_stmt)
+        }
+    }
+
+    public override fun deleteEntityReturnInt(): Int {
+        __db.assertNotSuspendingTransaction()
+        val _stmt: SupportSQLiteStatement = __preparedStmtOfDeleteEntity.acquire()
+        try {
+            __db.beginTransaction()
+            try {
+                val _result: Int = _stmt.executeUpdateDelete()
+                __db.setTransactionSuccessful()
+                return _result
+            } finally {
+                __db.endTransaction()
+            }
+        } finally {
+            __preparedStmtOfDeleteEntity.release(_stmt)
+        }
+    }
+
+    public companion object {
+        @JvmStatic
+        public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    }
 }

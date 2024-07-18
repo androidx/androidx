@@ -113,16 +113,6 @@ constructor(
                 )
             }
             .combineWithDataList(unevaluatedData.listEntries) { setListEntryCollection(it) }
-            .map { evaluatedData ->
-                if (keepDynamicValues && evaluatedData.isInvalid()) {
-                    // Setting invalidated data.
-                    WireComplicationData.Builder(evaluatedData)
-                        .setInvalidatedData(unevaluatedData)
-                        .build()
-                } else {
-                    evaluatedData
-                }
-            }
             // Must be last, as it overwrites INVALID_DATA.
             .combineWithEvaluatedPlaceholder(unevaluatedData.placeholder)
             .distinctUntilChanged()
@@ -215,9 +205,9 @@ constructor(
             evaluatedEntries: Array<WireComplicationData> ->
 
             // Not mutating if invalid.
-            if (data.isInvalid()) return@combine data
+            if (data === INVALID_DATA) return@combine data
             // An entry is invalid, emitting invalid.
-            if (evaluatedEntries.any { it.isInvalid() }) return@combine INVALID_DATA
+            if (evaluatedEntries.any { it === INVALID_DATA }) return@combine INVALID_DATA
             // All is well, mutating the input.
             return@combine WireComplicationData.Builder(data)
                 .setter(evaluatedEntries.toList())
@@ -247,7 +237,7 @@ constructor(
                 return@combine WireComplicationData.Builder(data).setPlaceholder(null).build()
             }
             // Placeholder required but invalid, emitting invalid.
-            if (evaluatedPlaceholder.isInvalid()) return@combine INVALID_DATA
+            if (evaluatedPlaceholder === INVALID_DATA) return@combine INVALID_DATA
             // All is well, mutating the input.
             return@combine WireComplicationData.Builder(data)
                 .setPlaceholder(evaluatedPlaceholder)
@@ -379,10 +369,7 @@ constructor(
     companion object {
         private const val TAG = "ComplicationDataEvaluator"
 
-        val INVALID_DATA = NoDataComplicationData().asWireComplicationData()
-
-        fun WireComplicationData.isInvalid() =
-            this === INVALID_DATA || (type == TYPE_NO_DATA && invalidatedData != null)
+        val INVALID_DATA: WireComplicationData = NoDataComplicationData().asWireComplicationData()
     }
 }
 

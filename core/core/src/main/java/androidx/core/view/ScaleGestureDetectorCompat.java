@@ -16,9 +16,12 @@
 
 package androidx.core.view;
 
+import android.os.Build;
 import android.view.ScaleGestureDetector;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper for accessing features in {@link ScaleGestureDetector}.
@@ -50,13 +53,12 @@ public final class ScaleGestureDetectorCompat {
      *
      * @param scaleGestureDetector detector for which to set the scaling mode.
      * @param enabled true to enable quick scaling, false to disable
-     * @deprecated Call {@link ScaleGestureDetector#setQuickScaleEnabled()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "scaleGestureDetector.setQuickScaleEnabled(enabled)")
     public static void setQuickScaleEnabled(
             @NonNull ScaleGestureDetector scaleGestureDetector, boolean enabled) {
-        scaleGestureDetector.setQuickScaleEnabled(enabled);
+        if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.setQuickScaleEnabled(scaleGestureDetector, enabled);
+        }
     }
 
     /**
@@ -77,11 +79,30 @@ public final class ScaleGestureDetectorCompat {
      * Returns whether the quick scale gesture, in which the user performs a double tap followed by
      * a swipe, should perform scaling. See
      * {@link #setQuickScaleEnabled(ScaleGestureDetector, boolean)}.
-     * @deprecated Call {@link ScaleGestureDetector#isQuickScaleEnabled()} directly.
      */
-    @Deprecated
-    @androidx.annotation.ReplaceWith(expression = "scaleGestureDetector.isQuickScaleEnabled()")
     public static boolean isQuickScaleEnabled(@NonNull ScaleGestureDetector scaleGestureDetector) {
-        return scaleGestureDetector.isQuickScaleEnabled();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.isQuickScaleEnabled(scaleGestureDetector);
+        } else {
+            return false;
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector,
+                boolean scales) {
+            scaleGestureDetector.setQuickScaleEnabled(scales);
+        }
+
+        @DoNotInline
+        static boolean isQuickScaleEnabled(ScaleGestureDetector scaleGestureDetector) {
+            return scaleGestureDetector.isQuickScaleEnabled();
+        }
     }
 }

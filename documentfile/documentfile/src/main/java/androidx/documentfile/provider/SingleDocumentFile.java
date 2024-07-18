@@ -22,7 +22,9 @@ import android.provider.DocumentsContract;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
+@RequiresApi(19)
 class SingleDocumentFile extends DocumentFile {
     private Context mContext;
     private Uri mUri;

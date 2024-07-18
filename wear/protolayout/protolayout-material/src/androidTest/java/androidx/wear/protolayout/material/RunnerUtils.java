@@ -20,7 +20,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.util.DisplayMetrics;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,12 +27,8 @@ import androidx.test.core.app.ActivityScenario;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
-import androidx.wear.protolayout.LayoutElementBuilders.Layout;
+import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.material.test.GoldenTestActivity;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RunnerUtils {
     // This isn't totally ideal right now. The screenshot tests run on a phone, so emulate some
@@ -45,22 +40,10 @@ public class RunnerUtils {
 
     public static void runSingleScreenshotTest(
             @NonNull AndroidXScreenshotTestRule rule,
-            @NonNull TestCase testCase,
+            @NonNull LayoutElementBuilders.LayoutElement layoutElement,
             @NonNull String expected) {
-        if (testCase.isForLtr) {
-            runSingleScreenshotTest(rule, testCase.mLayout, expected, /* isRtlDirection= */ false);
-        }
-        if (testCase.isForRtl) {
-            runSingleScreenshotTest(
-                    rule, testCase.mLayout, expected + "_rtl", /* isRtlDirection= */ true);
-        }
-    }
-
-    public static void runSingleScreenshotTest(
-            @NonNull AndroidXScreenshotTestRule rule,
-            @NonNull Layout layout,
-            @NonNull String expected,
-            boolean isRtlDirection) {
+        LayoutElementBuilders.Layout layout =
+                LayoutElementBuilders.Layout.fromLayoutElement(layoutElement);
         byte[] layoutPayload = layout.toByteArray();
 
         Intent startIntent =
@@ -68,7 +51,6 @@ public class RunnerUtils {
                         InstrumentationRegistry.getInstrumentation().getTargetContext(),
                         GoldenTestActivity.class);
         startIntent.putExtra("layout", layoutPayload);
-        startIntent.putExtra(GoldenTestActivity.USE_RTL_DIRECTION, isRtlDirection);
 
         ActivityScenario<GoldenTestActivity> scenario = ActivityScenario.launch(startIntent);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -84,21 +66,12 @@ public class RunnerUtils {
             Log.e("MaterialGoldenTest", "Error sleeping", ex);
         }
 
-        DisplayMetrics displayMetrics =
-                InstrumentationRegistry.getInstrumentation()
-                        .getTargetContext()
-                        .getResources()
-                        .getDisplayMetrics();
-
-        // RTL will put the View on the right side.
-        int screenWidthStart = isRtlDirection ? displayMetrics.widthPixels - SCREEN_WIDTH : 0;
-
         Bitmap bitmap =
                 Bitmap.createBitmap(
                         InstrumentationRegistry.getInstrumentation()
                                 .getUiAutomation()
                                 .takeScreenshot(),
-                        screenWidthStart,
+                        0,
                         0,
                         SCREEN_WIDTH,
                         SCREEN_HEIGHT);
@@ -127,30 +100,6 @@ public class RunnerUtils {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             Log.e("MaterialGoldenTest", "Error sleeping", e);
-        }
-    }
-
-    public static List<Object[]> convertToTestParameters(
-            Map<String, Layout> testCases, boolean isForRtr, boolean isForLtr) {
-        return testCases.entrySet().stream()
-                .map(
-                        test ->
-                                new Object[] {
-                                    test.getKey(), new TestCase(test.getValue(), isForRtr, isForLtr)
-                                })
-                .collect(Collectors.toList());
-    }
-
-    /** Holds testcase parameters. */
-    public static final class TestCase {
-        final Layout mLayout;
-        final boolean isForRtl;
-        final boolean isForLtr;
-
-        public TestCase(Layout layout, boolean isForRtl, boolean isForLtr) {
-            mLayout = layout;
-            this.isForRtl = isForRtl;
-            this.isForLtr = isForLtr;
         }
     }
 }

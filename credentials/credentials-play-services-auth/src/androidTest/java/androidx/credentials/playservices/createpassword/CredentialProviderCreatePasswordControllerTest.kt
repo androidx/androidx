@@ -69,7 +69,7 @@ class CredentialProviderCreatePasswordControllerTest {
     }
 
     @Test
-    fun duplicateGetInstance_shouldBeUnequal() {
+    fun duplicateGetInstance_shouldBeEqual() {
         val activityScenario = ActivityScenario.launch(
             TestCredentialsActivity::class.java
         )
@@ -77,7 +77,7 @@ class CredentialProviderCreatePasswordControllerTest {
 
             val firstInstance = getInstance(activity!!)
             val secondInstance = getInstance(activity)
-            assertThat(firstInstance).isNotEqualTo(secondInstance)
+            assertThat(firstInstance).isEqualTo(secondInstance)
         }
     }
 }

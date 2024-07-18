@@ -13,7 +13,6 @@ done
 
 # Download maven artifacts
 ARTIFACTS_TO_DOWNLOAD="org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION,"
-ARTIFACTS_TO_DOWNLOAD="org.jetbrains.kotlin:kotlin-build-tools-impl:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin.plugin.serialization:org.jetbrains.kotlin.plugin.serialization.gradle.plugin:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-serialization-compiler-plugin-embeddable:$KOTLIN_VERSION,"
@@ -30,7 +29,6 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-annotation-processing-gradle
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-parcelize-compiler:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-bom:$KOTLIN_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-reflect:$KOTLIN_VERSION,"
-ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:$KOTLIN_VERSION,"
 
 ./development/importMaven/importMaven.sh "$ALLOW_JETBRAINS_DEV" "$ARTIFACTS_TO_DOWNLOAD"
 

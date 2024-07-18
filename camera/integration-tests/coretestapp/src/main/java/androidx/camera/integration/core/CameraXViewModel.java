@@ -176,11 +176,6 @@ public class CameraXViewModel extends AndroidViewModel {
         }
     }
 
-    @Nullable
-    public static String getConfiguredCameraXCameraImplementation() {
-        return sConfiguredCameraXCameraImplementation;
-    }
-
     /**
      * Class for wrapping success/error of initializing the {@link ProcessCameraProvider}.
      */

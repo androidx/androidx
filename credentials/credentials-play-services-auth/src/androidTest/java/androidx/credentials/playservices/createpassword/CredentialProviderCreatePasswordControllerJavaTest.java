@@ -27,9 +27,12 @@ import androidx.credentials.CreatePasswordRequest;
 import androidx.credentials.CreatePasswordResponse;
 import androidx.credentials.playservices.TestCredentialsActivity;
 import androidx.credentials.playservices.TestUtils;
+import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+
+import com.google.android.gms.auth.api.identity.SignInPassword;
 
 import kotlin.Unit;
 
@@ -38,7 +41,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SuppressWarnings("deprecation")
 public class CredentialProviderCreatePasswordControllerJavaTest {
 
     @Test
@@ -49,7 +51,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
         activityScenario.onActivity(
                 activity -> {
                     CreateCredentialResponse actualResponse =
-                            androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.getInstance(activity)
+                            CredentialProviderCreatePasswordController.getInstance(activity)
                                     .convertResponseToCredentialManager(Unit.INSTANCE);
 
                     assertThat(actualResponse.getType()).isEqualTo(expectedResponseType);
@@ -66,8 +68,8 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
         String expectedPassword = "SodaButton";
         activityScenario.onActivity(
                 activity -> {
-                    com.google.android.gms.auth.api.identity.SignInPassword actualRequest =
-                            androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.getInstance(activity)
+                    SignInPassword actualRequest =
+                            CredentialProviderCreatePasswordController.getInstance(activity)
                                     .convertRequestToPlayServices(
                                             new CreatePasswordRequest(expectedId, expectedPassword))
                                     .getSignInPassword();
@@ -87,7 +89,7 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
                             "null create password request must throw exception",
                             NullPointerException.class,
                             () ->
-                                    androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.getInstance(activity)
+                                    CredentialProviderCreatePasswordController.getInstance(activity)
                                             .convertRequestToPlayServices(null)
                                             .getSignInPassword());
                 });
@@ -103,22 +105,22 @@ public class CredentialProviderCreatePasswordControllerJavaTest {
                             "null unit response must throw exception",
                             NullPointerException.class,
                             () ->
-                                    androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.getInstance(activity)
+                                    CredentialProviderCreatePasswordController.getInstance(activity)
                                             .convertResponseToCredentialManager(null));
                 });
     }
 
     @Test
-    public void duplicateGetInstance_shouldBeUnequal() {
+    public void duplicateGetInstance_shouldBeEqual() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
         activityScenario.onActivity(
                 activity -> {
-                    androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController firstInstance =
-                            androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.getInstance(activity);
-                    androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController secondInstance =
-                            androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController.getInstance(activity);
-                    assertThat(firstInstance).isNotEqualTo(secondInstance);
+                    CredentialProviderCreatePasswordController firstInstance =
+                            CredentialProviderCreatePasswordController.getInstance(activity);
+                    CredentialProviderCreatePasswordController secondInstance =
+                            CredentialProviderCreatePasswordController.getInstance(activity);
+                    assertThat(firstInstance).isEqualTo(secondInstance);
                 });
     }
 }

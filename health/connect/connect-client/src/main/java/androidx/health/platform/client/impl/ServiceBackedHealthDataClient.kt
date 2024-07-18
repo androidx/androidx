@@ -48,6 +48,7 @@ import kotlin.math.min
 
 /** An IPC backed HealthDataClient implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressWarnings("RestrictedApi")
 class ServiceBackedHealthDataClient(
     private val context: Context,
     clientConfiguration: ClientConfiguration,

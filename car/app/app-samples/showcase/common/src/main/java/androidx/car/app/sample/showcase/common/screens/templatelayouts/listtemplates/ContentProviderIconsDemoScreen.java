@@ -16,6 +16,8 @@
 
 package androidx.car.app.sample.showcase.common.screens.templatelayouts.listtemplates;
 
+import static androidx.car.app.model.Action.BACK;
+
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -23,9 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostInfo;
 import androidx.car.app.Screen;
-import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -80,11 +80,8 @@ public final class ContentProviderIconsDemoScreen extends Screen {
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext()
-                                .getString(R.string.content_provider_icons_demo_title))
-                        .setStartHeaderAction(Action.BACK)
-                        .build())
+                .setTitle(getCarContext().getString(R.string.content_provider_icons_demo_title))
+                .setHeaderAction(BACK)
                 .build();
     }
 }

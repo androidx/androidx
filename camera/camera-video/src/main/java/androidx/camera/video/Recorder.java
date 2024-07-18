@@ -342,17 +342,10 @@ public final class Recorder implements VideoOutput {
     // The audio data is expected to be less than 1 kB, the value of the cache size is used to limit
     // the memory used within an acceptable range.
     private static final int AUDIO_CACHE_SIZE = 60;
-    private static final int RETRY_SETUP_VIDEO_MAX_COUNT = 3;
-    private static final long RETRY_SETUP_VIDEO_DELAY_MS = 1000L;
     @VisibleForTesting
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
     private static final Executor AUDIO_EXECUTOR =
             CameraXExecutors.newSequentialExecutor(CameraXExecutors.ioExecutor());
-
-    @VisibleForTesting
-    static int sRetrySetupVideoMaxCount = RETRY_SETUP_VIDEO_MAX_COUNT;
-    @VisibleForTesting
-    static long sRetrySetupVideoDelayMs = RETRY_SETUP_VIDEO_DELAY_MS;
 
     private final MutableStateObservable<StreamInfo> mStreamInfo;
     // Used only by getExecutor()
@@ -493,8 +486,6 @@ public final class Recorder implements VideoOutput {
     VideoEncoderSession mVideoEncoderSessionToRelease = null;
     double mAudioAmplitude = 0;
     private boolean mShouldSendResumeEvent = false;
-    @Nullable
-    private SetupVideoTask mSetupVideoTask = null;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -807,8 +798,7 @@ public final class Recorder implements VideoOutput {
                                             "surface request is required to retry "
                                                     + "initialization.");
                                 }
-                                configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase,
-                                        false);
+                                configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase);
                             });
                         } else {
                             setState(State.PENDING_RECORDING);
@@ -1034,7 +1024,7 @@ public final class Recorder implements VideoOutput {
         if (mLatestSurfaceRequest != null && !mLatestSurfaceRequest.isServiced()) {
             mLatestSurfaceRequest.willNotProvideSurface();
         }
-        configureInternal(mLatestSurfaceRequest = request, mVideoSourceTimebase = timebase, true);
+        configureInternal(mLatestSurfaceRequest = request, mVideoSourceTimebase = timebase);
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1050,10 +1040,6 @@ public final class Recorder implements VideoOutput {
 
         if (newState == SourceState.INACTIVE) {
             if (mActiveSurface == null) {
-                if (mSetupVideoTask != null) {
-                    mSetupVideoTask.cancelFailedRetry();
-                    mSetupVideoTask = null;
-                }
                 // If we're inactive and have no active surface, we'll reset the encoder directly.
                 // Otherwise, we'll wait for the active surface's surface request listener to
                 // reset the encoder.
@@ -1154,7 +1140,7 @@ public final class Recorder implements VideoOutput {
 
     @ExecutedBy("mSequentialExecutor")
     private void configureInternal(@NonNull SurfaceRequest surfaceRequest,
-            @NonNull Timebase videoSourceTimebase, boolean enableRetrySetupVideo) {
+            @NonNull Timebase videoSourceTimebase) {
         if (surfaceRequest.isServiced()) {
             Logger.w(TAG, "Ignore the SurfaceRequest since it is already served.");
             return;
@@ -1178,103 +1164,50 @@ public final class Recorder implements VideoOutput {
                         + "produce EncoderProfiles  for advertised quality.");
             }
         }
-        if (mSetupVideoTask != null) {
-            mSetupVideoTask.cancelFailedRetry();
-        }
-        mSetupVideoTask = new SetupVideoTask(surfaceRequest, videoSourceTimebase,
-                enableRetrySetupVideo ? sRetrySetupVideoMaxCount : 0);
-        mSetupVideoTask.start();
+        setupVideo(surfaceRequest, videoSourceTimebase);
     }
 
-    /** A class for setting up video encoder with a retry mechanism. */
-    private class SetupVideoTask {
-        private final SurfaceRequest mSurfaceRequest;
-        private final Timebase mTimebase;
-        private final int mMaxRetryCount;
-
-        private boolean mIsFailedRetryCanceled = false;
-        private int mRetryCount = 0;
-        @Nullable
-        private ScheduledFuture<?> mRetryFuture = null;
-
-        SetupVideoTask(@NonNull SurfaceRequest surfaceRequest, @NonNull Timebase timebase,
-                int maxRetryCount) {
-            mSurfaceRequest = surfaceRequest;
-            mTimebase = timebase;
-            mMaxRetryCount = maxRetryCount;
-        }
-
-        @ExecutedBy("mSequentialExecutor")
-        void start() {
-            setupVideo(mSurfaceRequest, mTimebase);
-        }
-
-        @ExecutedBy("mSequentialExecutor")
-        void cancelFailedRetry() {
-            if (mIsFailedRetryCanceled) {
+    @SuppressWarnings("ObjectToString")
+    @ExecutedBy("mSequentialExecutor")
+    private void setupVideo(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
+        safeToCloseVideoEncoder().addListener(() -> {
+            if (request.isServiced()
+                    || (mVideoEncoderSession.isConfiguredSurfaceRequest(request)
+                    && !isPersistentRecordingInProgress())) {
+                // Ignore the surface request if it's already serviced. Or the video encoder
+                // session is already configured, unless there's a persistent recording is running.
+                Logger.w(TAG, "Ignore the SurfaceRequest " + request + " isServiced: "
+                        + request.isServiced() + " VideoEncoderSession: " + mVideoEncoderSession
+                        + " has been configured with a persistent in-progress recording.");
                 return;
             }
-            mIsFailedRetryCanceled = true;
-            if (mRetryFuture != null) {
-                mRetryFuture.cancel(false);
-                mRetryFuture = null;
-            }
-        }
-
-        @SuppressWarnings("ObjectToString")
-        @ExecutedBy("mSequentialExecutor")
-        private void setupVideo(@NonNull SurfaceRequest request, @NonNull Timebase timebase) {
-            safeToCloseVideoEncoder().addListener(() -> {
-                if (request.isServiced()
-                        || (mVideoEncoderSession.isConfiguredSurfaceRequest(request)
-                        && !isPersistentRecordingInProgress())) {
-                    // Ignore the surface request if it's already serviced. Or the video encoder
-                    // session is already configured, unless there's a persistent recording is
-                    // running. Or the task has been completed.
-                    Logger.w(TAG, "Ignore the SurfaceRequest " + request + " isServiced: "
-                            + request.isServiced() + " VideoEncoderSession: " + mVideoEncoderSession
-                            + " has been configured with a persistent in-progress recording.");
-                    return;
+            VideoEncoderSession videoEncoderSession =
+                    new VideoEncoderSession(mVideoEncoderFactory, mSequentialExecutor, mExecutor);
+            MediaSpec mediaSpec = getObservableData(mMediaSpec);
+            ListenableFuture<Encoder> configureFuture =
+                    videoEncoderSession.configure(request, timebase, mediaSpec,
+                            mResolvedEncoderProfiles);
+            mVideoEncoderSession = videoEncoderSession;
+            Futures.addCallback(configureFuture, new FutureCallback<Encoder>() {
+                @Override
+                public void onSuccess(@Nullable Encoder result) {
+                    Logger.d(TAG, "VideoEncoder is created. " + result);
+                    if (result == null) {
+                        return;
+                    }
+                    Preconditions.checkState(mVideoEncoderSession == videoEncoderSession);
+                    Preconditions.checkState(mVideoEncoder == null);
+                    onVideoEncoderReady(videoEncoderSession);
+                    onConfigured();
                 }
-                VideoEncoderSession videoEncoderSession =
-                        new VideoEncoderSession(mVideoEncoderFactory, mSequentialExecutor,
-                                mExecutor);
-                MediaSpec mediaSpec = getObservableData(mMediaSpec);
-                ListenableFuture<Encoder> configureFuture =
-                        videoEncoderSession.configure(request, timebase, mediaSpec,
-                                mResolvedEncoderProfiles);
-                mVideoEncoderSession = videoEncoderSession;
-                Futures.addCallback(configureFuture, new FutureCallback<Encoder>() {
-                    @Override
-                    public void onSuccess(@Nullable Encoder result) {
-                        Logger.d(TAG, "VideoEncoder is created. " + result);
-                        if (result == null) {
-                            return;
-                        }
-                        Preconditions.checkState(mVideoEncoderSession == videoEncoderSession);
-                        Preconditions.checkState(mVideoEncoder == null);
-                        onVideoEncoderReady(videoEncoderSession);
-                        onConfigured();
-                    }
 
-                    @Override
-                    public void onFailure(@NonNull Throwable t) {
-                        Logger.w(TAG, "VideoEncoder Setup error: " + t, t);
-                        if (mRetryCount < mMaxRetryCount) {
-                            mRetryCount++;
-                            mRetryFuture = scheduleTask(() -> {
-                                if (!mIsFailedRetryCanceled) {
-                                    Logger.d(TAG, "Retry setupVideo #" + mRetryCount);
-                                    setupVideo(mSurfaceRequest, mTimebase);
-                                }
-                            }, mSequentialExecutor, sRetrySetupVideoDelayMs, TimeUnit.MILLISECONDS);
-                        } else {
-                            onEncoderSetupError(t);
-                        }
-                    }
-                }, mSequentialExecutor);
+                @Override
+                public void onFailure(@NonNull Throwable t) {
+                    Logger.d(TAG, "VideoEncoder Setup error: " + t);
+                    onEncoderSetupError(t);
+                }
             }, mSequentialExecutor);
-        }
+        }, mSequentialExecutor);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -2166,19 +2099,20 @@ public final class Recorder implements VideoOutput {
                 // devices that require it and to act as a flag that we need to signal the source
                 // stopped.
                 Encoder finalVideoEncoder = mVideoEncoder;
-                mSourceNonStreamingTimeout = scheduleTask(() -> {
-                    Logger.d(TAG, "The source didn't become non-streaming "
-                            + "before timeout. Waited " + SOURCE_NON_STREAMING_TIMEOUT_MS
-                            + "ms");
-                    if (DeviceQuirks.get(
-                            DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class)
-                            != null) {
-                        // Even in the case of timeout, we tell the encoder the source has
-                        // stopped because devices with this quirk require that the codec
-                        // produce a new surface.
-                        notifyEncoderSourceStopped(finalVideoEncoder);
-                    }
-                }, mSequentialExecutor, SOURCE_NON_STREAMING_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+                mSourceNonStreamingTimeout = CameraXExecutors.mainThreadExecutor().schedule(
+                        () -> mSequentialExecutor.execute(() -> {
+                            Logger.d(TAG, "The source didn't become non-streaming "
+                                    + "before timeout. Waited " + SOURCE_NON_STREAMING_TIMEOUT_MS
+                                    + "ms");
+                            if (DeviceQuirks.get(
+                                    DeactivateEncoderSurfaceBeforeStopEncoderQuirk.class)
+                                    != null) {
+                                // Even in the case of timeout, we tell the encoder the source has
+                                // stopped because devices with this quirk require that the codec
+                                // produce a new surface.
+                                notifyEncoderSourceStopped(finalVideoEncoder);
+                            }
+                        }), SOURCE_NON_STREAMING_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             } else {
                 // Source is already non-streaming. Signal source is stopped right away.
                 notifyEncoderSourceStopped(mVideoEncoder);
@@ -2291,7 +2225,7 @@ public final class Recorder implements VideoOutput {
         // If the latest surface request hasn't been serviced, use it to re-configure the Recorder.
         if (shouldConfigure && mLatestSurfaceRequest != null
                 && !mLatestSurfaceRequest.isServiced()) {
-            configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase, false);
+            configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase);
         }
     }
 
@@ -2517,7 +2451,7 @@ public final class Recorder implements VideoOutput {
 
         // Perform required actions from state changes inline on sequential executor but unlocked.
         if (needsConfigure) {
-            configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase, false);
+            configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase);
         } else if (needsReset) {
             reset();
         } else if (recordingToStart != null) {
@@ -2844,13 +2778,6 @@ public final class Recorder implements VideoOutput {
     void setAudioState(@NonNull AudioState audioState) {
         Logger.d(TAG, "Transitioning audio state: " + mAudioState + " --> " + audioState);
         mAudioState = audioState;
-    }
-
-    @NonNull
-    private static ScheduledFuture<?> scheduleTask(@NonNull Runnable task,
-            @NonNull Executor executor, long delay, TimeUnit timeUnit) {
-        return CameraXExecutors.mainThreadExecutor().schedule(() -> executor.execute(task), delay,
-                timeUnit);
     }
 
     private static int supportedMuxerFormatOrDefaultFrom(

@@ -50,5 +50,5 @@
     <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Ziurtatu beste gailua autoaren wifi-sare berera konektatuta dagoela"</string>
     <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Ziurtatu beste gailua gailu honen wifi-sare berera konektatuta dagoela"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Lortu informazio gehiago"</a></string>
-    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Lortu edukia igortzeko argibideak"</string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Ikasi edukia igortzen"</string>
 </resources>

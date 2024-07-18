@@ -40,7 +40,6 @@ class BaselineProfileTest {
         // Collects the baseline profile
         baselineRule.collect(
             packageName = PACKAGE_NAME,
-            maxIterations = 1,
             profileBlock = {
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()

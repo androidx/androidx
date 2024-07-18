@@ -17,11 +17,13 @@
 package androidx.appsearch.builtintypes;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.utils.BootCountUtil;
@@ -235,6 +237,7 @@ public class Timer extends Thing {
      * in the {@link System#currentTimeMillis()} time base. Otherwise return
      * {@link #getBaseTimeMillis()}.
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateBaseTimeMillis(@NonNull Context context) {
         int currentBootCount = BootCountUtil.getCurrentBootCount(context);
         if (currentBootCount == -1 || currentBootCount != mBootCount) {
@@ -261,6 +264,7 @@ public class Timer extends Thing {
      *
      * @param context The app context
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateExpirationTimeMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             return Long.MAX_VALUE;
@@ -280,6 +284,7 @@ public class Timer extends Thing {
      *
      * @param context The app context
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public long calculateCurrentRemainingDurationMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             // The timer has not started, so the remaining time is the same as the last updated one.
@@ -416,6 +421,7 @@ public class Timer extends Thing {
          * @param baseTimeMillisInElapsedRealtime The base time in milliseconds using the
          * {@link android.os.SystemClock#elapsedRealtime()} time base.
          */
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
         @NonNull
         public T setBaseTimeMillis(@NonNull Context context, long baseTimeMillis,
                 long baseTimeMillisInElapsedRealtime) {

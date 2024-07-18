@@ -33,27 +33,6 @@ import java.util.function.Function;
  * descendants of this class will implement operations of the form "O = LHS [op] RHS", or "O =
  * op(LHS, RHS)".
  *
- * <p>This node will wait until there's no pending data from either side:
- *
- * <ul>
- *   <li>This node will wait until both sides invoked either {@code onData} or {@code onInvalidated}
- *       at least once.
- *   <li>If one side invoked {@code onPreUpdate}, this node will wait until it invoked either {@code
- *       onData} or {@code onInvalidated}.
- *   <li>This node expects each side to invoke exactly on {@code onData} or {@code onInvalidated}
- *       after each {@code onPreUpdate}:
- *       <ul>
- *         <li>If {@code onData} or {@code onInvalidated} are invoked without {@code onPreUpdate},
- *             this node will log a warning and downstream the callback immediately (unless waiting
- *             for the other side).
- *         <li>If {@code onPreUpdate} is invoked more than once without {@code onData} or {@code
- *             onInvalidated}, this node will log a warning and ignore the followup {@code
- *             onPreUpdate}.
- *       </ul>
- *       Both of these scenarios can mean {@link DynamicTypeEvaluator} might publish a partially
- *       evaluated update.
- * </ul>
- *
  * @param <LhsT> The source data type for the left-hand side of the operation.
  * @param <RhsT> The source data type for the right-hand side of the operation.
  * @param <O> The data type that this node emits.
@@ -61,100 +40,129 @@ import java.util.function.Function;
 class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
     private static final String TAG = "DynamicDataBiTransform";
 
-    private final UpstreamCallback<LhsT> mLhsUpstreamCallback = new UpstreamCallback<>();
-    private final UpstreamCallback<RhsT> mRhsUpstreamCallback = new UpstreamCallback<>();
+    private final DynamicTypeValueReceiverWithPreUpdate<LhsT> mLhsIncomingCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<RhsT> mRhsIncomingCallback;
 
     final DynamicTypeValueReceiverWithPreUpdate<O> mDownstream;
     private final BiFunction<LhsT, RhsT, O> mTransformer;
 
-    boolean mDownstreamPreUpdated = false;
+    @Nullable LhsT mCachedLhsData;
+    @Nullable RhsT mCachedRhsData;
+
+    int mPendingLhsStateUpdates = 0;
+    int mPendingRhsStateUpdates = 0;
 
     DynamicDataBiTransformNode(
             DynamicTypeValueReceiverWithPreUpdate<O> downstream,
             BiFunction<LhsT, RhsT, O> transformer) {
         this.mDownstream = downstream;
         this.mTransformer = transformer;
-    }
 
-    @Override
-    public int getCost() {
-        return DEFAULT_NODE_COST;
-    }
+        // These classes refer to handlePreStateUpdate, which is @UnderInitialization when these
+        // initializers run, and hence raise an error. It's invalid to annotate
+        // handle{Pre}StateUpdate as @UnderInitialization (since it refers to initialized fields),
+        // and moving this assignment into the constructor yields the same error (since one of the
+        // fields has to be assigned first, when the class is still under initialization).
+        //
+        // The only path to get these is via get{Lhs,Rhs}IncomingCallback, which can only be called
+        // when the class is initialized (and which also cannot be called from a sub-constructor, as
+        // that will again complain that it's calling something which is @UnderInitialization).
+        // Given that, suppressing the warning in onStateUpdate should be safe.
+        this.mLhsIncomingCallback =
+                new DynamicTypeValueReceiverWithPreUpdate<LhsT>() {
+                    @Override
+                    public void onPreUpdate() {
+                        mPendingLhsStateUpdates++;
 
-    private class UpstreamCallback<T> implements DynamicTypeValueReceiverWithPreUpdate<T> {
-        private boolean mUpstreamPreUpdated = false;
+                        if (mPendingLhsStateUpdates == 1 && mPendingRhsStateUpdates == 0) {
+                            mDownstream.onPreUpdate();
+                        }
+                    }
 
-        /**
-         * Whether {@link #cache} should be used, i.e. set to true when either {@link #onData} or
-         * {@link #onInvalidated} were invoked at least once, and there's no pending {@link
-         * #onPreUpdate} call.
-         */
-        boolean isCacheReady = false;
+                    @SuppressWarnings("method.invocation")
+                    @Override
+                    public void onData(@NonNull LhsT newData) {
+                        onUpdatedImpl(newData);
+                    }
 
-        /**
-         * Latest value arrived in {@link #onData}, or {@code null} if the last callback was {@link
-         * #onInvalidated}. Should not be used if {@link #isCacheReady} is {@code false}.
-         */
-        @Nullable T cache;
+                    private void onUpdatedImpl(@Nullable LhsT newData) {
+                        if (mPendingLhsStateUpdates == 0) {
+                            Log.w(
+                                    TAG,
+                                    "Received a state update, but one or more suppliers did not"
+                                            + " call onPreStateUpdate");
+                        } else {
+                            mPendingLhsStateUpdates--;
+                        }
 
-        @Override
-        public void onPreUpdate() {
-            if (mUpstreamPreUpdated) {
-                Log.w(TAG, "Received onPreUpdate twice without onData/onInvalidated.");
-            }
-            isCacheReady = false;
-            mUpstreamPreUpdated = true;
-            if (!mDownstreamPreUpdated) {
-                mDownstreamPreUpdated = true;
-                mDownstream.onPreUpdate();
-            }
-        }
+                        mCachedLhsData = newData;
+                        handleStateUpdate();
+                    }
 
-        @Override
-        public void onData(@NonNull T newData) {
-            onUpdate(newData);
-        }
+                    @Override
+                    public void onInvalidated() {
+                        // Note: Casts are required here to help out the null checker.
+                        onUpdatedImpl((LhsT) null);
+                    }
+                };
 
-        @Override
-        public void onInvalidated() {
-            onUpdate(null);
-        }
+        this.mRhsIncomingCallback =
+                new DynamicTypeValueReceiverWithPreUpdate<RhsT>() {
+                    @Override
+                    public void onPreUpdate() {
+                        mPendingRhsStateUpdates++;
 
-        private void onUpdate(@Nullable T newData) {
-            if (!mUpstreamPreUpdated) {
-                Log.w(TAG, "Received onData/onInvalidated without onPreUpdate.");
-            }
-            mUpstreamPreUpdated = false;
-            isCacheReady = true;
-            cache = newData;
-            handleStateUpdate();
-        }
+                        if (mPendingLhsStateUpdates == 0 && mPendingRhsStateUpdates == 1) {
+                            mDownstream.onPreUpdate();
+                        }
+                    }
+
+                    @SuppressWarnings("method.invocation")
+                    @Override
+                    public void onData(@NonNull RhsT newData) {
+                        onUpdatedImpl(newData);
+                    }
+
+                    private void onUpdatedImpl(@Nullable RhsT newData) {
+                        if (mPendingRhsStateUpdates == 0) {
+                            Log.w(
+                                    TAG,
+                                    "Received a state update, but one or more suppliers did not"
+                                            + " call onPreStateUpdate");
+                        } else {
+                            mPendingRhsStateUpdates--;
+                        }
+
+                        mCachedRhsData = newData;
+                        handleStateUpdate();
+                    }
+
+                    @Override
+                    public void onInvalidated() {
+                        onUpdatedImpl((RhsT) null);
+                    }
+                };
     }
 
     void handleStateUpdate() {
-        if (!mLhsUpstreamCallback.isCacheReady || !mRhsUpstreamCallback.isCacheReady) {
-            return;
-        }
-        LhsT lhs = mLhsUpstreamCallback.cache;
-        RhsT rhs = mRhsUpstreamCallback.cache;
+        if (mPendingLhsStateUpdates == 0 && mPendingRhsStateUpdates == 0) {
+            LhsT lhs = mCachedLhsData;
+            RhsT rhs = mCachedRhsData;
 
-        if (lhs == null || rhs == null) {
-            mDownstream.onInvalidated();
-        } else {
-            O result = mTransformer.apply(lhs, rhs);
-            if (result == null) {
+            if (lhs == null || rhs == null) {
                 mDownstream.onInvalidated();
             } else {
+                O result = mTransformer.apply(lhs, rhs);
                 mDownstream.onData(result);
             }
         }
     }
 
-    public DynamicTypeValueReceiverWithPreUpdate<LhsT> getLhsUpstreamCallback() {
-        return mLhsUpstreamCallback;
+    public DynamicTypeValueReceiverWithPreUpdate<LhsT> getLhsIncomingCallback() {
+        return mLhsIncomingCallback;
     }
 
-    public DynamicTypeValueReceiverWithPreUpdate<RhsT> getRhsUpstreamCallback() {
-        return mRhsUpstreamCallback;
+    public DynamicTypeValueReceiverWithPreUpdate<RhsT> getRhsIncomingCallback() {
+        return mRhsIncomingCallback;
     }
 }

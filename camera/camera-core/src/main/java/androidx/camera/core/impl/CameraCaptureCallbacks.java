@@ -58,16 +58,15 @@ public final class CameraCaptureCallbacks {
 
     static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
         @Override
-        public void onCaptureStarted(int captureConfigId) {
+        public void onCaptureStarted() {
         }
 
         @Override
-        public void onCaptureCompleted(int captureConfigId,
-                @NonNull CameraCaptureResult cameraCaptureResult) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
         }
 
         @Override
-        public void onCaptureFailed(int captureConfigId, @NonNull CameraCaptureFailure failure) {
+        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
         }
     }
 
@@ -88,44 +87,36 @@ public final class CameraCaptureCallbacks {
         }
 
         @Override
-        public void onCaptureStarted(int captureConfigId) {
+        public void onCaptureStarted() {
             for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureStarted(captureConfigId);
+                callback.onCaptureStarted();
             }
         }
 
         @Override
-        public void onCaptureCompleted(int captureConfigId,
-                @NonNull CameraCaptureResult cameraCaptureResult) {
+        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
             for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureCompleted(captureConfigId, cameraCaptureResult);
+                callback.onCaptureCompleted(cameraCaptureResult);
             }
         }
 
         @Override
-        public void onCaptureFailed(int captureConfigId, @NonNull CameraCaptureFailure failure) {
+        public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
             for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureFailed(captureConfigId, failure);
+                callback.onCaptureFailed(failure);
             }
         }
 
         @Override
-        public void onCaptureCancelled(int captureConfigId) {
+        public void onCaptureCancelled() {
             for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureCancelled(captureConfigId);
+                callback.onCaptureCancelled();
             }
         }
 
         @NonNull
         public List<CameraCaptureCallback> getCallbacks() {
             return mCallbacks;
-        }
-
-        @Override
-        public void onCaptureProcessProgressed(int captureConfigId, int progress) {
-            for (CameraCaptureCallback callback : mCallbacks) {
-                callback.onCaptureProcessProgressed(captureConfigId, progress);
-            }
         }
     }
 }

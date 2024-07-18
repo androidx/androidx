@@ -57,11 +57,17 @@ private fun getProcessName(context: Context): String? {
             false,
             WorkManager::class.java.classLoader
         )
-
-        val currentProcessName = activityThread.getDeclaredMethod("currentProcessName")
-        currentProcessName.isAccessible = true
-        val packageName = currentProcessName.invoke(null)!!
-
+        val packageName = if (Build.VERSION.SDK_INT >= 18) {
+            val currentProcessName = activityThread.getDeclaredMethod("currentProcessName")
+            currentProcessName.isAccessible = true
+            currentProcessName.invoke(null)!!
+        } else {
+            val getActivityThread = activityThread.getDeclaredMethod("currentActivityThread")
+            getActivityThread.isAccessible = true
+            val getProcessName = activityThread.getDeclaredMethod("getProcessName")
+            getProcessName.isAccessible = true
+            getProcessName.invoke(getActivityThread.invoke(null))!!
+        }
         if (packageName is String) return packageName
     } catch (exception: Throwable) {
         Logger.get().debug(TAG, "Unable to check ActivityThread for processName", exception)

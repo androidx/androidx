@@ -17,7 +17,6 @@
 package androidx.camera.integration.camera2.pipe
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.os.Trace
 import android.util.Log
@@ -30,7 +29,6 @@ import androidx.camera.camera2.pipe.CameraPipe
 /**
  * This is the main activity for the CameraPipe test application.
  */
-@SuppressLint("RestrictedApiAndroidX")
 class CameraPipeActivity : CameraPermissionActivity() {
     private lateinit var cameraPipe: CameraPipe
     private lateinit var dataVisualizations: DataVisualizations

@@ -1,11 +1,4 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -14,7 +7,7 @@ plugins {
 
 dependencies {
     api(project(":vectordrawable:vectordrawable"))
-    api("androidx.core:core-animation:1.0.0")
+    api(project(":core:core-animation"))
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testExtJunit)
@@ -44,7 +37,7 @@ android {
 
 androidx {
     name = "SeekableAnimatedVectorDrawable"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE_SEEKABLE
     inceptionYear = "2020"
     description = "Android SeekableAnimatedVectorDrawable"

@@ -35,6 +35,7 @@ import android.widget.RemoteViews;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.browser.customtabs.CustomTabsService.Relation;
 import androidx.browser.customtabs.CustomTabsService.Result;
@@ -524,12 +525,12 @@ public final class CustomTabsSession {
     }
 
     /**
-     * A class to be used instead of {@link CustomTabsSession} when a Custom Tab is launched before
-     * a Service connection is established.
+     * A class to be used instead of {@link CustomTabsSession} before we are connected
+     * {@link CustomTabsService}.
      *
      * Use {@link CustomTabsClient#attachSession(PendingSession)} to get {@link CustomTabsSession}.
      */
-    @ExperimentalPendingSession
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class PendingSession {
         @Nullable
         private final CustomTabsCallback mCallback;

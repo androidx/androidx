@@ -50,8 +50,8 @@ import kotlinx.coroutines.launch
  * than [initialDelay] with [incrementalDelay] intervals.
  *
  * @param interactionSource [MutableInteractionSource] that will be used to dispatch
- * [PressInteraction.Press] when this clickable is pressed. If `null`, an internal
- * [MutableInteractionSource] will be created when needed.
+ * [PressInteraction.Press] when this clickable is pressed. Only the initial (first) press will be
+ * recorded and dispatched with [MutableInteractionSource].
  * @param indication indication to be shown when modified element is pressed. By default,
  * indication from [LocalIndication] will be used. Pass `null` to show no indication, or
  * current value from [LocalIndication] to show theme default
@@ -68,7 +68,7 @@ import kotlinx.coroutines.launch
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun Modifier.repeatableClickable(
-    interactionSource: MutableInteractionSource?,
+    interactionSource: MutableInteractionSource,
     indication: Indication?,
     enabled: Boolean = true,
     onClickLabel: String? = null,

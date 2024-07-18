@@ -64,7 +64,6 @@ import androidx.wear.protolayout.proto.ModifiersProto.AnimatedVisibility;
 import androidx.wear.protolayout.proto.ModifiersProto.EnterTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.ExitTransition;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
-import androidx.wear.protolayout.proto.TypesProto.BoolProp;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
 import com.google.common.collect.ImmutableList;
@@ -75,7 +74,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -147,16 +145,13 @@ public class ProtoLayoutDynamicDataPipeline {
         DynamicTypeEvaluator.Config.Builder evaluatorConfigBuilder =
                 new DynamicTypeEvaluator.Config.Builder().setStateStore(stateStore);
         evaluatorConfigBuilder.setDynamicTypesQuotaManager(dynamicNodeQuotaManager);
+        this.mTimeNotifier = new PlatformTimeUpdateNotifierImpl();
+        evaluatorConfigBuilder.setPlatformTimeUpdateNotifier(this.mTimeNotifier);
         for (Map.Entry<PlatformDataProvider, Set<PlatformDataKey<?>>> providerEntry :
                 platformDataProviders.entrySet()) {
             evaluatorConfigBuilder.addPlatformDataProvider(
                     providerEntry.getKey(), providerEntry.getValue());
         }
-        this.mTimeNotifier = new PlatformTimeUpdateNotifierImpl();
-
-        evaluatorConfigBuilder.setPlatformTimeUpdateNotifier(this.mTimeNotifier);
-        mTimeNotifier.setUpdatesEnabled(true);
-
         if (enableAnimations) {
             evaluatorConfigBuilder.setAnimationQuotaManager(animationQuotaManager);
         }
@@ -264,18 +259,17 @@ public class ProtoLayoutDynamicDataPipeline {
          * Clears the current data in the {@link ProtoLayoutDynamicDataPipeline} instance that was
          * used to create this and then commits any stored changes.
          *
-         * @param inflatedParent The renderer-owned parent view for all of the layout elements
-         *     associated with the nodes in this pipeline. This will be used for content transition
-         *     animations.
+         * @param parentView The parent view these nodes are being inflated into. This will be used
+         *     for content transition animations.
          * @param isReattaching if True, this layout is being reattached and will skip content
          *     transition animations.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @UiThread
         public void clearDataPipelineAndCommit(
-                @NonNull ViewGroup inflatedParent, boolean isReattaching) {
+                @NonNull ViewGroup parentView, boolean isReattaching) {
             this.mPipeline.clear();
-            this.commit(inflatedParent, isReattaching);
+            this.commit(parentView, isReattaching);
         }
 
         /**
@@ -294,20 +288,6 @@ public class ProtoLayoutDynamicDataPipeline {
         public void playExitAnimations(
                 @NonNull ViewGroup parentView, boolean isReattaching, @Nullable Runnable onEnd) {
             mPipeline.cancelContentTransitionAnimations();
-
-            // This is needed because onEnd should be called only once. In case that there are exit
-            // animations that can't be played due to no quota, QuotaAwaraAnimationSet will try to
-            // play it, fail and call onEnd. However, the counter of number of played animation will
-            // stay 0, so the outer condition will also be true and onEnd will be called again.
-            AtomicBoolean onEndWasCalled = new AtomicBoolean(false);
-            Runnable wrappedOnEnd =
-                    onEnd != null
-                            ? () -> {
-                                if (!onEndWasCalled.getAndSet(true)) {
-                                    onEnd.run();
-                                }
-                            }
-                            : null;
 
             if (!isReattaching && mPipeline.mFullyVisible && mPipeline.mEnableAnimations) {
                 Map<String, ExitTransition> animatingNodes = new ArrayMap<>();
@@ -337,11 +317,11 @@ public class ProtoLayoutDynamicDataPipeline {
                                             mPipeline.mAnimationQuotaManager,
                                             associatedView,
                                             () -> {
-                                                if (wrappedOnEnd != null) {
+                                                if (onEnd != null) {
                                                     mExitAnimationsCounter--;
                                                     if (mExitAnimationsCounter == 0) {
                                                         mPipeline.mExitAnimations.clear();
-                                                        wrappedOnEnd.run();
+                                                        onEnd.run();
                                                     }
                                                 }
                                             });
@@ -354,9 +334,9 @@ public class ProtoLayoutDynamicDataPipeline {
                     }
                 }
             }
-            if (mPipeline.mExitAnimations.isEmpty() && wrappedOnEnd != null) {
+            if (mPipeline.mExitAnimations.isEmpty() && onEnd != null) {
                 // No exit animations.
-                wrappedOnEnd.run();
+                onEnd.run();
             }
         }
 
@@ -383,16 +363,17 @@ public class ProtoLayoutDynamicDataPipeline {
          * was used to create this. This replaces any already available node and should be called
          * only once per layout update.
          *
-         * @param inflatedParent The parent view these nodes are being inflated into. This will be
-         *     used for Enter animations. If this view is not attached to a window, the animations
-         *     (and the rest of pipeline init) will be scheduled to run when the view attaches to a
+         * @param parentView The parent view these nodes are being inflated into. This will be used
+         *     for Enter animations. If this view is not attached to a window, the animations (and
+         *     the rest of pipeline init) will be scheduled to run when the view attaches to a
          *     window later
          * @param isReattaching if True, this layout is being reattached and will skip content
          *     transition animations.
          */
         @UiThread
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public void commit(@NonNull ViewGroup inflatedParent, boolean isReattaching) {
+        @SuppressWarnings("RestrictTo")
+        public void commit(@NonNull ViewGroup parentView, boolean isReattaching) {
             for (String nodePosId : mNodesPendingChildrenRemoval) {
                 mPipeline.removeChildNodesFor(nodePosId);
             }
@@ -439,15 +420,16 @@ public class ProtoLayoutDynamicDataPipeline {
             Runnable initLayoutRunnable =
                     () -> {
                         mPipeline.initNewLayout();
-                        playEnterAnimations(inflatedParent, isReattaching, enterTransitionNodes);
+                        playEnterAnimations(parentView, isReattaching, enterTransitionNodes);
                     };
 
             // Slide animations need to know the new measurements of the view in order to calculate
             // start and end positions, so we force a measure pass.
             if (hasSlideInAnimation) {
                 // The GlobalLayoutListener ensures that initLayoutRunnable will run after the
-                // measure pass has finished.
-                ViewTreeObserver viewTreeObserver = inflatedParent.getViewTreeObserver();
+                // measure
+                // pass has finished.
+                ViewTreeObserver viewTreeObserver = parentView.getViewTreeObserver();
                 viewTreeObserver.addOnGlobalLayoutListener(
                         new OnGlobalLayoutListener() {
                             @Override
@@ -458,11 +440,11 @@ public class ProtoLayoutDynamicDataPipeline {
                                 }
                             }
                         });
-                inflatedParent.measure(
+                parentView.measure(
                         MeasureSpec.makeMeasureSpec(
-                                inflatedParent.getMeasuredWidth(), MeasureSpec.EXACTLY),
+                                parentView.getMeasuredWidth(), MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(
-                                inflatedParent.getMeasuredHeight(), MeasureSpec.EXACTLY));
+                                parentView.getMeasuredHeight(), MeasureSpec.EXACTLY));
             } else {
                 initLayoutRunnable.run();
             }
@@ -530,6 +512,21 @@ public class ProtoLayoutDynamicDataPipeline {
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public PipelineMaker addPipelineFor(
+                @NonNull DynamicInt32 int32Source,
+                int invalidData,
+                @NonNull String posId,
+                @NonNull Consumer<Integer> consumer) {
+            return addPipelineFor(
+                    int32Source, posId, buildStateUpdateCallback(invalidData, consumer));
+        }
+
+        /**
+         * Add the given source to the pipeline for future evaluation. Evaluation will start when
+         * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         @SuppressWarnings("RestrictTo")
         @NonNull
         public PipelineMaker addPipelineFor(
@@ -547,7 +544,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @SuppressWarnings("RestrictTo")
         @NonNull
         public PipelineMaker addPipelineFor(
                 @NonNull DynamicString stringSource,
@@ -581,7 +577,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @SuppressWarnings("RestrictTo")
         @NonNull
         public PipelineMaker addPipelineFor(
                 @NonNull DynamicFloat floatSource,
@@ -607,6 +602,21 @@ public class ProtoLayoutDynamicDataPipeline {
                     DynamicTypeBindingRequest.forDynamicColorInternal(colorSource, consumer);
             tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
             return this;
+        }
+
+        /**
+         * Add the given source to the pipeline for future evaluation. Evaluation will start when
+         * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public PipelineMaker addPipelineFor(
+                @NonNull DynamicColor colorSource,
+                int invalidData,
+                @NonNull String posId,
+                @NonNull Consumer<Integer> consumer) {
+            return addPipelineFor(
+                    colorSource, posId, buildStateUpdateCallback(invalidData, consumer));
         }
 
         /**
@@ -647,7 +657,6 @@ public class ProtoLayoutDynamicDataPipeline {
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        @SuppressWarnings("RestrictTo")
         @NonNull
         public PipelineMaker addPipelineFor(
                 @NonNull DynamicBool boolSource,
@@ -662,6 +671,7 @@ public class ProtoLayoutDynamicDataPipeline {
          * Add the given source to the pipeline for future evaluation. Evaluation will start when
          * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
          */
+        @SuppressWarnings("RestrictTo")
         @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         public PipelineMaker addPipelineFor(
@@ -719,24 +729,6 @@ public class ProtoLayoutDynamicDataPipeline {
         @SuppressWarnings("RestrictTo")
         @NonNull
         public PipelineMaker addPipelineFor(
-                @NonNull BoolProp boolProp,
-                @NonNull String posId,
-                @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
-            DynamicTypeBindingRequest bindingRequest =
-                    DynamicTypeBindingRequest.forDynamicBoolInternal(
-                            boolProp.getDynamicValue(), consumer);
-            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
-            return this;
-        }
-
-        /**
-         * Add the given source to the pipeline for future evaluation. Evaluation will start when
-         * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @SuppressWarnings("RestrictTo")
-        @NonNull
-        public PipelineMaker addPipelineFor(
                 @NonNull DpProp dpProp,
                 float invalidData,
                 @NonNull String posId,
@@ -774,21 +766,6 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull Consumer<Integer> consumer) {
             return addPipelineFor(
                     colorProp, posId, buildStateUpdateCallback(invalidData, consumer));
-        }
-
-        /**
-         * Add the given source to the pipeline for future evaluation. Evaluation will start when
-         * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @SuppressWarnings("RestrictTo")
-        @NonNull
-        public PipelineMaker addPipelineFor(
-                @NonNull BoolProp boolProp,
-                boolean invalidData,
-                @NonNull String posId,
-                @NonNull Consumer<Boolean> consumer) {
-            return addPipelineFor(boolProp, posId, buildStateUpdateCallback(invalidData, consumer));
         }
 
         private void tryBindRequest(
@@ -1129,11 +1106,11 @@ public class ProtoLayoutDynamicDataPipeline {
                         .sum();
     }
 
-    /** Returns the cost of nodes existing in the pipeline. */
+    /** Returns How many dynamic data nodes exist in the pipeline. */
     @VisibleForTesting
-    public int getDynamicExpressionsNodesCost() {
+    public int getDynamicExpressionsNodesCount() {
         return mPositionIdTree.getAllNodes().stream()
-                .mapToInt(NodeInfo::getExpressionDynamicNodesCost)
+                .mapToInt(NodeInfo::getExpressionNodesCount)
                 .sum();
     }
 

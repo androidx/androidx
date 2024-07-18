@@ -16,7 +16,11 @@
 
 package androidx.camera.video;
 
+import static androidx.camera.core.DynamicRange.BIT_DEPTH_UNSPECIFIED;
+import static androidx.camera.core.DynamicRange.ENCODING_HDR_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.ENCODING_HLG;
+import static androidx.camera.core.DynamicRange.ENCODING_SDR;
+import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 import static androidx.camera.core.DynamicRange.SDR;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.video.Quality.getSortedQualities;
@@ -36,11 +40,11 @@ import androidx.arch.core.util.Function;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.impl.CameraInfoInternal;
-import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
 import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.ResolutionValidatedEncoderProfilesProvider;
 import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider;
 import androidx.camera.video.internal.DynamicRangeMatchedEncoderProfilesProvider;
 import androidx.camera.video.internal.QualityExploredEncoderProfilesProvider;
@@ -48,9 +52,9 @@ import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-import androidx.camera.video.internal.workaround.QualityAddedEncoderProfilesProvider;
 import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncoderProfilesProvider;
 import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,11 +109,6 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
                 "Not a supported video capabilities source: " + videoCapabilitiesSource);
         EncoderProfilesProvider encoderProfilesProvider = cameraInfo.getEncoderProfilesProvider();
 
-        Quirks deviceQuirks = DeviceQuirks.getAll();
-        // Add extra supported quality.
-        encoderProfilesProvider = new QualityAddedEncoderProfilesProvider(encoderProfilesProvider,
-                deviceQuirks, cameraInfo, videoEncoderInfoFinder);
-
         if (videoCapabilitiesSource == VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES) {
             encoderProfilesProvider = new QualityExploredEncoderProfilesProvider(
                     encoderProfilesProvider,
@@ -120,6 +119,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         }
 
         // Modify qualities' matching resolution to the value supported by camera.
+        Quirks deviceQuirks = DeviceQuirks.getAll();
         encoderProfilesProvider = new QualityResolutionModifiedEncoderProfilesProvider(
                 encoderProfilesProvider, deviceQuirks);
 
@@ -128,6 +128,11 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
             encoderProfilesProvider = new BackupHdrProfileEncoderProfilesProvider(
                     encoderProfilesProvider, videoEncoderInfoFinder);
         }
+
+        // Filter out qualities with unsupported resolutions.
+        Quirks cameraQuirks = cameraInfo.getCameraQuirks();
+        encoderProfilesProvider = new ResolutionValidatedEncoderProfilesProvider(
+                encoderProfilesProvider, cameraQuirks);
 
         // Filter out unsupported qualities.
         encoderProfilesProvider = new QualityValidatedEncoderProfilesProvider(
@@ -236,7 +241,7 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
     @Nullable
     private CapabilitiesByQuality generateCapabilitiesForNonFullySpecifiedDynamicRange(
             @NonNull DynamicRange dynamicRange) {
-        if (!DynamicRanges.canResolve(dynamicRange, getSupportedDynamicRanges())) {
+        if (!canResolve(dynamicRange, getSupportedDynamicRanges())) {
             return null;
         }
 
@@ -245,5 +250,57 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         EncoderProfilesProvider constrainedProvider =
                 new DynamicRangeMatchedEncoderProfilesProvider(mProfilesProvider, dynamicRange);
         return new CapabilitiesByQuality(constrainedProvider);
+    }
+
+    /**
+     * Returns {@code true} if the test dynamic range can resolve to the fully specified dynamic
+     * range set.
+     *
+     * <p>A range can resolve if test fields are unspecified and appropriately match the fields
+     * of the fully specified dynamic range, or the test fields exactly match the fields of
+     * the fully specified dynamic range.
+     */
+    private static boolean canResolve(@NonNull DynamicRange dynamicRangeToTest,
+            @NonNull Set<DynamicRange> fullySpecifiedDynamicRanges) {
+        if (dynamicRangeToTest.isFullySpecified()) {
+            return fullySpecifiedDynamicRanges.contains(dynamicRangeToTest);
+        } else {
+            for (DynamicRange fullySpecifiedDynamicRange : fullySpecifiedDynamicRanges) {
+                if (canMatchBitDepth(dynamicRangeToTest, fullySpecifiedDynamicRange)
+                        && canMatchEncoding(dynamicRangeToTest, fullySpecifiedDynamicRange)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+    }
+
+    private static boolean canMatchBitDepth(@NonNull DynamicRange dynamicRangeToTest,
+            @NonNull DynamicRange fullySpecifiedDynamicRange) {
+        Preconditions.checkState(fullySpecifiedDynamicRange.isFullySpecified(), "Fully specified "
+                + "range is not actually fully specified.");
+        if (dynamicRangeToTest.getBitDepth() == BIT_DEPTH_UNSPECIFIED) {
+            return true;
+        }
+
+        return dynamicRangeToTest.getBitDepth() == fullySpecifiedDynamicRange.getBitDepth();
+    }
+
+    private static boolean canMatchEncoding(@NonNull DynamicRange dynamicRangeToTest,
+            @NonNull DynamicRange fullySpecifiedDynamicRange) {
+        Preconditions.checkState(fullySpecifiedDynamicRange.isFullySpecified(), "Fully specified "
+                + "range is not actually fully specified.");
+        int encodingToTest = dynamicRangeToTest.getEncoding();
+        if (encodingToTest == ENCODING_UNSPECIFIED) {
+            return true;
+        }
+
+        int fullySpecifiedEncoding = fullySpecifiedDynamicRange.getEncoding();
+        if (encodingToTest == ENCODING_HDR_UNSPECIFIED && fullySpecifiedEncoding != ENCODING_SDR) {
+            return true;
+        }
+
+        return encodingToTest == fullySpecifiedEncoding;
     }
 }

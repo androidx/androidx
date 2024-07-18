@@ -82,7 +82,7 @@ public fun SwipeToDismissBox(
         LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
         LocalSwipeToDismissContentScrimColor provides contentScrimColor
     ) {
-        androidx.wear.compose.foundation.BasicSwipeToDismissBox(
+        androidx.wear.compose.foundation.SwipeToDismissBox(
             state = state,
             modifier = modifier,
             backgroundKey = backgroundKey,
@@ -151,7 +151,7 @@ public fun SwipeToDismissBox(
         LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
         LocalSwipeToDismissContentScrimColor provides contentScrimColor
     ) {
-        androidx.wear.compose.foundation.BasicSwipeToDismissBox(
+        androidx.wear.compose.foundation.SwipeToDismissBox(
             state = state.foundationState,
             modifier = modifier,
             backgroundKey = backgroundKey,
@@ -214,7 +214,7 @@ public fun SwipeToDismissBox(
         LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
         LocalSwipeToDismissContentScrimColor provides contentScrimColor
     ) {
-        androidx.wear.compose.foundation.BasicSwipeToDismissBox(
+        androidx.wear.compose.foundation.SwipeToDismissBox(
             state = state,
             modifier = modifier,
             onDismissed = onDismissed,
@@ -288,7 +288,7 @@ public fun SwipeToDismissBox(
         LocalSwipeToDismissBackgroundScrimColor provides backgroundScrimColor,
         LocalSwipeToDismissContentScrimColor provides contentScrimColor
     ) {
-        androidx.wear.compose.foundation.BasicSwipeToDismissBox(
+        androidx.wear.compose.foundation.SwipeToDismissBox(
             state = state.foundationState,
             modifier = modifier,
             onDismissed = onDismissed,
@@ -390,10 +390,6 @@ public fun rememberSwipeToDismissBoxState(
 /**
  * Contains defaults for [SwipeToDismissBox].
  */
-@Deprecated(
-    "Please import SwipeToDismissBoxDefaults from androidx.wear.compose.foundation.",
-)
-@Stable
 public object SwipeToDismissBoxDefaults {
     /**
      * The default animation that will be used to animate to a new state after the swipe gesture.

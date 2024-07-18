@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return LoadSdkException("
+        errorLine2="                   ^">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/LoadSdkCompatException.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                toLoadSdkErrorCodeCompat(ex.loadSdkErrorCode),"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/LoadSdkCompatException.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                ex.extraInformation"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/LoadSdkCompatException.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformImpl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            .sandboxedSdks"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/controller/impl/PlatformImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return sandboxedSdk.getInterface()"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/SandboxedSdkCompat.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.ApiAdServicesV4Impl.Companion is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                return SandboxedSdk(sdkInterface)"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/SandboxedSdkCompat.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat.ApiAdServicesV5Impl is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            val sharedLibraryInfo = sandboxedSdk.sharedLibraryInfo"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/SandboxedSdkCompat.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderAdapter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1=") : SandboxedSdkProvider() {"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/SandboxedSdkProviderAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderAdapter is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        val currentContext = context!!"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/sdkruntime/core/SandboxedSdkProviderAdapter.kt"/>
+    </issue>
+
+</issues>

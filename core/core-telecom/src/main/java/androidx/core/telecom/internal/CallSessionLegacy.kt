@@ -27,7 +27,6 @@ import android.telecom.DisconnectCause
 import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallEndpointCompat
@@ -44,11 +43,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-@ExperimentalAppActions
 @RequiresApi(VERSION_CODES.O)
 internal class CallSessionLegacy(
     private val id: ParcelUuid,
-    private val attributes: CallAttributesCompat,
     private val callChannels: CallChannels,
     private val coroutineContext: CoroutineContext,
     val onAnswerCallback: suspend (callType: Int) -> Unit,
@@ -61,16 +58,14 @@ internal class CallSessionLegacy(
     // instance vars
     private val TAG: String = CallSessionLegacy::class.java.simpleName
     private var mCachedBluetoothDevices: ArrayList<BluetoothDevice> = ArrayList()
-    private var mAlreadyRequestedSpeaker: Boolean = false
 
     /**
      * Stubbed supported capabilities for legacy connections.
      */
+    @ExperimentalAppActions
     private val supportedCapabilities = mutableListOf(Capability())
 
     companion object {
-        private val TAG: String = CallSessionLegacy::class.java.simpleName
-
         // CallStates. All these states mirror the values in the platform.
         const val STATE_INITIALIZING = 0
         const val STATE_NEW = 1
@@ -112,45 +107,15 @@ internal class CallSessionLegacy(
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             Api28PlusImpl.refreshBluetoothDeviceCache(mCachedBluetoothDevices, state)
         }
+        callChannels.currentEndpointChannel.trySend(
+            EndpointUtils.toCallEndpointCompat(state)
+        ).getOrThrow()
 
-        val currentEndpoint = EndpointUtils.toCallEndpointCompat(state)
-        callChannels.currentEndpointChannel.trySend(currentEndpoint).getOrThrow()
-
-        val availableEndpoints = EndpointUtils.toCallEndpointsCompat(state)
-        callChannels.availableEndpointChannel.trySend(availableEndpoints).getOrThrow()
+        callChannels.availableEndpointChannel.trySend(
+            EndpointUtils.toCallEndpointsCompat(state)
+        ).getOrThrow()
 
         callChannels.isMutedChannel.trySend(state.isMuted).getOrThrow()
-
-        maybeSwitchToSpeakerOnCallStart(currentEndpoint, availableEndpoints)
-    }
-
-    /**
-     * Due to the fact that OEMs may diverge from AOSP telecom platform behavior, Core-Telecom
-     * needs to ensure that video calls start with speaker phone if the earpiece is the initial
-     * audio route.
-     */
-    private fun maybeSwitchToSpeakerOnCallStart(
-        currentEndpoint: CallEndpointCompat,
-        availableEndpoints: List<CallEndpointCompat>
-    ) {
-        if (!mAlreadyRequestedSpeaker && attributes.isVideoCall()) {
-            try {
-                val speakerEndpoint = EndpointUtils.getSpeakerEndpoint(availableEndpoints)
-                if (EndpointUtils.isEarpieceEndpoint(currentEndpoint) &&
-                    speakerEndpoint != null
-                ) {
-                    Log.i(
-                        TAG,
-                        "maybeSwitchToSpeaker: detected a video call that started" +
-                            " with the earpiece audio route. requesting switch to speaker."
-                    )
-                    requestEndpointChange(speakerEndpoint)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "maybeSwitchToSpeaker: hit exception=[$e]")
-            }
-            mAlreadyRequestedSpeaker = true
-        }
     }
 
     /**

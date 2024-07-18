@@ -580,7 +580,6 @@ class XAnnotationTest(
                 @get:TestSuppressWarnings("onGetter3")
                 @set:TestSuppressWarnings("onSetter3")
                 @setparam:TestSuppressWarnings("onSetterParam3")
-                @setparam:KotlinTestQualifier
                 var prop3:Int
                     @OtherAnnotation("_onGetter3")
                     get() = 3
@@ -588,9 +587,6 @@ class XAnnotationTest(
                     @OtherAnnotation("_onSetter3")
                     set(@OtherAnnotation("_onSetterParam3") value) = Unit
             }
-
-            @Target(AnnotationTarget.VALUE_PARAMETER)
-            @Retention(AnnotationRetention.RUNTIME) annotation class KotlinTestQualifier
             """.trimIndent()
         )
         runTest(sources = listOf(src)) { invocation ->
@@ -613,11 +609,6 @@ class XAnnotationTest(
             subject.getMethodByJvmName("setProp3").parameters.first().assertHasSuppressWithValue(
                 "onSetterParam3"
             )
-            val annotations = subject.getMethodByJvmName("setProp3").parameters.first()
-                .getAllAnnotations()
-                .filter { it.qualifiedName == "KotlinTestQualifier" }
-
-            assertThat(annotations).hasSize(1)
 
             assertThat(
                 subject.getMethodByJvmName("getProp3").getOtherAnnotationValue()

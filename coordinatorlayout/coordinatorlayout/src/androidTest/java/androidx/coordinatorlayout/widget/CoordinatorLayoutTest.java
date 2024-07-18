@@ -584,7 +584,7 @@ public class CoordinatorLayoutTest {
         // And assert that it has not been laid out
         assertFalse(imageView.getMeasuredWidth() > 0);
         assertFalse(imageView.getMeasuredHeight() > 0);
-        assertFalse(imageView.isLaidOut());
+        assertFalse(ViewCompat.isLaidOut(imageView));
 
         // Now set the view to INVISIBLE
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -599,7 +599,7 @@ public class CoordinatorLayoutTest {
         // And assert that it has been laid out
         assertTrue(imageView.getMeasuredWidth() > 0);
         assertTrue(imageView.getMeasuredHeight() > 0);
-        assertTrue(imageView.isLaidOut());
+        assertTrue(ViewCompat.isLaidOut(imageView));
     }
 
     @Test

@@ -105,8 +105,8 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
                 mutableOptionsBundle = MutableOptionsBundle.from(config);
                 break;
             case VIDEO_CAPTURE:
-                throw new IllegalArgumentException("Should not go here. VideoCapture is supported"
-                        + " by recording the preview stream when Extension is enabled.");
+                throw new IllegalArgumentException("CameraX Extensions doesn't support "
+                        + "VideoCapture!");
             default:
                 return null;
         }

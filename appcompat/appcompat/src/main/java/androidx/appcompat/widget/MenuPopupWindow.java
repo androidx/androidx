@@ -28,7 +28,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ListAdapter;
 import android.widget.PopupWindow;
@@ -41,6 +40,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.view.menu.ListMenuItemView;
 import androidx.appcompat.view.menu.MenuAdapter;
 import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.core.view.ViewCompat;
 
 import java.lang.reflect.Method;
 
@@ -148,7 +148,8 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
 
             final Resources res = context.getResources();
             final Configuration config = res.getConfiguration();
-            if (View.LAYOUT_DIRECTION_RTL == config.getLayoutDirection()) {
+            if (Build.VERSION.SDK_INT >= 17
+                    && ViewCompat.LAYOUT_DIRECTION_RTL == Api17Impl.getLayoutDirection(config)) {
                 mAdvanceKey = KeyEvent.KEYCODE_DPAD_LEFT;
                 mRetreatKey = KeyEvent.KEYCODE_DPAD_RIGHT;
             } else {
@@ -239,6 +240,19 @@ public class MenuPopupWindow extends ListPopupWindow implements MenuItemHoverLis
             }
 
             return super.onHoverEvent(ev);
+        }
+
+        @RequiresApi(17)
+        static class Api17Impl {
+            private Api17Impl() {
+                // This class is not instantiable.
+            }
+
+            @DoNotInline
+            static int getLayoutDirection(Configuration configuration) {
+                return configuration.getLayoutDirection();
+            }
+
         }
     }
 

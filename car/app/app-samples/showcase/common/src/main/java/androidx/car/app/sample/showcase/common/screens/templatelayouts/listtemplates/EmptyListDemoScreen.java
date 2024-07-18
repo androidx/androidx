@@ -21,7 +21,6 @@ import static androidx.car.app.model.Action.BACK;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Template;
@@ -44,7 +43,7 @@ public class EmptyListDemoScreen extends Screen {
                                 )
                                 .build()
                 )
-                .setHeader(new Header.Builder().setStartHeaderAction(BACK).build())
+                .setHeaderAction(BACK)
                 .build();
     }
 }

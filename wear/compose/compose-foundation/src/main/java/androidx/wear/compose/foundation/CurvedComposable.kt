@@ -151,9 +151,7 @@ internal fun (Placeable.PlacementScope).place(
         val radiusToTopLeft = outerRadius
 
         // Distance from the center of the CurvedRow to the top center of the component.
-        val radiusToTopCenter = sqrt(
-            (pow2(radiusToTopLeft) - pow2(placeable.width / 2f)).coerceAtLeast(0f)
-        )
+        val radiusToTopCenter = sqrt(pow2(radiusToTopLeft) - pow2(placeable.width / 2f))
 
         // To position this child, we move its center rotating it around the CurvedRow's center.
         val radiusToCenter = radiusToTopCenter - placeable.height / 2f

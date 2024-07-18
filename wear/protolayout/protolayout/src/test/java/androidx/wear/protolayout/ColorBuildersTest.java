@@ -22,21 +22,27 @@ import static org.junit.Assert.assertThrows;
 
 import android.graphics.Color;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.proto.ColorProto;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
 public class ColorBuildersTest {
     private static final String STATE_KEY = "state-key";
     private static final ColorBuilders.ColorProp COLOR =
             new ColorBuilders.ColorProp.Builder(Color.RED)
                     .setDynamicValue(DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))
                     .build();
+
+    @SuppressWarnings("deprecation")
+    private static final ColorBuilders.ColorProp.Builder COLOR_BUILDER_WITHOUT_STATIC_VALUE =
+            new ColorBuilders.ColorProp.Builder()
+                    .setDynamicValue(
+                            DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void colorPropSupportsDynamicColor() {
@@ -47,11 +53,8 @@ public class ColorBuildersTest {
                 .isEqualTo(STATE_KEY);
     }
 
-    @SuppressWarnings("deprecation") // Intentionally no static value.
     @Test
     public void colorProp_withoutStaticValue_throws() {
-        assertThrows(IllegalStateException.class, new ColorBuilders.ColorProp.Builder()
-                .setDynamicValue(
-                        DynamicBuilders.DynamicColor.from(new AppDataKey<>(STATE_KEY)))::build);
+        assertThrows(IllegalStateException.class, COLOR_BUILDER_WITHOUT_STATIC_VALUE::build);
     }
 }

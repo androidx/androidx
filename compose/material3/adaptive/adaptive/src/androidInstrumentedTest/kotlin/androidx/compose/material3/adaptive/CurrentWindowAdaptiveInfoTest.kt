@@ -46,8 +46,8 @@ class CurrentWindowAdaptiveInfoTest {
     private val composeRule = createComposeRule()
     private val layoutInfoRule = WindowLayoutInfoPublisherRule()
 
-    @get:Rule
-    val testRule: TestRule
+    @get:Rule val testRule: TestRule
+
     init {
         testRule = RuleChain.outerRule(layoutInfoRule).around(composeRule)
     }
@@ -72,50 +72,44 @@ class CurrentWindowAdaptiveInfoTest {
             }
         }
 
-        layoutInfoRule.overrideWindowLayoutInfo(
-            WindowLayoutInfo(MockFoldingFeatures1)
-        )
+        layoutInfoRule.overrideWindowLayoutInfo(WindowLayoutInfo(MockFoldingFeatures1))
 
         composeRule.runOnIdle {
             val mockSize = with(MockDensity) { MockWindowSize1.toSize().toDpSize() }
-            assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass.compute(mockSize.width.value, mockSize.height.value)
-            )
-            assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
-                calculatePosture(MockFoldingFeatures1)
-            )
+            assertThat(actualAdaptiveInfo.windowSizeClass)
+                .isEqualTo(WindowSizeClass.compute(mockSize.width.value, mockSize.height.value))
+            assertThat(actualAdaptiveInfo.windowPosture)
+                .isEqualTo(calculatePosture(MockFoldingFeatures1))
         }
 
-        layoutInfoRule.overrideWindowLayoutInfo(
-            WindowLayoutInfo(MockFoldingFeatures2)
-        )
+        layoutInfoRule.overrideWindowLayoutInfo(WindowLayoutInfo(MockFoldingFeatures2))
         mockWindowSize.value = MockWindowSize2
 
         composeRule.runOnIdle {
             val mockSize = with(MockDensity) { MockWindowSize2.toSize().toDpSize() }
-            assertThat(actualAdaptiveInfo.windowSizeClass).isEqualTo(
-                WindowSizeClass.compute(mockSize.width.value, mockSize.height.value)
-            )
-            assertThat(actualAdaptiveInfo.windowPosture).isEqualTo(
-                calculatePosture(MockFoldingFeatures2)
-            )
+            assertThat(actualAdaptiveInfo.windowSizeClass)
+                .isEqualTo(WindowSizeClass.compute(mockSize.width.value, mockSize.height.value))
+            assertThat(actualAdaptiveInfo.windowPosture)
+                .isEqualTo(calculatePosture(MockFoldingFeatures2))
         }
     }
 
     companion object {
-        private val MockFoldingFeatures1 = listOf(
-            MockFoldingFeature(orientation = FoldingFeature.Orientation.HORIZONTAL),
-            MockFoldingFeature(orientation = FoldingFeature.Orientation.VERTICAL),
-            MockFoldingFeature(orientation = FoldingFeature.Orientation.HORIZONTAL)
-        )
+        private val MockFoldingFeatures1 =
+            listOf(
+                MockFoldingFeature(orientation = FoldingFeature.Orientation.HORIZONTAL),
+                MockFoldingFeature(orientation = FoldingFeature.Orientation.VERTICAL),
+                MockFoldingFeature(orientation = FoldingFeature.Orientation.HORIZONTAL)
+            )
 
-        private val MockFoldingFeatures2 = listOf(
-            MockFoldingFeature(
-                isSeparating = false,
-                orientation = FoldingFeature.Orientation.HORIZONTAL,
-                state = FoldingFeature.State.FLAT
-            ),
-        )
+        private val MockFoldingFeatures2 =
+            listOf(
+                MockFoldingFeature(
+                    isSeparating = false,
+                    orientation = FoldingFeature.Orientation.HORIZONTAL,
+                    state = FoldingFeature.State.FLAT
+                ),
+            )
 
         private val MockWindowSize1 = IntSize(400, 800)
         private val MockWindowSize2 = IntSize(800, 400)

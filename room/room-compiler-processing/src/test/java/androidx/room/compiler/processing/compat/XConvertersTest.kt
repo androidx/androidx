@@ -34,8 +34,8 @@ import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import com.google.devtools.ksp.common.impl.KSNameImpl
 import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.processing.impl.KSNameImpl
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec

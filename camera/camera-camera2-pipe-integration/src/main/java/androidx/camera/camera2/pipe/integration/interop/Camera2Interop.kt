@@ -37,6 +37,7 @@ import androidx.camera.core.impl.Config
  *
  * @constructor Private constructor to ensure this class isn't instantiated.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @ExperimentalCamera2Interop
 class Camera2Interop private constructor() {
 
@@ -47,6 +48,7 @@ class Camera2Interop private constructor() {
      * @property baseBuilder The builder being extended.
      * @constructor Creates an Extender that can be used to add Camera2 options to another Builder.
      */
+    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     class Extender<T> (private var baseBuilder: ExtendableBuilder<T>) {
 
         /**

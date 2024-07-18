@@ -175,30 +175,6 @@ class RequestWithCallbackTest {
     }
 
     @Test
-    fun sendOnCaptureProcessProgressed_receiveInMemoryCallback() {
-        // Arrange.
-        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.IN_MEMORY)
-        val callback = RequestWithCallback(request, retryControl)
-        // Act.
-        callback.onCaptureProcessProgressed(20)
-        shadowOf(getMainLooper()).idle()
-        // Assert.
-        assertThat(request.captureProcessProgress).isEqualTo(20)
-    }
-
-    @Test
-    fun sendOnCaptureProcessProgressed_receiveOnDiskCallback() {
-        // Arrange.
-        val request = FakeTakePictureRequest(FakeTakePictureRequest.Type.ON_DISK)
-        val callback = RequestWithCallback(request, retryControl)
-        // Act.
-        callback.onCaptureProcessProgressed(20)
-        shadowOf(getMainLooper()).idle()
-        // Assert.
-        assertThat(request.captureProcessProgress).isEqualTo(20)
-    }
-
-    @Test
     fun sendOnCaptureStartedTwice_receiveInMemoryCallbackOnce() {
         // Arrange.
         var startedCount = 0

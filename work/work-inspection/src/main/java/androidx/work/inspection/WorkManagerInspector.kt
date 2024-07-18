@@ -39,7 +39,6 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.Event
 import androidx.work.inspection.WorkManagerInspectorProtocol.Response
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerResponse
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkAddedEvent
-import androidx.work.inspection.WorkManagerInspectorProtocol.WorkInfo
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkRemovedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkUpdatedEvent
 import java.util.UUID
@@ -90,13 +89,10 @@ class WorkManagerInspector(
                 val response = Response.newBuilder()
                     .setTrackWorkManager(TrackWorkManagerResponse.getDefaultInstance())
                     .build()
-                val allWorkSpecIdsLiveData = workManager
+                workManager
                     .workDatabase
                     .workSpecDao()
                     .getAllWorkSpecIdsLiveData()
-                // just a little hack to continue using `safeObserveWhileNotNull`
-                @Suppress("UNCHECKED_CAST")
-                (allWorkSpecIdsLiveData as LiveData<List<String>?>)
                     .safeObserveWhileNotNull(this, executor) { oldList, newList ->
                         updateWorkIdList(oldList ?: listOf(), newList)
                     }
@@ -127,7 +123,7 @@ class WorkManagerInspector(
      * Observation will last until "null" value is dispatched, then
      * observer will be automatically removed.
      */
-    private fun <T : Any> LiveData<T?>.safeObserveWhileNotNull(
+    private fun <T> LiveData<T>.safeObserveWhileNotNull(
         owner: LifecycleOwner,
         executor: Executor,
         listener: (oldValue: T?, newValue: T) -> Unit
@@ -135,9 +131,9 @@ class WorkManagerInspector(
         mainHandler.post {
             observe(
                 owner,
-                object : Observer<T?> {
+                object : Observer<T> {
                     private var lastValue: T? = null
-                    override fun onChanged(value: T?) {
+                    override fun onChanged(value: T) {
                         if (value == null) {
                             removeObserver(this)
                         } else {
@@ -182,7 +178,7 @@ class WorkManagerInspector(
         workInfoBuilder.isPeriodic = workSpec.isPeriodic
         workInfoBuilder.constraints = workSpec.constraints.toProto()
         workManager.getWorkInfoById(UUID.fromString(id)).let {
-            workInfoBuilder.addAllTags(it.get()?.tags ?: emptyList())
+            workInfoBuilder.addAllTags(it.get().tags)
         }
 
         val workStackBuilder = WorkManagerInspectorProtocol.CallStack.newBuilder()

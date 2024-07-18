@@ -47,6 +47,7 @@ import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.tv.foundation.scrollableWithPivot
 
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @OptIn(ExperimentalFoundationApi::class, ExperimentalTvFoundationApi::class)
 @Composable
 internal fun LazyList(
@@ -138,6 +139,7 @@ internal fun LazyList(
 }
 
 /** Extracted to minimize the recomposition scope */
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 @Composable
 private fun ScrollPositionUpdater(
@@ -151,6 +153,7 @@ private fun ScrollPositionUpdater(
 }
 
 @OptIn(ExperimentalTvFoundationApi::class)
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 @ExperimentalFoundationApi
 @Composable
 private fun rememberLazyListMeasurePolicy(

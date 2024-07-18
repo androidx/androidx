@@ -30,6 +30,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -127,6 +128,7 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    @Ignore("b/308684873")
     fun saveBackStackAddedWithoutExecutePendingTransactions() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -324,6 +326,7 @@ class SaveRestoreBackStackTest {
 
     @Suppress("DEPRECATION")
     @Test
+    @Ignore("b/308684873")
     fun saveRetainedChildFragment() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {
@@ -719,6 +722,7 @@ class SaveRestoreBackStackTest {
     }
 
     @Test
+    @Ignore("b/308684873")
     fun clearBackStackWithoutExecutePendingTransactions() {
        withUse(ActivityScenario.launch(FragmentTestActivity::class.java)) {
             val fm = withActivity {

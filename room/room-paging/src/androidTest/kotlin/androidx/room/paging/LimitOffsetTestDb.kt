@@ -21,5 +21,5 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [TestItem::class], version = 1, exportSchema = false)
 abstract class LimitOffsetTestDb : RoomDatabase() {
-    abstract fun getDao(): TestItemDao
+    abstract val dao: TestItemDao
 }

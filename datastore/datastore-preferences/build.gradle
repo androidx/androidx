@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+
 import androidx.build.PlatformIdentifier
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -57,30 +51,24 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        commonJvmMain {
+        jvmMain {
             dependsOn(commonMain)
         }
-        commonJvmTest {
+        jvmTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
             }
         }
-        jvmMain {
-            dependsOn(commonJvmMain)
-        }
-        jvmTest {
-            dependsOn(commonJvmTest)
-        }
         androidMain {
-            dependsOn(commonJvmMain)
+            dependsOn(jvmMain)
         }
         androidUnitTest {
-            dependsOn(commonJvmTest)
+            dependsOn(jvmTest)
         }
         androidInstrumentedTest {
-            dependsOn(commonJvmTest)
+            dependsOn(androidUnitTest)
             dependencies {
                 implementation(libs.testRunner)
                 implementation(libs.testCore)
@@ -92,7 +80,7 @@ androidXMultiplatform {
 
 androidx {
     name = "Preferences DataStore"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
     legacyDisableKotlinStrictApiMode = true

@@ -79,15 +79,6 @@ public class ProjectedCarInfo implements CarInfo {
         mEnergyProfileCarResultStub.addListener(executor, listener);
     }
 
-    // Exterior dimensions are not available in AAP without an update to the GAL protocol. As such
-    // this method returns a default ExteriorDimensions that returns UNKNOWN (effectively null).
-    @Override
-    public void fetchExteriorDimensions(@NonNull Executor executor,
-            @NonNull OnCarDataAvailableListener<ExteriorDimensions> listener) {
-        // TODO - b/325540913 Implement fetching exterior dimensions in AAP, including updating GAL
-        executor.execute(() -> listener.onCarDataAvailable(new ExteriorDimensions()));
-    }
-
     @Override
     public void addTollListener(@NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<TollCard> listener) {

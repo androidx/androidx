@@ -30,6 +30,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.testing.TestLifecycleOwner;
+import androidx.room.InvalidationTrackerTrojan;
 import androidx.room.Room;
 import androidx.room.integration.testapp.FtsTestDatabase;
 import androidx.room.integration.testapp.MusicTestDatabase;
@@ -360,6 +361,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void withFtsTable() throws ExecutionException, InterruptedException, TimeoutException {
         final Context context = ApplicationProvider.getApplicationContext();
         final FtsTestDatabase db = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class)
@@ -381,6 +383,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void withExternalContentFtsTable()
             throws ExecutionException, InterruptedException, TimeoutException {
         final Context context = ApplicationProvider.getApplicationContext();
@@ -464,6 +467,8 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         TestUtil.forceGc();
         mUserDao.updateById(3, "Bar");
         TestUtil.forceGc();
+        assertThat(InvalidationTrackerTrojan.countObservers(mDatabase.getInvalidationTracker()),
+                is(0));
         assertThat(weakLiveData.get(), nullValue());
     }
 

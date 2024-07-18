@@ -16,12 +16,15 @@
 
 package androidx.camera.camera2.pipe.media
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import java.nio.ByteBuffer
 
 /**
  * Wrapper interfaces that mirrors the primary read-only properties of {@link android.media.Image}.
  */
+@RequiresApi(Build.VERSION_CODES.KITKAT)
 interface ImageWrapper : UnsafeWrapper, AutoCloseable {
     /**
      * @see {@link android.media.Image.getWidth}

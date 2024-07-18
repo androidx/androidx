@@ -170,7 +170,7 @@ class HierarchicalFocusCoordinatorTest {
         val selected = mutableStateOf(0)
         var focused = false
         rule.setContent {
-            Box(Modifier.focusable()) {
+            Box {
                 HierarchicalFocusCoordinator({ selected.value == 0 }) {
                     FocusableTestItem { focused = it }
                 }

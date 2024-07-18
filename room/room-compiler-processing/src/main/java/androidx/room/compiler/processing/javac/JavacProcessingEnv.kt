@@ -46,9 +46,6 @@ internal class JavacProcessingEnv(
     override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.JAVAC
-    override val targetPlatforms: Set<XProcessingEnv.Platform> = setOf(
-        XProcessingEnv.Platform.JVM
-    )
 
     val elementUtils: Elements = delegate.elementUtils
 

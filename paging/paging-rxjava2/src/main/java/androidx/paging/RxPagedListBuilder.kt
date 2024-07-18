@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import android.annotation.SuppressLint
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.paging.LoadState.Loading
 import io.reactivex.BackpressureStrategy
@@ -287,10 +288,12 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
      */
     @Suppress("BuilderSetStyle", "DEPRECATION")
     fun buildObservable(): Observable<PagedList<Value>> {
+        @SuppressLint("RestrictedApi")
         val notifyScheduler = notifyScheduler
             ?: ScheduledExecutor(ArchTaskExecutor.getMainThreadExecutor())
         val notifyDispatcher = notifyDispatcher ?: notifyScheduler.asCoroutineDispatcher()
 
+        @SuppressLint("RestrictedApi")
         val fetchScheduler = fetchScheduler
             ?: ScheduledExecutor(ArchTaskExecutor.getIOThreadExecutor())
         val fetchDispatcher = fetchDispatcher ?: fetchScheduler.asCoroutineDispatcher()

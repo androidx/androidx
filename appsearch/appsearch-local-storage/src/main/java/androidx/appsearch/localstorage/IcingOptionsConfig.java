@@ -70,10 +70,6 @@ public interface IcingOptionsConfig {
      */
     int DEFAULT_LITE_INDEX_SORT_SIZE = 8192;   // 8Kib
 
-    boolean DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX = false;
-
-    boolean DEFAULT_BUILD_PROPERTY_EXISTENCE_METADATA_HITS = false;
-
     /**
      * The maximum allowable token length. All tokens in excess of this size will be truncated to
      * max_token_length before being indexed.
@@ -210,19 +206,4 @@ public interface IcingOptionsConfig {
      * <p>Setting a lower sort size reduces querying latency at the expense of indexing latency.
      */
     int getLiteIndexSortSize();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
-     * <p>Whether to use the new qualified Id join index.
-     */
-    boolean getUseNewQualifiedIdJoinIndex();
-
-    /**
-     * Flag for {@link com.google.android.icing.proto.IcingSearchEngineOptions}.
-     *
-     * <p>Whether to build the metadata hits used for property existence check, which is required
-     * to support the hasProperty function in advanced query.
-     */
-    boolean getBuildPropertyExistenceMetadataHits();
 }

@@ -37,6 +37,4 @@ interface ICustomTabsCallback {
     oneway void onActivityResized(int height, int width, in Bundle extras) = 7;
     oneway void onWarmupCompleted(in Bundle extras) = 8;
     oneway void onActivityLayout(int left, int top, int right, int bottom, int state, in android.os.Bundle extras) = 9;
-    oneway void onMinimized(in Bundle extras) = 10;
-    oneway void onUnminimized(in Bundle extras) = 11;
 }

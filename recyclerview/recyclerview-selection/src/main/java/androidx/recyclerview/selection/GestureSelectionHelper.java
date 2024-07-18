@@ -26,6 +26,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
@@ -269,7 +270,7 @@ final class GestureSelectionHelper implements OnItemTouchListener, Resettable {
             // the currentItemPos
             View lastItem = mRecyclerView.getLayoutManager()
                     .getChildAt(mRecyclerView.getLayoutManager().getChildCount() - 1);
-            int direction = mRecyclerView.getLayoutDirection();
+            int direction = ViewCompat.getLayoutDirection(mRecyclerView);
             final boolean pastLastItem = isPastLastItem(lastItem.getTop(),
                     lastItem.getLeft(),
                     lastItem.getRight(),

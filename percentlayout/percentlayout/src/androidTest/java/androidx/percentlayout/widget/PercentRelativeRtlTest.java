@@ -21,6 +21,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import android.os.Build;
 import android.view.View;
 
+import androidx.core.view.ViewCompat;
 import androidx.percentlayout.test.R;
 import androidx.test.filters.LargeTest;
 
@@ -115,7 +116,7 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
     private void switchToRtl() {
         // Force the container to RTL mode
         onView(withId(R.id.container)).perform(
-                LayoutDirectionActions.setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+                LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
         // Force a full measure + layout pass on the container
         mPercentRelativeLayout.measure(
@@ -160,14 +161,22 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
 
     @Test
     public void testStartChild() {
-
+        if (Build.VERSION.SDK_INT == 17) {
+            return;
+        }
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_start);
 
-        switchToRtl();
+        if (Build.VERSION.SDK_INT >= 17) {
+            switchToRtl();
 
-        final int childRight = childToTest.getRight();
-        assertFuzzyEquals("Child start margin as 5% of the container",
-                0.05f * mContainerWidth, mContainerWidth - childRight);
+            final int childRight = childToTest.getRight();
+            assertFuzzyEquals("Child start margin as 5% of the container",
+                    0.05f * mContainerWidth, mContainerWidth - childRight);
+        } else {
+            final int childLeft = childToTest.getLeft();
+            assertFuzzyEquals("Child start margin as 5% of the container",
+                    0.05f * mContainerWidth, childLeft);
+        }
 
         final int childWidth = childToTest.getWidth();
         final int childHeight = childToTest.getHeight();
@@ -185,13 +194,23 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
 
     @Test
     public void testBottomChild() {
+        if (Build.VERSION.SDK_INT == 17) {
+            return;
+        }
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_bottom);
 
-        switchToRtl();
+        if (Build.VERSION.SDK_INT >= 17) {
+            switchToRtl();
 
-        final int childLeft = childToTest.getLeft();
-        assertFuzzyEquals("Child end margin as 20% of the container",
-                0.2f * mContainerWidth, childLeft);
+            final int childLeft = childToTest.getLeft();
+            assertFuzzyEquals("Child end margin as 20% of the container",
+                    0.2f * mContainerWidth, childLeft);
+        } else {
+            final int childRight = childToTest.getRight();
+            assertFuzzyEquals("Child end margin as 20% of the container",
+                    0.2f * mContainerWidth, mContainerWidth - childRight);
+        }
+
 
         final int childWidth = childToTest.getWidth();
         final int childHeight = childToTest.getHeight();
@@ -209,13 +228,22 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
 
     @Test
     public void testEndChild() {
+        if (Build.VERSION.SDK_INT == 17) {
+            return;
+        }
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_end);
 
-        switchToRtl();
+        if (Build.VERSION.SDK_INT >= 17) {
+            switchToRtl();
 
-        final int childLeft = childToTest.getLeft();
-        assertFuzzyEquals("Child end margin as 5% of the container",
-                0.05f * mContainerWidth, childLeft);
+            final int childLeft = childToTest.getLeft();
+            assertFuzzyEquals("Child end margin as 5% of the container",
+                    0.05f * mContainerWidth, childLeft);
+        } else {
+            final int childRight = childToTest.getRight();
+            assertFuzzyEquals("Child end margin as 5% of the container",
+                    0.05f * mContainerWidth, mContainerWidth - childRight);
+        }
 
         final int childWidth = childToTest.getWidth();
         final int childHeight = childToTest.getHeight();
@@ -233,15 +261,24 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
 
     @Test
     public void testCenterChild() {
+        if (Build.VERSION.SDK_INT == 17) {
+            return;
+        }
         final View childToTest = mPercentRelativeLayout.findViewById(R.id.child_center);
-        switchToRtl();
+
+        boolean supportsRtl = Build.VERSION.SDK_INT >= 17;
+        if (supportsRtl) {
+            switchToRtl();
+        }
 
         final int childLeft = childToTest.getLeft();
         final int childTop = childToTest.getTop();
         final int childRight = childToTest.getRight();
         final int childBottom = childToTest.getBottom();
 
-        final View leftChild = mPercentRelativeLayout.findViewById(R.id.child_end);
+        final View leftChild = supportsRtl
+                ? mPercentRelativeLayout.findViewById(R.id.child_end)
+                : mPercentRelativeLayout.findViewById(R.id.child_start);
         assertFuzzyEquals("Child left margin as 10% of the container",
                 leftChild.getRight() + 0.1f * mContainerWidth, childLeft);
 
@@ -249,8 +286,9 @@ public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRela
         assertFuzzyEquals("Child top margin as 10% of the container",
                 topChild.getBottom() + 0.1f * mContainerHeight, childTop);
 
-        final View rightChild = mPercentRelativeLayout.findViewById(R.id.child_start);
-
+        final View rightChild = supportsRtl
+                ? mPercentRelativeLayout.findViewById(R.id.child_start)
+                : mPercentRelativeLayout.findViewById(R.id.child_end);
         assertFuzzyEquals("Child right margin as 10% of the container",
                 rightChild.getLeft() - 0.1f * mContainerWidth, childRight);
 

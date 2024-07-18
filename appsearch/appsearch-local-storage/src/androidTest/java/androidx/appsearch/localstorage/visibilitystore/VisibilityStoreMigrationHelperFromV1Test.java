@@ -28,7 +28,7 @@ import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
-import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
+import androidx.appsearch.localstorage.DefaultIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -74,7 +74,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
         // Create AppSearchImpl with visibility document version 1;
         AppSearchImpl appSearchImplInV1 = AppSearchImpl.create(mFile,
                 new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()), /*initStatsBuilder=*/ null,
+                        new DefaultIcingOptionsConfig()), /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
         InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV1.setSchema(
@@ -124,7 +124,7 @@ public class VisibilityStoreMigrationHelperFromV1Test {
         appSearchImplInV1.close();
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile,
                 new AppSearchConfigImpl(new UnlimitedLimitConfig(),
-                        new LocalStorageIcingOptionsConfig()), /*initStatsBuilder=*/ null,
+                        new DefaultIcingOptionsConfig()), /*initStatsBuilder=*/ null,
                 ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 

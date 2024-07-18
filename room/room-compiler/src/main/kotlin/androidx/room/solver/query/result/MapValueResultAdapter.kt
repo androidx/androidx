@@ -22,7 +22,6 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
-import androidx.room.ext.KotlinTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.result.MultimapQueryResultAdapter.MapType.Companion.isSparseArray
 import androidx.room.vo.ColumnIndexVar
@@ -60,9 +59,7 @@ sealed class MapValueResultAdapter(
     /**
      * Right-Hand-Side of a Map value type arg initialization.
      */
-    abstract fun getInstantiationTypeName(language: CodeLanguage): XTypeName
-
-    abstract fun isMigratedToDriver(): Boolean
+    abstract fun getInstantiationTypeName(): XTypeName
 
     abstract fun convert(
         scope: CodeGenScope,
@@ -115,16 +112,11 @@ sealed class MapValueResultAdapter(
                 )
         }
 
-        override fun getInstantiationTypeName(
-            language: CodeLanguage
-        ) = when (val typeOfMap = this.mapType) {
+        override fun getInstantiationTypeName() = when (val typeOfMap = this.mapType) {
             MultimapQueryResultAdapter.MapType.DEFAULT ->
                 // LinkedHashMap is used as impl to preserve key ordering for ordered
                 // query results.
-                when (language) {
-                    CodeLanguage.JAVA -> CommonTypeNames.LINKED_HASH_MAP
-                    CodeLanguage.KOTLIN -> KotlinTypeNames.LINKED_HASH_MAP
-                }.parametrizedBy(
+                CommonTypeNames.LINKED_HASH_MAP.parametrizedBy(
                     keyTypeName,
                     mapValueResultAdapter.getDeclarationTypeName()
                 )
@@ -141,8 +133,6 @@ sealed class MapValueResultAdapter(
                     mapValueResultAdapter.getDeclarationTypeName()
                 )
         }
-
-        override fun isMigratedToDriver(): Boolean = mapValueResultAdapter.isMigratedToDriver()
 
         override fun convert(
             scope: CodeGenScope,
@@ -198,7 +188,7 @@ sealed class MapValueResultAdapter(
                                 tmpValuesVarName,
                                 XCodeBlock.ofNewInstance(
                                     language,
-                                    mapValueResultAdapter.getInstantiationTypeName(language)
+                                    mapValueResultAdapter.getInstantiationTypeName()
                                 )
                             )
                             addStatement(
@@ -302,7 +292,7 @@ sealed class MapValueResultAdapter(
         // The type name of the result map value
         // For Map<Foo, Bar> it is Bar
         // for Map<Foo, List<Bar> it is List<Bar>
-        override fun getInstantiationTypeName(language: CodeLanguage): XTypeName {
+        override fun getInstantiationTypeName(): XTypeName {
             return when (valueCollectionType) {
                 MultimapQueryResultAdapter.CollectionValueType.LIST ->
                     CommonTypeNames.ARRAY_LIST.parametrizedBy(valueTypeArg.asTypeName())
@@ -312,8 +302,6 @@ sealed class MapValueResultAdapter(
                     valueTypeArg.asTypeName()
             }
         }
-
-        override fun isMigratedToDriver(): Boolean = valueRowAdapter.isMigratedToDriver()
 
         override fun convert(
             scope: CodeGenScope,

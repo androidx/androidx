@@ -21,15 +21,6 @@ fi
 SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 SOURCE_DIR="$(cd $SCRIPT_DIR/../.. && pwd)"
 
-# puts a copy of src at dest (even if dest's parent dir doesn't exist yet)
-function copy() {
-  src="$1"
-  dest="$2"
-
-  mkdir -p "$(dirname $dest)"
-  cp -r "$src" "$dest"
-}
-
 # confirm that no files in the source repo were unexpectedly created (other than known exemptions)
 function checkForGeneratedFilesInSourceRepo() {
 
@@ -76,15 +67,10 @@ Generated files should go in OUT_DIR instead because that is where developers ex
     # copy these new files into DIST_DIR in case anyone wants to inspect them
     COPY_TO=$DIST_DIR/new_files
     for f in $UNEXPECTED_GENERATED_FILES; do
-      copy "$SOURCE_DIR/$f" "$COPY_TO/$f"
+      dest="$COPY_TO/$f"
+      mkdir -p "$(dirname $dest)"
+      cp "$SOURCE_DIR/$f" "$dest"
     done
-
-    # b/331622149 temporarily also copy $OUT_DIR/androidx/room/integration-tests
-    if echo $UNEXPECTED_GENERATED_FILES | grep room.*core >/dev/null; then
-      ALSO_COPY=androidx/room/integration-tests/room-testapp-multiplatform/build
-      copy $OUT_DIR/$ALSO_COPY $COPY_TO/out/$ALSO_COPY
-    fi
-
     echo >&2
     echo Copied these generated files into $COPY_TO >&2
     exit 1

@@ -21,11 +21,10 @@ import android.os.Build
 import android.view.Window
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.ScreenFlash
-import androidx.camera.core.ImageCapture.ScreenFlashListener
+import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.TimeUnit
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -40,9 +39,7 @@ import org.robolectric.shadows.ShadowWindow
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ScreenFlashViewTest {
-    private val noOpListener = ScreenFlashListener {
-        // no-op
-    }
+    private val noOpUiCompleter = ScreenFlashUiCompleter {}
 
     private val appContext = ApplicationProvider.getApplicationContext<Context>()
     private lateinit var screenFlashView: ScreenFlashView
@@ -62,15 +59,15 @@ class ScreenFlashViewTest {
         }
     }
 
-    private fun getScreenFlashAfterSettingWindow(
+    private fun getScreenFlashUiControlAfterSettingWindow(
         assumeNoFailure: Boolean
-    ): ScreenFlash? {
+    ): ScreenFlashUiControl? {
         screenFlashView.setScreenFlashWindow(window)
-        val screenFlash = screenFlashView.screenFlash
+        val uiControl = screenFlashView.screenFlashUiControl
         if (assumeNoFailure) {
-            Assume.assumeTrue("Failed to create ScreenFlash", screenFlash != null)
+            Assume.assumeTrue("Failed to create ScreenFlashUiControl", uiControl != null)
         }
-        return screenFlash
+        return uiControl
     }
 
     @Test
@@ -79,60 +76,45 @@ class ScreenFlashViewTest {
     }
 
     @Test
-    fun canProvideValidScreenFlash() {
-        val screenFlash = getScreenFlashAfterSettingWindow(false)
-        assertThat(screenFlash).isNotNull()
+    fun canProvideValidScreenFlashUiControl() {
+        val uiControl = getScreenFlashUiControlAfterSettingWindow(false)
+        assertThat(uiControl).isNotNull()
     }
 
     @Test
-    fun providesSameScreenFlashInstanceIfSameWindowSetAgain() {
-        val prevScreenFlash = getScreenFlashAfterSettingWindow(false)
-        val newScreenFlash = getScreenFlashAfterSettingWindow(false)
-        assertThat(newScreenFlash).isEqualTo(prevScreenFlash)
+    fun providesSameScreenFlashUiControlIfSameWindowSetAgain() {
+        val prevUiControl = getScreenFlashUiControlAfterSettingWindow(false)
+        val newUiControl = getScreenFlashUiControlAfterSettingWindow(false)
+        assertThat(newUiControl).isEqualTo(prevUiControl)
     }
 
     @Test
-    fun providesNewScreenFlashIfNewWindowSet() {
-        val prevScreenFlash = getScreenFlashAfterSettingWindow(false)
+    fun providesNewScreenFlashUiControlIfNewWindowSet() {
+        val prevUiControl = getScreenFlashUiControlAfterSettingWindow(false)
         createWindow()
-        val newScreenFlash = getScreenFlashAfterSettingWindow(false)
-        assertThat(newScreenFlash).isNotEqualTo(prevScreenFlash)
+        val newUiControl = getScreenFlashUiControlAfterSettingWindow(false)
+        assertThat(newUiControl).isNotEqualTo(prevUiControl)
     }
 
     @Test
-    fun isFullyVisible_whenScreenFlashApplyInvoked() {
-        val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
-            noOpListener,
-        )
+    fun isFullyVisible_whenApplyScreenFlashUiInvoked() {
+        val uiControl = getScreenFlashUiControlAfterSettingWindow(true)
+        uiControl!!.applyScreenFlashUi(noOpUiCompleter)
         assertThat(screenFlashView.alpha).isEqualTo(1f)
     }
 
     @Test
-    fun windowBrightnessMaximized_whenScreenFlashApplyInvoked() {
-        val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
-            noOpListener,
-        )
+    fun windowBrightnessMaximized_whenApplyScreenFlashUiInvoked() {
+        val uiControl = getScreenFlashUiControlAfterSettingWindow(true)
+        uiControl!!.applyScreenFlashUi(noOpUiCompleter)
         assertThat(window.attributes.screenBrightness).isEqualTo(1f)
     }
 
     @Test
     fun isTransparent_whenScreenFlashUiClearedAfterApply() {
-        val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
-            noOpListener,
-        )
-        screenFlash.clear()
+        val uiControl = getScreenFlashUiControlAfterSettingWindow(true)
+        uiControl!!.applyScreenFlashUi(noOpUiCompleter)
+        uiControl.clearScreenFlashUi()
         assertThat(screenFlashView.alpha).isEqualTo(0f)
     }
 
@@ -142,44 +124,39 @@ class ScreenFlashViewTest {
         val layoutParam = window.attributes
         layoutParam.screenBrightness = initialBrightness
         window.setAttributes(layoutParam)
-        val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(
-            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
-                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
-            ),
-            noOpListener,
-        )
-        screenFlash.clear()
+        val uiControl = getScreenFlashUiControlAfterSettingWindow(true)
+        uiControl!!.applyScreenFlashUi(noOpUiCompleter)
+        uiControl.clearScreenFlashUi()
         assertThat(window.attributes.screenBrightness).isEqualTo(initialBrightness)
     }
 
     @Test
-    fun validScreenFlashSetToCameraController_whenWindowSetAndThenControllerSet() {
+    fun validScreenFlashUiControlSetToCameraController_whenWindowSetAndThenControllerSet() {
         val cameraController = LifecycleCameraController(appContext)
 
         screenFlashView.setScreenFlashWindow(window)
         screenFlashView.setController(cameraController)
 
-        assertThat(cameraController.screenFlashUiInfoByPriority?.screenFlash).isNotNull()
+        assertThat(cameraController.screenFlashUiInfoByPriority?.screenFlashUiControl).isNotNull()
     }
 
     @Test
-    fun validScreenFlashSetToCameraController_whenControllerSetAndThenWindowSet() {
+    fun validScreenFlashUiControlSetToCameraController_whenControllerSetAndThenWindowSet() {
         val cameraController = LifecycleCameraController(appContext)
 
         screenFlashView.setController(cameraController)
         screenFlashView.setScreenFlashWindow(window)
 
-        assertThat(cameraController.screenFlashUiInfoByPriority?.screenFlash).isNotNull()
+        assertThat(cameraController.screenFlashUiInfoByPriority?.screenFlashUiControl).isNotNull()
     }
 
     @Test
-    fun nullScreenFlashInstanceSetToCameraController_whenControllerSetButNoWindowSet() {
+    fun nullScreenFlashUiControlSetToCameraController_whenControllerSetButNoWindowSet() {
         val cameraController = LifecycleCameraController(appContext)
 
         screenFlashView.setController(cameraController)
 
-        assertThat(cameraController.screenFlashUiInfoByPriority?.screenFlash).isNull()
+        assertThat(cameraController.screenFlashUiInfoByPriority?.screenFlashUiControl).isNull()
     }
 
     @Test

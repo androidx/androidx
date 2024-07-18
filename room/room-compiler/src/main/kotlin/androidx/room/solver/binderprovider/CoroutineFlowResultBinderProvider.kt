@@ -18,6 +18,7 @@ package androidx.room.solver.binderprovider
 
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.RoomCoroutinesTypeNames.COROUTINES_ROOM
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -26,7 +27,17 @@ import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.CoroutineFlowResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 
-class CoroutineFlowResultBinderProvider(
+@Suppress("FunctionName")
+fun CoroutineFlowResultBinderProvider(context: Context): QueryResultBinderProvider =
+    CoroutineFlowResultBinderProviderImpl(
+        context
+    ).requireArtifact(
+        context = context,
+        requiredType = COROUTINES_ROOM,
+        missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_COROUTINE_ARTIFACT
+    )
+
+private class CoroutineFlowResultBinderProviderImpl(
     val context: Context
 ) : QueryResultBinderProvider {
     companion object {

@@ -29,6 +29,7 @@ import androidx.work.impl.background.gcm.GcmTaskConverter.EXECUTION_WINDOW_SIZE_
 import com.google.android.gms.gcm.Task
 import java.util.concurrent.TimeUnit
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -209,15 +210,13 @@ class GcmTaskConverterTest {
 
     @Test
     @SdkSuppress(
+        minSdkVersion = 22, // b/269194015 for minSdkVersion = 22
         maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
     )
     fun testPeriodicWorkRequest_withFlex_firstRun() {
         val request = PeriodicWorkRequestBuilder<TestWorker>(
             15L, TimeUnit.MINUTES, 5, TimeUnit.MINUTES
         ).build()
-        val now = System.currentTimeMillis()
-        `when`(mTaskConverter.now()).thenReturn(now)
-        request.workSpec.lastEnqueueTime = now
 
         val task = mTaskConverter.convert(request.workSpec)
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
@@ -225,12 +224,12 @@ class GcmTaskConverterTest {
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        // should be period - flex
-        assertEquals(task.windowStart, TimeUnit.MINUTES.toSeconds(10))
+        assertThat(task.windowStart, greaterThan(0L)) // should be in the future
     }
 
     @Test
     @SdkSuppress(
+        minSdkVersion = 22, // b/269194015 for minSdkVersion = 22
         maxSdkVersion = WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL
     )
     fun testPeriodicWorkRequest_withFlex_nextRun() {
@@ -242,7 +241,6 @@ class GcmTaskConverterTest {
         ).build()
 
         request.workSpec.lastEnqueueTime = now
-        request.workSpec.periodCount++
         val expected = TimeUnit.MINUTES.toSeconds(15L)
 
         val task = mTaskConverter.convert(request.workSpec)

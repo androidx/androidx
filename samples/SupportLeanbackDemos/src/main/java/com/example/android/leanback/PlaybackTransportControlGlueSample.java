@@ -232,7 +232,7 @@ class PlaybackTransportControlGlueSample<T extends PlayerAdapter> extends
      */
     private void onMediaSessionMetaDataChanged() {
 
-        /*
+        /**
          * Only update the media session's meta data when the media session is connected
          */
         if (mMediaSessionCompat == null) {

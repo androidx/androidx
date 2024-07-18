@@ -19,6 +19,7 @@ package androidx.core.view
 import android.app.Dialog
 import android.os.Build
 import android.view.View
+import android.view.WindowInsetsController
 import android.view.WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS
 import android.widget.EditText
 import android.widget.TextView
@@ -75,7 +76,7 @@ public class WindowInsetsControllerCompatActivityTest {
 
         scenario.withActivity {
             WindowCompat.getInsetsController(window, container).systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             // Needed on API 23 to report the nav bar insets
             this.window.addFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
         }
@@ -195,7 +196,7 @@ public class WindowInsetsControllerCompatActivityTest {
     }
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
-    @SdkSuppress(minSdkVersion = 23, excludedSdks = [ 28 ]) // Excluded due to flakes (b/324904606)
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public fun hide_IME() {
         // Test do not currently work on Cuttlefish

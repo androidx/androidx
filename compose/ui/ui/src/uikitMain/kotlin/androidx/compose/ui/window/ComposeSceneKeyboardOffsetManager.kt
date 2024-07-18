@@ -92,6 +92,8 @@ internal class ComposeSceneKeyboardOffsetManager(
     }
     private var keyboardAnimationListener: CADisplayLink? = null
 
+    val isAnimating get() = keyboardAnimationListener != null
+
     override fun keyboardWillShow(
         targetFrame: CValue<CGRect>,
         duration: Double,

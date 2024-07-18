@@ -23,6 +23,7 @@ import android.text.Editable;
 import android.text.Selection;
 import android.widget.EditText;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.emoji.text.EmojiCompat;
 import androidx.emoji.text.EmojiCompat.InitCallback;
@@ -35,6 +36,7 @@ import java.lang.ref.WeakReference;
  *
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@RequiresApi(19)
 final class EmojiTextWatcher implements android.text.TextWatcher {
     private final EditText mEditText;
     private InitCallback mInitCallback;

@@ -26,6 +26,8 @@ android {
     }
     namespace "androidx.constraintlayout.compose.integration.macrobenchmark"
 
+    // We need animations to work for MotionLayout
+    testOptions.animationsDisabled  false
     targetProjectPath = ":constraintlayout:constraintlayout-compose:integration-tests:macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }

@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -43,7 +36,6 @@ androidx {
     inceptionYear = "2022"
     description = "Fragment testing library that should be added as a debugImplementation dependency to add properties to the debug manifest necessary for testing an application"
     metalavaK2UastEnabled = true
-    doNotDocumentReason = "No public API"
 }
 
 android {

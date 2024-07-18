@@ -14,7 +14,7 @@
  * limitations under the License
  */
 
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -58,7 +58,7 @@ android {
         multiDexEnabled true
     }
 
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.preference"
@@ -66,7 +66,7 @@ android {
 
 androidx {
     name = "Preference"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2015"
     description = "AndroidX Preference"
     metalavaK2UastEnabled = true

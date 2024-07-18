@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.LibraryType
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import androidx.build.Publish
 import org.jetbrains.kotlin.konan.target.Family
 
 
@@ -32,6 +25,9 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
+
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
 
 androidXMultiplatform {
     jvm()
@@ -47,7 +43,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.8.0")
+                api("androidx.annotation:annotation:1.7.0")
             }
         }
 
@@ -95,27 +91,32 @@ androidXMultiplatform {
             dependsOn(commonJvmAndroidTest)
             dependencies {
                 implementation(libs.testRunner)
-                implementation(libs.mockitoAndroid5)
+                implementation(libs.mockitoAndroid)
                 implementation(libs.multidex)
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+            nativeTest {
+                dependsOn(commonTest)
             }
         }
-        nativeTest {
-            dependsOn(commonTest)
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
         }
 
-        darwinMain {
-            dependsOn(nativeMain)
-        }
-
-        linuxMain {
-            dependsOn(nativeMain)
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
         }
 
         targets.all { target ->
@@ -138,12 +139,17 @@ androidXMultiplatform {
     }
 }
 
+// top level declaration because the KGP sourceSets declaration used by androidXMultiplatform
+// does not support constraints or samples configurations yet
+dependencies {
+    samples(project(":paging:paging-samples"))
+}
+
 androidx {
     name = "Paging-Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Common"
-    samples(project(":paging:paging-samples"))
 }
 
 android {

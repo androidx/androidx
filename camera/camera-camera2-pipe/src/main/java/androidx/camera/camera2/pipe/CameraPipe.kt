@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe
 
 import android.content.Context
@@ -21,8 +23,8 @@ import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.HandlerThread
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.CameraPipeComponent
 import androidx.camera.camera2.pipe.config.CameraPipeConfigModule
@@ -32,7 +34,6 @@ import androidx.camera.camera2.pipe.config.ExternalCameraGraphComponent
 import androidx.camera.camera2.pipe.config.ExternalCameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
-import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
@@ -53,25 +54,23 @@ internal val cameraPipeIds = atomic(0)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class CameraPipe(config: Config) {
     private val debugId = cameraPipeIds.incrementAndGet()
-    private val component: CameraPipeComponent = Debug.trace("CameraPipe") {
+    private val component: CameraPipeComponent =
         DaggerCameraPipeComponent.builder()
             .cameraPipeConfigModule(CameraPipeConfigModule(config))
             .threadConfigModule(ThreadConfigModule(config.threadConfig))
             .build()
-    }
 
     /**
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
-    fun create(config: CameraGraph.Config): CameraGraph =
-        Debug.trace("CXCP#CameraGraph-${config.camera}") {
-            component
-                .cameraGraphComponentBuilder()
-                .cameraGraphConfigModule(CameraGraphConfigModule(config))
-                .build()
-                .cameraGraph()
-        }
+    fun create(config: CameraGraph.Config): CameraGraph {
+        return component
+            .cameraGraphComponentBuilder()
+            .cameraGraphConfigModule(CameraGraphConfigModule(config))
+            .build()
+            .cameraGraph()
+    }
 
     /**
      * This creates a list of [CameraGraph]s that can be used to interact with multiple cameras on
@@ -92,13 +91,18 @@ class CameraPipe(config: Config) {
         check(allCameraIds.size == allCameraIds.toSet().size) {
             "All camera IDs specified should be distinct!"
         }
-
         val configs = concurrentConfigs.map { config ->
             config.apply {
                 sharedCameraIds = allCameraIds.filter { it != config.camera }
             }
         }
-        return configs.map { create(it) }
+        return configs.map {
+            component
+                .cameraGraphComponentBuilder()
+                .cameraGraphConfigModule(CameraGraphConfigModule(it))
+                .build()
+                .cameraGraph()
+        }
     }
 
     /** This provides access to information about the available cameras on the device. */
@@ -110,16 +114,6 @@ class CameraPipe(config: Config) {
     fun cameraSurfaceManager(): CameraSurfaceManager {
         return component.cameraSurfaceManager()
     }
-
-    /**
-     * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
-     */
-    var globalAudioRestrictionMode: AudioRestrictionMode
-        get(): AudioRestrictionMode =
-            component.cameraAudioRestrictionController().globalAudioRestrictionMode
-        set(value: AudioRestrictionMode) {
-            component.cameraAudioRestrictionController().globalAudioRestrictionMode = value
-        }
 
     /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable

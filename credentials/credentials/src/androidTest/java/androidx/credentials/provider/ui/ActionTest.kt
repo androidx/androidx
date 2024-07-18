@@ -72,23 +72,6 @@ class ActionTest {
         }
     }
 
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    fun fromAction_success() {
-        val originalAction = Action(TITLE, mPendingIntent, SUBTITLE)
-        val slice = Action.toSlice(originalAction)
-        val frmAction = android.service.credentials.Action(slice)
-
-        val action = Action.fromAction(frmAction)
-
-        assertNotNull(action)
-        action?.let {
-            assertThat(action.title).isEqualTo(TITLE)
-            assertThat(action.subtitle).isEqualTo(SUBTITLE)
-            assertThat(action.pendingIntent).isEqualTo(mPendingIntent)
-        }
-    }
-
     companion object {
         private val TITLE: CharSequence = "title"
         private val SUBTITLE: CharSequence = "subtitle"

@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.LibraryType
+import androidx.build.Publish
 import androidx.build.AndroidXConfig
 
 plugins {
@@ -65,7 +58,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles(
                 new File(webviewBoundaryInterfacesDir, "proguard.flags"),
                 "proguard-rules.pro"
@@ -76,7 +69,7 @@ android {
 
 androidx {
     name = "WebKit"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "The WebKit Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
     additionalDeviceTestApkKeys.add("chrome")

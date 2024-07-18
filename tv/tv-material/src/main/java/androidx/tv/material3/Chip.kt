@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -67,10 +68,9 @@ import androidx.compose.ui.unit.dp
  * @param scale Defines size of the chip relative to its original size
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states
  * @param content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -88,7 +88,7 @@ fun AssistChip(
     scale: ClickableChipScale = AssistChipDefaults.scale(),
     border: ClickableChipBorder = AssistChipDefaults.border(),
     glow: ClickableChipGlow = AssistChipDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
     ClickableChip(
@@ -142,10 +142,9 @@ fun AssistChip(
  * @param scale Defines size of the chip relative to its original size
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states
  * @param content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -164,7 +163,7 @@ fun FilterChip(
     scale: SelectableChipScale = FilterChipDefaults.scale(),
     border: SelectableChipBorder = FilterChipDefaults.border(),
     glow: SelectableChipGlow = FilterChipDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
     SelectableChip(
@@ -218,10 +217,9 @@ fun FilterChip(
  * @param scale Defines size of the chip relative to its original size
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states
  * @param content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -241,7 +239,7 @@ fun InputChip(
     scale: SelectableChipScale = InputChipDefaults.scale(),
     border: SelectableChipBorder = InputChipDefaults.border(hasAvatar = avatar != null),
     glow: SelectableChipGlow = InputChipDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
     SelectableChip(
@@ -291,10 +289,9 @@ fun InputChip(
  * @param scale Defines size of the chip relative to its original size
  * @param border Defines a border around the chip
  * @param glow Shadow to be shown behind the chip
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this chip. You can use this to change the chip's appearance
- * or preview the chip in different states. Note that if `null` is provided, interactions will
- * still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of [Interaction]s
+ * for this chip. You can create and pass in your own `remember`ed instance to observe
+ * [Interaction]s and customize the appearance / behavior of this chip in different states
  * @param content content for this chip, ideally a Text composable
  */
 @ExperimentalTvMaterial3Api
@@ -310,7 +307,7 @@ fun SuggestionChip(
     scale: ClickableChipScale = SuggestionChipDefaults.scale(),
     border: ClickableChipBorder = SuggestionChipDefaults.border(),
     glow: ClickableChipGlow = SuggestionChipDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
     ClickableChip(
@@ -356,7 +353,7 @@ private fun ClickableChip(
     glow: ClickableChipGlow,
     minHeight: Dp,
     paddingValues: PaddingValues,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource
 ) {
     Surface(
         modifier = modifier.semantics { role = Role.Button },
@@ -403,19 +400,19 @@ private fun SelectableChip(
     glow: SelectableChipGlow,
     minHeight: Dp,
     paddingValues: PaddingValues,
-    interactionSource: MutableInteractionSource?
+    interactionSource: MutableInteractionSource
 ) {
     Surface(
-        selected = selected,
-        onClick = onClick,
+        checked = selected,
+        onCheckedChange = { onClick() },
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         onLongClick = onLongClick,
-        shape = shape.toSelectableSurfaceShape(),
-        colors = colors.toSelectableSurfaceColors(),
-        scale = scale.toSelectableSurfaceScale(),
-        border = border.toSelectableSurfaceBorder(),
-        glow = glow.toSelectableSurfaceGlow(),
+        shape = shape.toToggleableSurfaceShape(),
+        colors = colors.toToggleableSurfaceColors(),
+        scale = scale.toToggleableSurfaceScale(),
+        border = border.toToggleableSurfaceBorder(),
+        glow = glow.toToggleableSurfaceGlow(),
         interactionSource = interactionSource
     ) {
         ChipContent(

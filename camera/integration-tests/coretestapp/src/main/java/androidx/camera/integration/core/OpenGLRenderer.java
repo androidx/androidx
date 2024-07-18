@@ -42,9 +42,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -120,10 +120,10 @@ final class OpenGLRenderer {
 
     private Pair<Executor, Consumer<Long>> mFrameUpdateListener;
 
-    private final Set<DynamicRange> mHighDynamicRangesSupportedByOutput;
+    private final List<Integer> mHdrEncodingsSupportedByOutput;
 
-    OpenGLRenderer(@NonNull Set<DynamicRange> highDynamicRangesSupportedByOutput) {
-        mHighDynamicRangesSupportedByOutput = highDynamicRangesSupportedByOutput;
+    OpenGLRenderer(@NonNull List<Integer> hdrEncodingsSupportedByOutput) {
+        mHdrEncodingsSupportedByOutput = hdrEncodingsSupportedByOutput;
         // Initialize the GL context on the GL thread
         mExecutor.execute(() -> mNativeContext = initContext());
     }
@@ -218,7 +218,7 @@ final class OpenGLRenderer {
 
     private boolean outputSupportsDynamicRange(DynamicRange newDynamicRange) {
         if (!Objects.equals(newDynamicRange, DynamicRange.SDR)) {
-            return mHighDynamicRangesSupportedByOutput.contains(newDynamicRange);
+            return mHdrEncodingsSupportedByOutput.contains(newDynamicRange.getEncoding());
         }
         // SDR is always supported
         return true;

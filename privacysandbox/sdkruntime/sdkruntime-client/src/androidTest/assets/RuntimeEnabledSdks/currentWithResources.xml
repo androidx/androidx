@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 <compat-config>
-    <compat-entrypoint>androidx.privacysandbox.sdkruntime.testsdk.CompatProvider</compat-entrypoint>
+    <compat-entrypoint>androidx.privacysandbox.sdkruntime.testsdk.current.CompatProvider</compat-entrypoint>
     <dex-path>test-sdks/current/classes.dex</dex-path>
     <dex-path>RuntimeEnabledSdks/RPackage.dex</dex-path>
     <java-resources-root-path>RuntimeEnabledSdks/javaresources</java-resources-root-path>

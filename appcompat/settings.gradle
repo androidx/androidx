@@ -1,0 +1,17 @@
+// see ../playground-common/README.md for details on how this works
+pluginManagement {
+    apply from: "../playground-common/configure-plugin-management.gradle", to: it
+}
+plugins {
+    id "playground"
+}
+
+rootProject.name = "appcompat-playground"
+
+playground {
+    setupPlayground("..")
+    selectProjectsFromAndroidX({ name ->
+        if (name.startsWith(":appcompat")) return true
+        return false
+    })
+}

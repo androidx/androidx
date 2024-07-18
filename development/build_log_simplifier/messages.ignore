@@ -15,8 +15,6 @@ Calculating task graph as configuration cache cannot be reused because the set o
 # > Task :listTaskOutputs
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 BUILD SUCCESSFUL in .*
-> Task :benchmark:integration-tests:macrobenchmark-target:compileReleaseKotlin
-e: java.rmi.NoSuchObjectException: no such object in table
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
 Note\: Some input files use unchecked or unsafe operations\.
@@ -32,8 +30,6 @@ See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile
 Configuration cache entry reused\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 Configuration cache entry stored\.
-Calculating task graph as no cached configuration is available for tasks.*
-Calculating task graph as configuration cache cannot be reused because properties file .*local\.properties has changed\.
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
@@ -48,7 +44,7 @@ Note: \$SUPPORT/samples/SupportSliceDemos/src/main/java/com/example/androidx/sli
 \$SUPPORT/benchmark/integration\-tests/dry\-run\-benchmark/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # b/230127926
 [0-9]+ problem.* found storing the configuration cache.*
-See the complete report at file://.*/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
+See the complete report at file://\$OUT_DIR/androidx/build/reports/configuration\-cache/[^ ]*/[^ ]*/configuration\-cache\-report\.html
 # > Task :compose:ui:ui:processDebugAndroidTestManifest
 \$OUT_DIR/androidx/compose/runtime/runtime\-saveable/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 \$OUT_DIR/androidx/compose/ui/ui\-tooling/build/intermediates/tmp/manifest/androidTest/debug/tempFile[0-9]+ProcessTestManifest[0-9]+\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
@@ -241,12 +237,9 @@ WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setAutoSizeTextTypeUniformWithPresetSizes
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setFirstBaselineToTopHeight
 WARN: .*\/unzippedJvmSources\/androidx\/core\/widget\/TextViewCompat\.java:[0-9]+ Missing @param tag for parameter `textView` in DFunction setLastBaselineToBottomHeight
-WARN: .*\/unzippedJvmSources\/androidx\/credentials\/PrepareGetCredentialResponse\.kt:[0-9]+ Unable to find reference @property frameworkHandle in DClass PendingGetCredentialHandle
 WARN: .*\/unzippedJvmSources\/androidx\/cursoradapter\/widget\/ResourceCursorAdapter\.java:UnknownLine Missing @param tag for parameter `c` in DFunction ResourceCursorAdapter
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/poolingcontainer\/PoolingContainer\.kt:[0-9]+ Missing @param tag for parameter `listener` in DFunction addPoolingContainerListener
 WARN: .*\/unzippedJvmSources\/androidx\/customview\/widget\/ViewDragHelper\.java:[0-9]+ Missing @param tag for parameter `pointerId` in DFunction isEdgeTouched
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/commonJvmMain/androidx/datastore/core/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/commonMain/androidx/datastore/preferences/core/Preferences\.kt:[0-9]+ Missing @param tag for parameter `value` in DFunction set
 WARN: .*\/unzippedJvmSources\/androidx\/datastore\/rxjava2\/RxDataStoreDelegate\.kt:UnknownLine Missing @param tag for parameter `serializer` in DFunction rxDataStore
 WARN: .*\/unzippedJvmSources\/androidx\/datastore\/rxjava3\/RxDataStoreDelegate\.kt:UnknownLine Missing @param tag for parameter `serializer` in DFunction rxDataStore
 WARN: .*\/unzippedJvmSources\/androidx\/documentfile\/provider\/DocumentFile\.java:[0-9]+ Missing @param tag for parameter `context` in DFunction fromSingleUri
@@ -324,14 +317,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/test\/core\/app\/ActivityScenario\.java:
 WARN: .*\/unzippedJvmSources\/androidx\/test\/core\/app\/ActivityScenario\.java:UnknownLine Missing @param tag for parameter `startActivityIntent` in DFunction launch
 WARN: .*\/unzippedJvmSources\/androidx\/test\/core\/app\/ActivityScenario\.java:UnknownLine Missing @param tag for parameter `startActivityIntent` in DFunction launchActivityForResult
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/contrib\/DrawerActions\.java:[0-9]+ Failed to resolve See <a href="http:\/\/developer\.android\.com\/design\/patterns\/navigation-drawer\.html">Navigation in DClass DrawerActions
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setBookMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setBookMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setClosedMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setClosedMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setFlatMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setFlatMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws UnsupportedDeviceOperationException in DFunction setTabletopMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/test/espresso/device/DeviceInteraction\.kt:[0-9]+ Link does not resolve for @throws DeviceControllerOperationException in DFunction setTabletopMode\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/contrib\/PickerActions\.java:[0-9]+ Failed to resolve See <a href="http:\/\/developer\.android\.com\/guide\/topics\/ui\/controls\/pickers\.html">Pickers API in DClass PickerActions
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/DataInteraction\.java:[0-9]+ Missing @param tag for parameter `atPosition` in DFunction displayDataMatcher
 WARN: .*\/unzippedJvmSources\/androidx\/test\/espresso\/DataInteraction\.java:[0-9]+ Missing @param tag for parameter `rootMatcher` in DFunction displayDataMatcher
@@ -396,7 +381,6 @@ WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/ComplicationSlot\.kt:[0-9]+ Unable to find reference @param supportedTypes in DClass Builder\. Are you trying to refer to something not visible to users\?
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/Renderer\.kt:[0-9]+ Link does not resolve for @throws Renderer\.GlesException in DClass GlesRenderer2\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedJvmSources\/androidx\/wear\/watchface\/style\/CurrentUserStyleRepository\.kt:[0-9]+ Unable to find reference @param copySelectedOptions in DClass UserStyle\. Are you trying to refer to something not visible to users\?
-WARN\: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/lifecycle\/LifecycleRegistry\.nonJvm\.kt\:[0-9]+ Link does not resolve for \@throws IllegalStateException in DFunction addObserver\. Is it from a package that the containing file does not import\? Are docs inherited by an un\-documented override function\, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name\, e\.g\. \`\@throws java\.io\.IOException under some conditions\`\.
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/CookieManagerCompat\.java:UnknownLine Missing @param tag for parameter `cookieManager` in DFunction getCookieInfo
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebSettingsCompat\.java:[0-9]+ Missing @param tag for parameter `settings` in DFunction setSafeBrowsingEnabled
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebSettingsCompat\.java:[0-9]+ Missing @param tag for parameter `settings` in DFunction setDisabledActionModeMenuItems
@@ -409,18 +393,17 @@ WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebViewCompat\.java:[0-9]+ Missi
 WARN: .*\/unzippedJvmSources\/androidx\/webkit\/WebViewCompat\.java:[0-9]+ Missing @param tag for parameter `webview` in DFunction removeWebMessageListener
 WARN: .*\/unzippedJvmSources\/androidx\/work\/testing\/TestListenableWorkerBuilder\.kt:UnknownLine Missing @param tag for parameter `tags` in DFunction TestListenableWorkerBuilder
 WARN: .*\/unzippedJvmSources\/androidx\/work\/testing\/TestWorkerBuilder\.kt:UnknownLine Missing @param tag for parameter `tags` in DFunction TestWorkerBuilder
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedInitialKey` in DFunction LoadInitialParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `nextPageKey` in DFunction onResult
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `previousPageKey` in DFunction onResult
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
-WARN: .*\/unzippedMultiplatformSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
-WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/LoadState\.kt:[0-9]+ Failed to resolve See androidx\.paging\.PagedList\.retry in DClass Error\. Did you mean androidx\.paging\.PagedList#retry\?
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedInitialKey` in DFunction LoadInitialParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/ItemKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `nextPageKey` in DFunction onResult
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `previousPageKey` in DFunction onResult
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `placeholdersEnabled` in DFunction LoadInitialParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadInitialParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `key` in DFunction LoadParams
+WARN: .*\/unzippedJvmSources\/commonJvmAndroidMain\/androidx\/paging\/PageKeyedDataSource\.jvm\.kt:[0-9]+ Missing @param tag for parameter `requestedLoadSize` in DFunction LoadParams
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/animation\/graphics\/res\/AnimatedVectorPainterResources\.android\.kt:[0-9]+ Missing @param tag for parameter `animatedImageVector` in DFunction rememberAnimatedVectorPainter
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/material\/AndroidMenu\.android\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/androidMain\/androidx\/compose\/ui\/graphics\/AndroidPath\.android\.kt:[0-9]+ Missing @param tag for parameter `operation` in DFunction op
@@ -504,10 +487,7 @@ WARN: .*\/unzippedMultiplatformSources\/desktopMain\/androidx\/compose\/material
 WARN: .*\/unzippedMultiplatformSources\/jvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
 WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
 WARN: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/annotation\/RestrictTo\.nonJvm\.kt:UnknownLine Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
-WARN: .*\/unzippedMultiplatformSources\/.*Main\/androidx\/room\/RoomDatabase.*\.kt:UnknownLine Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
-[0-9]+ cpus, so not storing build metrics.
-64 cpus, so storing build metrics.
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present
@@ -542,7 +522,7 @@ thread\.resume\(\);
 thread\.suspend\(\);
 [0-9]+ warnings
 # When konan is downloading a dependency from another file, don't warn about it.
-\(KonanProperties\) Downloading dependency: file:.*/prebuilts/androidx/konan/.*
+\(KonanProperties\) Downloading dependency: file:\.\./\.\./.*
 Please wait while Kotlin/Native compiler .* is being installed\.
 Unpack Kotlin/Native compiler to .*
 Download file:\.\./\.\./.*
@@ -603,8 +583,3 @@ docs-public:docs starting
 docs-public:docs completing
 docs-tip-of-tree:docs starting
 docs-tip-of-tree:docs completing
-# Investigate more b/325465332
-# > Task :room:integration-tests:room-testapp-multiplatform:ksp.*
-i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
-# buildPrivacySandboxSdkApksForDebug (b/329101823)
-Extracted sandbox SDK APK for.*

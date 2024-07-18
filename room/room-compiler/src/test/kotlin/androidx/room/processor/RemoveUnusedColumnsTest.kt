@@ -118,8 +118,7 @@ class RemoveUnusedColumnsTest {
                 listOf(DatabaseProcessingStep())
             },
             options = mapOf(
-                "room.expandProjection" to enableExpandProjection.toString(),
-                "room.generateKotlin" to "false",
+                "room.expandProjection" to enableExpandProjection.toString()
             )
         ) { result ->
             validate(result)

@@ -185,7 +185,6 @@ public class ParcelableWorkerParameters implements Parcelable {
                 mRunAttemptCount,
                 mGeneration,
                 configuration.getExecutor(),
-                configuration.getWorkerCoroutineContext(),
                 taskExecutor,
                 configuration.getWorkerFactory(),
                 progressUpdater,

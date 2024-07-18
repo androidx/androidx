@@ -23,7 +23,6 @@ import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ListTemplate;
 import androidx.car.app.model.Row;
@@ -72,10 +71,8 @@ public final class SettingsScreen extends Screen {
                         sectionBBuilder.build(),
                         getCarContext().getString(R.string.settings_section_b_label)));
         return templateBuilder
-                .setHeader(new Header.Builder()
-                        .setTitle(getCarContext().getString(R.string.settings_title))
-                        .setStartHeaderAction(Action.BACK)
-                        .build())
+                .setHeaderAction(Action.BACK)
+                .setTitle(getCarContext().getString(R.string.settings_title))
                 .build();
     }
 

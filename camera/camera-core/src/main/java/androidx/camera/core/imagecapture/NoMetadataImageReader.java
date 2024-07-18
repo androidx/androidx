@@ -70,10 +70,6 @@ public class NoMetadataImageReader implements ImageReaderProxy {
         mPendingRequest = request;
     }
 
-    void clearProcessingRequest() {
-        mPendingRequest = null;
-    }
-
     @Nullable
     @Override
     public ImageProxy acquireLatestImage() {
@@ -134,10 +130,9 @@ public class NoMetadataImageReader implements ImageReaderProxy {
         if (originalImage == null) {
             return null;
         }
-        TagBundle tagBundle =
-                (mPendingRequest == null) ? TagBundle.emptyBundle() :
-                        TagBundle.create(new Pair<>(mPendingRequest.getTagBundleKey(),
-                                mPendingRequest.getStageIds().get(0)));
+        checkState(mPendingRequest != null, "Pending request should not be null");
+        TagBundle tagBundle = TagBundle.create(new Pair<>(mPendingRequest.getTagBundleKey(),
+                mPendingRequest.getStageIds().get(0)));
         mPendingRequest = null;
         return new SettableImageProxy(originalImage,
                 new Size(originalImage.getWidth(), originalImage.getHeight()),

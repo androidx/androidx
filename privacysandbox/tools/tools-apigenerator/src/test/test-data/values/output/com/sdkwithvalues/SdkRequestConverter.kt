@@ -13,9 +13,7 @@ public object SdkRequestConverter {
                         com.sdkwithvalues.InnerSdkValueConverter.fromParcelable(notNullValue) },
                 moreValues = parcelable.moreValues.map {
                         com.sdkwithvalues.InnerSdkValueConverter.fromParcelable(it) }.toList(),
-                activityLauncher = getLocalOrProxyLauncher(parcelable.activityLauncher),
-                requestFlag =
-                        com.sdkwithvalues.RequestFlagConverter.fromParcelable(parcelable.requestFlag))
+                activityLauncher = getLocalOrProxyLauncher(parcelable.activityLauncher))
         return annotatedValue
     }
 
@@ -29,8 +27,6 @@ public object SdkRequestConverter {
         parcelable.moreValues = annotatedValue.moreValues.map {
                 com.sdkwithvalues.InnerSdkValueConverter.toParcelable(it) }.toTypedArray()
         parcelable.activityLauncher = toBinder(annotatedValue.activityLauncher)
-        parcelable.requestFlag =
-                com.sdkwithvalues.RequestFlagConverter.toParcelable(annotatedValue.requestFlag)
         return parcelable
     }
 }

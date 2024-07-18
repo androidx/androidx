@@ -52,7 +52,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executor;
 
 /**
  * An implementation of {@link AppSearchSession} which proxies to a Google Play Service's
@@ -63,17 +62,15 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
     private final AppSearchClient mGmsClient;
     private final Features mFeatures;
     private final String mDatabaseName;
-    private final Executor mExecutor;
+
 
     SearchSessionImpl(
             @NonNull AppSearchClient gmsClient,
             @NonNull Features features,
-            @NonNull String databaseName,
-            @NonNull Executor executor) {
+            @NonNull String databaseName) {
         mGmsClient = Preconditions.checkNotNull(gmsClient);
         mFeatures = Preconditions.checkNotNull(features);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
-        mExecutor = Preconditions.checkNotNull(executor);
     }
 
     @NonNull
@@ -85,7 +82,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                         SetSchemaRequestToGmsConverter.toGmsSetSchemaRequest(
                                 request),
                         mDatabaseName),
-                SetSchemaRequestToGmsConverter::toJetpackSetSchemaResponse, mExecutor);
+                SetSchemaRequestToGmsConverter::toJetpackSetSchemaResponse);
     }
 
     @NonNull
@@ -93,7 +90,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsClient.getSchema(mDatabaseName),
-                GetSchemaResponseToGmsConverter::toJetpackGetSchemaResponse, mExecutor);
+                GetSchemaResponseToGmsConverter::toJetpackGetSchemaResponse);
     }
 
     @NonNull
@@ -101,7 +98,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
     public ListenableFuture<Set<String>> getNamespacesAsync() {
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsClient.getNamespaces(mDatabaseName),
-                /* valueMapper= */ i -> i, mExecutor);
+                /* valueMapper= */ i -> i);
     }
 
     @NonNull
@@ -114,7 +111,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                         RequestToGmsConverter.toGmsPutDocumentsRequest(request),
                         mDatabaseName),
                 result -> AppSearchResultToGmsConverter.gmsAppSearchBatchResultToJetpack(
-                        result, /* valueMapper= */ i -> i), mExecutor);
+                        result, /* valueMapper= */ i -> i));
     }
 
     @NonNull
@@ -127,8 +124,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                         RequestToGmsConverter.toGmsGetByDocumentIdRequest(request),
                         mDatabaseName),
                 result -> AppSearchResultToGmsConverter.gmsAppSearchBatchResultToJetpack(
-                                result, GenericDocumentToGmsConverter::toJetpackGenericDocument),
-                mExecutor);
+                                result, GenericDocumentToGmsConverter::toJetpackGenericDocument));
     }
 
     @NonNull
@@ -141,7 +137,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                         queryExpression,
                         SearchSpecToGmsConverter.toGmsSearchSpec(searchSpec),
                         mDatabaseName);
-        return new SearchResultsImpl(gmsSearchResults, mExecutor);
+        return new SearchResultsImpl(gmsSearchResults, searchSpec);
     }
 
     @NonNull
@@ -162,7 +158,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                 mGmsClient.reportUsage(
                         RequestToGmsConverter.toGmsReportUsageRequest(request),
                         mDatabaseName),
-                /* valueMapper= */ i -> i, mExecutor);
+                /* valueMapper= */ i -> i);
     }
 
     @NonNull
@@ -176,7 +172,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                                 .toGmsRemoveByDocumentIdRequest(request),
                         mDatabaseName),
                 result -> AppSearchResultToGmsConverter.gmsAppSearchBatchResultToJetpack(
-                        result, /* valueMapper= */ i -> i), mExecutor);
+                        result, /* valueMapper= */ i -> i));
     }
 
     @NonNull
@@ -189,7 +185,7 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
                         queryExpression,
                         SearchSpecToGmsConverter.toGmsSearchSpec(searchSpec),
                         mDatabaseName),
-                /* valueMapper= */ i -> i, mExecutor);
+                /* valueMapper= */ i -> i);
     }
 
     @NonNull
@@ -197,15 +193,14 @@ class SearchSessionImpl implements AppSearchSession, Closeable {
     public ListenableFuture<StorageInfo> getStorageInfoAsync() {
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsClient.getStorageInfo(mDatabaseName),
-                ResponseToGmsConverter::toJetpackStorageInfo, mExecutor);
+                ResponseToGmsConverter::toJetpackStorageInfo);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> requestFlushAsync() {
         Task<Void> flushTask = Tasks.forResult(null);
-        return AppSearchTaskFutures.toListenableFuture(flushTask, /* valueMapper= */ i-> i,
-                mExecutor);
+        return AppSearchTaskFutures.toListenableFuture(flushTask, /* valueMapper= */ i-> i);
     }
 
     @NonNull

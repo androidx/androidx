@@ -17,6 +17,7 @@
 package androidx.wear.compose.material
 
 import android.provider.Settings
+import android.text.format.DateFormat
 import android.view.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -41,6 +42,11 @@ internal fun imageResource(image: ImageResources): Painter =
             ImageResources.RectangularVignetteTop -> R.drawable.rectangular_vignette_top
         }
     )
+
+@Composable
+internal fun is24HourFormat(): Boolean = DateFormat.is24HourFormat(LocalContext.current)
+
+internal fun currentTimeMillis(): Long = System.currentTimeMillis()
 
 @Composable
 internal fun isLeftyModeEnabled(): Boolean {

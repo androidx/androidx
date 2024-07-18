@@ -18,19 +18,18 @@ package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
 import android.os.Build
-import androidx.benchmark.Arguments
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlin.test.assertFailsWith
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
-import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -41,15 +40,10 @@ class BaselineProfileRuleTest {
     @get:Rule
     val baselineRule = BaselineProfileRule()
 
-    @Before
-    fun setup() {
-        // Mokey devices seem to behave differently (b/319515652) and the generated profile
-        // doesn't output the class symbol line. This makes the test fail. While we investigate
-        // the scope of the failure, suppress the test on this device
-        assumeFalse(isMokeyDevice())
-    }
+    private val filterRegex = "^.*L${PACKAGE_NAME.replace(".", "/")}".toRegex()
 
     @Test
+    @Ignore("b/294123161")
     fun appNotInstalled() {
         val error = assertFailsWith<AssertionError> {
             baselineRule.collect(
@@ -64,6 +58,7 @@ class BaselineProfileRuleTest {
     }
 
     @Test
+    @Ignore("b/294123161")
     fun filter() {
         // TODO: share this 'is supported' check with the one inside BaselineProfileRule, once this
         //  test class is moved out of integration-tests, into benchmark-macro-junit4
@@ -71,83 +66,74 @@ class BaselineProfileRuleTest {
 
         // Collects the baseline profile
         baselineRule.collect(
-            packageName = Arguments.getTargetPackageNameOrThrow(),
-            filterPredicate = { it.contains(PROFILE_LINE_EMPTY_ACTIVITY) },
-            maxIterations = 1,
+            packageName = PACKAGE_NAME,
+            filterPredicate = { it.contains(filterRegex) },
             profileBlock = {
                 startActivityAndWait(Intent(ACTION))
                 device.waitForIdle()
             }
         )
 
-        // Asserts the output of the baseline profile. Note that this name is automatically
-        // generated starting from class and method name, according to the patter
-        // `<class>_<method>-baseline-prof.txt`. Changes for class and method names should be
-        // reflected here in order for the test to succeed.
-        File(Outputs.outputDirectory, "BaselineProfileRuleTest_filter-baseline-prof.txt")
-            .readLines()
-            .assertInOrder(
-                PROFILE_LINE_EMPTY_ACTIVITY,
-                "$PROFILE_LINE_EMPTY_ACTIVITY-><init>()V",
-                "$PROFILE_LINE_EMPTY_ACTIVITY->onCreate(Landroid/os/Bundle;)V",
-            )
+        // Note: this name is automatically generated starting from class and method name,
+        // according to the patter `<class>_<method>-baseline-prof.txt`. Changes for class and
+        // method names should be reflected here in order for the test to succeed.
+        val baselineProfileOutputFileName = "BaselineProfileRuleTest_filter-baseline-prof.txt"
+
+        // Asserts the output of the baseline profile
+        val lines = File(Outputs.outputDirectory, baselineProfileOutputFileName).readLines()
+        assertThat(lines).containsExactly(
+            "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
+            "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;-><init>()V",
+            "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;-><init>()V",
+            "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                "->onCreate(Landroid/os/Bundle;)V",
+            "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                "->onCreate(Landroid/os/Bundle;)V",
+        )
     }
 
     @Test
-    fun startupProfile() {
+    @Ignore("b/294123161")
+    fun profileType() {
         assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
 
-        // Collects the baseline profile
-        baselineRule.collect(
-            packageName = Arguments.getTargetPackageNameOrThrow(),
-            filterPredicate = { it.contains(PROFILE_LINE_EMPTY_ACTIVITY) },
-            includeInStartupProfile = true,
-            maxIterations = 1,
-            stableIterations = 1,
-            strictStability = false,
-            profileBlock = {
-                startActivityAndWait(Intent(ACTION))
-                device.waitForIdle()
-            }
-        )
+        data class TestConfig(val includeInStartupProfile: Boolean, val outputFileName: String)
 
-        File(Outputs.outputDirectory, "BaselineProfileRuleTest_startupProfile-startup-prof.txt")
-            .readLines()
-            .assertInOrder(
-                PROFILE_LINE_EMPTY_ACTIVITY,
-                "$PROFILE_LINE_EMPTY_ACTIVITY-><init>()V",
-                "$PROFILE_LINE_EMPTY_ACTIVITY->onCreate(Landroid/os/Bundle;)V",
+        arrayOf(
+            TestConfig(true, "BaselineProfileRuleTest_profileType-startup-prof.txt"),
+            TestConfig(false, "BaselineProfileRuleTest_profileType-baseline-prof.txt"),
+        ).forEach { (includeInStartupProfile, outputFilename) ->
+
+            // Collects the baseline profile
+            baselineRule.collect(
+                packageName = PACKAGE_NAME,
+                filterPredicate = { it.contains(filterRegex) },
+                includeInStartupProfile = includeInStartupProfile,
+                profileBlock = {
+                    startActivityAndWait(Intent(ACTION))
+                    device.waitForIdle()
+                }
             )
+
+            // Asserts the output of the baseline profile
+            val lines = File(Outputs.outputDirectory, outputFilename).readLines()
+            assertThat(lines).containsExactly(
+                "Landroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;",
+                "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                    "-><init>()V",
+                "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;-><init>()V",
+                "HSPLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                    "->onCreate(Landroid/os/Bundle;)V",
+                "PLandroidx/benchmark/integration/macrobenchmark/target/EmptyActivity;" +
+                    "->onCreate(Landroid/os/Bundle;)V",
+            )
+        }
     }
 
     companion object {
+        private const val PACKAGE_NAME =
+            "androidx.benchmark.integration.macrobenchmark.target"
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY"
-        private const val PROFILE_LINE_EMPTY_ACTIVITY =
-            "androidx/benchmark/integration/macrobenchmark/target/EmptyActivity;"
     }
-
-    private fun List<String>.assertInOrder(
-        vararg toFind: String,
-        predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.endsWith(nextToFind) }
-    ) {
-        val remaining = toFind.filter { it.isNotBlank() }.toMutableList()
-        for (line in this) {
-            val next = remaining.firstOrNull() ?: return
-            if (predicate(line, next)) remaining.removeFirst()
-        }
-        if (remaining.size > 0) {
-            fail(
-                """
-                The following lines were not found in order:
-                ${remaining.joinToString(System.lineSeparator())}
-
-                List content was:
-                ${this.joinToString(System.lineSeparator())}
-            """.trimIndent()
-            )
-        }
-    }
-
-    private fun isMokeyDevice() = Build.MODEL.contains("mokey")
 }

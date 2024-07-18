@@ -16,9 +16,13 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+
 /**
  * Base class for CameraCaptureSession.StateCallback()
  */
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 interface OnSessionFinalized {
     /**
      * Artificial event indicating the session is no longer in use and may be called several

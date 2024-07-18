@@ -30,7 +30,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.ImageCapture.FlashType;
-import androidx.camera.core.ImageCapture.ScreenFlash;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -64,12 +64,12 @@ public interface CameraControlInternal extends CameraControl {
     void setFlashMode(@FlashMode int flashMode);
 
     /**
-     * Sets {@link ScreenFlash} instance.
+     * Sets screen flash UI control.
      *
-     * @param screenFlash An {@link ScreenFlash} used to notify API
+     * @param screenFlashUiControl An {@link ScreenFlashUiControl} used to notify API
      *                             users when UI side changes need to be done.
      */
-    default void setScreenFlash(@Nullable ScreenFlash screenFlash) {}
+    default void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {}
 
     /**
      * Adds zero-shutter lag config to {@link SessionConfig}.

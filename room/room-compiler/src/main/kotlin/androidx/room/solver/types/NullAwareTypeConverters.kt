@@ -93,10 +93,6 @@ class RequireNotNullTypeConverter(
 
     private fun XCodeBlock.Builder.addIllegalStateException() {
         val typeName = from.asTypeName().copy(nullable = false).toString(language)
-        val exceptionClassName = when (language) {
-            CodeLanguage.JAVA -> ExceptionTypeNames.JAVA_ILLEGAL_STATE_EXCEPTION
-            CodeLanguage.KOTLIN -> ExceptionTypeNames.KOTLIN_ILLEGAL_STATE_EXCEPTION
-        }
         val message = "Expected NON-NULL '$typeName', but it was NULL."
         when (language) {
             CodeLanguage.JAVA -> {
@@ -104,7 +100,7 @@ class RequireNotNullTypeConverter(
                     "throw %L",
                     XCodeBlock.ofNewInstance(
                         language,
-                        exceptionClassName,
+                        ExceptionTypeNames.ILLEGAL_STATE_EXCEPTION,
                         "%S",
                         message
                     )

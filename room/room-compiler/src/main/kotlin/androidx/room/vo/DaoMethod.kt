@@ -21,6 +21,4 @@ import androidx.room.compiler.processing.XMethodElement
 /**
  * References a method that returns a dao in a Database
  */
-data class DaoMethod(val element: XMethodElement, val dao: Dao) {
-    val isProperty = element.isKotlinPropertyMethod()
-}
+data class DaoMethod(val element: XMethodElement, val dao: Dao)

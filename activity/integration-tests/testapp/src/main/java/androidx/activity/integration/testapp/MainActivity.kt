@@ -98,26 +98,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        pickVisualMedia = registerForActivityResult(PickVisualMedia()) { uri ->
-            toast("Got image: $uri")
-        }
-        pickMultipleVisualMedia =
-            registerForActivityResult(PickMultipleVisualMedia(5)) { uris ->
-                var media = ""
-                uris.forEach {
-                    media += "uri: $it \n"
+        if (android.os.Build.VERSION.SDK_INT >= 19) {
+            pickVisualMedia = registerForActivityResult(PickVisualMedia()) { uri ->
+                toast("Got image: $uri")
+            }
+            pickMultipleVisualMedia =
+                registerForActivityResult(PickMultipleVisualMedia(5)) { uris ->
+                    var media = ""
+                    uris.forEach {
+                        media += "uri: $it \n"
+                    }
+                    toast("Got media files: $media")
                 }
-                toast("Got media files: $media")
+            createDocument = registerForActivityResult(CreateDocument("image/png")) { uri ->
+                toast("Created document: $uri")
             }
-        createDocument = registerForActivityResult(CreateDocument("image/png")) { uri ->
-            toast("Created document: $uri")
-        }
-        openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
-            var docs = ""
-            uris.forEach {
-                docs += "uri: $it \n"
+            openDocuments = registerForActivityResult(OpenMultipleDocuments()) { uris ->
+                var docs = ""
+                uris.forEach {
+                    docs += "uri: $it \n"
+                }
+                toast("Got documents: $docs")
             }
-            toast("Got documents: $docs")
         }
 
         setContentView {
@@ -143,26 +145,28 @@ class MainActivity : ComponentActivity() {
                 button("Pick an image (w/ GET_CONTENT)") {
                     getContent.launch("image/*")
                 }
-                button("Pick an image (w/ photo picker)") {
-                    pickVisualMedia.launch(
-                        PickVisualMediaRequest(PickVisualMedia.ImageOnly)
-                    )
-                }
-                button("Pick a GIF (w/ photo picker)") {
-                    pickVisualMedia.launch(
-                        PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/gif"))
-                    )
-                }
-                button("Pick 5 visual media max (w/ photo picker)") {
-                    pickMultipleVisualMedia.launch(
-                        PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
-                    )
-                }
-                button("Create document") {
-                    createDocument.launch("Temp")
-                }
-                button("Open documents") {
-                    openDocuments.launch(arrayOf("*/*"))
+                if (android.os.Build.VERSION.SDK_INT >= 19) {
+                    button("Pick an image (w/ photo picker)") {
+                        pickVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageOnly)
+                        )
+                    }
+                    button("Pick a GIF (w/ photo picker)") {
+                        pickVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.SingleMimeType("image/gif"))
+                        )
+                    }
+                    button("Pick 5 visual media max (w/ photo picker)") {
+                        pickMultipleVisualMedia.launch(
+                            PickVisualMediaRequest(PickVisualMedia.ImageAndVideo)
+                        )
+                    }
+                    button("Create document") {
+                        createDocument.launch("Temp")
+                    }
+                    button("Open documents") {
+                        openDocuments.launch(arrayOf("*/*"))
+                    }
                 }
                 button("Start IntentSender") {
                     val request = IntentSenderRequest.Builder(

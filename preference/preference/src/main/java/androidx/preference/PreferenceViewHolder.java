@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -143,7 +144,7 @@ public class PreferenceViewHolder extends RecyclerView.ViewHolder {
      */
     void resetState() {
         if (itemView.getBackground() != mBackground) {
-            itemView.setBackground(mBackground);
+            ViewCompat.setBackground(itemView, mBackground);
         }
 
         final TextView titleView = (TextView) findViewById(android.R.id.title);

@@ -64,7 +64,7 @@ class DynamicRangeProfilesCompatTest {
     fun canSupportDynamicRangeFromHlg10Profile() {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HLG10_UNCONSTRAINED)
-        Truth.assertThat(dynamicRangeProfilesCompat?.supportedDynamicRanges)
+        Truth.assertThat(dynamicRangeProfilesCompat?.getSupportedDynamicRanges())
             .contains(DynamicRange.HLG_10_BIT)
     }
 
@@ -73,7 +73,7 @@ class DynamicRangeProfilesCompatTest {
     fun canSupportDynamicRangeFromHdr10Profile() {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HDR10_UNCONSTRAINED)
-        Truth.assertThat(dynamicRangeProfilesCompat?.supportedDynamicRanges)
+        Truth.assertThat(dynamicRangeProfilesCompat?.getSupportedDynamicRanges())
             .contains(DynamicRange.HDR10_10_BIT)
     }
 
@@ -82,7 +82,7 @@ class DynamicRangeProfilesCompatTest {
     fun canSupportDynamicRangeFromHdr10PlusProfile() {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(HDR10_PLUS_UNCONSTRAINED)
-        Truth.assertThat(dynamicRangeProfilesCompat?.supportedDynamicRanges)
+        Truth.assertThat(dynamicRangeProfilesCompat?.getSupportedDynamicRanges())
             .contains(DynamicRange.HDR10_PLUS_10_BIT)
     }
 
@@ -91,7 +91,7 @@ class DynamicRangeProfilesCompatTest {
     fun canSupportDynamicRangeFromDolbyVision10bProfile() {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(DOLBY_VISION_10B_UNCONSTRAINED)
-        Truth.assertThat(dynamicRangeProfilesCompat?.supportedDynamicRanges)
+        Truth.assertThat(dynamicRangeProfilesCompat?.getSupportedDynamicRanges())
             .contains(DynamicRange.DOLBY_VISION_10_BIT)
     }
 
@@ -100,7 +100,7 @@ class DynamicRangeProfilesCompatTest {
     fun canSupportDynamicRangeFromDolbyVision8bProfile() {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.toDynamicRangesCompat(DOLBY_VISION_8B_UNCONSTRAINED)
-        Truth.assertThat(dynamicRangeProfilesCompat?.supportedDynamicRanges)
+        Truth.assertThat(dynamicRangeProfilesCompat?.getSupportedDynamicRanges())
             .contains(DynamicRange.DOLBY_VISION_8_BIT)
     }
 
@@ -203,7 +203,7 @@ class DynamicRangeProfilesCompatTest {
         val dynamicRangeProfilesCompat =
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
-        Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
+        Truth.assertThat(dynamicRangeProfilesCompat.getSupportedDynamicRanges())
             .containsExactly(DynamicRange.SDR)
         Truth.assertThat(
             dynamicRangeProfilesCompat.getDynamicRangeCaptureRequestConstraints(DynamicRange.SDR)
@@ -225,10 +225,10 @@ class DynamicRangeProfilesCompatTest {
             DynamicRangeProfilesCompat.fromCameraMetaData(cameraMetadata)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-            Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
+            Truth.assertThat(dynamicRangeProfilesCompat.getSupportedDynamicRanges())
                 .containsExactly(DynamicRange.SDR)
         } else {
-            Truth.assertThat(dynamicRangeProfilesCompat.supportedDynamicRanges)
+            Truth.assertThat(dynamicRangeProfilesCompat.getSupportedDynamicRanges())
                 .containsExactly(
                     DynamicRange.SDR, DynamicRange.DOLBY_VISION_8_BIT
                 )

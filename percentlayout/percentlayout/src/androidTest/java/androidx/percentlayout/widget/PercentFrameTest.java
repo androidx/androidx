@@ -21,6 +21,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import android.os.Build;
 import android.view.View;
 
+import androidx.core.view.ViewCompat;
 import androidx.percentlayout.test.R;
 import androidx.test.filters.LargeTest;
 
@@ -178,10 +179,10 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
         if (Build.VERSION.SDK_INT >= 17) {
             // Force our child to inherit parent's layout direction
             onView(withId(R.id.child_margin_start)).perform(
-                    LayoutDirectionActions.setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT));
+                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_INHERIT));
             // And force the container to RTL mode
             onView(withId(R.id.container)).perform(
-                    LayoutDirectionActions.setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
             // Force a full measure + layout pass on the container
             mPercentFrameLayout.measure(
@@ -220,10 +221,10 @@ public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActiv
         if (Build.VERSION.SDK_INT >= 17) {
             // Force our child to inherit parent's layout direction
             onView(withId(R.id.child_margin_end)).perform(
-                    LayoutDirectionActions.setLayoutDirection(View.LAYOUT_DIRECTION_INHERIT));
+                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_INHERIT));
             // And force the container to RTL mode
             onView(withId(R.id.container)).perform(
-                    LayoutDirectionActions.setLayoutDirection(View.LAYOUT_DIRECTION_RTL));
+                    LayoutDirectionActions.setLayoutDirection(ViewCompat.LAYOUT_DIRECTION_RTL));
 
             // Force a full measure + layout pass on the container
             mPercentFrameLayout.measure(

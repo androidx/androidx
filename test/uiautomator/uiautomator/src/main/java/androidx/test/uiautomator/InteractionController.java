@@ -16,10 +16,12 @@
 
 package androidx.test.uiautomator;
 
+import android.accessibilityservice.AccessibilityService;
 import android.app.Service;
 import android.app.UiAutomation;
 import android.app.UiAutomation.AccessibilityEventFilter;
 import android.graphics.Point;
+import android.os.Build;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -456,7 +458,8 @@ class InteractionController {
      */
     public boolean wakeDevice() throws RemoteException {
         if(!isScreenOn()) {
-            sendKey(KeyEvent.KEYCODE_WAKEUP, 0);
+            boolean supportsWakeButton = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
+            sendKey(supportsWakeButton ? KeyEvent.KEYCODE_WAKEUP : KeyEvent.KEYCODE_POWER, 0);
             return true;
         }
         return false;
@@ -471,7 +474,8 @@ class InteractionController {
      */
     public boolean sleepDevice() throws RemoteException {
         if(isScreenOn()) {
-            sendKey(KeyEvent.KEYCODE_SLEEP , 0);
+            boolean supportsSleepButton = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
+            sendKey(supportsSleepButton ? KeyEvent.KEYCODE_SLEEP : KeyEvent.KEYCODE_POWER, 0);
             return true;
         }
         return false;
@@ -592,6 +596,33 @@ class InteractionController {
                 properties, pointerCoords, 0, 0, 1, 1, 0, 0, InputDevice.SOURCE_TOUCHSCREEN, 0);
         ret &= injectEventSync(event);
         return ret;
+    }
+
+    /**
+     * Simulates a short press on the Recent Apps button.
+     *
+     * @return true if successful, else return false
+     */
+    public boolean toggleRecentApps() {
+        return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
+    }
+
+    /**
+     * Opens the notification shade
+     *
+     * @return true if successful, else return false
+     */
+    public boolean openNotification() {
+        return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
+    }
+
+    /**
+     * Opens the quick settings shade
+     *
+     * @return true if successful, else return false
+     */
+    public boolean openQuickSettings() {
+        return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS);
     }
 
     /** Helper function to obtain a MotionEvent. */

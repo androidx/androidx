@@ -96,10 +96,10 @@
     <string name="unavailable" msgid="3636401138255192934">"دردسترس نیست"</string>
     <string name="ev_connector_types" msgid="735458637011996125">"انواع رابط‌های خودروی برقی"</string>
     <string name="example_title" msgid="530257630320010494">"‏نمونه %d"</string>
-    <string name="example_1_text" msgid="8631503055894800688">"رنگ این نوشتار "<annotation color="red">"قرمز"</annotation>" است"</string>
-    <string name="example_2_text" msgid="1359373957397219102">"رنگ این نوشتار "<annotation color="green">"سبز"</annotation>" است"</string>
-    <string name="example_3_text" msgid="2409207170762049673">"رنگ این نوشتار "<annotation color="blue">"آبی"</annotation>" است"</string>
-    <string name="example_4_text" msgid="9055989886645433000">"رنگ این نوشتار "<annotation color="yellow">"زرد"</annotation>" است"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"رنگ این نوشتار قرمز است"</string>
+    <string name="example_2_text" msgid="718820705318661440">"رنگ این نوشتار سبز است"</string>
+    <string name="example_3_text" msgid="977269832109695627">"رنگ این نوشتار آبی است"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"رنگ این نوشتار زرد است"</string>
     <string name="example_5_text" msgid="8828804968749423500">"این نوشتار از رنگ اصلی استفاده می‌کند"</string>
     <string name="example_6_text" msgid="7991523168517599600">"این نوشتار از رنگ فرعی استفاده می‌کند"</string>
     <string name="color_demo" msgid="1822427636476178993">"نمونه رنگ"</string>
@@ -236,8 +236,8 @@
     <string name="browse_places_title" msgid="7246005909846715898">"مرور مکان‌ها"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"الگوی جستجوی نمونه"</string>
     <string name="search_hint" msgid="978495498991026792">"اینجا جستجو کنید"</string>
-    <string name="additional_text" msgid="5755100726890686184">"لطفاً "<annotation link="terms_of_service">"شرایط خدمات"</annotation>" ما را مرور کنید"</string>
-    <string name="google_sign_in" msgid="6556259799319701727">"‏ورود به سیستم با Google"</string>
+    <string name="additional_text" msgid="8410289578276941586">"لطفاً شرایط خدمات ما را مرور کنید"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"‏ورود به سیستم Google"</string>
     <string name="use_pin" msgid="7850893299484337431">"استفاده از پین"</string>
     <string name="qr_code" msgid="5487041647280777397">"رمزینه پاسخ‌سریع"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"میزبان شما از الگوی «ورود به سیستم» پشتیبانی نمی‌کند"</string>
@@ -253,7 +253,7 @@
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"این پین را در تلفن وارد کنید"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"برای ورود به سیستم، رمزینه پاسخ‌سریع را اسکن کنید"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"‏ورود به سیستم با Google"</string>
-    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏از این دکمه برای تکمیل «ورود به سیستم Google» استفاده کنید"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏از این دکمه برای تکمیل «ورود به سیستم با Google» استفاده کنید"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"به سیستم وارد شدید!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"ورود به سیستم تکمیل شد"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"الگوی ورود به سیستم نمونه"</string>
@@ -288,14 +288,14 @@
     <string name="rows_demo_title" msgid="3198566660454251007">"ردیف‌های نمونه"</string>
     <string name="text_icons_demo_title" msgid="8732943920672143201">"نوشتار و نمادهای نمونه"</string>
     <string name="row_text_icons_demo_title" msgid="135167694047524905">"نمونه ردیف‌ها به‌همراه نوشتار و نمادها"</string>
-    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"نسخه نمونه فهرست‌های دکمه رادیویی"</string>
+    <string name="radio_button_list_demo_title" msgid="9082264324855338774">"نسخه نمونه فهرست‌های دکمه رادیو"</string>
     <string name="selectable_lists_demo_title" msgid="5492658731113129386">"فهرست‌های قابل‌انتخاب نمونه"</string>
     <string name="option_1_title" msgid="7221252541651471199">"گزینه ١"</string>
     <string name="option_2_title" msgid="1905146448697963818">"گزینه ۲"</string>
     <string name="option_3_title" msgid="6319268250436119258">"گزینه ۳"</string>
-    <string name="option_row_radio_title" msgid="5978617101267398181">"ردیف دارای دکمه رادیویی"</string>
-    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ردیف دارای نماد و دکمه رادیویی"</string>
-    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ردیف دارای دکمه رادیویی و نماد و نوشتار رنگی"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"ردیف دارای دکمه رادیو"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ردیف دارای نماد و دکمه رادیو"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ردیف دارای دکمه رادیو و نماد و نوشتار رنگی"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"چند نوشتار دیگر"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"فهرست نمونه قابل‌انتخاب"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"محدودیت تکلیف نمونه"</string>
@@ -365,8 +365,4 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"گزینه‌های مسیر"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"اجتناب از بزرگراه‌ها"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"اجتناب از قایق مسافربری"</string>
-    <string name="map_demos_title" msgid="2169766615521476592">"نسخه‌های نمایشی نقشه"</string>
-    <string name="map_with_content_demo_title" msgid="1032610482145018739">"نسخه‌های نمایشی نقشه با محتوا"</string>
-    <string name="map_with_message_demo_title" msgid="7007078234918054436">"نسخه نمایشی نقشه با الگوی پیام"</string>
-    <string name="map_with_grid_demo_title" msgid="688667167861193192">"نسخه نمایشی نقشه با الگوی جدولی"</string>
 </resources>

@@ -34,6 +34,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
@@ -46,6 +47,7 @@ import androidx.appcompat.R;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -73,6 +75,11 @@ class AppCompatTextViewAutoSizeHelper {
     @SuppressLint("BanConcurrentHashMap")
     private static java.util.concurrent.ConcurrentHashMap<String, Method>
             sTextViewMethodByNameCache = new java.util.concurrent.ConcurrentHashMap<>();
+    // Cache of TextView fields used via reflection; the key is the field name and the value is
+    // the field itself or null if it can not be found.
+    @SuppressLint("BanConcurrentHashMap")
+    private static java.util.concurrent.ConcurrentHashMap<String, Field> sTextViewFieldByNameCache =
+            new java.util.concurrent.ConcurrentHashMap<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when
@@ -640,12 +647,14 @@ class AppCompatTextViewAutoSizeHelper {
         setRawTextSize(TypedValue.applyDimension(unit, size, res.getDisplayMetrics()));
     }
 
-    @SuppressLint("BanUncheckedReflection")
     private void setRawTextSize(float size) {
         if (size != mTextView.getPaint().getTextSize()) {
             mTextView.getPaint().setTextSize(size);
 
-            boolean isInLayout = mTextView.isInLayout();
+            boolean isInLayout = false;
+            if (Build.VERSION.SDK_INT >= 18) {
+                isInLayout = Api18Impl.isInLayout(mTextView);
+            }
 
             if (mTextView.getLayout() != null) {
                 // Do not auto-size right after setting the text size.
@@ -722,18 +731,11 @@ class AppCompatTextViewAutoSizeHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Api23Impl.createStaticLayoutForMeasuring(
                     text, alignment, availableWidth, maxLines, mTextView, mTempTextPaint, mImpl);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return Api16Impl.createStaticLayoutForMeasuring(
+                    text, alignment, availableWidth, mTextView, mTempTextPaint);
         } else {
-            final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();
-            final float lineSpacingAdd = mTextView.getLineSpacingExtra();
-            final boolean includePad = mTextView.getIncludeFontPadding();
-
-            // The layout could not be constructed using the builder so fall back to the
-            // most broad constructor.
-            return new StaticLayout(text, mTempTextPaint, availableWidth,
-                    alignment,
-                    lineSpacingMultiplier,
-                    lineSpacingAdd,
-                    includePad);
+            return createStaticLayoutForMeasuringPre16(text, alignment, availableWidth);
         }
     }
 
@@ -747,7 +749,7 @@ class AppCompatTextViewAutoSizeHelper {
             }
         }
 
-        final int maxLines = mTextView.getMaxLines();
+        final int maxLines = Build.VERSION.SDK_INT >= 16 ? Api16Impl.getMaxLines(mTextView) : -1;
         initTempTextPaint(suggestedSizeInPx);
 
         // Needs reflection call due to being private.
@@ -769,7 +771,25 @@ class AppCompatTextViewAutoSizeHelper {
         return true;
     }
 
-    @SuppressLint("BanUncheckedReflection")
+
+    private StaticLayout createStaticLayoutForMeasuringPre16(CharSequence text,
+            Layout.Alignment alignment, int availableWidth) {
+        // The default values have been inlined with the StaticLayout defaults.
+
+        final float lineSpacingMultiplier = accessAndReturnWithDefault(mTextView,
+                "mSpacingMult", 1.0f);
+        final float lineSpacingAdd = accessAndReturnWithDefault(mTextView,
+                "mSpacingAdd", 0.0f);
+        final boolean includePad = accessAndReturnWithDefault(mTextView,
+                "mIncludePad", true);
+
+        return new StaticLayout(text, mTempTextPaint, availableWidth,
+                alignment,
+                lineSpacingMultiplier,
+                lineSpacingAdd,
+                includePad);
+    }
+
     @SuppressWarnings("unchecked")
     // This is marked package-protected so that it doesn't require a synthetic accessor
     // when being used from the Impl inner classes
@@ -794,6 +814,22 @@ class AppCompatTextViewAutoSizeHelper {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T> T accessAndReturnWithDefault(@NonNull Object object,
+            @NonNull final String fieldName, @NonNull final T defaultValue) {
+        try {
+            final Field field = getTextViewField(fieldName);
+            if (field == null) {
+                return defaultValue;
+            }
+
+            return (T) field.get(object);
+        }  catch (IllegalAccessException e) {
+            Log.w(TAG, "Failed to access TextView#" + fieldName + " member", e);
+            return defaultValue;
+        }
+    }
+
     @Nullable
     private static Method getTextViewMethod(@NonNull final String methodName) {
         try {
@@ -810,6 +846,25 @@ class AppCompatTextViewAutoSizeHelper {
             return method;
         } catch (Exception ex) {
             Log.w(TAG, "Failed to retrieve TextView#" + methodName + "() method", ex);
+            return null;
+        }
+    }
+
+    @Nullable
+    private static Field getTextViewField(@NonNull final String fieldName) {
+        try {
+            Field field = sTextViewFieldByNameCache.get(fieldName);
+            if (field == null) {
+                field = TextView.class.getDeclaredField(fieldName);
+                if (field != null) {
+                    field.setAccessible(true);
+                    sTextViewFieldByNameCache.put(fieldName, field);
+                }
+            }
+
+            return field;
+        } catch (NoSuchFieldException e) {
+            Log.w(TAG, "Failed to access TextView#" + fieldName + " member", e);
             return null;
         }
     }
@@ -871,6 +926,52 @@ class AppCompatTextViewAutoSizeHelper {
                 Log.w(TAG, "Failed to obtain TextDirectionHeuristic, auto size may be incorrect");
             }
             return layoutBuilder.build();
+        }
+    }
+
+    @RequiresApi(18)
+    private static final class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isInLayout(@NonNull View view) {
+            return view.isInLayout();
+        }
+    }
+
+    @RequiresApi(16)
+    private static final class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getMaxLines(@NonNull TextView textView) {
+            return textView.getMaxLines();
+        }
+
+        @DoNotInline
+        @NonNull
+        static StaticLayout createStaticLayoutForMeasuring(
+                @NonNull CharSequence text,
+                @NonNull Layout.Alignment alignment,
+                int availableWidth,
+                @NonNull TextView textView,
+                @NonNull TextPaint tempTextPaint
+        ) {
+            final float lineSpacingMultiplier = textView.getLineSpacingMultiplier();
+            final float lineSpacingAdd = textView.getLineSpacingExtra();
+            final boolean includePad = textView.getIncludeFontPadding();
+
+            // The layout could not be constructed using the builder so fall back to the
+            // most broad constructor.
+            return new StaticLayout(text, tempTextPaint, availableWidth,
+                    alignment,
+                    lineSpacingMultiplier,
+                    lineSpacingAdd,
+                    includePad);
         }
     }
 }

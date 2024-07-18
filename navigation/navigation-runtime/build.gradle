@@ -151,10 +151,6 @@ kotlin {
 }
 
 android {
-    defaultConfig {
-        multiDexEnabled = true
-    }
-
     // Include `*.java` files into the build
     sourceSets["main"].java.srcDir("src/androidMain/java")
     namespace "androidx.navigation"
@@ -166,4 +162,5 @@ androidx {
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
     metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

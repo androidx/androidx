@@ -48,7 +48,7 @@ public open class TestForegroundWorker(
 
     internal companion object {
         // Notification Id
-        const val NotificationId = 42
+        private const val NotificationId = 42
 
         // Channel id
         private const val ChannelId = "Channel"

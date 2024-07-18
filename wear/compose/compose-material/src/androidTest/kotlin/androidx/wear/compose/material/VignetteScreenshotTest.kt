@@ -25,8 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -58,7 +56,7 @@ class VignetteScreenshotTest {
 
     @Test
     fun vignette_circular_top() = verifyScreenshot {
-        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isScreenRound = true)) {
+        ConfiguredShapeScreen(isRound = true) {
             sampleVignette(
                 VignettePosition.Top,
                 modifier = Modifier.size(screenSize).clip(CircleShape)
@@ -68,7 +66,7 @@ class VignetteScreenshotTest {
 
     @Test
     fun vignette_circular_bottom() = verifyScreenshot {
-        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isScreenRound = true)) {
+        ConfiguredShapeScreen(isRound = true) {
             sampleVignette(
                 VignettePosition.Bottom,
                 modifier = Modifier.size(screenSize).clip(CircleShape)
@@ -78,7 +76,7 @@ class VignetteScreenshotTest {
 
     @Test
     fun vignette_circular_top_and_bottom() = verifyScreenshot {
-        DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(isScreenRound = true)) {
+        ConfiguredShapeScreen(isRound = true) {
             sampleVignette(
                 VignettePosition.TopAndBottom,
                 modifier = Modifier.size(screenSize).clip(CircleShape)

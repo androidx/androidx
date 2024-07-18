@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.playservicesstorage.converter.SearchResultToGmsConverter;
 import androidx.appsearch.playservicesstorage.util.AppSearchTaskFutures;
 import androidx.core.util.Preconditions;
@@ -27,7 +28,6 @@ import androidx.core.util.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * GooglePlayService's implementation of {@link SearchResults} which proxies to the
@@ -37,13 +37,11 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SearchResultsImpl implements SearchResults {
     private final com.google.android.gms.appsearch.SearchResults mGmsResults;
-    private final Executor mExecutor;
 
     SearchResultsImpl(
             @NonNull com.google.android.gms.appsearch.SearchResults gmsResults,
-            @NonNull Executor executor) {
+            @NonNull SearchSpec searchSpec) {
         mGmsResults = Preconditions.checkNotNull(gmsResults);
-        mExecutor = Preconditions.checkNotNull(executor);
     }
 
     @Override
@@ -51,8 +49,7 @@ class SearchResultsImpl implements SearchResults {
     public ListenableFuture<List<SearchResult>> getNextPageAsync() {
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsResults.getNextPage(),
-                SearchResultToGmsConverter::toJetpackSearchResultList,
-                mExecutor
+                SearchResultToGmsConverter::toJetpackSearchResultList
         );
     }
 

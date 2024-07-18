@@ -39,11 +39,8 @@ import kotlinx.serialization.serializer
  * destination is popped off the back stack, the lifecycle will be destroyed, state
  * will no longer be saved, and ViewModels will be cleared.
  */
-public expect class NavBackStackEntry :
-    LifecycleOwner,
-    ViewModelStoreOwner,
-    HasDefaultViewModelProviderFactory,
-    SavedStateRegistryOwner {
+public expect class NavBackStackEntry : LifecycleOwner, ViewModelStoreOwner,
+    HasDefaultViewModelProviderFactory, SavedStateRegistryOwner {
 
     @Suppress("ConvertSecondaryConstructorToPrimary")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -125,13 +122,10 @@ public expect class NavBackStackEntry :
  * Extrapolates arguments from [NavBackStackEntry.arguments] and recreates object [T]
  *
  * @param [T] the entry's [NavDestination.route] as a [KClass]
- *
  * @return A new instance of this entry's [NavDestination.route] as an object of type [T]
  */
 public inline fun <reified T> NavBackStackEntry.toRoute(): T {
     val bundle = arguments ?: Bundle()
-    val typeMap = destination.arguments.mapValues {
-        it.value.type
-    }
+    val typeMap = destination.arguments.mapValues { it.value.type }
     return serializer<T>().decodeArguments(bundle, typeMap)
 }

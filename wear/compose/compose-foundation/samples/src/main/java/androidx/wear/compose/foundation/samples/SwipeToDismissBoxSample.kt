@@ -37,7 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.BasicSwipeToDismissBox
+import androidx.wear.compose.foundation.SwipeToDismissBox
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
@@ -53,7 +53,7 @@ fun SimpleSwipeToDismissBox(
     navigateBack: () -> Unit
 ) {
     val state = rememberSwipeToDismissBoxState()
-    BasicSwipeToDismissBox(
+    SwipeToDismissBox(
         state = state,
         onDismissed = navigateBack
     ) { isBackground ->
@@ -95,7 +95,7 @@ fun StatefulSwipeToDismissBox() {
 
     // Hierarchy is ListScreen -> ItemScreen, so we show ListScreen as the background behind
     // the ItemScreen, otherwise there's no background to show.
-    BasicSwipeToDismissBox(
+    SwipeToDismissBox(
         state = state,
         userSwipeEnabled = !showMainScreen,
         backgroundKey = if (!showMainScreen) "MainKey" else "Background",
@@ -162,7 +162,7 @@ fun EdgeSwipeForSwipeToDismiss(
 
     // When using Modifier.edgeSwipeToDismiss, it is required that the element on which the
     // modifier applies exists within a SwipeToDismissBox which shares the same state.
-    BasicSwipeToDismissBox(
+    SwipeToDismissBox(
         state = state,
         onDismissed = navigateBack
     ) { isBackground ->

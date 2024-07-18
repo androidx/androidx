@@ -16,20 +16,15 @@
 
 package androidx.recyclerview.widget
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.MatcherAssert
 import org.junit.Test
-import org.junit.runner.RunWith
 
 // This subclass exists to allow porting individual tests in this class to Kotlin
 // without porting the whole (very large) class
-@LargeTest
-@RunWith(AndroidJUnit4::class)
 class RecyclerViewLayoutTestKotlin : RecyclerViewLayoutTest() {
     @Test
     @Throws(Throwable::class)

@@ -165,15 +165,6 @@ open class IterableSubject<T> protected constructor(
         containsAnyIn(requireNonNull(expected).asList())
     }
 
-    /**
-     * Checks that the actual iterable contains at least all of the expected elements or fails. If
-     * an element appears more than once in the expected elements to this call then it must appear
-     * at least that number of times in the actual elements.
-     *
-     * To also test that the contents appear in the given order, make a call to `inOrder()` on the
-     * object returned by this method. The expected elements must appear in the given order within
-     * the actual elements, but they are not required to be consecutive.
-     */
     fun containsAtLeast(
         firstExpected: Any?,
         secondExpected: Any?,
@@ -181,15 +172,6 @@ open class IterableSubject<T> protected constructor(
     ): Ordered =
         containsAtLeastElementsIn(listOf(firstExpected, secondExpected, *restOfExpected))
 
-    /**
-     * Checks that the actual iterable contains at least all of the expected elements or fails. If
-     * an element appears more than once in the expected elements then it must appear at least that
-     * number of times in the actual elements.
-     *
-     * To also test that the contents appear in the given order, make a call to `inOrder()` on the
-     * object returned by this method. The expected elements must appear in the given order within
-     * the actual elements, but they are not required to be consecutive.
-     */
     fun containsAtLeastElementsIn(expected: Iterable<*>?): Ordered {
         requireNonNull(expected)
         val actualList = requireNonNull(actual).toMutableList()
@@ -538,6 +520,9 @@ open class IterableSubject<T> protected constructor(
             }
     }
 
+    /**
+     * @deprecated You probably meant to call [containsNoneOf] instead.
+     */
     @Deprecated(
         message = "You probably meant to call containsNoneOf instead.",
         replaceWith = ReplaceWith(expression = "containsNoneOf"),

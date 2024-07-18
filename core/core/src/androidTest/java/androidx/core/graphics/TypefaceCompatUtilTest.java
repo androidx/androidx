@@ -20,7 +20,9 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.provider.MockFontProvider;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -39,7 +41,12 @@ public class TypefaceCompatUtilTest {
     }
 
     @Test
+    @RequiresApi(19)
     public void testMmapNullPfd() {
+        if (Build.VERSION.SDK_INT < 19) {
+            // The API tested here requires SDK level 19.
+            return;
+        }
         final Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
                 .authority(MockFontProvider.AUTHORITY).build();
         final Uri fileUri = ContentUris.withAppendedId(uri, MockFontProvider.INVALID_FONT_FILE_ID);

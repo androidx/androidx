@@ -16,7 +16,6 @@
 
 package androidx.glance.testing.unit
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.os.Bundle
@@ -74,6 +73,7 @@ private fun <T> hasSemanticsPropertyValue(
  *
  * @see SemanticsProperties.ContentDescription
  */
+@JvmOverloads
 fun hasContentDescription(
     value: String,
     ignoreCase: Boolean = false
@@ -106,6 +106,7 @@ fun hasContentDescription(
  *
  * @see SemanticsProperties.ContentDescription
  */
+@JvmOverloads
 fun hasContentDescriptionEqualTo(
     value: String,
     ignoreCase: Boolean = false
@@ -125,7 +126,6 @@ fun hasContentDescriptionEqualTo(
         }
     }
 
-@SuppressLint("ListIterator") // this is not a hot code path, nor is it optimized
 private fun hasContentDescription(
     semanticsModifier: SemanticsModifier,
     value: String,
@@ -154,6 +154,7 @@ private fun hasContentDescription(
  * @param ignoreCase whether to perform case insensitive matching. Defaults to case sensitive
  *                   matching.
  */
+@JvmOverloads
 fun hasText(
     text: String,
     ignoreCase: Boolean = false
@@ -175,6 +176,7 @@ fun hasText(
  * @param ignoreCase whether to perform case insensitive matching. Defaults to case sensitive
  *                   matching.
  */
+@JvmOverloads
 fun hasTextEqualTo(
     text: String,
     ignoreCase: Boolean = false
@@ -231,8 +233,8 @@ fun hasNoClickAction(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
  * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
  *                        expected to have been passed in the `actionStartActivity` method call
  */
-@PublishedApi // See b/316353540; a reified version of this is available in the public api.
-internal fun <T : Activity> hasStartActivityClickAction(
+@JvmOverloads
+fun <T : Activity> hasStartActivityClickAction(
     activityClass: Class<T>,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null
@@ -263,31 +265,6 @@ internal fun <T : Activity> hasStartActivityClickAction(
 }
 
 /**
- * Returns a matcher that matches if a given node has a clickable set with action that starts an
- * activity.
- *
- * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
- *
- * @param T class of the activity that is expected to have been passed in the
- *          `actionStartActivity` method call
- * @param parameters the parameters associated with the action that are expected to have been passed
- *                      in the `actionStartActivity` method call
- * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
- *                        expected to have been passed in the `actionStartActivity` method call
- */
-inline fun <reified T : Activity> hasStartActivityClickAction(
-    parameters: ActionParameters = actionParametersOf(),
-    activityOptions: Bundle? = null
-): GlanceNodeMatcher<MappedNode> =
-    hasStartActivityClickAction(
-        activityClass = T::class.java,
-        parameters = parameters,
-        activityOptions = activityOptions
-    )
-
-/**
  * Returns a matcher that matches if a given node has a descendant node somewhere in its
  * sub-hierarchy that the matches the provided matcher.
  *
@@ -299,7 +276,6 @@ inline fun <reified T : Activity> hasStartActivityClickAction(
  */
 fun hasAnyDescendant(matcher: GlanceNodeMatcher<MappedNode>): GlanceNodeMatcher<MappedNode> {
 
-    @SuppressLint("ListIterator") // this is not a hot code path
     fun checkIfSubtreeMatchesRecursive(
         matcher: GlanceNodeMatcher<MappedNode>,
         node: GlanceNode<MappedNode>
@@ -329,6 +305,7 @@ fun hasAnyDescendant(matcher: GlanceNodeMatcher<MappedNode>): GlanceNodeMatcher<
  * @param parameters the parameters associated with the action that are expected to have been passed
  *                      in the `actionStartActivity` method call
  */
+@JvmOverloads
 fun hasStartActivityClickAction(
     componentName: ComponentName,
     parameters: ActionParameters = actionParametersOf()

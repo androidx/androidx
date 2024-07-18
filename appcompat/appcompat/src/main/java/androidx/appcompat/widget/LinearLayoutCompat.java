@@ -696,7 +696,7 @@ public class LinearLayoutCompat extends ViewGroup {
                 }
             }
 
-            /*
+            /**
              * If applicable, compute the additional offset to the child's baseline
              * we'll need later when asked {@link #getBaseline}.
              */
@@ -1492,7 +1492,7 @@ public class LinearLayoutCompat extends ViewGroup {
                 if (gravity < 0) {
                     gravity = minorGravity;
                 }
-                final int layoutDirection = getLayoutDirection();
+                final int layoutDirection = ViewCompat.getLayoutDirection(this);
                 final int absoluteGravity = GravityCompat.getAbsoluteGravity(gravity,
                         layoutDirection);
                 switch (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) {
@@ -1561,7 +1561,7 @@ public class LinearLayoutCompat extends ViewGroup {
         final int[] maxAscent = mMaxAscent;
         final int[] maxDescent = mMaxDescent;
 
-        final int layoutDirection = getLayoutDirection();
+        final int layoutDirection = ViewCompat.getLayoutDirection(this);
         switch (GravityCompat.getAbsoluteGravity(majorGravity, layoutDirection)) {
             case Gravity.RIGHT:
                 // mTotalLength contains the padding already

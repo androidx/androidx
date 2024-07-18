@@ -18,36 +18,36 @@ package androidx.camera.integration.avsync.ui.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.FloatingActionButtonDefaults
 import androidx.compose.material.FloatingActionButtonElevation
-import androidx.compose.material.LocalRippleConfiguration
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.RippleConfiguration
 import androidx.compose.material.contentColorFor
+import androidx.compose.material.ripple.LocalRippleTheme
+import androidx.compose.material.ripple.RippleAlpha
+import androidx.compose.material.ripple.RippleTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AdvancedFloatingActionButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     onClick: () -> Unit,
-    interactionSource: MutableInteractionSource? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = MaterialTheme.shapes.small.copy(CornerSize(percent = 50)),
     backgroundColor: Color = MaterialTheme.colors.secondary,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: FloatingActionButtonElevation = FloatingActionButtonDefaults.elevation(),
     content: @Composable () -> Unit
 ) {
-    CompositionLocalProvider(
-        LocalRippleConfiguration provides if (enabled) RippleConfiguration() else null
-    ) {
+    val rippleTheme = if (enabled) LocalRippleTheme.current else DisabledRippleTheme
+
+    CompositionLocalProvider(LocalRippleTheme provides rippleTheme) {
         FloatingActionButton(
             onClick = if (enabled) onClick else { {} },
             modifier = modifier,
@@ -59,4 +59,13 @@ fun AdvancedFloatingActionButton(
             content = content
         )
     }
+}
+
+private object DisabledRippleTheme : RippleTheme {
+
+    @Composable
+    override fun defaultColor(): Color = Color.Transparent
+
+    @Composable
+    override fun rippleAlpha(): RippleAlpha = RippleAlpha(0f, 0f, 0f, 0f)
 }

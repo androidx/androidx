@@ -289,7 +289,7 @@ internal sealed class PageEvent<T : Any> {
      * A [PageEvent] to notify presenter layer of changes in local and remote LoadState.
      *
      * Uses two LoadStates objects instead of CombinedLoadStates so that consumers like
-     * PagingDataPresenter can define behavior of convenience properties
+     * PagingDataDiffer can define behavior of convenience properties
      */
     data class LoadStateUpdate<T : Any>(
         val source: LoadStates,

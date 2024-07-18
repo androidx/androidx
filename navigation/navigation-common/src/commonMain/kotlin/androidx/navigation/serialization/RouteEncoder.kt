@@ -16,6 +16,8 @@
 
 package androidx.navigation.serialization
 
+import androidx.annotation.RestrictTo
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
@@ -25,29 +27,29 @@ import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
 
-/**
- * Encodes KClass of type T into a route filled with arguments
- */
+/** Encodes KClass of type T into a route filled with arguments */
 @OptIn(ExperimentalSerializationApi::class)
-internal class RouteEncoder<T : Any>(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RouteEncoder<T : Any>(
     private val serializer: KSerializer<T>,
     private val typeMap: Map<String, NavType<Any?>>
 ) : AbstractEncoder() {
     override val serializersModule: SerializersModule = EmptySerializersModule()
-    private val builder = RouteBuilder.Filled(serializer, typeMap)
+    private val map: MutableMap<String, List<String>> = mutableMapOf()
+    private var elementIndex: Int = -1
 
     /**
      * Entry point to set up and start encoding [T].
      *
      * The default entry point is [encodeSerializableValue] but we need to override it to handle
      * primitive and non-primitive values by converting them directly to string (instead of the
-     * default implementation which further serializes nested non-primitive values). So we
-     * delegate to the default entry by directly calling [super.encodeSerializableValue].
+     * default implementation which further serializes nested non-primitive values). So we delegate
+     * to the default entry by directly calling [super.encodeSerializableValue].
      */
     @Suppress("UNCHECKED_CAST")
-    fun encodeRouteWithArgs(value: Any): String {
+    fun encodeToArgMap(value: Any): Map<String, List<String>> {
         super.encodeSerializableValue(serializer, value as T)
-        return builder.build()
+        return map.toMap()
     }
 
     /**
@@ -60,18 +62,12 @@ internal class RouteEncoder<T : Any>(
      * String literal "null" is considered non-null value.
      */
     override fun <T> encodeSerializableValue(serializer: SerializationStrategy<T>, value: T) {
-        if (value == "null") {
-            builder.addNull(value)
-        } else {
-            builder.addArg(value)
-        }
+        internalEncodeValue(value)
     }
 
-    /**
-     * Essentially called for every single argument.
-     */
+    /** Essentially called for every single argument. */
     override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
-        builder.setElementIndex(index)
+        elementIndex = index
         return true
     }
 
@@ -81,17 +77,26 @@ internal class RouteEncoder<T : Any>(
      * String literal "null" is considered non-null value.
      */
     override fun encodeValue(value: Any) {
-        if (value == "null") {
-            builder.addNull(value)
-        } else {
-            builder.addArg(value)
-        }
+        internalEncodeValue(value)
     }
 
-    /**
-     * Called for primitive / non-primitives of null value
-     */
+    /** Called for primitive / non-primitives of null value */
     override fun encodeNull() {
-        builder.addNull(null)
+        internalEncodeValue(null)
+    }
+
+    private fun internalEncodeValue(value: Any?) {
+        val argName = serializer.descriptor.getElementName(elementIndex)
+        val navType = typeMap[argName]
+        checkNotNull(navType) {
+            "Cannot find NavType for argument $argName. Please provide NavType through typeMap."
+        }
+        val parsedValue =
+            if (navType is CollectionNavType) {
+                navType.serializeAsValues(value)
+            } else {
+                listOf(navType.serializeAsValue(value))
+            }
+        map[argName] = parsedValue
     }
 }

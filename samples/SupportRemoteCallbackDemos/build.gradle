@@ -28,6 +28,7 @@ dependencies {
 
 android {
     defaultConfig {
+        minSdkVersion 19
     }
     namespace "com.example.androidx.remotecallback.demos"
 }

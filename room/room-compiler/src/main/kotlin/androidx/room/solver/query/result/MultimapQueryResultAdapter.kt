@@ -177,9 +177,7 @@ abstract class MultimapQueryResultAdapter(
             val annotation = type.getAnnotation(MapColumn::class.asClassName()) ?: return null
 
             val mapColumnName = annotation.getAsString("columnName")
-            // TODO: Temporary workaround below due to XAnnotation bug
-            val mapColumnTableName = (annotation.getAnnotationValue("tableName").value ?: "")
-                as String
+            val mapColumnTableName = annotation.getAsString("tableName")
 
             fun List<ColumnInfo>.contains(
                 columnName: String,

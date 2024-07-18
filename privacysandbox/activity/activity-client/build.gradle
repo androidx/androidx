@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -34,7 +27,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     implementation("androidx.core:core:1.12.0")
-    implementation("androidx.lifecycle:lifecycle-common:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-common:2.2.0")
     implementation("androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha08")
     implementation(project(":privacysandbox:activity:activity-core"))
 

@@ -91,18 +91,4 @@ public class ActionJavaTest {
         assertThat(fromSlice.getSubtitle()).isEqualTo(SUBTITLE);
         assertThat(fromSlice.getPendingIntent()).isEqualTo(mPendingIntent);
     }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 34)
-    public void fromAction_success() {
-        Action originalAction = new Action(TITLE, mPendingIntent, SUBTITLE);
-        Slice slice = Action.toSlice(originalAction);
-
-        Action action = Action.fromAction(new android.service.credentials.Action(slice));
-
-        assertNotNull(action);
-        assertThat(action.getTitle()).isEqualTo(TITLE);
-        assertThat(action.getSubtitle()).isEqualTo(SUBTITLE);
-        assertThat(action.getPendingIntent()).isEqualTo(mPendingIntent);
-    }
 }

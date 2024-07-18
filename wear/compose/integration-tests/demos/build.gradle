@@ -25,8 +25,9 @@ android {
     defaultConfig {
         applicationId "androidx.wear.compose.integration.demos"
         minSdk 25
-        versionCode 24
-        versionName "1.24"
+        targetSdk 30
+        versionCode 18
+        versionName "1.18"
     }
 
     buildTypes {
@@ -64,14 +65,10 @@ dependencies {
     implementation(project(':wear:compose:integration-tests:demos:common'))
     implementation(project(":wear:compose:compose-material3-integration-tests"))
 
-    androidTestImplementation("androidx.activity:activity:1.8.2")
-    androidTestImplementation("androidx.activity:activity-compose:1.8.2")
-    androidTestImplementation("androidx.activity:activity-ktx:1.8.2")
-    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation("androidx.activity:activity:1.8.0")
+    androidTestImplementation("androidx.activity:activity-compose:1.8.0")
+    androidTestImplementation("androidx.activity:activity-ktx:1.8.0")
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.7.0")
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.7.0")
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)

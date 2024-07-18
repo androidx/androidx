@@ -48,6 +48,8 @@ buildscript {
 }
 
 apply from: "$supportRootFolder/buildSrc/dependencies.gradle"
+apply from: "$supportRootFolder/buildSrc/out.gradle"
+init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin
 apply plugin: AndroidXPlaygroundRootPlugin

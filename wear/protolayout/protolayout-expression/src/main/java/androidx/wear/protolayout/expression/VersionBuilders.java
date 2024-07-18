@@ -22,8 +22,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.proto.VersionProto;
 
-import java.util.Objects;
-
 /** Builders for the schema version information of a layout (or an expression). */
 public final class VersionBuilders {
     private VersionBuilders() {}
@@ -31,9 +29,10 @@ public final class VersionBuilders {
     /**
      * Version information. This is used to encode the schema version of a payload (e.g. inside of a
      * layout).
+     *
+     * @since 1.0
      */
-    @RequiresSchemaVersion(major = 1, minor = 0)
-    public static final class VersionInfo implements Comparable<VersionInfo> {
+    public static final class VersionInfo {
         private final VersionProto.VersionInfo mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -45,6 +44,8 @@ public final class VersionBuilders {
         /**
          * Gets major version. Incremented on breaking changes (i.e. compatibility is not guaranteed
          * across major versions).
+         *
+         * @since 1.0
          */
         public int getMajor() {
             return mImpl.getMajor();
@@ -53,6 +54,8 @@ public final class VersionBuilders {
         /**
          * Gets minor version. Incremented on non-breaking changes (e.g. schema additions). Anything
          * consuming a payload can safely consume anything with a lower minor version.
+         *
+         * @since 1.0
          */
         public int getMinor() {
             return mImpl.getMinor();
@@ -96,28 +99,6 @@ public final class VersionBuilders {
             return "VersionInfo{" + "major=" + getMajor() + ", minor=" + getMinor() + "}";
         }
 
-        @Override
-        public int compareTo(@NonNull VersionInfo other) {
-            if (this.getMajor() == other.getMajor()) {
-                return Integer.compare(this.getMinor(), other.getMinor());
-            }
-            return Integer.compare(this.getMajor(), other.getMajor());
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(getMajor(), getMinor());
-        }
-
-        @Override
-        public boolean equals(@Nullable Object obj) {
-            if (obj instanceof VersionInfo) {
-                VersionInfo that = (VersionInfo) obj;
-                return this.getMajor() == that.getMajor() && this.getMinor() == that.getMinor();
-            }
-            return false;
-        }
-
         /** Builder for {@link VersionInfo} */
         public static final class Builder {
             private final VersionProto.VersionInfo.Builder mImpl =
@@ -129,8 +110,9 @@ public final class VersionBuilders {
             /**
              * Sets major version. Incremented on breaking changes (i.e. compatibility is not
              * guaranteed across major versions).
+             *
+             * @since 1.0
              */
-            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMajor(int major) {
                 mImpl.setMajor(major);
@@ -141,8 +123,9 @@ public final class VersionBuilders {
             /**
              * Sets minor version. Incremented on non-breaking changes (e.g. schema additions).
              * Anything consuming a payload can safely consume anything with a lower minor version.
+             *
+             * @since 1.0
              */
-            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMinor(int minor) {
                 mImpl.setMinor(minor);

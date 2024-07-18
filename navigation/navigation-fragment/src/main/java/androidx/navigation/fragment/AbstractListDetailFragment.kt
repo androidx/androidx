@@ -60,7 +60,7 @@ abstract class AbstractListDetailFragment : Fragment() {
      * Return the [NavHostFragment] this fragment uses
      *
      * @throws IllegalStateException if the NavHostFragment has not been created by
-     * {@link #onCreateView}.
+     *   {@link #onCreateView}.
      */
     val detailPaneNavHostFragment: NavHostFragment
         get() {
@@ -70,11 +70,8 @@ abstract class AbstractListDetailFragment : Fragment() {
             return _detailPaneNavHostFragment as NavHostFragment
         }
 
-    private class InnerOnBackPressedCallback(
-        private val slidingPaneLayout: SlidingPaneLayout
-    ) :
-        OnBackPressedCallback(true),
-        SlidingPaneLayout.PanelSlideListener {
+    private class InnerOnBackPressedCallback(private val slidingPaneLayout: SlidingPaneLayout) :
+        OnBackPressedCallback(true), SlidingPaneLayout.PanelSlideListener {
 
         init {
             slidingPaneLayout.addPanelSlideListener(this)
@@ -98,19 +95,11 @@ abstract class AbstractListDetailFragment : Fragment() {
     }
 
     @CallSuper
-    override fun onInflate(
-        context: Context,
-        attrs: AttributeSet,
-        savedInstanceState: Bundle?
-    ) {
+    override fun onInflate(context: Context, attrs: AttributeSet, savedInstanceState: Bundle?) {
         super.onInflate(context, attrs, savedInstanceState)
-        context.obtainStyledAttributes(
-            attrs,
-            androidx.navigation.R.styleable.NavHost
-        ).use { navHost ->
-            val graphId = navHost.getResourceId(
-                androidx.navigation.R.styleable.NavHost_navGraph, 0
-            )
+        context.obtainStyledAttributes(attrs, androidx.navigation.R.styleable.NavHost).use { navHost
+            ->
+            val graphId = navHost.getResourceId(androidx.navigation.R.styleable.NavHost_navGraph, 0)
             if (graphId != 0) {
                 this.graphId = graphId
             }
@@ -118,15 +107,13 @@ abstract class AbstractListDetailFragment : Fragment() {
     }
 
     /**
-     * Create the view for the fragment. This method provides two callbacks to instantiate a
-     * list pane view and a NavHostFragment to control navigation between different detail views.
+     * Create the view for the fragment. This method provides two callbacks to instantiate a list
+     * pane view and a NavHostFragment to control navigation between different detail views.
      *
      * @param inflater The [LayoutInflater] that used to inflate the fragment's views.
      * @param container The parent view that the fragment's UI should be attached to.
      * @param savedInstanceState The previous saved state of the fragment.
-     *
      * @return Return the view for the fragment's UI
-     *
      * @see onCreateListPaneView
      * @see onCreateDetailPaneNavHostFragment
      */
@@ -139,9 +126,8 @@ abstract class AbstractListDetailFragment : Fragment() {
         if (savedInstanceState != null) {
             graphId = savedInstanceState.getInt(NavHostFragment.KEY_GRAPH_ID)
         }
-        val slidingPaneLayout = SlidingPaneLayout(inflater.context).apply {
-            id = R.id.sliding_pane_layout
-        }
+        val slidingPaneLayout =
+            SlidingPaneLayout(inflater.context).apply { id = R.id.sliding_pane_layout }
 
         // Create and add the list pane
         val listPaneView = onCreateListPaneView(inflater, slidingPaneLayout, savedInstanceState)
@@ -150,40 +136,38 @@ abstract class AbstractListDetailFragment : Fragment() {
         }
 
         // Set up the detail container
-        val detailContainer = FragmentContainerView(inflater.context).apply {
-            id = R.id.sliding_pane_detail_container
-        }
-        val detailWidth = inflater.context.resources.getDimensionPixelSize(
-            R.dimen.sliding_pane_detail_pane_width
-        )
-        val detailLayoutParams = SlidingPaneLayout.LayoutParams(detailWidth, MATCH_PARENT).apply {
-            weight = 1F
-        }
+        val detailContainer =
+            FragmentContainerView(inflater.context).apply {
+                id = R.id.sliding_pane_detail_container
+            }
+        val detailWidth =
+            inflater.context.resources.getDimensionPixelSize(R.dimen.sliding_pane_detail_pane_width)
+        val detailLayoutParams =
+            SlidingPaneLayout.LayoutParams(detailWidth, MATCH_PARENT).apply { weight = 1F }
         slidingPaneLayout.addView(detailContainer, detailLayoutParams)
 
         // Now create the NavHostFragment for the detail container
         val existingNavHostFragment =
             childFragmentManager.findFragmentById(R.id.sliding_pane_detail_container)
-        _detailPaneNavHostFragment = if (existingNavHostFragment != null) {
-            existingNavHostFragment as NavHostFragment
-        } else {
-            onCreateDetailPaneNavHostFragment().also { newNavHostFragment ->
-                childFragmentManager
-                    .commit {
+        _detailPaneNavHostFragment =
+            if (existingNavHostFragment != null) {
+                existingNavHostFragment as NavHostFragment
+            } else {
+                onCreateDetailPaneNavHostFragment().also { newNavHostFragment ->
+                    childFragmentManager.commit {
                         setReorderingAllowed(true)
                         add(R.id.sliding_pane_detail_container, newNavHostFragment)
                     }
+                }
             }
-        }
         onBackPressedCallback = InnerOnBackPressedCallback(slidingPaneLayout)
         slidingPaneLayout.doOnLayout {
             onBackPressedCallback!!.isEnabled =
                 slidingPaneLayout.isSlideable && slidingPaneLayout.isOpen
         }
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            onBackPressedCallback!!
-        )
+        requireActivity()
+            .onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner, onBackPressedCallback!!)
         return slidingPaneLayout
     }
 
@@ -192,9 +176,8 @@ abstract class AbstractListDetailFragment : Fragment() {
      *
      * @param inflater The [LayoutInflater] that used to inflate the list pane view.
      * @param container The parent view of the list pane view. The parent view can be used to
-     * generate the LayoutParams of the view.
+     *   generate the LayoutParams of the view.
      * @param savedInstanceState The previous saved state of the fragment.
-     *
      * @return Return the list pane view for the fragment.
      */
     abstract fun onCreateListPaneView(
@@ -204,8 +187,8 @@ abstract class AbstractListDetailFragment : Fragment() {
     ): View
 
     /**
-     * Return an alternative [NavHostFragment] to swap the default NavHostFragment in the
-     * fragment. This method get called when creating the view of the fragment.
+     * Return an alternative [NavHostFragment] to swap the default NavHostFragment in the fragment.
+     * This method get called when creating the view of the fragment.
      */
     open fun onCreateDetailPaneNavHostFragment(): NavHostFragment {
         if (graphId != 0) {
@@ -215,12 +198,11 @@ abstract class AbstractListDetailFragment : Fragment() {
     }
 
     /**
-     * This method provides a callback [onListPaneViewCreated] after the view hierarchy has
-     * been completely created.
+     * This method provides a callback [onListPaneViewCreated] after the view hierarchy has been
+     * completely created.
      *
      * @param view The view returned by [onCreateView]
      * @param savedInstanceState The previous saved state of the fragment.
-     *
      * @see onListPaneViewCreated
      */
     @CallSuper

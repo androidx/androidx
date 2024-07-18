@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -40,7 +33,7 @@ dependencies {
     implementation(project(":car:app:app"))
 
     implementation 'androidx.core:core:1.7.0'
-    implementation project(":annotation:annotation-experimental")
+    implementation "androidx.annotation:annotation-experimental:1.3.1"
     implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
     implementation 'androidx.activity:activity:1.2.3'
 }

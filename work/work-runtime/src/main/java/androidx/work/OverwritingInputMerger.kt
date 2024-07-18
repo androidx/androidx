@@ -24,7 +24,7 @@ package androidx.work
 class OverwritingInputMerger : InputMerger() {
     override fun merge(inputs: List<Data>): Data {
         val output = Data.Builder()
-        val mergedValues = mutableMapOf<String, Any?>()
+        val mergedValues = mutableMapOf<String, Any>()
         for (input in inputs) {
             mergedValues.putAll(input.keyValueMap)
         }

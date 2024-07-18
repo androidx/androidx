@@ -19,7 +19,7 @@ package androidx.paging.testing
 import androidx.annotation.VisibleForTesting
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
-import androidx.paging.PagingDataPresenter
+import androidx.paging.PagingDataDiffer
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
 
@@ -47,7 +47,7 @@ public fun interface LoadErrorHandler {
 
 /**
  * The method of recovery when [PagingSource] returns [LoadResult.Error]. The error
- * is indicated when [PagingDataPresenter.loadStateFlow] emits a [CombinedLoadStates] where one or
+ * is indicated when [PagingDataDiffer.loadStateFlow] emits a [CombinedLoadStates] where one or
  * more of the [LoadState] is [LoadState.Error].
  */
 @VisibleForTesting

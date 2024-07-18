@@ -133,7 +133,7 @@ package androidx.wear.watchface.client {
 
   public interface InteractiveWatchFaceClient extends java.lang.AutoCloseable {
     method @AnyThread public void addClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener, java.util.concurrent.Executor executor);
-    method @SuppressCompatibility @androidx.wear.watchface.client.WatchFaceClientExperimental public default void addOnWatchFaceColorsListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.wear.watchface.WatchFaceColors?> listener);
+    method @SuppressCompatibility @androidx.wear.watchface.client.WatchFaceClientExperimental public default void addOnWatchFaceColorsListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.wear.watchface.WatchFaceColors> listener);
     method public void addOnWatchFaceReadyListener(java.util.concurrent.Executor executor, androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceReadyListener listener);
     method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.RemoteWatchFaceViewHost? createRemoteWatchFaceViewHost(android.os.IBinder hostToken, @Px int width, @Px int height) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default Integer? getComplicationIdAt(@Px int x, @Px int y) throws android.os.RemoteException;
@@ -142,14 +142,13 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public String getInstanceId() throws android.os.RemoteException;
     method @Deprecated @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle getOverlayStyle() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant() throws android.os.RemoteException;
-    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.watchface.style.UserStyleFlavors getUserStyleFlavors();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws android.os.RemoteException;
     method public default boolean isComplicationDisplayPolicySupported();
     method @AnyThread public boolean isConnectionAlive();
     method public default boolean isRemoteWatchFaceViewHostSupported();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void performAmbientTick() throws android.os.RemoteException;
     method @AnyThread public void removeClientDisconnectListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.ClientDisconnectListener listener);
-    method @SuppressCompatibility @androidx.wear.watchface.client.WatchFaceClientExperimental public default void removeOnWatchFaceColorsListener(androidx.core.util.Consumer<androidx.wear.watchface.WatchFaceColors?> listener);
+    method @SuppressCompatibility @androidx.wear.watchface.client.WatchFaceClientExperimental public default void removeOnWatchFaceColorsListener(androidx.core.util.Consumer<androidx.wear.watchface.WatchFaceColors> listener);
     method public void removeOnWatchFaceReadyListener(androidx.wear.watchface.client.InteractiveWatchFaceClient.OnWatchFaceReadyListener listener);
     method @RequiresApi(27) @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public android.graphics.Bitmap renderWatchFaceToBitmap(androidx.wear.watchface.RenderParameters renderParameters, java.time.Instant instant, androidx.wear.watchface.style.UserStyle? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? idAndComplicationData) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public void sendTouchEvent(@Px int xPosition, @Px int yPosition, int tapType) throws android.os.RemoteException;

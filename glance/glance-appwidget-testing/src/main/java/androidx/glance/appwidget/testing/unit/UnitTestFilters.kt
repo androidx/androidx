@@ -27,8 +27,6 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.EmittableCircularProgressIndicator
 import androidx.glance.appwidget.EmittableLinearProgressIndicator
-import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.RunCallbackAction
 import androidx.glance.appwidget.action.SendBroadcastActionAction
 import androidx.glance.appwidget.action.SendBroadcastClassAction
 import androidx.glance.appwidget.action.SendBroadcastComponentAction
@@ -70,56 +68,6 @@ fun isNotChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
     val emittable = node.value.emittable
     emittable is EmittableCheckable && !emittable.checked
 }
-
-/**
- * Returns a matcher that matches if a node has a clickable set with action that runs a callback.
- *
- * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
- *
- * @param callbackClass an implementation of [ActionCallback] that is expected to have been passed
- *                      in the `actionRunCallback` method call
- * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionRunCallback` method call
- */
-@PublishedApi // See b/316353540; a reified version of this is available in the public api.
-internal fun <T : ActionCallback> hasRunCallbackClickAction(
-    callbackClass: Class<T>,
-    parameters: ActionParameters = actionParametersOf()
-): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
-    "has run callback click action with callback class: ${callbackClass.name} and " +
-        "parameters: $parameters"
-) { node ->
-    node.value.emittable.modifier.any {
-        if (it is ActionModifier) {
-            val action = it.action
-            if (action is RunCallbackAction) {
-                return@any action.callbackClass == callbackClass && action.parameters == parameters
-            }
-        }
-        false
-    }
-}
-
-/**
- * Returns a matcher that matches if a node has a clickable set with action that runs a callback.
- *
- * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
- *
- * @param T callback class that is expected to have been passed in the `actionRunCallback` method
- *          call
- * @param parameters the parameters associated with the action that are expected to have been passed
- *                   in the `actionRunCallback` method call
- */
-inline fun <reified T : ActionCallback> hasRunCallbackClickAction(
-    parameters: ActionParameters = actionParametersOf()
-): GlanceNodeMatcher<MappedNode> = hasRunCallbackClickAction(
-    callbackClass = T::class.java,
-    parameters = parameters
-)
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts an activity.
@@ -177,8 +125,7 @@ fun hasStartActivityClickAction(
  * @param isForegroundService if the service to launch is expected to have been set as foreground
  *                            service in the `actionStartService` method call.
  */
-@PublishedApi // See b/316353540; a reified version of this is available in the public api.
-internal fun hasStartServiceAction(
+fun hasStartServiceAction(
     serviceClass: Class<out Service>,
     isForegroundService: Boolean = false
 ): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -199,25 +146,6 @@ internal fun hasStartServiceAction(
         false
     }
 }
-
-/**
- * Returns a matcher that matches if a node has a clickable set with action that starts a service.
- *
- * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
- *
- * @param T class of the service to launch that is expected to have been passed in the
- *          `actionStartService` method call.
- * @param isForegroundService if the service to launch is expected to have been set as foreground
- *                            service in the `actionStartService` method call.
- */
-inline fun <reified T : Service> hasStartServiceAction(
-    isForegroundService: Boolean = false
-): GlanceNodeMatcher<MappedNode> = hasStartServiceAction(
-    serviceClass = T::class.java,
-    isForegroundService = isForegroundService
-)
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that starts a service.
@@ -297,8 +225,7 @@ fun hasStartServiceAction(
  * @param receiverClass class of the broadcast receiver that is expected to have been passed in the
  *                      actionSendBroadcast` method call.
  */
-@PublishedApi // See b/316353540; a reified version of this is available in the public api.
-internal fun hasSendBroadcastAction(
+fun hasSendBroadcastAction(
     receiverClass: Class<out BroadcastReceiver>
 ): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
     description = "has send broadcast action for receiver class: ${receiverClass.name}"
@@ -313,19 +240,6 @@ internal fun hasSendBroadcastAction(
         false
     }
 }
-
-/**
- * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.
- *
- * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
- * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
- * matching node(s) or in assertions to validate that node(s) satisfy the condition.
- *
- * @param T class of the broadcast receiver that is expected to have been passed in the
- *          actionSendBroadcast` method call.
- */
-inline fun <reified T : BroadcastReceiver> hasSendBroadcastAction(): GlanceNodeMatcher<MappedNode> =
-    hasSendBroadcastAction(T::class.java)
 
 /**
  * Returns a matcher that matches if a node has a clickable set with action that sends a broadcast.

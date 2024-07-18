@@ -72,9 +72,11 @@ public class ActionBarUsage extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.action_sort_alpha || itemId == R.id.action_sort_size) {
-            onSort(item);
+        switch (item.getItemId()) {
+            case R.id.action_sort_alpha:
+            case R.id.action_sort_size:
+                onSort(item);
+                break;
         }
 
         Toast.makeText(this, "Selected Item: " + item.getTitle(), Toast.LENGTH_SHORT).show();

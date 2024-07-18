@@ -20,7 +20,6 @@ import android.content.res.Resources.Theme;
 import android.graphics.Typeface;
 
 import androidx.annotation.AttrRes;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -61,12 +60,4 @@ public interface ProtoLayoutTheme {
      */
     @AttrRes
     int getFallbackTextAppearanceResId();
-
-    /**
-     * Gets a drawable resource Id for a custom ripple. The resource with this id should be
-     * present in the Android Theme returned by {@link ProtoLayoutTheme#getTheme()}. If no custom
-     * ripple is set, this method should return zero.
-     */
-    @DrawableRes
-    int getRippleResId();
 }

@@ -18,11 +18,13 @@ package androidx.camera.camera2.pipe.graph
 
 import android.graphics.SurfaceTexture
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 
+@RequiresApi(21)
 internal class GraphTestContext : AutoCloseable {
     val streamId = StreamId(0)
     val surfaceMap = mapOf(streamId to Surface(SurfaceTexture(1)))

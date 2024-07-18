@@ -16,13 +16,8 @@
 
 package androidx.privacysandbox.ads.adservices.measurement
 
-import android.annotation.SuppressLint
 import android.net.Uri
-import android.os.Build
-import android.os.ext.SdkExtensions
 import android.view.InputEvent
-import androidx.annotation.RequiresExtension
-import androidx.privacysandbox.ads.adservices.measurement.WebSourceParams.Companion.convertWebSourceParams
 
 /**
  * Class to hold input to measurement source registration calls from web context.
@@ -88,23 +83,6 @@ class WebSourceRegistrationRequest public constructor(
             "InputEvent=$inputEvent, AppDestination=$appDestination, " +
             "WebDestination=$webDestination, VerifiedDestination=$verifiedDestination"
         return "WebSourceRegistrationRequest { $vals }"
-    }
-
-    @SuppressLint("ClassVerificationFailure", "NewApi")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-    @RequiresExtension(extension = Build.VERSION_CODES.R, version = 11)
-    internal fun convertToAdServices():
-        android.adservices.measurement.WebSourceRegistrationRequest {
-        return android.adservices.measurement.WebSourceRegistrationRequest
-            .Builder(
-                convertWebSourceParams(webSourceParams),
-                topOriginUri)
-            .setWebDestination(webDestination)
-            .setAppDestination(appDestination)
-            .setInputEvent(inputEvent)
-            .setVerifiedDestination(verifiedDestination)
-            .build()
     }
 
     /**

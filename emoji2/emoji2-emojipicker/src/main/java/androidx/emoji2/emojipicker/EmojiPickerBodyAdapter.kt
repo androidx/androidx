@@ -61,6 +61,7 @@ internal class EmojiPickerBodyAdapter(
                 EmojiViewHolder(context,
                     emojiCellWidth!!,
                     emojiCellHeight!!,
+                    layoutInflater,
                     stickyVariantProvider,
                     onEmojiPickedListener = { emojiViewItem ->
                         onEmojiPickedListener(emojiViewItem)

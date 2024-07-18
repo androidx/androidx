@@ -97,7 +97,6 @@ public class MediumInterstitialActivity extends AppCompatActivity {
         // A medium interstitial may have links on it in the future; allow this WebView to handle
         // opening those by setting a WebViewClient.
         webView.setWebViewClient(new WebViewClient());
-        webView.getSettings().setJavaScriptEnabled(true); // in case site needs JS to render
         if (WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ENABLE)) {
             WebSettingsCompat.setSafeBrowsingEnabled(webView.getSettings(), true);
         }

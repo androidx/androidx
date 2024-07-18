@@ -1283,40 +1283,39 @@ class XAnnotationValueTest(
             )
             val kClassKTypeName = kotlin.reflect.KClass::class.asKClassName().parameterizedBy(STAR)
             fun checkSingleValue(annotationValue: XAnnotationValue, expectedValue: String) {
-                if (invocation.isKsp) {
+                // TODO(bcorso): Consider making the value types match in this case.
+                if (!invocation.isKsp || (sourceKind == SourceKind.JAVA && !isPreCompiled)) {
+                    assertThat(annotationValue.valueType.asTypeName().java)
+                        .isEqualTo(classJTypeName)
+                } else {
                     assertThat(annotationValue.valueType.asTypeName().java)
                         .isEqualTo(kClassJTypeName)
                     assertThat(annotationValue.valueType.asTypeName().kotlin)
                         .isEqualTo(kClassKTypeName)
-                } else {
-                    assertThat(annotationValue.valueType.asTypeName().java)
-                        .isEqualTo(classJTypeName)
                 }
                 assertThat(annotationValue.hasTypeValue()).isTrue()
                 assertThat(annotationValue.asType().typeElement?.name).isEqualTo(expectedValue)
             }
 
             fun checkListValues(annotationValue: XAnnotationValue, vararg expectedValues: String) {
-                if (invocation.isKsp) {
+                // TODO(bcorso): Consider making the value types match in this case.
+                if (!invocation.isKsp || (sourceKind == SourceKind.JAVA && !isPreCompiled)) {
+                    assertThat(annotationValue.valueType.asTypeName().java)
+                        .isEqualTo(JArrayTypeName.of(classJTypeName))
+                } else {
                     assertThat(annotationValue.valueType.asTypeName().java)
                         .isEqualTo(JArrayTypeName.of(kClassJTypeName))
                     if (sourceKind == SourceKind.KOTLIN &&
-                        annotationValue.name.contains("VarArgs")
-                    ) {
+                        annotationValue.name.contains("VarArgs")) {
                         // Kotlin vararg are producers
                         assertThat(annotationValue.valueType.asTypeName().kotlin)
-                            .isEqualTo(
-                                ARRAY.parameterizedBy(
-                                    KWildcardTypeName.producerOf(kClassKTypeName)
-                                )
+                            .isEqualTo(ARRAY.parameterizedBy(
+                                KWildcardTypeName.producerOf(kClassKTypeName))
                             )
                     } else {
                         assertThat(annotationValue.valueType.asTypeName().kotlin)
                             .isEqualTo(ARRAY.parameterizedBy(kClassKTypeName))
                     }
-                } else {
-                    assertThat(annotationValue.valueType.asTypeName().java)
-                        .isEqualTo(JArrayTypeName.of(classJTypeName))
                 }
                 assertThat(annotationValue.hasTypeListValue()).isTrue()
                 // Check the list of values

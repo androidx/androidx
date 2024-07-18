@@ -35,8 +35,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DialogNavigatorTest {
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val defaultText = "dialogText"
 
@@ -46,15 +45,11 @@ class DialogNavigatorTest {
         val navigatorState = TestNavigatorState()
         navigator.onAttach(navigatorState)
 
-        rule.setContent {
-            DialogHost(navigator)
-        }
+        rule.setContent { DialogHost(navigator) }
 
         rule.onNodeWithText(defaultText).assertDoesNotExist()
 
-        val dialog = DialogNavigator.Destination(navigator) {
-            Text(defaultText)
-        }
+        val dialog = DialogNavigator.Destination(navigator) { Text(defaultText) }
         val entry = navigatorState.createBackStackEntry(dialog, null)
         navigator.navigate(listOf(entry), null, null)
 
@@ -66,15 +61,11 @@ class DialogNavigatorTest {
         val navigator = DialogNavigator()
         val navigatorState = TestNavigatorState()
         navigator.onAttach(navigatorState)
-        val dialog = DialogNavigator.Destination(navigator) {
-            Text(defaultText)
-        }
+        val dialog = DialogNavigator.Destination(navigator) { Text(defaultText) }
         val entry = navigatorState.createBackStackEntry(dialog, null)
         navigator.navigate(listOf(entry), null, null)
 
-        rule.setContent {
-            DialogHost(navigator)
-        }
+        rule.setContent { DialogHost(navigator) }
 
         rule.onNodeWithText(defaultText).assertIsDisplayed()
 
@@ -90,22 +81,18 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
-                composable("first") { }
-                dialog("second") {
-                    viewModel<TestViewModel>(it)
-                }
+                composable("first") {}
+                dialog("second") { viewModel<TestViewModel>(it) }
             }
         }
 
-        rule.runOnIdle {
-            navController.navigate("second")
-        }
+        rule.runOnIdle { navController.navigate("second") }
 
         // Now trigger the back button
         rule.runOnIdle {
-            navController.navigatorProvider.getNavigator(DialogNavigator::class.java).dismiss(
-                navController.getBackStackEntry("second")
-            )
+            navController.navigatorProvider
+                .getNavigator(DialogNavigator::class.java)
+                .dismiss(navController.getBackStackEntry("second"))
         }
 
         rule.waitForIdle()
@@ -119,8 +106,8 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
-                composable("first") { }
-                dialog("second") { }
+                composable("first") {}
+                dialog("second") {}
             }
         }
 
@@ -130,9 +117,8 @@ class DialogNavigatorTest {
         }
 
         rule.waitForIdle()
-        val dialogNavigator = navController.navigatorProvider.getNavigator(
-            DialogNavigator::class.java
-        )
+        val dialogNavigator =
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java)
         val bottomDialog = dialogNavigator.backStack.value[0]
         val topDialog = dialogNavigator.backStack.value[1]
 
@@ -140,24 +126,14 @@ class DialogNavigatorTest {
         assertThat(topDialog.destination.route).isEqualTo("second")
         assertThat(topDialog).isNotEqualTo(bottomDialog)
 
-        assertThat(topDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.RESUMED
-        )
-        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.STARTED
-        )
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
-        rule.runOnUiThread {
-            dialogNavigator.dismiss(topDialog)
-        }
+        rule.runOnUiThread { dialogNavigator.dismiss(topDialog) }
         rule.waitForIdle()
 
-        assertThat(topDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.DESTROYED
-        )
-        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.RESUMED
-        )
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -167,8 +143,8 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
-                composable("first") { }
-                dialog("second") { }
+                composable("first") {}
+                dialog("second") {}
             }
         }
 
@@ -179,49 +155,28 @@ class DialogNavigatorTest {
         }
 
         rule.waitForIdle()
-        val dialogNavigator = navController.navigatorProvider.getNavigator(
-            DialogNavigator::class.java
-        )
+        val dialogNavigator =
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java)
         val bottomDialog = dialogNavigator.backStack.value[0]
         val middleDialog = dialogNavigator.backStack.value[1]
         val topDialog = dialogNavigator.backStack.value[2]
 
-        assertThat(topDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.RESUMED
-        )
-        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.STARTED
-        )
-        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.STARTED
-        )
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
-        rule.runOnUiThread {
-            dialogNavigator.dismiss(topDialog)
-        }
+        rule.runOnUiThread { dialogNavigator.dismiss(topDialog) }
         rule.waitForIdle()
 
-        assertThat(topDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.DESTROYED
-        )
-        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.RESUMED
-        )
-        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.STARTED
-        )
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
 
-        rule.runOnUiThread {
-            dialogNavigator.dismiss(middleDialog)
-        }
+        rule.runOnUiThread { dialogNavigator.dismiss(middleDialog) }
         rule.waitForIdle()
 
-        assertThat(middleDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.DESTROYED
-        )
-        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.RESUMED
-        )
+        assertThat(middleDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -231,8 +186,8 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, "first") {
-                composable("first") { }
-                dialog("second") { }
+                composable("first") {}
+                dialog("second") {}
             }
         }
 
@@ -242,18 +197,13 @@ class DialogNavigatorTest {
         }
 
         rule.waitForIdle()
-        val dialogNavigator = navController.navigatorProvider.getNavigator(
-            DialogNavigator::class.java
-        )
+        val dialogNavigator =
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java)
         val bottomDialog = dialogNavigator.backStack.value[0]
         val topDialog = dialogNavigator.backStack.value[1]
 
-        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.STARTED
-        )
-        assertThat(topDialog.lifecycle.currentState).isEqualTo(
-            Lifecycle.State.RESUMED
-        )
+        assertThat(bottomDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(topDialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -263,8 +213,8 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
-                composable("first") { }
-                dialog("second") { }
+                composable("first") {}
+                dialog("second") {}
                 dialog("third") { Text(defaultText) }
             }
         }
@@ -276,9 +226,8 @@ class DialogNavigatorTest {
         }
 
         rule.waitForIdle()
-        val dialogNavigator = navController.navigatorProvider.getNavigator(
-            DialogNavigator::class.java
-        )
+        val dialogNavigator =
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java)
         val dialog = dialogNavigator.backStack.value[0]
         assertThat(dialog.destination.route).isEqualTo("third")
         assertThat(dialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -295,7 +244,7 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
-                composable("first") { }
+                composable("first") {}
                 dialog("second") { Text(defaultText) }
             }
         }
@@ -307,9 +256,8 @@ class DialogNavigatorTest {
         }
 
         rule.waitForIdle()
-        val dialogNavigator = navController.navigatorProvider.getNavigator(
-            DialogNavigator::class.java
-        )
+        val dialogNavigator =
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java)
         val dialog = dialogNavigator.backStack.value[0]
         assertThat(dialog.destination.route).isEqualTo("second")
         assertThat(dialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -326,9 +274,9 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
-                composable("first") { }
-                dialog("second") { }
-                dialog("third") { }
+                composable("first") {}
+                dialog("second") {}
+                dialog("third") {}
                 dialog("fourth") { Text(defaultText) }
             }
         }
@@ -342,9 +290,8 @@ class DialogNavigatorTest {
         }
 
         rule.waitForIdle()
-        val dialogNavigator = navController.navigatorProvider.getNavigator(
-            DialogNavigator::class.java
-        )
+        val dialogNavigator =
+            navController.navigatorProvider.getNavigator(DialogNavigator::class.java)
         val dialog = dialogNavigator.backStack.value[0]
         assertThat(dialog.destination.route).isEqualTo("fourth")
         assertThat(dialog.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
@@ -360,15 +307,13 @@ class DialogNavigatorTest {
         rule.setContent {
             navController = rememberNavController()
             NavHost(navController, route = "graph", startDestination = "first") {
-                composable("first") { }
-                dialog("second") { }
+                composable("first") {}
+                dialog("second") {}
                 dialog("third") { Text(defaultText) }
             }
         }
 
-        rule.runOnUiThread {
-            navController.navigate("second")
-        }
+        rule.runOnUiThread { navController.navigate("second") }
 
         val secondEntry = navController.currentBackStackEntry
         val entryLifecycle = secondEntry?.lifecycle as LifecycleRegistry

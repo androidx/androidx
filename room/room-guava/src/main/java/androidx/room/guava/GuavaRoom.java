@@ -16,6 +16,7 @@
 package androidx.room.guava;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.CancellationSignal;
 
 import androidx.annotation.NonNull;
@@ -25,6 +26,7 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,6 +40,7 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @SuppressWarnings("unused") // Used in GuavaListenableFutureQueryResultBinder code generation.
+@SuppressLint("RestrictedAPI") // ArchTaskExecutor can only be called from androidx.arch.core
 public class GuavaRoom {
 
     private GuavaRoom() {}
@@ -136,12 +139,12 @@ public class GuavaRoom {
             final @Nullable CancellationSignal cancellationSignal) {
 
         final ListenableFuture<T> future = createListenableFuture(executor, callable);
-        if (cancellationSignal != null) {
+        if (cancellationSignal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             future.addListener(new Runnable() {
                 @Override
                 public void run() {
                     if (future.isCancelled()) {
-                        cancellationSignal.cancel();
+                        SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal);
                     }
                 }
             }, sDirectExecutor);

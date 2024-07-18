@@ -21,6 +21,7 @@ import com.android.build.api.dsl.SdkComponents
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.DslExtension
 import com.android.build.api.variant.Variant
+import com.android.build.gradle.BaseExtension
 import com.android.utils.usLocaleCapitalize
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -195,21 +196,35 @@ internal const val SOURCE_TYPE_STABLE_AIDL = "stableAidl"
  */
 internal const val SOURCE_TYPE_STABLE_AIDL_IMPORTS = "stableAidlImports"
 
-internal fun SdkComponents.aidl(): Provider<RegularFile> =
-    @Suppress("UnstableApiUsage")
-    aidl.flatMap { it.executable }
+internal fun SdkComponents.aidl(baseExtension: BaseExtension): Provider<RegularFile> =
+    sdkDirectory.map {
+        it.dir("build-tools").dir(baseExtension.buildToolsVersion).file(
+            if (java.lang.System.getProperty("os.name").startsWith("Windows")) {
+                "aidl.exe"
+            } else {
+                "aidl"
+            }
+        )
+    }
+
+internal fun SdkComponents.aidlFramework(baseExtension: BaseExtension): Provider<RegularFile> =
+    sdkDirectory.map {
+        it.dir("platforms")
+            .dir(baseExtension.compileSdkVersion!!)
+            .file("framework.aidl")
+    }
 
 /**
  * Returns the AIDL import directories for the given variant of the project.
  */
 internal fun Project.getAidlArtifactsOnCompileClasspath(variant: Variant): List<FileCollection> {
-    val incoming = variant.compileConfiguration.incoming
-    val aidlFiles = incoming.artifactView { config ->
-        config.attributes(ArtifactType.AIDL)
-    }.artifacts.artifactFiles
-    val stableAidlFiles = incoming.artifactView { config ->
-        config.attributes(ArtifactType.STABLE_AIDL)
-    }.artifacts.artifactFiles
+    val incoming = project.configurations.findByName("${variant.name}CompileClasspath")?.incoming
+    val aidlFiles = incoming?.artifactView { config ->
+            config.attributes(ArtifactType.AIDL)
+        }?.artifacts?.artifactFiles
+    val stableAidlFiles = incoming?.artifactView { config ->
+            config.attributes(ArtifactType.STABLE_AIDL)
+        }?.artifacts?.artifactFiles
     return listOfNotNull(aidlFiles, stableAidlFiles)
 }
 

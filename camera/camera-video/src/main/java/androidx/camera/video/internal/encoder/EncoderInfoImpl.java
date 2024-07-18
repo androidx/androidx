@@ -16,10 +16,12 @@
 
 package androidx.camera.video.internal.encoder;
 
+import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.video.internal.workaround.EncoderFinder;
 
 import java.util.Objects;
 
@@ -52,5 +54,14 @@ public abstract class EncoderInfoImpl implements EncoderInfo {
     @NonNull
     public String getName() {
         return mMediaCodecInfo.getName();
+    }
+
+    @NonNull
+    static MediaCodecInfo findCodecAndGetCodecInfo(@NonNull EncoderConfig encoderConfig)
+            throws InvalidConfigException {
+        MediaCodec codec = new EncoderFinder().findEncoder(encoderConfig.toMediaFormat());
+        MediaCodecInfo codecInfo = codec.getCodecInfo();
+        codec.release();
+        return codecInfo;
     }
 }

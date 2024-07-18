@@ -30,15 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
-import androidx.wear.compose.material.ListHeader
-import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.samples.AlertDialogSample
 import androidx.wear.compose.material.samples.AlertWithButtons
 import androidx.wear.compose.material.samples.AlertWithChips
 import androidx.wear.compose.material.samples.AnimateOptionChangePicker
 import androidx.wear.compose.material.samples.AppCardWithIcon
-import androidx.wear.compose.material.samples.AppCardWithImage
 import androidx.wear.compose.material.samples.AutoCenteringPickerGroup
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
@@ -70,14 +66,12 @@ import androidx.wear.compose.material.samples.OutlinedCompactButtonWithIcon
 import androidx.wear.compose.material.samples.OutlinedCompactChipWithIconAndLabel
 import androidx.wear.compose.material.samples.PickerGroup24Hours
 import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
-import androidx.wear.compose.material.samples.SelectableChipWithRadioButton
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
-import androidx.wear.compose.material.samples.SplitSelectableChipWithRadioButton
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
@@ -89,8 +83,9 @@ import androidx.wear.compose.material.samples.TimeTextAnimation
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
-import androidx.wear.compose.material.samples.TitleCardWithImageBackground
+import androidx.wear.compose.material.samples.TitleCardWithImage
 import androidx.wear.compose.material.samples.ToggleButtonWithIcon
+import androidx.wear.compose.material.samples.ToggleChipWithRadioButton
 import androidx.wear.compose.material.samples.ToggleChipWithSwitch
 import java.time.LocalDate
 import java.time.LocalTime
@@ -99,30 +94,6 @@ import java.time.LocalTime
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
-        DemoCategory(
-            "Page Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Sample with InlineSlider") {
-                            Centralize { HorizontalPageIndicatorSample() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Customized PageIndicator") {
-                            CustomizedHorizontalPageIndicator()
-                        },
-                        ComposableDemo("Pager with Indicator") { params ->
-                            PagerWithIndicator(params.swipeToDismissBoxState)
-                        }
-                    )
-                )
-            )
-        ),
         DemoCategory(
             "ScrollAway",
             listOf(
@@ -481,11 +452,16 @@ val WearMaterialDemos = DemoCategory(
                                 ToggleChipWithSwitch()
                             }
                         },
+                        ComposableDemo("ToggleChip With RadioButton") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ToggleChipWithRadioButton()
+                            }
+                        },
                         ComposableDemo("SplitToggleChip With Checkbox") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 SplitToggleChipWithCheckbox()
                             }
-                        },
+                        }
                     )
                 ),
                 DemoCategory(
@@ -494,37 +470,6 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Toggle chip") { ToggleChips() },
                         ComposableDemo("RTL Toggle chip") {
                             ToggleChips(
-                                layoutDirection = LayoutDirection.Rtl,
-                                description = "RTL ToggleChips"
-                            )
-                        },
-                    )
-                )
-            )
-        ),
-        DemoCategory(
-            "Selectable Chip",
-            listOf(
-                DemoCategory("Samples",
-                    listOf(
-                        ComposableDemo("SelectableChip With RadioButton") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                SelectableChipWithRadioButton()
-                            }
-                        },
-                        ComposableDemo("SplitSelectableChip With RadioButton") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                SplitSelectableChipWithRadioButton()
-                            }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Selectable chip") { SelectableChips() },
-                        ComposableDemo("RTL Selectable chip") {
-                            SelectableChips(
                                 layoutDirection = LayoutDirection.Rtl,
                                 description = "RTL ToggleChips"
                             )
@@ -544,24 +489,40 @@ val WearMaterialDemos = DemoCategory(
                                 AppCardWithIcon()
                             }
                         },
-                        ComposableDemo("AppCard With Image") {
-                            Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                AppCardWithImage()
-                            }
-                        },
                         ComposableDemo("TitleCard") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
                                 TitleCardStandard()
                             }
                         },
-                        ComposableDemo("TitleCard With Image Background") {
+                        ComposableDemo("TitleCard With Image") {
                             Centralize(Modifier.padding(horizontal = 10.dp)) {
-                                TitleCardWithImageBackground()
+                                TitleCardWithImage()
                             }
                         },
                     )
                 ),
                 ComposableDemo("Demos") { CardDemo() },
+            )
+        ),
+        DemoCategory(
+            "Page Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Sample with InlineSlider") {
+                            Centralize { HorizontalPageIndicatorSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Customized PageIndicator") {
+                            CustomizedHorizontalPageIndicator()
+                        },
+                    )
+                )
             )
         ),
         DemoCategory(
@@ -681,11 +642,8 @@ val WearMaterialDemos = DemoCategory(
             "Position Indicator",
             listOf(
                 ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
-                ComposableDemo("Hide when no scrollable SLC") {
+                ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
                     HideWhenFullSLCDemo()
-                },
-                ComposableDemo("SLC with PositionIndicator") {
-                    SLCWithPositionIndicatorDemo()
                 },
                 ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
                 ComposableDemo("Shared PI") { SharedPositionIndicator() }
@@ -710,29 +668,5 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Colors") { ThemeColors() },
             )
         ),
-        ComposableDemo("Settings Demo") { SettingsDemo() },
-        DemoCategory(
-            "ListHeader",
-            listOf(
-                ComposableDemo("Sample") {
-                    Centralize {
-                        ListHeader {
-                            Text("Header", maxLines = 3)
-                        }
-                    }
-                },
-                ComposableDemo("MultiLine Sample") {
-                    Centralize {
-                        ListHeader {
-                            Text(
-                                text = "ListHeader that spans multiple lines in a large " +
-                                    "font and should expand to fit the contents",
-                                style = MaterialTheme.typography.title3
-                            )
-                        }
-                    }
-                }
-            )
-        )
     ),
 )

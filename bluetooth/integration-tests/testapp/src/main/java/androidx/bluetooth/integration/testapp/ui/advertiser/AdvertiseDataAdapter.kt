@@ -24,26 +24,26 @@ import android.widget.TextView
 import androidx.bluetooth.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class AdvertiseDataAdapter(
-    var advertiseData: List<String>,
-    private val onClick: (Int) -> Unit
-) : RecyclerView.Adapter<AdvertiseDataAdapter.ViewHolder>() {
+class AdvertiseDataAdapter(var advertiseData: List<String>, private val onClick: (Int) -> Unit) :
+    RecyclerView.Adapter<AdvertiseDataAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_advertiser_data, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(advertiseData[position])
+        return ViewHolder(view, onClick)
     }
 
     override fun getItemCount(): Int {
         return advertiseData.size
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val advertiseData = advertiseData[position]
+        holder.bind(advertiseData)
+    }
+
+    inner class ViewHolder(itemView: View, private val onClick: (Int) -> Unit) :
+        RecyclerView.ViewHolder(itemView) {
 
         private val textViewData: TextView = itemView.findViewById(R.id.text_view_data)
         private val imageButtonClear: ImageButton = itemView.findViewById(R.id.image_button_clear)

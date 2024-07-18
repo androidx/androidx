@@ -26,8 +26,11 @@ import androidx.navigation.Navigator
 import androidx.navigation.compose.DialogNavigator.Destination
 
 public actual class DialogNavigator : Navigator<Destination>(NAME) {
-    internal actual val backStack get() = state.backStack
-    internal actual val transitionInProgress get() = state.transitionsInProgress
+    internal actual val backStack
+        get() = state.backStack
+
+    internal actual val transitionInProgress
+        get() = state.transitionsInProgress
 
     internal actual fun dismiss(backStackEntry: NavBackStackEntry) {
         popBackStack(backStackEntry, false)
@@ -38,13 +41,11 @@ public actual class DialogNavigator : Navigator<Destination>(NAME) {
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) {
-        entries.forEach { entry ->
-            state.push(entry)
-        }
+        entries.forEach { entry -> state.push(entry) }
     }
 
     override fun createDestination(): Destination {
-        return Destination(this) { }
+        return Destination(this) {}
     }
 
     override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {

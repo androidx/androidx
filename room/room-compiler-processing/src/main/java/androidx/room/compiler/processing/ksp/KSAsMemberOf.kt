@@ -47,9 +47,9 @@ internal fun KSPropertyDeclaration.typeAsMemberOf(ksType: KSType?): KSType {
 
 internal fun KSValueParameter.typeAsMemberOf(
     functionDeclaration: KSFunctionDeclaration,
-    ksType: KSType?,
-    resolved: KSType = type.resolve()
+    ksType: KSType?
 ): KSType {
+    val resolved = type.resolve()
     if (functionDeclaration.isStatic()) {
         // calling as member with a static would throw as it might be a member of the companion
         // object

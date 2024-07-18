@@ -1,12 +1,5 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -27,7 +20,7 @@ BundleInsideHelper.forInsideAar(
 dependencies {
     bundleInside(project(":noto-emoji-compat-flatbuffers"))
 
-    api("androidx.core:core:1.3.0")
+    api("androidx.core:core:1.3.0-rc01")
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testExtJunit)
@@ -62,18 +55,18 @@ android {
 
 androidx {
     name = "Emoji"
-    type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EMOJI
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
     metalavaK2UastEnabled = true
 
-    extraLicense {
+    license {
         name = "SIL Open Font License, Version 1.1"
         url = "https://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web"
     }
 
-    extraLicense {
+    license {
         name = "Unicode, Inc. License"
         url = "https://www.unicode.org/license.html"
     }

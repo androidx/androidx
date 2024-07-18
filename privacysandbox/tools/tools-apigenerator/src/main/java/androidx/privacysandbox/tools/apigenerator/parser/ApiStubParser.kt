@@ -16,8 +16,6 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
-import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
@@ -81,33 +79,14 @@ internal object ApiStubParser {
 
     private fun parseValue(value: KmClass): AnnotatedValue {
         val type = parseClassName(value.name)
-        val isEnum = value.kind == ClassKind.ENUM_CLASS
 
-        if (!value.isData && !isEnum) {
+        if (!value.isData) {
             throw PrivacySandboxParsingException(
-                "${type.qualifiedName} is not a Kotlin data class or enum class but it's " +
-                    "annotated with @PrivacySandboxValue."
+                "${type.qualifiedName} is not a Kotlin data class but it's annotated with " +
+                    "@PrivacySandboxValue."
             )
         }
-        val superTypes = value.supertypes.asSequence().map { it.classifier }
-            .filterIsInstance<KmClassifier.Class>()
-            .map { it.name }
-            .filter { it !in listOf("kotlin/Enum", "kotlin/Any") }
-            .map { parseClassName(it) }.toList()
-        if (superTypes.isNotEmpty()) {
-            throw PrivacySandboxParsingException(
-                "Error in ${type.qualifiedName}: values annotated with @PrivacySandboxValue may " +
-                    "not inherit other types (${
-                        superTypes.joinToString(limit = 3) { it.simpleName }
-                    })"
-            )
-        }
-
-        return if (value.isData) {
-            AnnotatedDataClass(type, parseProperties(type, value))
-        } else {
-            AnnotatedEnumClass(type, value.enumEntries.toList())
-        }
+        return AnnotatedValue(type, parseProperties(type, value))
     }
 
     /** Parses properties and sorts them based on the order of constructor parameters. */

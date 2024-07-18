@@ -54,7 +54,9 @@ import androidx.wear.compose.foundation.curvedRow
  * from [style] will be used instead.
  *
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
- * [LocalContentColor] will be used.
+ * [LocalContentColor] will be used with an alpha of [LocalContentAlpha]- this allows this
+ * [curvedText] or element containing this [curvedText] to adapt to different background colors and
+ * still maintain contrast and accessibility.
  *
  * For samples explicitly specifying style see:
  * TODO(b/283777480): Add CurvedText samples
@@ -84,7 +86,7 @@ import androidx.wear.compose.foundation.curvedRow
  * See [CurvedDirection.Angular].
  * @param overflow How visual overflow should be handled.
  */
-fun CurvedScope.curvedText(
+public fun CurvedScope.curvedText(
     text: String,
     modifier: CurvedModifier = CurvedModifier,
     background: Color = Color.Unspecified,
@@ -101,7 +103,7 @@ fun CurvedScope.curvedText(
     val baseStyle = style ?: CurvedTextStyle(LocalTextStyle.current)
     val textColor = color.takeOrElse {
         baseStyle.color.takeOrElse {
-            LocalContentColor.current
+            LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
         }
     }
     baseStyle.merge(

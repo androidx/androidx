@@ -32,10 +32,10 @@ import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.components.CircleIconButton
-import androidx.glance.appwidget.components.FilledButton
-import androidx.glance.appwidget.components.OutlineButton
-import androidx.glance.appwidget.components.SquareIconButton
+import androidx.glance.appwidget.component.CircleIconButton
+import androidx.glance.appwidget.component.FilledButton
+import androidx.glance.appwidget.component.OutlineButton
+import androidx.glance.appwidget.component.SquareIconButton
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.LazyItemScope
 import androidx.glance.appwidget.lazy.LazyListScope

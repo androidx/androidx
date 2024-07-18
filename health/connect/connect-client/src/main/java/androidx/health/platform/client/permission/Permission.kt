@@ -16,14 +16,14 @@
 package androidx.health.platform.client.permission
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.PermissionProto
 
 /**
  * Internal parcelable wrapper over proto object.
+ *
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class Permission(override val proto: PermissionProto.Permission) :
     ProtoParcelable<PermissionProto.Permission>() {
 

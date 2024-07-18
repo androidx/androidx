@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-GetterSetterNames: androidx.health.connect.client.response.ChangesResponse#changesTokenExpired:
+GetterSetterNames: field ChangesResponse.changesTokenExpired:
     Invalid name for boolean property `changesTokenExpired`. Should start with one of `has`, `can`, `should`, `is`.
 
 

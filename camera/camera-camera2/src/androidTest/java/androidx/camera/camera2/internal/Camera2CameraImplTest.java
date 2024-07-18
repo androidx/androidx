@@ -36,7 +36,6 @@ import static junit.framework.TestCase.assertTrue;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -248,7 +247,7 @@ public final class Camera2CameraImplTest {
         UseCase useCase = createUseCase();
         mCamera2CameraImpl.attachUseCases(singletonList(useCase));
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase));
         mCamera2CameraImpl.release();
@@ -259,7 +258,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.open();
         mCamera2CameraImpl.onUseCaseActive(createUseCase());
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
 
         mCamera2CameraImpl.release();
     }
@@ -271,7 +270,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(anyInt(), any());
+                .onCaptureCompleted(any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
     }
@@ -284,7 +283,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
 
         assertThat(mCamera2CameraImpl.getCameraControlInternal()
                 .isZslDisabledByByUserCaseConfig()).isFalse();
@@ -296,7 +295,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
     }
 
     @Test
@@ -305,7 +304,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
     }
 
     @Test
@@ -318,7 +317,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
     }
@@ -332,7 +331,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.attachUseCases(singletonList(useCase1));
         mCamera2CameraImpl.onUseCaseActive(useCase1);
 
-        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(), any());
+        verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(any());
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase1));
     }
@@ -478,7 +477,7 @@ public final class Camera2CameraImplTest {
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(captureCallback, timeout(3000).times(1))
-                .onCaptureCompleted(anyInt(), any(CameraCaptureResult.class));
+                .onCaptureCompleted(any(CameraCaptureResult.class));
 
         mCamera2CameraImpl.detachUseCases(asList(useCase1, useCase2));
     }
@@ -518,7 +517,7 @@ public final class Camera2CameraImplTest {
 
         // CameraCaptureCallback.onCaptureCompleted() is not called and there is no crash.
         verify(captureCallback, times(0))
-                .onCaptureCompleted(anyInt(), any(CameraCaptureResult.class));
+                .onCaptureCompleted(any(CameraCaptureResult.class));
 
         mCamera2CameraImpl.detachUseCases(singletonList(useCase2));
     }
@@ -1097,7 +1096,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(anyInt(), captor.capture());
+                .onCaptureCompleted(captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -1121,7 +1120,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(anyInt(), captor.capture());
+                .onCaptureCompleted(captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -1149,13 +1148,13 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(anyInt(), captor.capture());
+                .onCaptureCompleted(captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
 
         assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);
+                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG);
         assertThat(
                 mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
@@ -1186,7 +1185,7 @@ public final class Camera2CameraImplTest {
         ArgumentCaptor<CameraCaptureResult> captor =
                 ArgumentCaptor.forClass(CameraCaptureResult.class);
         verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                .onCaptureCompleted(anyInt(), captor.capture());
+                .onCaptureCompleted(captor.capture());
 
         CaptureResult captureResult =
                 ((Camera2CameraCaptureResult) captor.getValue()).getCaptureResult();
@@ -1332,8 +1331,7 @@ public final class Camera2CameraImplTest {
             // Assert.
             ArgumentCaptor<CameraCaptureResult> captor =
                     ArgumentCaptor.forClass(CameraCaptureResult.class);
-            verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(anyInt(),
-                    captor.capture());
+            verify(mMockRepeatingCaptureCallback, never()).onCaptureCompleted(captor.capture());
 
             // Act.
             UseCase preview2 = createUseCase(CameraDevice.TEMPLATE_PREVIEW);
@@ -1344,7 +1342,7 @@ public final class Camera2CameraImplTest {
             // Assert.
             captor = ArgumentCaptor.forClass(CameraCaptureResult.class);
             verify(mMockRepeatingCaptureCallback, timeout(4000).atLeastOnce())
-                    .onCaptureCompleted(anyInt(), captor.capture());
+                    .onCaptureCompleted(captor.capture());
             CaptureResult captureResult = (captor.getValue()).getCaptureResult();
             assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
                     .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW);

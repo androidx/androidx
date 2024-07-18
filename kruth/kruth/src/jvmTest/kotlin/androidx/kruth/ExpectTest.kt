@@ -25,7 +25,6 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.rules.ExpectedException
@@ -154,11 +153,11 @@ class ExpectTest {
     @Test
     fun bash() = runTest {
         val results = mutableListOf<Deferred<*>>()
-        repeat(500) {
+        repeat(1000) {
             results.add(async { expect.that(3).isEqualTo(4) })
         }
-        results.awaitAll()
-        thrown.expectMessage("500 expectations failed:")
+        results.forEach { it.await() }
+        thrown.expectMessage("1000 expectations failed:")
     }
 
     @Test

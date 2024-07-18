@@ -284,6 +284,7 @@ class SpecialEffectsControllerTest {
 
     @MediumTest
     @Test
+    @Ignore("b/308684873")
     fun enqueueAddAndCancel() {
        withUse(ActivityScenario.launch(EmptyFragmentTestActivity::class.java)) {
             val container = withActivity { findViewById<ViewGroup>(android.R.id.content) }

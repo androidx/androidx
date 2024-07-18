@@ -1,0 +1,19 @@
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    api(libs.kotlinStdlib)
+    api(libs.junit)
+    implementation(libs.byteBuddy)
+    implementation(libs.byteBuddyAgent)
+    testImplementation(libs.assertj)
+}
+
+androidx {
+    name = "Paparazzi Agent - AndroidX Fork"
+    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
+}

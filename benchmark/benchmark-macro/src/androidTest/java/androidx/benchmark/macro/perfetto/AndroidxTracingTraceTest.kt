@@ -65,6 +65,8 @@ class AndroidxTracingTraceTest {
         val traceFilePath = linkRule.createReportedTracePath(Packages.TEST)
         val perfettoCapture = PerfettoCapture()
 
+        verifyTraceEnable(false)
+
         perfettoCapture.start(
             PerfettoConfig.Benchmark(
                 appTagPackages = listOf(Packages.TEST),

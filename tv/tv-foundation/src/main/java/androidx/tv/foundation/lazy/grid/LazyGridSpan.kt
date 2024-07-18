@@ -24,6 +24,7 @@ import androidx.compose.runtime.Immutable
  */
 @Immutable
 @kotlin.jvm.JvmInline
+@Suppress("IllegalExperimentalApiUsage") // TODO (b/233188423): Address before moving to beta
 value class TvGridItemSpan internal constructor(private val packedValue: Long) {
     /**
      * The span of the item on the current line. This will be the horizontal span for items of

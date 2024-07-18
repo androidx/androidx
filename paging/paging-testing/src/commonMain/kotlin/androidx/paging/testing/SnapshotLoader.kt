@@ -17,32 +17,32 @@
 package androidx.paging.testing
 
 import androidx.annotation.VisibleForTesting
+import androidx.paging.DifferCallback
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import androidx.paging.PagingDataPresenter
+import androidx.paging.PagingDataDiffer
 import androidx.paging.PagingSource
+import androidx.paging.testing.LoaderCallback.CallbackType.ON_INSERTED
 import androidx.paging.testing.internal.AtomicInt
 import androidx.paging.testing.internal.AtomicRef
 import kotlin.jvm.JvmSuppressWildcards
 import kotlin.math.abs
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 
 /**
  * Contains the public APIs for load operations in tests.
  *
- * Tracks generational information and provides the listener to [LoaderCallback] on
- * [PagingDataPresenter] operations.
+ * Tracks generational information and provides the listener to [DifferCallback] on
+ * [PagingDataDiffer] operations.
  */
 @VisibleForTesting
 public class SnapshotLoader<Value : Any> internal constructor(
-    private val presenter: CompletablePagingDataPresenter<Value>,
+    private val differ: CompletablePagingDataDiffer<Value>,
     private val errorHandler: LoadErrorHandler,
 ) {
     internal val generations = MutableStateFlow(Generation())
@@ -56,9 +56,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * This fake paging operation mimics UI-driven refresh signals such as swipe-to-refresh.
      */
     public suspend fun refresh(): @JvmSuppressWildcards Unit {
-        presenter.awaitNotLoading(errorHandler)
-        presenter.refresh()
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
+        differ.refresh()
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -83,9 +83,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
     public suspend fun appendScrollWhile(
         predicate: (item: @JvmSuppressWildcards Value) -> @JvmSuppressWildcards Boolean
     ): @JvmSuppressWildcards Unit {
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependScrollWhile(LoadType.APPEND, predicate)
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -110,9 +110,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
     public suspend fun prependScrollWhile(
         predicate: (item: @JvmSuppressWildcards Value) -> @JvmSuppressWildcards Boolean
     ): @JvmSuppressWildcards Unit {
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependScrollWhile(LoadType.PREPEND, predicate)
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
     }
 
     private suspend fun appendOrPrependScrollWhile(
@@ -164,9 +164,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * be loaded in. Supports jumping.
      */
     public suspend fun scrollTo(index: Int): @JvmSuppressWildcards Unit {
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependScrollTo(index)
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -227,9 +227,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
      * to scroll.
      */
     public suspend fun flingTo(index: Int): @JvmSuppressWildcards Unit {
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
         appendOrPrependFlingTo(index)
-        presenter.awaitNotLoading(errorHandler)
+        differ.awaitNotLoading(errorHandler)
     }
 
     /**
@@ -240,10 +240,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
         val startIndex = generations.value.lastAccessedIndex.get()
         val loadType = if (startIndex > index) LoadType.PREPEND else LoadType.APPEND
 
-        if (loadType == LoadType.PREPEND) {
-            prependFlingTo(startIndex, index)
-        } else {
-            appendFlingTo(startIndex, index)
+        when (loadType) {
+            LoadType.PREPEND -> prependFlingTo(startIndex, index)
+            LoadType.APPEND -> appendFlingTo(startIndex, index)
         }
     }
 
@@ -258,7 +257,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
         val endIndex = maxOf(0, index)
         // first, fast scroll to index or zero
         for (i in startIndex - 1 downTo endIndex) {
-            presenter[i]
+            differ[i]
             lastAccessedIndex = i
         }
         setLastAccessedIndex(lastAccessedIndex)
@@ -273,21 +272,21 @@ public class SnapshotLoader<Value : Any> internal constructor(
     /**
      * Append flings to target index.
      *
-     * If target index is beyond [PagingDataPresenter.size] - 1, from index(presenter.size) and onwards,
+     * If target index is beyond [PagingDataDiffer.size] - 1, from index(differ.size) and onwards,
      * it will normal scroll until it fulfills remaining distance.
      */
     private suspend fun appendFlingTo(startIndex: Int, index: Int) {
         var lastAccessedIndex = startIndex
-        val endIndex = minOf(index, presenter.size - 1)
+        val endIndex = minOf(index, differ.size - 1)
         // first, fast scroll to endIndex
         for (i in startIndex + 1..endIndex) {
-            presenter[i]
+            differ[i]
             lastAccessedIndex = i
         }
         setLastAccessedIndex(lastAccessedIndex)
-        // for indices at or beyond presenter.size, we delegate remainder of scrolling (distance
-        // beyond presenter.size) to the awaiting version.
-        if (index >= presenter.size) {
+        // for indices at or beyond differ.size, we delegate remainder of scrolling (distance
+        // beyond differ.size) to the awaiting version.
+        if (index >= differ.size) {
             val scrollCount = index - lastAccessedIndex
             flingToOutOfBounds(LoadType.APPEND, lastAccessedIndex, scrollCount)
         }
@@ -295,7 +294,7 @@ public class SnapshotLoader<Value : Any> internal constructor(
 
     /**
      * Delegated work from [flingTo] that is responsible for scrolling to indices that is
-     * beyond the range of [0 to presenter.size-1].
+     * beyond the range of [0 to differ.size-1].
      *
      * When [PagingConfig.enablePlaceholders] is true, this function is no-op because
      * there is no more data to load from.
@@ -309,9 +308,9 @@ public class SnapshotLoader<Value : Any> internal constructor(
         lastAccessedIndex: Int,
         scrollCount: Int
     ) {
-        // Wait for the page triggered by presenter[lastAccessedIndex] to load in. This gives us the
-        // offsetIndex for next presenter.get() because the current lastAccessedIndex is already the
-        // boundary index, such that presenter[lastAccessedIndex +/- 1] will throw IndexOutOfBounds.
+        // Wait for the page triggered by differ[lastAccessedIndex] to load in. This gives us the
+        // offsetIndex for next differ.get() because the current lastAccessedIndex is already the
+        // boundary index, such that differ[lastAccessedIndex +/- 1] will throw IndexOutOfBounds.
         val (_, offsetIndex) = awaitLoad(lastAccessedIndex)
         setLastAccessedIndex(offsetIndex)
         // starts loading from the offsetIndex and scrolls the remaining requested distance
@@ -358,20 +357,19 @@ public class SnapshotLoader<Value : Any> internal constructor(
                 currIndex - 1
             }
             LoadType.APPEND -> {
-                if (currIndex >= presenter.size - 1) {
+                if (currIndex >= differ.size - 1) {
                     return null
                 }
                 currIndex + 1
             }
-            LoadType.REFRESH -> currIndex
         }
     }
 
-    // Executes actual loading by accessing the PagingDataPresenter
+    // Executes actual loading by accessing the PagingDataDiffer
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private suspend fun awaitLoad(index: Int): Pair<Value, Int> {
-        presenter[index]
-        presenter.awaitNotLoading(errorHandler)
+        differ[index]
+        differ.awaitNotLoading(errorHandler)
         var offsetIndex = index
 
         // awaits for the item to be loaded
@@ -382,30 +380,30 @@ public class SnapshotLoader<Value : Any> internal constructor(
             // is necessary because the new items shift the position of existing items, and
             // the index no longer tracks the correct item.
             offsetIndex += callbackState?.computeIndexOffset() ?: 0
-            presenter.peek(offsetIndex)
+            differ.peek(offsetIndex)
         }.filterNotNull().first() to offsetIndex
     }
 
     /**
-     * Computes the offset to add to the index when loading items from presenter.
+     * Computes the offset to add to the index when loading items from differ.
      *
      * The purpose of this is to address shifted item positions when new items are prepended
-     * with placeholders disabled. For example, loaded items(10-12) in the PlaceholderPaddedList
-     * would have item(12) at presenter[2]. If we prefetched items(7-9), item(12) would now be in
-     * presenter[5].
+     * with placeholders disabled. For example, loaded items(10-12) in the NullPaddedList
+     * would have item(12) at differ[2]. If we prefetched items(7-9), item(12) would now be in
+     * differ[5].
      *
-     * Without the offset, [PREPEND] operations would call presenter[1] to load next item(11)
+     * Without the offset, [PREPEND] operations would call differ[1] to load next item(11)
      * which would now yield item(8) instead of item(11). The offset would add the
      * inserted count to the next load index such that after prepending 3 new items(7-9), the next
-     * [PREPEND] operation would call presenter[1+3 = 4] to properly load next item(11).
+     * [PREPEND] operation would call differ[1+3 = 4] to properly load next item(11).
      *
      * This method is essentially no-op unless the callback meets three conditions:
-     * - the [LoaderCallback.loadType] is [LoadType.PREPEND]
+     * - is type [DifferCallback.onChanged]
      * - position is 0 as we only care about item prepended to front of list
      * - inserted count > 0
      */
     private fun LoaderCallback.computeIndexOffset(): Int {
-        return if (loadType == LoadType.PREPEND && position == 0) count else 0
+        return if (type == ON_INSERTED && position == 0) count else 0
     }
 
     private fun setLastAccessedIndex(index: Int) {
@@ -413,36 +411,24 @@ public class SnapshotLoader<Value : Any> internal constructor(
     }
 
     /**
-     * The callback to be invoked when presenter emits a new PagingDataEvent.
+     * The callback to be invoked by DifferCallback on a single generation.
+     * Increase the callbackCount to notify SnapshotLoader that the dataset has updated
      */
-    internal fun onDataSetChanged(
-        gen: Generation,
-        callback: LoaderCallback,
-        scope: CoroutineScope? = null
-    ) {
+    internal fun onDataSetChanged(gen: Generation, callback: LoaderCallback) {
         val currGen = generations.value
         // we make sure the generation with the dataset change is still valid because we
         // want to disregard callbacks on stale generations
         if (gen.id == currGen.id) {
-            callback.apply {
-                if (loadType == LoadType.REFRESH) {
-                    generations.value.lastAccessedIndex.set(position)
-                    // If there are presented items, we should imitate the UI by accessing a
-                    // real item.
-                    if (count > 0) {
-                        scope?.launch {
-                            awaitLoad(nextIndexOrNull(LoadType.REFRESH)!!)
-                            presenter.awaitNotLoading(errorHandler)
-                        }
-                    }
-                }
-                if (loadType == LoadType.PREPEND) {
-                    generations.value = gen.copy(
-                        callbackState = currGen.callbackState.apply { set(callback) }
-                    )
-                }
-            }
+            generations.value = gen.copy(
+                callbackCount = currGen.callbackCount + 1,
+                callbackState = currGen.callbackState.apply { set(callback) }
+            )
         }
+    }
+
+    private enum class LoadType {
+        PREPEND,
+        APPEND
     }
 }
 
@@ -454,25 +440,34 @@ internal data class Generation(
     val id: Int = -1,
 
     /**
-     * Temporarily stores the latest [LoaderCallback] to track prepends to the beginning of list.
+     * A count of the number of times Paging invokes a [DifferCallback] callback within a single
+     * generation. Incremented on each [DifferCallback] callback invoked, i.e. on item inserted.
+     *
+     * The callbackCount enables [SnapshotLoader] to await for a requested item and continue
+     * loading next item only after a callback is invoked.
+     */
+    val callbackCount: Int = 0,
+
+    /**
+     * Temporarily stores the latest [DifferCallback] to track prepends to the beginning of list.
      * Value is reset to null once read.
      */
     val callbackState: AtomicRef<LoaderCallback?> = AtomicRef(null),
 
     /**
-     * Tracks the last accessed(peeked) index on the presenter for this generation
-     */
+     * Tracks the last accessed(peeked) index on the differ for this generation
+      */
     var lastAccessedIndex: AtomicInt = AtomicInt(0)
 )
 
 internal data class LoaderCallback(
-    val loadType: LoadType,
+    val type: CallbackType,
     val position: Int,
     val count: Int,
-)
-
-internal enum class LoadType {
-    REFRESH,
-    PREPEND,
-    APPEND,
+) {
+    internal enum class CallbackType {
+        ON_CHANGED,
+        ON_INSERTED,
+        ON_REMOVED,
+    }
 }

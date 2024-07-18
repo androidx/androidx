@@ -37,7 +37,7 @@ public class ListViewAutoScrollHelper extends AutoScrollHelper {
 
     @Override
     public void scrollTargetBy(int deltaX, int deltaY) {
-        mTarget.scrollListBy(deltaY);
+        ListViewCompat.scrollListBy(mTarget, deltaY);
     }
 
     @Override

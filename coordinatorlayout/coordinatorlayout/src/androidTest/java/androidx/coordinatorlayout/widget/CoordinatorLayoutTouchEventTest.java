@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.os.Build;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
@@ -559,7 +560,11 @@ public class CoordinatorLayoutTouchEventTest {
         @Override
         public String toString() {
             String message = "MotionEvent#getAction() == ";
-            return message + MotionEvent.actionToString(mAction);
+            if (Build.VERSION.SDK_INT >= 19) {
+                return message + MotionEvent.actionToString(mAction);
+            } else {
+                return message + mAction;
+            }
         }
     }
 

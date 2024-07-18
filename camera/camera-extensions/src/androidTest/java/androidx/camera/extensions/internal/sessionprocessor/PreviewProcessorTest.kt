@@ -26,7 +26,6 @@ import android.hardware.camera2.TotalCaptureResult
 import android.media.Image
 import android.media.ImageReader
 import android.media.ImageWriter
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
@@ -87,8 +86,6 @@ class PreviewProcessorTest {
     @Before
     fun setUp() = runBlocking {
         Assume.assumeTrue(CameraUtil.deviceHasCamera())
-        // PreviewImageProcessorImpl doesn't exist on Xiaomi devices
-        Assume.assumeFalse(Build.BRAND.uppercase().equals("XIAOMI"))
 
         backgroundThread = HandlerThread(
             CameraXThreads.TAG + "preview_processor_test"

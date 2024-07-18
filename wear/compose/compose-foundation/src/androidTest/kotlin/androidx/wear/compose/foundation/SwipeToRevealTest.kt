@@ -221,7 +221,7 @@ class SwipeToRevealTest {
             }
         }
 
-        // swipe the first S2R to Revealing state
+        // swipe the first S2R
         rule.onNodeWithTag(testTagOne).performTouchInput {
             swipeLeft(startX = width / 2f, endX = 0f)
         }
@@ -233,44 +233,6 @@ class SwipeToRevealTest {
 
         rule.runOnIdle {
             assertEquals(RevealValue.Covered, revealStateOne.currentValue)
-            assertEquals(RevealValue.Revealing, revealStateTwo.currentValue)
-        }
-    }
-
-    @Test
-    fun onMultiSwipe_whenLastStateRevealed_doesNotReset() {
-        lateinit var revealStateOne: RevealState
-        lateinit var revealStateTwo: RevealState
-        val testTagOne = "testTagOne"
-        val testTagTwo = "testTagTwo"
-        rule.setContent {
-            revealStateOne = rememberRevealState()
-            revealStateTwo = rememberRevealState()
-            Column {
-                swipeToRevealWithDefaults(
-                    state = revealStateOne,
-                    modifier = Modifier.testTag(testTagOne)
-                )
-                swipeToRevealWithDefaults(
-                    state = revealStateTwo,
-                    modifier = Modifier.testTag(testTagTwo)
-                )
-            }
-        }
-
-        // swipe the first S2R to Revealed (full screen swipe)
-        rule.onNodeWithTag(testTagOne).performTouchInput {
-            swipeLeft(startX = width.toFloat(), endX = 0f)
-        }
-
-        // swipe the second S2R to a reveal value
-        rule.onNodeWithTag(testTagTwo).performTouchInput {
-            swipeLeft(startX = width / 2f, endX = 0f)
-        }
-
-        rule.runOnIdle {
-            // assert that state does not reset
-            assertEquals(RevealValue.Revealed, revealStateOne.currentValue)
             assertEquals(RevealValue.Revealing, revealStateTwo.currentValue)
         }
     }

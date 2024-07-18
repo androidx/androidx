@@ -85,7 +85,7 @@ class AppCompatSeekBarHelper extends AppCompatProgressBarHelper {
 
         if (tickMark != null) {
             tickMark.setCallback(mView);
-            DrawableCompat.setLayoutDirection(tickMark, mView.getLayoutDirection());
+            DrawableCompat.setLayoutDirection(tickMark, ViewCompat.getLayoutDirection(mView));
             if (tickMark.isStateful()) {
                 tickMark.setState(mView.getDrawableState());
             }

@@ -1327,6 +1327,11 @@ public class ConstraintLayout extends ViewGroup {
             int resolvedGuideBegin = layoutParams.mResolvedGuideBegin;
             int resolvedGuideEnd = layoutParams.mResolvedGuideEnd;
             float resolvedGuidePercent = layoutParams.mResolvedGuidePercent;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                resolvedGuideBegin = layoutParams.guideBegin;
+                resolvedGuideEnd = layoutParams.guideEnd;
+                resolvedGuidePercent = layoutParams.guidePercent;
+            }
             if (resolvedGuidePercent != UNSET) {
                 guideline.setGuidePercent(resolvedGuidePercent);
             } else if (resolvedGuideBegin != UNSET) {
@@ -1343,6 +1348,33 @@ public class ConstraintLayout extends ViewGroup {
             int resolveGoneLeftMargin = layoutParams.mResolveGoneLeftMargin;
             int resolveGoneRightMargin = layoutParams.mResolveGoneRightMargin;
             float resolvedHorizontalBias = layoutParams.mResolvedHorizontalBias;
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                // Pre JB MR1, left/right should take precedence, unless they are
+                // not defined and somehow a corresponding start/end constraint exists
+                resolvedLeftToLeft = layoutParams.leftToLeft;
+                resolvedLeftToRight = layoutParams.leftToRight;
+                resolvedRightToLeft = layoutParams.rightToLeft;
+                resolvedRightToRight = layoutParams.rightToRight;
+                resolveGoneLeftMargin = layoutParams.goneLeftMargin;
+                resolveGoneRightMargin = layoutParams.goneRightMargin;
+                resolvedHorizontalBias = layoutParams.horizontalBias;
+
+                if (resolvedLeftToLeft == UNSET && resolvedLeftToRight == UNSET) {
+                    if (layoutParams.startToStart != UNSET) {
+                        resolvedLeftToLeft = layoutParams.startToStart;
+                    } else if (layoutParams.startToEnd != UNSET) {
+                        resolvedLeftToRight = layoutParams.startToEnd;
+                    }
+                }
+                if (resolvedRightToLeft == UNSET && resolvedRightToRight == UNSET) {
+                    if (layoutParams.endToStart != UNSET) {
+                        resolvedRightToLeft = layoutParams.endToStart;
+                    } else if (layoutParams.endToEnd != UNSET) {
+                        resolvedRightToRight = layoutParams.endToEnd;
+                    }
+                }
+            }
 
             // Circular constraint
             if (layoutParams.circleConstraint != UNSET) {
@@ -1614,13 +1646,17 @@ public class ConstraintLayout extends ViewGroup {
         mMeasurer.captureLayoutInfo(widthMeasureSpec, heightMeasureSpec, paddingY, paddingBottom,
                 paddingWidth, paddingHeight);
 
-        int paddingStart = Math.max(0, getPaddingStart());
-        int paddingEnd = Math.max(0, getPaddingEnd());
-        if (paddingStart > 0 || paddingEnd > 0) {
-            if (isRtl()) {
-                paddingX = paddingEnd;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            int paddingStart = Math.max(0, getPaddingStart());
+            int paddingEnd = Math.max(0, getPaddingEnd());
+            if (paddingStart > 0 || paddingEnd > 0) {
+                if (isRtl()) {
+                    paddingX = paddingEnd;
+                } else {
+                    paddingX = paddingStart;
+                }
             } else {
-                paddingX = paddingStart;
+                paddingX = Math.max(0, getPaddingLeft());
             }
         } else {
             paddingX = Math.max(0, getPaddingLeft());
@@ -1794,9 +1830,12 @@ public class ConstraintLayout extends ViewGroup {
     }
 
     protected boolean isRtl() {
-        boolean isRtlSupported = (getContext().getApplicationInfo().flags
-                & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0;
-        return isRtlSupported && (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            boolean isRtlSupported = (getContext().getApplicationInfo().flags
+                    & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0;
+            return isRtlSupported && (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
+        }
+        return false;
     }
 
     /**
@@ -1805,7 +1844,11 @@ public class ConstraintLayout extends ViewGroup {
      */
     private int getPaddingWidth() {
         int widthPadding = Math.max(0, getPaddingLeft()) + Math.max(0, getPaddingRight());
-        int rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());
+        int rtlPadding = 0;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());
+        }
         if (rtlPadding > 0) {
             widthPadding = rtlPadding;
         }
@@ -1998,6 +2041,7 @@ public class ConstraintLayout extends ViewGroup {
      * </p>
      *
      * @param level optimization level
+     * @since 1.1
      */
     public void setOptimizationLevel(int level) {
         mOptimizationLevel = level;
@@ -2008,6 +2052,7 @@ public class ConstraintLayout extends ViewGroup {
      * Return the current optimization level for the layout resolution
      *
      * @return the current level
+     * @since 1.1
      */
     public int getOptimizationLevel() {
         return mLayoutWidget.getOptimizationLevel();
@@ -2512,7 +2557,7 @@ public class ConstraintLayout extends ViewGroup {
         // public int endMargin = UNSET;
 
         // boolean isRtl = false;
-        // int layoutDirection = View.LAYOUT_DIRECTION_LTR;
+        // int layoutDirection = ViewCompat.LAYOUT_DIRECTION_LTR;
 
         boolean mWidthSet = true; // need to be set to false when we reactivate this in 3.0
         boolean mHeightSet = true; // need to be set to false when we reactivate this in 3.0
@@ -2787,8 +2832,10 @@ public class ConstraintLayout extends ViewGroup {
                 this.rightMargin = marginSource.rightMargin;
                 this.topMargin = marginSource.topMargin;
                 this.bottomMargin = marginSource.bottomMargin;
-                this.setMarginStart(marginSource.getMarginStart());
-                this.setMarginEnd(marginSource.getMarginEnd());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                    this.setMarginStart(marginSource.getMarginStart());
+                    this.setMarginEnd(marginSource.getMarginEnd());
+                }
             }
 
             if (!(params instanceof LayoutParams)) {
@@ -3675,6 +3722,7 @@ public class ConstraintLayout extends ViewGroup {
          * {@inheritDoc}
          */
         @Override
+        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         public void resolveLayoutDirection(int layoutDirection) {
             ///////////////////////////////////////////////////////////////////////////////////////
             // Layout margins handling TODO: re-activate in 3.0
@@ -3711,8 +3759,11 @@ public class ConstraintLayout extends ViewGroup {
             int originalLeftMargin = leftMargin;
             int originalRightMargin = rightMargin;
 
-            super.resolveLayoutDirection(layoutDirection);
-            boolean isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
+            boolean isRtl = false;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                super.resolveLayoutDirection(layoutDirection);
+                isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
+            }
             ///////////////////////////////////////////////////////////////////////////////////////
 
             mResolvedRightToLeft = UNSET;

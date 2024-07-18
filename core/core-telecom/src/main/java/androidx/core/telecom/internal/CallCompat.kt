@@ -32,12 +32,15 @@ import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withTimeout
 
 @ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
 internal class CallCompat(
-    private val call: Call
+    private val call: Call,
+    val scope: CoroutineScope,
 ) {
     internal val icsCapabilities = mutableListOf<Capability>()
 
@@ -55,10 +58,10 @@ internal class CallCompat(
 
         private val TAG = CallCompat::class.simpleName
 
-        fun toCallCompat(call: Call, init: CallCompat.() -> Unit):
+        fun toCallCompat(call: Call, scope: CoroutineScope, init: CallCompat.() -> Unit):
             CallCompat {
             Log.i(TAG, "toCallCompat; call = $call")
-            val callCompat = CallCompat(call)
+            val callCompat = CallCompat(call, scope)
             callCompat.init()
             return callCompat
         }
@@ -126,7 +129,9 @@ internal class CallCompat(
 
         // Launch a new coroutine from the context of the current coroutine and wait for task to
         // complete.
-        beginCapabilityNegotiationAck(capExchange)
+        scope.async {
+            beginCapabilityNegotiationAck(capExchange)
+        }.await()
     }
 
     /**
@@ -135,6 +140,7 @@ internal class CallCompat(
      */
     private suspend fun beginCapabilityNegotiationAck(capExchange: CapabilityExchange) {
         Log.i(TAG, "beginCapabilityNegotiationAck")
+
         try {
             withTimeout(CapabilityExchangeUtils.CAPABILITY_NEGOTIATION_COROUTINE_TIMEOUT) {
                 // Wait for VOIP app to return its supported capabilities.
@@ -179,8 +185,6 @@ internal class CallCompat(
 
     internal fun setupSupportedCapabilities(capExchange: CapabilityExchange) {
         val voipCaps: Set<Capability> = capExchange.voipCapabilities.toSet()
-
-        // icsCapabilities looks like it does not have any elements. maybe a BUG ?
         for (icsCap in icsCapabilities) {
             // Check if the VoIP app supports this capability:
             val voipCap: Capability? = voipCaps.find {
@@ -214,7 +218,7 @@ internal class CallCompat(
         minVersion: Int,
         capExchange: CapabilityExchange
     ) {
-        participantStateListener = ParticipantClientActionsImpl(negotiatedParticipantActions,
+        participantStateListener = ParticipantClientActionsImpl(scope, negotiatedParticipantActions,
             onParticipantInitializationComplete)
         capExchange.capabilityExchangeListener.onCreateParticipantExtension(
             minVersion,
@@ -235,7 +239,7 @@ internal class CallCompat(
 
     private fun completeParticipantCapExchangeUnsupported() {
         // complete the call cap exchange exceptionally and let Telecom take care of the cleanup:
-        participantStateListener = ParticipantClientActionsImpl(emptySet()) {}
+        participantStateListener = ParticipantClientActionsImpl(scope, emptySet()) {}
         participantStateListener.mIsParticipantExtensionSupported = false
         onParticipantInitializationComplete(participantStateListener)
     }

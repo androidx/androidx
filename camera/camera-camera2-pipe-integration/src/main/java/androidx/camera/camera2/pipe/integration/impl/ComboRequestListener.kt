@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
@@ -34,6 +35,7 @@ import javax.inject.Inject
  * The primary purpose of this class is to receive the capture result from the currently
  * configured [UseCaseCamera] and propagate to the registered [Request.Listener]s.
  */
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @CameraScope
 class ComboRequestListener @Inject constructor() : Request.Listener {
     private val requestListeners = mutableMapOf<Request.Listener, Executor>()
@@ -174,6 +176,7 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
     }
 }
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 fun RequestMetadata.containsTag(tagKey: String, tagValue: Any): Boolean =
     getOrDefault(
         CAMERAX_TAG_BUNDLE,

@@ -23,7 +23,6 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.Modifier
 
 /**
@@ -103,11 +102,3 @@ internal fun KSDeclaration.isTransient(): Boolean {
 // in this check.
 internal fun KSDeclaration.isValueClass(): Boolean =
   this is KSClassDeclaration && modifiers.any { it == Modifier.VALUE || it == Modifier.INLINE }
-
-internal fun KSDeclaration.replaceTypeAliases(): KSDeclaration {
-    return if (this is KSTypeAlias) {
-        this.type.resolve().declaration.replaceTypeAliases()
-    } else {
-        this
-    }
-}

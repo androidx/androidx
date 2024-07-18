@@ -18,6 +18,8 @@ package androidx.security.crypto;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static androidx.security.crypto.MasterKey.KEYSTORE_PATH_URI;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
@@ -51,7 +53,6 @@ import java.util.Set;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SuppressWarnings("deprecation")
 public class EncryptedSharedPreferencesTest {
 
     private Context mContext;
@@ -366,7 +367,7 @@ public class EncryptedSharedPreferencesTest {
                 .withKeyTemplate(AesSivKeyManager.aes256SivTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_prefs_key_keyset__", tinkTestPrefs)
-                .withMasterKeyUri(MasterKey.KEYSTORE_PATH_URI + "_androidx_security_master_key_")
+                .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
                 .build().getKeysetHandle();
 
         DeterministicAead deterministicAead =
@@ -384,7 +385,7 @@ public class EncryptedSharedPreferencesTest {
                 .withKeyTemplate(AesGcmKeyManager.aes256GcmTemplate())
                 .withSharedPref(mContext,
                         "__androidx_security_crypto_encrypted_prefs_value_keyset__", tinkTestPrefs)
-                .withMasterKeyUri(MasterKey.KEYSTORE_PATH_URI + "_androidx_security_master_key_")
+                .withMasterKeyUri(KEYSTORE_PATH_URI + "_androidx_security_master_key_")
                 .build().getKeysetHandle();
         Aead aead = aeadKeysetHandle.getPrimitive(Aead.class);
         String encryptedValue = sharedPreferences.getString(encodedKey, null);

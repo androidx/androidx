@@ -41,6 +41,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.Slice;
@@ -57,6 +58,7 @@ import androidx.slice.core.SliceQuery;
  * forward. If you are looking for a framework that handles communication across apps,
  * consider using {@link android.app.appsearch.AppSearchManager}.
  */
+@RequiresApi(19)
 @Deprecated
 public class SliceContent {
 

@@ -66,6 +66,7 @@ import java.util.Set;
 /**
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
+@RequiresApi(19)
 @Deprecated
 public class SliceProviderCompat {
     public static final String PERMS_PREFIX = "slice_perms_";

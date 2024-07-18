@@ -483,9 +483,9 @@ class RobolectricGattClientTest {
             )
         }
 
-        override fun writeDescriptor(fwkDescriptor: BluetoothGattDescriptor, value: ByteArray) {
-            baseAdapter.writeDescriptor(fwkDescriptor, value)
-            onWriteDescriptorListener?.onWriteDescriptor(fwkDescriptor, value)
+        override fun writeDescriptor(fwkSescriptor: BluetoothGattDescriptor, value: ByteArray) {
+            baseAdapter.writeDescriptor(fwkSescriptor, value)
+            onWriteDescriptorListener?.onWriteDescriptor(fwkSescriptor, value)
         }
 
         override fun setCharacteristicNotification(

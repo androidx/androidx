@@ -44,14 +44,14 @@ enum class ExistingPeriodicWorkPolicy {
 
     /**
      * If there is existing pending (uncompleted) work with the same unique name,
-     * it will be updated with the new specification. Otherwise, new work with the given name will be
+     * it will be updated the new specification. Otherwise, new work with the given name will be
      * enqueued.
      *
      * It preserves enqueue time, e.g. if a work was run 3 hours ago and had 8 hours long
      * period, after the update it would be still eligible for run in 5 hours, assuming
      * that periodicity wasn't updated.
      *
-     * If the work being updated is currently running, the current run won't
+     * If the work being updated is currently running the current run won't
      * be interrupted and will continue to rely on previous state of the request, e.g. using
      * old constraints, tags etc. However, on the next iteration of periodic worker,
      * the new worker specification will be used.

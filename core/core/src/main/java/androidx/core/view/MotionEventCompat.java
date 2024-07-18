@@ -462,7 +462,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getAction()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getActionMasked()")
     @Deprecated
     public static int getActionMasked(MotionEvent event) {
         return event.getActionMasked();
@@ -475,7 +474,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getActionIndex()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getActionIndex()")
     @Deprecated
     public static int getActionIndex(MotionEvent event) {
         return event.getActionIndex();
@@ -487,7 +485,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#findPointerIndex(int)} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.findPointerIndex(pointerId)")
     @Deprecated
     public static int findPointerIndex(MotionEvent event, int pointerId) {
         return event.findPointerIndex(pointerId);
@@ -499,7 +496,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getPointerId(int)} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getPointerId(pointerIndex)")
     @Deprecated
     public static int getPointerId(MotionEvent event, int pointerIndex) {
         return event.getPointerId(pointerIndex);
@@ -511,7 +507,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getX()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getX(pointerIndex)")
     @Deprecated
     public static float getX(MotionEvent event, int pointerIndex) {
         return event.getX(pointerIndex);
@@ -523,7 +518,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getY()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getY(pointerIndex)")
     @Deprecated
     public static float getY(MotionEvent event, int pointerIndex) {
         return event.getY(pointerIndex);
@@ -535,7 +529,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getPointerCount()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getPointerCount()")
     @Deprecated
     public static int getPointerCount(MotionEvent event) {
         return event.getPointerCount();
@@ -548,7 +541,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getSource()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getSource()")
     @Deprecated
     public static int getSource(MotionEvent event) {
         return event.getSource();
@@ -577,7 +569,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getAxisValue(int)} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getAxisValue(axis)")
     @Deprecated
     public static float getAxisValue(MotionEvent event, int axis) {
         return event.getAxisValue(axis);
@@ -599,7 +590,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getAxisValue(int, int)} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getAxisValue(axis, pointerIndex)")
     @Deprecated
     public static float getAxisValue(MotionEvent event, int axis, int pointerIndex) {
         return event.getAxisValue(axis, pointerIndex);
@@ -609,7 +599,6 @@ public final class MotionEventCompat {
      * @deprecated Call {@link MotionEvent#getButtonState()} directly. This method will be
      * removed in a future release.
      */
-    @androidx.annotation.ReplaceWith(expression = "event.getButtonState()")
     @Deprecated
     public static int getButtonState(MotionEvent event) {
         return event.getButtonState();

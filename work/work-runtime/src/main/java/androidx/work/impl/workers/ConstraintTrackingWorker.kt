@@ -18,30 +18,21 @@ package androidx.work.impl.workers
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RestrictTo
-import androidx.concurrent.futures.await
-import androidx.work.CoroutineWorker
+import androidx.annotation.VisibleForTesting
 import androidx.work.ListenableWorker
+import androidx.work.ListenableWorker.Result
 import androidx.work.Logger
-import androidx.work.WorkInfo.Companion.STOP_REASON_NOT_STOPPED
-import androidx.work.WorkInfo.Companion.STOP_REASON_UNKNOWN
-import androidx.work.WorkerExceptionInfo
 import androidx.work.WorkerParameters
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.constraints.ConstraintsState
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
+import androidx.work.impl.constraints.OnConstraintsStateChangedListener
 import androidx.work.impl.constraints.WorkConstraintsTracker
+import androidx.work.impl.constraints.listen
 import androidx.work.impl.model.WorkSpec
-import androidx.work.impl.utils.safeAccept
-import androidx.work.logd
-import androidx.work.loge
-import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import androidx.work.impl.utils.SynchronousExecutor
+import androidx.work.impl.utils.futures.SettableFuture
+import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Is an implementation of a [androidx.work.Worker] that can delegate to a different
@@ -52,112 +43,119 @@ import kotlinx.coroutines.withContext
 class ConstraintTrackingWorker(
     appContext: Context,
     private val workerParameters: WorkerParameters
-) : CoroutineWorker(appContext, workerParameters) {
+) : ListenableWorker(appContext, workerParameters), OnConstraintsStateChangedListener {
 
-    override suspend fun doWork(): Result {
-        return withContext(backgroundExecutor.asCoroutineDispatcher()) {
-            setupAndRunConstraintTrackingWork()
-        }
+    private val lock = Any()
+
+    // Marking this volatile as the delegated workers could switch threads.
+    @Volatile
+    private var areConstraintsUnmet: Boolean = false
+    private val future = SettableFuture.create<Result>()
+
+    /**
+     * @return The [androidx.work.Worker] used for delegated work
+     */
+    @get:VisibleForTesting
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    var delegate: ListenableWorker? = null
+        private set
+
+    override fun startWork(): ListenableFuture<Result> {
+        backgroundExecutor.execute { setupAndRunConstraintTrackingWork() }
+        return future
     }
 
-    private suspend fun setupAndRunConstraintTrackingWork(): Result {
+    private fun setupAndRunConstraintTrackingWork() {
+        if (future.isCancelled) return
+
         val className = inputData.getString(ARGUMENT_CLASS_NAME)
+        val logger = Logger.get()
         if (className.isNullOrEmpty()) {
-            loge(TAG) { "No worker to delegate to." }
-            return Result.failure()
+            logger.error(TAG, "No worker to delegate to.")
+            future.setFailed()
+            return
         }
+        delegate = workerFactory.createWorkerWithDefaultFallback(
+            applicationContext, className, workerParameters
+        )
+        if (delegate == null) {
+            logger.debug(TAG, "No worker to delegate to.")
+            future.setFailed()
+            return
+        }
+
         val workManagerImpl = WorkManagerImpl.getInstance(applicationContext)
         // We need to know what the real constraints are for the delegate.
         val workSpec = workManagerImpl.workDatabase.workSpecDao().getWorkSpec(id.toString())
-            ?: return Result.failure()
+        if (workSpec == null) {
+            future.setFailed()
+            return
+        }
         val workConstraintsTracker = WorkConstraintsTracker(workManagerImpl.trackers)
-        if (!workConstraintsTracker.areAllConstraintsMet(workSpec)) {
-            logd(TAG) { "Constraints not met for delegate $className. Requesting retry." }
-            return Result.retry()
-        }
-        logd(TAG) { "Constraints met for delegate $className" }
-        val delegate = try {
-            workerFactory.createWorkerWithDefaultFallback(
-                applicationContext, className, workerParameters
-            )
-        } catch (e: Throwable) {
-            logd(TAG) { "No worker to delegate to." }
 
-            workManagerImpl.configuration.workerInitializationExceptionHandler?.safeAccept(
-                WorkerExceptionInfo(className, workerParameters, e),
-                TAG
-            )
-            return Result.failure()
-        }
-        val mainThreadExecutor = workerParameters.taskExecutor.mainThreadExecutor
-        return try {
-            withContext(mainThreadExecutor.asCoroutineDispatcher()) {
-                runWorker(delegate, workConstraintsTracker, workSpec)
-            }
-        } catch (cancelled: CancellationException) {
-            // there are two cases when we should propagate stop call:
-            // 1. ConstraintTrackingWorker itself is cancelled
-            // 2. Local constraint tracking failed
-            if (isStopped || cancelled is ConstraintUnsatisfiedException) {
-                val reason = when {
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.S -> STOP_REASON_UNKNOWN
-                    isStopped -> stopReason
-                    cancelled is ConstraintUnsatisfiedException -> cancelled.stopReason
-                    else -> throw IllegalStateException("Unreachable")
+        // Start tracking
+        val dispatcher = workManagerImpl.workTaskExecutor.taskCoroutineDispatcher
+        val job = workConstraintsTracker.listen(workSpec, dispatcher, this)
+        future.addListener({ job.cancel(null) }, SynchronousExecutor())
+        if (workConstraintsTracker.areAllConstraintsMet(workSpec)) {
+            logger.debug(TAG, "Constraints met for delegate $className")
+
+            // Wrapping the call to mDelegate#doWork() in a try catch, because
+            // changes in constraints can cause the worker to throw RuntimeExceptions, and
+            // that should cause a retry.
+            try {
+                val innerFuture = delegate!!.startWork()
+                innerFuture.addListener({
+                    synchronized(lock) {
+                        if (areConstraintsUnmet) {
+                            future.setRetry()
+                        } else {
+                            future.setFuture(innerFuture)
+                        }
+                    }
+                }, backgroundExecutor)
+            } catch (exception: Throwable) {
+                logger.debug(
+                    TAG, "Delegated worker $className threw exception in startWork.", exception
+                )
+                synchronized(lock) {
+                    if (areConstraintsUnmet) {
+                        logger.debug(TAG, "Constraints were unmet, Retrying.")
+                        future.setRetry()
+                    } else {
+                        future.setFailed()
+                    }
                 }
-                delegate.stop(reason)
             }
-            // if `ConstraintUnsatisfiedException` was thrown, then we should
-            // manually request Retry-ing, because ConstraintTrackingWorker itself
-            // isn't cancelled
-            if (cancelled is ConstraintUnsatisfiedException) Result.retry()
-            else throw cancelled
+        } else {
+            logger.debug(
+                TAG, "Constraints not met for delegate $className. Requesting retry."
+            )
+            future.setRetry()
         }
     }
 
-    private suspend fun runWorker(
-        delegate: ListenableWorker,
-        workConstraintsTracker: WorkConstraintsTracker,
-        workSpec: WorkSpec
-    ): Result = coroutineScope {
-        val atomicReason = AtomicInteger(STOP_REASON_NOT_STOPPED)
-        val future = delegate.startWork()
-        val constraintTrackingJob = launch {
-            val reason = workConstraintsTracker.awaitConstraintsNotMet(workSpec)
-            atomicReason.set(reason)
-            future.cancel(true)
-        }
-        try {
-            val result = future.await()
-            result
-        } catch (cancellation: CancellationException) {
-            logd(TAG, cancellation) {
-                "Delegated worker ${delegate.javaClass} was cancelled"
-            }
-            val constraintFailed = atomicReason.get() != STOP_REASON_NOT_STOPPED
-            if (future.isCancelled && constraintFailed) {
-                throw ConstraintUnsatisfiedException(atomicReason.get())
-            }
-            throw cancellation
-        } catch (throwable: Throwable) {
-            logd(TAG, throwable) {
-                "Delegated worker ${delegate.javaClass} threw exception in startWork."
-            }
-            throw throwable
-        } finally {
-            constraintTrackingJob.cancel()
+    override fun onStopped() {
+        super.onStopped()
+        val delegateInner = delegate
+        if (delegateInner != null && !delegateInner.isStopped) {
+            // Stop is the method that sets the stopped and cancelled bits and invokes onStopped.
+            val reason = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) stopReason else 0
+            delegateInner.stop(reason)
         }
     }
 
-    private class ConstraintUnsatisfiedException(val stopReason: Int) : CancellationException()
+    override fun onConstraintsStateChanged(workSpec: WorkSpec, state: ConstraintsState) {
+        // If at any point, constraints are not met mark it so we can retry the work.
+        Logger.get().debug(TAG, "Constraints changed for $workSpec")
+        if (state is ConstraintsNotMet) {
+            synchronized(lock) { areConstraintsUnmet = true }
+        }
+    }
 }
 
-private suspend fun WorkConstraintsTracker.awaitConstraintsNotMet(workSpec: WorkSpec) =
-    track(workSpec)
-        .onEach { logd(TAG) { "Constraints changed for $workSpec" } }
-        .filterIsInstance<ConstraintsNotMet>()
-        .first()
-        .reason
+private fun SettableFuture<Result>.setFailed() = set(Result.failure())
+private fun SettableFuture<Result>.setRetry() = set(Result.retry())
 
 private val TAG = Logger.tagWithPrefix("ConstraintTrkngWrkr")
 

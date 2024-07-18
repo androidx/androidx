@@ -93,7 +93,7 @@ during the build, the sample will always be up to date with the API, reducing
 maintenance. You can use multiple samples per KDoc, with text in between
 explaining what the samples are showing. For more information on using
 `@sample`, see the
-[API guidelines](/docs/api_guidelines/index.md#sample-code-in-kotlin-modules).
+[API guidelines](/company/teams/androidx/api_guidelines/index.md#sample-code-in-kotlin-modules).
 
 ### Do not link to the same identifier inside documentation
 

@@ -23,8 +23,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.DeviceConfigurationOverride
-import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -64,7 +62,7 @@ class TimeTextTest {
         val timeState = mutableStateOf("Unchanged")
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     modifier = Modifier.testTag(TEST_TAG),
                     timeSource = object : TimeSource {
@@ -85,7 +83,7 @@ class TimeTextTest {
         val timeState = mutableStateOf("Unchanged")
 
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     modifier = Modifier.testTag(TEST_TAG),
                     timeSource = object : TimeSource {
@@ -103,7 +101,7 @@ class TimeTextTest {
     @Test
     fun supports_start_linear_text_only_on_square_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     startLinearContent = {
                         Text(
@@ -131,7 +129,7 @@ class TimeTextTest {
     @Test
     fun supports_start_curved_text_only_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     startLinearContent = {
                         Text(
@@ -158,7 +156,7 @@ class TimeTextTest {
     @Test
     fun supports_end_linear_text_only_on_square_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     endLinearContent = {
                         Text(
@@ -185,7 +183,7 @@ class TimeTextTest {
     @Test
     fun supports_end_curved_text_only_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     endLinearContent = {
                         Text(
@@ -212,7 +210,7 @@ class TimeTextTest {
     @Test
     fun omits_separator_with_only_time_on_square_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     textLinearSeparator = {
                         TimeTextDefaults.TextSeparator(
@@ -238,7 +236,7 @@ class TimeTextTest {
     @Test
     fun omits_separator_with_only_time_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     textLinearSeparator = {
                         TimeTextDefaults.TextSeparator(
@@ -264,7 +262,7 @@ class TimeTextTest {
     @Test
     fun shows_only_start_linear_separator_on_square_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     startLinearContent = {
                         Text(
@@ -297,7 +295,7 @@ class TimeTextTest {
     @Test
     fun shows_only_start_curved_separator_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     startCurvedContent = {
                         curvedComposable {
@@ -331,7 +329,7 @@ class TimeTextTest {
     @Test
     fun shows_only_end_linear_separator_on_square_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     endLinearContent = {
                         Text(
@@ -364,7 +362,7 @@ class TimeTextTest {
     @Test
     fun shows_only_end_curved_separator_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     endCurvedContent = {
                         curvedText(
@@ -396,7 +394,7 @@ class TimeTextTest {
     @Test
     fun shows_start_and_end_linear_separators_on_square_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     startLinearContent = {
                         Text(
@@ -432,7 +430,7 @@ class TimeTextTest {
     @Test
     fun shows_start_and_end_curved_separators_on_round_device() {
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
+            ConfiguredShapeScreen(true) {
                 TimeText(
                     startCurvedContent = {
                         curvedText(
@@ -477,7 +475,7 @@ class TimeTextTest {
             fontSize = 20.sp
         )
         rule.setContentWithTheme {
-            DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+            ConfiguredShapeScreen(false) {
                 TimeText(
                     timeSource = object : TimeSource {
                         override val currentTime: String
@@ -511,7 +509,7 @@ class TimeTextTest {
                     caption1 = testTextStyle
                 )
             ) {
-                DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(false)) {
+                ConfiguredShapeScreen(false) {
                     TimeText(
                         timeSource = object : TimeSource {
                             override val currentTime: String

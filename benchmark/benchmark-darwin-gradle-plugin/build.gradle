@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.*
 
 plugins {
@@ -39,6 +32,8 @@ dependencies {
     testImplementation(libs.truth)
 }
 
+SdkResourceGenerator.generateForHostTest(project)
+
 gradlePlugin {
     plugins {
         darwinBenchmark {
@@ -54,4 +49,8 @@ androidx {
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Gradle Plugin"
+}
+
+validatePlugins {
+    enableStricterValidation = true
 }

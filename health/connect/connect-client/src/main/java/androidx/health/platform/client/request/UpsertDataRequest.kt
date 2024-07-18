@@ -17,15 +17,15 @@
 package androidx.health.platform.client.request
 
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 
 /**
  * Internal parcelable for IPC calls.
+ *
+ * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class UpsertDataRequest(val dataPoints: List<DataProto.DataPoint>) :
     ProtoParcelable<RequestProto.UpsertDataRequest>() {
     override val proto: RequestProto.UpsertDataRequest

@@ -60,7 +60,7 @@ package androidx.fragment.app {
     method public Object? getSharedElementEnterTransition();
     method public Object? getSharedElementReturnTransition();
     method public final String getString(@StringRes int);
-    method public final String getString(@StringRes int, java.lang.Object!...?);
+    method public final String getString(@StringRes int, java.lang.Object!...);
     method public final String? getTag();
     method @Deprecated public final androidx.fragment.app.Fragment? getTargetFragment();
     method @Deprecated public final int getTargetRequestCode();
@@ -205,7 +205,7 @@ package androidx.fragment.app {
 
   public class FragmentController {
     method public void attachHost(androidx.fragment.app.Fragment?);
-    method public static androidx.fragment.app.FragmentController createController(androidx.fragment.app.FragmentHostCallback<? extends java.lang.Object!>);
+    method public static androidx.fragment.app.FragmentController createController(androidx.fragment.app.FragmentHostCallback<?>);
     method public void dispatchActivityCreated();
     method @Deprecated public void dispatchConfigurationChanged(android.content.res.Configuration);
     method public boolean dispatchContextItemSelected(android.view.MenuItem);
@@ -251,24 +251,24 @@ package androidx.fragment.app {
   public class FragmentFactory {
     ctor public FragmentFactory();
     method public androidx.fragment.app.Fragment instantiate(ClassLoader, String);
-    method public static Class<? extends androidx.fragment.app.Fragment!> loadFragmentClass(ClassLoader, String);
+    method public static Class<? extends androidx.fragment.app.Fragment> loadFragmentClass(ClassLoader, String);
   }
 
-  public abstract class FragmentHostCallback<H> extends androidx.fragment.app.FragmentContainer {
-    ctor public FragmentHostCallback(android.content.Context context, android.os.Handler handler, int windowAnimations);
-    method public void onDump(String prefix, java.io.FileDescriptor? fd, java.io.PrintWriter writer, String[]? args);
-    method public android.view.View? onFindViewById(int id);
-    method public abstract H onGetHost();
+  public abstract class FragmentHostCallback<E> extends androidx.fragment.app.FragmentContainer {
+    ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
+    method public void onDump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
+    method public android.view.View? onFindViewById(int);
+    method public abstract E? onGetHost();
     method public android.view.LayoutInflater onGetLayoutInflater();
     method public int onGetWindowAnimations();
     method public boolean onHasView();
     method public boolean onHasWindowAnimations();
-    method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment fragment, String[] permissions, int requestCode);
-    method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment fragment);
-    method public boolean onShouldShowRequestPermissionRationale(String permission);
-    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode);
-    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment fragment, android.content.Intent intent, int requestCode, android.os.Bundle? options);
-    method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment fragment, android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags, android.os.Bundle? options) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
+    method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment);
+    method public boolean onShouldShowRequestPermissionRationale(String);
+    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int);
+    method public void onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle?);
+    method @Deprecated public void onStartIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
     method public void onSupportInvalidateOptionsMenu();
   }
 
@@ -287,7 +287,6 @@ package androidx.fragment.app {
     method public static <F extends androidx.fragment.app.Fragment> F findFragment(android.view.View);
     method public androidx.fragment.app.Fragment? findFragmentById(@IdRes int);
     method public androidx.fragment.app.Fragment? findFragmentByTag(String?);
-    method public static androidx.fragment.app.FragmentManager findFragmentManager(android.view.View);
     method public androidx.fragment.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public int getBackStackEntryCount();
     method public androidx.fragment.app.Fragment? getFragment(android.os.Bundle, String);
@@ -297,7 +296,6 @@ package androidx.fragment.app {
     method public androidx.fragment.app.strictmode.FragmentStrictMode.Policy? getStrictModePolicy();
     method public boolean isDestroyed();
     method public boolean isStateSaved();
-    method public final void onContainerAvailable(androidx.fragment.app.FragmentContainerView);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.fragment.app.FragmentTransaction openTransaction();
     method public void popBackStack();
     method public void popBackStack(int, int);
@@ -348,9 +346,7 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.OnBackStackChangedListener {
-    method @MainThread public default void onBackStackChangeCancelled();
     method @MainThread public default void onBackStackChangeCommitted(androidx.fragment.app.Fragment, boolean);
-    method @MainThread public default void onBackStackChangeProgressed(androidx.activity.BackEventCompat);
     method @MainThread public default void onBackStackChangeStarted(androidx.fragment.app.Fragment, boolean);
     method @MainThread public void onBackStackChanged();
   }
@@ -395,7 +391,7 @@ package androidx.fragment.app {
   @Deprecated public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
     ctor @Deprecated public FragmentTabHost(android.content.Context);
     ctor @Deprecated public FragmentTabHost(android.content.Context, android.util.AttributeSet?);
-    method @Deprecated public void addTab(android.widget.TabHost.TabSpec, Class<? extends java.lang.Object!>, android.os.Bundle?);
+    method @Deprecated public void addTab(android.widget.TabHost.TabSpec, Class<?>, android.os.Bundle?);
     method @Deprecated public void onTabChanged(String?);
     method @Deprecated public void setup(android.content.Context, androidx.fragment.app.FragmentManager);
     method @Deprecated public void setup(android.content.Context, androidx.fragment.app.FragmentManager, int);
@@ -403,13 +399,12 @@ package androidx.fragment.app {
 
   public abstract class FragmentTransaction {
     ctor @Deprecated public FragmentTransaction();
-    method public final androidx.fragment.app.FragmentTransaction add(android.view.ViewGroup, androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?);
-    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
-    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
     method public androidx.fragment.app.FragmentTransaction addSharedElement(android.view.View, String);
     method public androidx.fragment.app.FragmentTransaction addToBackStack(String?);
     method public androidx.fragment.app.FragmentTransaction attach(androidx.fragment.app.Fragment);
@@ -425,8 +420,8 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction remove(androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
-    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?);
-    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment!>, android.os.Bundle?, String?);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, android.os.Bundle?, String?);
     method public androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);

@@ -72,6 +72,18 @@ enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
                 }
             }
         }),
+    Movies("Movies",
+        {
+            TvLazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(pageColor)
+            ) {
+                item {
+                    AppImmersiveList(Modifier.focusRequester(Movies.fr))
+                }
+            }
+        }),
     Shows("Shows", {
         TvLazyColumn(
             modifier = Modifier

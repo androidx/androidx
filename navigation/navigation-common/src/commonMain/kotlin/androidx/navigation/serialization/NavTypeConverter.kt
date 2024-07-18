@@ -23,11 +23,9 @@ import androidx.navigation.NavType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.serializer
+import kotlinx.serialization.serializerOrNull
 
-/**
- * Marker for Native Kotlin types with either full or partial built-in NavType support
- */
+/** Marker for Native Kotlin types with either full or partial built-in NavType support */
 private enum class InternalType {
     INT,
     BOOL,
@@ -52,41 +50,42 @@ private enum class InternalType {
  * Returns [UNKNOWN] type if the argument does not have built-in NavType support.
  */
 internal fun SerialDescriptor.getNavType(): NavType<*> {
-    val type = when (this.toInternalType()) {
-        InternalType.INT -> NavType.IntType
-        InternalType.BOOL -> NavType.BoolType
-        InternalType.FLOAT -> NavType.FloatType
-        InternalType.LONG -> NavType.LongType
-        InternalType.STRING -> NavType.StringType
-        InternalType.INT_ARRAY -> NavType.IntArrayType
-        InternalType.BOOL_ARRAY -> NavType.BoolArrayType
-        InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
-        InternalType.LONG_ARRAY -> NavType.LongArrayType
-        InternalType.ARRAY -> {
-            val typeParameter = getElementDescriptor(0).toInternalType()
-            if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
-        }
-        InternalType.LIST -> {
-            val typeParameter = getElementDescriptor(0).toInternalType()
-            when (typeParameter) {
-                InternalType.INT -> NavType.IntListType
-                InternalType.BOOL -> NavType.BoolListType
-                InternalType.FLOAT -> NavType.FloatListType
-                InternalType.LONG -> NavType.LongListType
-                InternalType.STRING -> NavType.StringListType
-                else -> UNKNOWN
+    val type =
+        when (this.toInternalType()) {
+            InternalType.INT -> NavType.IntType
+            InternalType.BOOL -> NavType.BoolType
+            InternalType.FLOAT -> NavType.FloatType
+            InternalType.LONG -> NavType.LongType
+            InternalType.STRING -> NavType.StringType
+            InternalType.INT_ARRAY -> NavType.IntArrayType
+            InternalType.BOOL_ARRAY -> NavType.BoolArrayType
+            InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
+            InternalType.LONG_ARRAY -> NavType.LongArrayType
+            InternalType.ARRAY -> {
+                val typeParameter = getElementDescriptor(0).toInternalType()
+                if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
             }
+            InternalType.LIST -> {
+                val typeParameter = getElementDescriptor(0).toInternalType()
+                when (typeParameter) {
+                    InternalType.INT -> NavType.IntListType
+                    InternalType.BOOL -> NavType.BoolListType
+                    InternalType.FLOAT -> NavType.FloatListType
+                    InternalType.LONG -> NavType.LongListType
+                    InternalType.STRING -> NavType.StringListType
+                    else -> UNKNOWN
+                }
+            }
+            else -> UNKNOWN
         }
-        else -> UNKNOWN
-    }
     return type
 }
 
 /**
  * Convert SerialDescriptor to an InternalCommonType.
  *
- * The descriptor's associated argument could be any of the native Kotlin types supported
- * in [InternalType], or it could be an unsupported type (custom class, object or enum).
+ * The descriptor's associated argument could be any of the native Kotlin types supported in
+ * [InternalType], or it could be an unsupported type (custom class, object or enum).
  */
 private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
@@ -115,14 +114,24 @@ private fun SerialDescriptor.toInternalType(): InternalType {
  */
 internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
     if (this.isNullable != kType.isMarkedNullable) return false
-    if (this.hashCode() != serializer(kType).descriptor.hashCode()) return false
+    val kTypeSerializer = serializerOrNull(kType)
+    checkNotNull(kTypeSerializer) {
+        "Custom serializers declared directly on a class field via @Serializable(with = ...) " +
+            "is currently not supported by safe args for both custom types and third-party " +
+            "types. Please use @Serializable or @Serializable(with = ...) on the " +
+            "class or object declaration."
+    }
+    if (this.hashCode() != kTypeSerializer.descriptor.hashCode()) return false
     return true
 }
 
 internal object UNKNOWN : NavType<String>(false) {
     override val name: String
         get() = "unknown"
+
     override fun put(bundle: Bundle, key: String, value: String) {}
+
     override fun get(bundle: Bundle, key: String): String? = null
+
     override fun parseValue(value: String): String = "null"
 }

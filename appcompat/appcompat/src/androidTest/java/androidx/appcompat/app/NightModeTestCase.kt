@@ -19,6 +19,7 @@ package androidx.appcompat.app
 import android.content.Context
 import android.content.res.Configuration
 import android.location.LocationManager
+import android.os.Build
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
@@ -281,6 +282,10 @@ class NightModeTestCase(private val setMode: NightSetMode) {
 
         @Parameterized.Parameters
         @JvmStatic
-        fun data() = listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        fun data() = if (Build.VERSION.SDK_INT >= 17) {
+            listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        } else {
+            listOf(NightSetMode.DEFAULT)
+        }
     }
 }

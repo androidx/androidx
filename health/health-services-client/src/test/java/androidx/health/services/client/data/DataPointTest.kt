@@ -593,28 +593,6 @@ internal class DataPointTest {
         Truth.assertThat(positiveOutOfRangeDailyDistance).isNotNull()
     }
 
-    @Test
-    fun rangeValidationWithDailyElevationGain_success() {
-        val dailyElevationGain =
-            DataPoints.dailyElevationGain(5.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-
-        Truth.assertThat(dailyElevationGain).isNotNull()
-    }
-
-    @Test
-    fun rangeValidationWithInvalidDailyElevationGain_throwsNoException() {
-        val negativeOutOfRangeDailyElevationGain =
-            DataPoints.dailyDistance(-1.0, getStartDurationFromBoot(), getEndDurationFromBoot())
-        val positiveOutOfRangeDailyElevationGain = DataPoints.dailyElevationGain(
-            1000000.1,
-            getStartDurationFromBoot(),
-            getEndDurationFromBoot()
-        )
-
-        Truth.assertThat(negativeOutOfRangeDailyElevationGain).isNotNull()
-        Truth.assertThat(positiveOutOfRangeDailyElevationGain).isNotNull()
-    }
-
     private fun getStartDurationFromBoot() = Duration.ofSeconds(1)
 
     private fun getEndDurationFromBoot() = Duration.ofHours(1)

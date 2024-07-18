@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirk
 
@@ -34,6 +35,7 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ExtraSupportedOutputSizeQuirk : Quirk {
     /**
      * Returns the extra supported resolutions on the device.

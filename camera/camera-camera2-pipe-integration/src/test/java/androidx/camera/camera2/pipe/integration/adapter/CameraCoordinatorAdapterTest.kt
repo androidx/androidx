@@ -17,8 +17,6 @@
 package androidx.camera.camera2.pipe.integration.adapter
 
 import android.content.Context
-import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraGraph
@@ -45,23 +43,14 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.util.ReflectionHelpers
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraCoordinatorAdapterTest {
 
-    private val cameraMetadata0 = FakeCameraMetadata(cameraId = CameraId("0"),
-        characteristics = mapOf(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
-                intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE),
-        ))
-    private val cameraMetadata1 = FakeCameraMetadata(cameraId = CameraId("1"),
-        characteristics = mapOf(
-            CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES to
-                intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE),
-        ))
+    private val cameraMetadata0 = FakeCameraMetadata(cameraId = CameraId("0"))
+    private val cameraMetadata1 = FakeCameraMetadata(cameraId = CameraId("1"))
     private val cameraMetadata2 = FakeCameraMetadata(cameraId = CameraId("2"))
 
     private val cameraDevices = FakeCameraDevices(
@@ -109,14 +98,10 @@ class CameraCoordinatorAdapterTest {
             ),
         )
     )
-    private lateinit var cameraCoordinatorAdapter: CameraCoordinatorAdapter
+    private val cameraCoordinatorAdapter = CameraCoordinatorAdapter(cameraPipe, cameraDevices)
 
     @Before
     fun setUp() {
-        // Customizes Build.FINGERPRINT to be not "fingerprint", so that cameras without
-        // REQUEST_AVAILABLE_CAPABILITIES_BACKWARD_COMPATIBLE will be filtered.
-        ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", "fake-fingerprint")
-        cameraCoordinatorAdapter = CameraCoordinatorAdapter(cameraPipe, cameraDevices)
         cameraCoordinatorAdapter.registerCamera("0", mockCameraInternalAdapter0)
         cameraCoordinatorAdapter.registerCamera("1", mockCameraInternalAdapter1)
         cameraCoordinatorAdapter.registerCamera("2", mockCameraInternalAdapter2)
@@ -125,8 +110,9 @@ class CameraCoordinatorAdapterTest {
     @Test
     fun getConcurrentCameraSelectors() {
         val cameraSelectors = cameraCoordinatorAdapter.concurrentCameraSelectors
-        assertThat(cameraSelectors.size).isEqualTo(1)
+        assertThat(cameraSelectors.size).isEqualTo(2)
         assertThat(cameraSelectors[0].size).isEqualTo(2)
+        assertThat(cameraSelectors[1].size).isEqualTo(2)
     }
 
     @Test

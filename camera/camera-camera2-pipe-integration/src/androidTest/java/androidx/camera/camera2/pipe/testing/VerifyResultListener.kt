@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.testing
 
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Request
@@ -27,6 +28,7 @@ import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeout
 
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class VerifyResultListener(capturesCount: Int) : Request.Listener {
     private val captureRequests = mutableListOf<RequestMetadata>()
     private val captureResults = mutableListOf<FrameInfo>()

@@ -16,7 +16,6 @@
 
 package androidx.hardware
 
-import android.hardware.HardwareBuffer
 import android.hardware.HardwareBuffer.BLOB
 import android.hardware.HardwareBuffer.DS_24UI8
 import android.hardware.HardwareBuffer.DS_FP32UI8
@@ -55,20 +54,3 @@ import androidx.annotation.RestrictTo
     YCBCR_P010
 )
 annotation class HardwareBufferFormat
-
-// Leverage the same value as HardwareBuffer.USAGE_COMPOSER_OVERLAY.
-// While this constant was introduced in the SDK in the Android T release, it has
-// been available within the NDK as part of
-// AHardwareBuffer_UsageFlags#AHARDWAREBUFFER_USAGE_COMPOSER_OVERLAY for quite some time.
-// This flag is required for usage of ASurfaceTransaction#setBuffer
-// Use a separate constant with the same value to avoid SDK warnings of accessing the
-// newly added constant in the SDK.
-// See:
-// developer.android.com/ndk/reference/group/a-hardware-buffer#ahardwarebuffer_usageflags
-internal const val USAGE_COMPOSER_OVERLAY: Long = 2048L
-
-internal const val DefaultFlags = HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-    HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
-    USAGE_COMPOSER_OVERLAY
-
-internal const val DefaultNumBuffers = 3

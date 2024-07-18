@@ -18,7 +18,6 @@ package androidx.activity.result
 
 import android.app.Activity.RESULT_OK
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -200,7 +199,7 @@ class ActivityResultRegistryTest {
         }
 
         // launch the result
-        activityResult.launch(Uri.EMPTY)
+        activityResult.launch(null)
 
         // move to CREATED and make sure the callback is not fired
         lifecycleOwner.currentState = Lifecycle.State.CREATED
@@ -311,7 +310,7 @@ class ActivityResultRegistryTest {
         var resultReturned = false
         val activityResult = registry.register("key", lifecycleOwner, StartActivityForResult()) { }
 
-        activityResult.launch(Intent())
+        activityResult.launch(null)
 
         val savedState = Bundle()
         registry.onSaveInstanceState(savedState)
@@ -400,7 +399,7 @@ class ActivityResultRegistryTest {
 
         val activityResult = noDispatchRegistry.register("key", StartActivityForResult()) { }
 
-        activityResult.launch(Intent())
+        activityResult.launch(null)
         activityResult.unregister()
 
         var callbackExecuted = false
@@ -429,7 +428,7 @@ class ActivityResultRegistryTest {
 
         val activityResult = noDispatchRegistry.register("key", StartActivityForResult()) { }
 
-        activityResult.launch(Intent())
+        activityResult.launch(null)
         activityResult.unregister()
 
         var callbackExecuted = false
@@ -450,12 +449,12 @@ class ActivityResultRegistryTest {
         activityResult.unregister()
 
         try {
-            activityResult.launch(Intent())
+            activityResult.launch(null)
         } catch (e: IllegalStateException) {
             assertThat(e).hasMessageThat().contains(
                 "Attempting to launch an unregistered ActivityResultLauncher with contract " +
-                    contract + " and input ${Intent()}. You must ensure the " +
-                    "ActivityResultLauncher is registered before calling launch()."
+                    contract + " and input null. You must ensure the ActivityResultLauncher is " +
+                    "registered before calling launch()."
             )
         }
     }

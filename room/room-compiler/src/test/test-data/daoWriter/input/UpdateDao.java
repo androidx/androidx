@@ -69,4 +69,10 @@ abstract interface UpdateDao {
 
     @Query("UPDATE User SET ageColumn = ageColumn + 1")
     Maybe<Integer> ageUserAllMaybe();
+
+    @Transaction
+    default void updateAndAge(User user) {
+        updateUser(user);
+        ageUserByUid(String.valueOf(user.uid));
+    }
 }

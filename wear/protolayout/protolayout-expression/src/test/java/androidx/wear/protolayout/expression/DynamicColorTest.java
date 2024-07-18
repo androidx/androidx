@@ -17,7 +17,6 @@
 package androidx.wear.protolayout.expression;
 
 import static androidx.wear.protolayout.expression.AnimationParameterBuilders.REPEAT_MODE_REVERSE;
-import static androidx.wear.protolayout.expression.DynamicBuilders.dynamicColorFromProto;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,8 +27,6 @@ import androidx.wear.protolayout.expression.AnimationParameterBuilders.Animation
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
-import androidx.wear.protolayout.expression.proto.DynamicProto;
-import androidx.wear.protolayout.proto.FingerprintProto.NodeFingerprint;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -218,28 +215,5 @@ public final class DynamicColorTest {
 
         assertThat(from.toDynamicColorByteArray(new byte[100]))
                 .isEqualTo(from.toDynamicColorByteArray().length);
-    }
-
-    @Test
-    public void serializing_deserializing_withFingerprint() {
-        DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
-        NodeFingerprint fingerprint = from.getFingerprint().toProto();
-
-        DynamicProto.DynamicColor to = from.toDynamicColorProto(true);
-        assertThat(to.getFingerprint()).isEqualTo(fingerprint);
-
-        DynamicColor back = dynamicColorFromProto(to);
-        assertThat(back.getFingerprint().toProto()).isEqualTo(fingerprint);
-    }
-
-    @Test
-    public void toByteArray_fromByteArray_withFingerprint() {
-        DynamicColor from = DynamicColor.constant(CONSTANT_VALUE);
-        byte[] buffer = from.toDynamicColorByteArray();
-        DynamicProto.DynamicColor toProto =
-                DynamicColor.fromByteArray(buffer).toDynamicColorProto(true);
-
-        assertThat(toProto.getFixed().getArgb()).isEqualTo(CONSTANT_VALUE);
-        assertThat(toProto.getFingerprint()).isEqualTo(from.getFingerprint().toProto());
     }
 }

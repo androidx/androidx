@@ -58,7 +58,7 @@ public class ExtractButtonCompat extends Button {
      */
     @Override
     public boolean hasWindowFocus() {
-        return isEnabled() && getVisibility() == VISIBLE;
+        return isEnabled() && getVisibility() == VISIBLE ? true : false;
     }
 
     /**

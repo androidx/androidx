@@ -16,22 +16,19 @@
 package androidx.work
 
 import android.annotation.SuppressLint
-import android.net.NetworkRequest
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.room.ColumnInfo
 import androidx.room.Ignore
-import androidx.work.impl.utils.NetworkRequest30
-import androidx.work.impl.utils.NetworkRequestCompat
 import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
 /**
  * A specification of the requirements that need to be met before a [WorkRequest] can run.  By
- * default, WorkRequests do not have any requirements and can run immediately. By adding
+ * default, WorkRequests do not have any requirements and can run immediately.  By adding
  * requirements, you can make sure that work only runs in certain situations - for example, when you
  * have an unmetered network and are charging.
  */
@@ -41,23 +38,6 @@ class Constraints {
      */
     @ColumnInfo(name = "required_network_type")
     val requiredNetworkType: NetworkType
-
-    /**
-     * [NetworkRequest] required for work to run on.
-     * It is used only the API levels >= 28 (Android P). For the older
-     * API levels, [requiredNetworkType] will be used instead on the older platforms
-     * and this property will be `null`.
-     *
-     * `NetworkRequest`-s with `NetworkSpecifier` set aren't supported,
-     * as well as `NetworkRequest` with `setIncludeOtherUidNetworks` set.
-     * passed.
-     */
-    @get:RequiresApi(21) // NetworkRequest class is available since 21
-    val requiredNetworkRequest: NetworkRequest?
-        get() = requiredNetworkRequestCompat.networkRequest
-
-    @ColumnInfo(name = "required_network_request", defaultValue = "x''")
-    internal val requiredNetworkRequestCompat: NetworkRequestCompat
 
     @ColumnInfo(name = "requires_charging")
     private val requiresCharging: Boolean
@@ -122,12 +102,12 @@ class Constraints {
         requiresBatteryNotLow: Boolean = false,
         requiresStorageNotLow: Boolean = false,
     ) : this(
-        requiredNetworkType = requiredNetworkType,
-        requiresCharging = requiresCharging,
-        requiresStorageNotLow = requiresStorageNotLow,
-        requiresBatteryNotLow = requiresBatteryNotLow,
-        requiresDeviceIdle = false
-    )
+            requiredNetworkType = requiredNetworkType,
+            requiresCharging = requiresCharging,
+            requiresStorageNotLow = requiresStorageNotLow,
+            requiresBatteryNotLow = requiresBatteryNotLow,
+            requiresDeviceIdle = false
+        )
 
     /**
      * Constructs [Constraints].
@@ -188,7 +168,6 @@ class Constraints {
      * This functionality is identical to the one found in `JobScheduler` and is described in
      * [android.app.job.JobInfo.Builder.addTriggerContentUri].
      */
-    @Ignore
     @RequiresApi(24)
     constructor(
         requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
@@ -200,29 +179,6 @@ class Constraints {
         contentTriggerMaxDelayMillis: Long = -1,
         contentUriTriggers: Set<ContentUriTrigger> = setOf(),
     ) {
-        this.requiredNetworkRequestCompat = NetworkRequestCompat()
-        this.requiredNetworkType = requiredNetworkType
-        this.requiresCharging = requiresCharging
-        this.requiresDeviceIdle = requiresDeviceIdle
-        this.requiresBatteryNotLow = requiresBatteryNotLow
-        this.requiresStorageNotLow = requiresStorageNotLow
-        this.contentTriggerUpdateDelayMillis = contentTriggerUpdateDelayMillis
-        this.contentTriggerMaxDelayMillis = contentTriggerMaxDelayMillis
-        this.contentUriTriggers = contentUriTriggers
-    }
-
-    internal constructor(
-        requiredNetworkRequestCompat: NetworkRequestCompat,
-        requiredNetworkType: NetworkType = NetworkType.NOT_REQUIRED,
-        requiresCharging: Boolean = false,
-        requiresDeviceIdle: Boolean = false,
-        requiresBatteryNotLow: Boolean = false,
-        requiresStorageNotLow: Boolean = false,
-        contentTriggerUpdateDelayMillis: Long = -1,
-        contentTriggerMaxDelayMillis: Long = -1,
-        contentUriTriggers: Set<ContentUriTrigger> = setOf(),
-    ) {
-        this.requiredNetworkRequestCompat = requiredNetworkRequestCompat
         this.requiredNetworkType = requiredNetworkType
         this.requiresCharging = requiresCharging
         this.requiresDeviceIdle = requiresDeviceIdle
@@ -237,7 +193,6 @@ class Constraints {
     constructor(other: Constraints) {
         requiresCharging = other.requiresCharging
         requiresDeviceIdle = other.requiresDeviceIdle
-        requiredNetworkRequestCompat = other.requiredNetworkRequestCompat
         requiredNetworkType = other.requiredNetworkType
         requiresBatteryNotLow = other.requiresBatteryNotLow
         requiresStorageNotLow = other.requiresStorageNotLow
@@ -296,7 +251,6 @@ class Constraints {
         if (requiresStorageNotLow != that.requiresStorageNotLow) return false
         if (contentTriggerUpdateDelayMillis != that.contentTriggerUpdateDelayMillis) return false
         if (contentTriggerMaxDelayMillis != that.contentTriggerMaxDelayMillis) return false
-        if (requiredNetworkRequest != that.requiredNetworkRequest) return false
         return if (requiredNetworkType != that.requiredNetworkType) false
         else contentUriTriggers == that.contentUriTriggers
     }
@@ -315,7 +269,6 @@ class Constraints {
         result = 31 * result +
             (contentTriggerMaxDelayMillis xor (contentTriggerMaxDelayMillis ushr 32)).toInt()
         result = 31 * result + contentUriTriggers.hashCode()
-        result = 31 * result + requiredNetworkRequest.hashCode()
         return result
     }
 
@@ -341,11 +294,9 @@ class Constraints {
     class Builder {
         private var requiresCharging = false
         private var requiresDeviceIdle = false
-        private var requiredNetworkRequest: NetworkRequestCompat = NetworkRequestCompat()
         private var requiredNetworkType = NetworkType.NOT_REQUIRED
         private var requiresBatteryNotLow = false
         private var requiresStorageNotLow = false
-
         // Same defaults as JobInfo
         private var triggerContentUpdateDelay: Long = -1
         private var triggerContentMaxDelay: Long = -1
@@ -405,42 +356,6 @@ class Constraints {
          */
         fun setRequiredNetworkType(networkType: NetworkType): Builder {
             requiredNetworkType = networkType
-            requiredNetworkRequest = NetworkRequestCompat()
-            return this
-        }
-
-        /**
-         * Sets whether device should have a particular [NetworkRequest] for the
-         * [WorkRequest] to run on the API levels >= 28 (Android P). For the older
-         * API levels, `networkType` will be used instead on the older platforms.
-         *
-         * `NetworkRequest` with `NetworkSpecifier` set aren't supported,
-         * as well as `NetworkRequest` with `setIncludeOtherUidNetworks` set.
-         * [IllegalArgumentException] will be thrown if such requests are
-         * passed.
-         *
-         * @param networkRequest
-         * @param networkType The type of network required for t
-         * @return The current [Builder]
-         */
-        @RequiresApi(21)
-        fun setRequiredNetworkRequest(
-            networkRequest: NetworkRequest,
-            networkType: NetworkType
-        ): Builder {
-            if (Build.VERSION.SDK_INT >= 28) {
-                if (Build.VERSION.SDK_INT >= 31 &&
-                    NetworkRequest30.getNetworkSpecifier(networkRequest) != null
-                ) {
-                    throw IllegalArgumentException(
-                        "NetworkRequests with NetworkSpecifiers set aren't supported."
-                    )
-                }
-                requiredNetworkRequest = NetworkRequestCompat(networkRequest)
-                requiredNetworkType = NetworkType.NOT_REQUIRED
-            } else {
-                requiredNetworkType = networkType
-            }
             return this
         }
 
@@ -572,10 +487,9 @@ class Constraints {
 
             @Suppress("NewApi")
             return Constraints(
-                requiredNetworkRequestCompat = requiredNetworkRequest,
-                requiredNetworkType = requiredNetworkType,
                 requiresCharging = requiresCharging,
                 requiresDeviceIdle = Build.VERSION.SDK_INT >= 23 && requiresDeviceIdle,
+                requiredNetworkType = requiredNetworkType,
                 requiresBatteryNotLow = requiresBatteryNotLow,
                 requiresStorageNotLow = requiresStorageNotLow,
                 contentTriggerMaxDelayMillis = triggerMaxContentDelay,
@@ -623,7 +537,6 @@ class Constraints {
     }
 }
 
-internal const val CONSTRAINTS_COLUMNS =
-    "required_network_type, required_network_request, requires_charging, " +
-        "requires_device_idle, requires_battery_not_low, requires_storage_not_low, " +
-        "trigger_content_update_delay, trigger_max_content_delay, content_uri_triggers"
+internal const val CONSTRAINTS_COLUMNS = "required_network_type, requires_charging," +
+    "requires_device_idle, requires_battery_not_low, requires_storage_not_low, " +
+    "trigger_content_update_delay, trigger_max_content_delay, content_uri_triggers"

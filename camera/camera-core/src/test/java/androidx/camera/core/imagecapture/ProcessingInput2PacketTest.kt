@@ -37,8 +37,6 @@ import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
 import androidx.camera.testing.impl.ExifUtil.updateExif
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.impl.TestImageUtil.createJpegrBytes
-import androidx.camera.testing.impl.TestImageUtil.createJpegrFakeImageProxy
 import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import com.google.common.truth.Truth.assertThat
@@ -98,32 +96,6 @@ class ProcessingInput2PacketTest {
 
         // Assert.
         assertThat(output.format).isEqualTo(ImageFormat.JPEG)
-        // Assert: buffer is rewound after reading Exif data.
-        val buffer = output.data.planes[0].buffer
-        assertThat(buffer.position()).isEqualTo(0)
-        // Assert: image is the same.
-        val restoredJpeg = jpegImageToJpegByteArray(output.data)
-        assertThat(getAverageDiff(jpegBytes, restoredJpeg)).isEqualTo(0)
-        // Assert: the Exif is extracted correctly.
-        assertThat(output.exif!!.description).isEqualTo(EXIF_DESCRIPTION)
-    }
-
-    @Config(minSdk = 34)
-    @Test
-    fun processInput_assertImageAndNonTransformationExif_whenOutputFormatIsJpegr() {
-        // Arrange: create input
-        val jpegBytes = updateExif(createJpegrBytes(640, 480)) {
-            it.description = EXIF_DESCRIPTION
-        }
-        val image = createJpegrFakeImageProxy(jpegBytes)
-        val processingRequest = createProcessingRequest()
-        val input = ProcessingNode.InputPacket.of(processingRequest, image)
-
-        // Act.
-        val output = operation.apply(input)
-
-        // Assert.
-        assertThat(output.format).isEqualTo(ImageFormat.JPEG_R)
         // Assert: buffer is rewound after reading Exif data.
         val buffer = output.data.planes[0].buffer
         assertThat(buffer.position()).isEqualTo(0)

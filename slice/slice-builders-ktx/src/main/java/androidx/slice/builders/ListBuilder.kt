@@ -21,6 +21,7 @@ import android.net.Uri
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.core.graphics.drawable.IconCompat
+import androidx.slice.builders.ListBuilder.ICON_IMAGE
 
 @RestrictTo(LIBRARY)
 @DslMarker
@@ -246,7 +247,7 @@ inline fun ListBuilderDsl.range(buildRange: RangeBuilderDsl.() -> Unit) =
 fun tapSliceAction(
     pendingIntent: PendingIntent,
     icon: IconCompat,
-    @ListBuilder.ImageMode imageMode: Int = ListBuilder.ICON_IMAGE,
+    @ListBuilder.ImageMode imageMode: Int = ICON_IMAGE,
     title: CharSequence
 ) = SliceAction(pendingIntent, icon, imageMode, title)
 

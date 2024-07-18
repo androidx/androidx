@@ -22,6 +22,8 @@ import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
 
+import androidx.core.view.ViewCompat;
+
 public class CheckableFrameLayout extends FrameLayout implements Checkable {
     private boolean mChecked;
 
@@ -36,7 +38,7 @@ public class CheckableFrameLayout extends FrameLayout implements Checkable {
     @Override
     public void setChecked(boolean checked) {
         mChecked = checked;
-        setBackground(checked ? new ColorDrawable(0xff0000a0) : null);
+        ViewCompat.setBackground(this, checked ? new ColorDrawable(0xff0000a0) : null);
     }
 
     @Override

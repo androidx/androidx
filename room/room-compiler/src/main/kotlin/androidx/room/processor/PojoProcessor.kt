@@ -961,25 +961,19 @@ class PojoProcessor private constructor(
 
     private class DefaultDelegate(private val context: Context) : Delegate {
         override fun onPreProcess(element: XTypeElement) {
-            // If POJO is not a record then check that certain Room annotations with @Target(METHOD)
-            // are not used since the POJO is not annotated with AutoValue where Room column
-            // annotations are allowed in methods.
-            if (!element.isRecordClass()) {
-                element.getAllMethods()
-                    .filter { it.hasAnyAnnotation(*TARGET_METHOD_ANNOTATIONS) }
-                    .forEach { method ->
-                        val annotationName = TARGET_METHOD_ANNOTATIONS
-                            .first { columnAnnotation -> method.hasAnnotation(columnAnnotation) }
-                            .java.simpleName
-                        context.logger.e(
-                            method,
-                            ProcessorErrors.invalidAnnotationTarget(
-                                annotationName,
-                                method.kindName()
-                            )
-                        )
-                    }
-            }
+            // Check that certain Room annotations with @Target(METHOD) are not used in the POJO
+            // since it is not annotated with AutoValue.
+            element.getAllMethods()
+                .filter { it.hasAnyAnnotation(*TARGET_METHOD_ANNOTATIONS) }
+                .forEach { method ->
+                    val annotationName = TARGET_METHOD_ANNOTATIONS
+                        .first { method.hasAnnotation(it) }
+                        .java.simpleName
+                    context.logger.e(
+                        method,
+                        ProcessorErrors.invalidAnnotationTarget(annotationName, method.kindName())
+                    )
+                }
         }
 
         override fun findConstructors(element: XTypeElement) = element.getConstructors().filterNot {

@@ -38,20 +38,17 @@ class SdkResourceGeneratorTest {
             "androidXConfiguration",
             AndroidXConfigImpl::class.java,
             project.provider { KotlinVersion.KOTLIN_1_7 },
-            project.provider { "1.7.10" },
-            project.provider { KotlinVersion.KOTLIN_1_9 },
-            project.provider { "1.9.20" }
+            project.provider { "1.7.10" }
         )
 
         project.setSupportRootFolder(File("files/support"))
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
-        extension.set("prebuiltsRoot", project.projectDir.resolve("relative/prebuilts"))
-        extension.set("androidx.compileSdk", 33)
+        extension.set("buildSrcOut", project.projectDir.resolve("relative/path"))
 
         val taskProvider = SdkResourceGenerator.registerSdkResourceGeneratorTask(project)
         val tasks = project.getTasksByName(SdkResourceGenerator.TASK_NAME, false)
         val generator = tasks.first() as SdkResourceGenerator
-        generator.prebuiltsRelativePath.check { it == "relative/prebuilts" }
+        generator.buildSrcOutRelativePath.check { it == "relative/path" }
 
         val task = taskProvider.get()
         val propsFile = task.outputDir.file("sdk.prop").get().asFile
@@ -71,8 +68,6 @@ class SdkResourceGeneratorTest {
 
     internal open class AndroidXConfigImpl(
         override val kotlinApiVersion: Provider<KotlinVersion>,
-        override val kotlinBomVersion: Provider<String>,
-        override val kotlinTestApiVersion: Provider<KotlinVersion>,
-        override val kotlinTestBomVersion: Provider<String>
+        override val kotlinBomVersion: Provider<String>
     ) : AndroidXConfiguration
 }

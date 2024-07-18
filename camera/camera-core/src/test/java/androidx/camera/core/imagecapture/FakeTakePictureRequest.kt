@@ -43,7 +43,6 @@ class FakeTakePictureRequest() : TakePictureRequest() {
     var imageReceived: ImageProxy? = null
     var fileReceived: ImageCapture.OutputFileResults? = null
     var captureStarted = false
-    var captureProcessProgress = -1
 
     constructor(type: Type) : this() {
         when (type) {
@@ -60,10 +59,6 @@ class FakeTakePictureRequest() : TakePictureRequest() {
                     override fun onError(exception: ImageCaptureException) {
                         exceptionReceived = exception
                     }
-
-                    override fun onCaptureProcessProgressed(progress: Int) {
-                        captureProcessProgress = progress
-                    }
                 }
             }
             Type.ON_DISK -> {
@@ -78,10 +73,6 @@ class FakeTakePictureRequest() : TakePictureRequest() {
 
                     override fun onError(exception: ImageCaptureException) {
                         exceptionReceived = exception
-                    }
-
-                    override fun onCaptureProcessProgressed(progress: Int) {
-                        captureProcessProgress = progress
                     }
                 }
             }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/AppSearchConfigImpl.java)
+// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/AppSearchConfigImpl.java)
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.NonNull;
@@ -111,16 +111,6 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     @Override
     public int getLiteIndexSortSize() {
         return mIcingOptionsConfig.getLiteIndexSortSize();
-    }
-
-    @Override
-    public boolean getUseNewQualifiedIdJoinIndex() {
-        return mIcingOptionsConfig.getUseNewQualifiedIdJoinIndex();
-    }
-
-    @Override
-    public boolean getBuildPropertyExistenceMetadataHits() {
-        return mIcingOptionsConfig.getBuildPropertyExistenceMetadataHits();
     }
 
     @Override

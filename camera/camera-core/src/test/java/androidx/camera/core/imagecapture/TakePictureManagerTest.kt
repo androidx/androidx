@@ -329,11 +329,8 @@ class TakePictureManagerTest {
         val response3 =
             FakeImageProxy(FakeImageInfo())
         imagePipeline.getProcessingRequest(request1).onImageCaptured()
-        shadowOf(getMainLooper()).idle()
         imagePipeline.getProcessingRequest(request2).onImageCaptured()
-        shadowOf(getMainLooper()).idle()
         imagePipeline.getProcessingRequest(request3).onImageCaptured()
-        shadowOf(getMainLooper()).idle()
 
         // Act: send the responses in the order of 3->1->2
         imagePipeline.getProcessingRequest(request3).onFinalResult(response3)

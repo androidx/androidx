@@ -24,8 +24,8 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.annotations.KeepFields;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -128,9 +128,6 @@ public final class CarValue<T> {
 
     @RestrictTo(LIBRARY)
     public static final CarValue<List<Integer>> UNKNOWN_INTEGER_LIST = unknown();
-
-    @RestrictTo(LIBRARY)
-    public static final CarValue<Integer[]> UNKNOWN_INTEGER_ARRAY = unknown();
 
     /**
      * Returns a the data value or {@code null} if the status is not successful.

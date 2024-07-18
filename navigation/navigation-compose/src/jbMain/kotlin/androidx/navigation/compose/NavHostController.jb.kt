@@ -43,10 +43,10 @@ public actual fun NavController.currentBackStackEntryAsState(): State<NavBackSta
 
 /**
  * Creates a NavHostController that handles the adding of the [ComposeNavigator] and
- * [DialogNavigator]. Additional [Navigator] instances can be passed through [navigators] to
- * be applied to the returned NavController. Note that each [Navigator] must be separately
- * remembered before being passed in here: any changes to those inputs will cause the
- * NavController to be recreated.
+ * [DialogNavigator]. Additional [Navigator] instances can be passed through [navigators] to be
+ * applied to the returned NavController. Note that each [Navigator] must be separately remembered
+ * before being passed in here: any changes to those inputs will cause the NavController to be
+ * recreated.
  *
  * @see NavHost
  */
@@ -55,12 +55,13 @@ public actual fun rememberNavController(
     vararg navigators: Navigator<out NavDestination>
 ): NavHostController {
     return rememberSaveable(inputs = navigators, saver = NavControllerSaver()) {
-        createNavController()
-    }.apply {
-        for (navigator in navigators) {
-            navigatorProvider.addNavigator(navigator)
+            createNavController()
         }
-    }
+        .apply {
+            for (navigator in navigators) {
+                navigatorProvider.addNavigator(navigator)
+            }
+        }
 }
 
 private fun createNavController() =
@@ -70,10 +71,9 @@ private fun createNavController() =
         navigatorProvider.addNavigator(DialogNavigator())
     }
 
-/**
- * Saver to save and restore the NavController across config change and process death.
- */
-private fun NavControllerSaver(): Saver<NavHostController, *> = Saver<NavHostController, Bundle>(
-    save = { it.saveState() },
-    restore = { createNavController().apply { restoreState(it) } }
-)
+/** Saver to save and restore the NavController across config change and process death. */
+private fun NavControllerSaver(): Saver<NavHostController, *> =
+    Saver<NavHostController, Bundle>(
+        save = { it.saveState() },
+        restore = { createNavController().apply { restoreState(it) } }
+    )

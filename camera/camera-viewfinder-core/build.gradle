@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -30,30 +24,19 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
-    implementation(libs.guavaListenableFuture)
-    implementation("androidx.core:core:1.7.0")
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation(libs.autoValueAnnotations)
-    implementation("androidx.appcompat:appcompat:1.1.0")
-    implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
-    implementation(libs.kotlinCoroutinesCore)
-    implementation(libs.kotlinCoroutinesAndroid)
-
-    annotationProcessor(libs.autoValue)
+    api(libs.kotlinStdlib)
+    // Add dependencies here
 }
 
 android {
-    namespace "androidx.camera.viewfinder.core"
+    namespace "androidx.camera.viewfinder"
 }
 
 androidx {
     name = "Camera ViewFinder Core"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "Core dependencies for ViewFinder"
     metalavaK2UastEnabled = true
-    samples(project(":camera:camera-viewfinder-core:camera-viewfinder-core-samples"))
 }

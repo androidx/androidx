@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Dp
@@ -34,9 +35,9 @@ import androidx.compose.ui.unit.Dp
  * A [NavigationDrawerItem] represents a destination within drawers, either [NavigationDrawer] or
  * [ModalNavigationDrawer]
  *
- * @sample androidx.tv.material3.samples.SampleNavigationDrawer
- * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithSolidScrim
- * @sample androidx.tv.material3.samples.SampleModalNavigationDrawerWithGradientScrim
+ * @sample androidx.tv.samples.SampleNavigationDrawer
+ * @sample androidx.tv.samples.SampleModalNavigationDrawerWithSolidScrim
+ * @sample androidx.tv.samples.SampleModalNavigationDrawerWithGradientScrim
  *
  * @param selected defines whether this composable is selected or not
  * @param onClick called when this composable is clicked
@@ -56,12 +57,13 @@ import androidx.compose.ui.unit.Dp
  * different interaction states
  * @param border defines a border around the composable in different interaction states
  * @param glow defines a shadow to be shown behind the composable for different interaction states
- * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
- * emitting [Interaction]s for this composable. You can use this to change the composable's
- * appearance or preview the composable in different states. Note that if `null` is provided,
- * interactions will still happen internally.
+ * @param interactionSource the [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this component. You can create and pass in your own [remember]ed instance
+ * to observe [Interaction]s and customize the appearance / behavior of this composable in different
+ * states
  * @param content main content of this composable
  */
+@ExperimentalTvMaterial3Api // TODO (b/263353219): Remove this before launching beta
 @Composable
 fun NavigationDrawerScope.NavigationDrawerItem(
     selected: Boolean,
@@ -78,7 +80,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
     scale: NavigationDrawerItemScale = NavigationDrawerItemScale.None,
     border: NavigationDrawerItemBorder = NavigationDrawerItemDefaults.border(),
     glow: NavigationDrawerItemGlow = NavigationDrawerItemDefaults.glow(),
-    interactionSource: MutableInteractionSource? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit,
 ) {
     val animatedWidth by animateDpAsState(
@@ -161,6 +163,7 @@ fun NavigationDrawerScope.NavigationDrawerItem(
     )
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemShape.toToggleableListItemShape() =
     ListItemDefaults.shape(
@@ -174,6 +177,7 @@ private fun NavigationDrawerItemShape.toToggleableListItemShape() =
         pressedSelectedShape = pressedSelectedShape,
     )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemColors.toToggleableListItemColors(
     doesNavigationDrawerHaveFocus: Boolean
@@ -196,6 +200,7 @@ private fun NavigationDrawerItemColors.toToggleableListItemColors(
         pressedSelectedContentColor = pressedSelectedContentColor,
     )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemScale.toToggleableListItemScale() =
     ListItemDefaults.scale(
@@ -209,6 +214,7 @@ private fun NavigationDrawerItemScale.toToggleableListItemScale() =
         pressedSelectedScale = pressedSelectedScale,
     )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemBorder.toToggleableListItemBorder() =
     ListItemDefaults.border(
@@ -222,6 +228,7 @@ private fun NavigationDrawerItemBorder.toToggleableListItemBorder() =
         pressedSelectedBorder = pressedSelectedBorder,
     )
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 private fun NavigationDrawerItemGlow.toToggleableListItemGlow() =
     ListItemDefaults.glow(

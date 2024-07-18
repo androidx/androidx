@@ -63,9 +63,9 @@ internal object WindowMetricsCalculatorCompat : WindowMetricsCalculator {
         if (Build.VERSION.SDK_INT >= VERSION_CODES.R) {
             return currentWindowMetrics(context)
         } else {
-            when (val unwrappedContext = unwrapUiContext(context)) {
+            when (unwrapUiContext(context)) {
                 is Activity -> {
-                    return computeCurrentWindowMetrics(unwrappedContext)
+                    return computeCurrentWindowMetrics(context as Activity)
                 }
                 is InputMethodService -> {
                     val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager

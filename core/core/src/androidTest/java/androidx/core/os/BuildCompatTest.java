@@ -76,10 +76,4 @@ public class BuildCompatTest {
     public void isAtLeastU_byMinSdk() {
         assertTrue(BuildCompat.isAtLeastU());
     }
-
-    @SdkSuppress(minSdkVersion = 35)
-    @Test
-    public void isAtLeastV_byMinSdk() {
-        assertTrue(BuildCompat.isAtLeastV());
-    }
 }

@@ -15,23 +15,35 @@
  */
 
 plugins {
-    id("AndroidXPlugin")
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id 'AndroidXPlugin'
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
-    namespace "androidx.privacysandbox.ui.integration.testapp"
+    namespace 'androidx.privacysandbox.ui.integration.testapp'
 
     defaultConfig {
         applicationId "androidx.privacysandbox.ui.integration.testapp"
         minSdk 33
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
             minifyEnabled false
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
@@ -42,12 +54,9 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'com.google.android.material:material:1.6.0'
     implementation "androidx.activity:activity-ktx:1.7.2"
-    implementation "androidx.drawerlayout:drawerlayout:1.2.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
-    implementation project(':privacysandbox:sdkruntime:sdkruntime-client')
+    implementation "androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha03"
     implementation project(':privacysandbox:ui:integration-tests:testaidl')
     implementation project(':privacysandbox:ui:ui-core')
     implementation project(':privacysandbox:ui:ui-client')
-    implementation project(':privacysandbox:ui:ui-provider')
 }

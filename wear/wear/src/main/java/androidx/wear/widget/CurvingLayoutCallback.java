@@ -113,6 +113,7 @@ public class CurvingLayoutCallback extends WearableLinearLayoutManager.LayoutCal
      *                       child height on the vertical axis (vertical center).
      */
     public void adjustAnchorOffsetXY(View child, float[] anchorOffsetXY) {
+        return;
     }
 
     @VisibleForTesting

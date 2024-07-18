@@ -19,5 +19,4 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="glance_error_layout_title" msgid="3631961919234443531"><b>"Glance ആപ്പ് വിജറ്റ് പിശക്"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033"><b><tt>"adb logcat"</tt></b>" ഉപയോഗിച്ച് യഥാർത്ഥ പിശക് പരിശോധിക്കുക, "<b><tt>"GlanceAppWidget"</tt></b>" എന്നത് തിരയുന്നു"</string>
-    <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"ഉള്ളടക്കം കാണിക്കാനാകില്ല"</string>
 </resources>

@@ -31,6 +31,7 @@ internal fun Translations.tr() = mapOf(
     Strings.Dialog to "Dialog",
     Strings.MenuExpanded to "Genişletildi",
     Strings.MenuCollapsed to "Daraltıldı",
+    Strings.ToggleDropdownMenu to "Açılır menüyü açın/kapatın",
     Strings.SnackbarDismiss to "Kapat",
     Strings.SearchBarSearch to "Arama",
     Strings.SuggestionsAvailable to "Önerileri aşağıda bulabilirsiniz",

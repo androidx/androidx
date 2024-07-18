@@ -332,62 +332,12 @@ public @interface Document {
         String name() default "";
 
         /**
-         * Configures whether all fields in the nested document should be indexed.
+         * Configures whether fields in the nested document should be indexed.
          *
          * <p>If false, the nested document's properties are not indexed regardless of its own
-         * schema, unless {@link #indexableNestedPropertiesList()} is used to index a subset of
-         * properties from the nested document.
-         *
-         * <p>{@link IllegalArgumentException} will be thrown during setSchema if set to true and
-         * defining a non-empty list for {@link #indexableNestedPropertiesList()}
+         * schema.
          */
         boolean indexNestedProperties() default false;
-
-        /**
-         * The list of properties in the nested document to index. The property will be indexed
-         * according to its indexing configurations in the document's schema definition.
-         *
-         * <p>{@link #indexNestedProperties} is required to be false if this list is non-empty.
-         * {@link IllegalArgumentException} will be thrown during setSchema if this condition is
-         * not met.
-         *
-         * @see
-         * AppSearchSchema.DocumentPropertyConfig.Builder#addIndexableNestedProperties(Collection)
-         */
-        String[] indexableNestedPropertiesList() default {};
-
-        /**
-         * Configures whether to inherit the indexable nested properties list from the Document's
-         * superclass type definition. When set to true, the indexable property paths will be
-         * a union of the paths specified in {@link #indexableNestedPropertiesList()} and any
-         * path specified in the document class's superclass or inherited interfaces.
-         * Effectively, this is a no-op if none of the document superclasses specify a path for
-         * this document property.
-         *
-         * <p>Ex. Consider the following Document classes:
-         * <pre>
-         * {@code
-         * @Document
-         * class Person {
-         *   @Document.DocumentProperty(indexableNestedPropertiesList = {"streetName", "zipcode"})
-         *   Address livesAt;
-         * }
-         * @Document
-         * class Artist extends Person {
-         *   @Document.DocumentProperty(
-         *     indexableNestedPropertiesList = {"country"},
-         *     inheritIndexableNestedPropertiesFromSuperclass = true
-         *   )
-         *   Address livesAt;
-         * }
-         * }
-         * </pre>
-         *
-         * <p>By setting 'inheritIndexableNestedPropertiesFromSuperclass = true', Artist.livesAt
-         * inherits the indexable nested properties defined by its parent class's livesAt field
-         * (Person.livesAt) and indexes all three fields: {streetName, zipCode, country}
-         */
-        boolean inheritIndexableNestedPropertiesFromSuperclass() default false;
 
         /**
          * Configures whether this property must be specified for the document to be valid.

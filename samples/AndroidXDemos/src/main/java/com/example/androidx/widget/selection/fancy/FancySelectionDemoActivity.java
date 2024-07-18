@@ -252,13 +252,16 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.selection_demo_actions, menu);
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
-            int itemId = item.getItemId();
-            if (itemId == R.id.option_menu_more_cheese) {
-                item.setChecked(mAdapter.allCheesesEnabled());
-            } else if (itemId == R.id.option_menu_grid_layout) {
-                item.setChecked(mAdapter.smallItemLayoutEnabled());
-            } else if (itemId == R.id.option_menu_swipe_during_select) {
-                item.setChecked(mSwipeDuringSelectionEnabled);
+            switch (item.getItemId()) {
+                case R.id.option_menu_more_cheese:
+                    item.setChecked(mAdapter.allCheesesEnabled());
+                    break;
+                case R.id.option_menu_grid_layout:
+                    item.setChecked(mAdapter.smallItemLayoutEnabled());
+                    break;
+                case R.id.option_menu_swipe_during_select:
+                    item.setChecked(mSwipeDuringSelectionEnabled);
+                    break;
             }
         }
         return showMenu;
@@ -274,16 +277,19 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     private void updateOptionFromMenu(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.option_menu_more_cheese) {
-            mAdapter.enableAllCheeses(item.isChecked());
-            mAdapter.refresh();
-        } else if (itemId == R.id.option_menu_grid_layout) {
-            mAdapter.enableSmallItemLayout(item.isChecked());
-            mLayout.setSpanCount(item.isChecked() ? 2 : 1);
-            mAdapter.refresh();
-        } else if (itemId == R.id.option_menu_swipe_during_select) {
-            mSwipeDuringSelectionEnabled = item.isChecked();
+        switch (item.getItemId()) {
+            case R.id.option_menu_more_cheese:
+                mAdapter.enableAllCheeses(item.isChecked());
+                mAdapter.refresh();
+                break;
+            case R.id.option_menu_grid_layout:
+                mAdapter.enableSmallItemLayout(item.isChecked());
+                mLayout.setSpanCount(item.isChecked() ? 2 : 1);
+                mAdapter.refresh();
+                break;
+            case R.id.option_menu_swipe_during_select:
+                mSwipeDuringSelectionEnabled = item.isChecked();
+                break;
         }
     }
 
@@ -309,13 +315,14 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.option_menu_item_eat_single
-                || itemId == R.id.option_menu_item_eat_multiple) {
-            toast(this, "Num, num, num...done!");
-            return true;
+        switch (item.getItemId()) {
+            case R.id.option_menu_item_eat_single:
+            case R.id.option_menu_item_eat_multiple:
+                toast(this, "Num, num, num...done!");
+                return true;
+            default:
+                return super.onContextItemSelected(item);
         }
-        return super.onContextItemSelected(item);
     }
 
     @SuppressWarnings("deprecation")

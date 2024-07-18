@@ -16,8 +16,6 @@
 
 package androidx.health.services.client.data
 
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.HealthEvent.MetricsEntry
 import java.time.Instant
@@ -35,13 +33,7 @@ public class HealthEvent(
 ) {
 
     /** Health event types. */
-    public class Type @RestrictTo(Scope.LIBRARY) constructor(
-        /** Returns a unique identifier for the [Type], as an `int`. */
-        public val id: Int,
-
-        /** Returns a human readable name to represent this [Type]. */
-        public val name: String
-    ) {
+    public class Type private constructor(public val id: Int, public val name: String) {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -55,10 +47,11 @@ public class HealthEvent(
 
         override fun toString(): String = name
 
-        internal fun toProto(): Int = id
+        internal fun toProto(): DataProto.HealthEvent.HealthEventType =
+            DataProto.HealthEvent.HealthEventType.forNumber(id)
+                ?: DataProto.HealthEvent.HealthEventType.HEALTH_EVENT_TYPE_UNKNOWN
 
         public companion object {
-            private const val CUSTOM_TYPE_NAME_PREFIX = "health_services.device_private."
             /**
              * The Health Event is unknown, or is represented by a value too new for this library
              * version to parse.
@@ -75,30 +68,20 @@ public class HealthEvent(
 
             internal fun fromProto(proto: DataProto.HealthEvent.HealthEventType): Type =
                 VALUES.firstOrNull { it.id == proto.number } ?: UNKNOWN
-
-            internal fun fromProto(typeId: Int): Type {
-                if (isInCustomHealthEventRange(typeId)) {
-                    return Type(typeId, CUSTOM_TYPE_NAME_PREFIX + typeId)
-                }
-
-                return VALUES.firstOrNull { it.id == typeId } ?: UNKNOWN
-            }
-
-            private fun isInCustomHealthEventRange(id: Int) = id in 0x40000..0x4ffff
         }
     }
 
     internal constructor(
         proto: DataProto.HealthEvent
     ) : this(
-        Type.fromProto(proto.healthEventTypeId),
+        Type.fromProto(proto.type),
         Instant.ofEpochMilli(proto.eventTimeEpochMs),
         fromHealthEventProto(proto)
     )
 
     internal val proto: DataProto.HealthEvent =
         DataProto.HealthEvent.newBuilder()
-            .setHealthEventTypeId(type.toProto())
+            .setType(type.toProto())
             .setEventTimeEpochMs(eventTime.toEpochMilli())
             .addAllMetrics(toEventProtoList(metrics))
             .build()

@@ -23,6 +23,7 @@ import androidx.paging.PagingSource
 import androidx.room.InvalidationTracker
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.awaitPendingRefresh
 import androidx.room.integration.kotlintestapp.testutil.ItemStore
 import androidx.room.integration.kotlintestapp.testutil.PagingDb
 import androidx.room.integration.kotlintestapp.testutil.PagingEntity
@@ -267,17 +268,17 @@ class MultiTypedPagingSourceTest(
                     toIndex = 20 + CONFIG.initialLoadSize
                 )
             )
-
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             // now do some changes in the database but don't let change notifications go through
             // to the data source. it should not crash :)
-             queryExecutor.filterFunction = {
-                 // TODO(b/): Avoid relying on function name, very brittle.
-                 !it.toString().contains("refreshInvalidationAsync")
-             }
-
+            queryExecutor.filterFunction = { runnable ->
+                runnable !== db.invalidationTracker.refreshRunnable
+            }
             db.getDao().deleteItems(
                 items.subList(0, 60).map { it.id }
             )
+            // make sure invalidation requests a refresh
+            db.invalidationTracker.awaitPendingRefresh()
 
             // make sure we blocked the refresh runnable until after the exception generates a
             // new paging source
@@ -321,6 +322,7 @@ class MultiTypedPagingSourceTest(
             // Runs the original invalidationTracker.refreshRunnable.
             // Note that the second initial load's call to mRefreshRunnable resets the flag to
             // false, so this mRefreshRunnable will not detect changes in the table anymore.
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             queryExecutor.executeAll()
 
             itemStore.awaitInitialLoad()
@@ -340,7 +342,7 @@ class MultiTypedPagingSourceTest(
         }
     }
 
-    @FlakyTest(bugId = 260592924)
+    @Ignore // b/260592924
     @Test
     fun prependWithBlockingObserver() {
         val items = createItems(startId = 0, count = 90)
@@ -360,7 +362,7 @@ class MultiTypedPagingSourceTest(
                 Thread.sleep(3_500)
             }
         }
-        db.invalidationTracker.addObserver(
+        db.invalidationTracker.addWeakObserver(
             blockingObserver
         )
 
@@ -376,6 +378,7 @@ class MultiTypedPagingSourceTest(
                 // should load starting from initial Key = 20
                 initialItems
             )
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
 
             db.getDao().deleteItems(
                 items.subList(0, 60).map { it.id }
@@ -424,18 +427,17 @@ class MultiTypedPagingSourceTest(
                     toIndex = CONFIG.initialLoadSize
                 )
             )
-
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             // now do some changes in the database but don't let change notifications go through
             // to the data source. it should not crash :)
-            queryExecutor.filterFunction = {
-                // TODO(b/): Avoid relying on function name, very brittle.
-                !it.toString().contains("refreshInvalidationAsync")
+            queryExecutor.filterFunction = { runnable ->
+                runnable !== db.invalidationTracker.refreshRunnable
             }
-
             db.getDao().deleteItems(
                 items.subList(0, 80).map { it.id }
             )
-
+            // make sure invalidation requests a refresh
+            db.invalidationTracker.awaitPendingRefresh()
             // make sure we blocked the refresh runnable until after the exception generates a
             // new paging source
             queryExecutor.awaitDeferredSizeAtLeast(1)
@@ -478,6 +480,7 @@ class MultiTypedPagingSourceTest(
             // Runs the original invalidationTracker.refreshRunnable.
             // Note that the second initial load's call to mRefreshRunnable resets the flag to
             // false, so this mRefreshRunnable will not detect changes in the table anymore.
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             queryExecutor.executeAll()
 
             itemStore.awaitInitialLoad()
@@ -612,7 +615,6 @@ class MultiTypedPagingSourceTestWithRawQuery(
     }
 
     @Test
-    @Ignore // b/312434479
     fun loadEverythingRawQuery_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)

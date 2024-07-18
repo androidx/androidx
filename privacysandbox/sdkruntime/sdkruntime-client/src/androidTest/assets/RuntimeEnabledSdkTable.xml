@@ -39,9 +39,4 @@
         <compat-config-path>RuntimeEnabledSdks/v4.xml</compat-config-path>
         <package-name>androidx.privacysandbox.sdkruntime.testsdk.v4</package-name>
     </runtime-enabled-sdk>
-    <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/v5.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v5</package-name>
-        <version-major>5</version-major>
-    </runtime-enabled-sdk>
 </runtime-enabled-sdk-table>

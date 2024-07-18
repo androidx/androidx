@@ -994,9 +994,11 @@ public class AccessibilityNodeInfoCompat {
             if (Build.VERSION.SDK_INT >= 21) {
                 return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
                         rowCount, columnCount, hierarchical, selectionMode));
-            } else {
+            } else if (Build.VERSION.SDK_INT >= 19) {
                 return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
                         rowCount, columnCount, hierarchical));
+            } else {
+                return new CollectionInfoCompat(null);
             }
         }
 
@@ -1011,8 +1013,12 @@ public class AccessibilityNodeInfoCompat {
          */
         public static CollectionInfoCompat obtain(int rowCount, int columnCount,
                 boolean hierarchical) {
-            return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
-                    rowCount, columnCount, hierarchical));
+            if (Build.VERSION.SDK_INT >= 19) {
+                return new CollectionInfoCompat(AccessibilityNodeInfo.CollectionInfo.obtain(
+                        rowCount, columnCount, hierarchical));
+            } else {
+                return new CollectionInfoCompat(null);
+            }
         }
 
         CollectionInfoCompat(Object info) {
@@ -1025,7 +1031,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The column count, or -1 if count is unknown.
          */
         public int getColumnCount() {
-            return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getColumnCount();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getColumnCount();
+            } else {
+                return -1;
+            }
         }
 
         /**
@@ -1034,7 +1044,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The row count, or -1 if count is unknown.
          */
         public int getRowCount() {
-            return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getRowCount();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getRowCount();
+            } else {
+                return -1;
+            }
         }
 
         /**
@@ -1043,7 +1057,11 @@ public class AccessibilityNodeInfoCompat {
          * @return Whether the collection is hierarchical.
          */
         public boolean isHierarchical() {
-            return ((AccessibilityNodeInfo.CollectionInfo) mInfo).isHierarchical();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionInfo) mInfo).isHierarchical();
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -1097,9 +1115,11 @@ public class AccessibilityNodeInfoCompat {
             if (Build.VERSION.SDK_INT >= 21) {
                 return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
                         rowIndex, rowSpan, columnIndex, columnSpan, heading, selected));
-            } else {
+            } else if (Build.VERSION.SDK_INT >= 19) {
                 return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
                         rowIndex, rowSpan, columnIndex, columnSpan, heading));
+            } else {
+                return new CollectionItemInfoCompat(null);
             }
         }
 
@@ -1117,8 +1137,12 @@ public class AccessibilityNodeInfoCompat {
          */
         public static CollectionItemInfoCompat obtain(int rowIndex, int rowSpan,
                 int columnIndex, int columnSpan, boolean heading) {
-            return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
-                    rowIndex, rowSpan, columnIndex, columnSpan, heading));
+            if (Build.VERSION.SDK_INT >= 19) {
+                return new CollectionItemInfoCompat(AccessibilityNodeInfo.CollectionItemInfo.obtain(
+                        rowIndex, rowSpan, columnIndex, columnSpan, heading));
+            } else {
+                return new CollectionItemInfoCompat(null);
+            }
         }
 
         CollectionItemInfoCompat(Object info) {
@@ -1131,7 +1155,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The column index.
          */
         public int getColumnIndex() {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getColumnIndex();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getColumnIndex();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1140,7 +1168,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The column span.
          */
         public int getColumnSpan() {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getColumnSpan();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getColumnSpan();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1149,7 +1181,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The row index.
          */
         public int getRowIndex() {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getRowIndex();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getRowIndex();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1158,7 +1194,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The row span.
          */
         public int getRowSpan() {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getRowSpan();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).getRowSpan();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1171,7 +1211,11 @@ public class AccessibilityNodeInfoCompat {
         @SuppressWarnings("deprecation")
         @Deprecated
         public boolean isHeading() {
-            return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).isHeading();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).isHeading();
+            } else {
+                return false;
+            }
         }
 
         /**
@@ -1341,11 +1385,11 @@ public class AccessibilityNodeInfoCompat {
                 } else if (Build.VERSION.SDK_INT >= 21) {
                     return Api21Impl.createCollectionItemInfo(mRowIndex, mRowSpan, mColumnIndex,
                             mColumnSpan, mHeading, mSelected);
+                } else if (Build.VERSION.SDK_INT >= 19) {
+                    return Api19Impl.createCollectionItemInfo(mRowIndex, mRowSpan, mColumnIndex,
+                            mColumnSpan, mHeading);
                 } else {
-                    return new CollectionItemInfoCompat(
-                            AccessibilityNodeInfo.CollectionItemInfo.obtain(mRowIndex, mRowSpan,
-                                    mColumnIndex,
-                                    mColumnSpan, mHeading));
+                    return new CollectionItemInfoCompat(null);
                 }
             }
         }
@@ -1372,8 +1416,12 @@ public class AccessibilityNodeInfoCompat {
          * @return The instance
          */
         public static RangeInfoCompat obtain(int type, float min, float max, float current) {
-            return new RangeInfoCompat(
-                    AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current));
+            if (Build.VERSION.SDK_INT >= 19) {
+                return new RangeInfoCompat(
+                        AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current));
+            } else {
+                return new RangeInfoCompat(null);
+            }
         }
 
         final Object mInfo;
@@ -1395,8 +1443,10 @@ public class AccessibilityNodeInfoCompat {
         public RangeInfoCompat(int type, float min, float max, float current) {
             if (Build.VERSION.SDK_INT >= 30) {
                 mInfo = Api30Impl.createRangeInfo(type, min, max, current);
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                mInfo = Api19Impl.createRangeInfo(type, min, max, current);
             } else {
-                mInfo = AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current);
+                mInfo = null;
             }
         }
 
@@ -1406,7 +1456,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The current value.
          */
         public float getCurrent() {
-            return ((AccessibilityNodeInfo.RangeInfo) mInfo).getCurrent();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getCurrent();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1415,7 +1469,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The max value.
          */
         public float getMax() {
-            return ((AccessibilityNodeInfo.RangeInfo) mInfo).getMax();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getMax();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1424,7 +1482,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The min value.
          */
         public float getMin() {
-            return ((AccessibilityNodeInfo.RangeInfo) mInfo).getMin();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getMin();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -1437,7 +1499,11 @@ public class AccessibilityNodeInfoCompat {
          * @see #RANGE_TYPE_PERCENT
          */
         public int getType() {
-            return ((AccessibilityNodeInfo.RangeInfo) mInfo).getType();
+            if (Build.VERSION.SDK_INT >= 19) {
+                return ((AccessibilityNodeInfo.RangeInfo) mInfo).getType();
+            } else {
+                return RANGE_TYPE_INT;
+            }
         }
     }
 
@@ -2115,7 +2181,7 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY =
-            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY";
+            "android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY";
 
     /**
      * Integer argument specifying the start index of the requested text location data. Must be
@@ -2125,7 +2191,7 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX =
-            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX";
+            "android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX";
 
     /**
      * Integer argument specifying the end index of the requested text location data. Must be
@@ -2135,7 +2201,7 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressWarnings("ActionValue")
     public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH =
-            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH";
+            "android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH";
 
     /**
      * The maximum allowed length of the requested text location data.
@@ -2291,8 +2357,12 @@ public class AccessibilityNodeInfoCompat {
      * @see #setSource(View, int)
      */
     public static AccessibilityNodeInfoCompat obtain(View root, int virtualDescendantId) {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(
-                AccessibilityNodeInfo.obtain(root, virtualDescendantId));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                    AccessibilityNodeInfo.obtain(root, virtualDescendantId));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -2350,7 +2420,9 @@ public class AccessibilityNodeInfoCompat {
         // Store the ID anyway, since we may need it for equality checks.
         mVirtualDescendantId = virtualDescendantId;
 
-        mInfo.setSource(root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setSource(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -2365,7 +2437,11 @@ public class AccessibilityNodeInfoCompat {
      * @see #FOCUS_ACCESSIBILITY
      */
     public AccessibilityNodeInfoCompat findFocus(int focus) {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.findFocus(focus));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.findFocus(focus));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -2383,7 +2459,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The node info for the view that can take accessibility focus.
      */
     public AccessibilityNodeInfoCompat focusSearch(int direction) {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.focusSearch(direction));
+        if (Build.VERSION.SDK_INT >= 16) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.focusSearch(direction));
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -2466,7 +2546,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual child.
      */
     public void addChild(View root, int virtualDescendantId) {
-        mInfo.addChild(root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.addChild(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -2541,11 +2623,14 @@ public class AccessibilityNodeInfoCompat {
     }
 
     private List<Integer> extrasIntList(String key) {
-        ArrayList<Integer> list = mInfo.getExtras()
+        if (Build.VERSION.SDK_INT < 19) {
+            return new ArrayList<Integer>();
+        }
+        ArrayList<Integer> list = Api19Impl.getExtras(mInfo)
                 .getIntegerArrayList(key);
         if (list == null) {
             list = new ArrayList<Integer>();
-            mInfo.getExtras().putIntegerArrayList(key, list);
+            Api19Impl.getExtras(mInfo).putIntegerArrayList(key, list);
         }
         return list;
     }
@@ -2629,7 +2714,11 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called outside of an AccessibilityService.
      */
     public boolean performAction(int action, Bundle arguments) {
-        return mInfo.performAction(action, arguments);
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.performAction(action, arguments);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2645,7 +2734,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setMovementGranularities(int granularities) {
-        mInfo.setMovementGranularities(granularities);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setMovementGranularities(granularities);
+        }
     }
 
     /**
@@ -2654,7 +2745,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The bit mask with granularities.
      */
     public int getMovementGranularities() {
-        return mInfo.getMovementGranularities();
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.getMovementGranularities();
+        } else {
+            return 0;
+        }
     }
 
     /**
@@ -2761,7 +2856,9 @@ public class AccessibilityNodeInfoCompat {
         // Store the ID anyway, since we may need it for equality checks.
         mParentVirtualDescendantId = virtualDescendantId;
 
-        mInfo.setParent(root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setParent(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -2845,8 +2942,8 @@ public class AccessibilityNodeInfoCompat {
     public void getBoundsInWindow(@NonNull  Rect outBounds) {
         if (Build.VERSION.SDK_INT >= 34) {
             Api34Impl.getBoundsInWindow(mInfo, outBounds);
-        } else {
-            Rect extraBounds = mInfo.getExtras().getParcelable(BOUNDS_IN_WINDOW_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Rect extraBounds = Api19Impl.getExtras(mInfo).getParcelable(BOUNDS_IN_WINDOW_KEY);
             if (extraBounds != null) {
                 outBounds.set(extraBounds.left, extraBounds.top, extraBounds.right,
                         extraBounds.bottom);
@@ -2873,8 +2970,8 @@ public class AccessibilityNodeInfoCompat {
     public void setBoundsInWindow(@NonNull Rect bounds) {
         if (Build.VERSION.SDK_INT >= 34) {
             Api34Impl.setBoundsInWindow(mInfo, bounds);
-        } else {
-            mInfo.getExtras().putParcelable(BOUNDS_IN_WINDOW_KEY, bounds);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putParcelable(BOUNDS_IN_WINDOW_KEY, bounds);
         }
     }
 
@@ -2980,7 +3077,11 @@ public class AccessibilityNodeInfoCompat {
      * @return Whether the node is visible to the user.
      */
     public boolean isVisibleToUser() {
-        return mInfo.isVisibleToUser();
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.isVisibleToUser();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -2996,7 +3097,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setVisibleToUser(boolean visibleToUser) {
-        mInfo.setVisibleToUser(visibleToUser);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setVisibleToUser(visibleToUser);
+        }
     }
 
     /**
@@ -3005,7 +3108,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is accessibility focused.
      */
     public boolean isAccessibilityFocused() {
-        return mInfo.isAccessibilityFocused();
+        if (Build.VERSION.SDK_INT >= 16) {
+            return mInfo.isAccessibilityFocused();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3021,7 +3128,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setAccessibilityFocused(boolean focused) {
-        mInfo.setAccessibilityFocused(focused);
+        if (Build.VERSION.SDK_INT >= 16) {
+            mInfo.setAccessibilityFocused(focused);
+        }
     }
 
     /**
@@ -3263,9 +3372,10 @@ public class AccessibilityNodeInfoCompat {
     public long getMinDurationBetweenContentChangesMillis() {
         if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.getMinDurationBetweenContentChangeMillis(mInfo);
-        } else {
-            return mInfo.getExtras().getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
         }
+        return 0;
     }
 
     /**
@@ -3285,8 +3395,8 @@ public class AccessibilityNodeInfoCompat {
     public void setMinDurationBetweenContentChangesMillis(long duration) {
         if (Build.VERSION.SDK_INT >= 34) {
             Api34Impl.setMinDurationBetweenContentChangeMillis(mInfo, duration);
-        } else {
-            mInfo.getExtras().putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
         }
     }
 
@@ -3460,7 +3570,7 @@ public class AccessibilityNodeInfoCompat {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void addSpansToExtras(CharSequence text, View view) {
-        if (Build.VERSION.SDK_INT < 26) {
+        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 26) {
             clearExtrasSpans();
             removeCollectedSpans(view);
             ClickableSpan[] spans = getClickableSpans(text);
@@ -3521,10 +3631,12 @@ public class AccessibilityNodeInfoCompat {
     }
 
     private void clearExtrasSpans() {
-        mInfo.getExtras().remove(SPANS_START_KEY);
-        mInfo.getExtras().remove(SPANS_END_KEY);
-        mInfo.getExtras().remove(SPANS_FLAGS_KEY);
-        mInfo.getExtras().remove(SPANS_ID_KEY);
+        if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).remove(SPANS_START_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_END_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_FLAGS_KEY);
+            Api19Impl.getExtras(mInfo).remove(SPANS_ID_KEY);
+        }
     }
 
     private void addSpanLocationToExtras(ClickableSpan span, Spanned spanned, int id) {
@@ -3566,10 +3678,11 @@ public class AccessibilityNodeInfoCompat {
      */
     public @Nullable CharSequence getStateDescription() {
         if (Build.VERSION.SDK_INT >= 30) {
-            return Api30Impl.getStateDescription(mInfo);
-        } else {
-            return mInfo.getExtras().getCharSequence(STATE_DESCRIPTION_KEY);
+            return  Api30Impl.getStateDescription(mInfo);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(STATE_DESCRIPTION_KEY);
         }
+        return null;
     }
 
     /**
@@ -3601,8 +3714,8 @@ public class AccessibilityNodeInfoCompat {
     public void setStateDescription(@Nullable CharSequence stateDescription) {
         if (Build.VERSION.SDK_INT >= 30) {
             Api30Impl.setStateDescription(mInfo, stateDescription);
-        } else {
-            mInfo.getExtras().putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
         }
     }
 
@@ -3615,9 +3728,10 @@ public class AccessibilityNodeInfoCompat {
     public @Nullable String getUniqueId() {
         if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.getUniqueId(mInfo);
-        } else {
-            return mInfo.getExtras().getString(UNIQUE_ID_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getString(UNIQUE_ID_KEY);
         }
+        return null;
     }
 
     /**
@@ -3634,8 +3748,8 @@ public class AccessibilityNodeInfoCompat {
     public void setUniqueId(@Nullable String uniqueId) {
         if (Build.VERSION.SDK_INT >= 33) {
             Api33Impl.setUniqueId(mInfo, uniqueId);
-        } else {
-            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putString(UNIQUE_ID_KEY, uniqueId);
         }
     }
 
@@ -3671,8 +3785,8 @@ public class AccessibilityNodeInfoCompat {
     public void setContainerTitle(@Nullable CharSequence containerTitle) {
         if (Build.VERSION.SDK_INT >= 34) {
             Api34Impl.setContainerTitle(mInfo, containerTitle);
-        } else {
-            mInfo.getExtras().putCharSequence(CONTAINER_TITLE_KEY, containerTitle);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(CONTAINER_TITLE_KEY, containerTitle);
         }
     }
 
@@ -3689,9 +3803,10 @@ public class AccessibilityNodeInfoCompat {
     public CharSequence getContainerTitle() {
         if (Build.VERSION.SDK_INT >= 34) {
             return Api34Impl.getContainerTitle(mInfo);
-        } else {
-            return mInfo.getExtras().getCharSequence(CONTAINER_TITLE_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(CONTAINER_TITLE_KEY);
         }
+        return null;
     }
 
     /**
@@ -3717,7 +3832,9 @@ public class AccessibilityNodeInfoCompat {
      * @param viewId The id resource name.
      */
     public void setViewIdResourceName(String viewId) {
-        mInfo.setViewIdResourceName(viewId);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mInfo.setViewIdResourceName(viewId);
+        }
     }
 
     /**
@@ -3733,7 +3850,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The id resource name.
      */
     public String getViewIdResourceName() {
-        return mInfo.getViewIdResourceName();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.getViewIdResourceName();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -3755,7 +3876,11 @@ public class AccessibilityNodeInfoCompat {
      * @see ViewCompat#getAccessibilityLiveRegion(View)
      */
     public int getLiveRegion() {
-        return mInfo.getLiveRegion();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getLiveRegion();
+        } else {
+            return ViewCompat.ACCESSIBILITY_LIVE_REGION_NONE;
+        }
     }
 
     /**
@@ -3771,7 +3896,9 @@ public class AccessibilityNodeInfoCompat {
      * @see ViewCompat#setAccessibilityLiveRegion(View, int)
      */
     public void setLiveRegion(int mode) {
-        mInfo.setLiveRegion(mode);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setLiveRegion(mode);
+        }
     }
 
     /**
@@ -3817,24 +3944,30 @@ public class AccessibilityNodeInfoCompat {
      * @return The collection info.
      */
     public CollectionInfoCompat getCollectionInfo() {
-        AccessibilityNodeInfo.CollectionInfo info = mInfo.getCollectionInfo();
-        if (info != null) {
-            return new CollectionInfoCompat(info);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AccessibilityNodeInfo.CollectionInfo info = mInfo.getCollectionInfo();
+            if (info != null) {
+                return new CollectionInfoCompat(info);
+            }
         }
         return null;
     }
 
     public void setCollectionInfo(Object collectionInfo) {
-        mInfo.setCollectionInfo((collectionInfo == null) ? null
-                : (AccessibilityNodeInfo.CollectionInfo) ((CollectionInfoCompat)
-                        collectionInfo).mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setCollectionInfo((collectionInfo == null) ? null
+                    : (AccessibilityNodeInfo.CollectionInfo) ((CollectionInfoCompat)
+                            collectionInfo).mInfo);
+        }
 
     }
 
     public void setCollectionItemInfo(Object collectionItemInfo) {
-        mInfo.setCollectionItemInfo((collectionItemInfo == null) ? null
-                : (AccessibilityNodeInfo.CollectionItemInfo) ((CollectionItemInfoCompat)
-                        collectionItemInfo).mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setCollectionItemInfo((collectionItemInfo == null) ? null
+                    : (AccessibilityNodeInfo.CollectionItemInfo) ((CollectionItemInfoCompat)
+                            collectionItemInfo).mInfo);
+        }
     }
 
     /**
@@ -3844,9 +3977,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The collection item info.
      */
     public CollectionItemInfoCompat getCollectionItemInfo() {
-        AccessibilityNodeInfo.CollectionItemInfo info = mInfo.getCollectionItemInfo();
-        if (info != null) {
-            return new CollectionItemInfoCompat(info);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AccessibilityNodeInfo.CollectionItemInfo info = mInfo.getCollectionItemInfo();
+            if (info != null) {
+                return new CollectionItemInfoCompat(info);
+            }
         }
         return null;
     }
@@ -3857,9 +3992,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The range.
      */
     public RangeInfoCompat getRangeInfo() {
-        AccessibilityNodeInfo.RangeInfo info = mInfo.getRangeInfo();
-        if (info != null) {
-            return new RangeInfoCompat(info);
+        if (Build.VERSION.SDK_INT >= 19) {
+            AccessibilityNodeInfo.RangeInfo info = mInfo.getRangeInfo();
+            if (info != null) {
+                return new RangeInfoCompat(info);
+            }
         }
         return null;
     }
@@ -3875,7 +4012,9 @@ public class AccessibilityNodeInfoCompat {
      * @param rangeInfo The range info.
      */
     public void setRangeInfo(RangeInfoCompat rangeInfo) {
-        mInfo.setRangeInfo((AccessibilityNodeInfo.RangeInfo) rangeInfo.mInfo);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setRangeInfo((AccessibilityNodeInfo.RangeInfo) rangeInfo.mInfo);
+        }
     }
 
     /**
@@ -3936,7 +4075,9 @@ public class AccessibilityNodeInfoCompat {
      * @param contentInvalid If the node content is invalid.
      */
     public void setContentInvalid(boolean contentInvalid) {
-        mInfo.setContentInvalid(contentInvalid);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setContentInvalid(contentInvalid);
+        }
     }
 
     /**
@@ -3946,7 +4087,11 @@ public class AccessibilityNodeInfoCompat {
      * @return If the node content is invalid.
      */
     public boolean isContentInvalid() {
-        return mInfo.isContentInvalid();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.isContentInvalid();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -3987,9 +4132,10 @@ public class AccessibilityNodeInfoCompat {
     public @Nullable CharSequence getHintText() {
         if (Build.VERSION.SDK_INT >= 26) {
             return mInfo.getHintText();
-        } else {
-            return mInfo.getExtras().getCharSequence(HINT_TEXT_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(HINT_TEXT_KEY);
         }
+        return null;
     }
 
     /**
@@ -4008,8 +4154,8 @@ public class AccessibilityNodeInfoCompat {
     public void setHintText(@Nullable CharSequence hintText) {
         if (Build.VERSION.SDK_INT >= 26) {
             mInfo.setHintText(hintText);
-        } else {
-            mInfo.getExtras().putCharSequence(HINT_TEXT_KEY, hintText);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(HINT_TEXT_KEY, hintText);
         }
     }
 
@@ -4052,7 +4198,9 @@ public class AccessibilityNodeInfoCompat {
      * @param labeled The view for which this info serves as a label.
      */
     public void setLabelFor(View labeled) {
-        mInfo.setLabelFor(labeled);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabelFor(labeled);
+        }
     }
 
     /**
@@ -4070,7 +4218,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setLabelFor(View root, int virtualDescendantId) {
-        mInfo.setLabelFor(root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabelFor(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -4080,7 +4230,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The labeled info.
      */
     public AccessibilityNodeInfoCompat getLabelFor() {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabelFor());
+        if (Build.VERSION.SDK_INT >= 17) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabelFor());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -4090,7 +4244,9 @@ public class AccessibilityNodeInfoCompat {
      * @param label The view that labels this node's source.
      */
     public void setLabeledBy(View label) {
-        mInfo.setLabeledBy(label);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabeledBy(label);
+        }
     }
 
     /**
@@ -4113,7 +4269,9 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setLabeledBy(View root, int virtualDescendantId) {
-        mInfo.setLabeledBy(root, virtualDescendantId);
+        if (Build.VERSION.SDK_INT >= 17) {
+            mInfo.setLabeledBy(root, virtualDescendantId);
+        }
     }
 
     /**
@@ -4123,7 +4281,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The label.
      */
     public AccessibilityNodeInfoCompat getLabeledBy() {
-        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabeledBy());
+        if (Build.VERSION.SDK_INT >= 17) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabeledBy());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -4132,7 +4294,11 @@ public class AccessibilityNodeInfoCompat {
      * @return If the the node opens a popup.
      */
     public boolean canOpenPopup() {
-        return mInfo.canOpenPopup();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.canOpenPopup();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -4146,7 +4312,9 @@ public class AccessibilityNodeInfoCompat {
      * @param opensPopup If the the node opens a popup.
      */
     public void setCanOpenPopup(boolean opensPopup) {
-        mInfo.setCanOpenPopup(opensPopup);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setCanOpenPopup(opensPopup);
+        }
     }
 
     /**
@@ -4168,12 +4336,16 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressWarnings("MixedMutabilityReturnType")
     public List<AccessibilityNodeInfoCompat> findAccessibilityNodeInfosByViewId(String viewId) {
-        List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);
-        List<AccessibilityNodeInfoCompat> result = new ArrayList<>();
-        for (AccessibilityNodeInfo node : nodes) {
+        if (Build.VERSION.SDK_INT >= 18) {
+            List<AccessibilityNodeInfo> nodes = mInfo.findAccessibilityNodeInfosByViewId(viewId);
+            List<AccessibilityNodeInfoCompat> result = new ArrayList<>();
+            for (AccessibilityNodeInfo node : nodes) {
                 result.add(AccessibilityNodeInfoCompat.wrap(node));
             }
-        return result;
+            return result;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     /**
@@ -4190,7 +4362,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The bundle.
      */
     public Bundle getExtras() {
-        return mInfo.getExtras();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo);
+        } else {
+            return new Bundle();
+        }
     }
 
     /**
@@ -4199,7 +4375,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The input type.
      */
     public int getInputType() {
-        return mInfo.getInputType();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.getInputType();
+        } else {
+            return InputType.TYPE_NULL;
+        }
     }
 
     /**
@@ -4216,7 +4396,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setInputType(int inputType) {
-        mInfo.setInputType(inputType);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setInputType(inputType);
+        }
     }
 
     /**
@@ -4310,7 +4492,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setTextSelection(int start, int end) {
-        mInfo.setTextSelection(start, end);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mInfo.setTextSelection(start, end);
+        }
     }
 
     /**
@@ -4319,7 +4503,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The text selection start if there is selection or -1.
      */
     public int getTextSelectionStart() {
-        return mInfo.getTextSelectionStart();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.getTextSelectionStart();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -4328,7 +4516,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The text selection end if there is selection or -1.
      */
     public int getTextSelectionEnd() {
-        return mInfo.getTextSelectionEnd();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.getTextSelectionEnd();
+        } else {
+            return -1;
+        }
     }
 
     /**
@@ -4480,7 +4672,11 @@ public class AccessibilityNodeInfoCompat {
      * @return If the node can be dismissed.
      */
     public boolean isDismissable() {
-        return mInfo.isDismissable();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.isDismissable();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -4494,7 +4690,9 @@ public class AccessibilityNodeInfoCompat {
      * @param dismissable If the node can be dismissed.
      */
     public void setDismissable(boolean dismissable) {
-        mInfo.setDismissable(dismissable);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setDismissable(dismissable);
+        }
     }
 
     /**
@@ -4503,7 +4701,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is editable, false otherwise.
      */
     public boolean isEditable() {
-        return mInfo.isEditable();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.isEditable();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -4519,7 +4721,9 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setEditable(boolean editable) {
-        mInfo.setEditable(editable);
+        if (Build.VERSION.SDK_INT >= 18) {
+            mInfo.setEditable(editable);
+        }
     }
 
     /**
@@ -4528,7 +4732,11 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is multi line.
      */
     public boolean isMultiLine() {
-        return mInfo.isMultiLine();
+        if (Build.VERSION.SDK_INT >= 19) {
+            return mInfo.isMultiLine();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -4542,7 +4750,9 @@ public class AccessibilityNodeInfoCompat {
      * @param multiLine True if the node is multi line.
      */
     public void setMultiLine(boolean multiLine) {
-        mInfo.setMultiLine(multiLine);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.setMultiLine(multiLine);
+        }
     }
 
     /**
@@ -4554,9 +4764,10 @@ public class AccessibilityNodeInfoCompat {
     public CharSequence getTooltipText() {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getTooltipText();
-        } else {
-            return mInfo.getExtras().getCharSequence(TOOLTIP_TEXT_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(TOOLTIP_TEXT_KEY);
         }
+        return null;
     }
 
     /**
@@ -4575,8 +4786,8 @@ public class AccessibilityNodeInfoCompat {
     public void setTooltipText(@Nullable CharSequence tooltipText) {
         if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setTooltipText(tooltipText);
-        } else {
-            mInfo.getExtras().putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(TOOLTIP_TEXT_KEY, tooltipText);
         }
     }
 
@@ -4595,8 +4806,8 @@ public class AccessibilityNodeInfoCompat {
     public void setPaneTitle(@Nullable CharSequence paneTitle) {
         if (Build.VERSION.SDK_INT >= 28) {
             mInfo.setPaneTitle(paneTitle);
-        } else {
-            mInfo.getExtras().putCharSequence(PANE_TITLE_KEY, paneTitle);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(PANE_TITLE_KEY, paneTitle);
         }
     }
 
@@ -4609,9 +4820,10 @@ public class AccessibilityNodeInfoCompat {
     public @Nullable CharSequence getPaneTitle() {
         if (Build.VERSION.SDK_INT >= 28) {
             return mInfo.getPaneTitle();
-        } else {
-            return mInfo.getExtras().getCharSequence(PANE_TITLE_KEY);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(PANE_TITLE_KEY);
         }
+        return null;
     }
 
     /**
@@ -4805,7 +5017,11 @@ public class AccessibilityNodeInfoCompat {
      * @return Whether the refresh succeeded.
      */
     public boolean refresh() {
-        return mInfo.refresh();
+        if (Build.VERSION.SDK_INT >= 18) {
+            return mInfo.refresh();
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -4813,7 +5029,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The role description.
      */
     public @Nullable CharSequence getRoleDescription() {
-        return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
+        if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(ROLE_DESCRIPTION_KEY);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -4841,7 +5061,9 @@ public class AccessibilityNodeInfoCompat {
      * @param roleDescription The role description.
      */
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
-        mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+        if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+        }
     }
 
     /**
@@ -5159,6 +5381,31 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_SCROLL_IN_DIRECTION";
             default:
                 return "ACTION_UNKNOWN";
+        }
+    }
+
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static Bundle getExtras(AccessibilityNodeInfo info) {
+            return info.getExtras();
+        }
+
+        @DoNotInline
+        public static Object createRangeInfo(int type, float min, float max, float current) {
+            return AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current);
+        }
+
+        @DoNotInline
+        public static CollectionItemInfoCompat createCollectionItemInfo(int rowIndex, int rowSpan,
+                int columnIndex, int columnSpan, boolean heading) {
+            return new CollectionItemInfoCompat(
+                    AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                            columnSpan, heading));
         }
     }
 

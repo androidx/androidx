@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import androidx.build.LibraryType
 
 plugins {
@@ -32,12 +25,9 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
 
-    implementation("androidx.annotation:annotation-experimental:1.4.0")
+    implementation("androidx.annotation:annotation-experimental:1.3.1")
     implementation("androidx.collection:collection:1.2.0")
-    implementation(project(":wear:protolayout:protolayout-proto"))
-
-    lintChecks(project(":wear:protolayout:protolayout-lint"))
-    lintPublish(project(":wear:protolayout:protolayout-lint"))
+    implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
@@ -51,7 +41,7 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
-    buildTypes.configureEach {
+    buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
 }

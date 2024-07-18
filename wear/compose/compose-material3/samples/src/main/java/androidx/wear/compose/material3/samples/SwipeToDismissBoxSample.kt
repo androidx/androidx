@@ -47,7 +47,6 @@ import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SwipeToDismissBox
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Sampled
 @Composable
@@ -127,7 +126,7 @@ fun StatefulSwipeToDismissBox() {
                             modifier = Modifier
                                 .height(40.dp)
                                 .background(
-                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                    color = MaterialTheme.colorScheme.surface,
                                     shape = CircleShape
                                 )
                                 .padding(horizontal = 12.dp),
@@ -138,11 +137,9 @@ fun StatefulSwipeToDismissBox() {
                             ) {
                                 Text("Item details")
                             }
-                            ToggleButton(
-                                label = { Text("Checkbox", maxLines = 1) },
+                            Checkbox(
                                 checked = checked.value,
-                                toggleControl = { Checkbox() },
-                                onCheckedChange = { checked.value = it },
+                                onCheckedChange = { checked.value = it }
                             )
                         }
                     }

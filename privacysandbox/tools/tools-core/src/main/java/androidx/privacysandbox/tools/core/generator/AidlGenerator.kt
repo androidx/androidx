@@ -23,8 +23,6 @@ import androidx.privacysandbox.tools.core.generator.poet.AidlMethodSpec
 import androidx.privacysandbox.tools.core.generator.poet.AidlParcelableSpec.Companion.aidlParcelable
 import androidx.privacysandbox.tools.core.generator.poet.AidlTypeKind
 import androidx.privacysandbox.tools.core.generator.poet.AidlTypeSpec
-import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
-import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
 import androidx.privacysandbox.tools.core.model.AnnotatedValue
 import androidx.privacysandbox.tools.core.model.Method
@@ -154,7 +152,7 @@ class AidlGenerator private constructor(
     }
 
     private fun generateTransactionCallbacks(): List<AidlFileSpec> {
-        val annotatedInterfaces = api.services + api.interfaces + api.callbacks
+        val annotatedInterfaces = api.services + api.interfaces
         return annotatedInterfaces
             .flatMap(AnnotatedInterface::methods)
             .filter(Method::isSuspend)
@@ -218,18 +216,13 @@ class AidlGenerator private constructor(
         }
     }
 
-    private fun generateValue(value: AnnotatedValue) =
-        aidlParcelable(value.aidlType().innerType) {
-            when (value) {
-                is AnnotatedEnumClass ->
-                    addProperty("variant_ordinal", getAidlTypeDeclaration(Types.int))
-
-                is AnnotatedDataClass ->
-                    for (property in value.properties) {
-                        addProperty(property.name, getAidlTypeDeclaration(property.type))
-                    }
+    private fun generateValue(value: AnnotatedValue): AidlFileSpec {
+        return aidlParcelable(value.aidlType().innerType) {
+            for (property in value.properties) {
+                addProperty(property.name, getAidlTypeDeclaration(property.type))
             }
         }
+    }
 
     private fun getAidlFile(rootPath: Path, aidlSource: AidlFileSpec) = Paths.get(
         rootPath.toString(),
@@ -285,7 +278,6 @@ class AidlGenerator private constructor(
             Short::class.qualifiedName -> primitive("int")
             Unit::class.qualifiedName -> primitive("void")
             List::class.qualifiedName -> getAidlTypeDeclaration(type.typeParameters[0]).listSpec()
-            Types.bundle.qualifiedName -> bundleAidlType
             Types.sdkActivityLauncher.qualifiedName -> bundleAidlType
             else -> throw IllegalArgumentException(
                 "Unsupported type conversion ${type.qualifiedName}"

@@ -90,7 +90,6 @@ abstract class LoadStateAdapter<VH : RecyclerView.ViewHolder> : RecyclerView.Ada
     /**
      * Called to bind the passed LoadState to the ViewHolder.
      *
-     * @param holder the ViewHolder to bind to
      * @param loadState LoadState to display.
      *
      * @see [getItemViewType]

@@ -43,18 +43,19 @@ internal fun Modifier.animateBounds(
     positionAnimationSpec: FiniteAnimationSpec<IntOffset>,
     lookaheadScope: LookaheadScope,
     enabled: Boolean
-) = if (enabled) {
-    this.then(
-        AnimateBoundsElement(
-            animateFraction,
-            sizeAnimationSpec,
-            positionAnimationSpec,
-            lookaheadScope
+) =
+    if (enabled) {
+        this.then(
+            AnimateBoundsElement(
+                animateFraction,
+                sizeAnimationSpec,
+                positionAnimationSpec,
+                lookaheadScope
+            )
         )
-    )
-} else {
-    this
-}
+    } else {
+        this
+    }
 
 private data class AnimateBoundsElement(
     private val animateFraction: () -> Float,
@@ -163,18 +164,15 @@ private class SizeTracker(var animationSpec: FiniteAnimationSpec<IntSize>) {
         }
         // TODO(conradchen): Handle the interruption better when the target size changes during
         //                   the animation
-        originalSize = if (currentSize != InvalidIntSize) {
-            currentSize
-        } else {
-            newSize
-        }
+        originalSize =
+            if (currentSize != InvalidIntSize) {
+                currentSize
+            } else {
+                newSize
+            }
         targetSize = newSize
-        animation = TargetBasedAnimation(
-            animationSpec,
-            IntSize.VectorConverter,
-            originalSize,
-            targetSize
-        )
+        animation =
+            TargetBasedAnimation(animationSpec, IntSize.VectorConverter, originalSize, targetSize)
     }
 
     fun updateAndGetCurrentSize(fraction: Float): IntSize {
@@ -195,18 +193,20 @@ private class PositionTracker(var animationSpec: FiniteAnimationSpec<IntOffset>)
         }
         // TODO(conradchen): Handle the interruption better when the target position changes during
         //                   the animation
-        originalOffset = if (currentOffset != null) {
-            currentOffset
-        } else {
-            newOffset
-        }
+        originalOffset =
+            if (currentOffset != null) {
+                currentOffset
+            } else {
+                newOffset
+            }
         targetOffset = newOffset
-        animation = TargetBasedAnimation(
-            animationSpec,
-            IntOffset.VectorConverter,
-            originalOffset!!,
-            targetOffset!!
-        )
+        animation =
+            TargetBasedAnimation(
+                animationSpec,
+                IntOffset.VectorConverter,
+                originalOffset!!,
+                targetOffset!!
+            )
     }
 
     fun updateAndGetCurrentOffset(fraction: Float): IntOffset {

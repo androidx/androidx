@@ -1,104 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    static final List&lt;CarZone> GLOBAL_CAR_ZONE = Arrays.asList(getGlobalCarZone());"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    static final ImmutableMap&lt;Integer, List&lt;CarZone>> ENERGY_LEVEL_REQUEST = ImmutableMap.&lt;Integer,"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private static final ImmutableMap&lt;Integer, List&lt;CarZone>> MILEAGE_REQUEST ="
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    static final ImmutableMap&lt;Integer, List&lt;CarZone>> TOLL_REQUEST = ImmutableMap.&lt;Integer,"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private static final ImmutableMap&lt;Integer, List&lt;CarZone>> SPEED_REQUEST = ImmutableMap.&lt;Integer,"
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    private static final ImmutableMap&lt;Integer, List&lt;CarZone>> EV_STATUS_REQUEST ="
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        private final OnCarDataAvailableListener&lt;EvStatus> mEvStatusOnCarDataAvailableListener;"
-        errorLine2="                                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        EvStatusListener(OnCarDataAvailableListener&lt;EvStatus> listener, Executor executor) {"
-        errorLine2="                                                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/info/AutomotiveCarInfo.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public abstract ImmutableMap&lt;Set&lt;CarZone>, Set&lt;Integer>> getHvacFanDirection();"
-        errorLine2="                                     ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyProfile.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public abstract ImmutableMap&lt;Set&lt;CarZone>, Pair&lt;T, T>> getCarZoneSetsToMinMaxRange();"
-        errorLine2="                                     ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyProfile.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public abstract ImmutableList&lt;Set&lt;CarZone>> getCarZones();"
-        errorLine2="                                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyProfile.java"/>
-    </issue>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="UnsafeOptInUsageError"
@@ -112,89 +13,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        public abstract Builder&lt;T> setHvacFanDirection(@Nullable Map&lt;Set&lt;CarZone>,"
-        errorLine2="                                                                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyProfile.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="                @Nullable Map&lt;Set&lt;CarZone>, Pair&lt;T, T>> minMaxRange);"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyProfile.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="                @NonNull List&lt;Set&lt;CarZone>> carZones);"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyProfile.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public abstract ImmutableList&lt;CarZone> getCarZones();"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyResponse.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        public abstract Builder&lt;T> setCarZones(@NonNull List&lt;CarZone> carZones);"
-        errorLine2="                                                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/CarPropertyResponse.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public abstract ImmutableList&lt;CarZone> getCarZones();"
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/GetPropertyRequest.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        public abstract Builder setCarZones(@NonNull List&lt;CarZone> carZones);"
-        errorLine2="                                                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/GetPropertyRequest.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="            @NonNull Map&lt;Integer, List&lt;CarZone>> propertyIdsToCarZones, float sampleRate,"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyManager.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        Map&lt;Integer, List&lt;CarZone>> propertyIdsToCarZones = new HashMap&lt;>();"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyManager.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="                    Map&lt;Set&lt;CarZone>, Set&lt;Integer>> fanDirectionValues = new HashMap&lt;>();"
-        errorLine2="                            ~~~~~~~">
+        errorLine1="                        fanDirectionValues.put(convertAreaIdToCarZones(CarZoneUtils.AreaType.SEAT,"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/PropertyRequestProcessor.java"/>
     </issue>
@@ -203,7 +23,7 @@
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
         errorLine1="                        fanDirectionValues.put(convertAreaIdToCarZones(CarZoneUtils.AreaType.SEAT,"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/PropertyRequestProcessor.java"/>
     </issue>
@@ -238,17 +58,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="                    Map&lt;Set&lt;CarZone>, Pair&lt;Object, Object>> minMaxRange = new HashMap&lt;>();"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyRequestProcessor.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="                    List&lt;Set&lt;CarZone>> carZones = new ArrayList&lt;>();"
-        errorLine2="                             ~~~~~~~">
+        errorLine1="                            minMaxRange.put(convertAreaIdToCarZones(areaType,"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/PropertyRequestProcessor.java"/>
     </issue>
@@ -257,7 +68,7 @@
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
         errorLine1="                            minMaxRange.put(convertAreaIdToCarZones(areaType,"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine2="                                                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/PropertyRequestProcessor.java"/>
     </issue>
@@ -274,10 +85,10 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="            append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                        carZones.add(convertAreaIdToCarZones(areaType, areaId));"
+        errorLine2="                                                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
+            file="src/main/java/androidx/car/app/hardware/common/PropertyRequestProcessor.java"/>
     </issue>
 
     <issue
@@ -292,53 +103,8 @@
     <issue
         id="UnsafeOptInUsageError"
         message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public static Map&lt;Set&lt;CarZone>, Pair&lt;Integer, Integer>> getMinMaxProfileIntegerMap("
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="            @NonNull Map&lt;Set&lt;CarZone>, ? extends Pair&lt;?, ?>> minMaxRange) {"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        Map&lt;Set&lt;CarZone>, Pair&lt;Integer, Integer>>"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="    public static Map&lt;Set&lt;CarZone>, Pair&lt;Float, Float>> getMinMaxProfileFloatMap("
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="            @NonNull Map&lt;Set&lt;CarZone>, ? extends Pair&lt;?, ?>> minMaxRange) {"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="        Map&lt;Set&lt;CarZone>, Pair&lt;Float, Float>>"
-        errorLine2="                ~~~~~~~">
+        errorLine1="            append(HVAC_ELECTRIC_DEFROSTER_ON_PROPERTY_ID, CAR_PERMISSION_CLIMATE_CONTROL);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/hardware/common/PropertyUtils.java"/>
     </issue>

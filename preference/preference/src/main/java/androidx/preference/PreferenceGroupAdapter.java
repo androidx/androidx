@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -398,7 +399,7 @@ public class PreferenceGroupAdapter extends RecyclerView.Adapter<PreferenceViewH
 
         final View view = inflater.inflate(descriptor.mLayoutResId, parent, false);
         if (view.getBackground() == null) {
-            view.setBackground(background);
+            ViewCompat.setBackground(view, background);
         }
 
         final ViewGroup widgetFrame = view.findViewById(android.R.id.widget_frame);

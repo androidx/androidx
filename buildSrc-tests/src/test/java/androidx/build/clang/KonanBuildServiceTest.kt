@@ -17,21 +17,43 @@
 package androidx.build.clang
 
 import androidx.testutils.assertThrows
+import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.io.File
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
-import org.jetbrains.kotlin.konan.target.Family
+import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 
-class KonanBuildServiceTest : BaseClangTest() {
+class KonanBuildServiceTest {
+    @get:Rule
+    val projectSetup = ProjectSetupRule()
+    @get:Rule
+    val tmpFolder = TemporaryFolder()
+    private lateinit var project: Project
     private lateinit var buildService: KonanBuildService
 
     @Before
-    fun initBuildService() {
+    fun init() {
+        project = ProjectBuilder.builder()
+            .withProjectDir(projectSetup.rootDir)
+            .build()
+        val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
+        // build service needs prebuilts location to "download" clang and targets.
+        extension.set(
+            "prebuiltsRoot",
+            File(projectSetup.props.rootProjectPath).resolve("../../prebuilts")
+        )
+        // register components required by NativeCompilerDownloader
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
         buildService = KonanBuildService.obtain(project).get()
     }
 
@@ -115,26 +137,6 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).contains("Hello, World!")
         // should link with libc
         assertThat(strings).contains("libc")
-
-        // verify shared lib files are aligned to 16Kb boundary for Android targets
-        if (sharedLibraryParameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
-            val alignment = ProcessBuilder("objdump", "-p", outputFile.path)
-                .start()
-                .inputStream
-                .bufferedReader()
-                .useLines { lines ->
-                    lines.filter {
-                        it.contains("LOAD")
-                    }.map {
-                        it.split(" ").last()
-                    }.firstOrNull()
-                }
-            assertThat(
-                alignment
-            ).isEqualTo(
-                "2**14"
-            )
-        }
     }
 
     @Test

@@ -80,14 +80,13 @@ import androidx.tv.material3.tokens.DefaultTextStyle
  * @param maxLines an optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- * @param minLines The minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines].
  * @param onTextLayout callback that is executed when a new text layout is calculated. A
  * [TextLayoutResult] object that callback provides contains paragraph information, size of the
  * text, baselines and other details. The callback can be used to add additional decoration or
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun Text(
     text: String,
@@ -99,12 +98,11 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign = TextAlign.Unspecified,
     lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
@@ -122,7 +120,7 @@ fun Text(
                 color = textColor,
                 fontSize = fontSize,
                 fontWeight = fontWeight,
-                textAlign = textAlign ?: TextAlign.Unspecified,
+                textAlign = textAlign,
                 lineHeight = lineHeight,
                 fontFamily = fontFamily,
                 textDecoration = textDecoration,
@@ -132,8 +130,7 @@ fun Text(
         onTextLayout,
         overflow,
         softWrap,
-        maxLines,
-        minLines
+        maxLines
     )
 }
 
@@ -179,8 +176,6 @@ fun Text(
  * @param maxLines an optional maximum number of lines for the text to span, wrapping if
  * necessary. If the text exceeds the given number of lines, it will be truncated according to
  * [overflow] and [softWrap]. If it is not null, then it must be greater than zero.
- * @param minLines The minimum height in terms of minimum number of visible lines. It is required
- * that 1 <= [minLines] <= [maxLines].
  * @param inlineContent a map storing composables that replaces certain ranges of the text, used to
  * insert composables into text layout. See [InlineTextContent].
  * @param onTextLayout callback that is executed when a new text layout is calculated. A
@@ -189,6 +184,7 @@ fun Text(
  * functionality to the text. For example, to draw selection around the text.
  * @param style style configuration for the text such as color, font, line height etc.
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun Text(
     text: AnnotatedString,
@@ -200,12 +196,11 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign = TextAlign.Unspecified,
     lineHeight: TextUnit = TextUnit.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
@@ -223,7 +218,7 @@ fun Text(
                 color = textColor,
                 fontSize = fontSize,
                 fontWeight = fontWeight,
-                textAlign = textAlign ?: TextAlign.Unspecified,
+                textAlign = textAlign,
                 lineHeight = lineHeight,
                 fontFamily = fontFamily,
                 textDecoration = textDecoration,
@@ -234,7 +229,6 @@ fun Text(
         overflow = overflow,
         softWrap = softWrap,
         maxLines = maxLines,
-        minLines = minLines,
         inlineContent = inlineContent
     )
 }
@@ -246,6 +240,9 @@ fun Text(
  *
  * @see ProvideTextStyle
  */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@ExperimentalTvMaterial3Api
+@get:ExperimentalTvMaterial3Api
 val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTextStyle }
 
 // TODO(b/156598010): remove this and replace with fold definition on the backing CompositionLocal
@@ -256,6 +253,7 @@ val LocalTextStyle = compositionLocalOf(structuralEqualityPolicy()) { DefaultTex
  *
  * @see LocalTextStyle
  */
+@ExperimentalTvMaterial3Api
 @Composable
 fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
     val mergedStyle = LocalTextStyle.current.merge(value)

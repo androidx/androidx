@@ -34,8 +34,7 @@ import kotlin.jvm.JvmOverloads
 /**
  * [PKeyList] is a [List]-like collection for [PKey] values. It allows retrieving
  * the elements without boxing. [PKeyList] is always backed by a [MutablePKeyList],
- * its [MutableList]-like subclass. The purpose of this class is to avoid the performance
- * overhead of auto-boxing due to generics since [Collection] classes all operate on objects.
+ * its [MutableList]-like subclass.
  *
  * This implementation is not thread-safe: if multiple threads access this
  * container concurrently, and one or more threads modify the structure of
@@ -63,18 +62,6 @@ public sealed class PKeyList(initialCapacity: Int) {
     @get:androidx.annotation.IntRange(from = 0)
     public val size: Int
         get() = _size
-
-    /**
-     * The current backing [PKeyArray] for the contents of [PKeyList].
-     *
-     * Modifying this array may affect the contents of the [PKeyList]. The values are stored in
-     * indices 0 to [lastIndex], but any values after [lastIndex] can be any value.
-     *
-     * This should only be used for highly-optimized code that needs direct access to the backing
-     * array.
-     */
-    public val internalArray: PKeyArray
-        get() = content
 
     /**
      * Returns the last valid index in the [PKeyList]. This can be `-1` when the list is empty.

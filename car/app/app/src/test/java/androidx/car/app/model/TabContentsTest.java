@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
-import androidx.car.app.navigation.model.MapWithContentTemplate;
+import androidx.car.app.navigation.model.MapTemplate;
 import androidx.car.app.navigation.model.NavigationTemplate;
 
 import org.junit.Test;
@@ -44,9 +44,7 @@ public class TabContentsTest {
     public void createInstance_invalidTemplate_Throws() {
         assertThrows(
                 IllegalStateException.class,
-                () -> new TabContents.Builder(new MapWithContentTemplate.Builder()
-                        .setContentTemplate(new ListTemplate.Builder().build())
-                        .build()).build());
+                () -> new TabContents.Builder(new MapTemplate.Builder().build()).build());
     }
 
     @Test

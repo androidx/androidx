@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.RepeatingStreamConstraintForVideoRecordingQuirk
 import androidx.camera.core.impl.utils.CompareSizesByArea

@@ -28,6 +28,7 @@ public actual class NavOptionsBuilder {
     @set:Suppress("SetterReturnsThis", "GetterSetterNames")
     public actual var restoreState: Boolean = false
 
+    /** Returns the current destination that the builder will pop up to. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var popUpToId: Int = -1
         internal set(value) {
@@ -65,6 +66,18 @@ public actual class NavOptionsBuilder {
             }
         }
 
+    /**
+     * Pop up to a given destination before navigating. This pops all non-matching destinations from
+     * the back stack until this destination is found.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun popUpTo(id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit = {}) {
+        popUpToId = id
+        popUpToRoute = null
+        val builder = PopUpToBuilder().apply(popUpToBuilder)
+        inclusive = builder.inclusive
+        saveState = builder.saveState
+    }
 
     public actual fun popUpTo(route: String, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpToRoute = route
@@ -108,17 +121,20 @@ public actual class NavOptionsBuilder {
         saveState = builder.saveState
     }
 
-    internal actual fun build() = builder.apply {
-        setLaunchSingleTop(launchSingleTop)
-        setRestoreState(restoreState)
-        if (popUpToRoute != null) {
-            setPopUpTo(popUpToRoute, inclusive, saveState)
-        } else if (popUpToRouteClass != null) {
-            setPopUpTo(popUpToRouteClass!!, inclusive, saveState)
-        } else if (popUpToRouteObject != null) {
-            setPopUpTo(popUpToRouteObject!!, inclusive, saveState)
-        } else {
-            setPopUpTo(popUpToId, inclusive, saveState)
-        }
-    }.build()
+    internal actual fun build() =
+        builder
+            .apply {
+                setLaunchSingleTop(launchSingleTop)
+                setRestoreState(restoreState)
+                if (popUpToRoute != null) {
+                    setPopUpTo(popUpToRoute, inclusive, saveState)
+                } else if (popUpToRouteClass != null) {
+                    setPopUpTo(popUpToRouteClass!!, inclusive, saveState)
+                } else if (popUpToRouteObject != null) {
+                    setPopUpTo(popUpToRouteObject!!, inclusive, saveState)
+                } else {
+                    setPopUpTo(popUpToId, inclusive, saveState)
+                }
+            }
+            .build()
 }

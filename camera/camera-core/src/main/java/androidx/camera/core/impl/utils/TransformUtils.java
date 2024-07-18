@@ -157,48 +157,6 @@ public class TransformUtils {
     }
 
     /**
-     * Checks if the matrix contains a mirroring.
-     *
-     * <p>This is mostly for testing if a sensor-to-buffer transformation. This method returns true
-     * if the image has been mirrored by the pipeline.
-     */
-    public static boolean isMirrored(@NonNull Matrix matrix) {
-        // We create 2 vectors, (0, 1) and (1, 0) with -90 degrees angle between them. Then we map
-        // the vectors with the matrix. If the angle changes to positive(90 degrees), we know that
-        // the matrix contains a mirroring.
-        float[] vectors = new float[]{0, 1, 1, 0};
-        matrix.mapVectors(vectors);
-        return calculateSignedAngle(vectors[0], vectors[1], vectors[2], vectors[3]) > 0;
-    }
-
-    /**
-     * Calculates the clockwise angle between 2 vectors.
-     */
-    public static float calculateSignedAngle(float v1x, float v1y, float v2x, float v2y) {
-        // Calculate the dot product
-        float dotProduct = v1x * v2x + v1y * v2y;
-
-        // Calculate the determinant (which is proportional to the sine of the angle)
-        float det = v1x * v2y - v1y * v2x;
-
-        // Calculate the magnitudes of the vectors
-        double magV1 = Math.sqrt(v1x * v1x + v1y * v1y);
-        double magV2 = Math.sqrt(v2x * v2x + v2y * v2y);
-
-        // Calculate the cosine and sine of the angle
-        double cosTheta = dotProduct / (magV1 * magV2);
-        double sinTheta = det / (magV1 * magV2);
-
-        // Calculate the angle in radians using atan2 (result ranges from -π to π)
-        double angleRad = Math.atan2(sinTheta, cosTheta);
-
-        // Convert the angle to degrees, if needed
-        double angleDeg = Math.toDegrees(angleRad);
-
-        return (float) angleDeg;
-    }
-
-    /**
      * Gets the size after cropping and rotating.
      *
      * @return rotated size
@@ -475,21 +433,5 @@ public class TransformUtils {
         matrix.postConcat(restore);
 
         return matrix;
-    }
-
-    /**
-     * Returns the rotation degrees of the matrix.
-     *
-     * <p>The returned degrees will be an integer between 0 and 359.
-     */
-    public static int getRotationDegrees(@NonNull Matrix matrix) {
-        float[] values = new float[9];
-        matrix.getValues(values);
-
-        // Calculate the degrees of rotation using the sin and cosine values from the matrix
-        float scaleX = values[Matrix.MSCALE_X];
-        float skewY = values[Matrix.MSKEW_Y];
-
-        return within360((int) Math.round(Math.atan2(skewY, scaleX) * (180 / Math.PI)));
     }
 }

@@ -72,7 +72,7 @@ public class ImeMultiWindowTest extends BaseInstrumentationTestCase<ImeBaseSplit
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 30, excludedSdks = { 30 }) // Excluded due to flakes (b/326275722)
+    @SdkSuppress(minSdkVersion = 30)
     public void testImeShowAndHide_splitScreen() {
         if (Build.VERSION.SDK_INT < 32) {
             // FLAG_ACTIVITY_LAUNCH_ADJACENT is not support before Sdk 32, using the

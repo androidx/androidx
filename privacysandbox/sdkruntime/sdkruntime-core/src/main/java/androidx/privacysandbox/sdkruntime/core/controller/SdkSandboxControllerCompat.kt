@@ -19,26 +19,20 @@ package androidx.privacysandbox.sdkruntime.core.controller
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.Keep
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
-import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.impl.LocalImpl
+import androidx.privacysandbox.sdkruntime.core.controller.impl.NoOpImpl
+import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformUDCImpl
-import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -58,27 +52,6 @@ import org.jetbrains.annotations.TestOnly
 class SdkSandboxControllerCompat internal constructor(
     private val controllerImpl: SandboxControllerImpl
 ) {
-
-    /**
-     * Load SDK in a SDK sandbox java process or locally.
-     *
-     * The caller may only load SDKs the client app depends on into the SDK sandbox.
-     *
-     * @param sdkName name of the SDK to be loaded.
-     * @param params additional parameters to be passed to the SDK in the form of a [Bundle]
-     *  as agreed between the client and the SDK.
-     * @return [SandboxedSdkCompat] from SDK on a successful run.
-     * @throws [LoadSdkCompatException] on fail.
-     */
-    suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat =
-        suspendCancellableCoroutine { continuation ->
-            controllerImpl.loadSdk(
-                sdkName,
-                params,
-                Runnable::run,
-                ContinuationLoadSdkCallback(continuation)
-            )
-        }
 
     /**
      * Fetches information about Sdks that are loaded in the sandbox or locally.
@@ -127,19 +100,8 @@ class SdkSandboxControllerCompat internal constructor(
     fun unregisterSdkSandboxActivityHandler(handlerCompat: SdkSandboxActivityHandlerCompat) =
         controllerImpl.unregisterSdkSandboxActivityHandler(handlerCompat)
 
-    /**
-     * Returns the package name of the client app.
-     *
-     * @return Package name of the client app.
-     */
-    fun getClientPackageName(): String =
-        controllerImpl.getClientPackageName()
-
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
-
-        fun loadSdk(sdkName: String, params: Bundle, executor: Executor, callback: LoadSdkCallback)
-
         fun getSandboxedSdks(): List<SandboxedSdkCompat>
 
         fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat>
@@ -150,8 +112,6 @@ class SdkSandboxControllerCompat internal constructor(
         fun unregisterSdkSandboxActivityHandler(
             handlerCompat: SdkSandboxActivityHandlerCompat
         )
-
-        fun getClientPackageName(): String
     }
 
     companion object {
@@ -169,10 +129,11 @@ class SdkSandboxControllerCompat internal constructor(
         fun from(context: Context): SdkSandboxControllerCompat {
             val clientVersion = Versions.CLIENT_VERSION
             if (clientVersion != null) {
-                val implFromClient = localImpl ?: throw UnsupportedOperationException(
-                    "Shouldn't happen: No controller implementation available"
-                )
-                return SdkSandboxControllerCompat(LocalImpl(implFromClient, context, clientVersion))
+                val implFromClient = localImpl
+                if (implFromClient != null) {
+                    return SdkSandboxControllerCompat(LocalImpl(implFromClient, clientVersion))
+                }
+                return SdkSandboxControllerCompat(NoOpImpl())
             }
             val platformImpl = PlatformImplFactory.create(context)
             return SdkSandboxControllerCompat(platformImpl)
@@ -201,30 +162,13 @@ class SdkSandboxControllerCompat internal constructor(
 
     private object PlatformImplFactory {
         fun create(context: Context): SandboxControllerImpl {
-            if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
-                return PlatformUDCImpl.from(context)
+            if (AdServicesInfo.isAtLeastV5()) {
+                if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
+                    return PlatformUDCImpl.from(context)
+                }
+                return PlatformImpl.from(context)
             }
-            throw UnsupportedOperationException("SDK should be loaded locally on API below 34")
+            return NoOpImpl()
         }
-    }
-
-    private class ContinuationLoadSdkCallback(
-        private val continuation: Continuation<SandboxedSdkCompat>
-    ) : LoadSdkCallback, AtomicBoolean(false) {
-        override fun onResult(result: SandboxedSdkCompat) {
-            // Do not attempt to resume more than once, even if the caller is buggy.
-            if (compareAndSet(false, true)) {
-                continuation.resume(result)
-            }
-        }
-
-        override fun onError(error: LoadSdkCompatException) {
-            // Do not attempt to resume more than once, even if the caller is buggy.
-            if (compareAndSet(false, true)) {
-                continuation.resumeWithException(error)
-            }
-        }
-
-        override fun toString() = "ContinuationLoadSdkCallback(outcomeReceived = ${get()})"
     }
 }

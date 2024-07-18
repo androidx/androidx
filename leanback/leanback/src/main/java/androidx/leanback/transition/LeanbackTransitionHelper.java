@@ -30,7 +30,7 @@ import androidx.leanback.R;
 public class LeanbackTransitionHelper {
 
     public static Object loadTitleInTransition(Context context) {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 21) {
             return TransitionHelper.loadTransition(context, R.transition.lb_title_in);
         }
 
@@ -43,7 +43,7 @@ public class LeanbackTransitionHelper {
     }
 
     public static Object loadTitleOutTransition(Context context) {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 21) {
             return TransitionHelper.loadTransition(context, R.transition.lb_title_out);
         }
 

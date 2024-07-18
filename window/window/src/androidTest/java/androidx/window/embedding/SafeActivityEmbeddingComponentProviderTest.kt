@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.WindowExtensions
+import androidx.window.extensions.WindowExtensions.VENDOR_API_LEVEL_1
 import androidx.window.extensions.WindowExtensionsProvider
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -68,7 +69,7 @@ class SafeActivityEmbeddingComponentProviderTest {
                 assertNotNull(safeComponent)
                 assertTrue(safeProvider.isActivityEmbeddingComponentAccessible())
                 when (ExtensionsUtil.safeVendorApiLevel) {
-                    1 -> assertTrue(safeProvider.hasValidVendorApiLevel1())
+                    VENDOR_API_LEVEL_1 -> assertTrue(safeProvider.hasValidVendorApiLevel1())
                     else -> assertTrue(safeProvider.hasValidVendorApiLevel2())
                 }
             }

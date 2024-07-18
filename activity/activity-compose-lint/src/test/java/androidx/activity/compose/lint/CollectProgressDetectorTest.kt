@@ -31,6 +31,46 @@ class CollectProgressDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(CollectProgressDetector.NoCollectCallFound)
 
+    private val PREDICTIVE_BACK_HANDLER = bytecode(
+        "libs/predictivebackhandler.jar",
+        kotlin(
+            """
+    package androidx.activity.compose
+
+    public fun PredictiveBackHandler(
+        enabled: Boolean = true,
+        onBack: (progress: String) -> Unit) { }
+    
+    """
+    ).indented(),
+        0xd7427505,
+    """
+    META-INF/main.kotlin_module:
+    H4sIAAAAAAAA/2NgYGBmYGBgBGJWKM3AZcIlmZiXUpSfmVKhl5hcklmWWVKp
+    l5yfW5BfnCokHlCUmpIJEk11SkzO9gCqzEkt8i7hEuXiBqrRS61IzC3ISRVi
+    C0ktLvEuUWLQYgAAnvRwIWUAAAA=
+    """,
+    """
+    androidx/activity/compose/PredictiveBackHandlerKt.class:
+    H4sIAAAAAAAA/4VSXU8TQRQ9s9222/JVFkGogCAoIMIWNOGhxkRNiI2lElEe
+    4GnYDnXodpbsTht8MfwNX/0HvhEfDPHRH2W8sy0fURLa5N479557zt078/vP
+    j58AnmGNYY2rehTK+onHfS07Un/2/LB1HMbC245EXZqkeMX95hsCBiJ6q7Ng
+    DIUj3uFewFXDe3dwJHzKphhGb2xhmF/cqzZDHUjlHXVa3mFbESZUsbfZi9bK
+    S7sMm7fCnq9Ur4R3dCRVo3zR8lFJXX6REM1Vw6jhHQl9EHFJ/VypUPMuVy3U
+    tXYQlBkyoTJTOsgxTF/TlUqLSPHAqyijEEs/zqKPvs7/JPxmr3+bR7wltPm6
+    hcXqv9so/z/m0m4/BjCYRz+GGLJC8YNA1BnYHsPMbdthmLpxtfN1ccjbgWbY
+    uH3Flf/HNEOlkcnDwhjD8AXDltC8zjUnXavVSdFbYcakadqmCSzKn0gTlSiq
+    0zPaPz+dzp+f5q2C1XV9iRu3KBzsescqPi2cnxatElt3HAJSlFqfLdjFKXfE
+    HS5lfn3L9DtZ13Ec13acxZxru4QtpY3EOqMZ4F4MeH0zYxfJyyupkaOCrcgz
+    OMdR2IhEHDOM37jE1Sbtz34d1gk8VJVK1NqtAxF9MBdkNEOfB7s8kubcS+Z2
+    ZENx3Y4onn/fVlq2REV1ZCypfDnHy6tnxzCwo0lyix/3KPI7YTvyxaY0h4ke
+    x26X4Voj1uhubJifhQlzWUhhiU5lOlvks8tu/gyF7wngMdkMLSpD/2WKx7oQ
+    DMNNKLLIYYTqTxJ0FivkcwZCawIKOdzBKMWGf6OnOzhpf/mKtF0uLp/hbldm
+    lWwKzEn0BmEegk2KaSKxqewloEWUyFeIbpwqE/tIVVCs4B5ZTFYwhekK7mNm
+    HyzGLB7sIx8jHWMuxnBiczHmk+BhjEcxFv4C1+LeOLYEAAA=
+    """
+    )
+
     @Test
     fun errors() {
         lint().files(

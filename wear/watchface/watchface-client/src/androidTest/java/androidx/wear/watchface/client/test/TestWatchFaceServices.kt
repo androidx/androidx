@@ -33,7 +33,6 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.ComplicationTapFilter
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.StatefulWatchFaceRuntimeService
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceRuntimeService
 import androidx.wear.watchface.WatchFaceService
@@ -334,95 +333,6 @@ internal class TestWatchFaceRuntimeService(
     }
 }
 
-class MyExtra(val data: Int)
-
-@Suppress("Deprecation")
-internal class TestStatefulWatchFaceRuntimeService(
-    testContext: Context,
-    private var surfaceHolderOverride: SurfaceHolder
-) : StatefulWatchFaceRuntimeService<MyExtra>() {
-
-    lateinit var lastResourceOnlyWatchFacePackageName: String
-    val lastResourceOnlyWatchFacePackageNameLatch = CountDownLatch(1)
-
-    init {
-        attachBaseContext(testContext)
-    }
-
-    override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
-
-    override fun createExtra() = MyExtra(123)
-
-    override fun createUserStyleSchema(
-        resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
-    ): UserStyleSchema {
-        require(extra.data == 123)
-        return UserStyleSchema(emptyList())
-    }
-
-    override fun createComplicationSlotsManager(
-        currentUserStyleRepository: CurrentUserStyleRepository,
-        resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
-    ): ComplicationSlotsManager {
-        require(extra.data == 123)
-        return ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
-    }
-
-    override fun createUserStyleFlavors(
-        currentUserStyleRepository: CurrentUserStyleRepository,
-        complicationSlotsManager: ComplicationSlotsManager,
-        resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
-    ): UserStyleFlavors {
-        require(extra.data == 123)
-        return UserStyleFlavors()
-    }
-
-    override suspend fun createWatchFace(
-        surfaceHolder: SurfaceHolder,
-        watchState: WatchState,
-        complicationSlotsManager: ComplicationSlotsManager,
-        currentUserStyleRepository: CurrentUserStyleRepository,
-        resourceOnlyWatchFacePackageName: String,
-        extra: MyExtra
-    ): WatchFace {
-        require(extra.data == 123)
-        lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
-        lastResourceOnlyWatchFacePackageNameLatch.countDown()
-
-        return WatchFace(
-            WatchFaceType.DIGITAL,
-            @Suppress("deprecation")
-            object :
-                Renderer.CanvasRenderer(
-                    surfaceHolder,
-                    currentUserStyleRepository,
-                    watchState,
-                    CanvasType.HARDWARE,
-                    16
-                ) {
-                override fun render(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    zonedDateTime: ZonedDateTime
-                ) {
-                    // Actually rendering something isn't required.
-                }
-
-                override fun renderHighlightLayer(
-                    canvas: Canvas,
-                    bounds: Rect,
-                    zonedDateTime: ZonedDateTime
-                ) {
-                    // Actually rendering something isn't required.
-                }
-            }
-        )
-    }
-}
-
 internal class TestAsyncCanvasRenderInitWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder,
@@ -526,7 +436,6 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
     testContext: Context,
     private var surfaceHolderOverride: SurfaceHolder
 ) : WatchFaceService() {
-    var lastComplicationType: ComplicationType? = null
 
     init {
         attachBaseContext(testContext)
@@ -606,10 +515,7 @@ internal class TestComplicationProviderDefaultsWatchFaceService(
                     CanvasType.HARDWARE,
                     16
                 ) {
-                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
-                    lastComplicationType =
-                        complicationSlotsManager[123]!!.complicationData.value.type
-                }
+                override fun render(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {}
 
                 override fun renderHighlightLayer(
                     canvas: Canvas,

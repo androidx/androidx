@@ -21,14 +21,11 @@ import android.graphics.SurfaceTexture
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
-import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.util.ExtensionsTestUtil
-import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.GLUtil
@@ -47,7 +44,6 @@ import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,21 +53,16 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class PreviewTest(
-    private val implName: String,
-    private val cameraXConfig: CameraXConfig,
-    private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
-    @get:Rule
-    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
-        active = implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-    )
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(cameraXConfig)
+        PreTestCameraIdList(Camera2Config.defaultConfig())
     )
+
+    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
 
@@ -127,9 +118,7 @@ class PreviewTest(
             )
         )
 
-        ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -160,20 +149,14 @@ class PreviewTest(
     }
 
     companion object {
-        val context: Context = ApplicationProvider.getApplicationContext()
-
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
-        )
-        fun data(): Collection<Array<Any>> {
-            return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
-        }
+        @get:Parameterized.Parameters(name = "extension = {0}, facing = {1}")
+        val parameters: Collection<Array<Any>>
+            get() = ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
     }
 
     @UiThreadTest
     @Test
-    @Ignore("b/331617278")
     fun canBindToLifeCycleAndDisplayPreview(): Unit = runBlocking {
         withContext(Dispatchers.Main) {
             val preview = Preview.Builder().build()
@@ -197,20 +180,14 @@ class PreviewTest(
     }
 
     @Test
-    @Ignore("b/331617278")
     fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
         val preview = Preview.Builder().build()
 
         withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(
-                SurfaceTextureProvider.createSurfaceTextureProvider(createSurfaceTextureCallback())
-            )
-
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
-                preview
-            )
+                preview)
         }
 
         assertThat(preview.currentConfig.isHigResolutionDisabled(false)).isTrue()

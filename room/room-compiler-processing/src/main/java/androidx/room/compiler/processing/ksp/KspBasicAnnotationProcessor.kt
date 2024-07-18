@@ -57,7 +57,7 @@ abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
             initialize(xEnv)
             initialized = true
         }
-        val xRoundEnv = KspRoundEnv(env = xEnv)
+        val xRoundEnv = KspRoundEnv(xEnv, false)
         preRound(xEnv, xRoundEnv)
         commonDelegate.processRound(xRoundEnv)
         postRound(xEnv, xRoundEnv)
@@ -76,7 +76,7 @@ abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
     final override fun onError() = runLastRound(reportMissingElements = false)
 
     private fun runLastRound(reportMissingElements: Boolean) {
-        val xRoundEnv = KspRoundEnv(env = null)
+        val xRoundEnv = KspRoundEnv(xEnv, true)
         preRound(xEnv, xRoundEnv)
         val missingElements = commonDelegate.processLastRound()
         postRound(xEnv, xRoundEnv)

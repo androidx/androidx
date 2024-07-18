@@ -27,6 +27,7 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.NavigationDrawerTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -44,6 +46,7 @@ import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -71,8 +74,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ModalNavigationDrawerTest {
 
-    @get:Rule
-    val rule = createComposeRule()
+    @get:Rule val rule = createComposeRule()
 
     private val NavigationDrawerWidth = NavigationDrawerTokens.ContainerWidth
 
@@ -83,20 +85,13 @@ class ModalNavigationDrawerTest {
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
-                    }
+                    ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag("content")) }
                 },
                 content = {}
             )
         }
 
-        rule.onNodeWithTag("content")
-            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("content").assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     @Test
@@ -106,20 +101,13 @@ class ModalNavigationDrawerTest {
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
-                    }
+                    ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag("content")) }
                 },
                 content = {}
             )
         }
 
-        rule.onNodeWithTag("content")
-            .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+        rule.onNodeWithTag("content").assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
     }
 
     @Test
@@ -131,19 +119,14 @@ class ModalNavigationDrawerTest {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet(Modifier.width(customWidth)) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
+                        Box(Modifier.fillMaxSize().testTag("content"))
                     }
                 },
                 content = {}
             )
         }
 
-        rule.onNodeWithTag("content")
-            .assertLeftPositionInRootIsEqualTo(0.dp)
+        rule.onNodeWithTag("content").assertLeftPositionInRootIsEqualTo(0.dp)
     }
 
     @Test
@@ -155,19 +138,14 @@ class ModalNavigationDrawerTest {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet(Modifier.width(customWidth)) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
+                        Box(Modifier.fillMaxSize().testTag("content"))
                     }
                 },
                 content = {}
             )
         }
 
-        rule.onNodeWithTag("content")
-            .assertLeftPositionInRootIsEqualTo(-customWidth)
+        rule.onNodeWithTag("content").assertLeftPositionInRootIsEqualTo(-customWidth)
     }
 
     @Test
@@ -183,13 +161,7 @@ class ModalNavigationDrawerTest {
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet(Modifier.width(customWidth)) {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .onGloballyPositioned {
-                                        coords = it
-                                    }
-                            )
+                            Box(Modifier.fillMaxSize().onGloballyPositioned { coords = it })
                         }
                     },
                     content = {}
@@ -197,9 +169,7 @@ class ModalNavigationDrawerTest {
             }
         }
 
-        rule.runOnIdle {
-            assertThat(coords.positionOnScreen().x).isEqualTo(0f)
-        }
+        rule.runOnIdle { assertThat(coords.positionOnScreen().x).isEqualTo(0f) }
     }
 
     @Test
@@ -215,13 +185,7 @@ class ModalNavigationDrawerTest {
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet(Modifier.width(customWidth)) {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .onGloballyPositioned {
-                                        coords = it
-                                    }
-                            )
+                            Box(Modifier.fillMaxSize().onGloballyPositioned { coords = it })
                         }
                     },
                     content = {}
@@ -243,20 +207,13 @@ class ModalNavigationDrawerTest {
             ModalNavigationDrawer(
                 drawerState = drawerState,
                 drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
-                    }
+                    ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag("content")) }
                 },
                 content = {}
             )
         }
 
-        rule.onNodeWithTag("content")
-            .assertWidthIsEqualTo(NavigationDrawerTokens.ContainerWidth)
+        rule.onNodeWithTag("content").assertWidthIsEqualTo(NavigationDrawerTokens.ContainerWidth)
     }
 
     @Test
@@ -267,18 +224,15 @@ class ModalNavigationDrawerTest {
                 drawerState = drawerState,
                 drawerContent = {
                     ModalDrawerSheet(windowInsets = WindowInsets(10.dp, 10.dp, 10.dp, 10.dp)) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag("content")
-                        )
+                        Box(Modifier.fillMaxSize().testTag("content"))
                     }
                 },
                 content = {}
             )
         }
 
-        rule.onNodeWithTag("content")
+        rule
+            .onNodeWithTag("content")
             .assertTopPositionInRootIsEqualTo(10.dp)
             .assertLeftPositionInRootIsEqualTo(10.dp)
     }
@@ -292,10 +246,7 @@ class ModalNavigationDrawerTest {
                 drawerState = rememberDrawerState(DrawerValue.Open),
                 drawerContent = {
                     ModalDrawerSheet(Modifier.testTag("navigationDrawerTag")) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                        )
+                        Box(Modifier.fillMaxSize())
                     }
                 },
                 content = {}
@@ -303,252 +254,219 @@ class ModalNavigationDrawerTest {
             navigationMenu = getString(Strings.NavigationMenu)
         }
 
-        rule.onNodeWithTag("navigationDrawerTag", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("navigationDrawerTag", useUnmergedTree = true)
             .onParent()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, navigationMenu))
     }
 
     @Test
     @LargeTest
-    fun navigationDrawer_openAndClose(): Unit = runBlocking(AutoTestFrameClock()) {
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(DrawerTestTag)
-                        )
-                    }
-                },
-                content = {}
-            )
+    fun navigationDrawer_openAndClose(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag(DrawerTestTag)) }
+                    },
+                    content = {}
+                )
+            }
+
+            // Drawer should start in closed state
+            rule
+                .onNodeWithTag(DrawerTestTag)
+                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+
+            // When the drawer state is set to Opened
+            drawerState.open()
+            // Then the drawer should be opened
+            rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
+
+            // When the drawer state is set to Closed
+            drawerState.close()
+            // Then the drawer should be closed
+            rule
+                .onNodeWithTag(DrawerTestTag)
+                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
         }
-
-        // Drawer should start in closed state
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
-
-        // When the drawer state is set to Opened
-        drawerState.open()
-        // Then the drawer should be opened
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
-
-        // When the drawer state is set to Closed
-        drawerState.close()
-        // Then the drawer should be closed
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
-    }
 
     @Test
     @LargeTest
-    fun navigationDrawer_animateTo(): Unit = runBlocking(AutoTestFrameClock()) {
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(DrawerTestTag)
-                        )
-                    }
-                },
-                content = {}
-            )
+    fun navigationDrawer_animateTo(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag(DrawerTestTag)) }
+                    },
+                    content = {}
+                )
+            }
+
+            // Drawer should start in closed state
+            rule
+                .onNodeWithTag(DrawerTestTag)
+                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+
+            // When the drawer state is set to Opened
+            @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
+            drawerState.animateTo(DrawerValue.Open, TweenSpec())
+            // Then the drawer should be opened
+            rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
+
+            // When the drawer state is set to Closed
+            @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
+            drawerState.animateTo(DrawerValue.Closed, TweenSpec())
+            // Then the drawer should be closed
+            rule
+                .onNodeWithTag(DrawerTestTag)
+                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
         }
-
-        // Drawer should start in closed state
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
-
-        // When the drawer state is set to Opened
-        @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
-        drawerState.animateTo(DrawerValue.Open, TweenSpec())
-        // Then the drawer should be opened
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
-
-        // When the drawer state is set to Closed
-        @Suppress("DEPRECATION") // animateTo is deprecated, but we are testing it
-        drawerState.animateTo(DrawerValue.Closed, TweenSpec())
-        // Then the drawer should be closed
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
-    }
 
     @Test
     @LargeTest
-    fun navigationDrawer_snapTo(): Unit = runBlocking(AutoTestFrameClock()) {
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(DrawerTestTag)
-                        )
-                    }
-                },
-                content = {}
-            )
+    fun navigationDrawer_snapTo(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag(DrawerTestTag)) }
+                    },
+                    content = {}
+                )
+            }
+
+            // Drawer should start in closed state
+            rule
+                .onNodeWithTag(DrawerTestTag)
+                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
+
+            // When the drawer state is set to Opened
+            drawerState.snapTo(DrawerValue.Open)
+            // Then the drawer should be opened
+            rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
+
+            // When the drawer state is set to Closed
+            drawerState.snapTo(DrawerValue.Closed)
+            // Then the drawer should be closed
+            rule
+                .onNodeWithTag(DrawerTestTag)
+                .assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
         }
-
-        // Drawer should start in closed state
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
-
-        // When the drawer state is set to Opened
-        drawerState.snapTo(DrawerValue.Open)
-        // Then the drawer should be opened
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(0.dp)
-
-        // When the drawer state is set to Closed
-        drawerState.snapTo(DrawerValue.Closed)
-        // Then the drawer should be closed
-        rule.onNodeWithTag(DrawerTestTag).assertLeftPositionInRootIsEqualTo(-NavigationDrawerWidth)
-    }
 
     @Test
     @LargeTest
-    fun navigationDrawer_currentValue(): Unit = runBlocking(AutoTestFrameClock()) {
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(DrawerTestTag)
-                        )
-                    }
-                },
-                content = {}
-            )
-        }
+    fun navigationDrawer_currentValue(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag(DrawerTestTag)) }
+                    },
+                    content = {}
+                )
+            }
 
-        // Drawer should start in closed state
-        assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
-
-        // When the drawer state is set to Opened
-        drawerState.snapTo(DrawerValue.Open)
-        // Then the drawer should be opened
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
-        }
-
-        // When the drawer state is set to Closed
-        drawerState.snapTo(DrawerValue.Closed)
-        // Then the drawer should be closed
-        rule.runOnIdle {
+            // Drawer should start in closed state
             assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
+
+            // When the drawer state is set to Opened
+            drawerState.snapTo(DrawerValue.Open)
+            // Then the drawer should be opened
+            rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
+
+            // When the drawer state is set to Closed
+            drawerState.snapTo(DrawerValue.Closed)
+            // Then the drawer should be closed
+            rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed) }
         }
-    }
 
     @Test
     @LargeTest
-    fun navigationDrawer_bodyContent_clickable(): Unit = runBlocking(AutoTestFrameClock()) {
-        var drawerClicks = 0
-        var bodyClicks = 0
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            // emulate click on the screen
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
+    fun navigationDrawer_bodyContent_clickable(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            var drawerClicks = 0
+            var bodyClicks = 0
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                // emulate click on the screen
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet {
+                            Box(Modifier.fillMaxSize().clickable { drawerClicks += 1 })
+                        }
+                    },
+                    content = {
                         Box(
-                            Modifier
-                                .fillMaxSize()
-                                .clickable { drawerClicks += 1 })
-                    }
-                },
-                content = {
-                    Box(
-                        Modifier
-                            .testTag(DrawerTestTag)
-                            .fillMaxSize()
-                            .clickable { bodyClicks += 1 })
-                }
-            )
-        }
-
-        // Click in the middle of the drawer (which is the middle of the body)
-        rule.onNodeWithTag(DrawerTestTag).performTouchInput { click() }
-
-        rule.runOnIdle {
-            assertThat(drawerClicks).isEqualTo(0)
-            assertThat(bodyClicks).isEqualTo(1)
-        }
-        drawerState.open()
-
-        // Click on the left-center pixel of the drawer
-        rule.onNodeWithTag(DrawerTestTag).performTouchInput {
-            click(centerLeft)
-        }
-
-        rule.runOnIdle {
-            assertThat(drawerClicks).isEqualTo(1)
-            assertThat(bodyClicks).isEqualTo(1)
-        }
-    }
-
-    @Test
-    @LargeTest
-    fun navigationDrawer_drawerContent_doesntPropagateClicksWhenOpen(): Unit = runBlocking(
-        AutoTestFrameClock()
-    ) {
-        var bodyClicks = 0
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(DrawerTestTag)
+                            Modifier.testTag(DrawerTestTag).fillMaxSize().clickable {
+                                bodyClicks += 1
+                            }
                         )
                     }
-                },
-                content = {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .clickable { bodyClicks += 1 })
-                }
-            )
+                )
+            }
+
+            // Click in the middle of the drawer (which is the middle of the body)
+            rule.onNodeWithTag(DrawerTestTag).performTouchInput { click() }
+
+            rule.runOnIdle {
+                assertThat(drawerClicks).isEqualTo(0)
+                assertThat(bodyClicks).isEqualTo(1)
+            }
+            drawerState.open()
+
+            // Click on the left-center pixel of the drawer
+            rule.onNodeWithTag(DrawerTestTag).performTouchInput { click(centerLeft) }
+
+            rule.runOnIdle {
+                assertThat(drawerClicks).isEqualTo(1)
+                assertThat(bodyClicks).isEqualTo(1)
+            }
         }
 
-        // Click in the middle of the drawer
-        rule.onNodeWithTag(DrawerTestTag).performClick()
+    @Test
+    @LargeTest
+    fun navigationDrawer_drawerContent_doesntPropagateClicksWhenOpen(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            var bodyClicks = 0
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag(DrawerTestTag)) }
+                    },
+                    content = { Box(Modifier.fillMaxSize().clickable { bodyClicks += 1 }) }
+                )
+            }
 
-        rule.runOnIdle {
-            assertThat(bodyClicks).isEqualTo(1)
-        }
-        drawerState.open()
+            // Click in the middle of the drawer
+            rule.onNodeWithTag(DrawerTestTag).performClick()
 
-        // Click on the left-center pixel of the drawer
-        rule.onNodeWithTag(DrawerTestTag).performTouchInput {
-            click(centerLeft)
-        }
+            rule.runOnIdle { assertThat(bodyClicks).isEqualTo(1) }
+            drawerState.open()
 
-        rule.runOnIdle {
-            assertThat(bodyClicks).isEqualTo(1)
+            // Click on the left-center pixel of the drawer
+            rule.onNodeWithTag(DrawerTestTag).performTouchInput { click(centerLeft) }
+
+            rule.runOnIdle { assertThat(bodyClicks).isEqualTo(1) }
         }
-    }
 
     @Test
     @LargeTest
@@ -561,37 +479,21 @@ class ModalNavigationDrawerTest {
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color = Color.Magenta)
-                            )
+                            Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                         }
                     },
-                    content = {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color = Color.Red)
-                        )
-                    }
+                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) }
                 )
             }
         }
 
-        rule.onNodeWithTag(DrawerTestTag)
-            .performTouchInput { swipeRight() }
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeRight() }
 
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
-        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
 
-        rule.onNodeWithTag(DrawerTestTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeLeft() }
 
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
-        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed) }
     }
 
     @Test
@@ -599,50 +501,35 @@ class ModalNavigationDrawerTest {
     fun navigationDrawer_confirmStateChangeRespect() {
         lateinit var drawerState: DrawerState
         rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(
-                DrawerValue.Open,
-                confirmStateChange = {
-                    it != DrawerValue.Closed
-                }
-            )
+            drawerState =
+                rememberDrawerState(
+                    DrawerValue.Open,
+                    confirmStateChange = { it != DrawerValue.Closed }
+                )
             Box(Modifier.testTag(DrawerTestTag)) {
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
                         ModalDrawerSheet(Modifier.testTag("content")) {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color = Color.Magenta)
-                            )
+                            Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                         }
                     },
-                    content = {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color = Color.Red)
-                        )
-                    }
+                    content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) }
                 )
             }
         }
 
-        rule.onNodeWithTag(DrawerTestTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeLeft() }
 
         // still open
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
-        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
 
-        rule.onNodeWithTag("content", useUnmergedTree = true)
+        rule
+            .onNodeWithTag("content", useUnmergedTree = true)
             .onParent()
             .performSemanticsAction(SemanticsActions.Dismiss)
 
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
-        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
     }
 
     @Test
@@ -658,83 +545,67 @@ class ModalNavigationDrawerTest {
                         drawerState = drawerState,
                         drawerContent = {
                             ModalDrawerSheet {
-                                Box(
-                                    Modifier
-                                        .fillMaxSize()
-                                        .background(color = Color.Magenta)
-                                )
+                                Box(Modifier.fillMaxSize().background(color = Color.Magenta))
                             }
                         },
-                        content = {
-                            Box(
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(color = Color.Red)
-                            )
-                        }
+                        content = { Box(Modifier.fillMaxSize().background(color = Color.Red)) }
                     )
                 }
             }
         }
 
-        rule.onNodeWithTag(DrawerTestTag)
-            .performTouchInput { swipeLeft() }
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeLeft() }
 
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open)
-        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Open) }
 
-        rule.onNodeWithTag(DrawerTestTag)
-            .performTouchInput { swipeRight() }
+        rule.onNodeWithTag(DrawerTestTag).performTouchInput { swipeRight() }
 
-        rule.runOnIdle {
-            assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed)
-        }
+        rule.runOnIdle { assertThat(drawerState.currentValue).isEqualTo(DrawerValue.Closed) }
     }
 
     @Test
     @LargeTest
-    fun navigationDrawer_noDismissActionWhenClosed_hasDismissActionWhenOpen(): Unit = runBlocking(
-        AutoTestFrameClock()
-    ) {
-        lateinit var drawerState: DrawerState
-        rule.setMaterialContent(lightColorScheme()) {
-            drawerState = rememberDrawerState(DrawerValue.Closed)
-            ModalNavigationDrawer(
-                drawerState = drawerState,
-                drawerContent = {
-                    ModalDrawerSheet(Modifier.testTag(DrawerTestTag)) {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                        )
-                    }
-                },
-                content = {}
-            )
+    fun navigationDrawer_noDismissActionWhenClosed_hasDismissActionWhenOpen(): Unit =
+        runBlocking(AutoTestFrameClock()) {
+            lateinit var drawerState: DrawerState
+            rule.setMaterialContent(lightColorScheme()) {
+                drawerState = rememberDrawerState(DrawerValue.Closed)
+                ModalNavigationDrawer(
+                    drawerState = drawerState,
+                    drawerContent = {
+                        ModalDrawerSheet(Modifier.testTag(DrawerTestTag)) {
+                            Box(Modifier.fillMaxSize())
+                        }
+                    },
+                    content = {}
+                )
+            }
+
+            // Drawer should start in closed state and have no dismiss action
+            rule
+                .onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
+                .onParent()
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Dismiss))
+
+            // When the drawer state is set to Opened
+            drawerState.open()
+            // Then the drawer should be opened and have dismiss action
+            rule
+                .onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
+                .onParent()
+                .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
+
+            // When the drawer state is set to Closed using dismiss action
+            rule
+                .onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
+                .onParent()
+                .performSemanticsAction(SemanticsActions.Dismiss)
+            // Then the drawer should be closed and have no dismiss action
+            rule
+                .onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
+                .onParent()
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Dismiss))
         }
-
-        // Drawer should start in closed state and have no dismiss action
-        rule.onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
-            .onParent()
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Dismiss))
-
-        // When the drawer state is set to Opened
-        drawerState.open()
-        // Then the drawer should be opened and have dismiss action
-        rule.onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
-            .onParent()
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
-
-        // When the drawer state is set to Closed using dismiss action
-        rule.onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
-            .onParent()
-            .performSemanticsAction(SemanticsActions.Dismiss)
-        // Then the drawer should be closed and have no dismiss action
-        rule.onNodeWithTag(DrawerTestTag, useUnmergedTree = true)
-            .onParent()
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.Dismiss))
-    }
 
     @Test
     fun navigationDrawer_scrimNode_reportToSemanticsWhenOpen_notReportToSemanticsWhenClosed() {
@@ -745,21 +616,9 @@ class ModalNavigationDrawerTest {
                 modifier = Modifier.testTag(topTag),
                 drawerState = rememberDrawerState(DrawerValue.Open),
                 drawerContent = {
-                    ModalDrawerSheet {
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .testTag(DrawerTestTag)
-                        )
-                    }
+                    ModalDrawerSheet { Box(Modifier.fillMaxSize().testTag(DrawerTestTag)) }
                 },
-                content = {
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .testTag("body")
-                    )
-                }
+                content = { Box(Modifier.fillMaxSize().testTag("body")) }
             )
             closeDrawer = getString(Strings.CloseDrawer)
         }
@@ -769,7 +628,8 @@ class ModalNavigationDrawerTest {
 
         var topNode = rule.onNodeWithTag(topTag).fetchSemanticsNode()
         assertEquals(3, topNode.children.size)
-        rule.onNodeWithContentDescription(closeDrawer)
+        rule
+            .onNodeWithContentDescription(closeDrawer)
             .assertHasClickAction()
             .performSemanticsAction(SemanticsActions.OnClick)
 
@@ -778,6 +638,30 @@ class ModalNavigationDrawerTest {
 
         topNode = rule.onNodeWithTag(topTag).fetchSemanticsNode()
         assertEquals(2, topNode.children.size)
+    }
+
+    @Test
+    fun navigationDrawer_drawerContainerIsOffScreen_whenClosed() {
+        lateinit var navDrawerPaneTitle: String
+        rule.setMaterialContent(lightColorScheme()) {
+            navDrawerPaneTitle = getString(Strings.NavigationMenu)
+            ModalNavigationDrawer(
+                drawerState = rememberDrawerState(DrawerValue.Closed),
+                drawerContent = { ModalDrawerSheet { Box(Modifier.fillMaxSize()) } },
+                content = { Box(Modifier.fillMaxSize()) }
+            )
+        }
+
+        // This matcher returns the container of `ModalDrawerSheet`, not `ModalDrawerSheet` itself
+        rule
+            .onNode(
+                SemanticsMatcher("drawer pane") {
+                    it.config.getOrNull(SemanticsProperties.PaneTitle) == navDrawerPaneTitle
+                }
+            )
+            .getUnclippedBoundsInRoot()
+            .left
+            .assertIsEqualTo(-NavigationDrawerWidth)
     }
 }
 

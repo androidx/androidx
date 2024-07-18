@@ -10,11 +10,11 @@ InvalidNullabilityOverride: androidx.work.testing.SynchronousExecutor#execute(Ru
 
 
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setForegroundUpdater(androidx.work.ForegroundUpdater):
-    androidx.work.ListenableWorker does not declare a `getForegroundUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setForegroundUpdater(androidx.work.ForegroundUpdater)
+    W does not declare a `getForegroundUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setForegroundUpdater(androidx.work.ForegroundUpdater)
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setProgressUpdater(androidx.work.ProgressUpdater):
-    androidx.work.ListenableWorker does not declare a `getProgressUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setProgressUpdater(androidx.work.ProgressUpdater)
+    W does not declare a `getProgressUpdater()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setProgressUpdater(androidx.work.ProgressUpdater)
 MissingGetterMatchingBuilder: androidx.work.testing.TestListenableWorkerBuilder#setWorkerFactory(androidx.work.WorkerFactory):
-    androidx.work.ListenableWorker does not declare a `getWorkerFactory()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setWorkerFactory(androidx.work.WorkerFactory)
+    W does not declare a `getWorkerFactory()` method matching method androidx.work.testing.TestListenableWorkerBuilder.setWorkerFactory(androidx.work.WorkerFactory)
 
 
 StaticFinalBuilder: androidx.work.testing.TestListenableWorkerBuilder:

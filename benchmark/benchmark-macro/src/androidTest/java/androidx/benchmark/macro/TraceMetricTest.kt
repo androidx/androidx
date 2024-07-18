@@ -37,7 +37,7 @@ class TraceMetricTest {
     )
 
     class ActivityResumeMetric : TraceMetric() {
-        override fun getMeasurements(
+        override fun getResult(
             captureInfo: CaptureInfo,
             traceSession: PerfettoTraceProcessor.Session
         ): List<Measurement> {
@@ -84,7 +84,7 @@ class TraceMetricTest {
             metric.configure(packageName = Packages.TEST)
 
             val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
-                metric.getMeasurements(
+                metric.getResult(
                     captureInfo = captureInfo,
                     traceSession = this
                 )
