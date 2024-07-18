@@ -148,7 +148,7 @@ class FloatNodes {
                 DynamicTypeValueReceiverWithPreUpdate<Float> downstream,
                 QuotaManager quotaManager) {
 
-            super(quotaManager, protoNode.getAnimationSpec());
+            super(quotaManager, protoNode.getAnimationSpec(), AnimatableNode.FLOAT_EVALUATOR);
             this.mProtoNode = protoNode;
             this.mDownstream = downstream;
             mQuotaAwareAnimator.addUpdateCallback(
@@ -213,7 +213,7 @@ class FloatNodes {
                 @NonNull AnimationSpec spec,
                 QuotaManager quotaManager) {
 
-            super(quotaManager, spec);
+            super(quotaManager, spec, AnimatableNode.FLOAT_EVALUATOR);
             this.mDownstream = downstream;
             mQuotaAwareAnimator.addUpdateCallback(
                     animatedValue -> {

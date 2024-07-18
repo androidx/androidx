@@ -19,10 +19,11 @@ package androidx.wear.protolayout.expression.pipeline;
 import static androidx.wear.protolayout.expression.pipeline.AnimationsHelper.maybeSplitToMainAndAuxAnimationSpec;
 
 import android.animation.ArgbEvaluator;
+import android.animation.FloatEvaluator;
+import android.animation.IntEvaluator;
 import android.animation.TypeEvaluator;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Pair;
@@ -31,19 +32,18 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 /** Data animatable source node within a dynamic data pipeline. */
 abstract class AnimatableNode {
     static final ArgbEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
+    static final IntEvaluator INT_EVALUATOR = new IntEvaluator();
+    static final FloatEvaluator FLOAT_EVALUATOR = new FloatEvaluator();
 
     private boolean mIsVisible = false;
     @NonNull
     final QuotaAwareAnimator mQuotaAwareAnimator;
 
-    protected AnimatableNode(@NonNull QuotaManager quotaManager, @NonNull AnimationSpec spec) {
-        this(quotaManager, spec, null);
-    }
 
     protected AnimatableNode(
             @NonNull QuotaManager quotaManager,
             @NonNull AnimationSpec spec,
-            @Nullable TypeEvaluator<?> evaluator) {
+            @NonNull TypeEvaluator<?> evaluator) {
         // When a reverse duration which is different from forward duration is provided for a
         // reverse repeated animation, we need to split the spec into two and use
         // QuotaAwareAnimatorWithAux to create two ValueAnimators internally to achieve the
