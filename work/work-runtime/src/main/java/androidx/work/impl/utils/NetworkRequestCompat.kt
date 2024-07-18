@@ -20,8 +20,14 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.work.Logger
 
 internal data class NetworkRequestCompat(val wrapped: Any? = null) {
+
+    companion object {
+        val TAG = Logger.tagWithPrefix("NetworkRequestCompat")
+    }
+
     @get:RequiresApi(21)
     val networkRequest: NetworkRequest?
         get() = wrapped as NetworkRequest?
@@ -100,7 +106,19 @@ object NetworkRequest28 {
     @JvmStatic
     fun createNetworkRequest(capabilities: IntArray, transports: IntArray): NetworkRequest {
         val networkRequest = NetworkRequest.Builder()
-        capabilities.forEach { networkRequest.addCapability(it) }
+        capabilities.forEach {
+            try {
+                networkRequest.addCapability(it)
+            } catch (ex: IllegalArgumentException) {
+                // b/351180465 - Ignoring the IAE that addCapability() can throw on SDK < 35 and
+                // aligning with newer SDK behaviour. Capabilities are persisted in the database
+                // and the framework can by default add new ones. Catching this exception mitigates
+                // the case where decoding the capabilities from the database fails across OS
+                // changes.
+                Logger.get()
+                    .warning(NetworkRequestCompat.TAG, "Ignoring adding capability '$it'", ex)
+            }
+        }
         transports.forEach { networkRequest.addTransportType(it) }
         return networkRequest.build()
     }
