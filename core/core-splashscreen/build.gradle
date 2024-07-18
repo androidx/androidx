@@ -38,6 +38,7 @@ dependencies {
     api(libs.kotlinStdlib)
 
     implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.appcompat:appcompat-resources:1.7.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
