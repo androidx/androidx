@@ -19,6 +19,13 @@ package androidx.compose.material3
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.DisabledLabelTextColor
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.DisabledLabelTextOpacity
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.DisabledOutlineOpacity
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.OutlineColor
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.SelectedContainerColor
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.SelectedLabelTextColor
+import androidx.compose.material3.tokens.OutlinedSegmentedButtonTokens.UnselectedLabelTextColor
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +93,31 @@ class SegmentedButtonTest {
         }
 
         values.forEach { rule.onNodeWithText(it).assertIsDisplayed() }
+    }
+
+    @Test
+    fun selectableSegmentedButton_defaultColors() {
+        rule.setMaterialContent(lightColorScheme()) {
+            assertThat(SegmentedButtonDefaults.colors())
+                .isEqualTo(
+                    SegmentedButtonColors(
+                        activeContainerColor = SelectedContainerColor.value,
+                        activeContentColor = SelectedLabelTextColor.value,
+                        activeBorderColor = OutlineColor.value,
+                        inactiveContainerColor = Color.Transparent,
+                        inactiveContentColor = UnselectedLabelTextColor.value,
+                        inactiveBorderColor = OutlineColor.value,
+                        disabledActiveContainerColor = SelectedContainerColor.value,
+                        disabledActiveContentColor =
+                            DisabledLabelTextColor.value.copy(alpha = DisabledLabelTextOpacity),
+                        disabledActiveBorderColor =
+                            OutlineColor.value.copy(alpha = DisabledOutlineOpacity),
+                        disabledInactiveContainerColor = Color.Transparent,
+                        disabledInactiveContentColor = DisabledLabelTextColor.value,
+                        disabledInactiveBorderColor = OutlineColor.value,
+                    )
+                )
+        }
     }
 
     @Test
