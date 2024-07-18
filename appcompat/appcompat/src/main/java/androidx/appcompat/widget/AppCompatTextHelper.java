@@ -48,6 +48,7 @@ import androidx.core.widget.TextViewCompat;
 
 import java.lang.ref.WeakReference;
 import java.util.Locale;
+import java.util.Objects;
 
 class AppCompatTextHelper {
 
@@ -361,9 +362,6 @@ class AppCompatTextHelper {
         if (mFontVariationSettings != null && Build.VERSION.SDK_INT >= 26) {
             Api26Impl.setFontVariationSettings(mView, mFontVariationSettings);
         }
-
-        mFontVariationSettings = null;
-        mFontTypeface = null;
     }
 
     /**
@@ -762,6 +760,10 @@ class AppCompatTextHelper {
         }
 
         static boolean setFontVariationSettings(TextView textView, String fontVariationSettings) {
+            if (Objects.equals(textView.getFontVariationSettings(), fontVariationSettings)) {
+                // textView will early-exit if we don't clear fontVariationSettings
+                textView.setFontVariationSettings("");
+            }
             return textView.setFontVariationSettings(fontVariationSettings);
         }
 

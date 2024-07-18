@@ -211,13 +211,7 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     @Override
     public void setTextAppearance(Context context, int resId) {
-        Typeface previousTypeface = getTypeface();
         super.setTextAppearance(context, resId);
-        // don't allow setTextAppearance to clobber Typeface, we will correctly read it in
-        // onSetTextAppearance if non-null
-        if (getTypeface() == null) {
-            super.setTypeface(previousTypeface);
-        }
         if (mTextHelper != null) {
             mTextHelper.onSetTextAppearance(context, resId);
         }
