@@ -186,9 +186,6 @@ android {
     buildTypes.configureEach {
         consumerProguardFiles "proguard-rules.pro"
     }
-    defaultConfig {
-        multiDexEnabled true
-    }
     namespace "androidx.navigation.common"
 }
 

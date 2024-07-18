@@ -22,6 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -36,6 +37,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
+    implementation(project(":compose:animation:animation"))
     implementation("androidx.compose.foundation:foundation:1.0.1")
     implementation("androidx.compose.ui:ui-tooling:1.4.0")
     implementation(projectOrArtifact(":navigation:navigation-compose"))
@@ -52,20 +54,10 @@ androidx {
     description = "Samples for Compose integration with Navigation"
 }
 
-android {
-    namespace "androidx.navigation.compose.samples"
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
-// Workaround for https://github.com/gradle/gradle/issues/19882
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
-                using project(":lifecycle:lifecycle-viewmodel")
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel-ktx:")).
-                using project(":lifecycle:lifecycle-viewmodel-ktx")
-        substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
-                using project(":lifecycle:lifecycle-viewmodel-savedstate")
-        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
-                using project(":lifecycle:lifecycle-runtime-ktx")
-    }
+android {
+    namespace "androidx.navigation.compose.samples"
 }

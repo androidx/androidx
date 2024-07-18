@@ -29,6 +29,7 @@ import androidx.collection.size
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.navigation.common.R
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRouteWithArgs
 import java.lang.StringBuilder
 import kotlin.reflect.KClass
@@ -220,7 +221,8 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
      * @param T Route from a [KClass] to locate
      * @return the node with route - the node must have been created with a route from [KClass]
      */
-    public actual inline fun <reified T> findNode(): NavDestination? = findNode(serializer<T>().hashCode())
+    public actual inline fun <reified T> findNode(): NavDestination? =
+        findNode(serializer<T>().generateHashCode())
 
     /**
      * Finds a destination in the collection by route from Object. This will recursively check the
@@ -231,7 +233,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
      */
     @OptIn(InternalSerializationApi::class)
     public actual fun <T> findNode(route: T?): NavDestination? =
-        route?.let { findNode(it::class.serializer().hashCode()) }
+        route?.let { findNode(it::class.serializer().generateHashCode()) }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual fun findNode(route: String, searchParents: Boolean): NavDestination? {
@@ -406,7 +408,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
         serializer: KSerializer<T>,
         parseRoute: (NavDestination) -> String,
     ) {
-        val id = serializer.hashCode()
+        val id = serializer.generateHashCode()
         val startDest = findNode(id)
         checkNotNull(startDest) {
             "Cannot find startDestination ${serializer.descriptor.serialName} from NavGraph. " +
@@ -495,15 +497,17 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
          * @return the actual startDestination of the given graph.
          */
         @JvmStatic
-        public actual fun NavGraph.findStartDestination(): NavDestination =
-            generateSequence(findNode(startDestinationId)) {
-                    if (it is NavGraph) {
-                        it.findNode(it.startDestinationId)
-                    } else {
-                        null
-                    }
+        public actual fun NavGraph.findStartDestination(): NavDestination = childHierarchy().last()
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun NavGraph.childHierarchy(): Sequence<NavDestination> =
+            generateSequence(this as NavDestination) {
+                if (it is NavGraph) {
+                    it.findNode(it.startDestinationId)
+                } else {
+                    null
                 }
-                .last()
+            }
     }
 }
 

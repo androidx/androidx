@@ -21,17 +21,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import androidx.navigation.toRoute
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.typeOf
-import kotlin.test.assertFailsWith
 import kotlinx.serialization.Serializable
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
 
 @SmallTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
 class TestSavedStateHandleBuilder {
 
     @Test
@@ -106,12 +105,100 @@ class TestSavedStateHandleBuilder {
     fun emptyStringArgument() {
         @Serializable class TestClass(val arg: String)
 
-        val exception = assertFailsWith<IllegalStateException> { SavedStateHandle(TestClass("")) }
-        assertThat(exception.message)
-            .isEqualTo(
-                "Cannot match route [androidx.navigation.testing." +
-                    "TestSavedStateHandleBuilder.emptyStringArgument.TestClass/] to [TestClass]"
-            )
+        val handle = SavedStateHandle(TestClass(""))
+        assertThat(handle.contains("arg")).isTrue()
+        val arg = handle.get<String>("arg")
+        assertThat(arg).isEqualTo("")
+    }
+
+    @Test
+    fun emptyStringListArgument() {
+        @Serializable class TestClass(val arg: List<String>)
+
+        val handle = SavedStateHandle(TestClass(emptyList()))
+        assertThat(handle.contains("arg")).isTrue()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).isEmpty()
+    }
+
+    @Test
+    fun nullStringListArgumentEmptyList() {
+        @Serializable class TestClass(val arg: List<String>?)
+
+        val handle = SavedStateHandle(TestClass(null))
+        // on null list, we default to an empty list if there is not defaultValue
+        assertThat(handle.contains("arg")).isTrue()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).isEmpty()
+    }
+
+    @Test
+    fun nullStringListArgumentUseDefault() {
+        @Serializable class TestClass(val arg: List<String>? = null)
+
+        val handle = SavedStateHandle(TestClass())
+        // on null list, we default to the default value since it is present, so the handle
+        // here will not contain the arg. The arg will be auto-populated during decoding.
+        assertThat(handle.contains("arg")).isFalse()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).isNull()
+    }
+
+    @Test
+    fun emptyStringListArgumentUseDefault() {
+        @Serializable class TestClass(val arg: List<String> = listOf("one", "two"))
+
+        val handle = SavedStateHandle(TestClass(emptyList()))
+        // on empty list, we default to the default value since it is present, so the handle
+        // here will not contain the arg. The arg will be auto-populated during decoding.
+        assertThat(handle.contains("arg")).isFalse()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).containsExactly("one", "two")
+    }
+
+    @Test
+    fun emptyIntListArgument() {
+        @Serializable class TestClass(val arg: List<Int>)
+
+        val handle = SavedStateHandle(TestClass(emptyList()))
+        assertThat(handle.contains("arg")).isTrue()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).isEmpty()
+    }
+
+    @Test
+    fun emptyIntListArgumentUseDefault() {
+        @Serializable class TestClass(val arg: List<Int> = listOf(1, 2))
+
+        val handle = SavedStateHandle(TestClass(emptyList()))
+        // on empty list, we default to the default value since it is present, so the handle
+        // here will not contain the arg. The arg will be auto-populated during decoding.
+        assertThat(handle.contains("arg")).isFalse()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).containsExactly(1, 2)
+    }
+
+    @Test
+    fun nullIntListArgumentEmptyList() {
+        @Serializable class TestClass(val arg: List<String>?)
+
+        val handle = SavedStateHandle(TestClass(null))
+        // on null list, we default to an empty list if there is not defaultValue
+        assertThat(handle.contains("arg")).isTrue()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).isEmpty()
+    }
+
+    @Test
+    fun nullIntListArgumentUseDefault() {
+        @Serializable class TestClass(val arg: List<String>? = null)
+
+        val handle = SavedStateHandle(TestClass())
+        // on null list, we default to the default value since it is present, so the handle
+        // here will not contain the arg. The arg will be auto-populated during decoding.
+        assertThat(handle.contains("arg")).isFalse()
+        val route = handle.toRoute<TestClass>()
+        assertThat(route.arg).isNull()
     }
 
     @Test

@@ -18,6 +18,7 @@ package androidx.navigation
 
 import androidx.annotation.RestrictTo
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.serialization.generateHashCode
 import kotlin.jvm.JvmOverloads
 import kotlin.reflect.KClass
 import kotlinx.serialization.InternalSerializationApi
@@ -78,7 +79,7 @@ internal constructor(
     ) : this(
         singleTop = singleTop,
         restoreState = restoreState,
-        popUpToId = popUpToRouteClass!!.serializer().hashCode(),
+        popUpToId = popUpToRouteClass!!.serializer().generateHashCode(),
         popUpToInclusive = popUpToInclusive,
         popUpToSaveState = popUpToSaveState
     ) {
@@ -96,7 +97,7 @@ internal constructor(
     ) : this(
         singleTop = singleTop,
         restoreState = restoreState,
-        popUpToId = popUpToRouteObject::class.serializer().hashCode(),
+        popUpToId = popUpToRouteObject::class.serializer().generateHashCode(),
         popUpToInclusive = popUpToInclusive,
         popUpToSaveState = popUpToSaveState
     ) {
@@ -271,7 +272,7 @@ internal constructor(
             saveState: Boolean
         ): Builder {
             popUpToRouteObject = route
-            setPopUpTo(route::class.serializer().hashCode(), inclusive, saveState)
+            setPopUpTo(route::class.serializer().generateHashCode(), inclusive, saveState)
             return this
         }
 

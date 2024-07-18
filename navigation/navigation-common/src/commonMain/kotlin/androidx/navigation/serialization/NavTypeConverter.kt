@@ -23,7 +23,7 @@ import androidx.navigation.NavType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.serializer
+import kotlinx.serialization.serializerOrNull
 
 /** Marker for Native Kotlin types with either full or partial built-in NavType support */
 private enum class InternalType {
@@ -114,7 +114,14 @@ private fun SerialDescriptor.toInternalType(): InternalType {
  */
 internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
     if (this.isNullable != kType.isMarkedNullable) return false
-    if (this.hashCode() != serializer(kType).descriptor.hashCode()) return false
+    val kTypeSerializer = serializerOrNull(kType)
+    checkNotNull(kTypeSerializer) {
+        "Custom serializers declared directly on a class field via @Serializable(with = ...) " +
+            "is currently not supported by safe args for both custom types and third-party " +
+            "types. Please use @Serializable or @Serializable(with = ...) on the " +
+            "class or object declaration."
+    }
+    if (this.hashCode() != kTypeSerializer.descriptor.hashCode()) return false
     return true
 }
 

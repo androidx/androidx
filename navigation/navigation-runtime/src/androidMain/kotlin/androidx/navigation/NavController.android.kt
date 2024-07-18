@@ -44,7 +44,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.childHierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRouteWithArgs
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
@@ -533,7 +535,7 @@ public actual open class NavController(
         inclusive: Boolean,
         saveState: Boolean
     ): Boolean {
-        val id = serializer<T>().hashCode()
+        val id = serializer<T>().generateHashCode()
         requireNotNull(graph.findDestinationComprehensive(id, true)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
@@ -869,7 +871,7 @@ public actual open class NavController(
      */
     @MainThread
     public actual inline fun <reified T : Any> clearBackStack(): Boolean =
-        clearBackStack(serializer<T>().hashCode())
+        clearBackStack(serializer<T>().generateHashCode())
 
     /**
      * Clears any saved state associated with KClass [T] that was previously saved via
@@ -1629,7 +1631,7 @@ public actual open class NavController(
     // Throws if destination with `route` is not found
     @OptIn(InternalSerializationApi::class)
     private fun <T : Any> generateRouteFilled(route: T): String {
-        val id = route::class.serializer().hashCode()
+        val id = route::class.serializer().generateHashCode()
         val destination = graph.findDestinationComprehensive(id, true)
         // throw immediately if destination is not found within the graph
         requireNotNull(destination) {
@@ -1758,7 +1760,7 @@ public actual open class NavController(
                     )
                 finalNavOptions.popUpToRouteClass != null ->
                     popBackStack(
-                        finalNavOptions.popUpToRouteClass!!.serializer().hashCode(),
+                        finalNavOptions.popUpToRouteClass!!.serializer().generateHashCode(),
                         finalNavOptions.isPopUpToInclusive()
                     )
                 finalNavOptions.popUpToId != -1 ->
@@ -1928,7 +1930,7 @@ public actual open class NavController(
                 navOptions.popUpToRouteClass != null ->
                     popped =
                         popBackStackInternal(
-                            navOptions.popUpToRouteClass!!.serializer().hashCode(),
+                            navOptions.popUpToRouteClass!!.serializer().generateHashCode(),
                             navOptions.isPopUpToInclusive(),
                             navOptions.shouldPopUpToSaveState()
                         )
@@ -1985,22 +1987,30 @@ public actual open class NavController(
 
     private fun launchSingleTopInternal(node: NavDestination, args: Bundle?): Boolean {
         val currentBackStackEntry = currentBackStackEntry
-        val nodeId = if (node is NavGraph) node.findStartDestination().id else node.id
-        if (nodeId != currentBackStackEntry?.destination?.id) return false
+        val nodeIndex = backQueue.indexOfLast { it.destination === node }
+        // early return when node isn't even in backQueue
+        if (nodeIndex == -1) return false
+        if (node is NavGraph) {
+            // get expected singleTop stack
+            val childHierarchyId = node.childHierarchy().map { it.id }.toList()
+            // if actual backQueue size does not match expected singleTop stack size, we know its
+            // not a single top
+            if (backQueue.size - nodeIndex != childHierarchyId.size) return false
+            val backQueueId = backQueue.subList(nodeIndex, backQueue.size).map { it.destination.id }
+            // then make sure the backstack and singleTop stack is exact match
+            if (backQueueId != childHierarchyId) return false
+        } else if (node.id != currentBackStackEntry?.destination?.id) {
+            return false
+        }
 
         val tempBackQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
         // pop from startDestination back to original node and create a new entry for each
-        backQueue
-            .indexOfLast { it.destination === node }
-            .let { nodeIndex ->
-                while (backQueue.lastIndex >= nodeIndex) {
-                    val oldEntry = backQueue.removeLast()
-                    unlinkChildFromParent(oldEntry)
-                    val newEntry =
-                        NavBackStackEntry(oldEntry, oldEntry.destination.addInDefaultArgs(args))
-                    tempBackQueue.addFirst(newEntry)
-                }
-            }
+        while (backQueue.lastIndex >= nodeIndex) {
+            val oldEntry = backQueue.removeLast()
+            unlinkChildFromParent(oldEntry)
+            val newEntry = NavBackStackEntry(oldEntry, oldEntry.destination.addInDefaultArgs(args))
+            tempBackQueue.addFirst(newEntry)
+        }
 
         // add each new entry to backQueue starting from original node to startDestination
         tempBackQueue.forEach { newEntry ->
@@ -2637,7 +2647,7 @@ public actual open class NavController(
      * @throws IllegalArgumentException if the destination is not on the back stack
      */
     public actual inline fun <reified T : Any> getBackStackEntry(): NavBackStackEntry {
-        val id = serializer<T>().hashCode()
+        val id = serializer<T>().generateHashCode()
         requireNotNull(graph.findDestinationComprehensive(id, true)) {
             "Destination with route ${T::class.simpleName} cannot be found in navigation " +
                 "graph $graph"
