@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("PrimitiveInCollection")
+
 package androidx.compose.ui.text.android
 
 import android.text.Layout
