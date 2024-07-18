@@ -209,7 +209,7 @@ fun TopAppBar(
         modifier = modifier,
         title = title,
         titleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
-        subtitle = {},
+        subtitle = null,
         subtitleTextStyle = TextStyle.Default,
         titleHorizontalAlignment = TopAppBarTitleAlignment.Start,
         navigationIcon = navigationIcon,
@@ -334,7 +334,7 @@ fun CenterAlignedTopAppBar(
         modifier = modifier,
         title = title,
         titleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
-        subtitle = {},
+        subtitle = null,
         subtitleTextStyle = TextStyle.Default,
         titleHorizontalAlignment = TopAppBarTitleAlignment.Center,
         navigationIcon = navigationIcon,
@@ -546,9 +546,9 @@ fun MediumTopAppBar(
         smallTitleTextStyle = TopAppBarSmallTokens.HeadlineFont.value,
         titleBottomPadding = MediumTitleBottomPadding,
         smallTitle = title,
-        subtitle = {},
+        subtitle = null,
         subtitleTextStyle = TextStyle.Default,
-        smallSubtitle = {},
+        smallSubtitle = null,
         smallSubtitleTextStyle = TextStyle.Default,
         titleHorizontalAlignment = TopAppBarTitleAlignment.Start,
         navigationIcon = navigationIcon,
@@ -798,9 +798,9 @@ fun LargeTopAppBar(
         titleBottomPadding = LargeTitleBottomPadding,
         smallTitle = title,
         modifier = modifier,
-        subtitle = {},
+        subtitle = null,
         subtitleTextStyle = TextStyle.Default,
-        smallSubtitle = {},
+        smallSubtitle = null,
         smallSubtitleTextStyle = TextStyle.Default,
         titleHorizontalAlignment = TopAppBarTitleAlignment.Start,
         navigationIcon = navigationIcon,
@@ -2261,7 +2261,7 @@ private fun SingleRowTopAppBar(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
     titleTextStyle: TextStyle,
-    subtitle: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
     subtitleTextStyle: TextStyle,
     titleHorizontalAlignment: TopAppBarTitleAlignment,
     navigationIcon: @Composable () -> Unit,
@@ -2382,9 +2382,9 @@ private fun TwoRowsTopAppBar(
     titleBottomPadding: Dp,
     smallTitle: @Composable () -> Unit,
     smallTitleTextStyle: TextStyle,
-    subtitle: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
     subtitleTextStyle: TextStyle,
-    smallSubtitle: @Composable () -> Unit,
+    smallSubtitle: (@Composable () -> Unit)?,
     smallSubtitleTextStyle: TextStyle,
     titleHorizontalAlignment: TopAppBarTitleAlignment,
     navigationIcon: @Composable () -> Unit,
@@ -2559,7 +2559,7 @@ private fun TopAppBarLayout(
     actionIconContentColor: Color,
     title: @Composable () -> Unit,
     titleTextStyle: TextStyle,
-    subtitle: @Composable () -> Unit,
+    subtitle: (@Composable () -> Unit)?,
     subtitleTextStyle: TextStyle,
     titleAlpha: () -> Float,
     titleVerticalArrangement: Arrangement.Vertical,
@@ -2577,31 +2577,48 @@ private fun TopAppBarLayout(
                     content = navigationIcon
                 )
             }
-            Column(
-                modifier =
-                    Modifier.layoutId("title")
-                        .padding(horizontal = TopAppBarHorizontalPadding)
-                        .then(
-                            if (hideTitleSemantics) Modifier.clearAndSetSemantics {} else Modifier
-                        )
-                        .graphicsLayer { alpha = titleAlpha() },
-                horizontalAlignment =
-                    when (titleHorizontalAlignment) {
-                        TopAppBarTitleAlignment.Start -> Alignment.Start
-                        TopAppBarTitleAlignment.Center -> Alignment.CenterHorizontally
-                        else -> Alignment.End
+            if (subtitle != null) {
+                Column(
+                    modifier =
+                        Modifier.layoutId("title")
+                            .padding(horizontal = TopAppBarHorizontalPadding)
+                            .then(
+                                if (hideTitleSemantics) Modifier.clearAndSetSemantics {}
+                                else Modifier
+                            )
+                            .graphicsLayer { alpha = titleAlpha() },
+                    horizontalAlignment =
+                        when (titleHorizontalAlignment) {
+                            TopAppBarTitleAlignment.Start -> Alignment.Start
+                            TopAppBarTitleAlignment.Center -> Alignment.CenterHorizontally
+                            else -> Alignment.End
+                        }
+                ) {
+                    ProvideContentColorTextStyle(
+                        contentColor = titleContentColor,
+                        textStyle = titleTextStyle
+                    ) {
+                        title()
+                        ProvideTextStyle(value = subtitleTextStyle, content = subtitle)
                     }
-            ) {
-                ProvideContentColorTextStyle(
-                    contentColor = titleContentColor,
-                    textStyle = titleTextStyle,
-                    content = title
-                )
-                ProvideContentColorTextStyle(
-                    contentColor = titleContentColor,
-                    textStyle = subtitleTextStyle,
-                    content = subtitle
-                )
+                }
+            } else { // TODO(b/352770398): Workaround to maintain compatibility
+                Box(
+                    modifier =
+                        Modifier.layoutId("title")
+                            .padding(horizontal = TopAppBarHorizontalPadding)
+                            .then(
+                                if (hideTitleSemantics) Modifier.clearAndSetSemantics {}
+                                else Modifier
+                            )
+                            .graphicsLayer { alpha = titleAlpha() }
+                ) {
+                    ProvideContentColorTextStyle(
+                        contentColor = titleContentColor,
+                        textStyle = titleTextStyle,
+                        content = title
+                    )
+                }
             }
             Box(Modifier.layoutId("actionIcons").padding(end = TopAppBarHorizontalPadding)) {
                 CompositionLocalProvider(
