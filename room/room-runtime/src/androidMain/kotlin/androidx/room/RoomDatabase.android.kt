@@ -42,6 +42,7 @@ import androidx.room.support.AutoClosingRoomOpenHelper
 import androidx.room.support.AutoClosingRoomOpenHelperFactory
 import androidx.room.support.PrePackagedCopyOpenHelper
 import androidx.room.support.PrePackagedCopyOpenHelperFactory
+import androidx.room.support.QueryInterceptorOpenHelper
 import androidx.room.support.QueryInterceptorOpenHelperFactory
 import androidx.room.util.contains as containsCommon
 import androidx.room.util.findAndInstantiateDatabaseImpl
@@ -243,13 +244,11 @@ actual abstract class RoomDatabase {
             transactionContext =
                 if (inCompatibilityMode()) {
                     // To prevent starvation due to primary connection blocking in
-                    // SupportSQLiteDatabase
-                    // a limited dispatcher is used for transactions.
+                    // SupportSQLiteDatabase a limited dispatcher is used for transactions.
                     coroutineScope.coroutineContext + dispatcher.limitedParallelism(1)
                 } else {
                     // When a SQLiteDriver is provided a suspending connection pool is used and
-                    // there
-                    // is no reason to limit parallelism.
+                    // there is no reason to limit parallelism.
                     coroutineScope.coroutineContext
                 }
         } else {
@@ -266,23 +265,20 @@ actual abstract class RoomDatabase {
 
         allowMainThreadQueries = configuration.allowMainThreadQueries
 
-        // Configure SQLiteCopyOpenHelper if it is available
-        unwrapOpenHelper(
-                clazz = PrePackagedCopyOpenHelper::class.java,
-                openHelper = connectionManager.supportOpenHelper
-            )
+        // Configure PrePackagedCopyOpenHelper if it is available
+        unwrapOpenHelper<PrePackagedCopyOpenHelper>(connectionManager.supportOpenHelper)
             ?.setDatabaseConfiguration(configuration)
 
         // Configure AutoClosingRoomOpenHelper if it is available
-        unwrapOpenHelper(
-                clazz = AutoClosingRoomOpenHelper::class.java,
-                openHelper = connectionManager.supportOpenHelper
-            )
-            ?.let {
-                autoCloser = it.autoCloser
-                it.autoCloser.initCoroutineScope(coroutineScope)
-                invalidationTracker.setAutoCloser(it.autoCloser)
-            }
+        unwrapOpenHelper<AutoClosingRoomOpenHelper>(connectionManager.supportOpenHelper)?.let {
+            autoCloser = it.autoCloser
+            it.autoCloser.initCoroutineScope(coroutineScope)
+            invalidationTracker.setAutoCloser(it.autoCloser)
+        }
+
+        // Configure QueryInterceptorOpenHelper if it is available
+        unwrapOpenHelper<QueryInterceptorOpenHelper>(connectionManager.supportOpenHelper)
+            ?.initCoroutineScope(coroutineScope)
 
         // Configure multi-instance invalidation, if enabled
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
@@ -351,21 +347,30 @@ actual abstract class RoomDatabase {
     }
 
     /**
-     * Unwraps (delegating) open helpers until it finds clazz, otherwise returns null.
+     * Unwraps (delegating) open helpers until it finds [T], otherwise returns null.
      *
-     * @param clazz the open helper type to search for
      * @param openHelper the open helper to search through
-     * @param T the type of clazz
-     * @return the instance of clazz, otherwise null
+     * @param T the type of open helper type to search for
+     * @return the instance of [T], otherwise null
      */
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> unwrapOpenHelper(clazz: Class<T>, openHelper: SupportSQLiteOpenHelper?): T? {
-        if (clazz.isInstance(openHelper)) {
-            return openHelper as T
+    private inline fun <reified T : SupportSQLiteOpenHelper> unwrapOpenHelper(
+        openHelper: SupportSQLiteOpenHelper?
+    ): T? {
+        if (openHelper == null) {
+            return null
         }
-        return if (openHelper is DelegatingOpenHelper) {
-            unwrapOpenHelper(clazz = clazz, openHelper = openHelper.delegate)
-        } else null
+        var current: SupportSQLiteOpenHelper = openHelper
+        while (true) {
+            if (current is T) {
+                return current
+            }
+            if (current is DelegatingOpenHelper) {
+                current = current.delegate
+            } else {
+                break
+            }
+        }
+        return null
     }
 
     /**
@@ -663,10 +668,7 @@ actual abstract class RoomDatabase {
         if (autoCloser == null) {
             internalBeginTransaction()
         } else {
-            autoCloser.executeRefCountingFunction<Any?> {
-                internalBeginTransaction()
-                null
-            }
+            autoCloser.executeRefCountingFunction { internalBeginTransaction() }
         }
     }
 
@@ -690,10 +692,7 @@ actual abstract class RoomDatabase {
         if (autoCloser == null) {
             internalEndTransaction()
         } else {
-            autoCloser.executeRefCountingFunction<Any?> {
-                internalEndTransaction()
-                null
-            }
+            autoCloser.executeRefCountingFunction { internalEndTransaction() }
         }
     }
 
@@ -1650,11 +1649,7 @@ actual abstract class RoomDatabase {
                     }
                     ?.let {
                         if (queryCallback != null) {
-                            QueryInterceptorOpenHelperFactory(
-                                it,
-                                requireNotNull(queryCallbackExecutor),
-                                requireNotNull(queryCallback)
-                            )
+                            QueryInterceptorOpenHelperFactory(it, requireNotNull(queryCallback))
                         } else {
                             it
                         }

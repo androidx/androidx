@@ -16,7 +16,6 @@
 
 package androidx.room.integration.kotlintestapp.test
 
-import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.kruth.assertThat
 import androidx.room.Dao
 import androidx.room.Database
@@ -33,20 +32,21 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class QueryInterceptorTest {
-    @Rule @JvmField val countingTaskExecutorRule = CountingTaskExecutorRule()
-    lateinit var mDatabase: QueryInterceptorTestDatabase
-    var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any?>>>()
+    private val testCoroutineScope = TestScope()
+    private lateinit var database: QueryInterceptorTestDatabase
+    private val queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any?>>>()
 
     @Entity(tableName = "queryInterceptorTestDatabase")
     data class QueryInterceptorEntity(@PrimaryKey val id: String, val description: String?)
@@ -67,11 +67,12 @@ class QueryInterceptorTest {
 
     @Before
     fun setUp() {
-        mDatabase =
+        database =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
                     QueryInterceptorTestDatabase::class.java
                 )
+                .setQueryCoroutineContext(testCoroutineScope.coroutineContext)
                 .setQueryCallback(
                     { sqlQuery, bindArgs ->
                         val argTrace = ArrayList<Any?>()
@@ -85,12 +86,13 @@ class QueryInterceptorTest {
 
     @After
     fun tearDown() {
-        mDatabase.close()
+        database.close()
+        testCoroutineScope.cancel()
     }
 
     @Test
     fun testInsert() {
-        mDatabase
+        database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
 
@@ -104,17 +106,17 @@ class QueryInterceptorTest {
 
     @Test
     fun testDelete() {
-        mDatabase.queryInterceptorDao().delete("Insert")
+        database.queryInterceptorDao().delete("Insert")
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", listOf("Insert"))
         assertTransactionQueries()
     }
 
     @Test
     fun testUpdate() {
-        mDatabase
+        database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
-        mDatabase
+        database
             .queryInterceptorDao()
             .update(QueryInterceptorEntity("Insert", "Updated the placeholder query"))
 
@@ -130,10 +132,10 @@ class QueryInterceptorTest {
     @Test
     fun testCompileStatement() {
         assertEquals(queryAndArgs.size, 0)
-        mDatabase
+        database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
-        mDatabase.openHelper.writableDatabase
+        database.openHelper.writableDatabase
             .compileStatement("DELETE FROM queryInterceptorTestDatabase WHERE id=?")
             .execute()
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", emptyList())
@@ -141,7 +143,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testLoggingSupportSQLiteQuery() {
-        mDatabase.openHelper.writableDatabase.query(
+        database.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",
@@ -157,7 +159,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testExecSQLWithBindArgs() {
-        mDatabase.openHelper.writableDatabase.execSQL(
+        database.openHelper.writableDatabase.execSQL(
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)",
             arrayOf("3", "Description")
@@ -171,7 +173,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testNullBindArgument() {
-        mDatabase.openHelper.writableDatabase.query(
+        database.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",
@@ -190,10 +192,12 @@ class QueryInterceptorTest {
         val sql =
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)"
-        val statement = mDatabase.openHelper.writableDatabase.compileStatement(sql)
+        val statement = database.openHelper.writableDatabase.compileStatement(sql)
         statement.bindString(1, "ID")
         statement.bindNull(2)
         statement.execute()
+
+        testCoroutineScope.testScheduler.advanceUntilIdle()
 
         val filteredQueries = queryAndArgs.filter { (query, _) -> query == sql }
 
@@ -221,9 +225,9 @@ class QueryInterceptorTest {
 
         dbBuilder.build().close()
 
-        mDatabase = dbBuilder.build()
+        database = dbBuilder.build()
 
-        mDatabase
+        database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
 
@@ -236,12 +240,14 @@ class QueryInterceptorTest {
     }
 
     private fun assertQueryLogged(query: String, expectedArgs: List<String?>) {
+        testCoroutineScope.testScheduler.advanceUntilIdle()
         val filteredQueries = queryAndArgs.filter { it.first == query }
         assertThat(filteredQueries).hasSize(1)
         assertThat(expectedArgs).containsExactlyElementsIn(filteredQueries[0].second)
     }
 
     private fun assertTransactionQueries() {
+        testCoroutineScope.testScheduler.advanceUntilIdle()
         assertNotNull(queryAndArgs.any { it.equals("BEGIN TRANSACTION") })
         assertNotNull(queryAndArgs.any { it.equals("TRANSACTION SUCCESSFUL") })
         assertNotNull(queryAndArgs.any { it.equals("END TRANSACTION") })

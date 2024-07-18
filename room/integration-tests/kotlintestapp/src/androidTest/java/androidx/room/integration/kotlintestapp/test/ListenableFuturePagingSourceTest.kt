@@ -117,7 +117,8 @@ class ListenableFuturePagingSourceTest {
         queryExecutor.filterFunction = { runnable ->
             // filtering out the transform async function called inside loadFuture
             // filtering as String b/c `AbstractTransformFuture` is a package-private class
-            !runnable.javaClass.enclosingClass.toString().contains("AbstractTransformFuture")
+            runnable.javaClass.enclosingClass?.toString()?.contains("AbstractTransformFuture") !=
+                true
         }
 
         runTest {
@@ -155,7 +156,9 @@ class ListenableFuturePagingSourceTest {
             queryExecutor.filterFunction = { runnable ->
                 // filtering out the transform async function called inside loadFuture
                 // filtering as String b/c `AbstractTransformFuture` is a package-private class
-                !runnable.javaClass.enclosingClass.toString().contains("AbstractTransformFuture")
+                runnable.javaClass.enclosingClass
+                    ?.toString()
+                    ?.contains("AbstractTransformFuture") != true
             }
 
             // now access more items that should trigger loading more
@@ -202,7 +205,9 @@ class ListenableFuturePagingSourceTest {
             queryExecutor.filterFunction = { runnable ->
                 // filtering out the transform async function called inside loadFuture
                 // filtering as String b/c `AbstractTransformFuture` is a package-private class
-                !runnable.javaClass.enclosingClass.toString().contains("AbstractTransformFuture")
+                runnable.javaClass.enclosingClass
+                    ?.toString()
+                    ?.contains("AbstractTransformFuture") != true
             }
 
             // now access more items that should trigger loading more
