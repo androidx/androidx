@@ -24,12 +24,15 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -105,22 +108,6 @@ class FloatingAppBarScreenshotTest {
     }
 
     @Test
-    fun horizontalFloatingAppBar_trailing_lightTheme() {
-        rule.setMaterialContent(lightColorScheme()) {
-            Box(Modifier.testTag(FloatingAppBarTestTag)) {
-                HorizontalFloatingAppBar(expanded = true, trailingContent = { Text("trailing") }) {
-                    content()
-                }
-            }
-        }
-
-        rule
-            .onNodeWithTag(FloatingAppBarTestTag)
-            .captureToImage()
-            .assertAgainstGolden(screenshotRule, "horizontalFloatingAppBar_trailing_lightTheme")
-    }
-
-    @Test
     fun horizontalFloatingAppBar_leading_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
@@ -137,13 +124,29 @@ class FloatingAppBarScreenshotTest {
     }
 
     @Test
-    fun horizontalFloatingAppBar_trailing_leading_lightTheme() {
+    fun horizontalFloatingAppBar_trailing_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(FloatingAppBarTestTag)) {
+                HorizontalFloatingAppBar(expanded = true, trailingContent = { Text("trailing") }) {
+                    content()
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(FloatingAppBarTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "horizontalFloatingAppBar_trailing_lightTheme")
+    }
+
+    @Test
+    fun horizontalFloatingAppBar_leading_trailing_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
                 HorizontalFloatingAppBar(
                     expanded = true,
-                    trailingContent = { Text("trailing") },
-                    leadingContent = { Text("leading") }
+                    leadingContent = { Text("leading") },
+                    trailingContent = { Text("trailing") }
                 ) {
                     content()
                 }
@@ -155,18 +158,18 @@ class FloatingAppBarScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "horizontalFloatingAppBar_trailing_leading_lightTheme"
+                "horizontalFloatingAppBar_leading_trailing_lightTheme"
             )
     }
 
     @Test
-    fun horizontalFloatingAppBar_trailing_leading_darkTheme() {
+    fun horizontalFloatingAppBar_leading_trailing_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
                 HorizontalFloatingAppBar(
                     expanded = true,
-                    trailingContent = { Text("trailing") },
-                    leadingContent = { Text("leading") }
+                    leadingContent = { Text("leading") },
+                    trailingContent = { Text("trailing") }
                 ) {
                     content()
                 }
@@ -178,18 +181,18 @@ class FloatingAppBarScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "horizontalFloatingAppBar_trailing_leading_darkTheme"
+                "horizontalFloatingAppBar_leading_trailing_darkTheme"
             )
     }
 
     @Test
-    fun horizontalFloatingAppBar_trailing_leading_collapsed_lightTheme() {
+    fun horizontalFloatingAppBar_leading_trailing_collapsed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
                 HorizontalFloatingAppBar(
                     expanded = false,
-                    trailingContent = { Text("trailing") },
-                    leadingContent = { Text("leading") }
+                    leadingContent = { Text("leading") },
+                    trailingContent = { Text("trailing") }
                 ) {
                     content()
                 }
@@ -201,19 +204,22 @@ class FloatingAppBarScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "horizontalFloatingAppBar_trailing_leading_collapsed_lightTheme"
+                "horizontalFloatingAppBar_leading_trailing_collapsed_lightTheme"
             )
     }
 
     @Test
-    fun verticalFloatingAppBar_trailing_lightTheme() {
+    fun horizontalFloatingAppBar_leading_trailing_rtl_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(Modifier.testTag(FloatingAppBarTestTag)) {
-                VerticalFloatingAppBar(
-                    expanded = true,
-                    trailingContent = { Text(text = "trailing") }
-                ) {
-                    content()
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(Modifier.testTag(FloatingAppBarTestTag)) {
+                    HorizontalFloatingAppBar(
+                        expanded = true,
+                        leadingContent = { Text("leading") },
+                        trailingContent = { Text("trailing") }
+                    ) {
+                        content()
+                    }
                 }
             }
         }
@@ -221,7 +227,10 @@ class FloatingAppBarScreenshotTest {
         rule
             .onNodeWithTag(FloatingAppBarTestTag)
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, "verticalFloatingAppBar_trailing_lightTheme")
+            .assertAgainstGolden(
+                screenshotRule,
+                "horizontalFloatingAppBar_leading_trailing_rtl_lightTheme"
+            )
     }
 
     @Test
@@ -244,13 +253,32 @@ class FloatingAppBarScreenshotTest {
     }
 
     @Test
-    fun verticalFloatingAppBar_trailing_leading_lightTheme() {
+    fun verticalFloatingAppBar_trailing_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
                 VerticalFloatingAppBar(
                     expanded = true,
-                    trailingContent = { Text(text = "trailing") },
-                    leadingContent = { Text(text = "leading") }
+                    trailingContent = { Text(text = "trailing") }
+                ) {
+                    content()
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(FloatingAppBarTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "verticalFloatingAppBar_trailing_lightTheme")
+    }
+
+    @Test
+    fun verticalFloatingAppBar_leading_trailing_lightTheme() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(Modifier.testTag(FloatingAppBarTestTag)) {
+                VerticalFloatingAppBar(
+                    expanded = true,
+                    leadingContent = { Text(text = "leading") },
+                    trailingContent = { Text(text = "trailing") }
                 ) {
                     content()
                 }
@@ -262,18 +290,18 @@ class FloatingAppBarScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "verticalFloatingAppBar_trailing_leading_lightTheme"
+                "verticalFloatingAppBar_leading_trailing_lightTheme"
             )
     }
 
     @Test
-    fun verticalFloatingAppBar_trailing_leading_darkTheme() {
+    fun verticalFloatingAppBar_leading_trailing_darkTheme() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
                 VerticalFloatingAppBar(
                     expanded = true,
-                    trailingContent = { Text(text = "trailing") },
-                    leadingContent = { Text(text = "leading") }
+                    leadingContent = { Text(text = "leading") },
+                    trailingContent = { Text(text = "trailing") }
                 ) {
                     content()
                 }
@@ -285,18 +313,18 @@ class FloatingAppBarScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "verticalFloatingAppBar_trailing_leading_darkTheme"
+                "verticalFloatingAppBar_leading_trailing_darkTheme"
             )
     }
 
     @Test
-    fun verticalFloatingAppBar_trailing_leading_collapsed_lightTheme() {
+    fun verticalFloatingAppBar_leading_trailing_collapsed_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(FloatingAppBarTestTag)) {
                 VerticalFloatingAppBar(
                     expanded = false,
-                    trailingContent = { Text(text = "trailing") },
-                    leadingContent = { Text(text = "leading") }
+                    leadingContent = { Text(text = "leading") },
+                    trailingContent = { Text(text = "trailing") }
                 ) {
                     content()
                 }
@@ -308,7 +336,7 @@ class FloatingAppBarScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(
                 screenshotRule,
-                "verticalFloatingAppBar_trailing_leading_collapsed_lightTheme"
+                "verticalFloatingAppBar_leading_trailing_collapsed_lightTheme"
             )
     }
 

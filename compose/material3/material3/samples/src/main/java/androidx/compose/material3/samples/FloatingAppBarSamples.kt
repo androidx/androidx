@@ -104,9 +104,9 @@ fun HorizontalFloatingAppBar() {
                 HorizontalFloatingAppBar(
                     modifier = Modifier.align(BottomCenter).offset(y = -ScreenOffset),
                     expanded = expanded || isTouchExplorationEnabled,
-                    trailingContent = { trailingContent() },
-                    leadingContent = {
-                        leadingContent()
+                    leadingContent = { leadingContent() },
+                    trailingContent = {
+                        trailingContent()
                         FilledIconToggleButton(
                             checked = anchored,
                             onCheckedChange = { anchored = it }
@@ -175,9 +175,9 @@ fun VerticalFloatingAppBar() {
                 VerticalFloatingAppBar(
                     modifier = Modifier.align(CenterEnd).offset(x = -ScreenOffset),
                     expanded = expanded || isTouchExplorationEnabled,
-                    trailingContent = { trailingContent() },
-                    leadingContent = {
-                        leadingContent()
+                    leadingContent = { leadingContent() },
+                    trailingContent = {
+                        trailingContent()
                         FilledIconToggleButton(
                             checked = anchored,
                             onCheckedChange = { anchored = it }
@@ -206,7 +206,7 @@ fun VerticalFloatingAppBar() {
 }
 
 @Composable
-private fun trailingContent() {
+private fun leadingContent() {
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(Icons.Filled.Check, contentDescription = "Localized description")
     }
@@ -219,7 +219,7 @@ private fun trailingContent() {
 }
 
 @Composable
-private fun leadingContent() {
+private fun trailingContent() {
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(Icons.Filled.Add, contentDescription = "Localized description")
     }
