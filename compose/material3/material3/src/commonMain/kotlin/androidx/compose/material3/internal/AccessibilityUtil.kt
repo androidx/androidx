@@ -26,12 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 
 @VisibleForTesting internal val HorizontalSemanticsBoundsPadding: Dp = 10.dp
-@VisibleForTesting internal val VerticalSemanticsBoundsPadding: Dp = 10.dp
 
-/**
- * Increases the semantics bounds horizontally by [HorizontalSemanticsBoundsPadding] in order to
- * meet the TalkBack box minimum size while preserving the visual appearance.
- */
 internal val IncreaseHorizontalSemanticsBounds: Modifier =
     Modifier.layout { measurable, constraints ->
             val paddingPx = HorizontalSemanticsBoundsPadding.roundToPx()
@@ -51,27 +46,3 @@ internal val IncreaseHorizontalSemanticsBounds: Modifier =
         }
         .semantics(mergeDescendants = true) {}
         .padding(horizontal = HorizontalSemanticsBoundsPadding)
-
-/**
- * Increases the semantics bounds vertically by [VerticalSemanticsBoundsPadding] in order to meet
- * the TalkBack box minimum size while preserving the visual appearance.
- */
-internal val IncreaseVerticalSemanticsBounds: Modifier =
-    Modifier.layout { measurable, constraints ->
-            val paddingPx = VerticalSemanticsBoundsPadding.roundToPx()
-            // We need to add vertical padding to the semantics bounds in order to meet
-            // screenreader green box minimum size, but we also want to
-            // preserve a visual appearance and layout size below that minimum
-            // in order to maintain backwards compatibility. This custom
-            // layout effectively implements "negative padding".
-            val newConstraint = constraints.offset(0, paddingPx * 2)
-            val placeable = measurable.measure(newConstraint)
-
-            // But when actually placing the placeable, create the layout without additional
-            // space. Place the placeable where it would've been without any extra padding.
-            val height = placeable.height - paddingPx * 2
-            val width = placeable.width
-            layout(width, height) { placeable.place(0, -paddingPx) }
-        }
-        .semantics(mergeDescendants = true) {}
-        .padding(vertical = VerticalSemanticsBoundsPadding)

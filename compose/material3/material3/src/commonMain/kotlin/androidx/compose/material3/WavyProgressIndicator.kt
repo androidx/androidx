@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material3.internal.IncreaseVerticalSemanticsBounds
 import androidx.compose.material3.internal.toPath
 import androidx.compose.material3.tokens.CircularProgressIndicatorTokens
 import androidx.compose.material3.tokens.LinearProgressIndicatorTokens
@@ -66,6 +65,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
@@ -182,7 +182,7 @@ fun LinearWavyProgressIndicator(
     val progressDrawingCache = remember { LinearProgressDrawingCache() }
     Spacer(
         modifier
-            .then(IncreaseVerticalSemanticsBounds)
+            .then(IncreaseSemanticsBounds)
             .semantics(mergeDescendants = true) {
                 progressBarRangeInfo = ProgressBarRangeInfo(coercedProgress(), 0f..1f)
             }
@@ -301,27 +301,55 @@ fun LinearWavyProgressIndicator(
     val infiniteTransition = rememberInfiniteTransition()
     val firstLineHead =
         infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = linearIndeterminateFirstLineHeadAnimationSpec
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at FirstLineHeadDelay using IndeterminateLinearProgressEasing
+                        1f at FirstLineHeadDuration + FirstLineHeadDelay
+                    }
+            )
         )
     val firstLineTail =
         infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = linearIndeterminateFirstLineTailAnimationSpec
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at FirstLineTailDelay using IndeterminateLinearProgressEasing
+                        1f at FirstLineTailDuration + FirstLineTailDelay
+                    }
+            )
         )
     val secondLineHead =
         infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = linearIndeterminateSecondLineHeadAnimationSpec
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at SecondLineHeadDelay using IndeterminateLinearProgressEasing
+                        1f at SecondLineHeadDuration + SecondLineHeadDelay
+                    }
+            )
         )
     val secondLineTail =
         infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = linearIndeterminateSecondLineTailAnimationSpec
+            0f,
+            1f,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = LinearAnimationDuration
+                        0f at SecondLineTailDelay using IndeterminateLinearProgressEasing
+                        1f at SecondLineTailDuration + SecondLineTailDelay
+                    }
+            )
         )
 
     val waveOffset =
@@ -332,7 +360,7 @@ fun LinearWavyProgressIndicator(
                 animation =
                     keyframes {
                         durationMillis = LinearAnimationDuration
-                        1f at LinearAnimationDuration using LinearIndeterminateProgressEasing
+                        1f at LinearAnimationDuration using IndeterminateLinearProgressEasing
                     }
             )
         )
@@ -345,7 +373,7 @@ fun LinearWavyProgressIndicator(
     val progressDrawingCache = remember { LinearProgressDrawingCache() }
     Spacer(
         modifier
-            .then(IncreaseVerticalSemanticsBounds)
+            .then(IncreaseSemanticsBounds)
             .progressSemantics()
             .requiredSizeIn(minWidth = LinearContainerMinWidth)
             .size(
@@ -663,16 +691,6 @@ private fun PathProgressIndicator(
 
                 if (animatedAmplitude.targetValue != amplitudeForProgress) {
                     coroutineScope.launch {
-                        if (animatedAmplitude.isRunning) {
-                            // In case the amplitude animation is running, update the upperBound to
-                            // match the new amplitudeForProgress. This will help when that
-                            // amplitudeForProgress is changing before the previous change animation
-                            // is done.
-                            animatedAmplitude.updateBounds(
-                                lowerBound = 0f,
-                                upperBound = amplitudeForProgress
-                            )
-                        }
                         animatedAmplitude.animateTo(
                             targetValue = amplitudeForProgress,
                             animationSpec =
@@ -783,39 +801,58 @@ private fun PathProgressIndicator(
         "Expecting a progress end that is greater than the progress start"
     }
     val infiniteTransition = rememberInfiniteTransition()
-    // A global rotation that does a 1080 degrees rotation in 6 seconds.
+
+    // Rotation animation of 360 degrees, where the initial 90 degrees are moving in an accelerated
+    // speed.
     val globalRotation =
         infiniteTransition.animateFloat(
             initialValue = 0f,
-            targetValue = CircularGlobalRotationDegreesTarget,
-            animationSpec = circularIndeterminateGlobalRotationAnimationSpec
-        )
-
-    // An additional rotation that moves by 90 degrees in 500ms and then rest for 1 second.
-    val additionalRotation =
-        infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = CircularAdditionalRotationDegreesTarget,
-            animationSpec = circularIndeterminateRotationAnimationSpec
+            targetValue = 360f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation =
+                        keyframes {
+                            durationMillis = CircularAnimationGlobalRotationDuration // 1500ms
+                            90f at
+                                CircularAnimationGlobalRotationAcceleratedDuration using
+                                CircularGlobalRotationEasing // 200ms
+                            360f at CircularAnimationGlobalRotationDuration // 1500ms
+                        }
+                )
         )
 
     // Indicator progress animation that will be changing the progress up and down as the indicator
     // rotates.
     val progressAnimation =
         infiniteTransition.animateFloat(
-            initialValue = CircularIndeterminateMinProgress,
-            targetValue = CircularIndeterminateMaxProgress,
-            animationSpec = circularIndeterminateProgressAnimationSpec
+            initialValue = progressStart,
+            targetValue = progressStart,
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = CircularAnimationProgressDuration // 6000ms
+                        progressStart at
+                            CircularAnimationProgressDelay using
+                            CircularProgressEasing // 1000ms
+                        progressEnd at
+                            CircularAnimationProgressDelay +
+                                CircularAnimationProgressMovementDuration // 3000ms
+                        progressEnd at
+                            CircularAnimationProgressDelay * 2 +
+                                CircularAnimationProgressMovementDuration // 4000ms
+                        progressStart at CircularAnimationProgressDuration // 6000ms
+                    }
+            )
         )
 
     // Holds the start and end progress fractions.
     val progressDrawingCache = remember { CircularProgressDrawingCache() }
+    val direction = if (LocalLayoutDirection.current == LayoutDirection.Ltr) 1f else -1f
     Box(modifier = modifier) {
         Spacer(
             // Apply the rotation from the animation.
             Modifier.fillMaxSize()
-                // Adding 90 degrees to align the Wavy indicator motion to the NTC indicator motion.
-                .graphicsLayer { rotationZ = globalRotation.value + additionalRotation.value + 90 }
+                .graphicsLayer { rotationZ = globalRotation.value * direction }
                 .drawWithCache {
                     val trackGapSize = gapSize.toPx()
                     with(progressDrawingCache) {
@@ -841,13 +878,26 @@ private fun PathProgressIndicator(
                         )
                     }
                     onDrawWithContent {
-                        drawCircularIndicator(
-                            color = color,
-                            trackColor = trackColor,
-                            stroke = stroke,
-                            trackStroke = trackStroke,
-                            drawingCache = progressDrawingCache
-                        )
+                        if (layoutDirection == LayoutDirection.Rtl) {
+                            // Scaling on the X will flip the drawing for RTL
+                            scale(scaleX = -1f, scaleY = 1f) {
+                                drawCircularIndicator(
+                                    color = color,
+                                    trackColor = trackColor,
+                                    stroke = stroke,
+                                    trackStroke = trackStroke,
+                                    drawingCache = progressDrawingCache
+                                )
+                            }
+                        } else {
+                            drawCircularIndicator(
+                                color = color,
+                                trackColor = trackColor,
+                                stroke = stroke,
+                                trackStroke = trackStroke,
+                                drawingCache = progressDrawingCache
+                            )
+                        }
                     }
                 }
         )
@@ -1856,6 +1906,23 @@ private class CircularProgressDrawingCache {
 // linear indicators should be substituted with circular ones.
 private val LinearContainerMinWidth = CircularProgressIndicatorTokens.Size
 
+// Total duration for one linear cycle
+private const val LinearAnimationDuration = 1750
+
+// Duration of the head and tail animations for both lines
+private const val FirstLineHeadDuration = 1000
+private const val FirstLineTailDuration = 1000
+private const val SecondLineHeadDuration = 850
+private const val SecondLineTailDuration = 850
+
+// Delay before the start of the head and tail animations for both lines
+private const val FirstLineHeadDelay = 0
+private const val FirstLineTailDelay = 250
+private const val SecondLineHeadDelay = 650
+private const val SecondLineTailDelay = 900
+
+private val IndeterminateLinearProgressEasing = MotionTokens.EasingEmphasizedAccelerateCubicBezier
+
 // Animation spec for increasing the amplitude drawing when its changing.
 private val IncreasingAmplitudeAnimationSpec: AnimationSpec<Float> =
     tween(
@@ -1869,5 +1936,18 @@ private val DecreasingAmplitudeAnimationSpec: AnimationSpec<Float> =
         durationMillis = MotionTokens.DurationLong2.toInt(),
         easing = MotionTokens.EasingEmphasizedAccelerateCubicBezier
     )
+
+// The indeterminate circular indicator easing constants for its motion
+private val CircularProgressEasing = MotionTokens.EasingStandardCubicBezier
+private val CircularGlobalRotationEasing = MotionTokens.EasingLinearCubicBezier
+private const val CircularIndeterminateMinProgress = 0.1f
+private const val CircularIndeterminateMaxProgress = 0.87f
+
+private const val CircularAnimationGlobalRotationDuration = 1500
+private const val CircularAnimationGlobalRotationAcceleratedDuration = 200
+
+private const val CircularAnimationProgressDuration = 6000
+private const val CircularAnimationProgressDelay = 1000
+private const val CircularAnimationProgressMovementDuration = 2000
 
 private const val MinCircularVertexCount = 5
