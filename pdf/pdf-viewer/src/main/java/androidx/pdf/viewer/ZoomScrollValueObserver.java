@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
 import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
+import androidx.pdf.select.SelectionActionMode;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.widget.FastScrollView;
 import androidx.pdf.widget.ZoomView;
@@ -44,6 +45,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private final PageIndicator mPageIndicator;
     private final FastScrollView mFastScrollView;
     private boolean mIsAnnotationIntentResolvable;
+    private final SelectionActionMode mSelectionActionMode;
     private final ObservableValue<ViewState> mViewState;
 
     private static final int FAB_ANIMATION_DURATION = 200;
@@ -55,6 +57,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             @Nullable FindInFileView findInFileView,
             @NonNull PageIndicator pageIndicator, @NonNull FastScrollView fastScrollView,
             boolean isAnnotationIntentResolvable,
+            @NonNull SelectionActionMode selectionActionMode,
             @NonNull ObservableValue<ViewState> viewState) {
         mZoomView = zoomView;
         mPaginatedView = paginatedView;
@@ -64,6 +67,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         mPageIndicator = pageIndicator;
         mFastScrollView = fastScrollView;
         mIsAnnotationIntentResolvable = isAnnotationIntentResolvable;
+        mSelectionActionMode = selectionActionMode;
         mViewState = viewState;
         mAnnotationButtonHandler = new Handler(Looper.getMainLooper());
         mIsPageScrollingUp = false;
@@ -117,6 +121,13 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                     }
                 });
             }
+        }
+
+        if (position.scrollY > 0) {
+            mSelectionActionMode.stopActionMode();
+        }
+        if (position.scrollY == oldPosition.scrollY) {
+            mSelectionActionMode.resume();
         }
     }
 
