@@ -99,6 +99,7 @@ androidXMultiplatform {
                 implementation(project(":compose:material3:material3:material3-samples"))
                 implementation(project(":compose:test-utils"))
                 implementation(project(':compose:foundation:foundation-layout'))
+                implementation(project(':compose:foundation:foundation'))
                 implementation(project(":test:screenshot:screenshot"))
                 implementation(projectOrArtifact(":core:core"))
                 implementation(libs.testRules)
