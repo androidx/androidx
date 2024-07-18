@@ -308,6 +308,7 @@ fun SplitCheckboxButton(
 
         val splitBackground = colors.splitContainerColor(enabled, checked).value
         Box(
+            contentAlignment = Alignment.Center,
             modifier =
                 Modifier.toggleable(
                         enabled = enabled,
@@ -325,8 +326,7 @@ fun SplitCheckboxButton(
                             drawContent()
                         }
                     }
-                    .align(Alignment.CenterVertically)
-                    .width(SPLIT_WIDTH)
+                    .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
                     .padding(contentPadding)
         ) {
@@ -1468,7 +1468,7 @@ private val BOX_STROKE = 2.dp
 private val BOX_RADIUS = 2.dp
 private val BOX_SIZE = 18.dp
 
-private val SPLIT_WIDTH = 52.dp
+private val SPLIT_MIN_WIDTH = 48.dp
 private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
 
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> =

@@ -19,6 +19,7 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
@@ -30,6 +31,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -177,6 +179,16 @@ class RadioButtonScreenshotTest {
             )
         }
 
+    @Test
+    fun split_radio_button_customized_padding_6dp() = verifyScreenshot {
+        sampleSplitRadioButton(contentPadding = PaddingValues(6.dp))
+    }
+
+    @Test
+    fun split_radio_button_customized_horizontal_padding_24dp() = verifyScreenshot {
+        sampleSplitRadioButton(contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp))
+    }
+
     @Composable
     private fun sampleRadioButton(
         enabled: Boolean = true,
@@ -197,6 +209,7 @@ class RadioButtonScreenshotTest {
     private fun sampleSplitRadioButton(
         selected: Boolean = true,
         enabled: Boolean = true,
+        contentPadding: PaddingValues = RadioButtonDefaults.ContentPadding,
     ) {
         SplitRadioButton(
             label = { Text("SplitRadioButton") },
@@ -207,6 +220,7 @@ class RadioButtonScreenshotTest {
             onContainerClick = {},
             selectionContentDescription = null,
             modifier = Modifier.testTag(TEST_TAG),
+            contentPadding = contentPadding,
         )
     }
 

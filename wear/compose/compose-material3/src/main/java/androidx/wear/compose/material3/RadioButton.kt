@@ -327,6 +327,7 @@ fun SplitRadioButton(
         val splitContainerColor =
             colors.splitContainerColor(enabled = enabled, selected = selected).value
         Box(
+            contentAlignment = Alignment.Center,
             modifier =
                 Modifier.selectable(
                         enabled = enabled,
@@ -344,8 +345,7 @@ fun SplitRadioButton(
                             drawContent()
                         }
                     }
-                    .align(Alignment.CenterVertically)
-                    .width(SPLIT_WIDTH)
+                    .defaultMinSize(minWidth = SPLIT_MIN_WIDTH)
                     .wrapContentHeight(align = Alignment.CenterVertically)
                     .padding(contentPadding)
                     .semantics {
@@ -1357,7 +1357,7 @@ private val SELECTION_CONTROL_HEIGHT = 24.dp
 private val SELECTION_CONTROL_SPACING = 6.dp
 private val ICON_SPACING = 6.dp
 private val MIN_HEIGHT = 52.dp
-private val SPLIT_WIDTH = 52.dp
+private val SPLIT_MIN_WIDTH = 48.dp
 private val CONTROL_WIDTH = 24.dp
 private val CONTROL_HEIGHT = 24.dp
 private val SPLIT_SECTIONS_SHAPE = ShapeTokens.CornerExtraSmall
