@@ -71,7 +71,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var leftX = 0.dp
@@ -109,7 +109,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = false,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var leftX = 0.dp
@@ -147,7 +147,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var expectedX = 0.dp
@@ -185,7 +185,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var expectedX = 0.dp
@@ -223,7 +223,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var leftX = 0.dp
@@ -260,7 +260,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags(isSubGridByColRow = true)
+                gridFlags = GridFlag.SubGridByColRow
             )
         }
         var leftX = 0.dp
@@ -296,7 +296,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var leftX = 0.dp
@@ -334,7 +334,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.PlaceLayoutsOnSpansFirst,
+                gridFlags = GridFlag.PlaceLayoutsOnSpansFirst,
             )
         }
         var leftX = 0.dp
@@ -374,7 +374,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var topY = 0.dp
@@ -407,7 +407,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var leftX = 0.dp
@@ -445,7 +445,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags(isSubGridByColRow = true),
+                gridFlags = GridFlag.SubGridByColRow,
             )
         }
         var leftX = 0.dp
@@ -484,7 +484,7 @@ class GridDslTest {
                 gridColumnWeights = floatArrayOf(),
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         val expectedLeft = (rootSize - 10.dp) / 2f
@@ -520,7 +520,7 @@ class GridDslTest {
                 gridColumnWeights = weights,
                 boxesCount = boxesCount,
                 isHorizontalArrangement = true,
-                gridFlags = GridFlags.None,
+                gridFlags = GridFlag.None,
             )
         }
         var expectedLeft = 0.dp
@@ -556,7 +556,7 @@ class GridDslTest {
                         gridColumnWeights = floatArrayOf(),
                         boxesCount = 1,
                         isHorizontalArrangement = true,
-                        gridFlags = GridFlags.None
+                        gridFlags = GridFlag.None
                     )
                 }
             }
@@ -580,7 +580,7 @@ class GridDslTest {
                         gridColumnWeights = FloatArray(columnCount + 1) { it.toFloat() },
                         boxesCount = 1,
                         isHorizontalArrangement = true,
-                        gridFlags = GridFlags.None
+                        gridFlags = GridFlag.None
                     )
                 }
             }
@@ -625,7 +625,7 @@ class GridDslTest {
         gridColumnWeights: FloatArray,
         boxesCount: Int,
         isHorizontalArrangement: Boolean,
-        gridFlags: GridFlags,
+        gridFlags: GridFlag,
     ) {
         ConstraintLayout(
             ConstraintSet {
