@@ -111,7 +111,7 @@ class RequestProcessorAdapterTest {
     }
 
     private fun initialize(scope: TestScope) {
-        cameraGraphSimulator =
+        val simulator =
             CameraGraphSimulator.create(
                     scope,
                     context,
@@ -119,24 +119,24 @@ class RequestProcessorAdapterTest {
                     graphConfig,
                 )
                 .also {
-                    it.cameraGraph.start()
+                    it.start()
                     it.simulateCameraStarted()
-                    it.simulateFakeSurfaceConfiguration()
+                    it.initializeSurfaces()
                 }
-        val cameraGraph = cameraGraphSimulator!!.cameraGraph
+        cameraGraphSimulator = simulator
         val surfaceToStreamMap =
             buildMap<DeferrableSurface, StreamId> {
                 put(
                     previewProcessorSurface,
-                    checkNotNull(cameraGraph.streams[previewStreamConfig]).id
+                    checkNotNull(simulator.streams[previewStreamConfig]).id
                 )
                 put(
                     imageCaptureProcessorSurface,
-                    checkNotNull(cameraGraph.streams[imageCaptureStreamConfig]).id
+                    checkNotNull(simulator.streams[imageCaptureStreamConfig]).id
                 )
             }
         val useCaseGraphConfig =
-            UseCaseGraphConfig(cameraGraph, surfaceToStreamMap, CameraStateAdapter())
+            UseCaseGraphConfig(simulator, surfaceToStreamMap, CameraStateAdapter())
 
         requestProcessorAdapter =
             RequestProcessorAdapter(
@@ -172,9 +172,7 @@ class RequestProcessorAdapterTest {
         val request = frame.request
         assertThat(request.streams.size).isEqualTo(1)
         assertThat(request.streams.first())
-            .isEqualTo(
-                checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[previewStreamConfig]).id
-            )
+            .isEqualTo(checkNotNull(cameraGraphSimulator!!.streams[previewStreamConfig]).id)
 
         verify(callback, times(1)).onCaptureStarted(eq(requestToSet), any(), any())
 
@@ -215,10 +213,7 @@ class RequestProcessorAdapterTest {
         val request = frame.request
         assertThat(request.streams.size).isEqualTo(1)
         assertThat(request.streams.first())
-            .isEqualTo(
-                checkNotNull(cameraGraphSimulator!!.cameraGraph.streams[imageCaptureStreamConfig])
-                    .id
-            )
+            .isEqualTo(checkNotNull(cameraGraphSimulator!!.streams[imageCaptureStreamConfig]).id)
         assertThat(request.parameters[CaptureRequest.CONTROL_AE_MODE])
             .isEqualTo(CONTROL_AE_MODE_OFF)
 

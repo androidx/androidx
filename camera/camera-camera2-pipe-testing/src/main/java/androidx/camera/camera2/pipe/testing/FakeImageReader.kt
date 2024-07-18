@@ -32,34 +32,33 @@ private constructor(
     private val format: StreamFormat,
     override val capacity: Int,
     override val surface: Surface,
-    private val streamId: StreamId,
+    val streamId: StreamId,
     private val outputs: Map<OutputId, Size>
 ) : ImageReaderWrapper {
+    private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
     private val onImageListener = atomic<ImageReaderWrapper.OnImageListener?>(null)
+
+    private val lock = Any()
+    private val _images = mutableListOf<FakeImage>()
+
+    /** Retrieve a list of every image that has been created from this FakeImageReader. */
+    val images: List<FakeImage>
+        get() = synchronized(lock) { _images.toMutableList() }
 
     val isClosed: Boolean
         get() = closed.value
 
     /**
-     * Simulate an image at a specific [timestamp]. The timebase for an imageReader is undefined.
+     * Simulate an image at a specific [imageTimestamp] for a particular (optional) [OutputId]. The
+     * timebase for an imageReader is left undefined.
      */
-    fun simulateImage(timestamp: Long): FakeImage {
-        val outputId = outputs.keys.single()
-        return simulateImage(outputId, timestamp)
-    }
-
-    /**
-     * Simulate an image using a specific [outputId] and [timestamp]. The timebase for an
-     * imageReader is undefined.
-     */
-    fun simulateImage(outputId: OutputId, timestamp: Long): FakeImage {
+    fun simulateImage(imageTimestamp: Long, outputId: OutputId? = null): FakeImage {
+        val output = outputId ?: outputs.keys.single()
         val size =
-            checkNotNull(outputs[outputId]) {
-                "Unexpected $outputId! Available outputs are $outputs"
-            }
-        val image = FakeImage(size.width, size.height, format.value, timestamp)
-        simulateImage(outputId, image)
+            checkNotNull(outputs[output]) { "Unexpected $output! Available outputs are $outputs" }
+        val image = FakeImage(size.width, size.height, format.value, imageTimestamp)
+        simulateImage(image, output)
         return image
     }
 
@@ -67,13 +66,19 @@ private constructor(
      * Simulate an image using a specific [ImageWrapper] for the given outputId. The size must
      * match.
      */
-    fun simulateImage(outputId: OutputId, image: ImageWrapper) {
+    fun simulateImage(image: ImageWrapper, outputId: OutputId) {
         val size =
             checkNotNull(outputs[outputId]) {
                 "Unexpected $outputId! Available outputs are $outputs"
             }
         check(image.width == size.width)
         check(image.height == size.height)
+
+        synchronized(lock) {
+            if (image is FakeImage) {
+                _images.add(image)
+            }
+        }
         onImageListener.value?.onImage(streamId, outputId, image)
     }
 
@@ -96,7 +101,19 @@ private constructor(
         }
     }
 
+    override fun toString(): String = "FakeImageReader-$debugId"
+
+    /** [check] that all images produced by this [FakeImageReader] have been closed. */
+    fun checkImagesClosed() {
+        for ((i, fakeImage) in images.withIndex()) {
+            check(fakeImage.isClosed) {
+                "Failed to close image $i / ${images.size} $fakeImage from $this"
+            }
+        }
+    }
+
     companion object {
+        private val debugIds = atomic(0)
 
         /** Create a [FakeImageReader] that can simulate images. */
         fun create(
@@ -104,21 +121,26 @@ private constructor(
             streamId: StreamId,
             outputId: OutputId,
             size: Size,
-            capacity: Int
-        ): FakeImageReader = create(format, streamId, mapOf(outputId to size), capacity)
+            capacity: Int,
+            fakeSurfaces: FakeSurfaces? = null
+        ): FakeImageReader =
+            create(format, streamId, mapOf(outputId to size), capacity, fakeSurfaces)
 
         /** Create a [FakeImageReader] that can simulate different sized images. */
         fun create(
             format: StreamFormat,
             streamId: StreamId,
             outputIdMap: Map<OutputId, Size>,
-            capacity: Int
+            capacity: Int,
+            fakeSurfaces: FakeSurfaces? = null
         ): FakeImageReader {
 
             // Find smallest by areas to pick the default surface size. This matches the behavior of
             // MultiResolutionImageReader.
             val smallestOutput = outputIdMap.values.minBy { it.width * it.height }
-            val surface = FakeSurfaces.create(smallestOutput)
+            val surface =
+                fakeSurfaces?.createFakeSurface(smallestOutput)
+                    ?: FakeSurfaces.create(smallestOutput)
             return FakeImageReader(format, capacity, surface, streamId, outputIdMap)
         }
     }

@@ -66,7 +66,11 @@ class FakeCaptureSequenceProcessor(
     private var _surfaceMap: Map<StreamId, Surface> = emptyMap()
     var surfaceMap: Map<StreamId, Surface>
         get() = synchronized(lock) { _surfaceMap }
-        set(value) = synchronized(lock) { _surfaceMap = value }
+        set(value) =
+            synchronized(lock) {
+                _surfaceMap = value
+                println("Configured surfaceMap for $this")
+            }
 
     override fun build(
         isRepeating: Boolean,
@@ -86,6 +90,7 @@ class FakeCaptureSequenceProcessor(
     }
 
     override fun submit(captureSequence: FakeCaptureSequence): Int {
+        println("submit $captureSequence")
         synchronized(lock) {
             if (rejectRequests) {
                 check(
@@ -175,6 +180,11 @@ class FakeCaptureSequenceProcessor(
         defaultListeners: List<Request.Listener>,
     ): FakeCaptureSequence? {
         val surfaceMap = surfaceMap
+        if (surfaceMap.isEmpty()) {
+            println("No surfaces configured for $this! Cannot build CaptureSequence for $requests")
+            return null
+        }
+
         val requestInfoMap = mutableMapOf<Request, RequestMetadata>()
         val requestInfoList = mutableListOf<RequestMetadata>()
         for (request in requests) {
@@ -204,13 +214,20 @@ class FakeCaptureSequenceProcessor(
 
             val requestNumber = RequestNumber(requestCounter.incrementAndGet())
             val streamMap = mutableMapOf<StreamId, Surface>()
+            var hasSurface = false
             for (stream in request.streams) {
                 val surface = surfaceMap[stream]
                 if (surface == null) {
-                    println("No surface was set for $stream while building request $request")
-                    return null
+                    println("Failed to find surface for $stream on $request")
+                    continue
                 }
+                hasSurface = true
                 streamMap[stream] = surface
+            }
+
+            if (!hasSurface) {
+                println("No surfaces configured for $request! Cannot build CaptureSequence.")
+                return null
             }
 
             val requestMetadata =

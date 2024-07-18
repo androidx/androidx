@@ -109,7 +109,7 @@ class ImageSourceTest {
         val image =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 12345)
 
-        fakeImageReader.simulateImage(outputId, image)
+        fakeImageReader.simulateImage(image, outputId)
         assertThat(image.isClosed).isTrue()
     }
 
@@ -181,7 +181,7 @@ class ImageSourceTest {
         // Now simulate the imageReader producing images after the imageSource is closed
         val fakeImage =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 54321)
-        fakeImageReader.simulateImage(outputId, fakeImage)
+        fakeImageReader.simulateImage(fakeImage, outputId)
         // Image is immediately closed
         assertThat(fakeImage.isClosed)
 
