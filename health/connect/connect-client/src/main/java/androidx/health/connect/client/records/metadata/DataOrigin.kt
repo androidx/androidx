@@ -37,4 +37,8 @@ public class DataOrigin(public val packageName: String) {
     override fun hashCode(): Int {
         return packageName.hashCode()
     }
+
+    override fun toString(): String {
+        return "DataOrigin(packageName='$packageName')"
+    }
 }

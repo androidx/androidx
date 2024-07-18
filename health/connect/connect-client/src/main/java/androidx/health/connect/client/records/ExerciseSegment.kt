@@ -72,6 +72,10 @@ public class ExerciseSegment(
         return SESSION_TO_SEGMENTS_MAPPING[sessionType]?.contains(segmentType) ?: false
     }
 
+    override fun toString(): String {
+        return "ExerciseSegment(startTime=$startTime, endTime=$endTime, segmentType=$segmentType, repetitions=$repetitions)"
+    }
+
     companion object {
         /** Next Id: 68. */
 

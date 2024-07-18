@@ -50,4 +50,8 @@ class IntermenstrualBleedingRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "IntermenstrualBleedingRecord(time=$time, zoneOffset=$zoneOffset, metadata=$metadata)"
+    }
 }

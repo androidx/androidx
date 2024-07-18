@@ -58,6 +58,10 @@ public class RestingHeartRateRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "RestingHeartRateRecord(time=$time, zoneOffset=$zoneOffset, beatsPerMinute=$beatsPerMinute, metadata=$metadata)"
+    }
+
     companion object {
         private const val REST_HEART_RATE_TYPE_NAME = "RestingHeartRate"
         private const val BPM_FIELD_NAME = "bpm"

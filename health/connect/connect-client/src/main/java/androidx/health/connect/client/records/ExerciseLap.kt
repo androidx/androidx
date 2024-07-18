@@ -60,4 +60,8 @@ public class ExerciseLap(
         result = 31 * result + length.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "ExerciseLap(startTime=$startTime, endTime=$endTime, length=$length)"
+    }
 }

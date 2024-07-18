@@ -88,6 +88,10 @@ class SleepSessionRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "SleepSessionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, title=$title, notes=$notes, stages=$stages, metadata=$metadata)"
+    }
+
     companion object {
         /**
          * Metric identifier to retrieve the total sleep session duration from
@@ -192,6 +196,10 @@ class SleepSessionRecord(
             result = 31 * result + startTime.hashCode()
             result = 31 * result + endTime.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "Stage(startTime=$startTime, endTime=$endTime, stage=$stage)"
         }
     }
 }

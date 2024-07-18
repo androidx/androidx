@@ -79,6 +79,10 @@ public class DistanceRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "DistanceRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, distance=$distance, metadata=$metadata)"
+    }
+
     companion object {
         private val MAX_DISTANCE = 1000_000.meters
 

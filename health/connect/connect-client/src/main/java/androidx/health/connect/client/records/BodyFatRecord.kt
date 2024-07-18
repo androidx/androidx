@@ -64,6 +64,10 @@ public class BodyFatRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "BodyFatRecord(time=$time, zoneOffset=$zoneOffset, percentage=$percentage, metadata=$metadata)"
+    }
+
     private companion object {
         private val MAX_PERCENTAGE = 100.percent
     }

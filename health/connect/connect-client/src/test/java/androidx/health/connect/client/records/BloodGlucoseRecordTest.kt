@@ -16,8 +16,11 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.BloodGlucose
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,5 +45,24 @@ class BloodGlucoseRecordTest {
             .containsExactlyElementsIn(allEnums)
         assertThat(BloodGlucoseRecord.SPECIMEN_SOURCE_INT_TO_STRING_MAP.keys)
             .containsExactlyElementsIn(allEnums)
+    }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                BloodGlucoseRecord(
+                        time = Instant.ofEpochMilli(1234L),
+                        zoneOffset = null,
+                        level = BloodGlucose.millimolesPerLiter(2.4),
+                        specimenSource = BloodGlucoseRecord.SPECIMEN_SOURCE_SERUM,
+                        mealType = MealType.MEAL_TYPE_LUNCH,
+                        relationToMeal = BloodGlucoseRecord.RELATION_TO_MEAL_FASTING,
+                        metadata = Metadata.EMPTY,
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "BloodGlucoseRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, level=2.4 mmol/L, specimenSource=4, mealType=2, relationToMeal=2, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
     }
 }

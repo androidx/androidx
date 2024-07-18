@@ -60,6 +60,10 @@ public class FloorsClimbedRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "FloorsClimbedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, floors=$floors, metadata=$metadata)"
+    }
+
     companion object {
         /**
          * Metric identifier to retrieve the total floors climbed from

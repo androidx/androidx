@@ -32,6 +32,10 @@ abstract class ExerciseRouteResult internal constructor() {
         override fun hashCode(): Int {
             return 0
         }
+
+        override fun toString(): String {
+            return "Data(exerciseRoute=$exerciseRoute)"
+        }
     }
 
     /** Class indicating that a permission hasn't been granted and a value couldn't be returned. */
@@ -43,6 +47,10 @@ abstract class ExerciseRouteResult internal constructor() {
         override fun hashCode(): Int {
             return 0
         }
+
+        override fun toString(): String {
+            return "ConsentRequired"
+        }
     }
 
     /** Class indicating that there's no data to request permissions for. */
@@ -53,6 +61,10 @@ abstract class ExerciseRouteResult internal constructor() {
 
         override fun hashCode(): Int {
             return 0
+        }
+
+        override fun toString(): String {
+            return "NoData"
         }
     }
 }

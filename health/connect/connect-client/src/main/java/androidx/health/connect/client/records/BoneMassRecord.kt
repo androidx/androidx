@@ -61,6 +61,10 @@ public class BoneMassRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "BoneMassRecord(time=$time, zoneOffset=$zoneOffset, mass=$mass, metadata=$metadata)"
+    }
+
     private companion object {
         private val MAX_BONE_MASS = 1000.kilograms
     }

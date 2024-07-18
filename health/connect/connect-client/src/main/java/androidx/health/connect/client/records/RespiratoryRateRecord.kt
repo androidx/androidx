@@ -54,4 +54,8 @@ public class RespiratoryRateRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "RespiratoryRateRecord(time=$time, zoneOffset=$zoneOffset, rate=$rate, metadata=$metadata)"
+    }
 }

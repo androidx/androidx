@@ -73,6 +73,10 @@ public class PowerRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "PowerRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
+    }
+
     companion object {
         private const val TYPE = "PowerSeries"
         private const val POWER_FIELD = "power"
@@ -156,6 +160,10 @@ public class PowerRecord(
             var result = time.hashCode()
             result = 31 * result + power.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "Sample(time=$time, power=$power)"
         }
     }
 }

@@ -52,6 +52,10 @@ public class OvulationTestRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "OvulationTestRecord(time=$time, zoneOffset=$zoneOffset, result=$result, metadata=$metadata)"
+    }
+
     /** The result of a user's ovulation test. */
     internal object Result {
         const val POSITIVE = "positive"

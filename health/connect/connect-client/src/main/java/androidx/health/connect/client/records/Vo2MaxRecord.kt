@@ -69,6 +69,10 @@ public class Vo2MaxRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "Vo2MaxRecord(time=$time, zoneOffset=$zoneOffset, vo2MillilitersPerMinuteKilogram=$vo2MillilitersPerMinuteKilogram, measurementMethod=$measurementMethod, metadata=$metadata)"
+    }
+
     companion object {
         const val MEASUREMENT_METHOD_OTHER = 0
         const val MEASUREMENT_METHOD_METABOLIC_CART = 1

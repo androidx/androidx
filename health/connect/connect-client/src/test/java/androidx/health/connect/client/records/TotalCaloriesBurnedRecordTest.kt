@@ -61,4 +61,21 @@ class TotalCaloriesBurnedRecordTest {
             )
         }
     }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                TotalCaloriesBurnedRecord(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(1236L),
+                        endZoneOffset = null,
+                        energy = 400.calories
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "TotalCaloriesBurnedRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, energy=400.0 cal, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
+    }
 }

@@ -65,6 +65,10 @@ public class WheelchairPushesRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "WheelchairPushesRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, count=$count, metadata=$metadata)"
+    }
+
     companion object {
         /**
          * Metric identifier to retrieve the total wheelchair push count from

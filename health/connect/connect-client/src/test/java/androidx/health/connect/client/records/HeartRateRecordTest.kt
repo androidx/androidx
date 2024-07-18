@@ -102,4 +102,27 @@ class HeartRateRecordTest {
             )
         }
     }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                HeartRateRecord(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(1236L),
+                        endZoneOffset = null,
+                        samples =
+                            listOf(
+                                HeartRateRecord.Sample(
+                                    time = Instant.ofEpochMilli(1234L),
+                                    beatsPerMinute = 64
+                                )
+                            )
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "HeartRateRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, samples=[Sample(time=1970-01-01T00:00:01.234Z, beatsPerMinute=64)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
+    }
 }

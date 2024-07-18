@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.units.milesPerHour
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -81,5 +82,23 @@ class SpeedRecordTest {
                 samples = listOf()
             )
         }
+    }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                SpeedRecord(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(1236L),
+                        endZoneOffset = null,
+                        samples =
+                            listOf(SpeedRecord.Sample(Instant.ofEpochMilli(1234L), 24.milesPerHour))
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "SpeedRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, samples=[Sample(time=1970-01-01T00:00:01.234Z, speed=24.0 miles/h)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
     }
 }

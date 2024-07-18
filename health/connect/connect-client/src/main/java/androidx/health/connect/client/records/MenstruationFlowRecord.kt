@@ -52,6 +52,10 @@ public class MenstruationFlowRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "MenstruationFlowRecord(time=$time, zoneOffset=$zoneOffset, flow=$flow, metadata=$metadata)"
+    }
+
     companion object {
         const val FLOW_UNKNOWN = 0
         const val FLOW_LIGHT = 1

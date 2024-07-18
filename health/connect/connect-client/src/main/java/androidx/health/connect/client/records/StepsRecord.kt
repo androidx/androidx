@@ -69,6 +69,10 @@ public class StepsRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "StepsRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, count=$count, metadata=$metadata)"
+    }
+
     companion object {
         /**
          * Metric identifier to retrieve the total steps count from
