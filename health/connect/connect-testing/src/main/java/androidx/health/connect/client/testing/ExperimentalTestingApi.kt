@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.health.connect.client
+package androidx.health.connect.client.testing
 
 @RequiresOptIn(
     message = "This is an experimental Health Connect API and is likely to change in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalHealthConnectApi
+public annotation class ExperimentalTestingApi

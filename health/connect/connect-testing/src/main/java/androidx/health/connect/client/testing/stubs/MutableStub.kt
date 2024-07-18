@@ -16,7 +16,7 @@
 
 package androidx.health.connect.client.testing.stubs
 
-import androidx.health.connect.client.ExperimentalHealthConnectApi
+import androidx.health.connect.client.testing.ExperimentalTestingApi
 
 /**
  * A [Stub] whose defaultHandler and queue can be mutated at any point.
@@ -41,7 +41,7 @@ import androidx.health.connect.client.ExperimentalHealthConnectApi
  *   is empty.
  * @see Stub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public class MutableStub<T, R : Any>(
     public var defaultHandler: (T) -> R? = { null },
 ) : Stub<T, R> {
@@ -57,7 +57,7 @@ public class MutableStub<T, R : Any>(
  *
  * @param defaultResponse The default return value
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun <R : Any> MutableStub(defaultResponse: R?): MutableStub<Any?, R> =
     MutableStub(defaultHandler = { defaultResponse })
 
@@ -71,7 +71,7 @@ public fun <R : Any> MutableStub(defaultResponse: R?): MutableStub<Any?, R> =
  *
  * @param defaultError The exception to throw if the queue is empty.
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun <R : Any> MutableStub(defaultError: Throwable): MutableStub<Any?, R> =
     MutableStub(defaultHandler = { throw defaultError })
 
@@ -80,7 +80,7 @@ public fun <R : Any> MutableStub(defaultError: Throwable): MutableStub<Any?, R> 
  *
  * @sample androidx.health.connect.testing.samples.builderMutableStub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public inline fun <T, R : Any> buildStub(builder: MutableStub<T, R>.() -> Unit): Stub<T, R> {
     return MutableStub<T, R>().apply(builder)
 }
@@ -91,7 +91,7 @@ public inline fun <T, R : Any> buildStub(builder: MutableStub<T, R>.() -> Unit):
  * @sample androidx.health.connect.testing.samples.builderMutableStub
  * @sample androidx.health.connect.testing.samples.fullMutableStub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun <R : Any> MutableStub<*, R>.enqueue(values: Iterable<R>) {
     queue.addAll(values)
 }
@@ -102,7 +102,7 @@ public fun <R : Any> MutableStub<*, R>.enqueue(values: Iterable<R>) {
  * @sample androidx.health.connect.testing.samples.builderMutableStub
  * @sample androidx.health.connect.testing.samples.fullMutableStub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun <R : Any> MutableStub<*, R>.enqueue(vararg values: R) {
     queue.addAll(values.asList())
 }
@@ -112,7 +112,7 @@ public fun <R : Any> MutableStub<*, R>.enqueue(vararg values: R) {
  *
  * @sample androidx.health.connect.testing.samples.fullMutableStub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public operator fun <R : Any> MutableStub<*, R>.plusAssign(value: R) {
     enqueue(value)
 }
