@@ -2725,12 +2725,16 @@ public abstract class Transition implements Cloneable {
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     class SeekController extends TransitionListenerAdapter implements TransitionSeekController,
             DynamicAnimation.OnAnimationUpdateListener {
+        private static final int ON_READY_NOTHING = 0;
+        private static final int ON_READY_ANIMATE_TO_END = 1;
+        private static final int ON_READY_ANIMATE_TO_START = 2;
         // Animation calculations appear to work better with numbers that range greater than 1
         private long mCurrentPlayTime = -1;
         private ArrayList<Consumer<TransitionSeekController>> mOnReadyListeners = null;
         private ArrayList<Consumer<TransitionSeekController>> mOnProgressListeners = null;
         private boolean mIsReady;
         private boolean mIsCanceled;
+        private int mOnReady = ON_READY_NOTHING;
 
         private SpringAnimation mSpringAnimation;
         private Consumer<TransitionSeekController>[] mListenerCache = null;
@@ -2767,6 +2771,13 @@ public abstract class Transition implements Cloneable {
                 }
             }
             callProgressListeners();
+            if (mOnReady == ON_READY_ANIMATE_TO_END) {
+                mOnReady = ON_READY_NOTHING;
+                animateToEnd();
+            } else if (mOnReady == ON_READY_ANIMATE_TO_START) {
+                mOnReady = ON_READY_NOTHING;
+                animateToStart(mResetToStartState);
+            }
         }
 
         @Override
@@ -2901,6 +2912,11 @@ public abstract class Transition implements Cloneable {
 
         @Override
         public void animateToEnd() {
+            if (!mIsReady) {
+                mOnReady = ON_READY_ANIMATE_TO_END;
+                mResetToStartState = null;
+                return; // can't animate to the end yet
+            }
             ensureAnimation();
             mSpringAnimation.animateToFinalPosition((float) (getDurationMillis() + 1));
         }
@@ -2908,6 +2924,10 @@ public abstract class Transition implements Cloneable {
         @Override
         public void animateToStart(@NonNull Runnable resetToStartState) {
             mResetToStartState = resetToStartState;
+            if (!mIsReady) {
+                mOnReady = ON_READY_ANIMATE_TO_START;
+                return; // can't animate to the start yet
+            }
             ensureAnimation();
             mSpringAnimation.animateToFinalPosition(0);
         }
