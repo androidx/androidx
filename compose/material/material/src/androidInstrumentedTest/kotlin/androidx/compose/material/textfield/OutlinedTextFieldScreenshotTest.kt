@@ -40,9 +40,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.PlatformTextInputInterceptor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
@@ -58,6 +61,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import kotlinx.coroutines.awaitCancellation
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -138,18 +142,24 @@ class OutlinedTextFieldScreenshotTest {
         assertAgainstGolden("outlined_textField_focused_rtl")
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun outlinedTextField_error_focused() {
+        // No-op interceptor to prevent interference from actual IME
+        val inputInterceptor = PlatformTextInputInterceptor { _, _ -> awaitCancellation() }
+
         // stop animation of blinking cursor
         rule.mainClock.autoAdvance = false
         rule.setMaterialContent {
             val text = "Input"
-            OutlinedTextField(
-                state = rememberTextFieldState(text, TextRange(text.length)),
-                label = { Text("Label") },
-                isError = true,
-                modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
-            )
+            InterceptPlatformTextInput(inputInterceptor) {
+                OutlinedTextField(
+                    state = rememberTextFieldState(text, TextRange(text.length)),
+                    label = { Text("Label") },
+                    isError = true,
+                    modifier = Modifier.testTag(TextFieldTag).requiredWidth(280.dp)
+                )
+            }
         }
 
         rule.onNodeWithTag(TextFieldTag).focus()
