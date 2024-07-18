@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraController.ControllerState
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor.CameraStatus
 import androidx.camera.camera2.pipe.CameraSurfaceManager
@@ -54,16 +55,17 @@ internal class Camera2CameraController
 constructor(
     private val scope: CoroutineScope,
     private val threads: Threads,
-    private val config: CameraGraph.Config,
+    private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val captureSessionFactory: CaptureSessionFactory,
     private val captureSequenceProcessorFactory: Camera2CaptureSequenceProcessorFactory,
     private val virtualCameraManager: VirtualCameraManager,
     private val cameraSurfaceManager: CameraSurfaceManager,
     private val timeSource: TimeSource,
+    override val cameraGraphId: CameraGraphId
 ) : CameraController {
     override val cameraId: CameraId
-        get() = config.camera
+        get() = graphConfig.camera
 
     private val lock = Any()
 
@@ -95,8 +97,8 @@ constructor(
             lastCameraError = null
             val camera =
                 virtualCameraManager.open(
-                    config.camera,
-                    config.sharedCameraIds,
+                    graphConfig.camera,
+                    graphConfig.sharedCameraIds,
                     graphListener,
                 ) { _ ->
                     isForeground
@@ -119,7 +121,7 @@ constructor(
                     captureSequenceProcessorFactory,
                     cameraSurfaceManager,
                     timeSource,
-                    config.flags,
+                    graphConfig.flags,
                     scope
                 )
             currentSession = session
@@ -207,7 +209,7 @@ constructor(
             currentCameraStateJob = null
 
             disconnectSessionAndCamera(session, camera)
-            if (config.flags.quirkCloseCameraDeviceOnClose) {
+            if (graphConfig.flags.quirkCloseCameraDeviceOnClose) {
                 Log.debug { "Quirk: Closing all camera devices" }
                 virtualCameraManager.closeAll()
             }
@@ -291,14 +293,12 @@ constructor(
                 session?.disconnect()
                 camera?.disconnect()
             }
-        if (config.flags.quirkCloseCaptureSessionOnDisconnect) {
+        if (graphConfig.flags.quirkCloseCaptureSessionOnDisconnect) {
             // It seems that on certain devices, CameraCaptureSession.close() can block for an
             // extended period of time [1]. Wrap the await call with a timeout to prevent us from
             // getting blocked for too long.
             //
-            // [1] b/307594946 - [ANR] at
-            //
-            // androidx.camera.camera2.pipe.compat.Camera2CameraController.disconnectSessionAndCamera
+            // [1] b/307594946 - [ANR] at Camera2CameraController.disconnectSessionAndCamera
             runBlockingWithTimeout(threads.backgroundDispatcher, CLOSE_CAPTURE_SESSION_TIMEOUT_MS) {
                 deferred.await()
             }

@@ -20,6 +20,7 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
@@ -41,12 +42,16 @@ import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
  */
 class CameraControllerSimulator(
     cameraContext: CameraContext,
+    private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
-    private val streamGraph: StreamGraph
+    private val streamGraph: StreamGraph,
 ) : CameraController {
     override val cameraId: CameraId
         get() = graphConfig.camera
+
+    override val cameraGraphId: CameraGraphId
+        get() = graphId
 
     override var isForeground = false
 
@@ -68,12 +73,8 @@ class CameraControllerSimulator(
             _started = value
         }
 
-    private var _currentCaptureSequenceProcessor: FakeCaptureSequenceProcessor? = null
-    var currentCaptureSequenceProcessor: FakeCaptureSequenceProcessor?
-        get() = _currentCaptureSequenceProcessor
-        private set(value) {
-            _currentCaptureSequenceProcessor = value
-        }
+    var currentCaptureSequenceProcessor: FakeCaptureSequenceProcessor? = null
+        private set
 
     init {
         check(cameraContext.cameraBackends.allIds.isNotEmpty()) {
@@ -97,6 +98,7 @@ class CameraControllerSimulator(
             val captureSequenceProcessor =
                 FakeCaptureSequenceProcessor(graphConfig.camera, graphConfig.defaultTemplate)
             val graphRequestProcessor = GraphRequestProcessor.from(captureSequenceProcessor)
+            captureSequenceProcessor.surfaceMap = currentSurfaceMap
             currentCaptureSequenceProcessor = captureSequenceProcessor
             currentGraphRequestProcessor = graphRequestProcessor
 
@@ -109,7 +111,7 @@ class CameraControllerSimulator(
             check(!closed) {
                 "Attempted to invoke simulateCameraStopped after the CameraController was closed."
             }
-            val captureSequenceProcessor = _currentCaptureSequenceProcessor
+            val captureSequenceProcessor = currentCaptureSequenceProcessor
             val graphRequestProcessor = currentGraphRequestProcessor
 
             currentCaptureSequenceProcessor = null
@@ -123,7 +125,7 @@ class CameraControllerSimulator(
 
     fun simulateCameraModified() {
         synchronized(lock) {
-            val captureSequenceProcessor = _currentCaptureSequenceProcessor
+            val captureSequenceProcessor = currentCaptureSequenceProcessor
             val graphRequestProcessor = currentGraphRequestProcessor
 
             currentCaptureSequenceProcessor = null
@@ -179,7 +181,7 @@ class CameraControllerSimulator(
         synchronized(lock) {
             currentSurfaceMap = surfaceMap
 
-            val captureSequenceProcessor = _currentCaptureSequenceProcessor
+            val captureSequenceProcessor = currentCaptureSequenceProcessor
             val graphRequestProcessor = currentGraphRequestProcessor
             if (captureSequenceProcessor != null && graphRequestProcessor != null) {
                 captureSequenceProcessor.surfaceMap = surfaceMap

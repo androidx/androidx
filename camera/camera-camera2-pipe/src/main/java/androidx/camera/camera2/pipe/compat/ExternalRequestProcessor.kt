@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.CaptureSequence
@@ -40,6 +41,7 @@ import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 class ExternalCameraController(
+    private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val requestProcessor: RequestProcessor
@@ -51,6 +53,9 @@ class ExternalCameraController(
 
     override val cameraId: CameraId
         get() = graphConfig.camera
+
+    override val cameraGraphId: CameraGraphId
+        get() = graphId
 
     override var isForeground = false
 

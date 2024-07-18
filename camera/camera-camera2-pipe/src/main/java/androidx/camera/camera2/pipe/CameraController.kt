@@ -38,7 +38,11 @@ import androidx.camera.camera2.pipe.graph.GraphListener
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraController {
+    /** Represents the primary CameraId this CameraController is associated with. */
     val cameraId: CameraId
+
+    /** Represents the primary CameraGraphId that this [CameraController] is associated with. */
+    val cameraGraphId: CameraGraphId
 
     /**
      * Whether the camera is being used in a foreground setting, and thus should be kept open on a

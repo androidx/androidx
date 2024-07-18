@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.HandlerThread
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.CameraPipe.Config
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.config.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.CameraPipeComponent
@@ -34,6 +35,7 @@ import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.DurationNs
+import androidx.camera.camera2.pipe.media.ImageSources
 import java.util.concurrent.Executor
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
@@ -51,93 +53,49 @@ internal val cameraPipeIds = atomic(0)
  * the [CameraGraph] interface.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class CameraPipe(config: Config) {
-    private val debugId = cameraPipeIds.incrementAndGet()
-    private val component: CameraPipeComponent =
-        Debug.trace("CameraPipe") {
-            DaggerCameraPipeComponent.builder()
-                .cameraPipeConfigModule(CameraPipeConfigModule(config))
-                .threadConfigModule(ThreadConfigModule(config.threadConfig))
-                .build()
-        }
+interface CameraPipe {
 
     /**
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
-    fun create(config: CameraGraph.Config): CameraGraph =
-        Debug.trace("CXCP#CameraGraph-${config.camera}") {
-            component
-                .cameraGraphComponentBuilder()
-                .cameraGraphConfigModule(CameraGraphConfigModule(config))
-                .build()
-                .cameraGraph()
-        }
+    fun create(config: CameraGraph.Config): CameraGraph
 
     /**
      * This creates a list of [CameraGraph]s that can be used to interact with multiple cameras on
      * the device concurrently. Device-specific constraints may apply, such as the set of cameras
      * that can be operated concurrently, or the combination of sizes we're allowed to configure.
      */
-    fun createCameraGraphs(concurrentConfigs: List<CameraGraph.Config>): List<CameraGraph> {
-        check(concurrentConfigs.isNotEmpty())
-        if (concurrentConfigs.size == 1) {
-            return listOf(create(concurrentConfigs.first()))
-        }
-        check(
-            concurrentConfigs.all {
-                it.cameraBackendId == concurrentConfigs.first().cameraBackendId
-            }
-        ) {
-            "All concurrent CameraGraph configs should have the same camera backend ID!"
-        }
-        val allCameraIds = concurrentConfigs.map { it.camera }
-        check(allCameraIds.size == allCameraIds.toSet().size) {
-            "All camera IDs specified should be distinct!"
-        }
-
-        val configs =
-            concurrentConfigs.map { config ->
-                config.apply { sharedCameraIds = allCameraIds.filter { it != config.camera } }
-            }
-        return configs.map { create(it) }
-    }
+    fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph>
 
     /** This provides access to information about the available cameras on the device. */
-    fun cameras(): CameraDevices {
-        return component.cameras()
-    }
+    fun cameras(): CameraDevices
 
     /** This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe. */
-    fun cameraSurfaceManager(): CameraSurfaceManager {
-        return component.cameraSurfaceManager()
-    }
+    fun cameraSurfaceManager(): CameraSurfaceManager
 
     /**
      * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
      */
     var globalAudioRestrictionMode: AudioRestrictionMode
-        get(): AudioRestrictionMode =
-            component.cameraAudioRestrictionController().globalAudioRestrictionMode
-        set(value: AudioRestrictionMode) {
-            component.cameraAudioRestrictionController().globalAudioRestrictionMode = value
-        }
 
     /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable
      * defaults will be provided if values are not specified.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
         val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
         val cameraBackendConfig: CameraBackendConfig = CameraBackendConfig(),
-        val cameraInteropConfig: CameraInteropConfig = CameraInteropConfig()
+        val cameraInteropConfig: CameraInteropConfig = CameraInteropConfig(),
+        val imageSources: ImageSources? = null,
     )
 
     /**
      * Application level configuration for Camera2Interop callbacks. If set, these callbacks will be
-     * triggered at the appropriate places in Camera-Pipe.
+     * triggered at the appropriate places in CameraPipe.
      */
     data class CameraInteropConfig(
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
@@ -207,8 +165,6 @@ class CameraPipe(config: Config) {
         }
     }
 
-    override fun toString(): String = "CameraPipe-$debugId"
-
     /**
      * External may be used if the underlying implementation needs to delegate to another library or
      * system.
@@ -246,7 +202,65 @@ class CameraPipe(config: Config) {
                         ExternalCameraGraphConfigModule(config, cameraMetadata, requestProcessor)
                     )
                     .build()
+
             return component.cameraGraph()
         }
     }
+
+    companion object {
+        fun create(config: Config): CameraPipe {
+            val cameraPipeComponent =
+                Debug.trace("CameraPipe") {
+                    DaggerCameraPipeComponent.builder()
+                        .cameraPipeConfigModule(CameraPipeConfigModule(config))
+                        .threadConfigModule(ThreadConfigModule(config.threadConfig))
+                        .build()
+                }
+
+            return CameraPipeImpl(cameraPipeComponent)
+        }
+    }
+}
+
+/** Utility constructor for existing classes that construct CameraPipe directly */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun CameraPipe(config: Config): CameraPipe = CameraPipe.create(config)
+
+internal class CameraPipeImpl(private val component: CameraPipeComponent) : CameraPipe {
+    private val debugId = cameraPipeIds.incrementAndGet()
+
+    override fun create(config: CameraGraph.Config): CameraGraph =
+        Debug.trace("CXCP#CameraGraph-${config.camera}") {
+            component
+                .cameraGraphComponentBuilder()
+                .cameraGraphConfigModule(CameraGraphConfigModule(config))
+                .build()
+                .cameraGraph()
+        }
+
+    override fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph> {
+        return config.graphConfigs.map { create(it) }
+    }
+
+    /** This provides access to information about the available cameras on the device. */
+    override fun cameras(): CameraDevices {
+        return component.cameras()
+    }
+
+    /** This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe. */
+    override fun cameraSurfaceManager(): CameraSurfaceManager {
+        return component.cameraSurfaceManager()
+    }
+
+    /**
+     * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
+     */
+    override var globalAudioRestrictionMode: AudioRestrictionMode
+        get(): AudioRestrictionMode =
+            component.cameraAudioRestrictionController().globalAudioRestrictionMode
+        set(value) {
+            component.cameraAudioRestrictionController().globalAudioRestrictionMode = value
+        }
+
+    override fun toString(): String = "CameraPipe-$debugId"
 }

@@ -18,13 +18,10 @@ package androidx.camera.camera2.pipe.integration.interop
 
 import android.hardware.camera2.CameraCharacteristics
 import androidx.annotation.RestrictTo
-import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter
-import androidx.camera.camera2.pipe.integration.adapter.PhysicalCameraInfoAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter.Companion.unwrapAs
 import androidx.camera.camera2.pipe.integration.compat.workaround.getSafely
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.core.CameraInfo
-import androidx.camera.core.impl.CameraInfoInternal
-import androidx.core.util.Preconditions
 
 /** An interface for retrieving Camera2-related camera information. */
 @ExperimentalCamera2Interop
@@ -77,19 +74,12 @@ private constructor(
          *   [androidx.camera.camera2.Camera2Config]).
          */
         @JvmStatic
-        fun from(@Suppress("UNUSED_PARAMETER") cameraInfo: CameraInfo): Camera2CameraInfo {
-            // Physical camera
-            if (cameraInfo is PhysicalCameraInfoAdapter) {
-                return cameraInfo.unwrapAs(Camera2CameraInfo::class)!!
+        fun from(cameraInfo: CameraInfo): Camera2CameraInfo {
+            val camera2CameraInfo = cameraInfo.unwrapAs(Camera2CameraInfo::class)
+            requireNotNull(camera2CameraInfo) {
+                "Could not unwrap $cameraInfo as Camera2CameraInfo!"
             }
-
-            // Logical camera
-            var cameraInfoImpl = (cameraInfo as CameraInfoInternal).implementation
-            Preconditions.checkArgument(
-                cameraInfoImpl is CameraInfoAdapter,
-                "CameraInfo doesn't contain Camera2 implementation."
-            )
-            return (cameraInfoImpl as CameraInfoAdapter).camera2CameraInfo
+            return camera2CameraInfo
         }
 
         /** This is the workaround to prevent constructor from being added to public API. */

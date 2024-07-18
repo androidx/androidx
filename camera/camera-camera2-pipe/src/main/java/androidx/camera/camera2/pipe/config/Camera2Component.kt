@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.config
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
@@ -114,11 +115,14 @@ internal interface Camera2ControllerComponent {
 @Module
 internal class Camera2ControllerConfig(
     private val cameraBackend: CameraBackend,
+    private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val streamGraph: StreamGraph,
 ) {
     @Provides fun provideCameraGraphConfig() = graphConfig
+
+    @Provides fun provideCameraGraphId() = graphId
 
     @Provides fun provideCameraBackend() = cameraBackend
 

@@ -22,6 +22,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_LOCK
 import android.os.Build
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.Request

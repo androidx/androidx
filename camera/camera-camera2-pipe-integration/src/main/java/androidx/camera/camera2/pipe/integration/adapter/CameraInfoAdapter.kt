@@ -20,16 +20,17 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -70,6 +71,7 @@ import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.lifecycle.LiveData
 import java.util.concurrent.Executor
 import javax.inject.Inject
+import kotlin.reflect.KClass
 
 /** Adapt the [CameraInfoInternal] interface to [CameraPipe]. */
 @SuppressLint(
@@ -89,7 +91,7 @@ constructor(
     private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter,
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
     private val cameraFovInfo: CameraFovInfo,
-) : CameraInfoInternal {
+) : CameraInfoInternal, UnsafeWrapper {
     init {
         DeviceInfoLogger.logDeviceInfo(cameraProperties)
     }
@@ -200,8 +202,8 @@ constructor(
         val timeSource =
             cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE]!!
         return when (timeSource) {
-            CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME -> Timebase.REALTIME
-            CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN -> Timebase.UPTIME
+            CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME -> Timebase.REALTIME
+            CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN -> Timebase.UPTIME
             else -> Timebase.UPTIME
         }
     }
@@ -220,6 +222,16 @@ constructor(
         return streamConfigurationMapCompat.getHighResolutionOutputSizes(format)?.toList()
             ?: emptyList()
     }
+
+    @Suppress("UNCHECKED_CAST")
+    @OptIn(ExperimentalCamera2Interop::class)
+    override fun <T : Any> unwrapAs(type: KClass<T>): T? =
+        when (type) {
+            Camera2CameraInfo::class -> camera2CameraInfo as T
+            CameraProperties::class -> cameraProperties as T
+            CameraMetadata::class -> cameraProperties.metadata as T
+            else -> cameraProperties.metadata.unwrapAs(type)
+        }
 
     override fun toString(): String = "CameraInfoAdapter<$cameraConfig.cameraId>"
 
@@ -312,5 +324,21 @@ constructor(
                 DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DOLBY_VISION_8_BIT,
                 DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DOLBY_VISION_8_BIT,
             )
+
+        fun <T : Any> CameraInfo.unwrapAs(type: KClass<T>): T? =
+            when (this) {
+                is UnsafeWrapper -> this.unwrapAs(type)
+                is CameraInfoInternal -> {
+                    if (this.implementation !== this) {
+                        this.implementation.unwrapAs(type)
+                    } else {
+                        null
+                    }
+                }
+                else -> null
+            }
+
+        val CameraInfo.cameraId: CameraId?
+            get() = this.unwrapAs(CameraMetadata::class)?.camera
     }
 }

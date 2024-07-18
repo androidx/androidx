@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.graph
 import android.os.Build
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber

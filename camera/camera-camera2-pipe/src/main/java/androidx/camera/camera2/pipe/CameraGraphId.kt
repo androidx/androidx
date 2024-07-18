@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.pipe.graph
+package androidx.camera.camera2.pipe
 
-import androidx.camera.camera2.pipe.CameraGraph
+import androidx.annotation.RestrictTo
 import kotlinx.atomicfu.atomic
 
 /**
@@ -24,7 +24,8 @@ import kotlinx.atomicfu.atomic
  * key in maps without holding a reference to a [CameraGraph] object, which could lead to accidental
  * memory leaks and circular dependencies.
  */
-internal class CameraGraphId private constructor(private val name: String) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class CameraGraphId private constructor(private val name: String) {
     override fun toString(): String = name
 
     companion object {
@@ -35,6 +36,7 @@ internal class CameraGraphId private constructor(private val name: String) {
          * intentionally worded as "CameraGraph" instead of "CameraGraphId" since it is used
          * directly as the toString representation for a [CameraGraph].
          */
+        @JvmStatic
         fun nextId(): CameraGraphId {
             return CameraGraphId("CameraGraph-${cameraGraphIds.incrementAndGet()}")
         }

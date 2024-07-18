@@ -52,7 +52,6 @@ import org.robolectric.util.ReflectionHelpers
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraCoordinatorAdapterTest {
-
     private val cameraMetadata0 =
         FakeCameraMetadata(
             cameraId = CameraId("0"),
@@ -75,6 +74,7 @@ class CameraCoordinatorAdapterTest {
                         ),
                 )
         )
+
     private val cameraMetadata2 = FakeCameraMetadata(cameraId = CameraId("2"))
 
     private val cameraDevices =
@@ -182,6 +182,26 @@ class CameraCoordinatorAdapterTest {
             .thenReturn(mockCameraGraphConfig1)
         whenever(mockCameraInternalAdapter2.getDeferredCameraGraphConfig())
             .thenReturn(mockCameraGraphConfig2)
+
+        assertThat(cameraCoordinatorAdapter.getPairedConcurrentCameraId("0")).isNull()
+
+        cameraCoordinatorAdapter.activeConcurrentCameraInfos =
+            mutableListOf(
+                FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("0")),
+                FakeCameraInfoAdapterCreator.createCameraInfoAdapter(cameraId = CameraId("1"))
+            )
+
+        assertThat(cameraCoordinatorAdapter.getPairedConcurrentCameraId("0")).isEqualTo("1")
+    }
+
+    @Test
+    fun getPairedConcurrentCameraId_IgnoresCameraAdaptersWithoutGraphConfig() {
+        whenever(mockCameraInternalAdapter0.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig0)
+        whenever(mockCameraInternalAdapter1.getDeferredCameraGraphConfig())
+            .thenReturn(mockCameraGraphConfig1)
+        // When one of the adapters doesn't have a graph config, it is filtered and ignored.
+        whenever(mockCameraInternalAdapter2.getDeferredCameraGraphConfig()).thenReturn(null)
 
         assertThat(cameraCoordinatorAdapter.getPairedConcurrentCameraId("0")).isNull()
 

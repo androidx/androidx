@@ -18,12 +18,12 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import androidx.annotation.VisibleForTesting
 import androidx.camera.camera2.pipe.CameraDevices
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.adapter.CameraInfoAdapter.Companion.cameraId
 import androidx.camera.camera2.pipe.integration.internal.CameraCompatibilityFilter.isBackwardCompatible
-import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
-import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.InitializationException
@@ -87,7 +87,6 @@ class CameraCoordinatorAdapter(
             cameraInternal as CameraInternalAdapter
     }
 
-    @OptIn(ExperimentalCamera2Interop::class)
     override fun getConcurrentCameraSelectors(): MutableList<MutableList<CameraSelector>> {
         return concurrentCameraIdsSet
             .map { concurrentCameraIds ->
@@ -95,9 +94,7 @@ class CameraCoordinatorAdapter(
                     .map { cameraId ->
                         CameraSelector.Builder()
                             .addCameraFilter { cameraInfos ->
-                                cameraInfos.filter {
-                                    cameraId.value == Camera2CameraInfo.from(it).getCameraId()
-                                }
+                                cameraInfos.filter { cameraInfo -> cameraId == cameraInfo.cameraId }
                             }
                             .build()
                     }
@@ -110,15 +107,15 @@ class CameraCoordinatorAdapter(
         return activeConcurrentCameraInfosList
     }
 
-    @OptIn(ExperimentalCamera2Interop::class)
     override fun setActiveConcurrentCameraInfos(cameraInfos: MutableList<CameraInfo>) {
         activeConcurrentCameraInfosList = cameraInfos
+
         val graphConfigs =
             cameraInternalMap.values
-                .filter { cameraInternal ->
-                    cameraInfos.any {
-                        Camera2CameraInfo.from(it).getCameraId() ==
-                            cameraInternal.cameraInfoInternal.cameraId
+                .filter { cameraInternalAdapter ->
+                    cameraInfos.any { cameraInfo ->
+                        cameraInfo.cameraId?.value ==
+                            cameraInternalAdapter.cameraInfoInternal.cameraId
                     }
                 }
                 .map {
@@ -127,14 +124,17 @@ class CameraCoordinatorAdapter(
                             "config when the active concurrent CameraInfos are set!"
                     }
                 }
-        val cameraGraphs = checkNotNull(cameraPipe).createCameraGraphs(graphConfigs)
+
+        // Create paired CameraGraphs based on the set of graphConfigs
+        val cameraGraphs =
+            checkNotNull(cameraPipe).createCameraGraphs(CameraGraph.ConcurrentConfig(graphConfigs))
         check(cameraGraphs.size == graphConfigs.size)
+
         for ((cameraInternalAdapter, cameraGraph) in cameraInternalMap.values.zip(cameraGraphs)) {
             cameraInternalAdapter.resumeDeferredCameraGraphCreation(cameraGraph)
         }
     }
 
-    @OptIn(ExperimentalCamera2Interop::class)
     override fun getPairedConcurrentCameraId(cameraId: String): String? {
         if (!concurrentCameraIdMap.containsKey(cameraId)) {
             return null
@@ -142,7 +142,7 @@ class CameraCoordinatorAdapter(
 
         for (pairedCameraId in concurrentCameraIdMap[cameraId]!!) {
             for (cameraInfo in activeConcurrentCameraInfos) {
-                if (pairedCameraId == Camera2CameraInfo.from(cameraInfo).getCameraId()) {
+                if (pairedCameraId == cameraInfo.cameraId?.value) {
                     return pairedCameraId
                 }
             }
