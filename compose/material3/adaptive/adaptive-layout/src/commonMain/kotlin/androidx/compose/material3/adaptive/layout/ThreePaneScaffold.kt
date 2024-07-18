@@ -438,7 +438,7 @@ private class ThreePaneContentMeasurePolicy(
                         layoutPhysicalPartitions.add(
                             Rect(actualLeft, actualTop, hingeBound.left, actualBottom)
                         )
-                        actualLeft += max(hingeBound.right, hingeBound.left + verticalSpacerSize)
+                        actualLeft = max(hingeBound.right, hingeBound.left + verticalSpacerSize)
                     }
                 }
                 if (actualLeft < actualRight) {
