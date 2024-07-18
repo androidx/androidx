@@ -719,7 +719,7 @@ public sealed class ScatterMap<K, V> {
  * automatically shrinks its storage to avoid using more memory than necessary. You can also control
  * memory usage with [MutableScatterMap] by manually calling [MutableScatterMap.trim].
  *
- * @param initialCapacity The initial desired capacity for this container. the container will honor
+ * @param initialCapacity The initial desired capacity for this container. The container will honor
  *   this value by guaranteeing its internal structures can hold that many entries without requiring
  *   any allocations. The initial capacity can be set to 0.
  * @constructor Creates a new [MutableScatterMap]
@@ -1095,7 +1095,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
      * place" occurs when the current size is <= 25/32 of the table capacity. The choice of 25/32 is
      * detailed in the implementation of abseil's `raw_hash_set`.
      */
-    private fun adjustStorage() {
+    internal fun adjustStorage() { // Internal to prevent inlining
         if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
             dropDeletes()
         } else {
@@ -1103,7 +1103,8 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
         }
     }
 
-    private fun dropDeletes() {
+    // Internal to prevent inlining
+    internal fun dropDeletes() {
         val metadata = metadata
         val capacity = _capacity
         val keys = keys
@@ -1200,7 +1201,8 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
         initializeGrowth()
     }
 
-    private fun resizeStorage(newCapacity: Int) {
+    // Internal to prevent inlining
+    internal fun resizeStorage(newCapacity: Int) {
         val previousMetadata = metadata
         val previousKeys = keys
         val previousValues = values
@@ -1535,7 +1537,7 @@ public class MutableScatterMap<K, V>(initialCapacity: Int = DefaultScatterCapaci
     }
 }
 
-internal fun convertMetadataForCleanup(metadata: LongArray, capacity: Int) {
+internal inline fun convertMetadataForCleanup(metadata: LongArray, capacity: Int) {
     val end = (capacity + 7) shr 3
     for (i in 0 until end) {
         // Converts Sentinel and Deleted to Empty, and Full to Deleted

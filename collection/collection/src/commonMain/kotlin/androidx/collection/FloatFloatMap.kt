@@ -867,7 +867,7 @@ public class MutableFloatFloatMap(initialCapacity: Int = DefaultScatterCapacity)
      * place" occurs when the current size is <= 25/32 of the table capacity. The choice of 25/32 is
      * detailed in the implementation of abseil's `raw_hash_set`.
      */
-    private fun adjustStorage() {
+    internal fun adjustStorage() { // Internal to prevent inlining
         if (_capacity > GroupWidth && _size.toULong() * 32UL <= _capacity.toULong() * 25UL) {
             dropDeletes()
         } else {
@@ -875,7 +875,8 @@ public class MutableFloatFloatMap(initialCapacity: Int = DefaultScatterCapacity)
         }
     }
 
-    private fun dropDeletes() {
+    // Internal to prevent inlining
+    internal fun dropDeletes() {
         val metadata = metadata
         val capacity = _capacity
         val keys = keys
@@ -973,7 +974,8 @@ public class MutableFloatFloatMap(initialCapacity: Int = DefaultScatterCapacity)
         initializeGrowth()
     }
 
-    private fun resizeStorage(newCapacity: Int) {
+    // Internal to prevent inlining
+    internal fun resizeStorage(newCapacity: Int) {
         val previousMetadata = metadata
         val previousKeys = keys
         val previousValues = values
