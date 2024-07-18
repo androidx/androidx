@@ -29,6 +29,15 @@ import java.text.BreakIterator
 import java.util.PriorityQueue
 import kotlin.math.ceil
 
+/**
+ * Flag for applying the fix for [b/346918500](https://issuetracker.google.com/346918500).
+ *
+ * If true, this will allocate a new [SpannableString] if there are spans that must be removed
+ * before measuring any intrinsic width.
+ */
+@Suppress("MayBeConstant") // Don't inline so folks can R8 assumevalues it
+private val stripNonMetricAffectingCharSpans: Boolean = true
+
 /** Computes and caches the text layout intrinsic values such as min/max width. */
 internal class LayoutIntrinsics(
     private val charSequence: CharSequence,
@@ -40,6 +49,21 @@ internal class LayoutIntrinsics(
     private var _minIntrinsicWidth: Float = Float.NaN
     private var _boringMetrics: BoringLayout.Metrics? = null
     private var boringMetricsIsInit: Boolean = false
+
+    private var _charSequenceForIntrinsicWidth: CharSequence? = null
+    private val charSequenceForIntrinsicWidth: CharSequence
+        get() =
+            if (_charSequenceForIntrinsicWidth == null) {
+                if (stripNonMetricAffectingCharSpans) {
+                    stripNonMetricAffectingCharacterStyleSpans(charSequence).also {
+                        _charSequenceForIntrinsicWidth = it
+                    }
+                } else {
+                    charSequence
+                }
+            } else {
+                _charSequenceForIntrinsicWidth!!
+            }
 
     /**
      * Compute Android platform BoringLayout metrics. A null value means the provided CharSequence
@@ -66,9 +90,52 @@ internal class LayoutIntrinsics(
             if (!_minIntrinsicWidth.isNaN()) {
                 _minIntrinsicWidth
             } else {
-                _minIntrinsicWidth = minIntrinsicWidth(charSequence, textPaint)
+                _minIntrinsicWidth = computeMinIntrinsicWidth()
                 _minIntrinsicWidth
             }
+
+    /**
+     * Returns the word with the longest length. To calculate it in a performant way, it applies a
+     * heuristics where
+     * - it first finds a set of words with the longest length
+     * - finds the word with maximum width in that set
+     */
+    private fun computeMinIntrinsicWidth(): Float {
+        val iterator = BreakIterator.getLineInstance(textPaint.textLocale)
+        iterator.text = CharSequenceCharacterIterator(charSequence, 0, charSequence.length)
+
+        // 10 is just a random number that limits the size of the candidate list
+        val heapSize = 10
+        // min heap that will hold [heapSize] many words with max length
+        val longestWordCandidates =
+            PriorityQueue(
+                heapSize,
+                Comparator<Pair<Int, Int>> { left, right ->
+                    (left.second - left.first) - (right.second - right.first)
+                }
+            )
+
+        var start = 0
+        var end = iterator.next()
+        while (end != BreakIterator.DONE) {
+            if (longestWordCandidates.size < heapSize) {
+                longestWordCandidates.add(Pair(start, end))
+            } else {
+                longestWordCandidates.peek()?.let { minPair ->
+                    if ((minPair.second - minPair.first) < (end - start)) {
+                        longestWordCandidates.poll()
+                        longestWordCandidates.add(Pair(start, end))
+                    }
+                }
+            }
+
+            start = end
+            end = iterator.next()
+        }
+
+        return if (longestWordCandidates.isEmpty()) 0f
+        else longestWordCandidates.maxOf { (start, end) -> getDesiredWidth(start, end) }
+    }
 
     /**
      * Calculate maximum intrinsic width for the CharSequence. Maximum intrinsic width is the width
@@ -79,86 +146,33 @@ internal class LayoutIntrinsics(
             if (!_maxIntrinsicWidth.isNaN()) {
                 _maxIntrinsicWidth
             } else {
-                var desiredWidth = (boringMetrics?.width ?: -1).toFloat()
-
-                // boring metrics doesn't cover RTL text so we fallback to different calculation
-                // when boring metrics can't be calculated
-                if (desiredWidth < 0) {
-                    // b/233856978, apply `ceil` function here to be consistent with the boring
-                    // metrics width calculation that does it under the hood, too
-                    desiredWidth =
-                        ceil(
-                            Layout.getDesiredWidth(
-                                stripNonMetricAffectingCharacterStyleSpans(charSequence),
-                                0,
-                                charSequence.length,
-                                textPaint
-                            )
-                        )
-                }
-                if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
-                    // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
-                    // lines for the given maxIntrinsicWidth
-                    desiredWidth += 0.5f
-                }
-                _maxIntrinsicWidth = desiredWidth
+                _maxIntrinsicWidth = computeMaxIntrinsicWidth()
                 _maxIntrinsicWidth
             }
-}
 
-/**
- * Returns the word with the longest length. To calculate it in a performant way, it applies a
- * heuristics where
- * - it first finds a set of words with the longest length
- * - finds the word with maximum width in that set
- */
-internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
-    val iterator = BreakIterator.getLineInstance(paint.textLocale)
-    iterator.text = CharSequenceCharacterIterator(text, 0, text.length)
+    private fun computeMaxIntrinsicWidth(): Float {
+        var desiredWidth = (boringMetrics?.width ?: -1).toFloat()
 
-    // 10 is just a random number that limits the size of the candidate list
-    val heapSize = 10
-    // min heap that will hold [heapSize] many words with max length
-    val longestWordCandidates =
-        PriorityQueue(
-            heapSize,
-            Comparator<Pair<Int, Int>> { left, right ->
-                (left.second - left.first) - (right.second - right.first)
-            }
-        )
-
-    var start = 0
-    var end = iterator.next()
-    while (end != BreakIterator.DONE) {
-        if (longestWordCandidates.size < heapSize) {
-            longestWordCandidates.add(Pair(start, end))
-        } else {
-            longestWordCandidates.peek()?.let { minPair ->
-                if ((minPair.second - minPair.first) < (end - start)) {
-                    longestWordCandidates.poll()
-                    longestWordCandidates.add(Pair(start, end))
-                }
-            }
+        // boring metrics doesn't cover RTL text so we fallback to different calculation
+        // when boring metrics can't be calculated
+        if (desiredWidth < 0) {
+            // b/233856978, apply `ceil` function here to be consistent with the boring
+            // metrics width calculation that does it under the hood, too
+            desiredWidth = ceil(getDesiredWidth())
         }
 
-        start = end
-        end = iterator.next()
+        if (shouldIncreaseMaxIntrinsic(desiredWidth, charSequence, textPaint)) {
+            // b/173574230, increase maxIntrinsicWidth, so that StaticLayout won't form 2
+            // lines for the given maxIntrinsicWidth
+            desiredWidth += 0.5f
+        }
+        return desiredWidth
     }
 
-    var minWidth = 0f
-
-    longestWordCandidates.forEach { (start, end) ->
-        val width =
-            Layout.getDesiredWidth(
-                stripNonMetricAffectingCharacterStyleSpans(text),
-                start,
-                end,
-                paint
-            )
-        minWidth = maxOf(minWidth, width)
-    }
-
-    return minWidth
+    private fun getDesiredWidth(
+        start: Int = 0,
+        end: Int = charSequenceForIntrinsicWidth.length
+    ): Float = Layout.getDesiredWidth(charSequenceForIntrinsicWidth, start, end, textPaint)
 }
 
 /**
@@ -174,12 +188,21 @@ internal fun minIntrinsicWidth(text: CharSequence, paint: TextPaint): Float {
  * [MetricAffectingSpan].
  */
 private fun stripNonMetricAffectingCharacterStyleSpans(charSequence: CharSequence): CharSequence {
-    if (charSequence !is Spanned) return charSequence
+    if (charSequence !is Spanned || !charSequence.hasSpan(CharacterStyle::class.java)) {
+        return charSequence
+    }
+
     val spans = charSequence.getSpans(0, charSequence.length, CharacterStyle::class.java)
     if (spans.isNullOrEmpty()) return charSequence
-    return SpannableString(charSequence).apply {
-        spans.onEach { if (it !is MetricAffectingSpan) removeSpan(it) }
+
+    // Don't allocate a new SpannableString unless we are certain we will be modifying it.
+    var spannableString: SpannableString? = null
+    for (span in spans) {
+        if (span is MetricAffectingSpan) continue
+        if (spannableString == null) spannableString = SpannableString(charSequence)
+        spannableString.removeSpan(span)
     }
+    return spannableString ?: charSequence
 }
 
 /**
