@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import kotlin.jvm.JvmName
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.InternalSerializationApi
