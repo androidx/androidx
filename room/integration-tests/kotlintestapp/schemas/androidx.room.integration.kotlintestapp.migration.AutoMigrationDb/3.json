@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "7a7934a196e6d6eb3055b9957c91490c",
+    "identityHash": "3c5d400c89fa6324dee0aebb20d9c386",
     "entities": [
       {
         "tableName": "Entity1",
@@ -33,9 +33,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity2",
@@ -73,9 +71,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity3",
@@ -99,9 +95,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity4",
@@ -132,9 +126,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity5",
@@ -165,9 +157,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity6",
@@ -197,9 +187,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity7",
@@ -230,9 +218,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity8",
@@ -263,13 +249,11 @@
           "columnNames": [
             "name"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity9",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`), FOREIGN KEY(`id`) REFERENCES `Entity27`(`id27`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -296,21 +280,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": [
-          {
-            "table": "Entity27",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "id"
-            ],
-            "referencedColumns": [
-              "id27"
-            ]
-          }
-        ]
+        }
       },
       {
         "tableName": "Entity10",
@@ -396,9 +366,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity12",
@@ -440,8 +408,7 @@
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Entity12_name` ON `${TABLE_NAME}` (`name`)"
           }
-        ],
-        "foreignKeys": []
+        ]
       },
       {
         "tableName": "Entity13_V2",
@@ -483,8 +450,7 @@
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Entity13_V2_addedInV1` ON `${TABLE_NAME}` (`addedInV1`)"
           }
-        ],
-        "foreignKeys": []
+        ]
       },
       {
         "tableName": "Entity14",
@@ -508,9 +474,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity15",
@@ -534,9 +498,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity16",
@@ -567,9 +529,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity17",
@@ -600,9 +560,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity19_V2",
@@ -633,9 +591,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity20_V2",
@@ -673,28 +629,9 @@
           "columnNames": [
             "name"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
-        "ftsVersion": "FTS4",
-        "ftsOptions": {
-          "tokenizer": "simple",
-          "tokenizerArgs": [],
-          "contentTable": "Entity13_V2",
-          "languageIdColumnName": "",
-          "matchInfo": "FTS4",
-          "notIndexedColumns": [],
-          "prefixSizes": [],
-          "preferredOrder": "ASC"
-        },
-        "contentSyncTriggers": [
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_BEFORE_UPDATE BEFORE UPDATE ON `Entity13_V2` BEGIN DELETE FROM `Entity21` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_BEFORE_DELETE BEFORE DELETE ON `Entity13_V2` BEGIN DELETE FROM `Entity21` WHERE `docid`=OLD.`rowid`; END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_AFTER_UPDATE AFTER UPDATE ON `Entity13_V2` BEGIN INSERT INTO `Entity21`(`docid`, `name`, `addedInV1`) VALUES (NEW.`rowid`, NEW.`name`, NEW.`addedInV1`); END",
-          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_AFTER_INSERT AFTER INSERT ON `Entity13_V2` BEGIN INSERT INTO `Entity21`(`docid`, `name`, `addedInV1`) VALUES (NEW.`rowid`, NEW.`name`, NEW.`addedInV1`); END"
-        ],
         "tableName": "Entity21",
         "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, content=`Entity13_V2`)",
         "fields": [
@@ -718,22 +655,25 @@
             "rowid"
           ]
         },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
         "ftsVersion": "FTS4",
         "ftsOptions": {
           "tokenizer": "simple",
           "tokenizerArgs": [],
-          "contentTable": "",
+          "contentTable": "Entity13_V2",
           "languageIdColumnName": "",
           "matchInfo": "FTS4",
           "notIndexedColumns": [],
           "prefixSizes": [],
           "preferredOrder": "ASC"
         },
-        "contentSyncTriggers": [],
+        "contentSyncTriggers": [
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_BEFORE_UPDATE BEFORE UPDATE ON `Entity13_V2` BEGIN DELETE FROM `Entity21` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_BEFORE_DELETE BEFORE DELETE ON `Entity13_V2` BEGIN DELETE FROM `Entity21` WHERE `docid`=OLD.`rowid`; END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_AFTER_UPDATE AFTER UPDATE ON `Entity13_V2` BEGIN INSERT INTO `Entity21`(`docid`, `name`, `addedInV1`) VALUES (NEW.`rowid`, NEW.`name`, NEW.`addedInV1`); END",
+          "CREATE TRIGGER IF NOT EXISTS room_fts_content_sync_Entity21_AFTER_INSERT AFTER INSERT ON `Entity13_V2` BEGIN INSERT INTO `Entity21`(`docid`, `name`, `addedInV1`) VALUES (NEW.`rowid`, NEW.`name`, NEW.`addedInV1`); END"
+        ]
+      },
+      {
         "tableName": "Entity22",
         "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1)",
         "fields": [
@@ -757,11 +697,7 @@
             "rowid"
           ]
         },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
-        "ftsVersion": "FTS3",
+        "ftsVersion": "FTS4",
         "ftsOptions": {
           "tokenizer": "simple",
           "tokenizerArgs": [],
@@ -772,7 +708,9 @@
           "prefixSizes": [],
           "preferredOrder": "ASC"
         },
-        "contentSyncTriggers": [],
+        "contentSyncTriggers": []
+      },
+      {
         "tableName": "Entity23",
         "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS3(`name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1, `addedInV2` INTEGER NOT NULL DEFAULT 2)",
         "fields": [
@@ -803,10 +741,6 @@
             "rowid"
           ]
         },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
         "ftsVersion": "FTS3",
         "ftsOptions": {
           "tokenizer": "simple",
@@ -818,7 +752,9 @@
           "prefixSizes": [],
           "preferredOrder": "ASC"
         },
-        "contentSyncTriggers": [],
+        "contentSyncTriggers": []
+      },
+      {
         "tableName": "Entity24",
         "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS3(`name` TEXT NOT NULL, `addedInV1` INTEGER NOT NULL DEFAULT 1)",
         "fields": [
@@ -842,8 +778,18 @@
             "rowid"
           ]
         },
-        "indices": [],
-        "foreignKeys": []
+        "ftsVersion": "FTS3",
+        "ftsOptions": {
+          "tokenizer": "simple",
+          "tokenizerArgs": [],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": []
       },
       {
         "tableName": "Entity25",
@@ -874,9 +820,7 @@
           "columnNames": [
             "id"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       },
       {
         "tableName": "Entity26",
@@ -918,8 +862,7 @@
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Entity26_addedInV2` ON `${TABLE_NAME}` (`addedInV2`)"
           }
-        ],
-        "foreignKeys": []
+        ]
       },
       {
         "tableName": "Entity27",
@@ -944,9 +887,7 @@
           "columnNames": [
             "id27"
           ]
-        },
-        "indices": [],
-        "foreignKeys": []
+        }
       }
     ],
     "views": [
@@ -957,7 +898,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7a7934a196e6d6eb3055b9957c91490c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3c5d400c89fa6324dee0aebb20d9c386')"
     ]
   }
 }

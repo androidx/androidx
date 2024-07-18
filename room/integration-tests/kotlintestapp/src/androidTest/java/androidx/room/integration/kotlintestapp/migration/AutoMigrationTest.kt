@@ -60,20 +60,30 @@ class AutoMigrationTest {
     }
 
     @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
     fun goFromV1ToV3() {
         createFirstVersion()
+        val db = helper.runMigrationsAndValidate(TEST_DB, 3, true)
+        val info = read(db, AutoMigrationDb.Entity1.TABLE_NAME)
+        assertThat(info.columns.size).isEqualTo(3)
+    }
+
+    @Test
+    @Suppress("DEPRECATION") // Due to TableInfo.read()
+    fun goFromV1ToV4() {
+        createFirstVersion()
+        val db = helper.runMigrationsAndValidate(TEST_DB, 4, true)
+        val info = read(db, AutoMigrationDb.Entity1.TABLE_NAME)
+        assertThat(info.columns.size).isEqualTo(3)
+    }
+
+    @Test
+    fun goFromV1ToV5() {
+        createFirstVersion()
         try {
-            helper.runMigrationsAndValidate(TEST_DB, 3, true)
+            helper.runMigrationsAndValidate(TEST_DB, 5, true)
         } catch (e: SQLiteException) {
-            assertThat(e.message)
-                .isEqualTo(
-                    """Foreign key violation(s) detected in 'Entity9'.
-Number of different violations discovered: 1
-Number of rows in violation: 2
-Violation(s) detected in the following constraint(s):
-	Parent Table = Entity27, Foreign Key Constraint Index = 0
-"""
-                )
+            assertThat(e.message).contains("""Foreign key violation(s) detected in 'Entity9'""")
         }
     }
 

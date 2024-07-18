@@ -165,6 +165,7 @@ class AutoMigrationWriter(
      * @param migrateBuilder Builder for the migrate() function to be generated
      */
     private fun addComplexChangeStatements(migrateBuilder: XFunSpec.Builder) {
+        val tablesToCheckForeignKeys = mutableListOf<String>()
         // Create a collection that is sorted such that FTS bundles are handled after the normal
         // tables have been processed
         complexChangedTables.values
@@ -200,14 +201,15 @@ class AutoMigrationWriter(
                     if (newEntityBundle is EntityBundle) {
                         addStatementsToRecreateIndexes(newEntityBundle, migrateBuilder)
                         if (newEntityBundle.foreignKeys.isNotEmpty()) {
-                            addStatementsToCheckForeignKeyConstraint(
-                                newEntityBundle.tableName,
-                                migrateBuilder
-                            )
+                            tablesToCheckForeignKeys.add(newEntityBundle.tableName)
                         }
                     }
                 }
             }
+        // Add the SQL statements for checking the foreign key constraints.
+        tablesToCheckForeignKeys.forEach { tableName ->
+            migrateBuilder.addStatement("%M(connection, %S)", DB_UTIL_FOREIGN_KEY_CHECK, tableName)
+        }
     }
 
     private fun addStatementsToMigrateFtsTable(
@@ -219,22 +221,6 @@ class AutoMigrationWriter(
         addDatabaseExecuteSqlStatement(migrateBuilder, "DROP TABLE `${oldTable.tableName}`")
         addDatabaseExecuteSqlStatement(migrateBuilder, newTable.createTable())
 
-        // Transfer contents of the FTS table, using the content table if available.
-        val newColumnSequence =
-            oldTable.fieldsByColumnName.keys
-                .filter {
-                    oldTable.fieldsByColumnName.keys.contains(it) ||
-                        renamedColumnsMap.containsKey(it)
-                }
-                .toMutableList()
-        val oldColumnSequence = mutableListOf<String>()
-        newColumnSequence.forEach { column ->
-            oldColumnSequence.add(renamedColumnsMap[column] ?: column)
-        }
-        if (oldTable is FtsEntityBundle) {
-            oldColumnSequence.add("rowid")
-            newColumnSequence.add("docid")
-        }
         val contentTable = (newTable as FtsEntityBundle).ftsOptions.contentTable
         val selectFromTable =
             if (contentTable.isEmpty()) {
@@ -242,16 +228,14 @@ class AutoMigrationWriter(
             } else {
                 contentTable
             }
-        addDatabaseExecuteSqlStatement(
-            migrateBuilder,
-            buildString {
-                append(
-                    "INSERT INTO `${newTable.tableName}` " +
-                        "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
-                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} " +
-                        "FROM `$selectFromTable`",
-                )
-            }
+        addStatementsToContentTransfer(
+            oldTableName = selectFromTable,
+            tableNameWithNewPrefix = newTable.tableName,
+            oldEntityBundle = oldTable,
+            newEntityBundle = newTable,
+            renamedColumnsMap = renamedColumnsMap,
+            migrateBuilder = migrateBuilder,
+            isFtsTableContentTransfer = true
         )
     }
 
@@ -285,6 +269,17 @@ class AutoMigrationWriter(
     /**
      * Adds the SQL statements for transferring the contents of the old table to the new version.
      *
+     * This function is used in two scenarios: [1] Transfer content after a complex change (in any
+     * type of table) has been found where the table has been recreated to reflect the changes and
+     * needs the contents transferred from the old table.
+     *
+     * [2] FTS table content transfers. This needs to be handled separately, in the case where the
+     * referenced content table of the FTS table has also undergone a complex change such as a
+     * column rename in the same migration. In this scenario, we should be using the most up to date
+     * list of columns in the table instead of the column names of the "old" table, since the FTS
+     * table content transfer is guaranteed to take place after all complex changes to table
+     * structure has completed.
+     *
      * @param oldTableName Name of the table in the old version of the database
      * @param tableNameWithNewPrefix Name of the table with the '_new_' prefix added
      * @param oldEntityBundle Entity bundle of the table in the old version of the database
@@ -298,7 +293,8 @@ class AutoMigrationWriter(
         oldEntityBundle: BaseEntityBundle,
         newEntityBundle: BaseEntityBundle,
         renamedColumnsMap: MutableMap<String, String>,
-        migrateBuilder: XFunSpec.Builder
+        migrateBuilder: XFunSpec.Builder,
+        isFtsTableContentTransfer: Boolean = false
     ) {
         val newColumnSequence =
             newEntityBundle.fieldsByColumnName.keys
@@ -307,9 +303,18 @@ class AutoMigrationWriter(
                         renamedColumnsMap.containsKey(it)
                 }
                 .toMutableList()
-        val oldColumnSequence = mutableListOf<String>()
-        newColumnSequence.forEach { column ->
-            oldColumnSequence.add(renamedColumnsMap[column] ?: column)
+
+        val selectColumnSequence = mutableListOf<String>()
+        // Select correct columns for transfer based on whether we are doing an FTS table content
+        // transfer or not.
+        if (isFtsTableContentTransfer) {
+            selectColumnSequence.addAll(newColumnSequence)
+            selectColumnSequence.add("rowId")
+            newColumnSequence.add("docid")
+        } else {
+            newColumnSequence.forEach { column ->
+                selectColumnSequence.add(renamedColumnsMap[column] ?: column)
+            }
         }
 
         addDatabaseExecuteSqlStatement(
@@ -318,7 +323,7 @@ class AutoMigrationWriter(
                 append(
                     "INSERT INTO `$tableNameWithNewPrefix` " +
                         "(${newColumnSequence.joinToString(",") { "`$it`" }})" +
-                        " SELECT ${oldColumnSequence.joinToString(",") { "`$it`" }} FROM " +
+                        " SELECT ${selectColumnSequence.joinToString(",") { "`$it`" }} FROM " +
                         "`$oldTableName`",
                 )
             }
@@ -363,19 +368,6 @@ class AutoMigrationWriter(
     }
 
     /**
-     * Adds the SQL statement for checking the foreign key constraints.
-     *
-     * @param tableName Name of the table
-     * @param migrateBuilder Builder for the migrate() function to be generated
-     */
-    private fun addStatementsToCheckForeignKeyConstraint(
-        tableName: String,
-        migrateBuilder: XFunSpec.Builder
-    ) {
-        migrateBuilder.addStatement("%M(connection, %S)", DB_UTIL_FOREIGN_KEY_CHECK, tableName)
-    }
-
-    /**
      * Adds the SQL statements for removing a table.
      *
      * @param migrateBuilder Builder for the migrate() function to be generated
@@ -411,7 +403,7 @@ class AutoMigrationWriter(
             val addNewColumnSql = buildString {
                 append(
                     "ALTER TABLE `${it.tableName}` ADD COLUMN `${it.fieldBundle.columnName}` " +
-                        "${it.fieldBundle.affinity}"
+                        it.fieldBundle.affinity
                 )
                 if (it.fieldBundle.isNonNull) {
                     append(" NOT NULL")
