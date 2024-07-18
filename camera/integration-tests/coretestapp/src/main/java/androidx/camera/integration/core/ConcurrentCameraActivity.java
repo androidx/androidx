@@ -79,6 +79,8 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.ExperimentalPersistentRecording;
@@ -154,7 +156,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     private boolean mIsFrontPrimary = true;
     private boolean mIsDualSelfieEnabled = false;
     private boolean mIsDualRecordEnabled = false;
-    private boolean mIsCameraPipeEnabled = true;
+    private boolean mIsCameraPipeEnabled = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -174,7 +176,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
         mDualRecordButton = findViewById(R.id.dual_record);
 
         Recorder recorder = new Recorder.Builder()
-                .setQualitySelector(QualitySelector.from(Quality.HD))
+                .setQualitySelector(QualitySelector.from(Quality.FHD))
                 .build();
         mVideoCapture = new VideoCapture.Builder<>(recorder)
                 .setMirrorMode(MirrorMode.MIRROR_MODE_ON_FRONT_ONLY)
@@ -464,7 +466,13 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 mFrontPreviewViewForPip.removeAllViews();
                 mFrontPreviewViewForPip.addView(mSinglePreviewView);
                 mBackPreviewViewForPip.setVisibility(GONE);
+
+                ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
+                        .setAspectRatioStrategy(
+                                AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                        .build();
                 Preview preview = new Preview.Builder()
+                        .setResolutionSelector(resolutionSelector)
                         .build();
                 preview.setSurfaceProvider(mSinglePreviewView.getSurfaceProvider());
                 UseCaseGroup useCaseGroup = new UseCaseGroup.Builder()
