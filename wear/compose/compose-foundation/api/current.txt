@@ -361,6 +361,68 @@ package androidx.wear.compose.foundation.lazy {
     ctor public AutoCenteringParams(optional int itemIndex, optional int itemOffset);
   }
 
+  public final class LazyColumnDslKt {
+    method public static inline <T> void items(androidx.wear.compose.foundation.lazy.LazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void itemsIndexed(androidx.compose.foundation.lazy.LazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+  }
+
+  @androidx.wear.compose.foundation.lazy.LazyColumnScopeMarker public sealed interface LazyColumnItemScope {
+    method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.drawscope.DrawScope);
+    method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress? getScrollProgress(androidx.compose.ui.graphics.GraphicsLayerScope);
+    method public androidx.compose.ui.Modifier transformedHeight(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress,java.lang.Integer> heightProvider);
+  }
+
+  public sealed interface LazyColumnItemScrollProgress {
+    method public float getBottomOffsetFraction();
+    method public float getTopOffsetFraction();
+    property public abstract float bottomOffsetFraction;
+    property public abstract float topOffsetFraction;
+  }
+
+  public final class LazyColumnKt {
+    method @androidx.compose.runtime.Composable public static void LazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.lazy.LazyColumnState state, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.LazyColumnScope,kotlin.Unit> content);
+  }
+
+  public sealed interface LazyColumnLayoutInfo {
+    method public int getTotalItemsCount();
+    method public java.util.List<androidx.wear.compose.foundation.lazy.LazyColumnVisibleItemInfo> getVisibleItems();
+    property public abstract int totalItemsCount;
+    property public abstract java.util.List<androidx.wear.compose.foundation.lazy.LazyColumnVisibleItemInfo> visibleItems;
+  }
+
+  @androidx.wear.compose.foundation.lazy.LazyColumnScopeMarker public sealed interface LazyColumnScope {
+    method public void item(optional Object? key, optional Object? contentType, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,kotlin.Unit> content);
+    method public void items(int count, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,?>? key, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super java.lang.Integer,kotlin.Unit> content);
+  }
+
+  @kotlin.DslMarker public @interface LazyColumnScopeMarker {
+  }
+
+  public final class LazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor public LazyColumnState();
+    method public float dispatchRawDelta(float delta);
+    method public androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo getLayoutInfo();
+    method public boolean isScrollInProgress();
+    method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean isScrollInProgress;
+    property public final androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo layoutInfo;
+  }
+
+  public final class LazyColumnStateKt {
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.LazyColumnState rememberLazyColumnState();
+  }
+
+  public sealed interface LazyColumnVisibleItemInfo {
+    method public int getHeight();
+    method public int getIndex();
+    method public int getOffset();
+    method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress getScrollProgress();
+    property public abstract int height;
+    property public abstract int index;
+    property public abstract int offset;
+    property public abstract androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress scrollProgress;
+  }
+
   public final class ScalingLazyColumnDefaults {
     method public androidx.wear.compose.foundation.lazy.ScalingParams scalingParams(optional float edgeScale, optional float edgeAlpha, optional float minElementHeight, optional float maxElementHeight, optional float minTransitionArea, optional float maxTransitionArea, optional androidx.compose.animation.core.Easing scaleInterpolator, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Constraints,java.lang.Integer> viewportVerticalOffsetResolver);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional float snapOffset, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
