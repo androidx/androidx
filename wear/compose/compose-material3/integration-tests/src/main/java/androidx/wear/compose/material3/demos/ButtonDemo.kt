@@ -19,11 +19,14 @@ package androidx.wear.compose.material3.demos
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
@@ -320,6 +323,15 @@ fun AvatarButtonDemo() {
 }
 
 @Composable
+fun ButtonBackgroundImageDemo() {
+    ScalingLazyDemo {
+        item { ListHeader { Text("Button (Image Background)") } }
+        item { ButtonBackgroundImage(painterResource(R.drawable.card_background), enabled = true) }
+        item { ButtonBackgroundImage(painterResource(R.drawable.card_background), enabled = false) }
+    }
+}
+
+@Composable
 private fun AvatarButton(enabled: Boolean) =
     MultilineButton(
         enabled = enabled,
@@ -391,3 +403,13 @@ private fun Multiline3SlotButton(
         colors = colors,
     )
 }
+
+@Composable
+private fun ButtonBackgroundImage(painter: Painter, enabled: Boolean) =
+    Button(
+        modifier = Modifier.sizeIn(maxHeight = ButtonDefaults.Height),
+        onClick = { /* Do something */ },
+        label = { Text("Label", maxLines = 1) },
+        enabled = enabled,
+        colors = ButtonDefaults.imageBackgroundButtonColors(painter)
+    )
