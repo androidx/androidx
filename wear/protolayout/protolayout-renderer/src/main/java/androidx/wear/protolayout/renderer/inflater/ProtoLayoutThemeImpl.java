@@ -184,8 +184,7 @@ public class ProtoLayoutThemeImpl implements ProtoLayoutTheme {
             ImmutableSet.of(
                     FONT_NAME_DEFAULT,
                     FONT_NAME_ROBOTO,
-                    // TODO(b/348207120): Enable Roboto Flex font.
-                    // FONT_NAME_ROBOTO_FLEX,
+                    FONT_NAME_ROBOTO_FLEX,
                     FONT_NAME_LEGACY_VARIANT_TITLE,
                     FONT_NAME_LEGACY_VARIANT_BODY);
 
