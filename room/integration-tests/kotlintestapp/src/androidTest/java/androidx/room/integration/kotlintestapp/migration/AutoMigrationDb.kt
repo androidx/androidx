@@ -70,7 +70,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
     autoMigrations =
         [
             AutoMigration(from = 1, to = 2, spec = AutoMigrationDb.SimpleAutoMigration1::class),
-            AutoMigration(from = 2, to = 3)
+            AutoMigration(from = 2, to = 3),
+            AutoMigration(from = 3, to = 4, spec = AutoMigrationDb.SimpleAutoMigration2::class),
+            AutoMigration(from = 4, to = 5)
         ],
     views = [AutoMigrationDb.Entity25Detail::class],
     exportSchema = true
@@ -192,14 +194,14 @@ abstract class AutoMigrationDb : RoomDatabase() {
     /**
      * Change the foreign key added in Entity 10 to ‘addedInV1’. Add index for addedInV1 on
      * Entity 10. The reference table of the foreign key has been renamed from Entity13 to
-     * Entity13_V2.
+     * Entity13_V2. The foreign key column name of Entity13_V2 is renamed to "renamedInV4" in V4.
      */
     @Entity(
         foreignKeys =
             [
                 ForeignKey(
                     entity = Entity13_V2::class,
-                    parentColumns = ["addedInV1"],
+                    parentColumns = ["renamedInV4"],
                     childColumns = ["addedInV1"],
                     deferred = true
                 )
@@ -242,13 +244,13 @@ abstract class AutoMigrationDb : RoomDatabase() {
 
     /**
      * Rename to Entity13_V2, it is a table referenced by the foreign key in Entity10. Change the
-     * index added in Entity 13 to ‘addedInV1’.
+     * index added in Entity 13 to "addedInV1". Column "addedInV1" is renamed to "renamedInV4".
      */
-    @Entity(indices = [Index(value = ["addedInV1"], unique = true)])
+    @Entity(indices = [Index(value = ["renamedInV4"], unique = true)])
     data class Entity13_V2(
         @PrimaryKey var id: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var renamedInV4: Int
     ) {
         companion object {
             const val TABLE_NAME = "Entity13"
@@ -331,13 +333,16 @@ abstract class AutoMigrationDb : RoomDatabase() {
         }
     }
 
-    /** The content table of this FTS table has been renamed from Entity13 to Entity13_V2. */
+    /**
+     * The content table of this FTS table has been renamed from Entity13 to Entity13_V2. The column
+     * "addedInV1" was renamed to "renamedInV4".
+     */
     @Entity
     @Fts4(contentEntity = Entity13_V2::class)
     data class Entity21(
         @PrimaryKey var rowid: Int,
         var name: String,
-        @ColumnInfo(defaultValue = "1") var addedInV1: Int
+        @ColumnInfo(defaultValue = "1") var renamedInV4: Int
     ) {
         companion object {
             const val TABLE_NAME = "Entity21"
@@ -455,7 +460,23 @@ abstract class AutoMigrationDb : RoomDatabase() {
         }
     }
 
+    @RenameColumn(
+        tableName = "Entity21",
+        fromColumnName = "addedInV1",
+        toColumnName = "renamedInV4"
+    )
+    @RenameColumn(
+        tableName = "Entity13_V2",
+        fromColumnName = "addedInV1",
+        toColumnName = "renamedInV4"
+    )
+    internal class SimpleAutoMigration2 : AutoMigrationSpec {
+        override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            // Do something
+        }
+    }
+
     companion object {
-        const val LATEST_VERSION = 3
+        const val LATEST_VERSION = 5
     }
 }
