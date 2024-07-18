@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3
+package androidx.compose.material3.internal
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.unit.Dp
+import kotlinx.coroutines.flow.Flow
 
-@OptIn(ExperimentalComposeUiApi::class)
+internal actual typealias BackEventCompat = androidx.activity.BackEventCompat
+
 @Composable
-internal actual fun getScreenHeight(): Dp {
-    val density = LocalDensity.current
-    val windowInfo = LocalWindowInfo.current
-    return with(density) {
-        windowInfo.containerSize.height.toDp()
-    }
+internal actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
+    androidx.activity.BackHandler(enabled, onBack)
+}
+
+@Composable
+internal actual fun PredictiveBackHandler(
+    enabled: Boolean,
+    onBack: suspend (progress: Flow<BackEventCompat>) -> Unit
+) {
+    androidx.activity.PredictiveBackHandler(enabled, onBack)
 }
