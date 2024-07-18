@@ -28,7 +28,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.testutils.assertThrows
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Before
@@ -41,7 +41,7 @@ class AutoClosingRoomOpenHelperTest {
         private const val TIMEOUT_AMOUNT = 10L
     }
 
-    private val testDispatcher = TestCoroutineScheduler()
+    private val testCoroutineScope = TestScope()
 
     private lateinit var autoCloser: AutoCloser
     private lateinit var testWatch: AutoCloserTestWatch
@@ -65,7 +65,7 @@ class AutoClosingRoomOpenHelperTest {
     fun setUp() {
         ApplicationProvider.getApplicationContext<Context>().deleteDatabase(DB_NAME)
 
-        testWatch = AutoCloserTestWatch(TIMEOUT_AMOUNT, testDispatcher)
+        testWatch = AutoCloserTestWatch(TIMEOUT_AMOUNT, testCoroutineScope.testScheduler)
         callback = Callback()
         val delegateOpenHelper =
             FrameworkSQLiteOpenHelperFactory()
@@ -80,7 +80,7 @@ class AutoClosingRoomOpenHelperTest {
         autoCloser =
             AutoCloser(TIMEOUT_AMOUNT, TimeUnit.MILLISECONDS, testWatch).apply {
                 initOpenHelper(delegateOpenHelper)
-                initCoroutineScope(TestScope(testDispatcher))
+                initCoroutineScope(testCoroutineScope)
                 setAutoCloseCallback {}
             }
         autoClosingRoomOpenHelper =
@@ -92,6 +92,7 @@ class AutoClosingRoomOpenHelperTest {
         testWatch.step()
         // At the end of all tests we always expect to auto-close the database
         assertWithMessage("Database was not closed").that(autoCloser.delegateDatabase).isNull()
+        testCoroutineScope.cancel()
     }
 
     @Test
@@ -228,7 +229,7 @@ class AutoClosingRoomOpenHelperTest {
             AutoClosingRoomOpenHelper(
                 delegateOpenHelper,
                 AutoCloser(0, TimeUnit.MILLISECONDS).apply {
-                    initCoroutineScope(TestScope(testDispatcher))
+                    initCoroutineScope(testCoroutineScope)
                     setAutoCloseCallback {}
                 }
             )

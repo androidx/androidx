@@ -22,21 +22,21 @@ import java.util.concurrent.Callable
 
 /** Implementation of [SupportSQLiteOpenHelper.Factory] that creates [PrePackagedCopyOpenHelper]. */
 internal class PrePackagedCopyOpenHelperFactory(
-    private val mCopyFromAssetPath: String?,
-    private val mCopyFromFile: File?,
-    private val mCopyFromInputStream: Callable<InputStream>?,
-    private val mDelegate: SupportSQLiteOpenHelper.Factory
+    private val copyFromAssetPath: String?,
+    private val copyFromFile: File?,
+    private val copyFromInputStream: Callable<InputStream>?,
+    private val delegate: SupportSQLiteOpenHelper.Factory
 ) : SupportSQLiteOpenHelper.Factory {
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration
     ): SupportSQLiteOpenHelper {
         return PrePackagedCopyOpenHelper(
             configuration.context,
-            mCopyFromAssetPath,
-            mCopyFromFile,
-            mCopyFromInputStream,
+            copyFromAssetPath,
+            copyFromFile,
+            copyFromInputStream,
             configuration.callback.version,
-            mDelegate.create(configuration)
+            delegate.create(configuration)
         )
     }
 }
