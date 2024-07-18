@@ -368,24 +368,25 @@ internal fun CoreTextField(
     }
 
     // Hide the keyboard if made disabled or read-only while focused (b/237308379).
-    val writeable by rememberUpdatedState(enabled && !readOnly && windowInfo.isWindowFocused)
+    val writeable by rememberUpdatedState(enabled && !readOnly)
     LaunchedEffect(Unit) {
         try {
-            snapshotFlow { writeable }.collect { writeable ->
-                // When hasFocus changes, the session will be stopped/started in the focus
-                // handler so we don't need to handle its changes here.
-                if (writeable && state.hasFocus) {
-                    startInputSession(
-                        textInputService,
-                        state,
-                        manager.value,
-                        imeOptions,
-                        manager.offsetMapping
-                    )
-                } else {
-                    endInputSession(state)
+            snapshotFlow { writeable }
+                .collect { writeable ->
+                    // When hasFocus changes, the session will be stopped/started in the focus
+                    // handler so we don't need to handle its changes here.
+                    if (writeable && state.hasFocus) {
+                        startInputSession(
+                            textInputService,
+                            state,
+                            manager.value,
+                            imeOptions,
+                            manager.offsetMapping
+                        )
+                    } else {
+                        endInputSession(state)
+                    }
                 }
-            }
         } finally {
             // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur
             //  event when the text field is removed from the composition entirely.

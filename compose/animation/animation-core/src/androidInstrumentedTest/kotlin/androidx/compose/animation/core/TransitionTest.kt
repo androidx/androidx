@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.core
 
+import androidx.collection.mutableLongListOf
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.VectorConverter
 import androidx.compose.animation.animateColor
 import androidx.compose.runtime.LaunchedEffect
@@ -25,11 +27,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
@@ -534,5 +538,31 @@ class TransitionTest {
             assertTrue(value2 < prevValue2)
             assertEquals(200f, value3, 0.1f)
         }
+    }
+
+    @Test
+    fun snapshotTotalDurationNanos() {
+        val durations = mutableLongListOf()
+        rule.mainClock.autoAdvance = false
+        rule.setContent {
+            var targetState by remember { mutableStateOf(false) }
+            val transition = updateTransition(targetState, label = "")
+
+            transition.AnimatedContent { _ -> }
+
+            LaunchedEffect(Unit) {
+                delay(200)
+                targetState = true
+
+                snapshotFlow { transition.totalDurationNanos }.collect { durations += it }
+            }
+        }
+
+        rule.mainClock.advanceTimeByFrame()
+
+        rule.runOnIdle { assertThat(durations.size).isEqualTo(0) }
+
+        rule.mainClock.advanceTimeBy(200)
+        rule.runOnIdle { assertThat(durations.size).isGreaterThan(0) }
     }
 }
