@@ -43,7 +43,8 @@ internal data class ChildSemanticsNodeElement(
 
     override fun InspectorInfo.inspectableProperties() {
         name = "childSemantics"
-        properties["properties"] = properties
+        this@inspectableProperties.properties["properties"] =
+            this@ChildSemanticsNodeElement.properties
     }
 }
 
