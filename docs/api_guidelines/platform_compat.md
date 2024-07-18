@@ -124,11 +124,6 @@ When to use?
         introduced
 *   Implementation *may* delegate to `PlatformClass` methods when available (see
     below note for caveats)
-*   To avoid runtime class verification issues, all operations that interact
-    with the internal structure of `PlatformClass` must be implemented in inner
-    classes targeted to the SDK level at which the operation was added.
-    *   See the [sample](#wrapper-sample) for an example of interacting with a
-        method that was added in SDK level 23.
 
 #### Sample {#wrapper-sample}
 
@@ -209,23 +204,6 @@ public final class ModemInfoCompat {
     }
     // Default behavior.
     return false;
-  }
-
-  // All references to class members -- including the constructor -- must be
-  // made on an inner class to avoid soft-verification errors that slow class
-  // loading and prevent optimization.
-  @RequiresApi(23)
-  private static class Api23Impl {
-    @DoNotInline
-    @NonNull
-    static ModemInfo create() {
-      return new ModemInfo();
-    }
-
-    @DoNotInline
-    static boolean isLteSupported(Object obj) {
-      return ((ModemInfo) obj).isLteSupported();
-    }
   }
 }
 ```
