@@ -50,6 +50,8 @@ android {
             testProguardFiles "proguard-rules.pro"
         }
     }
+    // TODO(b/345531033)
+    experimentalProperties["android.lint.useK2Uast"] = false 
 }
 
 androidx {
