@@ -51,7 +51,7 @@ class ScatterMapTest {
     }
 
     @Test
-    fun zeroCapacityHashMap() {
+    fun zeroCapacityMap() {
         val map = MutableScatterMap<String, String>(0)
         assertEquals(0, map.capacity)
         assertEquals(0, map.size)
