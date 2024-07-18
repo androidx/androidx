@@ -379,7 +379,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun androidNativeX86(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X86)
         return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeX86().also { block?.execute(it) }
+            kotlinExtension.androidNativeX86 { block?.execute(this) }
         } else {
             null
         }
@@ -389,7 +389,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun androidNativeX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_X64)
         return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeX64().also { block?.execute(it) }
+            kotlinExtension.androidNativeX64 { block?.execute(this) }
         } else {
             null
         }
@@ -399,7 +399,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun androidNativeArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM64)
         return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeArm64().also { block?.execute(it) }
+            kotlinExtension.androidNativeArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -409,7 +409,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun androidNativeArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
         return if (project.enableAndroidNative()) {
-            kotlinExtension.androidNativeArm32().also { block?.execute(it) }
+            kotlinExtension.androidNativeArm32 { block?.execute(this) }
         } else {
             null
         }
@@ -437,6 +437,16 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         }
     }
 
+    @JvmOverloads
+    fun mingwX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
+        supportedPlatforms.add(PlatformIdentifier.MINGW_X_64)
+        return if (project.enableWindows()) {
+            kotlinExtension.mingwX64 { block?.execute(this) }
+        } else {
+            null
+        }
+    }
+
     /** Configures all mac targets supported by AndroidX. */
     @JvmOverloads
     fun mac(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
@@ -447,7 +457,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun macosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
         supportedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
         return if (project.enableMac()) {
-            kotlinExtension.macosX64().also { block?.execute(it) }
+            kotlinExtension.macosX64 { block?.execute(this) }
         } else {
             null
         }
@@ -457,7 +467,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun macosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
         supportedPlatforms.add(PlatformIdentifier.MAC_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.macosArm64().also { block?.execute(it) }
+            kotlinExtension.macosArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -473,7 +483,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun iosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.iosArm64().also { block?.execute(it) }
+            kotlinExtension.iosArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -483,7 +493,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun iosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.IOS_X_64)
         return if (project.enableMac()) {
-            kotlinExtension.iosX64().also { block?.execute(it) }
+            kotlinExtension.iosX64 { block?.execute(this) }
         } else {
             null
         }
@@ -493,7 +503,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun iosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.iosSimulatorArm64().also { block?.execute(it) }
+            kotlinExtension.iosSimulatorArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -514,7 +524,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun watchosArm32(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_32)
         return if (project.enableMac()) {
-            kotlinExtension.watchosArm32().also { block?.execute(it) }
+            kotlinExtension.watchosArm32 { block?.execute(this) }
         } else {
             null
         }
@@ -524,7 +534,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun watchosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.WATCHOS_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.watchosArm64().also { block?.execute(it) }
+            kotlinExtension.watchosArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -534,7 +544,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun watchosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.WATCHOS_X_64)
         return if (project.enableMac()) {
-            kotlinExtension.watchosX64().also { block?.execute(it) }
+            kotlinExtension.watchosX64 { block?.execute(this) }
         } else {
             null
         }
@@ -544,7 +554,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun watchosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.WATCHOS_SIMULATOR_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.watchosSimulatorArm64().also { block?.execute(it) }
+            kotlinExtension.watchosSimulatorArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -560,7 +570,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun tvosArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.TVOS_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.tvosArm64().also { block?.execute(it) }
+            kotlinExtension.tvosArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -570,7 +580,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun tvosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.TVOS_X_64)
         return if (project.enableMac()) {
-            kotlinExtension.tvosX64().also { block?.execute(it) }
+            kotlinExtension.tvosX64 { block?.execute(this) }
         } else {
             null
         }
@@ -580,7 +590,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun tvosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.TVOS_SIMULATOR_ARM_64)
         return if (project.enableMac()) {
-            kotlinExtension.tvosSimulatorArm64().also { block?.execute(it) }
+            kotlinExtension.tvosSimulatorArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -598,7 +608,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun linuxArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.LINUX_ARM_64)
         return if (project.enableLinux()) {
-            kotlinExtension.linuxArm64().also { block?.execute(it) }
+            kotlinExtension.linuxArm64 { block?.execute(this) }
         } else {
             null
         }
@@ -608,7 +618,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun linuxX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.LINUX_X_64)
         return if (project.enableLinux()) {
-            kotlinExtension.linuxX64().also { block?.execute(it) }
+            kotlinExtension.linuxX64 { block?.execute(this) }
         } else {
             null
         }
@@ -636,7 +646,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun js(block: Action<KotlinJsTargetDsl>? = null): KotlinJsTargetDsl? {
         supportedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
-            kotlinExtension.js().also { block?.execute(it) }
+            kotlinExtension.js { block?.execute(this) }
         } else {
             null
         }
