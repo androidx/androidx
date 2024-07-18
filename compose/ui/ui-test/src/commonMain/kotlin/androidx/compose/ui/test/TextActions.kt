@@ -107,7 +107,6 @@ private fun SemanticsNodeInteraction.getNodeAndFocus(
     assert(isEnabled()) { errorOnFail }
     assert(hasRequestFocusAction()) { errorOnFail }
     if (requireEditable) {
-        assert(isEditable()) { errorOnFail }
         assert(hasSetTextAction()) { errorOnFail }
         assert(hasInsertTextAtCursorAction()) { errorOnFail }
     }
