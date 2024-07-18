@@ -20,6 +20,7 @@ import android.content.Context
 import android.graphics.Outline
 import android.os.Build
 import android.view.ContextThemeWrapper
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -69,8 +70,8 @@ import java.util.UUID
 /**
  * Properties used to customize the behavior of a [Dialog].
  *
- * @property dismissOnBackPress whether the dialog can be dismissed by pressing the back button. If
- *   true, pressing the back button will call onDismissRequest.
+ * @property dismissOnBackPress whether the dialog can be dismissed by pressing the back or escape
+ *   buttons. If true, pressing the back button will call onDismissRequest.
  * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
  *   dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
  * @property securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the
@@ -378,6 +379,19 @@ private class DialogWrapper(
                 onDismissRequest()
             }
         }
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        if (
+            properties.dismissOnBackPress &&
+                event.isTracking &&
+                !event.isCanceled &&
+                keyCode == KeyEvent.KEYCODE_ESCAPE
+        ) {
+            onDismissRequest()
+            return true
+        }
+        return false
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
