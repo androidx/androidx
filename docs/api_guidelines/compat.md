@@ -17,50 +17,6 @@ compare the device's `Build.VERSION.SDK_INT` field to a known-good SDK version;
 for example, the SDK in which a method first appeared or in which a critical bug
 was first fixed.
 
-Non-reflective calls to new APIs gated on `SDK_INT` **must** be made from
-version-specific static inner classes to avoid verification errors that
-negatively affect run-time performance. This is enforced at build time by the
-`ClassVerificationFailure` lint check, which offers auto-fixes in Java sources.
-
-For more information, see Chromium's (deprecated but still accurate) guide to
-[Class Verification Failures](https://chromium.googlesource.com/chromium/src/+/HEAD/build/android/docs/class_verification_failures.md).
-
-NOTE As noted in the Chromium guide, the latest versions of R8 have added
-support for automatically out-of-lining calls to new platform SDK APIs; however,
-this depends on clients using the latest versions of R8. Since Jetpack libraries
-cannot make assertions about versions of tools used by clients, we must continue
-to manually out-of-line such calls.
-
-Methods in implementation-specific classes **must** be paired with the
-`@DoNotInline` annotation to prevent them from being inlined.
-
-```java {.good}
-public static void saveAttributeDataForStyleable(@NonNull View view, ...) {
-  if (Build.VERSION.SDK_INT >= 29) {
-    Api29Impl.saveAttributeDataForStyleable(view, ...);
-  }
-}
-
-@RequiresApi(29)
-private static class Api29Impl {
-  @DoNotInline
-  static void saveAttributeDataForStyleable(@NonNull View view, ...) {
-    view.saveAttributeDataForStyleable(...);
-  }
-}
-```
-
-Alternatively, in Kotlin sources:
-
-```kotlin {.good}
-@RequiresApi(29)
-private object Api29Impl {
-  @JvmStatic
-  @DoNotInline
-  fun saveAttributeDataForStyleable(view: View, ...) { ... }
-}
-```
-
 When developing against pre-release SDKs where the `SDK_INT` has not been
 finalized, SDK checks **must** use `BuildCompat.isAtLeastX()` methods and
 **must** use a tip-of-tree `project` dependency to ensure that the
@@ -102,8 +58,7 @@ below that API level, `A` will be seen as `Object`. An `Object` cannot be used
 as a `B` without an explicit cast. However, adding an explicit cast to `B` won't
 fix this, because the compiler will see the cast as redundant (as it normally
 would be). So, implicit casts between types introduced at different API levels
-should be moved out to version-specific static inner classes, as described
-[above](#compat-sdk).
+should be moved out to version-specific static inner classes.
 
 The `ImplicitCastClassVerificationFailure` lint check detects and provides
 autofixes for instances of invalid implicit casts.
