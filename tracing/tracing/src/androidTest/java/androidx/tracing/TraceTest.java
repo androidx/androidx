@@ -112,11 +112,15 @@ public final class TraceTest {
     @SdkSuppress(minSdkVersion = 29) // SELinux
     public void setCounter() throws IOException {
         startTrace();
+        assertTrue("Checking that tracing is enabled", Trace.isEnabled());
+        Trace.beginSection("setting counters");
         Trace.setCounter("counterName", 42);
         Trace.setCounter("counterName", 47);
         Trace.setCounter("counterName", 9787);
+        Trace.endSection();
+        assertTrue("Checking that tracing is enabled", Trace.isEnabled());
         dumpTrace();
-
+        assertTraceContains("setting counters");
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|42");
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|47");
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|9787");
