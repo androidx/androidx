@@ -26,16 +26,21 @@ android {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation("androidx.annotation:annotation:1.6.0")
+    implementation("androidx.core:core-ktx:1.13.0")
     implementation(project(":fragment:fragment-ktx"))
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
     implementation(projectOrArtifact(":transition:transition"))
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     debugImplementation(project(":fragment:fragment-testing-manifest"))
 
     androidTestImplementation(project(":fragment:fragment-testing"))
+    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.6.2")
+    androidTestImplementation(project(":fragment:fragment-testing-manifest"))
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.espressoCore)
 }
 
 tasks["check"].dependsOn(tasks["connectedCheck"])

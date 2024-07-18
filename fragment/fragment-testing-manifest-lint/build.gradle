@@ -31,9 +31,10 @@ plugins {
 dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
+    compileOnly(libs.intellijCore)
 
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintApi)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

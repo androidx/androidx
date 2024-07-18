@@ -30,11 +30,12 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core-ktx:1.2.0")
+    api("androidx.core:core-ktx:1.8.0")
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
     api("androidx.activity:activity:1.8.1")
+    api("androidx.lifecycle:lifecycle-common:2.6.1")
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")
     api("androidx.lifecycle:lifecycle-livedata-core:2.6.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
@@ -43,16 +44,19 @@ dependencies {
     api("androidx.savedstate:savedstate:1.2.1")
     api("androidx.annotation:annotation-experimental:1.4.1")
     api(libs.kotlinStdlib)
+    implementation("androidx.arch.core:core-common:2.2.0")
 
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0", {
         exclude group: "androidx.fragment", module: "fragment"
         exclude group: "androidx.activity", module: "activity"
     })
     androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.leakcanary)
     androidTestImplementation(libs.leakcanaryInstrumentation)
+    androidTestImplementation(libs.hamcrestCore)
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testMonitor)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
@@ -65,9 +69,8 @@ dependencies {
 
     testImplementation(projectOrArtifact(":fragment:fragment"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.testExtJunit)
-    testImplementation(libs.testCore)
-    testImplementation(libs.testRules)
+    testImplementation(libs.junit)
+    testRuntimeOnly(libs.testCore)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
 

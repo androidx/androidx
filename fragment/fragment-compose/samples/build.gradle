@@ -27,12 +27,12 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation("androidx.compose.foundation:foundation:1.0.1")
     implementation("androidx.compose.ui:ui-tooling:1.4.0")
     implementation(project(":fragment:fragment-compose"))
-    implementation("androidx.compose.material:material:1.0.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0")
-    implementation("androidx.savedstate:savedstate-ktx:1.2.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
+    implementation("androidx.compose.runtime:runtime:1.5.4")
+    implementation("androidx.compose.ui:ui:1.5.4")
+    implementation("androidx.core:core-ktx:1.12.0")
 }
 
 androidx {
