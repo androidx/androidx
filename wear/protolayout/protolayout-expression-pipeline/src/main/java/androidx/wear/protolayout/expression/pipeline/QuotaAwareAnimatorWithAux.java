@@ -23,7 +23,6 @@ import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.os.HandlerCompat;
 import androidx.wear.protolayout.expression.pipeline.AnimationsHelper.RepeatDelays;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
@@ -51,7 +50,7 @@ class QuotaAwareAnimatorWithAux extends QuotaAwareAnimator {
             @NonNull QuotaManager quotaManager,
             @NonNull AnimationSpec spec,
             @NonNull AnimationSpec auxSpec,
-            @Nullable TypeEvaluator<?> evaluator) {
+            @NonNull TypeEvaluator<?> evaluator) {
         super(quotaManager, spec, evaluator, /* alwaysPauseWhenRepeatForward= */ true);
 
         mAuxAnimator = new ValueAnimator();
