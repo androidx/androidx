@@ -2,32 +2,30 @@
 package androidx.security.state {
 
   public class SecurityPatchState {
+    ctor public SecurityPatchState(android.content.Context context);
+    ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModules);
     ctor public SecurityPatchState(android.content.Context context, optional java.util.List<java.lang.String> systemModules, optional androidx.security.state.SecurityStateManager? customSecurityStateManager);
     method public final boolean areCvesPatched(java.util.List<java.lang.String> cveList);
-    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getAvailableSecurityPatchLevel(androidx.security.state.SecurityPatchState.Component component);
-    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getAvailableSecurityPatchLevel(androidx.security.state.SecurityPatchState.Component component, optional java.util.List<? extends android.net.Uri>? providers);
-    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getDeviceSecurityPatchLevel(androidx.security.state.SecurityPatchState.Component component);
-    method public java.util.Map<androidx.security.state.SecurityPatchState.Severity,java.util.List<java.lang.String>> getPatchedCves(androidx.security.state.SecurityPatchState.Component component, androidx.security.state.SecurityPatchState.SecurityPatchLevel spl);
-    method public java.util.List<androidx.security.state.SecurityPatchState.SecurityPatchLevel> getPublishedSecurityPatchLevel(androidx.security.state.SecurityPatchState.Component component);
-    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getSecurityPatchLevelString(androidx.security.state.SecurityPatchState.Component component, String securityPatchLevel);
-    method public final android.net.Uri getVulnerabilityReportUrl(String serverUrl);
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getAvailableSecurityPatchLevel(String component);
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getAvailableSecurityPatchLevel(String component, optional java.util.List<? extends android.net.Uri> providers);
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getComponentSecurityPatchLevel(String component, String securityPatchLevel);
+    method public androidx.security.state.SecurityPatchState.SecurityPatchLevel getDeviceSecurityPatchLevel(String component);
+    method public java.util.Map<androidx.security.state.SecurityPatchState.Severity,java.util.Set<java.lang.String>> getPatchedCves(String component, androidx.security.state.SecurityPatchState.SecurityPatchLevel spl);
+    method public java.util.List<androidx.security.state.SecurityPatchState.SecurityPatchLevel> getPublishedSecurityPatchLevel(String component);
+    method @RequiresApi(26) public final android.net.Uri getVulnerabilityReportUrl(android.net.Uri serverUrl);
     method public final boolean isDeviceFullyUpdated();
     method public java.util.List<androidx.security.state.UpdateInfo> listAvailableUpdates(optional java.util.List<? extends android.net.Uri>? providers);
     method public final void loadVulnerabilityReport(String jsonString);
+    field public static final String COMPONENT_KERNEL = "KERNEL";
+    field public static final String COMPONENT_SYSTEM = "SYSTEM";
+    field public static final String COMPONENT_SYSTEM_MODULES = "SYSTEM_MODULES";
+    field public static final String COMPONENT_VENDOR = "VENDOR";
     field public static final androidx.security.state.SecurityPatchState.Companion Companion;
     field public static final java.util.List<java.lang.String> DEFAULT_SYSTEM_MODULES;
     field public static final String DEFAULT_VULNERABILITY_REPORTS_URL = "https://storage.googleapis.com/osv-android-api";
   }
 
   public static final class SecurityPatchState.Companion {
-  }
-
-  public enum SecurityPatchState.Component {
-    enum_constant public static final androidx.security.state.SecurityPatchState.Component KERNEL;
-    enum_constant public static final androidx.security.state.SecurityPatchState.Component SYSTEM;
-    enum_constant public static final androidx.security.state.SecurityPatchState.Component SYSTEM_MODULES;
-    enum_constant public static final androidx.security.state.SecurityPatchState.Component VENDOR;
-    enum_constant public static final androidx.security.state.SecurityPatchState.Component WEBVIEW;
   }
 
   public static final class SecurityPatchState.DateBasedSecurityPatchLevel extends androidx.security.state.SecurityPatchState.SecurityPatchLevel {
@@ -79,12 +77,10 @@ package androidx.security.state {
   public class SecurityStateManager {
     ctor public SecurityStateManager(android.content.Context context);
     method public android.os.Bundle getGlobalSecurityState(optional String? moduleMetadataProvider);
-    field public static final String ANDROID_MODULE_METADATA_PROVIDER = "com.android.modulemetadata";
     field public static final androidx.security.state.SecurityStateManager.Companion Companion;
     field public static final String KEY_KERNEL_VERSION = "kernel_version";
     field public static final String KEY_SYSTEM_SPL = "system_spl";
     field public static final String KEY_VENDOR_SPL = "vendor_spl";
-    field public static final String VENDOR_SECURITY_PATCH_PROPERTY_KEY = "ro.vendor.build.security_patch";
   }
 
   public static final class SecurityStateManager.Companion {
@@ -109,10 +105,6 @@ package androidx.security.state {
     method public androidx.security.state.UpdateInfo.Builder setPublishedDate(java.util.Date publishedDate);
     method public androidx.security.state.UpdateInfo.Builder setSecurityPatchLevel(String securityPatchLevel);
     method public androidx.security.state.UpdateInfo.Builder setUri(String uri);
-  }
-
-  public final class UpdateInfoKt {
-    method @kotlin.jvm.JvmSynthetic public static androidx.security.state.UpdateInfo UpdateInfo(kotlin.jvm.functions.Function1<? super androidx.security.state.UpdateInfo.Builder,kotlin.Unit> initializer);
   }
 
   public class UpdateInfoProvider extends android.content.ContentProvider {
