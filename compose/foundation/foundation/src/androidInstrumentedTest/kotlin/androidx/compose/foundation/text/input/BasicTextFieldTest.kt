@@ -1471,6 +1471,21 @@ internal class BasicTextFieldTest {
     private fun requestFocus(tag: String) =
         rule.onNodeWithTag(tag).requestFocus()
 
+    @Test
+    fun longText_doesNotCrash() {
+        var textLayoutProvider: (() -> TextLayoutResult?)? = null
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                rememberTextFieldState("A".repeat(100_000)),
+                onTextLayout = { textLayoutProvider = it }
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(textLayoutProvider?.invoke()?.layoutInput?.text?.length).isEqualTo(100_000)
+        }
+    }
+
     private fun assertTextSelection(expected: TextRange) {
         val selection = rule.onNodeWithTag(Tag).fetchSemanticsNode()
             .config.getOrNull(TextSelectionRange)
