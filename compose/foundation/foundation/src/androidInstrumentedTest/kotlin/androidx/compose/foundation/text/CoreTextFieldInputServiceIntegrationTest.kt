@@ -520,20 +520,19 @@ class CoreTextFieldInputServiceIntegrationTest {
     }
 
     @Test
-    fun textField_stopAndStartInput_whenToggleWindowFocus() {
+    fun textField_onlyStartsInputConnection_whenToggleWindowFocus() {
         val value = TextFieldValue("abc")
         val focusRequester = FocusRequester()
 
         val focusWindow = mutableStateOf(true)
-        fun createWindowInfo(focused: Boolean) = object : WindowInfo {
-            override val isWindowFocused: Boolean
-                get() = focused
-        }
+        fun createWindowInfo(focused: Boolean) =
+            object : WindowInfo {
+                override val isWindowFocused: Boolean
+                    get() = focused
+            }
 
         setContent {
-            CompositionLocalProvider(
-                LocalWindowInfo provides createWindowInfo(focusWindow.value)
-            ) {
+            CompositionLocalProvider(LocalWindowInfo provides createWindowInfo(focusWindow.value)) {
                 CoreTextField(
                     value = value,
                     onValueChange = {},
@@ -542,23 +541,26 @@ class CoreTextFieldInputServiceIntegrationTest {
             }
         }
 
-        rule.runOnUiThread {
-            focusRequester.requestFocus()
-        }
+        rule.runOnUiThread { focusRequester.requestFocus() }
 
+        var firstInputConnection: InputConnection? = null
         rule.runOnIdle {
             inputMethodInterceptor.assertSessionActive()
+            inputMethodInterceptor.withInputConnection { firstInputConnection = this }
         }
 
         focusWindow.value = false
-        rule.runOnIdle {
-            inputMethodInterceptor.assertNoSessionActive()
-        }
+        rule.runOnIdle { inputMethodInterceptor.assertSessionActive() }
 
         focusWindow.value = true
+        var secondInputConnection: InputConnection? = null
         rule.runOnIdle {
             inputMethodInterceptor.assertSessionActive()
+            inputMethodInterceptor.withInputConnection { secondInputConnection = this }
         }
+
+        // check that we have not created a separate input connection
+        assertThat(firstInputConnection).isSameInstanceAs(secondInputConnection)
     }
 
     private fun setContent(

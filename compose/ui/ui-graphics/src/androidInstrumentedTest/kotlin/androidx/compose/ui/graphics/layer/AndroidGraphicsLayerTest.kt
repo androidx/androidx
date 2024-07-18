@@ -16,12 +16,12 @@
 
 package androidx.compose.ui.graphics.layer
 
-import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.StrictMode
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -43,12 +43,13 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PixelMap
 import androidx.compose.ui.graphics.TestActivity
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.isLayerManagerInitialized
+import androidx.compose.ui.graphics.isLayerPersistenceEnabled
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.toPixelMap
@@ -68,6 +69,7 @@ import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
@@ -92,41 +94,34 @@ class AndroidGraphicsLayerTest {
         lateinit var layer: GraphicsLayer
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = size / 2f
-                        )
-                        drawRect(
-                            Color.Blue,
-                            topLeft = Offset(size.width / 2f, 0f),
-                            size = size / 2f
-                        )
-                        drawRect(
-                            Color.Green,
-                            topLeft = Offset(0f, size.height / 2f),
-                            size = size / 2f
-                        )
-                        drawRect(
-                            Color.Black,
-                            topLeft = Offset(size.width / 2f, size.height / 2f),
-                            size = size / 2f
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record {
+                            drawRect(Color.Red, size = size / 2f)
+                            drawRect(
+                                Color.Blue,
+                                topLeft = Offset(size.width / 2f, 0f),
+                                size = size / 2f
+                            )
+                            drawRect(
+                                Color.Green,
+                                topLeft = Offset(0f, size.height / 2f),
+                                size = size / 2f
+                            )
+                            drawRect(
+                                Color.Black,
+                                topLeft = Offset(size.width / 2f, size.height / 2f),
+                                size = size / 2f
+                            )
+                        }
                     }
-                }
             },
             verify = {
                 val bitmap: ImageBitmap = layer.toImageBitmap()
                 assertNotNull(bitmap)
                 assertEquals(TEST_SIZE, IntSize(bitmap.width, bitmap.height))
-                bitmap.toPixelMap().verifyQuadrants(
-                    Color.Red,
-                    Color.Blue,
-                    Color.Green,
-                    Color.Black
-                )
+                bitmap.toPixelMap().verifyQuadrants(Color.Red, Color.Blue, Color.Green, Color.Black)
             }
         )
     }
@@ -143,23 +138,18 @@ class AndroidGraphicsLayerTest {
                 graphicsContext.createGraphicsLayer().apply {
                     graphicsLayer = this
                     assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(provider!!.color)
-                    }
+                    record { drawRect(provider!!.color) }
                 }
             },
             verify = {
                 // Nulling out the dependency here should be safe despite attempting to obtain an
                 // ImageBitmap afterwards
                 provider = null
-                graphicsLayer!!.toImageBitmap().toPixelMap().verifyQuadrants(
-                    Color.Red,
-                    Color.Red,
-                    Color.Red,
-                    Color.Red
-                )
-            },
-            verifySoftwareRender = false // Only supported in hardware accelerated use cases
+                graphicsLayer!!
+                    .toImageBitmap()
+                    .toPixelMap()
+                    .verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            }
         )
     }
 
@@ -168,12 +158,33 @@ class AndroidGraphicsLayerTest {
         var layer: GraphicsLayer? = null
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
                     }
-                }
+                drawLayer(layer!!)
+            },
+            verify = {
+                assertEquals(TEST_SIZE, layer!!.size)
+                assertEquals(IntOffset.Zero, layer!!.topLeft)
+                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
+            }
+        )
+    }
+
+    @Test
+    fun testDrawLayerAfterDiscard() {
+        var layer: GraphicsLayer? = null
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
+                    }
+                layer!!.discardDisplayList()
+                layer!!.record { drawRect(Color.Red) }
                 drawLayer(layer!!)
             },
             verify = {
@@ -189,13 +200,12 @@ class AndroidGraphicsLayerTest {
         var layer: GraphicsLayer? = null
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
+                        emulateTrimMemory()
                     }
-                    discardDisplayList()
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -206,6 +216,9 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    // this test is failing on API 21 as there toImageBitmap() is using software rendering
+    // and we reverted the software rendering b/333866398
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
     @Test
     fun testPersistenceDrawAfterHwuiDiscardsDisplaylists() {
         // Layer persistence calls should not fail even if the DisplayList is discarded beforehand
@@ -214,19 +227,15 @@ class AndroidGraphicsLayerTest {
         // without updating GraphicsLayer internal state
         graphicsLayerTest(
             block = { graphicsContext ->
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    assertEquals(IntSize.Zero, this.size)
-                    record {
-                        drawRect(Color.Red)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        assertEquals(IntSize.Zero, this.size)
+                        record { drawRect(Color.Red) }
+                        this.impl.discardDisplayList()
                     }
-                    this.impl.discardDisplayList()
-                }
                 drawIntoCanvas { layer.drawForPersistence(it) }
             },
-            verify = {
-                it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red)
-            },
-            verifySoftwareRender = false
+            verify = { it.verifyQuadrants(Color.Red, Color.Red, Color.Red, Color.Red) }
         )
     }
 
@@ -234,16 +243,13 @@ class AndroidGraphicsLayerTest {
     fun testRecordLayerWithSize() {
         graphicsLayerTest(
             block = { graphicsContext ->
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record(IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)) {
-                        drawRect(Color.Red)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(IntSize(TEST_WIDTH / 2, TEST_HEIGHT / 2)) { drawRect(Color.Red) }
                     }
-                }
                 drawLayer(layer)
             },
-            verify = {
-                it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black)
-            }
+            verify = { it.verifyQuadrants(Color.Red, Color.Black, Color.Black, Color.Black) }
         )
     }
 
@@ -254,12 +260,11 @@ class AndroidGraphicsLayerTest {
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        this.topLeft = topLeft
                     }
-                    this.topLeft = topLeft
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -277,14 +282,11 @@ class AndroidGraphicsLayerTest {
         val size = IntSize(TEST_WIDTH, TEST_HEIGHT)
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, -4f, -4f) {
-                            drawRect(Color.Red)
-                        }
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { inset(0f, 0f, -4f, -4f) { drawRect(Color.Red) } }
+                        this.topLeft = topLeft
                     }
-                    this.topLeft = topLeft
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -305,12 +307,11 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        alpha = 0.5f
                     }
-                    alpha = 0.5f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -334,16 +335,17 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width / 2, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                size = Size(this.size.width / 2, this.size.height / 2)
+                            )
+                        }
+                        scaleX = 2f
+                        pivotOffset = Offset.Zero
                     }
-                    scaleX = 2f
-                    pivotOffset = Offset.Zero
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -361,16 +363,17 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width / 2, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                size = Size(this.size.width / 2, this.size.height / 2)
+                            )
+                        }
+                        scaleY = 2f
+                        pivotOffset = Offset.Zero
                     }
-                    scaleY = 2f
-                    pivotOffset = Offset.Zero
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -388,15 +391,14 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(this.size.width / 4, this.size.height / 4) {
-                            drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(this.size.width / 4, this.size.height / 4) { drawRect(Color.Red) }
                         }
+                        scaleY = 2f
+                        scaleX = 2f
                     }
-                    scaleY = 2f
-                    scaleX = 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -414,14 +416,13 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        scaleY = 0.5f
+                        scaleX = 0.5f
+                        pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
                     }
-                    scaleY = 0.5f
-                    scaleX = 0.5f
-                    pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -439,19 +440,18 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(this.size.width / 4, this.size.height / 4) {
-                            drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(this.size.width / 4, this.size.height / 4) { drawRect(Color.Red) }
                         }
+                        scaleY = 2f
+                        scaleX = 2f
+                        // first set to some custom value
+                        pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
+                        // and then get back to the default
+                        pivotOffset = Offset.Unspecified
                     }
-                    scaleY = 2f
-                    scaleX = 2f
-                    // first set to some custom value
-                    pivotOffset = Offset(this.size.width.toFloat(), this.size.height.toFloat())
-                    // and then get back to the default
-                    pivotOffset = Offset.Unspecified
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -469,12 +469,11 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red, size = this.size / 2f)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = this.size / 2f) }
+                        translationX = this.size.width / 2f
                     }
-                    translationX = this.size.width / 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -490,14 +489,15 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 var layerSize = Size.Zero
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        layerSize = this.size
-                        drawRect(Color.Red, size = this.size / 2f)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            layerSize = this.size
+                            drawRect(Color.Red, size = this.size / 2f)
+                        }
+                        topLeft = IntOffset(20, 30)
+                        setRectOutline()
                     }
-                    topLeft = IntOffset(20, 30)
-                    setRectOutline()
-                }
                 drawLayer(layer)
                 val outline = layer.outline
                 assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
@@ -510,14 +510,15 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 var layerSize = Size.Zero
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        layerSize = this.size
-                        drawRect(Color.Red, size = this.size / 2f)
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            layerSize = this.size
+                            drawRect(Color.Red, size = this.size / 2f)
+                        }
+                        topLeft = IntOffset(20, 30)
+                        setRoundRectOutline()
                     }
-                    topLeft = IntOffset(20, 30)
-                    setRoundRectOutline()
-                }
                 drawLayer(layer)
                 val outline = layer.outline
                 assertEquals(Rect(0f, 0f, layerSize.width, layerSize.height), outline.bounds)
@@ -529,19 +530,12 @@ class AndroidGraphicsLayerTest {
     fun testRecordOverwritesPreviousRecord() {
         graphicsLayerTest(
             block = { graphicsContext ->
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
-                    }
-                }
-                layer.record {
-                    drawRect(Color.Blue)
-                }
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply { record { drawRect(Color.Red) } }
+                layer.record { drawRect(Color.Blue) }
                 drawLayer(layer)
             },
-            verify = {
-                it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue)
-            }
+            verify = { it.verifyQuadrants(Color.Blue, Color.Blue, Color.Blue, Color.Blue) }
         )
     }
 
@@ -552,12 +546,11 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red, size = this.size / 2f)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = this.size / 2f) }
+                        translationY = this.size.height / 2f
                     }
-                    translationY = this.size.height / 2f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -575,15 +568,13 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(this.size.width, this.size.height / 2)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(Color.Red, size = Size(this.size.width, this.size.height / 2))
+                        }
+                        rotationX = 45f
                     }
-                    rotationX = 45f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -605,13 +596,12 @@ class AndroidGraphicsLayerTest {
         val size = TEST_SIZE
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        pivotOffset = Offset(0f, this.size.height / 2f)
+                        rotationY = 45f
                     }
-                    pivotOffset = Offset(0f, this.size.height / 2f)
-                    rotationY = 45f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -634,19 +624,21 @@ class AndroidGraphicsLayerTest {
         val rectSize = 100
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            topLeft = Offset(
-                                this.size.width / 2f - rectSize / 2f,
-                                this.size.height / 2 - rectSize / 2f
-                            ),
-                            Size(rectSize.toFloat(), rectSize.toFloat())
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            drawRect(
+                                Color.Red,
+                                topLeft =
+                                Offset(
+                                    this.size.width / 2f - rectSize / 2f,
+                                    this.size.height / 2 - rectSize / 2f
+                                ),
+                                Size(rectSize.toFloat(), rectSize.toFloat())
+                            )
+                        }
+                        rotationZ = 45f
                     }
-                    rotationZ = 45f
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -683,15 +675,11 @@ class AndroidGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(100000f, 100000f)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = Size(100000f, 100000f)) }
+                        // Layer clipping is disabled by default
                     }
-                    // Layer clipping is disabled by default
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -710,15 +698,11 @@ class AndroidGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(
-                            Color.Red,
-                            size = Size(100000f, 100000f)
-                        )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red, size = Size(100000f, 100000f)) }
+                        clip = true
                     }
-                    clip = true
-                }
                 drawLayer(layer!!)
             },
             verify = {
@@ -750,26 +734,21 @@ class AndroidGraphicsLayerTest {
         val targetColor = Color.White
         graphicsLayerTest(
             block = { graphicsContext ->
-                val halfSize = IntSize(
-                    (this.size.width / 2f).toInt(),
-                    (this.size.height / 2f).toInt()
-                )
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
 
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record(halfSize) {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        shadowElevation = 10f
                     }
-                    shadowElevation = 10f
-                }
                 drawRect(targetColor)
 
                 left = (this.size.width / 4f).toInt()
                 top = (this.size.width / 4f).toInt()
                 right = left + halfSize.width
                 bottom = top + halfSize.height
-                translate(this.size.width / 4, this.size.height / 4) {
-                    drawLayer(layer!!)
-                }
+                translate(this.size.width / 4, this.size.height / 4) { drawLayer(layer!!) }
             },
             verify = { pixmap ->
                 var shadowPixelCount = 0
@@ -784,8 +763,83 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
+        )
+    }
+
+    @Test
+    fun testShadowColors() {
+        var layer: GraphicsLayer? = null
+        var left = 0
+        var top = 0
+        var right = 0
+        var bottom = 0
+        val targetColor = Color.White
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
+
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        shadowElevation = 10f
+                        spotShadowColor = Color.Red
+                        ambientShadowColor = Color.Blue
+                    }
+                drawRect(targetColor)
+
+                left = (this.size.width / 4f).toInt()
+                top = (this.size.width / 4f).toInt()
+                right = left + halfSize.width
+                bottom = top + halfSize.height
+                translate(this.size.width / 4, this.size.height / 4) { drawLayer(layer!!) }
+            },
+            verify = { pixmap ->
+                var shadowPixelCount = 0
+                var redCount = 0
+                var blueCount = 0
+                val ambientShadowColor: Color
+                val spotShadowColor: Color
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ambientShadowColor = Color.Blue
+                    spotShadowColor = Color.Red
+                } else {
+                    ambientShadowColor = Color.Black
+                    spotShadowColor = Color.Black
+                }
+
+                // Verify the correct shadow color behavior on the supported platform version
+                assertEquals(layer!!.spotShadowColor, spotShadowColor)
+                assertEquals(layer!!.ambientShadowColor, ambientShadowColor)
+
+                // Shadow verification requires the PixelCopy API which is only introduced
+                // in Android O.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    with(pixmap) {
+                        for (x in left until right) {
+                            for (y in top until bottom) {
+                                if (this[x, y] != targetColor) {
+                                    shadowPixelCount++
+                                    if (this[x, y].red >= 0f) {
+                                        redCount++
+                                    }
+                                    if (this[x, y].blue >= 0f) {
+                                        blueCount++
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    assertTrue(shadowPixelCount > 0)
+                    // Colored shadows are only supported on Android P and above
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        assertTrue(redCount > 0)
+                        assertTrue(blueCount > 0)
+                    }
+                }
+            },
+            usePixelCopy = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
         )
     }
 
@@ -802,38 +856,33 @@ class AndroidGraphicsLayerTest {
         val targetColor = Color.White
         graphicsLayerTest(
             block = { graphicsContext ->
-                val halfSize = IntSize(
-                    (this.size.width / 2f).toInt(),
-                    (this.size.height / 2f).toInt()
-                )
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
 
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record(halfSize) {
-                        drawRect(targetColor)
-                    }
-                    setPathOutline(
-                        Path().apply {
-                            addRect(
-                                Rect(
-                                    0f,
-                                    0f,
-                                    halfSize.width.toFloat(),
-                                    halfSize.height.toFloat()
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        setPathOutline(
+                            Path().apply {
+                                addRect(
+                                    Rect(
+                                        0f,
+                                        0f,
+                                        halfSize.width.toFloat(),
+                                        halfSize.height.toFloat()
+                                    )
                                 )
-                            )
-                        }
-                    )
-                    shadowElevation = 10f
-                }
+                            }
+                        )
+                        shadowElevation = 10f
+                    }
                 drawRect(targetColor)
 
                 left = (this.size.width / 4f).toInt()
                 top = (this.size.width / 4f).toInt()
                 right = left + halfSize.width
                 bottom = top + halfSize.height
-                translate(this.size.width / 4, this.size.height / 4) {
-                    drawLayer(layer!!)
-                }
+                translate(this.size.width / 4, this.size.height / 4) { drawLayer(layer!!) }
             },
             verify = { pixmap ->
                 var shadowPixelCount = 0
@@ -848,8 +897,7 @@ class AndroidGraphicsLayerTest {
                 }
                 Assert.assertTrue(shadowPixelCount > 0)
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -867,28 +915,23 @@ class AndroidGraphicsLayerTest {
         val radius = 50f
         graphicsLayerTest(
             block = { graphicsContext ->
-                val halfSize = IntSize(
-                    (this.size.width / 2f).toInt(),
-                    (this.size.height / 2f).toInt()
-                )
+                val halfSize =
+                    IntSize((this.size.width / 2f).toInt(), (this.size.height / 2f).toInt())
 
                 left = (this.size.width / 4f).toInt()
                 top = (this.size.width / 4f).toInt()
                 right = left + halfSize.width
                 bottom = top + halfSize.height
 
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record(halfSize) {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(halfSize) { drawRect(targetColor) }
+                        setRoundRectOutline(Offset.Zero, halfSize.toSize(), radius)
+                        shadowElevation = 20f
                     }
-                    setRoundRectOutline(Offset.Zero, halfSize.toSize(), radius)
-                    shadowElevation = 20f
-                }
 
                 drawRect(targetColor)
-                translate(left.toFloat(), top.toFloat()) {
-                    drawLayer(layer!!)
-                }
+                translate(left.toFloat(), top.toFloat()) { drawLayer(layer!!) }
             },
             verify = { pixmap ->
                 fun PixelMap.hasShadowPixels(
@@ -947,8 +990,7 @@ class AndroidGraphicsLayerTest {
                     )
                 }
             },
-            usePixelCopy = true,
-            verifySoftwareRender = false // Elevation only supported with hardware acceleration
+            usePixelCopy = true
         )
     }
 
@@ -959,12 +1001,11 @@ class AndroidGraphicsLayerTest {
         val blurRadius = 10f
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        renderEffect = BlurEffect(blurRadius, blurRadius, TileMode.Decal)
                     }
-                    renderEffect = BlurEffect(blurRadius, blurRadius, TileMode.Decal)
-                }
                 drawRect(Color.Black)
                 drawLayer(layer!!)
             },
@@ -985,8 +1026,7 @@ class AndroidGraphicsLayerTest {
                 }
                 assertTrue(nonPureRedCount > 0)
             },
-            entireScene = false,
-            verifySoftwareRender = false // RenderEffect only supported with hardware acceleration
+            entireScene = false
         )
     }
 
@@ -996,18 +1036,19 @@ class AndroidGraphicsLayerTest {
         val bgColor = Color.Black
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue)
+                            }
                         }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue)
-                        }
+                        alpha = 0.5f
+                        compositingStrategy = CompositingStrategy.Auto
                     }
-                    alpha = 0.5f
-                    compositingStrategy = CompositingStrategy.Auto
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -1034,17 +1075,18 @@ class AndroidGraphicsLayerTest {
         val bgColor = Color.LightGray
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
+                            }
                         }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue, blendMode = BlendMode.Xor)
-                        }
+                        compositingStrategy = CompositingStrategy.Offscreen
                     }
-                    compositingStrategy = CompositingStrategy.Offscreen
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -1067,18 +1109,19 @@ class AndroidGraphicsLayerTest {
         val bgColor = Color.Black
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        inset(0f, 0f, size.width / 3, size.height / 3) {
-                            drawRect(color = Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record {
+                            inset(0f, 0f, size.width / 3, size.height / 3) {
+                                drawRect(color = Color.Red)
+                            }
+                            inset(size.width / 3, size.height / 3, 0f, 0f) {
+                                drawRect(color = Color.Blue)
+                            }
                         }
-                        inset(size.width / 3, size.height / 3, 0f, 0f) {
-                            drawRect(color = Color.Blue)
-                        }
+                        alpha = 0.5f
+                        compositingStrategy = CompositingStrategy.ModulateAlpha
                     }
-                    alpha = 0.5f
-                    compositingStrategy = CompositingStrategy.ModulateAlpha
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -1096,8 +1139,7 @@ class AndroidGraphicsLayerTest {
                     assertPixelColor(Color.Black, 0, height - 1)
                     assertPixelColor(expectedCenter, width / 2, height / 2)
                 }
-            },
-            verifySoftwareRender = false // ModulateAlpha only supported with hardware acceleration
+            }
         )
     }
 
@@ -1107,13 +1149,12 @@ class AndroidGraphicsLayerTest {
         val bgColor = Color.Gray
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        cameraDistance = 5.0f
+                        rotationY = 25f
                     }
-                    cameraDistance = 5.0f
-                    rotationY = 25f
-                }
                 drawRect(bgColor)
                 drawLayer(layer!!)
             },
@@ -1135,12 +1176,11 @@ class AndroidGraphicsLayerTest {
         var layer: GraphicsLayer?
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(Color.Red) }
+                        colorFilter = tint(Color.Blue)
                     }
-                    colorFilter = tint(Color.Blue)
-                }
                 drawLayer(layer!!)
             },
             verify = { pixelMap ->
@@ -1161,21 +1201,22 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val drawScopeSize = this.size
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    val topLeft = IntOffset(
-                        (drawScopeSize.width / 4).toInt(),
-                        (drawScopeSize.height / 4).toInt()
-                    )
-                    val layerSize = IntSize(
-                        (drawScopeSize.width / 2).toInt(),
-                        (drawScopeSize.height / 2).toInt()
-                    )
-                    record(layerSize) {
-                        drawRect(Color.Red)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        val topLeft =
+                            IntOffset(
+                                (drawScopeSize.width / 4).toInt(),
+                                (drawScopeSize.height / 4).toInt()
+                            )
+                        val layerSize =
+                            IntSize(
+                                (drawScopeSize.width / 2).toInt(),
+                                (drawScopeSize.height / 2).toInt()
+                            )
+                        record(layerSize) { drawRect(Color.Red) }
+                        this.topLeft = topLeft
+                        this.blendMode = BlendMode.Xor
                     }
-                    this.topLeft = topLeft
-                    this.blendMode = BlendMode.Xor
-                }
                 drawRect(Color.Green)
                 drawLayer(layer!!)
                 // The layer should clear the original pixels in the destination rendered by the
@@ -1216,13 +1257,12 @@ class AndroidGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
+                        clip = true
                     }
-                    setRectOutline(this.size.center.toOffset(), (this.size / 2).toSize())
-                    clip = true
-                }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -1236,12 +1276,12 @@ class AndroidGraphicsLayerTest {
                 with(pixmap) {
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            val expected = if (x in left until right &&
-                                y in top until bottom) {
-                                targetColor
-                            } else {
-                                bgColor
-                            }
+                            val expected =
+                                if (x in left until right && y in top until bottom) {
+                                    targetColor
+                                } else {
+                                    bgColor
+                                }
                             Assert.assertEquals(this[x, y], expected)
                         }
                     }
@@ -1261,22 +1301,23 @@ class AndroidGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
-                    }
-                    setPathOutline(Path().apply {
-                        addRect(
-                            Rect(
-                                size.center.x.toFloat(),
-                                size.center.y.toFloat(),
-                                size.center.x + size.width.toFloat(),
-                                size.center.y + size.height.toFloat()
-                            )
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setPathOutline(
+                            Path().apply {
+                                addRect(
+                                    Rect(
+                                        size.center.x.toFloat(),
+                                        size.center.y.toFloat(),
+                                        size.center.x + size.width.toFloat(),
+                                        size.center.y + size.height.toFloat()
+                                    )
+                                )
+                            }
                         )
-                    })
-                    clip = true
-                }
+                        clip = true
+                    }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -1290,12 +1331,12 @@ class AndroidGraphicsLayerTest {
                 with(pixmap) {
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            val expected = if (x in left until right &&
-                                y in top until bottom) {
-                                targetColor
-                            } else {
-                                bgColor
-                            }
+                            val expected =
+                                if (x in left until right && y in top until bottom) {
+                                    targetColor
+                                } else {
+                                    bgColor
+                                }
                             Assert.assertEquals(this[x, y], expected)
                         }
                     }
@@ -1316,17 +1357,16 @@ class AndroidGraphicsLayerTest {
         val targetColor = Color.Red
         graphicsLayerTest(
             block = { graphicsContext ->
-                layer = graphicsContext.createGraphicsLayer().apply {
-                    record {
-                        drawRect(targetColor)
+                layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record { drawRect(targetColor) }
+                        setRoundRectOutline(
+                            this.size.center.toOffset(),
+                            (this.size / 2).toSize(),
+                            radius.toFloat()
+                        )
+                        clip = true
                     }
-                    setRoundRectOutline(
-                        this.size.center.toOffset(),
-                        (this.size / 2).toSize(),
-                        radius.toFloat()
-                    )
-                    clip = true
-                }
                 drawRect(bgColor)
 
                 left = this.size.center.x.toInt()
@@ -1345,9 +1385,7 @@ class AndroidGraphicsLayerTest {
                     val endY = bottom - radius - offset
                     for (x in 0 until width) {
                         for (y in 0 until height) {
-                            if (
-                                x in startX until endX &&
-                                y in startY until endY) {
+                            if (x in startX until endX && y in startY until endY) {
                                 assertEquals(targetColor, this[x, y])
                             }
                         }
@@ -1392,28 +1430,25 @@ class AndroidGraphicsLayerTest {
         graphicsLayerTest(
             block = { graphicsContext ->
                 val fullSize = size
-                val layerSize = Size(
-                    fullSize.width.roundToInt() - inset * 2,
-                    fullSize.height.roundToInt() - inset * 2
-                ).toIntSize()
+                val layerSize =
+                    Size(
+                        fullSize.width.roundToInt() - inset * 2,
+                        fullSize.height.roundToInt() - inset * 2
+                    )
+                        .toIntSize()
 
-                val layer = graphicsContext.createGraphicsLayer().apply {
-                    record(size = layerSize) {
-                        inset(-inset) {
-                            drawRect(targetColor)
-                        }
+                val layer =
+                    graphicsContext.createGraphicsLayer().apply {
+                        record(size = layerSize) { inset(-inset) { drawRect(targetColor) } }
+                        // as no outline is provided yet, this command will enable clipToBounds
+                        clip = true
+                        // then with providing an outline we should disable clipToBounds and start
+                        // using clipToOutline instead
+                        setRectOutline(Offset(-inset, -inset), fullSize)
                     }
-                    // as no outline is provided yet, this command will enable clipToBounds
-                    clip = true
-                    // then with providing an outline we should disable clipToBounds and start
-                    // using clipToOutline instead
-                    setRectOutline(Offset(-inset, -inset), fullSize)
-                }
 
                 drawRect(Color.Black)
-                inset(inset) {
-                    drawLayer(layer)
-                }
+                inset(inset) { drawLayer(layer) }
             },
             verify = { pixmap ->
                 with(pixmap) {
@@ -1424,6 +1459,28 @@ class AndroidGraphicsLayerTest {
                     }
                 }
             }
+        )
+    }
+
+    @Test
+    fun testReleaseWithNoReferencesDiscardsDisplaylist() {
+        graphicsLayerTest(
+            block = { graphicsContext ->
+                val layer = graphicsContext.createGraphicsLayer()
+                layer.record {
+                    // Intentionally cause an exception to be thrown during recording
+                    drawRect(Color.Red)
+                }
+
+                graphicsContext.releaseGraphicsLayer(layer)
+                // View layers don't have a hasDisplayList method to verify and by default
+                // returns true all the time. So if we have a RenderNode backed layer verify that
+                // the displaylist is discarded after it has been released
+                if (layer.impl !is GraphicsViewLayer) {
+                    assertFalse(layer.impl.hasDisplayList)
+                }
+            },
+            verify = { /* NO-OP */ }
         )
     }
 
@@ -1449,6 +1506,31 @@ class AndroidGraphicsLayerTest {
         )
     }
 
+    @Test
+    fun testReleasingLayerDuringPersistenceLogicIsNotCrashing() {
+        lateinit var layer1: GraphicsLayer
+        lateinit var layer2: GraphicsLayer
+        graphicsLayerTest(
+            block = { context ->
+                // creating new layers will also schedule a persistence pass in Handler
+                layer1 = context.createGraphicsLayer()
+                layer2 = context.createGraphicsLayer()
+                layer2.record(Density(1f), Ltr, IntSize(10, 10)) { drawRect(Color.Red) }
+                layer1.record(Density(1f), Ltr, IntSize(10, 10)) { drawLayer(layer2) }
+                // we release layer2, but as it is drawn into layer1 its content is not discarded.
+                context.releaseGraphicsLayer(layer2)
+                // layer1 loses its content without us updating the dependency tracking
+                layer1.emulateTrimMemory()
+            },
+            verify = {
+                // just verifying there is no crash in layer persistence logic
+                // there was an issue where the next persistence logic will re-draw layer1 content
+                // and during this draw we fully release layer2. this was removing an item from
+                // a set which is currently being iterated on.
+            }
+        )
+    }
+
     private fun PixelMap.verifyQuadrants(
         topLeft: Color,
         topRight: Color,
@@ -1469,109 +1551,120 @@ class AndroidGraphicsLayerTest {
         block: DrawScope.(GraphicsContext) -> Unit,
         verify: (suspend (PixelMap) -> Unit)? = null,
         entireScene: Boolean = false,
-        usePixelCopy: Boolean = false,
-        verifySoftwareRender: Boolean = true
+        usePixelCopy: Boolean = false
     ) {
         var scenario: ActivityScenario<TestActivity>? = null
+        var androidGraphicsContext: GraphicsContext? = null
+        var container: ViewGroup? = null
         try {
-            var container: ViewGroup? = null
             var contentView: View? = null
             var rootGraphicsLayer: GraphicsLayer? = null
             var density = Density(1f)
-            scenario = ActivityScenario.launch(TestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    container = FrameLayout(it).apply {
-                        setBackgroundColor(Color.White.toArgb())
-                        clipToPadding = false
-                        clipChildren = false
-                    }
-                    val graphicsContext = GraphicsContext(container!!)
-                    rootGraphicsLayer = graphicsContext.createGraphicsLayer()
-                    density = Density(it)
-                    val content = FrameLayout(it).apply {
-                        setLayoutParams(
-                            FrameLayout.LayoutParams(
-                                TEST_WIDTH,
-                                TEST_HEIGHT
+            scenario =
+                ActivityScenario.launch(TestActivity::class.java)
+                    .moveToState(Lifecycle.State.CREATED)
+                    .onActivity {
+                        // See b/167533582 In the API 30 platform release, there was a StrictMode
+                        // violation with SurfaceControl#readFromParcel that would cause the tests
+                        // to
+                        // crash on an issue not related to this test suite. So skip StrictMode
+                        // tests
+                        // for this platform version.
+                        // See ag/283838 as Surface also violated StrictMode policies
+                        val sdk = Build.VERSION.SDK_INT
+                        val supportsStrictMode =
+                            sdk != Build.VERSION_CODES.R && sdk >= Build.VERSION_CODES.M
+                        if (supportsStrictMode) {
+                            StrictMode.setVmPolicy(
+                                StrictMode.VmPolicy.Builder()
+                                    .detectLeakedClosableObjects()
+                                    .penaltyLog()
+                                    .penaltyDeath()
+                                    .build()
                             )
-                        )
-                        setBackgroundColor(Color.Black.toArgb())
-                        foreground = GraphicsContextHostDrawable(graphicsContext, block)
+                        }
+
+                        container =
+                            FrameLayout(it).apply {
+                                setBackgroundColor(Color.White.toArgb())
+                                clipToPadding = false
+                                clipChildren = false
+                            }
+                        val graphicsContext =
+                            GraphicsContext(container!!).also { androidGraphicsContext = it }
+                        rootGraphicsLayer = graphicsContext.createGraphicsLayer()
+                        density = Density(it)
+                        val content =
+                            FrameLayout(it).apply {
+                                setLayoutParams(FrameLayout.LayoutParams(TEST_WIDTH, TEST_HEIGHT))
+                                setBackgroundColor(Color.Black.toArgb())
+                                foreground = GraphicsContextHostDrawable(graphicsContext, block)
+                            }
+                        container!!.addView(content)
+                        contentView = content
+                        it.setContentView(container)
                     }
-                    container!!.addView(content)
-                    contentView = content
-                    it.setContentView(container)
-                }
             val resumed = CountDownLatch(1)
             var testActivity: TestActivity? = null
-            scenario.moveToState(Lifecycle.State.RESUMED)
-                .onActivity { activity ->
-                    testActivity = activity
-                    activity.runOnUiThread {
-                        resumed.countDown()
+            scenario.moveToState(Lifecycle.State.RESUMED).onActivity { activity ->
+                testActivity = activity
+                activity.runOnUiThread {
+                    // Layer persistence is only required on M+
+                    if (
+                        Build.VERSION.SDK_INT > Build.VERSION_CODES.M && isLayerPersistenceEnabled
+                    ) {
+                        assertTrue(androidGraphicsContext!!.isLayerManagerInitialized())
                     }
+                    resumed.countDown()
                 }
+            }
             assertTrue(resumed.await(3000, TimeUnit.MILLISECONDS))
 
             if (verify != null) {
-                val target = if (entireScene) {
-                    container!!
-                } else {
-                    contentView!!
-                }
-                val pixelMap = if (usePixelCopy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    target.captureToImage().toPixelMap()
-                } else {
-                    val recordLatch = CountDownLatch(1)
-                    testActivity!!.runOnUiThread {
-                        rootGraphicsLayer!!.record(
-                            density,
-                            Ltr,
-                            IntSize(target.width, target.height)
-                        ) {
-                            drawIntoCanvas { canvas ->
-                                target.draw(canvas.nativeCanvas)
+                val target =
+                    if (entireScene) {
+                        container!!
+                    } else {
+                        contentView!!
+                    }
+                val pixelMap =
+                    if (usePixelCopy && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        target.captureToImage().toPixelMap()
+                    } else {
+                        val recordLatch = CountDownLatch(1)
+                        testActivity!!.runOnUiThread {
+                            rootGraphicsLayer!!.record(
+                                density,
+                                Ltr,
+                                IntSize(target.width, target.height)
+                            ) {
+                                drawIntoCanvas { canvas -> target.draw(canvas.nativeCanvas) }
                             }
+                            recordLatch.countDown()
                         }
-                        recordLatch.countDown()
+                        assertTrue(recordLatch.await(3000, TimeUnit.MILLISECONDS))
+                        val bitmap = runBlocking { rootGraphicsLayer!!.toImageBitmap() }
+                        bitmap.toPixelMap()
                     }
-                    assertTrue(recordLatch.await(3000, TimeUnit.MILLISECONDS))
-                    val bitmap = runBlocking {
-                        rootGraphicsLayer!!.toImageBitmap()
-                    }
-                    bitmap.toPixelMap()
-                }
-                runBlocking {
-                    verify(pixelMap)
-                }
-                if (verifySoftwareRender) {
-                    val softwareRenderLatch = CountDownLatch(1)
-                    var softwareBitmap: Bitmap? = null
-                    testActivity!!.runOnUiThread {
-                        softwareBitmap = doSoftwareRender(target)
-                        softwareRenderLatch.countDown()
-                    }
-                    assertTrue(softwareRenderLatch.await(300, TimeUnit.MILLISECONDS))
-                    runBlocking {
-                        verify(softwareBitmap!!.asImageBitmap().toPixelMap())
-                    }
-                }
+                runBlocking { verify(pixelMap) }
             }
         } finally {
+            val detachLatch = CountDownLatch(1)
+            scenario?.onActivity {
+                it.runOnUiThread {
+                    // Force removal of View first to ensure layers are destroyed on
+                    // window detachment
+                    (container!!.parent as ViewGroup).removeView(container!!)
+                    detachLatch.countDown()
+                }
+            }
+            assertTrue(detachLatch.await(3000, TimeUnit.MILLISECONDS))
+            // Layer persistence is only required on M+
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && isLayerPersistenceEnabled) {
+                assertFalse(androidGraphicsContext!!.isLayerManagerInitialized())
+            }
             scenario?.moveToState(Lifecycle.State.DESTROYED)
         }
-    }
-
-    private fun doSoftwareRender(target: View): Bitmap {
-        val bitmap = Bitmap.createBitmap(
-            target.width,
-            target.height,
-            Bitmap.Config.ARGB_8888
-        )
-        val softwareCanvas = Canvas(bitmap)
-        target.draw(softwareCanvas)
-        return bitmap
     }
 
     private class GraphicsContextHostDrawable(

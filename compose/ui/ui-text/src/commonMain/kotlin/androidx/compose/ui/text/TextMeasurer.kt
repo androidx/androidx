@@ -282,8 +282,9 @@ class TextMeasurer constructor(
 
             // This is a fallback behavior because native text layout doesn't support multiple
             // ellipsis in one text layout.
-            // When softWrap is turned off and overflow is ellipsis, it's expected that each line
-            // that exceeds maxWidth will be ellipsized.
+            // When softWrap is turned off and overflow is ellipsis, it's expected that each
+            // line that exceeds maxWidth will be ellipsized.
+            //
             // For example,
             // input text:
             //     "AAAA\nAAAA"
@@ -304,7 +305,8 @@ class TextMeasurer constructor(
             //    width to be passed to Paragraph
             //        if max intrinsic width is between minWidth and maxWidth
             //           we can use it to layout
-            //        else if max intrinsic width is greater than maxWidth, we can only use maxWidth
+            //        else if max intrinsic width is greater than maxWidth, we can only use
+            //           maxWidth
             //        else if max intrinsic width is less than minWidth, we should use minWidth
             val width = if (minWidth == maxWidth) {
                 maxWidth
@@ -314,7 +316,12 @@ class TextMeasurer constructor(
 
             val multiParagraph = MultiParagraph(
                 intrinsics = nonNullIntrinsics,
-                constraints = Constraints(maxWidth = width, maxHeight = constraints.maxHeight),
+                constraints = Constraints.fitPrioritizingWidth(
+                    minWidth = 0,
+                    maxWidth = width,
+                    minHeight = 0,
+                    maxHeight = constraints.maxHeight
+                ),
                 // This is a fallback behavior for ellipsis. Native
                 maxLines = finalMaxLines,
                 ellipsis = overflow == TextOverflow.Ellipsis

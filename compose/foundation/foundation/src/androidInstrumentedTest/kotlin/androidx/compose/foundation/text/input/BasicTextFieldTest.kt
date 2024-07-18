@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.assertPixelColor
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -1470,6 +1471,85 @@ internal class BasicTextFieldTest {
 
     private fun requestFocus(tag: String) =
         rule.onNodeWithTag(tag).requestFocus()
+
+    @Test
+    fun longText_doesNotCrash() {
+        var textLayoutProvider: (() -> TextLayoutResult?)? = null
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField(
+                rememberTextFieldState("A".repeat(100_000)),
+                onTextLayout = { textLayoutProvider = it }
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(textLayoutProvider?.invoke()?.layoutInput?.text?.length).isEqualTo(100_000)
+        }
+    }
+
+    @Test
+    fun whenElementFocusLost_compositionIsCleared() {
+        lateinit var focusManager: FocusManager
+        val focusRequester = FocusRequester()
+        val state = TextFieldState()
+        inputMethodInterceptor.setTextFieldTestContent {
+            focusManager = LocalFocusManager.current
+            BasicTextField(state, Modifier.focusRequester(focusRequester))
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        inputMethodInterceptor.withInputConnection { setComposingText("Hello", 1) }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("Hello")
+            assertThat(state.composition).isEqualTo(TextRange(0, 5))
+        }
+
+        // setTextFieldTestContent puts a focusable box before the content that's set here
+        focusManager.moveFocus(FocusDirection.Previous)
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("Hello")
+            assertThat(state.composition).isNull()
+        }
+    }
+
+    @Test
+    fun whenWindowFocusLost_compositionRemains() {
+        val focusRequester = FocusRequester()
+        val state = TextFieldState()
+        var windowInfo: WindowInfo by
+            mutableStateOf(
+                object : WindowInfo {
+                    override val isWindowFocused = true
+                }
+            )
+        inputMethodInterceptor.setContent {
+            CompositionLocalProvider(LocalWindowInfo provides windowInfo) {
+                BasicTextField(state, Modifier.focusRequester(focusRequester))
+            }
+        }
+
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        inputMethodInterceptor.withInputConnection { setComposingText("Hello", 1) }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("Hello")
+            assertThat(state.composition).isEqualTo(TextRange(0, 5))
+        }
+
+        windowInfo =
+            object : WindowInfo {
+                override val isWindowFocused = false
+            }
+
+        rule.runOnIdle {
+            assertThat(state.text.toString()).isEqualTo("Hello")
+            assertThat(state.composition).isEqualTo(TextRange(0, 5))
+        }
+    }
 
     private fun assertTextSelection(expected: TextRange) {
         val selection = rule.onNodeWithTag(Tag).fetchSemanticsNode()
