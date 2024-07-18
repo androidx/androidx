@@ -15,6 +15,10 @@
  */
 package androidx.camera.core
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
+import androidx.lifecycle.LifecycleOwner
+
 /**
  * A [CameraProvider] provides basic access to a set of cameras such as querying for camera
  * existence or information.
@@ -34,6 +38,28 @@ public interface CameraProvider {
      * camera.
      */
     public val availableCameraInfos: List<CameraInfo>
+
+    /**
+     * Returns list of [CameraInfo] instances of the available concurrent cameras.
+     *
+     * The available concurrent cameras include all combinations of cameras which could operate
+     * concurrently on the device. Each list maps to one combination of these camera's [CameraInfo].
+     *
+     * For example, to select a front camera and a back camera and bind to [LifecycleOwner] with
+     * preview [UseCase], this function could be used with `bindToLifecycle`.
+     *
+     * @sample androidx.camera.lifecycle.samples.bindConcurrentCameraSample
+     * @return List of combinations of [CameraInfo].
+     */
+    @get:RestrictTo(Scope.LIBRARY_GROUP)
+    public val availableConcurrentCameraInfos: List<List<CameraInfo>>
+
+    /**
+     * Returns whether there is a [ConcurrentCamera] bound.
+     *
+     * @return `true` if there is a [ConcurrentCamera] bound, otherwise `false`.
+     */
+    @get:RestrictTo(Scope.LIBRARY_GROUP) public val isConcurrentCameraModeOn: Boolean
 
     /**
      * Checks whether this provider supports at least one camera that meets the requirements from a
