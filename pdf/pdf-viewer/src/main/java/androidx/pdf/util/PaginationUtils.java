@@ -31,11 +31,20 @@ public class PaginationUtils {
     }
 
     /** {@link View#setElevation(float)} value for PDF Pages (API 21+). */
-    private static final int PAGE_ELEVATION_DP = 2;
+    public static final int PAGE_ELEVATION_DP = 2;
+
+    /** The spacing added before and after each page, in dip. */
+    private static final int PAGE_SPACING_DP = 4;
 
     /** Converts a value given in dp to pixels, based on the screen density. */
     public static int getPageElevationInPixels(@NonNull Context context) {
         float density = context.getResources().getDisplayMetrics().density;
         return (int) (PAGE_ELEVATION_DP * density);
+    }
+
+    /** Converts a value given in dp to pixels, based on the screen density. */
+    public static int getPageSpacingInPixels(@NonNull Context context) {
+        float density = context.getResources().getDisplayMetrics().density;
+        return (int) (PAGE_SPACING_DP * density);
     }
 }

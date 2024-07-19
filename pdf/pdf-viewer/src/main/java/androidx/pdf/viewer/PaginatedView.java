@@ -25,6 +25,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.util.PaginationUtils;
 import androidx.pdf.util.Preconditions;
@@ -73,7 +74,7 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public PaginatedView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        mPaginationModel = new PaginationModel();
+        mPaginationModel = new PaginationModel(context);
         mPageRangeHandler = new PageRangeHandler(mPaginationModel);
     }
 
@@ -336,7 +337,7 @@ public class PaginatedView extends AbstractPaginatedView {
 
     /**  */
     public void refreshVisiblePages(boolean requiresLayoutPass,
-            @NonNull Viewer.ViewState viewState,
+            @NonNull ViewState viewState,
             float stableZoom) {
         if (requiresLayoutPass) {
             refreshPagesAfterLayout(viewState, mPageRangeHandler.getVisiblePages(),
@@ -349,7 +350,7 @@ public class PaginatedView extends AbstractPaginatedView {
 
     /**  */
     public void refreshVisibleTiles(boolean requiresLayoutPass,
-            @NonNull Viewer.ViewState viewState) {
+            @NonNull ViewState viewState) {
         if (requiresLayoutPass) {
             refreshTilesAfterLayout(viewState, mPageRangeHandler.getVisiblePages());
         } else {
@@ -394,11 +395,11 @@ public class PaginatedView extends AbstractPaginatedView {
         }
     }
 
-    private void refreshPagesAfterLayout(Viewer.ViewState viewState, Range pages,
+    private void refreshPagesAfterLayout(ViewState viewState, Range pages,
             float stableZoom) {
         ThreadUtils.postOnUiThread(
                 () -> {
-                    if (viewState != Viewer.ViewState.NO_VIEW) {
+                    if (viewState != ViewState.NO_VIEW) {
                         refreshPages(pages, stableZoom);
                     }
                 });
@@ -414,10 +415,10 @@ public class PaginatedView extends AbstractPaginatedView {
         }
     }
 
-    private void refreshTilesAfterLayout(Viewer.ViewState viewState, Range pages) {
+    private void refreshTilesAfterLayout(ViewState viewState, Range pages) {
         ThreadUtils.postOnUiThread(
                 () -> {
-                    if (viewState != Viewer.ViewState.NO_VIEW) {
+                    if (viewState != ViewState.NO_VIEW) {
                         refreshTiles(pages);
                     }
                 });

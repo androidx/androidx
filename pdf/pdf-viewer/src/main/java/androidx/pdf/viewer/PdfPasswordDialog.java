@@ -19,6 +19,7 @@ package androidx.pdf.viewer;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.viewer.password.PasswordDialog;
 
@@ -30,13 +31,36 @@ import androidx.pdf.viewer.password.PasswordDialog;
 @SuppressWarnings("deprecation")
 public class PdfPasswordDialog extends PasswordDialog {
 
+    @Nullable
+    public PasswordDialogEventsListener mListener;
+
+    public void setListener(@NonNull PasswordDialogEventsListener listener) {
+        mListener = listener;
+    }
+
     @Override
     public void sendPassword(@NonNull EditText textField) {
-        ((PdfViewer) getTargetFragment()).setPassword(textField.getText().toString());
+        if (mListener != null) {
+            mListener.onPasswordTextChange(textField.getText().toString());
+        }
     }
 
     @Override
     public void showErrorOnDialogCancel() {
-        ((PdfViewer) getTargetFragment()).setPasswordCancelError();
+        if (mListener != null) {
+            mListener.onDialogCancelled();
+        }
+    }
+
+    public interface PasswordDialogEventsListener {
+        /**
+         * Callback to pass the password to the fragment.
+         */
+        void onPasswordTextChange(@NonNull String password);
+
+        /**
+         * Callback to handle the cancellation of this dialog.
+         */
+        void onDialogCancelled();
     }
 }

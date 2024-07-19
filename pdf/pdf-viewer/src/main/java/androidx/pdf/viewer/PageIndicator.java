@@ -22,6 +22,7 @@ import android.content.res.Resources;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.pdf.R;
@@ -38,7 +39,7 @@ import java.util.Objects;
  * percent.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class PageIndicator extends ReusableToast {
+public class PageIndicator extends ReusableToast {
     private static final int AUTO_HIDE_DELAY_MS = 1300;
 
     private final Context mContext;
@@ -51,7 +52,7 @@ class PageIndicator extends ReusableToast {
 
     private float mCurrentZoom;
 
-    PageIndicator(Activity activity, ViewGroup container) {
+    public PageIndicator(@NonNull Activity activity, @NonNull ViewGroup container) {
         this(activity, inflateView(activity, container), Accessibility.get());
     }
 
@@ -78,7 +79,7 @@ class PageIndicator extends ReusableToast {
      * @param stable indicates whether the position in the document is stable.
      * @return whether this method resulted in the pageIndicator being shown.
      */
-    public boolean setRangeAndZoom(Range range, float zoom, boolean stable) {
+    public boolean setRangeAndZoom(@NonNull Range range, float zoom, boolean stable) {
         boolean shown = false;
 
         String announceStr = null;

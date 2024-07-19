@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 import android.graphics.Rect;
 import android.view.View;
 
+import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
 import androidx.pdf.util.ObservableValue;
@@ -42,8 +43,9 @@ import org.robolectric.RobolectricTestRunner;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 public class ZoomScrollValueObserverTest {
-    private static final ObservableValue<Viewer.ViewState> VIEW_STATE_EXPOSED_VALUE =
-            Observables.newExposedValueWithInitialValue(Viewer.ViewState.NO_VIEW);
+    private static final ObservableValue<ViewState>
+            VIEW_STATE_EXPOSED_VALUE =
+            Observables.newExposedValueWithInitialValue(ViewState.NO_VIEW);
     private static final Rect RECT = new Rect(0, 0, 100, 100);
     private static final ZoomView.ZoomScroll OLD_POSITION = new ZoomView.ZoomScroll(1.0f, 0, 0,
             false);
@@ -94,7 +96,8 @@ public class ZoomScrollValueObserverTest {
         verify(mMockPaginatedView).refreshPageRangeInVisibleArea(mNewPosition, 100);
         verify(mMockPaginatedView).handleGonePages(false);
         verify(mMockPaginatedView).loadInvisibleNearPageRange(1.0f);
-        verify(mMockPaginatedView).refreshVisiblePages(false, Viewer.ViewState.NO_VIEW, 1.0f);
+        verify(mMockPaginatedView).refreshVisiblePages(false,
+                ViewState.NO_VIEW, 1.0f);
         verify(mMockPaginatedView).handleGonePages(true);
         verify(mMockLayoutHandler).maybeLayoutPages(100);
     }
@@ -110,7 +113,7 @@ public class ZoomScrollValueObserverTest {
                 mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
-        verify(mMockPaginatedView).refreshVisibleTiles(false, Viewer.ViewState.NO_VIEW);
+        verify(mMockPaginatedView).refreshVisibleTiles(false, ViewState.NO_VIEW);
     }
 
     @Test
