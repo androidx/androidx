@@ -46,7 +46,7 @@ import androidx.compose.ui.util.fastForEach
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun <T> Crossfade(
+public fun <T> Crossfade(
     targetState: T,
     modifier: Modifier = Modifier,
     animationSpec: FiniteAnimationSpec<Float> = tween(),
@@ -60,7 +60,7 @@ fun <T> Crossfade(
 @Deprecated("Crossfade API now has a new label parameter added.", level = DeprecationLevel.HIDDEN)
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun <T> Crossfade(
+public fun <T> Crossfade(
     targetState: T,
     modifier: Modifier = Modifier,
     animationSpec: FiniteAnimationSpec<Float> = tween(),
@@ -92,7 +92,7 @@ fun <T> Crossfade(
  */
 @ExperimentalAnimationApi
 @Composable
-fun <T> Transition<T>.Crossfade(
+public fun <T> Transition<T>.Crossfade(
     modifier: Modifier = Modifier,
     animationSpec: FiniteAnimationSpec<Float> = tween(),
     contentKey: (targetState: T) -> Any? = { it },

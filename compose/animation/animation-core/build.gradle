@@ -122,7 +122,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Animation engine and animation primitives that are the building blocks of the Compose animation library"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:animation:animation-core:animation-core-samples"))
 }
 

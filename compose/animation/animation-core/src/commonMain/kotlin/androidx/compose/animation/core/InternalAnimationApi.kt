@@ -25,4 +25,4 @@ package androidx.compose.animation.core
     AnnotationTarget.PROPERTY_GETTER
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class InternalAnimationApi
+public annotation class InternalAnimationApi

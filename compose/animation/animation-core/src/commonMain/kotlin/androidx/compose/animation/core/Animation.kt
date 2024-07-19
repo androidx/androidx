@@ -38,47 +38,47 @@ import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
  * @see [updateTransition]
  */
 @JvmDefaultWithCompatibility
-interface Animation<T, V : AnimationVector> {
+public interface Animation<T, V : AnimationVector> {
     /** This amount of time in nanoseconds that the animation will run before it finishes */
-    @get:Suppress("MethodNameUnits") val durationNanos: Long
+    @get:Suppress("MethodNameUnits") public val durationNanos: Long
 
     /**
      * The [TwoWayConverter] that will be used to convert value/velocity from any arbitrary data
      * type to [AnimationVector]. This makes it possible to animate different dimensions of the data
      * object independently (e.g. x/y dimensions of the position data).
      */
-    val typeConverter: TwoWayConverter<T, V>
+    public val typeConverter: TwoWayConverter<T, V>
 
     /** This is the value that the [Animation] will reach when it finishes uninterrupted. */
-    val targetValue: T
+    public val targetValue: T
 
     /**
      * Whether or not the [Animation] represents an infinite animation. That is, one that will not
      * finish by itself, one that needs an external action to stop. For examples, an indeterminate
      * progress bar, which will only stop when it is removed from the composition.
      */
-    val isInfinite: Boolean
+    public val isInfinite: Boolean
 
     /**
      * Returns the value of the animation at the given play time.
      *
      * @param playTimeNanos the play time that is used to determine the value of the animation.
      */
-    fun getValueFromNanos(playTimeNanos: Long): T
+    public fun getValueFromNanos(playTimeNanos: Long): T
 
     /**
      * Returns the velocity (in [AnimationVector] form) of the animation at the given play time.
      *
      * @param playTimeNanos the play time that is used to calculate the velocity of the animation.
      */
-    fun getVelocityVectorFromNanos(playTimeNanos: Long): V
+    public fun getVelocityVectorFromNanos(playTimeNanos: Long): V
 
     /**
      * Returns whether the animation is finished at the given play time.
      *
      * @param playTimeNanos the play time used to determine whether the animation is finished.
      */
-    fun isFinishedFromNanos(playTimeNanos: Long): Boolean {
+    public fun isFinishedFromNanos(playTimeNanos: Long): Boolean {
         return playTimeNanos >= durationNanos
     }
 }
@@ -95,7 +95,7 @@ internal const val SecondsToMillis: Long = 1_000L
  *
  * @param playTimeNanos the play time that is used to calculate the velocity of the animation.
  */
-fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos: Long): T =
+public fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos: Long): T =
     typeConverter.convertFromVector(getVelocityVectorFromNanos(playTimeNanos))
 
 /**
@@ -108,7 +108,7 @@ fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos:
  * @param initialVelocity the initial velocity to start the animation at
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
+public fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     initialValue: V,
     targetValue: V,
     initialVelocity: V
@@ -142,13 +142,13 @@ fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
  * @param initialVelocity the start velocity (of type [T] of the animation
  * @param typeConverter the [TwoWayConverter] that is used to convert animation type [T] from/to [V]
  */
-fun <T, V : AnimationVector> TargetBasedAnimation(
+public fun <T, V : AnimationVector> TargetBasedAnimation(
     animationSpec: AnimationSpec<T>,
     typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
     targetValue: T,
     initialVelocity: T
-) =
+): TargetBasedAnimation<T, V> =
     TargetBasedAnimation(
         animationSpec,
         typeConverter,
@@ -181,7 +181,7 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
  * @see [updateTransition]
  * @see [Animatable]
  */
-class TargetBasedAnimation<T, V : AnimationVector>
+public class TargetBasedAnimation<T, V : AnimationVector>
 internal constructor(
     internal val animationSpec: VectorizedAnimationSpec<V>,
     override val typeConverter: TwoWayConverter<T, V>,
@@ -209,7 +209,7 @@ internal constructor(
             }
         }
 
-    val initialValue: T
+    public val initialValue: T
         get() = mutableInitialValue
 
     override val targetValue: T
@@ -237,7 +237,7 @@ internal constructor(
      * @param targetValue the end value of the animation
      * @param initialVelocityVector the start velocity vector, null by default (meaning 0 velocity).
      */
-    constructor(
+    public constructor(
         animationSpec: AnimationSpec<T>,
         typeConverter: TwoWayConverter<T, V>,
         initialValue: T,
@@ -346,15 +346,15 @@ internal constructor(
  * @see Animatable.animateDecay
  * @see AnimationState.animateDecay
  */
-class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/
+public class DecayAnimation<T, V : AnimationVector> /*@VisibleForTesting*/
 constructor(
     private val animationSpec: VectorizedDecayAnimationSpec<V>,
     override val typeConverter: TwoWayConverter<T, V>,
-    val initialValue: T,
+    public val initialValue: T,
     initialVelocityVector: V
 ) : Animation<T, V> {
     private val initialValueVector: V = typeConverter.convertToVector(initialValue)
-    val initialVelocityVector: V = initialVelocityVector.copy()
+    public val initialVelocityVector: V = initialVelocityVector.copy()
     private val endVelocity: V
 
     override val targetValue: T =
@@ -384,7 +384,7 @@ constructor(
      * @see Animatable.animateDecay
      * @see AnimationState.animateDecay
      */
-    constructor(
+    public constructor(
         animationSpec: DecayAnimationSpec<T>,
         typeConverter: TwoWayConverter<T, V>,
         initialValue: T,
@@ -414,7 +414,7 @@ constructor(
      * @see Animatable.animateDecay
      * @see AnimationState.animateDecay
      */
-    constructor(
+    public constructor(
         animationSpec: DecayAnimationSpec<T>,
         typeConverter: TwoWayConverter<T, V>,
         initialValue: T,
@@ -483,11 +483,11 @@ constructor(
  * @param initialValue starting value that will be passed to the decay animation
  * @param initialVelocity starting velocity for the decay animation, 0f by default
  */
-fun DecayAnimation(
+public fun DecayAnimation(
     animationSpec: FloatDecayAnimationSpec,
     initialValue: Float,
     initialVelocity: Float = 0f
-) =
+): DecayAnimation<Float, AnimationVector1D> =
     DecayAnimation(
         animationSpec.generateDecayAnimationSpec(),
         Float.VectorConverter,

@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.first
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
  */
 @Composable
-fun rememberInfiniteTransition(label: String = "InfiniteTransition"): InfiniteTransition {
+public fun rememberInfiniteTransition(label: String = "InfiniteTransition"): InfiniteTransition {
     val infiniteTransition = remember { InfiniteTransition(label) }
     infiniteTransition.run()
     return infiniteTransition
@@ -58,7 +58,7 @@ fun rememberInfiniteTransition(label: String = "InfiniteTransition"): InfiniteTr
  * @param label A label for differentiating this animation from others in android studio.
  * @sample androidx.compose.animation.core.samples.InfiniteTransitionSample
  */
-class InfiniteTransition internal constructor(val label: String) {
+public class InfiniteTransition internal constructor(public val label: String) {
 
     /**
      * Each animation created using
@@ -68,26 +68,26 @@ class InfiniteTransition internal constructor(val label: String) {
      * value from/to an [AnimationVector]. [label] differentiates this animation from others in
      * android studio.
      */
-    inner class TransitionAnimationState<T, V : AnimationVector>
+    public inner class TransitionAnimationState<T, V : AnimationVector>
     internal constructor(
         internal var initialValue: T,
         internal var targetValue: T,
-        val typeConverter: TwoWayConverter<T, V>,
+        public val typeConverter: TwoWayConverter<T, V>,
         animationSpec: AnimationSpec<T>,
-        val label: String
+        public val label: String
     ) : State<T> {
-        override var value by mutableStateOf(initialValue)
+        override var value: T by mutableStateOf(initialValue)
             internal set
 
         /** [AnimationSpec] that is used for current animation run. */
-        var animationSpec: AnimationSpec<T> = animationSpec
+        public var animationSpec: AnimationSpec<T> = animationSpec
             private set
 
         /**
          * All the animation configurations including initial value/velocity & target value for
          * animating from [initialValue] to [targetValue] are captured in [animation].
          */
-        var animation =
+        public var animation: TargetBasedAnimation<T, V> =
             TargetBasedAnimation(this.animationSpec, typeConverter, initialValue, targetValue)
             internal set
 
@@ -148,7 +148,7 @@ class InfiniteTransition internal constructor(val label: String) {
     private var isRunning by mutableStateOf(true)
 
     /** List of [TransitionAnimationState]s that are in a [InfiniteTransition]. */
-    val animations: List<TransitionAnimationState<*, *>>
+    public val animations: List<TransitionAnimationState<*, *>>
         get() = _animations.asMutableList()
 
     internal fun addAnimation(animation: TransitionAnimationState<*, *>) {
@@ -237,7 +237,7 @@ class InfiniteTransition internal constructor(val label: String) {
  * @see [androidx.compose.animation.animateColor]
  */
 @Composable
-fun <T, V : AnimationVector> InfiniteTransition.animateValue(
+public fun <T, V : AnimationVector> InfiniteTransition.animateValue(
     initialValue: T,
     targetValue: T,
     typeConverter: TwoWayConverter<T, V>,
@@ -288,7 +288,7 @@ fun <T, V : AnimationVector> InfiniteTransition.animateValue(
  * @see [androidx.compose.animation.animateColor]
  */
 @Composable
-fun InfiniteTransition.animateFloat(
+public fun InfiniteTransition.animateFloat(
     initialValue: Float,
     targetValue: Float,
     animationSpec: InfiniteRepeatableSpec<Float>,
@@ -301,7 +301,7 @@ fun InfiniteTransition.animateFloat(
     level = DeprecationLevel.HIDDEN
 )
 @Composable
-fun rememberInfiniteTransition(): InfiniteTransition {
+public fun rememberInfiniteTransition(): InfiniteTransition {
     return rememberInfiniteTransition("InfiniteTransition")
 }
 
@@ -310,7 +310,7 @@ fun rememberInfiniteTransition(): InfiniteTransition {
     level = DeprecationLevel.HIDDEN
 )
 @Composable
-fun <T, V : AnimationVector> InfiniteTransition.animateValue(
+public fun <T, V : AnimationVector> InfiniteTransition.animateValue(
     initialValue: T,
     targetValue: T,
     typeConverter: TwoWayConverter<T, V>,
@@ -330,7 +330,7 @@ fun <T, V : AnimationVector> InfiniteTransition.animateValue(
     level = DeprecationLevel.HIDDEN
 )
 @Composable
-fun InfiniteTransition.animateFloat(
+public fun InfiniteTransition.animateFloat(
     initialValue: Float,
     targetValue: Float,
     animationSpec: InfiniteRepeatableSpec<Float>

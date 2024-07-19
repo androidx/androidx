@@ -34,7 +34,7 @@ import androidx.compose.ui.util.fastCoerceIn
  * @see [VectorizedAnimationSpec]
  */
 @JvmDefaultWithCompatibility
-interface FloatAnimationSpec : AnimationSpec<Float> {
+public interface FloatAnimationSpec : AnimationSpec<Float> {
     /**
      * Calculates the value of the animation at given the playtime, with the provided start/end
      * values, and start velocity.
@@ -44,7 +44,7 @@ interface FloatAnimationSpec : AnimationSpec<Float> {
      * @param targetValue end value of the animation
      * @param initialVelocity start velocity of the animation
      */
-    fun getValueFromNanos(
+    public fun getValueFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
@@ -60,7 +60,7 @@ interface FloatAnimationSpec : AnimationSpec<Float> {
      * @param targetValue end value of the animation
      * @param initialVelocity start velocity of the animation
      */
-    fun getVelocityFromNanos(
+    public fun getVelocityFromNanos(
         playTimeNanos: Long,
         initialValue: Float,
         targetValue: Float,
@@ -77,7 +77,11 @@ interface FloatAnimationSpec : AnimationSpec<Float> {
      * @param targetValue end value of the animation
      * @param initialVelocity start velocity of the animation
      */
-    fun getEndVelocity(initialValue: Float, targetValue: Float, initialVelocity: Float): Float =
+    public fun getEndVelocity(
+        initialValue: Float,
+        targetValue: Float,
+        initialVelocity: Float
+    ): Float =
         getVelocityFromNanos(
             getDurationNanos(initialValue, targetValue, initialVelocity),
             initialValue,
@@ -99,15 +103,20 @@ interface FloatAnimationSpec : AnimationSpec<Float> {
      * @param initialVelocity start velocity of the animation
      */
     @Suppress("MethodNameUnits")
-    fun getDurationNanos(initialValue: Float, targetValue: Float, initialVelocity: Float): Long
+    public fun getDurationNanos(
+        initialValue: Float,
+        targetValue: Float,
+        initialVelocity: Float
+    ): Long
 
     /**
      * Create an [VectorizedAnimationSpec] that animates [AnimationVector] from a
      * [FloatAnimationSpec]. Every dimension of the [AnimationVector] will be animated using the
      * given [FloatAnimationSpec].
      */
-    override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<Float, V>) =
-        VectorizedFloatAnimationSpec<V>(this)
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<Float, V>
+    ): VectorizedFloatAnimationSpec<V> = VectorizedFloatAnimationSpec<V>(this)
 }
 
 /**
@@ -119,9 +128,9 @@ interface FloatAnimationSpec : AnimationSpec<Float> {
  * @param visibilityThreshold The value threshold such that the animation is no longer significant.
  *   e.g. 1px for translation animations. Defaults to [Spring.DefaultDisplacementThreshold]
  */
-class FloatSpringSpec(
-    val dampingRatio: Float = Spring.DampingRatioNoBouncy,
-    val stiffness: Float = Spring.StiffnessMedium,
+public class FloatSpringSpec(
+    public val dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    public val stiffness: Float = Spring.StiffnessMedium,
     private val visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
 ) : FloatAnimationSpec {
 
@@ -189,9 +198,9 @@ class FloatSpringSpec(
  * @param easing the easing function that will be used to interoplate between the start and end
  *   value of the animation. Defaults to [FastOutSlowInEasing].
  */
-class FloatTweenSpec(
-    val duration: Int = DefaultDurationMillis,
-    val delay: Int = 0,
+public class FloatTweenSpec(
+    public val duration: Int = DefaultDurationMillis,
+    public val delay: Int = 0,
     private val easing: Easing = FastOutSlowInEasing
 ) : FloatAnimationSpec {
     private val durationNanos: Long = duration * MillisToNanos

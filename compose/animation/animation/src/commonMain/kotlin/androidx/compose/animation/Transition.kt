@@ -58,7 +58,7 @@ import androidx.compose.ui.graphics.Color
  * @see androidx.compose.animation.core.updateTransition
  */
 @Composable
-inline fun <S> Transition<S>.animateColor(
+public inline fun <S> Transition<S>.animateColor(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Color> = {
         spring()
     },
@@ -90,7 +90,7 @@ inline fun <S> Transition<S>.animateColor(
  * @see InfiniteRepeatableSpec
  */
 @Composable
-fun InfiniteTransition.animateColor(
+public fun InfiniteTransition.animateColor(
     initialValue: Color,
     targetValue: Color,
     animationSpec: InfiniteRepeatableSpec<Color>,
@@ -105,7 +105,7 @@ fun InfiniteTransition.animateColor(
     level = DeprecationLevel.HIDDEN
 )
 @Composable
-fun InfiniteTransition.animateColor(
+public fun InfiniteTransition.animateColor(
     initialValue: Color,
     targetValue: Color,
     animationSpec: InfiniteRepeatableSpec<Color>

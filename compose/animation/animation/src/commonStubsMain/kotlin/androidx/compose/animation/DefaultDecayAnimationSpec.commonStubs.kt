@@ -20,4 +20,5 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.runtime.Composable
 
 @Composable
-actual fun defaultDecayAnimationSpec(): DecayAnimationSpec<Float> = implementedInJetBrainsFork()
+public actual fun defaultDecayAnimationSpec(): DecayAnimationSpec<Float> =
+    implementedInJetBrainsFork()

@@ -19,4 +19,4 @@ package androidx.compose.animation.graphics
 @RequiresOptIn(message = "This is an experimental animation graphics API.")
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalAnimationGraphicsApi
+public annotation class ExperimentalAnimationGraphicsApi
