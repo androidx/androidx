@@ -17,6 +17,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="activity_sample_code">ViewPager2 Demos</string>
     <string name="label_orientation">Orientation:</string>
+    <string name="label_overscroll">OverScrollMode:</string>
     <string name="label_jump_to">Jump to:</string>
     <string name="label_jump">Jump</string>
     <string name="disable_user_input">Disable user input</string>
