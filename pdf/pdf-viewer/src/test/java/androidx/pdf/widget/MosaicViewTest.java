@@ -71,7 +71,7 @@ import java.util.Set;
 public class MosaicViewTest {
 
     @Mock
-    private BitmapSource mCallback;
+    private BitmapSource mBitmapSource;
     @Mock
     private BitmapRecycler mMockRecycler;
 
@@ -110,12 +110,12 @@ public class MosaicViewTest {
         Dimensions dimensions = new Dimensions(300, 400);
         Dimensions cappedDimensions = new Dimensions(600, 800);
 
-        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mCallback);
+        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mBitmapSource);
         mView.setViewArea(0, 0, 67, 89);  // Arbitrary value.
         mView.requestDrawAtZoom(2.0f);
 
         ArgumentCaptor<Dimensions> requestedSize = ArgumentCaptor.forClass(Dimensions.class);
-        verify(mCallback, only()).requestPageBitmap(requestedSize.capture(), eq(false));
+        verify(mBitmapSource, only()).requestPageBitmap(requestedSize.capture(), eq(false));
         assertThat(requestedSize.getValue()).isEqualTo(cappedDimensions);
     }
 
@@ -124,13 +124,13 @@ public class MosaicViewTest {
         Dimensions dimensions = new Dimensions(300, 400);
         Rect viewArea = new Rect(0, 0, 150, 200);
 
-        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mCallback);
+        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mBitmapSource);
         mView.setViewArea(viewArea);
         mView.requestDrawAtZoom(20f);
 
         ArgumentCaptor<Dimensions> requestedSize = ArgumentCaptor.forClass(Dimensions.class);
-        verify(mCallback).requestPageBitmap(requestedSize.capture(), eq(true));
-        verify(mCallback, times(1)).requestNewTiles(isA(Dimensions.class),
+        verify(mBitmapSource).requestPageBitmap(requestedSize.capture(), eq(true));
+        verify(mBitmapSource, times(1)).requestNewTiles(isA(Dimensions.class),
                 mRequestedTiles.capture());
         assertThat(requestedSize.getValue().getWidth()).isAtMost(mMaxTileSize / 2);
         assertThat(requestedSize.getValue().getHeight()).isAtMost(mMaxTileSize / 2);
@@ -142,7 +142,7 @@ public class MosaicViewTest {
     public void testMoreTiles() {
         float zoom = 20f;
         Dimensions dimensions = new Dimensions(300, 400);
-        mView.init(dimensions, mMockRecycler, mCallback);
+        mView.init(dimensions, mMockRecycler, mBitmapSource);
 
         // 1. Request 4 tiles.
         // At a zoom of 20, to cover an area of 50x50 units we will need to cover a 1000x1000 px
@@ -152,7 +152,7 @@ public class MosaicViewTest {
         mView.setViewArea(viewArea);
         mView.requestDrawAtZoom(zoom);
 
-        verify(mCallback, times(1)).requestNewTiles(isA(Dimensions.class),
+        verify(mBitmapSource, times(1)).requestNewTiles(isA(Dimensions.class),
                 mRequestedTiles.capture());
 
         Set<Integer> tiles = new HashSet<Integer>();
@@ -160,7 +160,7 @@ public class MosaicViewTest {
         assertThat(tiles.isEmpty()).isFalse();
         checkCoverage(viewArea, mRequestedTiles.getValue());
         fillTiles(mView, mRequestedTiles.getValue());
-        reset(mCallback);
+        reset(mBitmapSource);
 
         // 2. Move, request no change.
         // Moving 5 units across means we need an extra 100 pixels across - but this is still
@@ -169,9 +169,9 @@ public class MosaicViewTest {
         viewArea.offset(0, 5);
         mView.setViewArea(viewArea);
         mView.requestTiles();
-        verifyNoMoreInteractions(mCallback);
+        verifyNoMoreInteractions(mBitmapSource);
         verifyNoMoreInteractions(mMockRecycler);
-        reset(mCallback);
+        reset(mBitmapSource);
 
         // 3. Move again, request 2 new tiles
         // Moving 40 units across means we need an extra 800 pixels - this is exactly one tile wide.
@@ -180,12 +180,13 @@ public class MosaicViewTest {
         mView.setViewArea(viewArea);
         mView.requestTiles();
 
-        verify(mCallback, only()).requestNewTiles(isA(Dimensions.class), mRequestedTiles.capture());
+        verify(mBitmapSource, only()).requestNewTiles(isA(Dimensions.class),
+                mRequestedTiles.capture());
         assertThat(Iterables.size(mRequestedTiles.getValue())).isEqualTo(2);
         Iterables.addAll(tiles, Iterables.transform(mRequestedTiles.getValue(), GET_INDEX));
         assertThat(tiles.size()).isEqualTo(6);
         verifyNoMoreInteractions(mMockRecycler);
-        reset(mCallback);
+        reset(mBitmapSource);
         fillTiles(mView, mRequestedTiles.getValue());
 
         // 4. Move more, request & discard tiles.
@@ -195,7 +196,7 @@ public class MosaicViewTest {
         viewArea.offset(0, 40);
         mView.setViewArea(viewArea);
         mView.requestTiles();
-        verify(mCallback, times(1)).requestNewTiles(isA(Dimensions.class),
+        verify(mBitmapSource, times(1)).requestNewTiles(isA(Dimensions.class),
                 mRequestedTiles.capture());
         assertThat(Iterables.size(mRequestedTiles.getValue())).isEqualTo(2);
         // Verify 2 tiles were discarded.
@@ -206,13 +207,13 @@ public class MosaicViewTest {
     public void testSetTileOutOfViewAreaAndCancellation() {
         float zoom = 20f;
         Dimensions dimensions = new Dimensions(300, 400);
-        mView.init(dimensions, mMockRecycler, mCallback);
+        mView.init(dimensions, mMockRecycler, mBitmapSource);
 
         Rect viewArea = new Rect(0, 0, 50, 50);
         mView.setViewArea(viewArea);
         mView.requestDrawAtZoom(zoom);
 
-        verify(mCallback, times(1)).requestNewTiles(isA(Dimensions.class),
+        verify(mBitmapSource, times(1)).requestNewTiles(isA(Dimensions.class),
                 mRequestedTiles.capture());
 
         Set<Integer> tiles = new HashSet<Integer>();
@@ -224,7 +225,7 @@ public class MosaicViewTest {
         Rect newViewArea = new Rect(100, 100, 150, 150);
         mView.setViewArea(newViewArea);
         mView.requestTiles();
-        verify(mCallback, times(1)).cancelTiles(mCancelledTiles.capture());
+        verify(mBitmapSource, times(1)).cancelTiles(mCancelledTiles.capture());
         assertThat(Iterables.size(mCancelledTiles.getValue())).isEqualTo(tiles.size());
         verifyNoMoreInteractions(mMockRecycler);
 
@@ -237,25 +238,25 @@ public class MosaicViewTest {
     public void testCancellationOnNewTileBoard() {
         float zoom = 20f;
         Dimensions dimensions = new Dimensions(300, 400);
-        mView.init(dimensions, mMockRecycler, mCallback);
+        mView.init(dimensions, mMockRecycler, mBitmapSource);
 
         Rect viewArea = new Rect(0, 0, 50, 50);
         mView.setViewArea(viewArea);
         mView.requestDrawAtZoom(zoom);
 
-        verify(mCallback, times(1)).requestNewTiles(isA(Dimensions.class),
+        verify(mBitmapSource, times(1)).requestNewTiles(isA(Dimensions.class),
                 mRequestedTiles.capture());
 
         Set<Integer> tiles = new HashSet<Integer>();
         Iterables.addAll(tiles, Iterables.transform(mRequestedTiles.getValue(), GET_INDEX));
         assertThat(tiles.isEmpty()).isFalse();
         checkCoverage(viewArea, mRequestedTiles.getValue());
-        reset(mCallback);
+        reset(mBitmapSource);
 
         // Request draw at a different zoom, which will make the existing tile board stale. Tile
         // requests for current tile board are still pending and will be stale.
         mView.requestDrawAtZoom(10f);
-        verify(mCallback, times(1)).cancelTiles(mCancelledTiles.capture());
+        verify(mBitmapSource, times(1)).cancelTiles(mCancelledTiles.capture());
         assertThat(Iterables.size(mCancelledTiles.getValue())).isEqualTo(tiles.size());
     }
 
@@ -278,7 +279,7 @@ public class MosaicViewTest {
     public void requestRedrawAreas_pageBitmapOnly() {
         Dimensions dimensions = new Dimensions(300, 400);
 
-        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mCallback);
+        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mBitmapSource);
         mView.setViewArea(0, 0, 50, 50);
         mView.requestDrawAtZoom(2.0f); // First drawing here.
 
@@ -292,7 +293,7 @@ public class MosaicViewTest {
         mView.requestRedrawAreas(ImmutableList.of(invalidRect)); // Second drawing here.
 
         ArgumentCaptor<Dimensions> bitmapSizeArgCaptor = ArgumentCaptor.forClass(Dimensions.class);
-        verify(mCallback, times(2)).requestPageBitmap(bitmapSizeArgCaptor.capture(), eq(false));
+        verify(mBitmapSource, times(2)).requestPageBitmap(bitmapSizeArgCaptor.capture(), eq(false));
 
         // Our scaled bitmap size is below the maximum size so will not be changed.
         Dimensions scaledDimensions = new Dimensions(600, 800);
@@ -301,7 +302,7 @@ public class MosaicViewTest {
         assertThat(bitmapSizeArgCaptor.getAllValues().get(1)).isEqualTo(scaledDimensions);
 
         // Confirm we never requested tiles.
-        verify(mCallback, never()).requestNewTiles(any(), any());
+        verify(mBitmapSource, never()).requestNewTiles(any(), any());
     }
 
     @Test
@@ -309,7 +310,7 @@ public class MosaicViewTest {
         Dimensions dimensions = new Dimensions(2000, 4000);
         Rect viewArea = new Rect(0, 0, 750, 750);
 
-        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mCallback);
+        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mBitmapSource);
         mView.setViewArea(viewArea);
         mView.requestDrawAtZoom(2f); // First drawing here.
 
@@ -328,7 +329,8 @@ public class MosaicViewTest {
         // redraw.
         ArgumentCaptor<Dimensions> pageBitmapDimensCaptor = ArgumentCaptor.forClass(
                 Dimensions.class);
-        verify(mCallback, times(2)).requestPageBitmap(pageBitmapDimensCaptor.capture(), eq(true));
+        verify(mBitmapSource, times(2))
+                .requestPageBitmap(pageBitmapDimensCaptor.capture(), eq(true));
 
         // Determine the max sizes used by the view. 1024/512 or determined by context,
         int maxBitmapSize = MosaicView.getMaxTileSize(ApplicationProvider.getApplicationContext());
@@ -340,7 +342,7 @@ public class MosaicViewTest {
                 .isEqualTo(new Dimensions(maxBackgroundBitmapSize / 2, maxBackgroundBitmapSize));
 
         // Check that we tiled twice, the first time should have covered viewArea.
-        verify(mCallback, times(2)).requestNewTiles(isA(Dimensions.class),
+        verify(mBitmapSource, times(2)).requestNewTiles(isA(Dimensions.class),
                 mRequestedTiles.capture());
         List<Iterable<TileInfo>> requestedTileGroups = mRequestedTiles.getAllValues();
         assertThat(requestedTileGroups).hasSize(2);
@@ -360,7 +362,7 @@ public class MosaicViewTest {
         Dimensions dimensions = new Dimensions(2000, 4000);
         Rect viewArea = new Rect(0, 0, 750, 750);
 
-        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mCallback);
+        mView.init(dimensions, TileBoard.DEFAULT_RECYCLER, mBitmapSource);
         mView.setViewArea(viewArea);
         mView.requestDrawAtZoom(2f); // First drawing here.
 
@@ -372,8 +374,8 @@ public class MosaicViewTest {
 
         // Should have made bitmap requests only on the first draw request because there weren't any
         // to replace when requestRedrawAreas was called.
-        verify(mCallback, times(1)).requestPageBitmap(any(Dimensions.class), eq(true));
-        verify(mCallback, times(1)).requestNewTiles(any(Dimensions.class), any());
+        verify(mBitmapSource, times(1)).requestPageBitmap(any(Dimensions.class), eq(true));
+        verify(mBitmapSource, times(1)).requestNewTiles(any(Dimensions.class), any());
     }
 
     private void checkCoverage(Rect area, Iterable<TileInfo> tileInfos) {
