@@ -1030,10 +1030,16 @@ internal constructor(
      * The complication data sent by the system. This may contain a timeline out of which
      * [complicationData] is selected.
      */
-    private var timelineComplicationData: ComplicationData = NoDataComplicationData()
-    private var timelineEntries: List<ApiTimelineEntry>? = null
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var timelineComplicationData: ComplicationData = NoDataComplicationData()
+        private set
 
-    private class ApiTimelineEntry(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public var timelineEntries: List<ApiTimelineEntry>? = null
+        private set
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public class ApiTimelineEntry(
         val timelineStartEpochSecond: Long?,
         val timelineEndEpochSecond: Long?,
         val complicationData: ComplicationData
