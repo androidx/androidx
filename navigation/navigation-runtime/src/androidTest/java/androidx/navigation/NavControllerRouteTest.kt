@@ -552,6 +552,149 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testStartDestinationUseDefaultPathArg() {
+        val navController = createNavController()
+        val graph =
+            navController.createGraph(route = "graph", startDestination = "start/{arg}") {
+                test("start/{arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                }
+            }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "defaultArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationUseDefaultQueryArg() {
+        val navController = createNavController()
+        val graph =
+            navController.createGraph(route = "graph", startDestination = "start?arg={arg}") {
+                test("start?arg={arg}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                }
+            }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start?arg={arg}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "defaultArg"
+        assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationUseMultipleDefaultArgs() {
+        val navController = createNavController()
+        val graph =
+            navController.createGraph(
+                route = "graph",
+                startDestination = "start/{arg}?arg2={arg2}"
+            ) {
+                test("start/{arg}?arg2={arg2}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                    argument("arg2") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg2"
+                    }
+                }
+            }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}?arg2={arg2}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "defaultArg"
+        assertThat(actual).isEqualTo(expected)
+        val actual2 = entry.arguments!!.getString("arg2")
+        val expected2 = "defaultArg2"
+        assertThat(actual2).isEqualTo(expected2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationQueryPlaceholderArg() {
+        val navController = createNavController()
+        val graph =
+            navController.createGraph(
+                route = "graph",
+                startDestination = "start/myArg?arg2={arg2}"
+            ) {
+                test("start/{arg}?arg2={arg2}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                    argument("arg2") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg2"
+                    }
+                }
+            }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}?arg2={arg2}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "myArg"
+        assertThat(actual).isEqualTo(expected)
+        val actual2 = entry.arguments!!.getString("arg2")
+        val expected2 = "{arg2}"
+        assertThat(actual2).isEqualTo(expected2)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationPathPlaceholderArg() {
+        val navController = createNavController()
+        val graph =
+            navController.createGraph(
+                route = "graph",
+                startDestination = "start/{arg}?arg2=myArg2"
+            ) {
+                test("start/{arg}?arg2={arg2}") {
+                    argument("arg") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg"
+                    }
+                    argument("arg2") {
+                        type = NavType.StringType
+                        nullable = false
+                        defaultValue = "defaultArg2"
+                    }
+                }
+            }
+        navController.setGraph(graph, null)
+        assertThat(navController.currentDestination?.route).isEqualTo("start/{arg}?arg2={arg2}")
+        val entry = navController.currentBackStackEntry!!
+        val actual = entry.arguments!!.getString("arg")
+        val expected = "{arg}"
+        assertThat(actual).isEqualTo(expected)
+        val actual2 = entry.arguments!!.getString("arg2")
+        val expected2 = "myArg2"
+        assertThat(actual2).isEqualTo(expected2)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNestedStartDestination() {
         val navController = createNavController()
         navController.graph = nav_nested_start_destination_route_graph
