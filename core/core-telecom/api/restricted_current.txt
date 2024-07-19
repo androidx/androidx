@@ -2,17 +2,20 @@
 package androidx.core.telecom {
 
   public final class CallAttributesCompat {
-    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities);
+    ctor public CallAttributesCompat(CharSequence displayName, android.net.Uri address, int direction, optional int callType, optional int callCapabilities, optional androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint);
     method public android.net.Uri getAddress();
     method public int getCallCapabilities();
     method public int getCallType();
     method public int getDirection();
     method public CharSequence getDisplayName();
+    method public androidx.core.telecom.CallEndpointCompat? getPreferredStartingCallEndpoint();
+    method public void setPreferredStartingCallEndpoint(androidx.core.telecom.CallEndpointCompat?);
     property public final android.net.Uri address;
     property public final int callCapabilities;
     property public final int callType;
     property public final int direction;
     property public final CharSequence displayName;
+    property public final androidx.core.telecom.CallEndpointCompat? preferredStartingCallEndpoint;
     field public static final int CALL_TYPE_AUDIO_CALL = 1; // 0x1
     field public static final int CALL_TYPE_VIDEO_CALL = 2; // 0x2
     field public static final androidx.core.telecom.CallAttributesCompat.Companion Companion;
@@ -96,6 +99,7 @@ package androidx.core.telecom {
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallsManager {
     ctor public CallsManager(android.content.Context context);
     method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public suspend Object? addCall(androidx.core.telecom.CallAttributesCompat callAttributes, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onAnswer, kotlin.jvm.functions.Function2<? super android.telecom.DisconnectCause,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onDisconnect, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onSetActive, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onSetInactive, kotlin.jvm.functions.Function1<? super androidx.core.telecom.CallControlScope,kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.core.telecom.CallEndpointCompat>> getAvailableStartingCallEndpoints();
     method @RequiresPermission("android.permission.MANAGE_OWN_CALLS") public void registerAppWithTelecom(int capabilities);
     field public static final int CAPABILITY_BASELINE = 1; // 0x1
     field public static final int CAPABILITY_SUPPORTS_CALL_STREAMING = 4; // 0x4

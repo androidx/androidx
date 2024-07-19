@@ -30,6 +30,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.utils.Utils
 import java.util.UUID
@@ -61,6 +62,8 @@ internal class JetpackConnectionService : ConnectionService() {
         val onSetActive: suspend () -> Unit,
         val onSetInactive: suspend () -> Unit,
         val onEvent: suspend (event: String, extras: Bundle) -> Unit,
+        val preferredStartingCallEndpoint: CallEndpointCompat? = null,
+        val preCallEndpointMapping: PreCallEndpoints? = null,
         val execution: CompletableDeferred<Unit>
     )
 
@@ -222,6 +225,8 @@ internal class JetpackConnectionService : ConnectionService() {
                 targetRequest.onSetActive,
                 targetRequest.onSetInactive,
                 targetRequest.onEvent,
+                targetRequest.preferredStartingCallEndpoint,
+                targetRequest.preCallEndpointMapping,
                 targetRequest.execution
             )
 

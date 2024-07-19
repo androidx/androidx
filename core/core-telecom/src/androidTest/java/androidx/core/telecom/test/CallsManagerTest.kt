@@ -37,7 +37,10 @@ import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -223,6 +226,104 @@ class CallsManagerTest : BaseTelecomTest() {
             } catch (e: androidx.core.telecom.CallException) {
                 Log.i(TAG, "callException=[$e] was thrown as expected")
             }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testEndToEndSelectingAStartingEndpointTransactional() {
+        setUpV2Test()
+        runBlocking { assertStartingCallEndpoint(coroutineContext) }
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @SmallTest
+    @Test
+    fun testEndToEndSelectingAStartingEndpointBackwardsCompat() {
+        setUpBackwardsCompatTest()
+        runBlocking { assertStartingCallEndpoint(coroutineContext) }
+    }
+
+    private suspend fun assertStartingCallEndpoint(coroutineContext: CoroutineContext) {
+        mCallsManager.registerAppWithTelecom(
+            CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING or
+                CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING
+        )
+        var preCallEndpointsScope: CoroutineScope? = null
+        try {
+            val endpointsFlow = mCallsManager.getAvailableStartingCallEndpoints()
+
+            val initialEndpointsJob = CompletableDeferred<List<CallEndpointCompat>>()
+            CoroutineScope(coroutineContext).launch {
+                preCallEndpointsScope = this
+                Log.i(TAG, "launched initialEndpointsJob")
+                endpointsFlow.collect {
+                    it.forEach { endpoint ->
+                        Log.i(TAG, "endpointsFlow: collecting endpoint=[$endpoint]")
+                    }
+                    initialEndpointsJob.complete(it)
+                }
+            }
+            Log.i(TAG, "initialEndpointsJob STARTED")
+            initialEndpointsJob.await()
+            Log.i(TAG, "initialEndpointsJob COMPLETED")
+            val initialEndpoints = initialEndpointsJob.getCompleted()
+            val earpieceEndpoint =
+                initialEndpoints.find { it.type == CallEndpointCompat.TYPE_EARPIECE }
+            if (initialEndpoints.size > 1 && earpieceEndpoint != null) {
+                Log.i(TAG, "found 2 endpoints, including TYPE_EARPIECE")
+                TestUtils.OUTGOING_CALL_ATTRIBUTES.preferredStartingCallEndpoint = earpieceEndpoint
+                mCallsManager.addCall(
+                    TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda,
+                ) {
+                    Log.i(TAG, "addCallWithStartingCallEndpoint: running CallControlScope")
+                    launch {
+                        val waitUntilEarpieceEndpointJob = CompletableDeferred<CallEndpointCompat>()
+
+                        val flowsJob = launch {
+                            val earpieceFlow =
+                                currentCallEndpoint.filter {
+                                    Log.i(TAG, "currentCallEndpoint: e=[$it]")
+                                    it.type == CallEndpointCompat.TYPE_EARPIECE
+                                }
+
+                            earpieceFlow.collect {
+                                Log.i(TAG, "earpieceFlow.collect=[$it]")
+                                waitUntilEarpieceEndpointJob.complete(it)
+                            }
+                        }
+
+                        Log.i(TAG, "addCallWithStartingCallEndpoint: before await")
+                        waitUntilEarpieceEndpointJob.await()
+                        Log.i(TAG, "addCallWithStartingCallEndpoint: after await")
+
+                        // at this point, the CallEndpoint has been found
+                        val endpoint = waitUntilEarpieceEndpointJob.getCompleted()
+                        assertNotNull(endpoint)
+                        assertEquals(CallEndpointCompat.TYPE_EARPIECE, endpoint.type)
+
+                        // finally, terminate the call
+                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        // stop collecting flows so the test can end
+                        flowsJob.cancel()
+                        Log.i(TAG, " flowsJob.cancel()")
+                    }
+                }
+            } else {
+                Log.i(
+                    TAG,
+                    "assertStartingCallEndpoint: " +
+                        "endpoints.size=[${initialEndpoints.size}], earpiece=[$earpieceEndpoint]"
+                )
+                preCallEndpointsScope?.cancel()
+            }
+        } finally {
+            preCallEndpointsScope?.cancel()
         }
     }
 

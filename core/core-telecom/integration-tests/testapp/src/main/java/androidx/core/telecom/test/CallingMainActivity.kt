@@ -25,6 +25,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 @RequiresApi(34)
@@ -44,10 +46,15 @@ class CallingMainActivity : Activity() {
     // Telecom
     private var mCallsManager: CallsManager? = null
 
-    // Call Log objects
+    // Ongoing Call List
     private var mRecyclerView: RecyclerView? = null
     private var mCallObjects: ArrayList<CallRow> = ArrayList()
     private lateinit var mAdapter: CallListAdapter
+
+    // Pre-Call Endpoint List
+    private var mPreCallEndpointsRecyclerView: RecyclerView? = null
+    private var mCurrentPreCallEndpoints: ArrayList<CallEndpointCompat> = arrayListOf()
+    private lateinit var mPreCallEndpointAdapter: PreCallEndpointsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -61,6 +68,11 @@ class CallingMainActivity : Activity() {
         val registerPhoneAccountButton = findViewById<Button>(R.id.registerButton)
         registerPhoneAccountButton.setOnClickListener { mScope.launch { registerPhoneAccount() } }
 
+        val fetchPreCallEndpointsButton = findViewById<Button>(R.id.preCallAudioEndpointsButton)
+        fetchPreCallEndpointsButton.setOnClickListener {
+            mScope.launch { fetchPreCallEndpoints(findViewById(R.id.cancelFlowButton)) }
+        }
+
         val addOutgoingCallButton = findViewById<Button>(R.id.addOutgoingCall)
         addOutgoingCallButton.setOnClickListener {
             mScope.launch { addCallWithAttributes(Utilities.OUTGOING_CALL_ATTRIBUTES) }
@@ -71,13 +83,17 @@ class CallingMainActivity : Activity() {
             mScope.launch { addCallWithAttributes(Utilities.INCOMING_CALL_ATTRIBUTES) }
         }
 
-        // Set up AudioRecord
+        // setup the adapters which hold the endpoint and call rows
         mAdapter = CallListAdapter(mCallObjects, null)
+        mPreCallEndpointAdapter = PreCallEndpointsAdapter(mCurrentPreCallEndpoints)
 
-        // set up the call list view holder
+        // set up the view holders
         mRecyclerView = findViewById(R.id.callListRecyclerView)
         mRecyclerView?.layoutManager = LinearLayoutManager(this)
         mRecyclerView?.adapter = mAdapter
+        mPreCallEndpointsRecyclerView = findViewById(R.id.endpointsRecyclerView)
+        mPreCallEndpointsRecyclerView?.layoutManager = LinearLayoutManager(this)
+        mPreCallEndpointsRecyclerView?.adapter = mPreCallEndpointAdapter
     }
 
     override fun onDestroy() {
@@ -117,15 +133,18 @@ class CallingMainActivity : Activity() {
                 Log.i(TAG, "CoroutineExceptionHandler: handling e=$exception")
             }
 
-            CoroutineScope(Dispatchers.IO).launch(handler) {
+            CoroutineScope(Dispatchers.Default).launch(handler) {
                 try {
+                    attributes.preferredStartingCallEndpoint =
+                        mPreCallEndpointAdapter.mSelectedCallEndpoint
                     mCallsManager!!.addCall(
                         attributes,
                         callObject.mOnAnswerLambda,
                         callObject.mOnDisconnectLambda,
                         callObject.mOnSetActiveLambda,
-                        callObject.mOnSetInActiveLambda
+                        callObject.mOnSetInActiveLambda,
                     ) {
+                        mPreCallEndpointAdapter.mSelectedCallEndpoint = null
                         // inject client control interface into the VoIP call object
                         callObject.setCallId(getCallId().toString())
                         callObject.setCallControl(this)
@@ -155,6 +174,29 @@ class CallingMainActivity : Activity() {
         }
     }
 
+    private fun fetchPreCallEndpoints(cancelFlowButton: Button) {
+        val endpointsFlow = mCallsManager!!.getAvailableStartingCallEndpoints()
+        CoroutineScope(Dispatchers.Default).launch {
+            launch {
+                val endpointsCoroutineScope = this
+                Log.i(TAG, "fetchEndpoints: consuming endpoints")
+                endpointsFlow.collect {
+                    for (endpoint in it) {
+                        Log.i(TAG, "fetchEndpoints: endpoint=[$endpoint}")
+                    }
+                    cancelFlowButton.setOnClickListener {
+                        mPreCallEndpointAdapter.mSelectedCallEndpoint = null
+                        endpointsCoroutineScope.cancel()
+                        updatePreCallEndpoints(null)
+                    }
+                    updatePreCallEndpoints(it)
+                }
+                // At this point, the endpointsCoroutineScope has been canceled
+                updatePreCallEndpoints(null)
+            }
+        }
+    }
+
     private fun logException(e: Exception, prefix: String) {
         Log.i(TAG, "$prefix: e=[$e], e.msg=[${e.message}], e.stack:${e.printStackTrace()}")
     }
@@ -167,5 +209,15 @@ class CallingMainActivity : Activity() {
 
     private fun updateCallList() {
         runOnUiThread { mAdapter.notifyDataSetChanged() }
+    }
+
+    private fun updatePreCallEndpoints(newEndpoints: List<CallEndpointCompat>?) {
+        runOnUiThread {
+            mCurrentPreCallEndpoints.clear()
+            if (newEndpoints != null) {
+                mCurrentPreCallEndpoints.addAll(newEndpoints)
+            }
+            mPreCallEndpointAdapter.notifyDataSetChanged()
+        }
     }
 }

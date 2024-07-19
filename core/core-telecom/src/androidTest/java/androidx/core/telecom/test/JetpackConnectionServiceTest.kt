@@ -255,6 +255,8 @@ class JetpackConnectionServiceTest : BaseTelecomTest() {
                 TestUtils.mOnSetActiveLambda,
                 TestUtils.mOnSetInActiveLambda,
                 TestUtils.mOnEventLambda,
+                null,
+                null,
                 CompletableDeferred()
             )
 

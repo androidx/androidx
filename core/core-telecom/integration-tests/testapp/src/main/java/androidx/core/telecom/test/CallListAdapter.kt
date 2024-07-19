@@ -54,7 +54,7 @@ class CallListAdapter(
         val disconnectButton: Button = itemView.findViewById(R.id.disconnectButton)
 
         // Call Audio Buttons
-        val earpieceButton: Button = itemView.findViewById(R.id.earpieceButton)
+        val earpieceButton: Button = itemView.findViewById(R.id.selectEndpointButton)
         val speakerButton: Button = itemView.findViewById(R.id.speakerButton)
         val bluetoothButton: Button = itemView.findViewById(R.id.bluetoothButton)
     }
