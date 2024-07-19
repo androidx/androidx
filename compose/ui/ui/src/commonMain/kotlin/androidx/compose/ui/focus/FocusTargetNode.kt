@@ -275,11 +275,11 @@ internal class FocusTargetNode(
             visitSubtreeIf(Nodes.FocusTarget) {
                 if (!it.isInitialized()) return@visitSubtreeIf true
 
-                return when (it.focusState) {
+                when (it.focusState) {
                     Active,
                     ActiveParent,
-                    Captured -> true
-                    Inactive -> false
+                    Captured -> return true
+                    Inactive -> return@visitSubtreeIf false
                 }
             }
             return false
