@@ -18,9 +18,12 @@ package androidx.wear.compose.material3
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -35,6 +38,7 @@ import androidx.wear.compose.material3.tokens.FilledTonalIconButtonTokens
 import androidx.wear.compose.material3.tokens.IconButtonTokens
 import androidx.wear.compose.material3.tokens.IconToggleButtonTokens
 import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
+import androidx.wear.compose.material3.tokens.ShapeTokens
 
 /**
  * Wear Material [IconButton] is a circular, icon-only button with transparent background and no
@@ -60,6 +64,10 @@ import androidx.wear.compose.material3.tokens.OutlinedIconButtonTokens
  * Example of an [IconButton] with onLongClick:
  *
  * @sample androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
+ *
+ * Example of an [IconButton] with shape animation of rounded corners on press:
+ *
+ * @sample androidx.wear.compose.material3.samples.IconButtonWithCornerAnimationSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -387,8 +395,26 @@ fun IconToggleButton(
 /** Contains the default values used by [IconButton]. */
 object IconButtonDefaults {
     /** Recommended [Shape] for [IconButton]. */
-    val shape: Shape
-        @Composable get() = IconButtonTokens.ContainerShape.value
+    val shape: RoundedCornerShape
+        @Composable get() = ShapeTokens.CornerFull
+
+    /** Recommended pressed [Shape] for [IconButton]. */
+    val pressedShape: CornerBasedShape
+        @Composable get() = MaterialTheme.shapes.small
+
+    /**
+     * Creates a [Shape] with a animation between two CornerBasedShapes.
+     *
+     * @param interactionSource the interaction source applied to the Button.
+     * @param shape The normal shape of the IconButton.
+     * @param pressedShape The pressed shape of the IconButton.
+     */
+    @Composable
+    fun animatedShape(
+        interactionSource: InteractionSource,
+        shape: CornerBasedShape = IconButtonDefaults.shape,
+        pressedShape: CornerBasedShape = IconButtonDefaults.pressedShape,
+    ) = animatedPressedButtonShape(interactionSource, shape, pressedShape)
 
     /**
      * Recommended icon size for a given icon button size.

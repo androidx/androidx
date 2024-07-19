@@ -313,6 +313,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class IconButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(androidx.compose.foundation.interaction.InteractionSource interactionSource, optional androidx.compose.foundation.shape.CornerBasedShape shape, optional androidx.compose.foundation.shape.CornerBasedShape pressedShape);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledIconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledTonalIconButtonColors();
@@ -322,7 +323,8 @@ package androidx.wear.compose.material3 {
     method public float getExtraSmallButtonSize();
     method public float getLargeButtonSize();
     method public float getLargeIconSize();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape getPressedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getShape();
     method public float getSmallButtonSize();
     method public float getSmallIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors iconButtonColors();
@@ -339,7 +341,8 @@ package androidx.wear.compose.material3 {
     property public final float LargeIconSize;
     property public final float SmallButtonSize;
     property public final float SmallIconSize;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.shape.CornerBasedShape pressedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.IconButtonDefaults INSTANCE;
   }
 
@@ -968,6 +971,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class TextButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedShape(androidx.compose.foundation.interaction.InteractionSource interactionSource, optional androidx.compose.foundation.shape.CornerBasedShape shape, optional androidx.compose.foundation.shape.CornerBasedShape pressedShape);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTextButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTextButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTonalTextButtonColors();
@@ -976,7 +980,8 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getDefaultButtonTextStyle();
     method public float getLargeButtonSize();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getLargeButtonTextStyle();
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.CornerBasedShape getPressedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.shape.RoundedCornerShape getShape();
     method public float getSmallButtonSize();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getSmallButtonTextStyle();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors outlinedTextButtonColors();
@@ -990,7 +995,8 @@ package androidx.wear.compose.material3 {
     property public final float SmallButtonSize;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.ui.text.TextStyle defaultButtonTextStyle;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.ui.text.TextStyle largeButtonTextStyle;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.shape.CornerBasedShape pressedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.foundation.shape.RoundedCornerShape shape;
     property @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public final androidx.compose.ui.text.TextStyle smallButtonTextStyle;
     field public static final androidx.wear.compose.material3.TextButtonDefaults INSTANCE;
   }
