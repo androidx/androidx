@@ -386,7 +386,7 @@ internal object IntrinsicMeasureBlocks {
     ): Int {
         return intrinsicCrossAxisSize(
             measurables,
-            { w -> minIntrinsicHeight(w) },
+            { w -> maxIntrinsicHeight(w) },
             { h -> maxIntrinsicWidth(h) },
             availableHeight,
             mainAxisSpacing,
@@ -399,7 +399,7 @@ internal object IntrinsicMeasureBlocks {
     ): Int {
         return intrinsicCrossAxisSize(
             measurables,
-            { h -> minIntrinsicWidth(h) },
+            { h -> maxIntrinsicWidth(h) },
             { w -> maxIntrinsicHeight(w) },
             availableWidth,
             mainAxisSpacing,
