@@ -31,9 +31,9 @@ import androidx.compose.ui.util.fastMaxBy
  */
 @ExperimentalAnimationGraphicsApi
 @Immutable
-class AnimatedImageVector
+public class AnimatedImageVector
 internal constructor(
-    val imageVector: ImageVector,
+    public val imageVector: ImageVector,
     // The list of [AnimatedVectorTarget]s that specify animations for each of the elements in the
     // drawable. This is represented with `<target>` elements in `<animated-vector>`. This list is
     // expected to be *immutable*.
@@ -43,11 +43,11 @@ internal constructor(
     /**
      * The total duration of all the animations in this image, including start delays and repeats.
      */
-    val totalDuration =
+    public val totalDuration: Int =
         targets.fastMaxBy { it.animator.totalDuration }?.animator?.totalDuration ?: 0
 
     /** Provide an empty companion object to hang platform-specific companion extensions onto. */
-    companion object {}
+    public companion object {}
 }
 
 /** Definition of animation to one of the elements in a [AnimatedImageVector]. */

@@ -38,7 +38,7 @@ import kotlinx.coroutines.CancellationException
  * @sample androidx.compose.animation.core.samples.suspendAnimateFloatVariant
  * @see AnimationState.animateTo
  */
-suspend fun animate(
+public suspend fun animate(
     initialValue: Float,
     targetValue: Float,
     initialVelocity: Float = 0f,
@@ -61,7 +61,7 @@ suspend fun animate(
  * @param block Will be invoked on each animation frame with up-to-date value and velocity.
  * @see AnimationState.animateDecay
  */
-suspend fun animateDecay(
+public suspend fun animateDecay(
     initialValue: Float,
     initialVelocity: Float,
     animationSpec: FloatDecayAnimationSpec,
@@ -86,7 +86,7 @@ suspend fun animateDecay(
  *
  * @see AnimationState.animateTo
  */
-suspend fun <T, V : AnimationVector> animate(
+public suspend fun <T, V : AnimationVector> animate(
     typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
     targetValue: T,
@@ -131,7 +131,7 @@ suspend fun <T, V : AnimationVector> animate(
  *   the animation related info can be accessed via [AnimationScope].
  * @sample androidx.compose.animation.core.samples.animateToOnAnimationState
  */
-suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
+public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
     targetValue: T,
     animationSpec: AnimationSpec<T> = spring(),
     sequentialAnimation: Boolean = false,
@@ -174,7 +174,7 @@ suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateTo(
  *   loop will exit after the [block] returns. All the animation related info can be accessed via
  *   [AnimationScope].
  */
-suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateDecay(
+public suspend fun <T, V : AnimationVector> AnimationState<T, V>.animateDecay(
     animationSpec: DecayAnimationSpec<T>,
     sequentialAnimation: Boolean = false,
     block: AnimationScope<T, V>.() -> Unit = {}

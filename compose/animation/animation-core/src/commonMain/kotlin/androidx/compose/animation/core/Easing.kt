@@ -33,8 +33,8 @@ import androidx.compose.ui.util.fastCoerceIn
  * An [Easing] must map fraction=0.0 to 0.0 and fraction=1.0 to 1.0.
  */
 @Stable
-fun interface Easing {
-    fun transform(fraction: Float): Float
+public fun interface Easing {
+    public fun transform(fraction: Float): Float
 }
 
 /**
@@ -46,7 +46,7 @@ fun interface Easing {
  *
  * This is equivalent to the Android `FastOutSlowInInterpolator`
  */
-val FastOutSlowInEasing: Easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
+public val FastOutSlowInEasing: Easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
 
 /**
  * Incoming elements are animated using deceleration easing, which starts a transition at peak
@@ -54,7 +54,7 @@ val FastOutSlowInEasing: Easing = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
  *
  * This is equivalent to the Android `LinearOutSlowInInterpolator`
  */
-val LinearOutSlowInEasing: Easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
+public val LinearOutSlowInEasing: Easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
 
 /**
  * Elements exiting a screen use acceleration easing, where they start at rest and end at peak
@@ -62,13 +62,13 @@ val LinearOutSlowInEasing: Easing = CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)
  *
  * This is equivalent to the Android `FastOutLinearInInterpolator`
  */
-val FastOutLinearInEasing: Easing = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
+public val FastOutLinearInEasing: Easing = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
 
 /**
  * It returns fraction unmodified. This is useful as a default value for cases where a [Easing] is
  * required but no actual easing is desired.
  */
-val LinearEasing: Easing = Easing { fraction -> fraction }
+public val LinearEasing: Easing = Easing { fraction -> fraction }
 
 /**
  * A cubic polynomial easing.
@@ -96,7 +96,7 @@ val LinearEasing: Easing = Easing { fraction -> fraction }
  * @see FastOutLinearInEasing
  */
 @Immutable
-class CubicBezierEasing(
+public class CubicBezierEasing(
     private val a: Float,
     private val b: Float,
     private val c: Float,

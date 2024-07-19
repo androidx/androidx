@@ -22,4 +22,5 @@ import androidx.compose.runtime.Composable
 internal actual val platformFlingScrollFriction: Float = implementedInJetBrainsFork()
 
 @Composable
-actual fun <T> rememberSplineBasedDecay(): DecayAnimationSpec<T> = implementedInJetBrainsFork()
+public actual fun <T> rememberSplineBasedDecay(): DecayAnimationSpec<T> =
+    implementedInJetBrainsFork()

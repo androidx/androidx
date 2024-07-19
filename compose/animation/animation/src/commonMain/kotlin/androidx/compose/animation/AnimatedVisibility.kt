@@ -120,7 +120,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * @see AnimatedVisibilityScope
  */
 @Composable
-fun AnimatedVisibility(
+public fun AnimatedVisibility(
     visible: Boolean,
     modifier: Modifier = Modifier,
     enter: EnterTransition = fadeIn() + expandIn(),
@@ -193,7 +193,7 @@ fun AnimatedVisibility(
  * @see AnimatedVisibilityScope
  */
 @Composable
-fun RowScope.AnimatedVisibility(
+public fun RowScope.AnimatedVisibility(
     visible: Boolean,
     modifier: Modifier = Modifier,
     enter: EnterTransition = fadeIn() + expandHorizontally(),
@@ -265,7 +265,7 @@ fun RowScope.AnimatedVisibility(
  * @see AnimatedVisibilityScope
  */
 @Composable
-fun ColumnScope.AnimatedVisibility(
+public fun ColumnScope.AnimatedVisibility(
     visible: Boolean,
     modifier: Modifier = Modifier,
     enter: EnterTransition = fadeIn() + expandVertically(),
@@ -289,7 +289,7 @@ fun ColumnScope.AnimatedVisibility(
  * @sample androidx.compose.animation.samples.AnimatedVisibilityWithBooleanVisibleParamNoReceiver
  * @see AnimatedVisibility
  */
-enum class EnterExitState {
+public enum class EnterExitState {
     /** The initial state of a custom enter animation in [AnimatedVisibility].. */
     PreEnter,
 
@@ -363,7 +363,7 @@ enum class EnterExitState {
  * @see AnimatedVisibilityScope
  */
 @Composable
-fun AnimatedVisibility(
+public fun AnimatedVisibility(
     visibleState: MutableTransitionState<Boolean>,
     modifier: Modifier = Modifier,
     enter: EnterTransition = fadeIn() + expandIn(),
@@ -434,7 +434,7 @@ fun AnimatedVisibility(
  * @see AnimatedVisibilityScope
  */
 @Composable
-fun RowScope.AnimatedVisibility(
+public fun RowScope.AnimatedVisibility(
     visibleState: MutableTransitionState<Boolean>,
     modifier: Modifier = Modifier,
     enter: EnterTransition = expandHorizontally() + fadeIn(),
@@ -507,7 +507,7 @@ fun RowScope.AnimatedVisibility(
  * @see AnimatedVisibilityScope
  */
 @Composable
-fun ColumnScope.AnimatedVisibility(
+public fun ColumnScope.AnimatedVisibility(
     visibleState: MutableTransitionState<Boolean>,
     modifier: Modifier = Modifier,
     enter: EnterTransition = expandVertically() + fadeIn(),
@@ -579,13 +579,13 @@ fun ColumnScope.AnimatedVisibility(
  * @see Transition.AnimatedVisibility
  */
 @Composable
-fun <T> Transition<T>.AnimatedVisibility(
+public fun <T> Transition<T>.AnimatedVisibility(
     visible: (T) -> Boolean,
     modifier: Modifier = Modifier,
     enter: EnterTransition = fadeIn() + expandIn(),
     exit: ExitTransition = shrinkOut() + fadeOut(),
     content: @Composable() AnimatedVisibilityScope.() -> Unit
-) = AnimatedVisibilityImpl(this, visible, modifier, enter, exit, content = content)
+): Unit = AnimatedVisibilityImpl(this, visible, modifier, enter, exit, content = content)
 
 /**
  * This is the scope for the content of [AnimatedVisibility]. In this scope, direct and indirect
@@ -602,12 +602,12 @@ fun <T> Transition<T>.AnimatedVisibility(
  * @sample androidx.compose.animation.samples.AVScopeAnimateEnterExit
  */
 @JvmDefaultWithCompatibility
-interface AnimatedVisibilityScope {
+public interface AnimatedVisibilityScope {
     /**
      * [transition] allows custom enter/exit animations to be specified. It will run simultaneously
      * with the built-in enter/exit transitions specified in [AnimatedVisibility].
      */
-    val transition: Transition<EnterExitState>
+    public val transition: Transition<EnterExitState>
 
     /**
      * [animateEnterExit] modifier can be used for any direct or indirect children of
@@ -632,7 +632,7 @@ interface AnimatedVisibilityScope {
      *
      * @sample androidx.compose.animation.samples.AnimateEnterExitPartialContent
      */
-    fun Modifier.animateEnterExit(
+    public fun Modifier.animateEnterExit(
         enter: EnterTransition = fadeIn(),
         exit: ExitTransition = fadeOut(),
         label: String = "animateEnterExit"

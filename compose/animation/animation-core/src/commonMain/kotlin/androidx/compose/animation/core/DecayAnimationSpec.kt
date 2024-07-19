@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.IntOffset
  * multi-dimensional way. It is particularly useful for smoothly handling animation interruptions
  * (such as when the target changes during the animation).
  */
-interface DecayAnimationSpec<T> {
+public interface DecayAnimationSpec<T> {
 
     /**
      * Creates a [VectorizedDecayAnimationSpec] with the given [TwoWayConverter].
@@ -44,7 +44,7 @@ interface DecayAnimationSpec<T> {
      *
      * @param typeConverter converts the type [T] from and to [AnimationVector] type
      */
-    fun <V : AnimationVector> vectorize(
+    public fun <V : AnimationVector> vectorize(
         typeConverter: TwoWayConverter<T, V>
     ): VectorizedDecayAnimationSpec<V>
 }
@@ -55,7 +55,7 @@ interface DecayAnimationSpec<T> {
  *
  * @return target value where the animation will come to a natural stop
  */
-fun <T, V : AnimationVector> DecayAnimationSpec<T>.calculateTargetValue(
+public fun <T, V : AnimationVector> DecayAnimationSpec<T>.calculateTargetValue(
     typeConverter: TwoWayConverter<T, V>,
     initialValue: T,
     initialVelocity: T
@@ -75,7 +75,7 @@ fun <T, V : AnimationVector> DecayAnimationSpec<T>.calculateTargetValue(
  *
  * @return target value where the animation will come to a natural stop
  */
-fun DecayAnimationSpec<Float>.calculateTargetValue(
+public fun DecayAnimationSpec<Float>.calculateTargetValue(
     initialValue: Float,
     initialVelocity: Float
 ): Float {
@@ -101,7 +101,7 @@ fun DecayAnimationSpec<Float>.calculateTargetValue(
  * @param absVelocityThreshold The minimum speed, below which the animation is considered finished.
  *   Must be greater than `0`.
  */
-fun <T> exponentialDecay(
+public fun <T> exponentialDecay(
     @FloatRange(from = 0.0, fromInclusive = false) frictionMultiplier: Float = 1f,
     @FloatRange(from = 0.0, fromInclusive = false) absVelocityThreshold: Float = 0.1f
 ): DecayAnimationSpec<T> =
@@ -111,7 +111,7 @@ fun <T> exponentialDecay(
  * Creates a [DecayAnimationSpec] from a [FloatDecayAnimationSpec] by applying the given
  * [FloatDecayAnimationSpec] on every dimension of the [AnimationVector] that [T] converts to.
  */
-fun <T> FloatDecayAnimationSpec.generateDecayAnimationSpec(): DecayAnimationSpec<T> {
+public fun <T> FloatDecayAnimationSpec.generateDecayAnimationSpec(): DecayAnimationSpec<T> {
     return DecayAnimationSpecImpl(this)
 }
 

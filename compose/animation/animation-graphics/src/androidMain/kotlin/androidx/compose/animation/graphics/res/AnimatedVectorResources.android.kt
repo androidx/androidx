@@ -37,7 +37,7 @@ import org.xmlpull.v1.XmlPullParserException
  */
 @ExperimentalAnimationGraphicsApi
 @Composable
-fun AnimatedImageVector.Companion.animatedVectorResource(
+public fun AnimatedImageVector.Companion.animatedVectorResource(
     @DrawableRes id: Int
 ): AnimatedImageVector {
     val context = LocalContext.current

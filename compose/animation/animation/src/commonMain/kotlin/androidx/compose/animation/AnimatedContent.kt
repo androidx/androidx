@@ -124,7 +124,7 @@ import androidx.compose.ui.util.fastMaxOfOrNull
  * @see AnimatedContentScope
  */
 @Composable
-fun <S> AnimatedContent(
+public fun <S> AnimatedContent(
     targetState: S,
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
@@ -181,9 +181,9 @@ fun <S> AnimatedContent(
  * @see ExitTransition
  * @see AnimatedContent
  */
-class ContentTransform(
-    val targetContentEnter: EnterTransition,
-    val initialContentExit: ExitTransition,
+public class ContentTransform(
+    public val targetContentEnter: EnterTransition,
+    public val initialContentExit: ExitTransition,
     targetContentZIndex: Float = 0f,
     sizeTransform: SizeTransform? = SizeTransform()
 ) {
@@ -192,7 +192,7 @@ class ContentTransform(
      * to 0f. Content with higher zIndex will be drawn over lower `zIndex`ed content. Among content
      * with the same index, the target content will be placed on top.
      */
-    var targetContentZIndex by mutableFloatStateOf(targetContentZIndex)
+    public var targetContentZIndex: Float by mutableFloatStateOf(targetContentZIndex)
 
     /**
      * [sizeTransform] manages the expanding and shrinking of the container if there is any size
@@ -201,7 +201,7 @@ class ContentTransform(
      * the animated size. Both can be customized by supplying a different [SizeTransform]. If no
      * size animation is desired, [sizeTransform] can be set to `null`.
      */
-    var sizeTransform: SizeTransform? = sizeTransform
+    public var sizeTransform: SizeTransform? = sizeTransform
         internal set
 }
 
@@ -212,7 +212,7 @@ class ContentTransform(
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  */
-fun SizeTransform(
+public fun SizeTransform(
     clip: Boolean = true,
     sizeAnimationSpec: (initialSize: IntSize, targetSize: IntSize) -> FiniteAnimationSpec<IntSize> =
         { _, _ ->
@@ -231,15 +231,18 @@ fun SizeTransform(
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  */
-interface SizeTransform {
+public interface SizeTransform {
     /** Whether the content should be clipped using the animated size. */
-    val clip: Boolean
+    public val clip: Boolean
 
     /**
      * This allows [FiniteAnimationSpec] to be defined based on the [initialSize] before the size
      * animation and the [targetSize] of the animation.
      */
-    fun createAnimationSpec(initialSize: IntSize, targetSize: IntSize): FiniteAnimationSpec<IntSize>
+    public fun createAnimationSpec(
+        initialSize: IntSize,
+        targetSize: IntSize
+    ): FiniteAnimationSpec<IntSize>
 }
 
 /** Private implementation of SizeTransform interface. */
@@ -260,26 +263,28 @@ private class SizeTransformImpl(
  *
  * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
  */
-infix fun EnterTransition.togetherWith(exit: ExitTransition) = ContentTransform(this, exit)
+public infix fun EnterTransition.togetherWith(exit: ExitTransition): ContentTransform =
+    ContentTransform(this, exit)
 
 @ExperimentalAnimationApi
 @Deprecated(
     "Infix fun EnterTransition.with(ExitTransition) has been renamed to" + " togetherWith",
     ReplaceWith("togetherWith(exit)")
 )
-infix fun EnterTransition.with(exit: ExitTransition) = ContentTransform(this, exit)
+public infix fun EnterTransition.with(exit: ExitTransition): ContentTransform =
+    ContentTransform(this, exit)
 
 /**
  * [AnimatedContentTransitionScope] provides functions that are convenient and only applicable in
  * the context of [AnimatedContent], such as [slideIntoContainer] and [slideOutOfContainer].
  */
-sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
+public sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
     /**
      * Customizes the [SizeTransform] of a given [ContentTransform]. For example:
      *
      * @sample androidx.compose.animation.samples.AnimatedContentTransitionSpecSample
      */
-    infix fun ContentTransform.using(sizeTransform: SizeTransform?): ContentTransform
+    public infix fun ContentTransform.using(sizeTransform: SizeTransform?): ContentTransform
 
     /**
      * [SlideDirection] defines the direction of the slide in/out for [slideIntoContainer] and
@@ -287,14 +292,14 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      */
     @Immutable
     @kotlin.jvm.JvmInline
-    value class SlideDirection internal constructor(private val value: Int) {
-        companion object {
-            val Left = SlideDirection(0)
-            val Right = SlideDirection(1)
-            val Up = SlideDirection(2)
-            val Down = SlideDirection(3)
-            val Start = SlideDirection(4)
-            val End = SlideDirection(5)
+    public value class SlideDirection internal constructor(private val value: Int) {
+        public companion object {
+            public val Left: SlideDirection = SlideDirection(0)
+            public val Right: SlideDirection = SlideDirection(1)
+            public val Up: SlideDirection = SlideDirection(2)
+            public val Down: SlideDirection = SlideDirection(3)
+            public val Start: SlideDirection = SlideDirection(4)
+            public val End: SlideDirection = SlideDirection(5)
         }
 
         override fun toString(): String {
@@ -331,7 +336,7 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      * @see slideInHorizontally
      * @see slideInVertically
      */
-    fun slideIntoContainer(
+    public fun slideIntoContainer(
         towards: SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset> =
             spring(visibilityThreshold = IntOffset.VisibilityThreshold),
@@ -358,7 +363,7 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      * @see slideOutHorizontally
      * @see slideOutVertically
      */
-    fun slideOutOfContainer(
+    public fun slideOutOfContainer(
         towards: SlideDirection,
         animationSpec: FiniteAnimationSpec<IntOffset> =
             spring(visibilityThreshold = IntOffset.VisibilityThreshold),
@@ -378,11 +383,11 @@ sealed interface AnimatedContentTransitionScope<S> : Transition.Segment<S> {
      *
      * @sample androidx.compose.animation.samples.SlideIntoContainerSample
      */
-    val ExitTransition.Companion.KeepUntilTransitionsFinished: ExitTransition
+    public val ExitTransition.Companion.KeepUntilTransitionsFinished: ExitTransition
         get() = KeepUntilTransitionsFinished
 
     /** This returns the [Alignment] specified on [AnimatedContent]. */
-    val contentAlignment: Alignment
+    public val contentAlignment: Alignment
 }
 
 internal class AnimatedContentTransitionScopeImpl<S>
@@ -626,7 +631,7 @@ internal constructor(
  * [transition][AnimatedVisibilityScope.transition] can be used to observe the state of the
  * transition, or to add more enter/exit transition for the content.
  */
-sealed interface AnimatedContentScope : AnimatedVisibilityScope
+public sealed interface AnimatedContentScope : AnimatedVisibilityScope
 
 private class AnimatedContentScopeImpl
 internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
@@ -680,7 +685,7 @@ internal constructor(animatedVisibilityScope: AnimatedVisibilityScope) :
  */
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun <S> Transition<S>.AnimatedContent(
+public fun <S> Transition<S>.AnimatedContent(
     modifier: Modifier = Modifier,
     transitionSpec: AnimatedContentTransitionScope<S>.() -> ContentTransform = {
         (fadeIn(animationSpec = tween(220, delayMillis = 90)) +

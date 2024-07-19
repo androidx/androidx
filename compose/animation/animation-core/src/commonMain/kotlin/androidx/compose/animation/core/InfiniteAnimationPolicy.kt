@@ -26,7 +26,7 @@ import kotlin.coroutines.coroutineContext
  * Like [withFrameNanos], but applies the [InfiniteAnimationPolicy] from the calling
  * [CoroutineContext] if there is one.
  */
-suspend fun <R> withInfiniteAnimationFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
+public suspend fun <R> withInfiniteAnimationFrameNanos(onFrame: (frameTimeNanos: Long) -> R): R =
     when (val policy = coroutineContext[InfiniteAnimationPolicy]) {
         null -> withFrameNanos(onFrame)
         else -> policy.onInfiniteOperation { withFrameNanos(onFrame) }
@@ -37,6 +37,6 @@ suspend fun <R> withInfiniteAnimationFrameNanos(onFrame: (frameTimeNanos: Long) 
  * [CoroutineContext] if there is one.
  */
 @Suppress("UnnecessaryLambdaCreation")
-suspend inline fun <R> withInfiniteAnimationFrameMillis(
+public suspend inline fun <R> withInfiniteAnimationFrameMillis(
     crossinline onFrame: (frameTimeMillis: Long) -> R
 ): R = withInfiniteAnimationFrameNanos { onFrame(it / 1_000_000L) }

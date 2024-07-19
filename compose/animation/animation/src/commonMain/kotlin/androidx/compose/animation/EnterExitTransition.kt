@@ -60,7 +60,7 @@ import androidx.compose.ui.unit.constrain
     AnnotationTarget.PROPERTY_GETTER,
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalAnimationApi
+public annotation class ExperimentalAnimationApi
 
 /**
  * [EnterTransition] defines how an [AnimatedVisibility] Composable appears on screen as it becomes
@@ -90,7 +90,7 @@ annotation class ExperimentalAnimationApi
  * @see AnimatedVisibility
  */
 @Immutable
-sealed class EnterTransition {
+public sealed class EnterTransition {
     internal abstract val data: TransitionData
 
     /**
@@ -103,7 +103,7 @@ sealed class EnterTransition {
      * @param enter another [EnterTransition] to be combined
      */
     @Stable
-    operator fun plus(enter: EnterTransition): EnterTransition {
+    public operator fun plus(enter: EnterTransition): EnterTransition {
         return EnterTransitionImpl(
             TransitionData(
                 fade = enter.data.fade ?: data.fade,
@@ -139,7 +139,7 @@ sealed class EnterTransition {
 
     override fun hashCode(): Int = data.hashCode()
 
-    companion object {
+    public companion object {
         /**
          * This can be used when no enter transition is desired. It can be useful in cases where
          * there are other forms of enter animation defined indirectly for an [AnimatedVisibility].
@@ -148,7 +148,7 @@ sealed class EnterTransition {
          *
          * @see [ExitTransition.None]
          */
-        val None: EnterTransition = EnterTransitionImpl(TransitionData())
+        public val None: EnterTransition = EnterTransitionImpl(TransitionData())
     }
 }
 
@@ -181,7 +181,7 @@ sealed class EnterTransition {
  * @see AnimatedVisibility
  */
 @Immutable
-sealed class ExitTransition {
+public sealed class ExitTransition {
     internal abstract val data: TransitionData
 
     /**
@@ -194,7 +194,7 @@ sealed class ExitTransition {
      * @param exit another [ExitTransition] to be combined.
      */
     @Stable
-    operator fun plus(exit: ExitTransition): ExitTransition {
+    public operator fun plus(exit: ExitTransition): ExitTransition {
         return ExitTransitionImpl(
             TransitionData(
                 fade = exit.data.fade ?: data.fade,
@@ -234,7 +234,7 @@ sealed class ExitTransition {
 
     override fun hashCode(): Int = data.hashCode()
 
-    companion object {
+    public companion object {
         /**
          * This can be used when no built-in [ExitTransition] (i.e. fade/slide, etc) is desired for
          * the [AnimatedVisibility], but rather the children are defining their own exit animation
@@ -246,7 +246,7 @@ sealed class ExitTransition {
          *
          * @sample androidx.compose.animation.samples.AVScopeAnimateEnterExit
          */
-        val None: ExitTransition = ExitTransitionImpl(TransitionData())
+        public val None: ExitTransition = ExitTransitionImpl(TransitionData())
 
         /**
          * Keep this type of exit transition internal and only expose it in AnimatedContent, as
@@ -291,7 +291,7 @@ internal infix fun ExitTransition.withEffect(effect: TransitionEffect): ExitTran
  * @param initialAlpha the starting alpha of the enter transition, 0f by default
  */
 @Stable
-fun fadeIn(
+public fun fadeIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     initialAlpha: Float = 0f
 ): EnterTransition {
@@ -309,7 +309,7 @@ fun fadeIn(
  * @param targetAlpha the target alpha of the exit transition, 0f by default
  */
 @Stable
-fun fadeOut(
+public fun fadeOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetAlpha: Float = 0f,
 ): ExitTransition {
@@ -335,7 +335,7 @@ fun fadeOut(
  *   offset for the slide-in
  */
 @Stable
-fun slideIn(
+public fun slideIn(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -365,7 +365,7 @@ fun slideIn(
  *   offset for the slide-out
  */
 @Stable
-fun slideOut(
+public fun slideOut(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -396,7 +396,7 @@ fun slideOut(
  *   [TransformOrigin.Center].
  */
 @Stable
-fun scaleIn(
+public fun scaleIn(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     initialScale: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center,
@@ -426,7 +426,7 @@ fun scaleIn(
  *   [TransformOrigin.Center].
  */
 @Stable
-fun scaleOut(
+public fun scaleOut(
     animationSpec: FiniteAnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
     targetScale: Float = 0f,
     transformOrigin: TransformOrigin = TransformOrigin.Center
@@ -462,7 +462,7 @@ fun scaleOut(
  * @param initialSize the start size of the expanding bounds, returning `IntSize(0, 0)` by default.
  */
 @Stable
-fun expandIn(
+public fun expandIn(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -502,7 +502,7 @@ fun expandIn(
  * @param targetSize returns the end size of the shrinking bounds, `IntSize(0, 0)` by default.
  */
 @Stable
-fun shrinkOut(
+public fun shrinkOut(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -540,7 +540,7 @@ fun shrinkOut(
  * @param initialWidth the start width of the expanding bounds, returning 0 by default.
  */
 @Stable
-fun expandHorizontally(
+public fun expandHorizontally(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -578,7 +578,7 @@ fun expandHorizontally(
  * @param initialHeight the start height of the expanding bounds, returning 0 by default.
  */
 @Stable
-fun expandVertically(
+public fun expandVertically(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -616,7 +616,7 @@ fun expandVertically(
  * @param targetWidth returns the end width of the shrinking bounds, 0 by default.
  */
 @Stable
-fun shrinkHorizontally(
+public fun shrinkHorizontally(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -655,7 +655,7 @@ fun shrinkHorizontally(
  * @param targetHeight returns the end height of the shrinking bounds, 0 by default.
  */
 @Stable
-fun shrinkVertically(
+public fun shrinkVertically(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -688,7 +688,7 @@ fun shrinkVertically(
  *   initial offset for the slide-in, by default it returns `-fullWidth/2`
  */
 @Stable
-fun slideInHorizontally(
+public fun slideInHorizontally(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -718,7 +718,7 @@ fun slideInHorizontally(
  *   offset for the slide-in, by default it returns `-fullHeight/2`
  */
 @Stable
-fun slideInVertically(
+public fun slideInVertically(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -748,7 +748,7 @@ fun slideInVertically(
  *   offset for the slide-in, by default it returns `fullWidth/2`
  */
 @Stable
-fun slideOutHorizontally(
+public fun slideOutHorizontally(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -776,7 +776,7 @@ fun slideOutHorizontally(
  *   offset for the slide-out, by default it returns `fullHeight/2`
  */
 @Stable
-fun slideOutVertically(
+public fun slideOutVertically(
     animationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
