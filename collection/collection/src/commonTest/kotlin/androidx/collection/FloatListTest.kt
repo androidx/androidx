@@ -657,6 +657,14 @@ internal class FloatListTest {
         assertEquals(mutableFloatListOf(5f, 4f, 3f, 2f, 1f), l)
     }
 
+    @Test // https://youtrack.jetbrains.com/issue/CMP-5698
+    fun sortEmpty() {
+        val l = MutableFloatList(0)
+        l.sort()
+        l.sortDescending()
+        assertEquals(MutableFloatList(0), l)
+    }
+
     @Test
     fun testEmptyFloatList() {
         val l = emptyFloatList()

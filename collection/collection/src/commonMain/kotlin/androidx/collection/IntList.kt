@@ -878,6 +878,7 @@ public class MutableIntList(
      * Sorts the [MutableIntList] elements in ascending order.
      */
     public fun sort() {
+        if (_size == 0) return // TODO: remove after fix https://youtrack.jetbrains.com/issue/KT-70005
         content.sort(fromIndex = 0, toIndex = _size)
     }
 
@@ -885,6 +886,7 @@ public class MutableIntList(
      * Sorts the [MutableIntList] elements in descending order.
      */
     public fun sortDescending() {
+        if (_size == 0) return // TODO: remove after fix https://youtrack.jetbrains.com/issue/KT-70005
         content.sortDescending(fromIndex = 0, toIndex = _size)
     }
 }

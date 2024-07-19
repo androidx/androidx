@@ -651,6 +651,14 @@ internal class IntListTest {
         assertEquals(list, l)
     }
 
+    @Test // https://youtrack.jetbrains.com/issue/CMP-5698
+    fun sortEmpty() {
+        val l = MutableIntList(0)
+        l.sort()
+        l.sortDescending()
+        assertEquals(MutableIntList(0), l)
+    }
+
     @Test
     fun sortDescending() {
         val l = mutableIntListOf(1, 4, 2, 5, 3)
