@@ -100,8 +100,6 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         // Broken on UDC, but fixed on UDC-QPR; no easy way to differentiate in a test, so
         // disabling for the whole API 34. See b/284406283 for more context.
         Assume.assumeTrue(Build.VERSION.SDK_INT != 34)
-        // Broken on V, see b/347924312
-        Assume.assumeTrue(Build.VERSION.SDK_INT != 35)
         setupTest(config.applyFix, config.pagesConsumeInsets)
         runTest()
         checkResult(hasAppliedFix = config.applyFix, pagesConsumeInsets = config.pagesConsumeInsets)
@@ -116,6 +114,16 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
                     orientation = LinearLayout.VERTICAL
                 }
 
+            // Calling setContentView when the window is attached will make the window dispatch
+            // WindowInsets again. To avoid the insets dispatched by window affecting this test,
+            // here:
+            // 1. exits the onActivity scope after calling setContentView,
+            // 2. lets the window dispatch WindowInsets, and then
+            // 3. adds the rest views to viewRoot in the next message.
+            it.setContentView(viewRoot)
+        }
+
+        activityTestRule.scenario.onActivity {
             viewPager =
                 ViewPager2(it).apply {
                     layoutParams = LinearLayout.LayoutParams(MATCH_PARENT, 0, 1f)
@@ -133,8 +141,6 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
                 tag = "SIBLING"
                 viewRoot.addView(this)
             }
-
-            it.setContentView(viewRoot)
         }
     }
 
