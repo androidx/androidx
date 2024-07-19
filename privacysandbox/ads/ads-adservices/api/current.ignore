@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedMethod: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#GetTopicsRequest():
+    Added constructor androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest()

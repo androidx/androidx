@@ -208,6 +208,7 @@ package androidx.compose.animation.core {
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class ArcAnimationSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+    ctor public ArcAnimationSpec();
     ctor public ArcAnimationSpec(optional int mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
     method public int getDelayMillis();
     method public int getDurationMillis();
@@ -399,6 +400,7 @@ package androidx.compose.animation.core {
   }
 
   public final class FloatExponentialDecaySpec implements androidx.compose.animation.core.FloatDecayAnimationSpec {
+    ctor public FloatExponentialDecaySpec();
     ctor public FloatExponentialDecaySpec(optional @FloatRange(from=0.0, fromInclusive=false) float frictionMultiplier, optional @FloatRange(from=0.0, fromInclusive=false) float absVelocityThreshold);
     method public float getAbsVelocityThreshold();
     method public long getDurationNanos(float initialValue, float initialVelocity);
@@ -409,6 +411,7 @@ package androidx.compose.animation.core {
   }
 
   public final class FloatSpringSpec implements androidx.compose.animation.core.FloatAnimationSpec {
+    ctor public FloatSpringSpec();
     ctor public FloatSpringSpec(optional float dampingRatio, optional float stiffness, optional float visibilityThreshold);
     method public float getDampingRatio();
     method public long getDurationNanos(float initialValue, float targetValue, float initialVelocity);
@@ -420,6 +423,7 @@ package androidx.compose.animation.core {
   }
 
   public final class FloatTweenSpec implements androidx.compose.animation.core.FloatAnimationSpec {
+    ctor public FloatTweenSpec();
     ctor public FloatTweenSpec(optional int duration, optional int delay, optional androidx.compose.animation.core.Easing easing);
     method public int getDelay();
     method public int getDuration();
@@ -573,6 +577,7 @@ package androidx.compose.animation.core {
   }
 
   @androidx.compose.runtime.Immutable public final class SnapSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+    ctor public SnapSpec();
     ctor public SnapSpec(optional int delay);
     method public int getDelay();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
@@ -594,6 +599,7 @@ package androidx.compose.animation.core {
   }
 
   @androidx.compose.runtime.Immutable public final class SpringSpec<T> implements androidx.compose.animation.core.FiniteAnimationSpec<T> {
+    ctor public SpringSpec();
     ctor public SpringSpec(optional float dampingRatio, optional float stiffness, optional T? visibilityThreshold);
     method public float getDampingRatio();
     method public float getStiffness();
@@ -713,6 +719,7 @@ package androidx.compose.animation.core {
   }
 
   @androidx.compose.runtime.Immutable public final class TweenSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+    ctor public TweenSpec();
     ctor public TweenSpec(optional int durationMillis, optional int delay, optional androidx.compose.animation.core.Easing easing);
     method public int getDelay();
     method public int getDurationMillis();
@@ -810,6 +817,7 @@ package androidx.compose.animation.core {
   }
 
   public final class VectorizedSnapSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> {
+    ctor public VectorizedSnapSpec();
     ctor public VectorizedSnapSpec(optional int delayMillis);
     method public int getDelayMillis();
     method public int getDurationMillis();
@@ -828,6 +836,7 @@ package androidx.compose.animation.core {
   }
 
   public final class VectorizedTweenSpec<V extends androidx.compose.animation.core.AnimationVector> implements androidx.compose.animation.core.VectorizedDurationBasedAnimationSpec<V> {
+    ctor public VectorizedTweenSpec();
     ctor public VectorizedTweenSpec(optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
     method public int getDelayMillis();
     method public int getDurationMillis();

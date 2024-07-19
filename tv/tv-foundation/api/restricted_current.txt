@@ -5,6 +5,7 @@ package androidx.tv.foundation {
   }
 
   @Deprecated @androidx.compose.runtime.Immutable public final class PivotOffsets {
+    ctor @Deprecated public PivotOffsets();
     ctor @Deprecated public PivotOffsets(optional @FloatRange(from=0.0, to=1.0, fromInclusive=true, toInclusive=true) float parentFraction, optional @FloatRange(from=0.0, to=1.0, fromInclusive=true, toInclusive=true) float childFraction);
     method @Deprecated public float getChildFraction();
     method @Deprecated public float getParentFraction();
@@ -125,6 +126,7 @@ package androidx.tv.foundation.lazy.grid {
   }
 
   @Deprecated @androidx.compose.runtime.Stable public final class TvLazyGridState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor @Deprecated public TvLazyGridState();
     ctor @Deprecated public TvLazyGridState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
     method @Deprecated public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public float dispatchRawDelta(float delta);
@@ -224,6 +226,7 @@ package androidx.tv.foundation.lazy.list {
   }
 
   @Deprecated @androidx.compose.runtime.Stable public final class TvLazyListState implements androidx.compose.foundation.gestures.ScrollableState {
+    ctor @Deprecated public TvLazyListState();
     ctor @Deprecated public TvLazyListState(optional int firstVisibleItemIndex, optional int firstVisibleItemScrollOffset);
     method @Deprecated public suspend Object? animateScrollToItem(int index, optional int scrollOffset, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @Deprecated public float dispatchRawDelta(float delta);

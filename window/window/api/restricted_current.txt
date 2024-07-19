@@ -196,6 +196,7 @@ package androidx.window.embedding {
   }
 
   public final class SplitAttributes {
+    ctor public SplitAttributes();
     method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
     method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
     property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
