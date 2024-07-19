@@ -180,12 +180,8 @@ internal constructor(
         internal const val READ_BONE_MASS = PERMISSION_PREFIX + "READ_BONE_MASS"
         internal const val READ_HEIGHT = PERMISSION_PREFIX + "READ_HEIGHT"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val READ_HIP_CIRCUMFERENCE = PERMISSION_PREFIX + "READ_HIP_CIRCUMFERENCE"
         internal const val READ_LEAN_BODY_MASS = PERMISSION_PREFIX + "READ_LEAN_BODY_MASS"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val READ_WAIST_CIRCUMFERENCE = PERMISSION_PREFIX + "READ_WAIST_CIRCUMFERENCE"
         internal const val READ_WEIGHT = PERMISSION_PREFIX + "READ_WEIGHT"
 
         // Read permissions for CYCLE_TRACKING.
@@ -241,13 +237,8 @@ internal constructor(
         internal const val WRITE_BONE_MASS = PERMISSION_PREFIX + "WRITE_BONE_MASS"
         internal const val WRITE_HEIGHT = PERMISSION_PREFIX + "WRITE_HEIGHT"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val WRITE_HIP_CIRCUMFERENCE = PERMISSION_PREFIX + "WRITE_HIP_CIRCUMFERENCE"
         internal const val WRITE_LEAN_BODY_MASS = PERMISSION_PREFIX + "WRITE_LEAN_BODY_MASS"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        internal const val WRITE_WAIST_CIRCUMFERENCE =
-            PERMISSION_PREFIX + "WRITE_WAIST_CIRCUMFERENCE"
         internal const val WRITE_WEIGHT = PERMISSION_PREFIX + "WRITE_WEIGHT"
 
         // Write permissions for CYCLE_TRACKING.
