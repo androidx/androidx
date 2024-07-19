@@ -43,6 +43,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -1042,7 +1043,7 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     internal var nullableLookaheadRoot: LayoutCoordinates? = null
 
     // TODO: Use MutableObjectList and impl sort
-    private val renderers = mutableListOf<LayerRenderer>()
+    private val renderers = mutableStateListOf<LayerRenderer>()
 
     private val sharedElements = MutableScatterMap<Any, SharedElement>()
 
