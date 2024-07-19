@@ -39,4 +39,10 @@ dependencies {
 
 android {
     namespace "androidx.compose.foundation.layout.benchmark"
+
+    buildTypes {
+        release {
+            minifyEnabled true
+        }
+    }
 }
