@@ -55,7 +55,7 @@ internal class ViewModelProviderImpl(
             }
 
             val modelExtras = MutableCreationExtras(defaultExtras)
-            modelExtras[ViewModelProviders.ViewModelKey] = key
+            modelExtras[ViewModelProvider.VIEW_MODEL_KEY] = key
 
             return@synchronized createViewModel(factory, modelClass, modelExtras).also { vm ->
                 store.put(key, vm)

@@ -10,7 +10,7 @@ abstract class androidx.lifecycle.viewmodel/CreationExtras { // androidx.lifecyc
     abstract fun <#A1: kotlin/Any?> get(androidx.lifecycle.viewmodel/CreationExtras.Key<#A1>): #A1? // androidx.lifecycle.viewmodel/CreationExtras.get|get(androidx.lifecycle.viewmodel.CreationExtras.Key<0:0>){0§<kotlin.Any?>}[0]
     abstract interface <#A1: kotlin/Any?> Key // androidx.lifecycle.viewmodel/CreationExtras.Key|null[0]
     final object Companion { // androidx.lifecycle.viewmodel/CreationExtras.Companion|null[0]
-        final inline fun <#A2: reified kotlin/Any?> key(): androidx.lifecycle.viewmodel/CreationExtras.Key<#A2> // androidx.lifecycle.viewmodel/CreationExtras.Companion.key|key(){0§<kotlin.Any?>}[0]
+        final inline fun <#A2: reified kotlin/Any?> Key(): androidx.lifecycle.viewmodel/CreationExtras.Key<#A2> // androidx.lifecycle.viewmodel/CreationExtras.Companion.Key|Key(){0§<kotlin.Any?>}[0]
     }
     final object Empty : androidx.lifecycle.viewmodel/CreationExtras { // androidx.lifecycle.viewmodel/CreationExtras.Empty|null[0]
         final fun <#A2: kotlin/Any?> get(androidx.lifecycle.viewmodel/CreationExtras.Key<#A2>): #A2? // androidx.lifecycle.viewmodel/CreationExtras.Empty.get|get(androidx.lifecycle.viewmodel.CreationExtras.Key<0:0>){0§<kotlin.Any?>}[0]

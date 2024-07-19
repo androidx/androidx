@@ -46,8 +46,6 @@ internal object ViewModelProviders {
         return "$VIEW_MODEL_PROVIDER_DEFAULT_KEY:$canonicalName"
     }
 
-    internal object ViewModelKey : CreationExtras.Key<String>
-
     internal fun <VM : ViewModel> unsupportedCreateViewModel(): VM =
         throw UnsupportedOperationException(
             "`Factory.create(String, CreationExtras)` is not implemented. You may need to " +

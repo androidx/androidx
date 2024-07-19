@@ -65,7 +65,7 @@ public abstract class CreationExtras internal constructor() {
 
     public companion object {
         /** Returns an unique [Key] to be associated with an extra. */
-        @JvmStatic public inline fun <reified T> key(): Key<T> = object : Key<T> {}
+        @JvmStatic public inline fun <reified T> Key(): Key<T> = object : Key<T> {}
     }
 }
 

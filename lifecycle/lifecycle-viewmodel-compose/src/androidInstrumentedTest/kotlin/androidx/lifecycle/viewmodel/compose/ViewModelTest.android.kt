@@ -112,7 +112,7 @@ public class ViewModelTest {
     public fun viewModelCreatedViaDefaultFactoryWithKeyAndCreationExtras() {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
-        val extrasKey = object : CreationExtras.Key<String> {}
+        val extrasKey = CreationExtras.Key<String>()
         val extras = MutableCreationExtras().apply { set(extrasKey, "value") }
         rule.setContent {
             CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
@@ -130,7 +130,7 @@ public class ViewModelTest {
     public fun viewModelCreatedCreationExtrasInitializer() {
         val owner = FakeViewModelStoreOwner()
         var createdInComposition: Any? = null
-        val extrasKey = object : CreationExtras.Key<String> {}
+        val extrasKey = CreationExtras.Key<String>()
         rule.setContent {
             CompositionLocalProvider(LocalViewModelStoreOwner provides owner) {
                 createdInComposition =
