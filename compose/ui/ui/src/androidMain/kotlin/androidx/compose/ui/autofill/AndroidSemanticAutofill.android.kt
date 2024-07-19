@@ -54,7 +54,6 @@ import androidx.compose.ui.semantics.SemanticsProperties.ContentType
 import androidx.compose.ui.semantics.SemanticsProperties.Disabled
 import androidx.compose.ui.semantics.SemanticsProperties.EditableText
 import androidx.compose.ui.semantics.SemanticsProperties.Focused
-import androidx.compose.ui.semantics.SemanticsProperties.InvisibleToUser
 import androidx.compose.ui.semantics.SemanticsProperties.MaxTextLength
 import androidx.compose.ui.semantics.SemanticsProperties.Password
 import androidx.compose.ui.semantics.SemanticsProperties.Role
@@ -186,10 +185,10 @@ internal class AndroidSemanticAutofill(val view: AndroidComposeView) : SemanticA
 
             // Check Visibility —————————
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                val previousInvisible = previousNode.unmergedConfig.contains(InvisibleToUser)
-                val currInvisible = currNode.unmergedConfig.contains(InvisibleToUser)
-                if (previousInvisible != currInvisible) {
-                    notifyVisibilityChanged(id, currInvisible)
+                val prevTransparency = previousNode.isTransparent
+                val currTransparency = currNode.isTransparent
+                if (prevTransparency != currTransparency) {
+                    notifyVisibilityChanged(id, currTransparency)
                 }
             }
         }
@@ -376,10 +375,11 @@ internal fun SemanticsNode.populateViewStructure(child: ViewStructure) {
     // TODO(MNUZEN): Set setAccessibilityFocused as well
 
     // ———————— Visibility, elevation, alpha
+    // Transparency should be the only thing affecting View.VISIBLE (pruning will take care of all
+    // covered nodes).
     AutofillApi26Helper.setVisibility(
         child,
-        if (!isTransparent && !unmergedConfig.contains(InvisibleToUser)) View.VISIBLE
-        else View.INVISIBLE
+        if (!isTransparent || isRoot) View.VISIBLE else View.INVISIBLE
     )
 
     // TODO(335726351): will call the below method when b/335726351 has been fulfilled and

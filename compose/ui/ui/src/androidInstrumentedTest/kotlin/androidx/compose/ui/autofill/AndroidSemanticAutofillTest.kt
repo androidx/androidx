@@ -50,7 +50,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
-import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onLongClick
@@ -450,10 +449,8 @@ class AndroidPerformSemanticAutofillTest {
 
         rule.setContentWithAutofillEnabled {
             Box(
-                Modifier.semantics {
-                        contentType = ContentType.Username
-                        invisibleToUser()
-                    }
+                Modifier.alpha(0f)
+                    .semantics { contentType = ContentType.Username }
                     .size(width, height)
                     .testTag(contentTag)
             )

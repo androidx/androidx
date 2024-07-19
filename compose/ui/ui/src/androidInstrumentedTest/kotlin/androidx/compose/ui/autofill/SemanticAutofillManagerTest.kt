@@ -26,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -33,7 +34,6 @@ import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.focused
-import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -236,10 +236,10 @@ class SemanticAutofillManagerTest {
     }
 
     private fun invisibleModifier(testTag: String): Modifier {
-        return Modifier.semantics {
+        return Modifier.alpha(0f) // this will make the component invisible
+            .semantics {
                 contentType = ContentType.Username
                 contentDataType = ContentDataType.Text
-                invisibleToUser()
             }
             .size(width, height)
             .testTag(testTag)
