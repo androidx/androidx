@@ -35,13 +35,14 @@ enum class PlatformGroup {
     JVM,
     JS,
     MAC,
+    WINDOWS,
     LINUX,
     DESKTOP,
     ANDROID_NATIVE;
 
     companion object {
         /** Target platform groups which require native compilation (e.g. LLVM). */
-        val native = listOf(MAC, LINUX, ANDROID_NATIVE)
+        val native = listOf(MAC, LINUX, WINDOWS, ANDROID_NATIVE)
 
         /**
          * Target platform groups which are enabled by default.
@@ -49,7 +50,7 @@ enum class PlatformGroup {
          * Do *not* enable [JS] unless you have read and understand this:
          * https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
          */
-        val enabledByDefault = listOf(JVM, DESKTOP, MAC, LINUX, ANDROID_NATIVE)
+        val enabledByDefault = listOf(JVM, DESKTOP, MAC, LINUX, WINDOWS, ANDROID_NATIVE)
     }
 }
 
@@ -68,6 +69,7 @@ enum class PlatformIdentifier(
     ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),
+    MINGW_X_64("mingwx64", PlatformGroup.WINDOWS),
     LINUX_ARM_64("linuxarm64", PlatformGroup.LINUX),
     LINUX_X_64("linuxx64", PlatformGroup.LINUX),
     LINUX_X_64_STUBS("linuxx64Stubs", PlatformGroup.LINUX),
@@ -137,6 +139,8 @@ fun Project.enableAndroidNative(): Boolean =
     enabledKmpPlatforms.contains(PlatformGroup.ANDROID_NATIVE)
 
 fun Project.enableMac(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.MAC)
+
+fun Project.enableWindows(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.WINDOWS)
 
 fun Project.enableLinux(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.LINUX)
 
