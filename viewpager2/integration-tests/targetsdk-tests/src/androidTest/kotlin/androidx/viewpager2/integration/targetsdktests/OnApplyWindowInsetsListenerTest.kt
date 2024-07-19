@@ -100,6 +100,8 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
         // Broken on UDC, but fixed on UDC-QPR; no easy way to differentiate in a test, so
         // disabling for the whole API 34. See b/284406283 for more context.
         Assume.assumeTrue(Build.VERSION.SDK_INT != 34)
+        // Broken on V, see b/347924312
+        Assume.assumeTrue(Build.VERSION.SDK_INT != 35)
         setupTest(config.applyFix, config.pagesConsumeInsets)
         runTest()
         checkResult(hasAppliedFix = config.applyFix, pagesConsumeInsets = config.pagesConsumeInsets)
