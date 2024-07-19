@@ -96,7 +96,7 @@ class ProgressIndicatorScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator() }
         }
-        rule.mainClock.advanceTimeBy(500)
+        rule.mainClock.advanceTimeBy(LinearAnimationDuration / 2L)
         assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_indeterminate")
     }
 
@@ -116,7 +116,7 @@ class ProgressIndicatorScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { LinearProgressIndicator(gapSize = 0.dp) }
         }
-        rule.mainClock.advanceTimeBy(500)
+        rule.mainClock.advanceTimeBy(LinearAnimationDuration / 2L)
         assertIndicatorAgainstGolden("linearProgressIndicator_lightTheme_indeterminate_no_gap")
     }
 
@@ -172,8 +172,35 @@ class ProgressIndicatorScreenshotTest {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { CircularProgressIndicator() }
         }
-        rule.mainClock.advanceTimeBy(500)
+        rule.mainClock.advanceTimeBy(CircularAnimationProgressDuration / 3L * 4L)
         assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_indeterminate")
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate_with_track() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(trackColor = MaterialTheme.colorScheme.secondaryContainer)
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularProgressIndicator_lightTheme_indeterminate_with_track"
+        )
+    }
+
+    @Test
+    fun circularProgressIndicator_lightTheme_indeterminate_with_track_no_gap() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                CircularProgressIndicator(
+                    trackColor = MaterialTheme.colorScheme.secondaryContainer,
+                    gapSize = 0.dp
+                )
+            }
+        }
+        assertIndicatorAgainstGolden(
+            "circularProgressIndicator_lightTheme_indeterminate_with_track_no_gap"
+        )
     }
 
     @Test
@@ -183,6 +210,7 @@ class ProgressIndicatorScreenshotTest {
             Box(wrap.testTag(wrapperTestTag)) { CircularProgressIndicator() }
         }
         rule.mainClock.advanceTimeBy(0)
+        // Expecting about 10% of a circle, as defined by the CircularIndeterminateMinProgress.
         assertIndicatorAgainstGolden("circularProgressIndicator_lightTheme_indeterminate_start")
     }
 
