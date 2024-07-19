@@ -16,6 +16,8 @@
 
 package androidx.glance.session
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -37,7 +39,8 @@ internal class TimeoutCancellationException(
 }
 
 /** This interface is similar to [kotlin.time.TimeSource], which is still marked experimental. */
-internal fun interface TimeSource {
+@RestrictTo(LIBRARY_GROUP)
+fun interface TimeSource {
     /** Current time in milliseconds. */
     fun markNow(): Long
 

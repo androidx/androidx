@@ -1,0 +1,30 @@
+// Signature format: 4.0
+package androidx.glance.appwidget.multiprocess {
+
+  public final class MultiProcessConfig {
+    ctor public MultiProcessConfig(android.content.ComponentName remoteWorkerService, android.content.ComponentName actionTrampolineActivity, android.content.ComponentName invisibleActionTrampolineActivity, android.content.ComponentName actionCallbackBroadcastReceiver, android.content.ComponentName remoteViewsService);
+    method public android.content.ComponentName getActionCallbackBroadcastReceiver();
+    method public android.content.ComponentName getActionTrampolineActivity();
+    method public android.content.ComponentName getInvisibleActionTrampolineActivity();
+    method public android.content.ComponentName getRemoteViewsService();
+    method public android.content.ComponentName getRemoteWorkerService();
+    property public final android.content.ComponentName actionCallbackBroadcastReceiver;
+    property public final android.content.ComponentName actionTrampolineActivity;
+    property public final android.content.ComponentName invisibleActionTrampolineActivity;
+    property public final android.content.ComponentName remoteViewsService;
+    property public final android.content.ComponentName remoteWorkerService;
+    field public static final androidx.glance.appwidget.multiprocess.MultiProcessConfig.Companion Companion;
+  }
+
+  public static final class MultiProcessConfig.Companion {
+    method public androidx.glance.appwidget.multiprocess.MultiProcessConfig getDefault(android.content.Context context);
+  }
+
+  public abstract class MultiProcessGlanceAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
+    ctor public MultiProcessGlanceAppWidget();
+    method public androidx.glance.appwidget.multiprocess.MultiProcessConfig? getMultiProcessConfig();
+    property public androidx.glance.appwidget.multiprocess.MultiProcessConfig? multiProcessConfig;
+  }
+
+}
+

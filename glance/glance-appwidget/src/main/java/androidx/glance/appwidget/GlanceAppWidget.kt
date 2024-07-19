@@ -57,7 +57,8 @@ import kotlinx.coroutines.CancellationException
 abstract class GlanceAppWidget(
     @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
-    private val sessionManager: SessionManager = GlanceSessionManager
+    @get:RestrictTo(Scope.LIBRARY_GROUP)
+    protected open val sessionManager: SessionManager = GlanceSessionManager
 
     /**
      * Override this function to provide the Glance Composable.
@@ -139,7 +140,7 @@ abstract class GlanceAppWidget(
         val glanceId = AppWidgetId(appWidgetId)
         sessionManager.runWithLock {
             if (!isSessionRunning(context, glanceId.toSessionKey())) {
-                startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+                startSession(context, createAppWidgetSession(glanceId, options))
                 return@runWithLock
             }
             val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
@@ -221,7 +222,7 @@ abstract class GlanceAppWidget(
         block: suspend SessionManagerScope.(AppWidgetSession) -> Unit
     ) = runWithLock {
         if (!isSessionRunning(context, glanceId.toSessionKey())) {
-            startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+            startSession(context, createAppWidgetSession(glanceId, options))
         }
         val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
         block(session)
@@ -230,9 +231,14 @@ abstract class GlanceAppWidget(
     /**
      * Override this function to specify the components that will be used for actions and
      * RemoteViewsService. All of the components must run in the same process.
+     *
+     * If null, then the default components will be used.
      */
+    @get:RestrictTo(Scope.LIBRARY_GROUP) open val components: GlanceComponents? = null
+
     @RestrictTo(Scope.LIBRARY_GROUP)
-    open fun getComponents(context: Context) = GlanceComponents.getDefault(context)
+    protected open fun createAppWidgetSession(id: AppWidgetId, options: Bundle? = null) =
+        AppWidgetSession(this@GlanceAppWidget, id, options)
 }
 
 @RestrictTo(Scope.LIBRARY_GROUP) data class AppWidgetId(val appWidgetId: Int) : GlanceId
@@ -284,15 +290,13 @@ suspend fun GlanceAppWidget.provideContent(
  * process.
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-open class GlanceComponents(
-    open val actionTrampolineActivity: ComponentName,
-    open val invisibleActionTrampolineActivity: ComponentName,
-    open val actionCallbackBroadcastReceiver: ComponentName,
-    open val remoteViewsService: ComponentName,
+class GlanceComponents(
+    val actionTrampolineActivity: ComponentName,
+    val invisibleActionTrampolineActivity: ComponentName,
+    val actionCallbackBroadcastReceiver: ComponentName,
+    val remoteViewsService: ComponentName,
 ) {
-
     companion object {
-
         /** The default components used for GlanceAppWidget. */
         fun getDefault(context: Context) =
             GlanceComponents(

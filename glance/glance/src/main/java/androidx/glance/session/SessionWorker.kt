@@ -19,6 +19,7 @@ package androidx.glance.session
 import android.content.Context
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
@@ -53,7 +54,8 @@ import kotlinx.coroutines.withContext
  *   standby mode.
  * @property timeSource The time source for measuring progress towards timeouts.
  */
-internal data class TimeoutOptions(
+@RestrictTo(LIBRARY_GROUP)
+data class TimeoutOptions(
     val initialTimeout: Duration = 45.seconds,
     val additionalTime: Duration = 5.seconds,
     val idleTimeout: Duration = 5.seconds,
@@ -68,7 +70,8 @@ internal data class TimeoutOptions(
  * those of successive recompositions) to [Session.processEmittableTree]. After the initial
  * composition, the worker blocks on [Session.receiveEvents] until [Session.close] is called.
  */
-internal class SessionWorker(
+@RestrictTo(LIBRARY_GROUP)
+class SessionWorker(
     appContext: Context,
     private val params: WorkerParameters,
     private val sessionManager: SessionManager = GlanceSessionManager,
@@ -254,7 +257,7 @@ private suspend fun TimerScope.runSession(
  * called or this call is cancelled. This can be used to run a session without
  * [GlanceSessionManager], i.e. without starting a worker.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP)
 suspend fun Session.runSession(context: Context) {
     noopTimer { runSession(context, this@runSession, TimeoutOptions()) }
 }
