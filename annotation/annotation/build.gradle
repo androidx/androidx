@@ -16,10 +16,10 @@ plugins {
 }
 
 androidXMultiplatform {
-
     androidNative()
     jvm()
     mac()
+    mingwX64()
     linux()
     ios()
     watchos()
