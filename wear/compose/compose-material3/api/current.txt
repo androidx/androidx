@@ -1243,3 +1243,13 @@ package androidx.wear.compose.material3.dialog {
 
 }
 
+package androidx.wear.compose.material3.lazy {
+
+  public final class LazyColumnScrollTransformModifiersKt {
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier scrollTransform(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.lazy.LazyColumnItemScope scope);
+    method @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier scrollTransform(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.lazy.LazyColumnItemScope scope, long backgroundColor, optional androidx.compose.ui.graphics.Shape shape);
+    method public static androidx.compose.ui.Modifier targetMorphingHeight(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.lazy.LazyColumnItemScope scope);
+  }
+
+}
+

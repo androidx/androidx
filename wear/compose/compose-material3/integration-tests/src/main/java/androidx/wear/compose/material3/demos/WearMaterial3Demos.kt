@@ -161,7 +161,11 @@ val WearMaterial3Demos =
                     emptyList()
                 }
             ),
-            ComposableDemo("Settings Demo") { SettingsDemo() }
+            ComposableDemo("Settings Demo") { SettingsDemo() },
+            Material3DemoCategory(
+                title = "LazyColumn",
+                listOf(ComposableDemo("Notifications") { LazyColumnNotificationsDemo() })
+            )
         )
     )
 
