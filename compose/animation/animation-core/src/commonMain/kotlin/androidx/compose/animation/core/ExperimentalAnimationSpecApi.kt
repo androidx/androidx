@@ -21,4 +21,4 @@ package androidx.compose.animation.core
         "This is an experimental animation API for AnimationSpec. " + "It may change in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalAnimationSpecApi
+public annotation class ExperimentalAnimationSpecApi

@@ -34,12 +34,12 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.abs
 
-object AnimationConstants {
+public object AnimationConstants {
     /** The default duration used in [VectorizedAnimationSpec]s and [AnimationSpec]. */
-    const val DefaultDurationMillis: Int = 300
+    public const val DefaultDurationMillis: Int = 300
 
     /** The value that is used when the animation time is not yet set. */
-    const val UnspecifiedTime: Long = Long.MIN_VALUE
+    public const val UnspecifiedTime: Long = Long.MIN_VALUE
 }
 
 /**
@@ -56,7 +56,7 @@ object AnimationConstants {
  * multi-dimensional way. It is particularly useful for smoothly handling animation interruptions
  * (such as when the target changes during the animation).
  */
-interface AnimationSpec<T> {
+public interface AnimationSpec<T> {
     /**
      * Creates a [VectorizedAnimationSpec] with the given [TwoWayConverter].
      *
@@ -68,7 +68,7 @@ interface AnimationSpec<T> {
      *
      * @param converter converts the type [T] from and to [AnimationVector] type
      */
-    fun <V : AnimationVector> vectorize(
+    public fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedAnimationSpec<V>
 }
@@ -80,7 +80,7 @@ interface AnimationSpec<T> {
  *
  * @see [InfiniteRepeatableSpec]
  */
-interface FiniteAnimationSpec<T> : AnimationSpec<T> {
+public interface FiniteAnimationSpec<T> : AnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedFiniteAnimationSpec<V>
@@ -94,14 +94,15 @@ interface FiniteAnimationSpec<T> : AnimationSpec<T> {
  * @param easing the easing curve used by the animation. [FastOutSlowInEasing] by default.
  */
 @Immutable
-class TweenSpec<T>(
-    val durationMillis: Int = DefaultDurationMillis,
-    val delay: Int = 0,
-    val easing: Easing = FastOutSlowInEasing
+public class TweenSpec<T>(
+    public val durationMillis: Int = DefaultDurationMillis,
+    public val delay: Int = 0,
+    public val easing: Easing = FastOutSlowInEasing
 ) : DurationBasedAnimationSpec<T> {
 
-    override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>) =
-        VectorizedTweenSpec<V>(durationMillis, delay, easing)
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedTweenSpec<V> = VectorizedTweenSpec<V>(durationMillis, delay, easing)
 
     override fun equals(other: Any?): Boolean =
         if (other is TweenSpec<*>) {
@@ -122,7 +123,7 @@ class TweenSpec<T>(
  * [TweenSpec], and [SnapSpec]. These duration based specs can repeated when put into a
  * [RepeatableSpec].
  */
-interface DurationBasedAnimationSpec<T> : FiniteAnimationSpec<T> {
+public interface DurationBasedAnimationSpec<T> : FiniteAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedDurationBasedAnimationSpec<V>
@@ -139,13 +140,15 @@ interface DurationBasedAnimationSpec<T> : FiniteAnimationSpec<T> {
  */
 // TODO: annotate damping/stiffness with FloatRange
 @Immutable
-class SpringSpec<T>(
-    val dampingRatio: Float = Spring.DampingRatioNoBouncy,
-    val stiffness: Float = Spring.StiffnessMedium,
-    val visibilityThreshold: T? = null
+public class SpringSpec<T>(
+    public val dampingRatio: Float = Spring.DampingRatioNoBouncy,
+    public val stiffness: Float = Spring.StiffnessMedium,
+    public val visibilityThreshold: T? = null
 ) : FiniteAnimationSpec<T> {
 
-    override fun <V : AnimationVector> vectorize(converter: TwoWayConverter<T, V>) =
+    override fun <V : AnimationVector> vectorize(
+        converter: TwoWayConverter<T, V>
+    ): VectorizedSpringSpec<V> =
         VectorizedSpringSpec(dampingRatio, stiffness, converter.convert(visibilityThreshold))
 
     override fun equals(other: Any?): Boolean =
@@ -199,11 +202,11 @@ private fun <T, V : AnimationVector> TwoWayConverter<T, V>.convert(data: T?): V?
  */
 @ExperimentalAnimationSpecApi
 @Immutable
-class ArcAnimationSpec<T>(
-    val mode: ArcMode = ArcBelow,
-    val durationMillis: Int = DefaultDurationMillis,
-    val delayMillis: Int = 0,
-    val easing: Easing = FastOutSlowInEasing // Same default as tween()
+public class ArcAnimationSpec<T>(
+    public val mode: ArcMode = ArcBelow,
+    public val durationMillis: Int = DefaultDurationMillis,
+    public val delayMillis: Int = 0,
+    public val easing: Easing = FastOutSlowInEasing // Same default as tween()
 ) : DurationBasedAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
@@ -247,13 +250,13 @@ class ArcAnimationSpec<T>(
  * @see StartOffset
  */
 @kotlin.jvm.JvmInline
-value class StartOffsetType private constructor(internal val value: Int) {
-    companion object {
+public value class StartOffsetType private constructor(internal val value: Int) {
+    public companion object {
         /** Delays the start of the animation. */
-        val Delay = StartOffsetType(-1)
+        public val Delay: StartOffsetType = StartOffsetType(-1)
 
         /** Fast forwards the animation to a given play time, and starts it immediately. */
-        val FastForward = StartOffsetType(1)
+        public val FastForward: StartOffsetType = StartOffsetType(1)
     }
 }
 
@@ -268,7 +271,7 @@ value class StartOffsetType private constructor(internal val value: Int) {
 // This is an inline of Long so that when adding a StartOffset param to the end of constructor
 // param list, it won't be confused with/clash with the mask param generated by constructors.
 @kotlin.jvm.JvmInline
-value class StartOffset private constructor(internal val value: Long) {
+public value class StartOffset private constructor(internal val value: Long) {
     /**
      * This creates a start offset for [repeatable] and [infiniteRepeatable]. [offsetType] can be
      * either of the following: [StartOffsetType.Delay] and [StartOffsetType.FastForward].
@@ -278,17 +281,17 @@ value class StartOffset private constructor(internal val value: Long) {
      * [StartOffsetType.FastForward] starts the animation right away from [offsetMillis] in the
      * animation.
      */
-    constructor(
+    public constructor(
         offsetMillis: Int,
         offsetType: StartOffsetType = StartOffsetType.Delay
     ) : this((offsetMillis * offsetType.value).toLong())
 
     /** Returns the number of milliseconds to offset the start of the animation. */
-    val offsetMillis: Int
+    public val offsetMillis: Int
         get() = abs(this.value.toInt())
 
     /** Returns the offset type of the provided [StartOffset]. */
-    val offsetType: StartOffsetType
+    public val offsetType: StartOffsetType
         get() =
             when (this.value > 0) {
                 true -> StartOffsetType.FastForward
@@ -318,15 +321,15 @@ value class StartOffset private constructor(internal val value: Long) {
  * @see infiniteRepeatable
  */
 @Immutable
-class RepeatableSpec<T>(
-    val iterations: Int,
-    val animation: DurationBasedAnimationSpec<T>,
-    val repeatMode: RepeatMode = RepeatMode.Restart,
-    val initialStartOffset: StartOffset = StartOffset(0)
+public class RepeatableSpec<T>(
+    public val iterations: Int,
+    public val animation: DurationBasedAnimationSpec<T>,
+    public val repeatMode: RepeatMode = RepeatMode.Restart,
+    public val initialStartOffset: StartOffset = StartOffset(0)
 ) : FiniteAnimationSpec<T> {
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "This constructor has been deprecated")
-    constructor(
+    public constructor(
         iterations: Int,
         animation: DurationBasedAnimationSpec<T>,
         repeatMode: RepeatMode = RepeatMode.Restart
@@ -379,14 +382,14 @@ class RepeatableSpec<T>(
  * @see infiniteRepeatable
  */
 // TODO: Consider supporting repeating spring specs
-class InfiniteRepeatableSpec<T>(
-    val animation: DurationBasedAnimationSpec<T>,
-    val repeatMode: RepeatMode = RepeatMode.Restart,
-    val initialStartOffset: StartOffset = StartOffset(0)
+public class InfiniteRepeatableSpec<T>(
+    public val animation: DurationBasedAnimationSpec<T>,
+    public val repeatMode: RepeatMode = RepeatMode.Restart,
+    public val initialStartOffset: StartOffset = StartOffset(0)
 ) : AnimationSpec<T> {
 
     @Deprecated(level = DeprecationLevel.HIDDEN, message = "This constructor has been deprecated")
-    constructor(
+    public constructor(
         animation: DurationBasedAnimationSpec<T>,
         repeatMode: RepeatMode = RepeatMode.Restart
     ) : this(animation, repeatMode, StartOffset(0))
@@ -417,7 +420,7 @@ class InfiniteRepeatableSpec<T>(
 }
 
 /** Repeat mode for [RepeatableSpec] and [VectorizedRepeatableSpec]. */
-enum class RepeatMode {
+public enum class RepeatMode {
     /** [Restart] will restart the animation and animate from the start value to the end value. */
     Restart,
 
@@ -433,7 +436,7 @@ enum class RepeatMode {
  *   starts. Defaults to 0.
  */
 @Immutable
-class SnapSpec<T>(val delay: Int = 0) : DurationBasedAnimationSpec<T> {
+public class SnapSpec<T>(public val delay: Int = 0) : DurationBasedAnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
     ): VectorizedDurationBasedAnimationSpec<V> = VectorizedSnapSpec(delay)
@@ -451,20 +454,20 @@ class SnapSpec<T>(val delay: Int = 0) : DurationBasedAnimationSpec<T> {
 }
 
 /** Shared configuration class used as DSL for keyframe based animations. */
-sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
+public sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
     /**
      * Duration of the animation in milliseconds. The minimum is `0` and defaults to
      * [DefaultDurationMillis]
      */
     @get:IntRange(from = 0L)
     @setparam:IntRange(from = 0L)
-    var durationMillis: Int = DefaultDurationMillis
+    public var durationMillis: Int = DefaultDurationMillis
 
     /**
      * The amount of time that the animation should be delayed. The minimum is `0` and defaults
      * to 0.
      */
-    @get:IntRange(from = 0L) @setparam:IntRange(from = 0L) var delayMillis: Int = 0
+    @get:IntRange(from = 0L) @setparam:IntRange(from = 0L) public var delayMillis: Int = 0
 
     internal val keyframes = mutableIntObjectMapOf<E>()
 
@@ -480,7 +483,7 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * @return an instance of [E] so a custom [Easing] can be added by the [using] method.
      */
     // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
-    open infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
+    public open infix fun T.at(@IntRange(from = 0) timeStamp: Int): E {
         val entity = createEntityFor(this)
         keyframes[timeStamp] = entity
         return entity
@@ -496,7 +499,7 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * @return an instance of [E] so a custom [Easing] can be added by the [using] method
      */
     // needed as `open` to guarantee binary compatibility in KeyframesSpecConfig
-    open infix fun T.atFraction(@FloatRange(from = 0.0, to = 1.0) fraction: Float): E {
+    public open infix fun T.atFraction(@FloatRange(from = 0.0, to = 1.0) fraction: Float): E {
         return at((durationMillis * fraction).fastRoundToInt())
     }
 
@@ -508,14 +511,14 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      * @param easing [Easing] to be used for the next interval.
      * @return the same [E] instance so that other implementations can expand on the builder pattern
      */
-    infix fun E.using(easing: Easing): E {
+    public infix fun E.using(easing: Easing): E {
         this.easing = easing
         return this
     }
 }
 
 /** Base holder class for building a keyframes animation. */
-sealed class KeyframeBaseEntity<T>(internal val value: T, internal var easing: Easing) {
+public sealed class KeyframeBaseEntity<T>(internal val value: T, internal var easing: Easing) {
     internal fun <V : AnimationVector> toPair(convertToVector: (T) -> V) =
         convertToVector.invoke(value) to easing
 }
@@ -545,7 +548,8 @@ sealed class KeyframeBaseEntity<T>(internal val value: T, internal var easing: E
  * [KeyframesWithSplineSpec].
  */
 @Immutable
-class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimationSpec<T> {
+public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
+    DurationBasedAnimationSpec<T> {
     /**
      * [KeyframesSpecConfig] stores a mutable configuration of the key frames, including
      * [durationMillis], [delayMillis], and all the key frames. Each key frame defines what the
@@ -555,7 +559,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
      * @sample androidx.compose.animation.core.samples.KeyframesBuilderForPosition
      * @see keyframes
      */
-    class KeyframesSpecConfig<T> : KeyframesSpecBaseConfig<T, KeyframeEntity<T>>() {
+    public class KeyframesSpecConfig<T> : KeyframesSpecBaseConfig<T, KeyframeEntity<T>>() {
         @OptIn(ExperimentalAnimationSpecApi::class)
         override fun createEntityFor(value: T): KeyframeEntity<T> = KeyframeEntity(value)
 
@@ -605,7 +609,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
                     " in other keyframe builders.",
             replaceWith = ReplaceWith("this using easing") // Expected usage pattern
         )
-        infix fun KeyframeEntity<T>.with(easing: Easing) {
+        public infix fun KeyframeEntity<T>.with(easing: Easing) {
             this.easing = easing
         }
 
@@ -624,7 +628,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
          * E.g.: [RectToVector] assigns its values as `[left, top, right, bottom]` so the pairs of
          * dimensions animated as arcs are: `[left, top]` and `[right, bottom]`.
          */
-        infix fun KeyframeEntity<T>.using(arcMode: ArcMode): KeyframeEntity<T> {
+        public infix fun KeyframeEntity<T>.using(arcMode: ArcMode): KeyframeEntity<T> {
             this.arcMode = arcMode
             return this
         }
@@ -666,7 +670,7 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
     }
 
     /** Holder class for building a keyframes animation. */
-    class KeyframeEntity<T>
+    public class KeyframeEntity<T>
     internal constructor(
         value: T,
         easing: Easing = LinearEasing,
@@ -715,8 +719,8 @@ class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimat
  * @see keyframesWithSpline
  */
 @Immutable
-class KeyframesWithSplineSpec<T>(
-    val config: KeyframesWithSplineSpecConfig<T>,
+public class KeyframesWithSplineSpec<T>(
+    public val config: KeyframesWithSplineSpecConfig<T>,
 ) : DurationBasedAnimationSpec<T> {
     // Periodic bias property, NaN by default. Only meant to be set by secondary constructor
     private var periodicBias: Float = Float.NaN
@@ -729,7 +733,7 @@ class KeyframesWithSplineSpec<T>(
      * @param periodicBias A value from 0f to 1f, indicating how much the starting or ending
      *   velocities are modified respectively to achieve periodicity.
      */
-    constructor(
+    public constructor(
         config: KeyframesWithSplineSpecConfig<T>,
         @FloatRange(0.0, 1.0) periodicBias: Float
     ) : this(config) {
@@ -743,7 +747,7 @@ class KeyframesWithSplineSpec<T>(
      * shape of the animation, [KeyframesWithSplineSpecConfig] does not allow setting a specific
      * [ArcMode] between intervals (compared to [KeyframesSpecConfig] used for [keyframes]).
      */
-    class KeyframesWithSplineSpecConfig<T> :
+    public class KeyframesWithSplineSpecConfig<T> :
         KeyframesSpecBaseConfig<T, KeyframesSpec.KeyframeEntity<T>>() {
 
         override fun createEntityFor(value: T): KeyframesSpec.KeyframeEntity<T> =
@@ -785,7 +789,7 @@ class KeyframesWithSplineSpec<T>(
  * @param easing the easing curve that will be used to interpolate between start and end
  */
 @Stable
-fun <T> tween(
+public fun <T> tween(
     durationMillis: Int = DefaultDurationMillis,
     delayMillis: Int = 0,
     easing: Easing = FastOutSlowInEasing
@@ -801,7 +805,7 @@ fun <T> tween(
  * @param visibilityThreshold optionally specifies the visibility threshold.
  */
 @Stable
-fun <T> spring(
+public fun <T> spring(
     dampingRatio: Float = Spring.DampingRatioNoBouncy,
     stiffness: Float = Spring.StiffnessMedium,
     visibilityThreshold: T? = null
@@ -828,7 +832,7 @@ fun <T> spring(
  * @see KeyframesSpec.KeyframesSpecConfig
  */
 @Stable
-fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): KeyframesSpec<T> {
+public fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): KeyframesSpec<T> {
     return KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<T>().apply(init))
 }
 
@@ -847,7 +851,7 @@ fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): Keyfra
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderForDpOffsetWithSplines
  * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
  */
-fun <T> keyframesWithSpline(
+public fun <T> keyframesWithSpline(
     init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
 ): KeyframesWithSplineSpec<T> =
     KeyframesWithSplineSpec(
@@ -875,7 +879,7 @@ fun <T> keyframesWithSpline(
  * @param init Initialization function for the [KeyframesWithSplineSpec] animation
  * @see KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig
  */
-fun <T> keyframesWithSpline(
+public fun <T> keyframesWithSpline(
     @FloatRange(0.0, 1.0) periodicBias: Float,
     init: KeyframesWithSplineSpec.KeyframesWithSplineSpecConfig<T>.() -> Unit
 ): KeyframesWithSplineSpec<T> =
@@ -906,7 +910,7 @@ fun <T> keyframesWithSpline(
  * @param initialStartOffset offsets the start of the animation
  */
 @Stable
-fun <T> repeatable(
+public fun <T> repeatable(
     iterations: Int,
     animation: DurationBasedAnimationSpec<T>,
     repeatMode: RepeatMode = RepeatMode.Restart,
@@ -920,11 +924,11 @@ fun <T> repeatable(
         "This method has been deprecated in favor of the repeatable function that accepts" +
             " start offset."
 )
-fun <T> repeatable(
+public fun <T> repeatable(
     iterations: Int,
     animation: DurationBasedAnimationSpec<T>,
     repeatMode: RepeatMode = RepeatMode.Restart
-) = RepeatableSpec(iterations, animation, repeatMode, StartOffset(0))
+): RepeatableSpec<T> = RepeatableSpec(iterations, animation, repeatMode, StartOffset(0))
 
 /**
  * Creates a [InfiniteRepeatableSpec] that plays a [DurationBasedAnimationSpec] (e.g. [TweenSpec],
@@ -943,7 +947,7 @@ fun <T> repeatable(
  * @param initialStartOffset offsets the start of the animation
  */
 @Stable
-fun <T> infiniteRepeatable(
+public fun <T> infiniteRepeatable(
     animation: DurationBasedAnimationSpec<T>,
     repeatMode: RepeatMode = RepeatMode.Restart,
     initialStartOffset: StartOffset = StartOffset(0)
@@ -956,17 +960,17 @@ fun <T> infiniteRepeatable(
         "This method has been deprecated in favor of the infinite repeatable function that" +
             " accepts start offset."
 )
-fun <T> infiniteRepeatable(
+public fun <T> infiniteRepeatable(
     animation: DurationBasedAnimationSpec<T>,
     repeatMode: RepeatMode = RepeatMode.Restart
-) = InfiniteRepeatableSpec(animation, repeatMode, StartOffset(0))
+): InfiniteRepeatableSpec<T> = InfiniteRepeatableSpec(animation, repeatMode, StartOffset(0))
 
 /**
  * Creates a Snap animation for immediately switching the animating value to the end value.
  *
  * @param delayMillis the number of milliseconds to wait before the animation runs. 0 by default.
  */
-@Stable fun <T> snap(delayMillis: Int = 0) = SnapSpec<T>(delayMillis)
+@Stable public fun <T> snap(delayMillis: Int = 0): SnapSpec<T> = SnapSpec<T>(delayMillis)
 
 /**
  * Returns an [AnimationSpec] that is the same as [animationSpec] with a delay of [startDelayNanos].

@@ -40,7 +40,7 @@ import androidx.compose.ui.util.fastForEach
  */
 @ExperimentalAnimationGraphicsApi
 @Composable
-fun rememberAnimatedVectorPainter(
+public fun rememberAnimatedVectorPainter(
     animatedImageVector: AnimatedImageVector,
     atEnd: Boolean
 ): Painter {

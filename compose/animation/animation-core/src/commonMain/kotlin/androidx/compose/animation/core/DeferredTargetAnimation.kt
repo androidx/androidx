@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
     message = "This is an experimental animation API for Transition. It may change in the future."
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalAnimatableApi
+public annotation class ExperimentalAnimatableApi
 
 /**
  * [DeferredTargetAnimation] is intended for animations where the target is unknown at the time of
@@ -41,11 +41,11 @@ annotation class ExperimentalAnimatableApi
  * @sample androidx.compose.animation.core.samples.DeferredTargetAnimationSample
  */
 @ExperimentalAnimatableApi
-class DeferredTargetAnimation<T, V : AnimationVector>(
+public class DeferredTargetAnimation<T, V : AnimationVector>(
     private val vectorConverter: TwoWayConverter<T, V>
 ) {
     /** Returns the target value from the most recent [updateTarget] call. */
-    val pendingTarget: T?
+    public val pendingTarget: T?
         get() = _pendingTarget
 
     private var _pendingTarget: T? by mutableStateOf(null)
@@ -64,7 +64,7 @@ class DeferredTargetAnimation<T, V : AnimationVector>(
      *
      * @return current value of the animation
      */
-    fun updateTarget(
+    public fun updateTarget(
         target: T,
         coroutineScope: CoroutineScope,
         animationSpec: FiniteAnimationSpec<T> = spring()
@@ -84,6 +84,6 @@ class DeferredTargetAnimation<T, V : AnimationVector>(
      * [pendingTarget], or when the animation has not been set up (i.e. [updateTarget] has never
      * been called).
      */
-    val isIdle: Boolean
+    public val isIdle: Boolean
         get() = _pendingTarget == target && animatable?.isRunning != true
 }

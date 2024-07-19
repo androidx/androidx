@@ -50,7 +50,7 @@ import androidx.compose.ui.graphics.findFirstRoot
  * @param path The [Path] to use to make the curve representing the easing curve.
  */
 @Immutable
-class PathEasing(private val path: Path) : Easing {
+public class PathEasing(private val path: Path) : Easing {
     private lateinit var intervals: IntervalTree<PathSegment>
 
     override fun transform(fraction: Float): Float {

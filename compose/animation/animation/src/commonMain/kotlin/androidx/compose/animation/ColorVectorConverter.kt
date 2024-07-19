@@ -53,6 +53,6 @@ private val ColorToVector: (colorSpace: ColorSpace) -> TwoWayConverter<Color, An
  * [AnimationVector4D], and convert a [AnimationVector4D]) back to a [Color] in the given
  * [ColorSpace].
  */
-val Color.Companion.VectorConverter:
+public val Color.Companion.VectorConverter:
     (colorSpace: ColorSpace) -> TwoWayConverter<Color, AnimationVector4D>
     get() = ColorToVector

@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.Dp
  * @param finishedListener An optional listener to get notified when the animation is finished.
  */
 @Composable
-fun animateColorAsState(
+public fun animateColorAsState(
     targetValue: Color,
     animationSpec: AnimationSpec<Color> = colorDefaultSpring,
     label: String = "ColorAnimation",
@@ -75,7 +75,7 @@ fun animateColorAsState(
     level = DeprecationLevel.HIDDEN
 )
 @Composable
-fun animateColorAsState(
+public fun animateColorAsState(
     targetValue: Color,
     animationSpec: AnimationSpec<Color> = colorDefaultSpring,
     finishedListener: ((Color) -> Unit)? = null
@@ -104,5 +104,5 @@ private val colorDefaultSpring = spring<Color>()
  * @sample androidx.compose.animation.samples.AnimatableColor
  * @param initialValue initial value of the [Animatable]
  */
-fun Animatable(initialValue: Color): Animatable<Color, AnimationVector4D> =
+public fun Animatable(initialValue: Color): Animatable<Color, AnimationVector4D> =
     Animatable(initialValue, (Color.VectorConverter)(initialValue.colorSpace))

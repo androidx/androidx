@@ -36,7 +36,7 @@ private val rectVisibilityThreshold =
  * to be no longer visible. The animation system uses this to signal to some default [spring]
  * animations to stop when the value is close enough to the target.
  */
-val IntOffset.Companion.VisibilityThreshold: IntOffset
+public val IntOffset.Companion.VisibilityThreshold: IntOffset
     get() = IntOffset(1, 1)
 
 /**
@@ -44,7 +44,7 @@ val IntOffset.Companion.VisibilityThreshold: IntOffset
  * be no longer visible. The animation system uses this to signal to some default [spring]
  * animations to stop when the value is close enough to the target.
  */
-val Offset.Companion.VisibilityThreshold: Offset
+public val Offset.Companion.VisibilityThreshold: Offset
     get() = Offset(PxVisibilityThreshold, PxVisibilityThreshold)
 
 /**
@@ -52,7 +52,7 @@ val Offset.Companion.VisibilityThreshold: Offset
  * no longer visible. The animation system uses this to signal to some default [spring] animations
  * to stop when the value is close enough to the target.
  */
-val Int.Companion.VisibilityThreshold: Int
+public val Int.Companion.VisibilityThreshold: Int
     get() = 1
 
 /**
@@ -60,7 +60,7 @@ val Int.Companion.VisibilityThreshold: Int
  * no longer visible. The animation system uses this to signal to some default [spring] animations
  * to stop when the value is close enough to the target.
  */
-val Dp.Companion.VisibilityThreshold: Dp
+public val Dp.Companion.VisibilityThreshold: Dp
     get() = DpVisibilityThreshold.dp
 
 /**
@@ -68,7 +68,7 @@ val Dp.Companion.VisibilityThreshold: Dp
  * to be no longer visible. The animation system uses this to signal to some default [spring]
  * animations to stop when the value is close enough to the target.
  */
-val DpOffset.Companion.VisibilityThreshold: DpOffset
+public val DpOffset.Companion.VisibilityThreshold: DpOffset
     get() = DpOffset(Dp.VisibilityThreshold, Dp.VisibilityThreshold)
 
 /**
@@ -76,7 +76,7 @@ val DpOffset.Companion.VisibilityThreshold: DpOffset
  * no longer visible. The animation system uses this to signal to some default [spring] animations
  * to stop when the value is close enough to the target.
  */
-val Size.Companion.VisibilityThreshold: Size
+public val Size.Companion.VisibilityThreshold: Size
     get() = Size(PxVisibilityThreshold, PxVisibilityThreshold)
 
 /**
@@ -84,7 +84,7 @@ val Size.Companion.VisibilityThreshold: Size
  * be no longer visible. The animation system uses this to signal to some default [spring]
  * animations to stop when the value is close enough to the target.
  */
-val IntSize.Companion.VisibilityThreshold: IntSize
+public val IntSize.Companion.VisibilityThreshold: IntSize
     get() = IntSize(1, 1)
 
 /**
@@ -92,7 +92,7 @@ val IntSize.Companion.VisibilityThreshold: IntSize
  * no longer visible. The animation system uses this to signal to some default [spring] animations
  * to stop when the value is close enough to the target.
  */
-val Rect.Companion.VisibilityThreshold: Rect
+public val Rect.Companion.VisibilityThreshold: Rect
     get() = rectVisibilityThreshold
 
 // TODO: Add Dp.DefaultAnimation = spring<Dp>(visibilityThreshold = Dp.VisibilityThreshold)

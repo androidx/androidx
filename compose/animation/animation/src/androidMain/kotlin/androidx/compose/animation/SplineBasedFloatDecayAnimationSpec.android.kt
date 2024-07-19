@@ -32,13 +32,13 @@ import androidx.compose.ui.unit.Density
  */
 @Deprecated("Moved to common code", level = DeprecationLevel.HIDDEN)
 @JvmName("splineBasedDecay")
-fun <T> splineBasedDecayDeprecated(density: Density): DecayAnimationSpec<T> =
+public fun <T> splineBasedDecayDeprecated(density: Density): DecayAnimationSpec<T> =
     splineBasedDecay(density)
 
 internal actual val platformFlingScrollFriction = ViewConfiguration.getScrollFriction()
 
 @Composable
-actual fun <T> rememberSplineBasedDecay(): DecayAnimationSpec<T> {
+public actual fun <T> rememberSplineBasedDecay(): DecayAnimationSpec<T> {
     // This function will internally update the calculation of fling decay when the density changes,
     // but the reference to the returned spec will not change across calls.
     val density = LocalDensity.current

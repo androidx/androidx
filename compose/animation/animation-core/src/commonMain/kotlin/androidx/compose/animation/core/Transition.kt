@@ -84,7 +84,7 @@ import kotlinx.coroutines.sync.withLock
  * @see Transition.animateValue
  */
 @Composable
-fun <T> updateTransition(targetState: T, label: String? = null): Transition<T> {
+public fun <T> updateTransition(targetState: T, label: String? = null): Transition<T> {
     val transition = remember { Transition(targetState, label = label) }
     transition.animateTo(targetState)
     DisposableEffect(transition) {
@@ -103,19 +103,19 @@ internal const val AnimationDebugDurationScale = 1
  * Use with [rememberTransition] to create a [Transition] that can be dynamically targeted with
  * [MutableTransitionState] or seekable with [SeekableTransitionState].
  */
-sealed class TransitionState<S> {
+public sealed class TransitionState<S> {
     /**
      * Current state of the transition. If there is an active transition, [currentState] and
      * [targetState] are different.
      */
-    abstract var currentState: S
+    public abstract var currentState: S
         internal set
 
     /**
      * Target state of the transition. If this is the same as [currentState], no transition is
      * active.
      */
-    abstract var targetState: S
+    public abstract var targetState: S
         internal set
 
     // Updated from Transition
@@ -156,7 +156,7 @@ private class PreventExhaustiveWhenTransitionState : TransitionState<Any?>() {
  * @sample androidx.compose.animation.core.samples.InitialStateSample
  * @see rememberTransition
  */
-class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
+public class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
     /**
      * Current state of the transition. [currentState] is initialized to the initialState that the
      * [MutableTransitionState] is constructed with.
@@ -185,7 +185,7 @@ class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
      *
      * @sample androidx.compose.animation.core.samples.TransitionStateIsIdleSample
      */
-    val isIdle: Boolean
+    public val isIdle: Boolean
         get() = (currentState == targetState) && !isRunning
 
     override fun transitionConfigured(transition: Transition<S>) {}
@@ -214,7 +214,7 @@ internal val SeekableStateObserver: SnapshotStateObserver by
  *
  * @sample androidx.compose.animation.core.samples.SeekingAnimationSample
  */
-class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
+public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
     override var targetState: S by mutableStateOf(initialState)
         internal set
 
@@ -247,7 +247,7 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
      * If [targetState] and [currentState] are the same, [fraction] will be 0.
      */
     @get:FloatRange(from = 0.0, to = 1.0)
-    var fraction: Float by mutableFloatStateOf(0f)
+    public var fraction: Float by mutableFloatStateOf(0f)
         private set
 
     /** The continuation used when waiting for a composition. */
@@ -428,7 +428,7 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
      * @sample androidx.compose.animation.core.samples.SnapToSample
      * @see animateTo
      */
-    suspend fun snapTo(targetState: S) {
+    public suspend fun snapTo(targetState: S) {
         val transition = transition ?: return
         if (
             currentState == targetState && this@SeekableTransitionState.targetState == targetState
@@ -475,7 +475,7 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
      * @sample androidx.compose.animation.core.samples.SeekToSample
      * @see animateTo
      */
-    suspend fun seekTo(
+    public suspend fun seekTo(
         @FloatRange(from = 0.0, to = 1.0) fraction: Float,
         targetState: S = this.targetState
     ) {
@@ -590,7 +590,7 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
      *   transition is linearly traversed based on the duration of the transition.
      */
     @Suppress("DocumentExceptions")
-    suspend fun animateTo(
+    public suspend fun animateTo(
         targetState: S = this.targetState,
         animationSpec: FiniteAnimationSpec<Float>? = null
     ) {
@@ -794,7 +794,7 @@ class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() {
  * @sample androidx.compose.animation.core.samples.DoubleTapToLikeSample
  */
 @Composable
-fun <T> rememberTransition(
+public fun <T> rememberTransition(
     transitionState: TransitionState<T>,
     label: String? = null
 ): Transition<T> {
@@ -847,7 +847,7 @@ fun <T> rememberTransition(
     replaceWith = ReplaceWith("rememberTransition(transitionState, label)")
 )
 @Composable
-fun <T> updateTransition(
+public fun <T> updateTransition(
     transitionState: MutableTransitionState<T>,
     label: String? = null
 ): Transition<T> {
@@ -874,11 +874,11 @@ fun <T> updateTransition(
  */
 // TODO: Support creating Transition outside of composition and support imperative use of Transition
 @Stable
-class Transition<S>
+public class Transition<S>
 internal constructor(
     private val transitionState: TransitionState<S>,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val parentTransition: Transition<*>?,
-    val label: String? = null
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val parentTransition: Transition<*>?,
+    public val label: String? = null
 ) {
     @PublishedApi
     internal constructor(
@@ -902,25 +902,25 @@ internal constructor(
      * the transition is finished. Once the transition is finished, [currentState] will be set to
      * [targetState]. [currentState] is backed by a [MutableState].
      */
-    val currentState: S
+    public val currentState: S
         get() = transitionState.currentState
 
     /**
      * Target state of the transition. This will be read by all child animations to determine their
      * most up-to-date target values.
      */
-    var targetState: S by mutableStateOf(currentState)
+    public var targetState: S by mutableStateOf(currentState)
         internal set
 
     /**
      * [segment] contains the initial state and the target state of the currently on-going
      * transition.
      */
-    var segment: Segment<S> by mutableStateOf(SegmentImpl(currentState, currentState))
+    public var segment: Segment<S> by mutableStateOf(SegmentImpl(currentState, currentState))
         private set
 
     /** Indicates whether there is any animation running in the transition. */
-    val isRunning: Boolean
+    public val isRunning: Boolean
         get() = startTimeNanos != AnimationConstants.UnspecifiedTime
 
     private var _playTimeNanos by mutableLongStateOf(0L)
@@ -931,7 +931,7 @@ internal constructor(
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
-    var playTimeNanos: Long
+    public var playTimeNanos: Long
         get() {
             return parentTransition?.playTimeNanos ?: _playTimeNanos
         }
@@ -952,17 +952,17 @@ internal constructor(
     private val _transitions = mutableStateListOf<Transition<*>>()
 
     /** List of child transitions in a [Transition]. */
-    val transitions: List<Transition<*>>
+    public val transitions: List<Transition<*>>
         get() = _transitions
 
     /** List of [TransitionAnimationState]s that are in a [Transition]. */
-    val animations: List<TransitionAnimationState<*, *>>
+    public val animations: List<TransitionAnimationState<*, *>>
         get() = _animations
 
     // Seeking related
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
-    var isSeeking: Boolean by mutableStateOf(false)
+    public var isSeeking: Boolean by mutableStateOf(false)
         internal set
 
     internal var lastSeekedTimeNanos = 0L
@@ -978,7 +978,7 @@ internal constructor(
     @get:Suppress("GetterSetterNames") // Don't care about Java name for this property
     @InternalAnimationApi
     @get:InternalAnimationApi
-    val hasInitialValueAnimations: Boolean
+    public val hasInitialValueAnimations: Boolean
         get() =
             _animations.fastAny { it.initialValueState != null } ||
                 _transitions.fastAny { it.hasInitialValueAnimations }
@@ -991,7 +991,7 @@ internal constructor(
      * to [Transition]. It's strongly recommended to query this *after* all the animations in the
      * [Transition] are set up.
      */
-    val totalDurationNanos: Long by derivedStateOf { calculateTotalDurationNanos() }
+    public val totalDurationNanos: Long by derivedStateOf { calculateTotalDurationNanos() }
 
     private fun calculateTotalDurationNanos(): Long {
         var maxDurationNanos = 0L
@@ -1096,7 +1096,7 @@ internal constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @OptIn(InternalAnimationApi::class)
     @JvmName("seek")
-    fun setPlaytimeAfterInitialAndTargetStateEstablished(
+    public fun setPlaytimeAfterInitialAndTargetStateEstablished(
         initialState: S,
         targetState: S,
         playTimeNanos: Long
@@ -1289,12 +1289,12 @@ internal constructor(
      * [TransitionAnimationState] in [Transition].
      */
     @Stable
-    inner class TransitionAnimationState<T, V : AnimationVector>
+    public inner class TransitionAnimationState<T, V : AnimationVector>
     internal constructor(
         initialValue: T,
         initialVelocityVector: V,
-        val typeConverter: TwoWayConverter<T, V>,
-        val label: String
+        public val typeConverter: TwoWayConverter<T, V>,
+        public val label: String
     ) : State<T> {
 
         // Changed during composition, may rollback
@@ -1306,14 +1306,14 @@ internal constructor(
          * [AnimationSpec] that is used for current animation run. This can change when
          * [targetState] changes.
          */
-        var animationSpec: FiniteAnimationSpec<T> by mutableStateOf(defaultSpring)
+        public var animationSpec: FiniteAnimationSpec<T> by mutableStateOf(defaultSpring)
             private set
 
         /**
          * All the animation configurations including initial value/velocity & target value for
          * animating from [currentState] to [targetState] are captured in [animation].
          */
-        var animation: TargetBasedAnimation<T, V> by
+        public var animation: TargetBasedAnimation<T, V> by
             mutableStateOf(
                 TargetBasedAnimation(
                     animationSpec,
@@ -1341,7 +1341,7 @@ internal constructor(
         private var useOnlyInitialValue = false
 
         // Changed during animation, no concerns of rolling back
-        override var value by mutableStateOf(initialValue)
+        override var value: T by mutableStateOf(initialValue)
             internal set
 
         private var velocityVector: V = initialVelocityVector
@@ -1587,18 +1587,18 @@ internal constructor(
      * transition from the child animations.
      */
     @JvmDefaultWithCompatibility
-    interface Segment<S> {
+    public interface Segment<S> {
         /** Initial state of a Transition Segment. This is the state that transition starts from. */
-        val initialState: S
+        public val initialState: S
 
         /** Target state of a Transition Segment. This is the state that transition will end on. */
-        val targetState: S
+        public val targetState: S
 
         /**
          * Returns whether the provided state matches the [initialState] && the provided
          * [targetState] matches [Segment.targetState].
          */
-        infix fun S.isTransitioningTo(targetState: S): Boolean {
+        public infix fun S.isTransitioningTo(targetState: S): Boolean {
             return this == initialState && targetState == this@Segment.targetState
         }
     }
@@ -1612,8 +1612,11 @@ internal constructor(
      * [DeferredAnimation.animate] method.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    inner class DeferredAnimation<T, V : AnimationVector>
-    internal constructor(val typeConverter: TwoWayConverter<T, V>, val label: String) {
+    public inner class DeferredAnimation<T, V : AnimationVector>
+    internal constructor(
+        public val typeConverter: TwoWayConverter<T, V>,
+        public val label: String
+    ) {
         internal var data: DeferredAnimationData<T, V>? by mutableStateOf(null)
 
         internal inner class DeferredAnimationData<T, V : AnimationVector>(
@@ -1650,7 +1653,7 @@ internal constructor(
          * [transitionSpec] and [targetValueByState] for the mapping from target state to animation
          * spec and target value, respectively.
          */
-        fun animate(
+        public fun animate(
             transitionSpec: Segment<S>.() -> FiniteAnimationSpec<T>,
             targetValueByState: (state: S) -> T
         ): State<T> {
@@ -1724,7 +1727,7 @@ private const val ResetAnimationSnapTarget = -5f
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Composable
-fun <S, T, V : AnimationVector> Transition<S>.createDeferredAnimation(
+public fun <S, T, V : AnimationVector> Transition<S>.createDeferredAnimation(
     typeConverter: TwoWayConverter<T, V>,
     label: String = "DeferredAnimation"
 ): Transition<S>.DeferredAnimation<T, V> {
@@ -1753,7 +1756,7 @@ fun <S, T, V : AnimationVector> Transition<S>.createDeferredAnimation(
  */
 @ExperimentalTransitionApi
 @Composable
-inline fun <S, T> Transition<S>.createChildTransition(
+public inline fun <S, T> Transition<S>.createChildTransition(
     label: String = "ChildTransition",
     transformToChildState: @Composable (parentState: S) -> T,
 ): Transition<T> {
@@ -1820,7 +1823,7 @@ internal fun <S, T> Transition<S>.createChildTransitionInternal(
  * @see androidx.compose.animation.animateColor
  */
 @Composable
-inline fun <S, T, V : AnimationVector> Transition<S>.animateValue(
+public inline fun <S, T, V : AnimationVector> Transition<S>.animateValue(
     typeConverter: TwoWayConverter<T, V>,
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<T> = {
         spring()
@@ -1901,7 +1904,7 @@ internal fun <S, T, V : AnimationVector> Transition<S>.createTransitionAnimation
  * @see androidx.compose.animation.animateColor
  */
 @Composable
-inline fun <S> Transition<S>.animateFloat(
+public inline fun <S> Transition<S>.animateFloat(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Float> = {
         spring()
     },
@@ -1931,7 +1934,7 @@ inline fun <S> Transition<S>.animateFloat(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateDp(
+public inline fun <S> Transition<S>.animateDp(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Dp> = {
         spring(visibilityThreshold = Dp.VisibilityThreshold)
     },
@@ -1961,7 +1964,7 @@ inline fun <S> Transition<S>.animateDp(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateOffset(
+public inline fun <S> Transition<S>.animateOffset(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Offset> = {
         spring(visibilityThreshold = Offset.VisibilityThreshold)
     },
@@ -1991,7 +1994,7 @@ inline fun <S> Transition<S>.animateOffset(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateSize(
+public inline fun <S> Transition<S>.animateSize(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Size> = {
         spring(visibilityThreshold = Size.VisibilityThreshold)
     },
@@ -2021,7 +2024,7 @@ inline fun <S> Transition<S>.animateSize(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateIntOffset(
+public inline fun <S> Transition<S>.animateIntOffset(
     noinline transitionSpec:
         @Composable
         Transition.Segment<S>.() -> FiniteAnimationSpec<IntOffset> =
@@ -2055,7 +2058,7 @@ inline fun <S> Transition<S>.animateIntOffset(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateInt(
+public inline fun <S> Transition<S>.animateInt(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Int> = {
         spring(visibilityThreshold = 1)
     },
@@ -2085,7 +2088,7 @@ inline fun <S> Transition<S>.animateInt(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateIntSize(
+public inline fun <S> Transition<S>.animateIntSize(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<IntSize> =
         {
             spring(visibilityThreshold = IntSize(1, 1))
@@ -2116,7 +2119,7 @@ inline fun <S> Transition<S>.animateIntSize(
  * @return A [State] object, the value of which is updated by animation
  */
 @Composable
-inline fun <S> Transition<S>.animateRect(
+public inline fun <S> Transition<S>.animateRect(
     noinline transitionSpec: @Composable Transition.Segment<S>.() -> FiniteAnimationSpec<Rect> = {
         spring(visibilityThreshold = Rect.VisibilityThreshold)
     },

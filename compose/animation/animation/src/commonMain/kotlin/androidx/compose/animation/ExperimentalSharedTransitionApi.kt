@@ -25,4 +25,4 @@ package androidx.compose.animation
     AnnotationTarget.PROPERTY_GETTER,
 )
 @Retention(AnnotationRetention.BINARY)
-annotation class ExperimentalSharedTransitionApi
+public annotation class ExperimentalSharedTransitionApi

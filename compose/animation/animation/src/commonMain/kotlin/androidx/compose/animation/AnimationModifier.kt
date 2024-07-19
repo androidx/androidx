@@ -66,7 +66,7 @@ import kotlinx.coroutines.launch
  * @param finishedListener an optional listener to be called when the content change animation is
  *   completed.
  */
-fun Modifier.animateContentSize(
+public fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,
@@ -100,7 +100,7 @@ fun Modifier.animateContentSize(
  * @param finishedListener an optional listener to be called when the content change animation is
  *   completed.
  */
-fun Modifier.animateContentSize(
+public fun Modifier.animateContentSize(
     animationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             stiffness = Spring.StiffnessMediumLow,

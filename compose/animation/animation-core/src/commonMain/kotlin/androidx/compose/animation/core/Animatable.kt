@@ -46,11 +46,11 @@ import kotlinx.coroutines.CancellationException
  * @see animateDecay
  */
 @Suppress("NotCloseable")
-class Animatable<T, V : AnimationVector>(
+public class Animatable<T, V : AnimationVector>(
     initialValue: T,
-    val typeConverter: TwoWayConverter<T, V>,
+    public val typeConverter: TwoWayConverter<T, V>,
     private val visibilityThreshold: T? = null,
-    val label: String = "Animatable"
+    public val label: String = "Animatable"
 ) {
 
     @Deprecated(
@@ -61,7 +61,7 @@ class Animatable<T, V : AnimationVector>(
             ),
         DeprecationLevel.HIDDEN
     )
-    constructor(
+    public constructor(
         initialValue: T,
         typeConverter: TwoWayConverter<T, V>,
         visibilityThreshold: T? = null
@@ -71,26 +71,26 @@ class Animatable<T, V : AnimationVector>(
         AnimationState(typeConverter = typeConverter, initialValue = initialValue)
 
     /** Current value of the animation. */
-    val value: T
+    public val value: T
         get() = internalState.value
 
     /** Velocity vector of the animation (in the form of [AnimationVector]. */
-    val velocityVector: V
+    public val velocityVector: V
         get() = internalState.velocityVector
 
     /** Returns the velocity, converted from [velocityVector]. */
-    val velocity: T
+    public val velocity: T
         get() = typeConverter.convertFromVector(velocityVector)
 
     /** Indicates whether the animation is running. */
-    var isRunning: Boolean by mutableStateOf(false)
+    public var isRunning: Boolean by mutableStateOf(false)
         private set
 
     /**
      * The target of the current animation. If the animation finishes un-interrupted, it will reach
      * this target value.
      */
-    var targetValue: T by mutableStateOf(initialValue)
+    public var targetValue: T by mutableStateOf(initialValue)
         private set
 
     /**
@@ -101,7 +101,7 @@ class Animatable<T, V : AnimationVector>(
      * example: For an Animatable<Offset> with an [lowerBound] set to Offset(100f, 200f), when the
      * [value].x drops below 100f *or* [value].y drops below 200f, the animation will stop.
      */
-    var lowerBound: T? = null
+    public var lowerBound: T? = null
         private set
 
     /**
@@ -112,7 +112,7 @@ class Animatable<T, V : AnimationVector>(
      * example: For an Animatable<Offset> with an [upperBound] set to Offset(100f, 200f), when the
      * [value].x exceeds 100f *or* [value].y exceeds 200f, the animation will stop.
      */
-    var upperBound: T? = null
+    public var upperBound: T? = null
         private set
 
     private val mutatorMutex = MutatorMutex()
@@ -159,7 +159,7 @@ class Animatable<T, V : AnimationVector>(
      * @throws [IllegalStateException] if the [lowerBound] is greater than [upperBound] in any
      *   dimension.
      */
-    fun updateBounds(lowerBound: T? = this.lowerBound, upperBound: T? = this.upperBound) {
+    public fun updateBounds(lowerBound: T? = this.lowerBound, upperBound: T? = this.upperBound) {
         val lowerBoundVector =
             lowerBound?.run { typeConverter.convertToVector(this) } ?: negativeInfinityBounds
 
@@ -221,7 +221,7 @@ class Animatable<T, V : AnimationVector>(
      *
      * @sample androidx.compose.animation.core.samples.AnimatableFadeIn
      */
-    suspend fun animateTo(
+    public suspend fun animateTo(
         targetValue: T,
         animationSpec: AnimationSpec<T> = defaultSpringSpec,
         initialVelocity: T = velocity,
@@ -269,7 +269,7 @@ class Animatable<T, V : AnimationVector>(
      *
      * @sample androidx.compose.animation.core.samples.AnimatableDecayAndAnimateToSample
      */
-    suspend fun animateDecay(
+    public suspend fun animateDecay(
         initialVelocity: T,
         animationSpec: DecayAnimationSpec<T>,
         block: (Animatable<T, V>.() -> Unit)? = null
@@ -373,7 +373,7 @@ class Animatable<T, V : AnimationVector>(
      * @see animateDecay
      * @see stop
      */
-    suspend fun snapTo(targetValue: T) {
+    public suspend fun snapTo(targetValue: T) {
         mutatorMutex.mutate {
             endAnimation()
             val clampedValue = clampToBounds(targetValue)
@@ -396,7 +396,7 @@ class Animatable<T, V : AnimationVector>(
      * @see animateDecay
      * @see snapTo
      */
-    suspend fun stop() {
+    public suspend fun stop() {
         mutatorMutex.mutate { endAnimation() }
     }
 
@@ -405,7 +405,7 @@ class Animatable<T, V : AnimationVector>(
      * the animation's current value without causing unnecessary recompositions when the value
      * changes.
      */
-    fun asState(): State<T> = internalState
+    public fun asState(): State<T> = internalState
 }
 
 /**
@@ -426,10 +426,11 @@ class Animatable<T, V : AnimationVector>(
  * @param visibilityThreshold Threshold at which the animation may round off to its target value.
  *   [Spring.DefaultDisplacementThreshold] by default.
  */
-fun Animatable(
+public fun Animatable(
     initialValue: Float,
     visibilityThreshold: Float = Spring.DefaultDisplacementThreshold
-) = Animatable(initialValue, Float.VectorConverter, visibilityThreshold)
+): Animatable<Float, AnimationVector1D> =
+    Animatable(initialValue, Float.VectorConverter, visibilityThreshold)
 
 // TODO: Consider some version of @Composable fun<T, V: AnimationVector> Animatable<T, V>.animateTo
 /**
@@ -444,13 +445,13 @@ fun Animatable(
  *
  * @sample androidx.compose.animation.core.samples.AnimatableAnimationResultSample
  */
-class AnimationResult<T, V : AnimationVector>(
+public class AnimationResult<T, V : AnimationVector>(
     /**
      * The state of the animation in its last frame before it's canceled or reset. This captures the
      * animation value/velocity/frame time, etc at the point of interruption, or before the velocity
      * is reset when the animation finishes successfully.
      */
-    val endState: AnimationState<T, V>,
+    public val endState: AnimationState<T, V>,
     /**
      * The reason why the animation has ended. Could be either of the following:
      * - [Finished], when the animation finishes successfully without any interruption
@@ -458,7 +459,7 @@ class AnimationResult<T, V : AnimationVector>(
      *   [upperBound][Animatable.upperBound] in any dimension, the animation will end with
      *   [BoundReached] being the end reason.
      */
-    val endReason: AnimationEndReason
+    public val endReason: AnimationEndReason
 ) {
     override fun toString(): String = "AnimationResult(endReason=$endReason, endState=$endState)"
 }
