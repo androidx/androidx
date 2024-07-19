@@ -29,6 +29,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
@@ -5682,6 +5684,68 @@ class ClickableTest {
             .onNodeWithTag("clickable")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .assertOnClickLabelMatches("true")
+    }
+
+    @Test // https://youtrack.jetbrains.com/issue/CMP-5069
+    fun clickableInScrollContainerWithMouse() {
+        var isClicked = false
+        rule.setContent {
+            Row(modifier = Modifier.testTag("container")) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Box(modifier = Modifier.size(100.dp).clickable { isClicked = true })
+                }
+            }
+        }
+
+        rule.onNodeWithTag("container").performMouseInput {
+            moveBy(Offset(10f, 10f))
+            press()
+            moveBy(Offset(50f, 50f))
+            release()
+        }
+
+        rule.runOnIdle {
+            assertTrue(isClicked, "The Box is expected to receive a click when using Mouse")
+        }
+    }
+
+    @Test // https://youtrack.jetbrains.com/issue/CMP-5069
+    fun clickableInScrollContainerWithTouch() {
+        var isClicked = false
+        rule.setContent {
+            Row(modifier = Modifier.testTag("container")) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    Box(modifier = Modifier.size(100.dp).clickable { isClicked = true })
+                }
+            }
+        }
+
+        rule.onNodeWithTag("container").performTouchInput {
+            down(Offset(10f, 10f))
+            // drag a bit
+            moveBy(Offset(50f, 50f))
+            up()
+        }
+
+        rule.runOnIdle {
+            assertFalse(
+                isClicked,
+                "The Box is NOT expected to receive a Click while dragging using touch"
+            )
+        }
+
+        rule.onNodeWithTag("container").performTouchInput {
+            down(Offset(50f, 50f))
+            // no drag
+            up()
+        }
+
+        rule.runOnIdle {
+            assertTrue(
+                isClicked,
+                "The Box is expected to receive a Click, there was no dragging using touch"
+            )
+        }
     }
 }
 

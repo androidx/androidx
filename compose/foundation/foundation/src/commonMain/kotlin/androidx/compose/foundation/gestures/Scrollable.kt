@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
+import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlinx.coroutines.CancellationException
@@ -468,7 +469,9 @@ private class ScrollableNode(
         pass: PointerEventPass,
         bounds: IntSize
     ) {
-        super.onPointerEvent(pointerEvent, pass, bounds)
+        if (pointerEvent.changes.fastAny { canDrag.invoke(it) }) {
+            super.onPointerEvent(pointerEvent, pass, bounds)
+        }
         if (pass == PointerEventPass.Main && pointerEvent.type == PointerEventType.Scroll) {
             processMouseWheelEvent(pointerEvent, bounds)
         }
