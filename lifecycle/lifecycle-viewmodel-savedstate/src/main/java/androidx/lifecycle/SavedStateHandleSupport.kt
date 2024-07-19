@@ -217,11 +217,10 @@ internal class SavedStateHandleAttacher(private val provider: SavedStateHandlesP
  * A key for [SavedStateRegistryOwner] that corresponds to [ViewModelStoreOwner] of a [ViewModel]
  * that is being created.
  */
-@JvmField
-val SAVED_STATE_REGISTRY_OWNER_KEY = object : CreationExtras.Key<SavedStateRegistryOwner> {}
+@JvmField val SAVED_STATE_REGISTRY_OWNER_KEY = CreationExtras.Key<SavedStateRegistryOwner>()
 
 /** A key for [ViewModelStoreOwner] that is an owner of a [ViewModel] that is being created. */
-@JvmField val VIEW_MODEL_STORE_OWNER_KEY = object : CreationExtras.Key<ViewModelStoreOwner> {}
+@JvmField val VIEW_MODEL_STORE_OWNER_KEY = CreationExtras.Key<ViewModelStoreOwner>()
 
 /** A key for default arguments that should be passed to [SavedStateHandle] if needed. */
-@JvmField val DEFAULT_ARGS_KEY = object : CreationExtras.Key<Bundle> {}
+@JvmField val DEFAULT_ARGS_KEY = CreationExtras.Key<Bundle>()

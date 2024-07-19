@@ -25,11 +25,11 @@ class ViewModelInitializerTest {
 
     @Test
     fun viewModelFactory_withUniqueInitializers_withCreationExtras_returnsViewModels() {
-        val key1 = object : CreationExtras.Key<String> {}
+        val key1 = CreationExtras.Key<String>()
         val value1 = "test_value1"
         val extras1 = MutableCreationExtras().apply { set(key1, value1) }
 
-        val key2 = object : CreationExtras.Key<String> {}
+        val key2 = CreationExtras.Key<String>()
         val value2 = "test_value2"
         val extras2 = MutableCreationExtras().apply { set(key2, value2) }
 

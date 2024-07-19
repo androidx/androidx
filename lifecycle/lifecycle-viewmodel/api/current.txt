@@ -128,7 +128,7 @@ package androidx.lifecycle.viewmodel {
   }
 
   public static final class CreationExtras.Companion {
-    method public inline <reified T> androidx.lifecycle.viewmodel.CreationExtras.Key<T> key();
+    method public inline <reified T> androidx.lifecycle.viewmodel.CreationExtras.Key<T> Key();
   }
 
   public static final class CreationExtras.Empty extends androidx.lifecycle.viewmodel.CreationExtras {

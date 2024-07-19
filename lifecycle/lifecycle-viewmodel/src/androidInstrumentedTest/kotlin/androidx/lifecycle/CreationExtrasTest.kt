@@ -27,8 +27,8 @@ import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private val STRING_KEY_1 = CreationExtras.key<String>()
-private val STRING_KEY_2 = CreationExtras.key<String>()
+private val STRING_KEY_1 = CreationExtras.Key<String>()
+private val STRING_KEY_2 = CreationExtras.Key<String>()
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -36,8 +36,8 @@ class CreationExtrasTest {
 
     @Test
     fun keyFactory_returnsDistinctInstances() {
-        val key1 = CreationExtras.key<String>()
-        val key2 = CreationExtras.key<String>()
+        val key1 = CreationExtras.Key<String>()
+        val key2 = CreationExtras.Key<String>()
 
         assertThat(key1).isNotEqualTo(key2)
     }
