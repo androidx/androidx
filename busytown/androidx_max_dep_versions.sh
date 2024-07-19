@@ -7,7 +7,7 @@ cd "$(dirname $0)"
 
 impl/build.sh assembleRelease assembleAndroidTest \
     -Pandroidx.useMaxDepVersions \
-    -Pandroid.experimental.disableCompileSdkChecks=true \
+    -Dandroid.experimental.disableCompileSdkChecks=true \
     "$@"
 
 echo "Completing $0 at $(date)"
