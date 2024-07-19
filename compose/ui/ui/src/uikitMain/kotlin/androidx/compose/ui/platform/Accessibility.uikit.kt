@@ -329,7 +329,13 @@ private class AccessibilityElement(
             return false
         }
 
-        val onClick = cachedConfig.getOrNull(SemanticsActions.OnClick) ?: return false
+        val config = cachedConfig
+
+        if (config.contains(SemanticsProperties.Disabled)) {
+            return false
+        }
+
+        val onClick = config.getOrNull(SemanticsActions.OnClick) ?: return false
         val action = onClick.action ?: return false
 
         return action()
@@ -535,6 +541,10 @@ private class AccessibilityElement(
             return false
         }
 
+        if (cachedConfig.contains(SemanticsProperties.Disabled)) {
+            return false
+        }
+
         val frame = semanticsNode.boundsInWindow
         val approximateScrollAnimationDuration = 350L
 
@@ -582,19 +592,26 @@ private class AccessibilityElement(
             cachedConfig.getOrNull(SemanticsActions.OnClick)?.label
         }
 
-    override fun accessibilityCustomActions(): List<UIAccessibilityCustomAction> =
-        getOrElse(CachedAccessibilityPropertyKeys.accessibilityCustomActions) {
-            cachedConfig.getOrNull(SemanticsActions.CustomActions)?.let { actions ->
+    override fun accessibilityCustomActions(): List<UIAccessibilityCustomAction> {
+        val config = cachedConfig
+
+        return getOrElse(CachedAccessibilityPropertyKeys.accessibilityCustomActions) {
+            config.getOrNull(SemanticsActions.CustomActions)?.let { actions ->
                 actions.map {
                     UIAccessibilityCustomAction(
                         name = it.label,
                         actionHandler = { _ ->
-                            it.action.invoke()
+                            if (config.contains(SemanticsProperties.Disabled)) {
+                                false
+                            } else {
+                                it.action.invoke()
+                            }
                         }
                     )
                 }
             } ?: emptyList()
         }
+    }
 
     override fun accessibilityTraits(): UIAccessibilityTraits =
         getOrElse(CachedAccessibilityPropertyKeys.accessibilityTraits) {
