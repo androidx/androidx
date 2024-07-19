@@ -29,6 +29,7 @@ package androidx.compose.material3.adaptive {
   }
 
   @androidx.compose.runtime.Immutable public final class Posture {
+    ctor public Posture();
     ctor public Posture(optional boolean isTabletop, optional java.util.List<androidx.compose.material3.adaptive.HingeInfo> hingeList);
     method public java.util.List<androidx.compose.material3.adaptive.HingeInfo> getHingeList();
     method public boolean isTabletop();

@@ -146,6 +146,7 @@ package androidx.tv.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Stable @androidx.tv.material3.ExperimentalTvMaterial3Api public final class CarouselState {
+    ctor public CarouselState();
     ctor public CarouselState(optional int initialActiveItemIndex);
     method public int getActiveItemIndex();
     method public androidx.tv.material3.ScrollPauseHandle pauseAutoScroll(int itemIndex);
@@ -333,6 +334,7 @@ package androidx.tv.material3 {
   }
 
   public final class DrawerState {
+    ctor public DrawerState();
     ctor public DrawerState(optional androidx.tv.material3.DrawerValue initialValue);
     method public androidx.tv.material3.DrawerValue getCurrentValue();
     method public void setValue(androidx.tv.material3.DrawerValue drawerValue);
@@ -880,6 +882,7 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor public Shapes();
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     method public androidx.tv.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     method public androidx.compose.foundation.shape.CornerBasedShape getExtraLarge();
@@ -1013,6 +1016,7 @@ package androidx.tv.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
+    ctor public Typography();
     ctor public Typography(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
     method public androidx.tv.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
     method public androidx.compose.ui.text.TextStyle getBodyLarge();

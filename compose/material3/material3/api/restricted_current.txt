@@ -1229,6 +1229,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class ModalBottomSheetProperties {
+    ctor public ModalBottomSheetProperties();
     ctor public ModalBottomSheetProperties(optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean shouldDismissOnBackPress);
     ctor @Deprecated public ModalBottomSheetProperties(androidx.compose.ui.window.SecureFlagPolicy securePolicy, boolean isFocusable, boolean shouldDismissOnBackPress);
     ctor public ModalBottomSheetProperties(optional boolean shouldDismissOnBackPress);
@@ -1500,6 +1501,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class RangeSliderState {
+    ctor public RangeSliderState();
     ctor public RangeSliderState(optional float activeRangeStart, optional float activeRangeEnd, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public float getActiveRangeEnd();
     method public float getActiveRangeStart();
@@ -1530,6 +1532,7 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class RippleConfiguration {
+    ctor public RippleConfiguration();
     ctor public RippleConfiguration(optional long color, optional androidx.compose.material.ripple.RippleAlpha? rippleAlpha);
     method public long getColor();
     method public androidx.compose.material.ripple.RippleAlpha? getRippleAlpha();
@@ -1702,6 +1705,7 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Shapes {
+    ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public Shapes();
     ctor public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
     ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public Shapes(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge, optional androidx.compose.foundation.shape.CornerBasedShape largeIncreased, optional androidx.compose.foundation.shape.CornerBasedShape extraLargeIncreased, optional androidx.compose.foundation.shape.CornerBasedShape extraExtraLarge);
     method public androidx.compose.material3.Shapes copy(optional androidx.compose.foundation.shape.CornerBasedShape extraSmall, optional androidx.compose.foundation.shape.CornerBasedShape small, optional androidx.compose.foundation.shape.CornerBasedShape medium, optional androidx.compose.foundation.shape.CornerBasedShape large, optional androidx.compose.foundation.shape.CornerBasedShape extraLarge);
@@ -1830,6 +1834,7 @@ package androidx.compose.material3 {
   }
 
   @Deprecated @androidx.compose.runtime.Stable public final class SliderPositions {
+    ctor @Deprecated public SliderPositions();
     ctor @Deprecated public SliderPositions(optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> initialActiveRange, optional float[] initialTickFractions);
     method @Deprecated public kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> getActiveRange();
     method @Deprecated public float[] getTickFractions();
@@ -1838,6 +1843,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class SliderState implements androidx.compose.foundation.gestures.DraggableState {
+    ctor public SliderState();
     ctor public SliderState(optional float value, optional @IntRange(from=0L) int steps, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onValueChangeFinished, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange);
     method public void dispatchRawDelta(float delta);
     method public suspend Object? drag(androidx.compose.foundation.MutatePriority dragPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.DragScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -2504,6 +2510,7 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
+    ctor public Typography();
     ctor public Typography(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
     method public androidx.compose.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
     method public androidx.compose.ui.text.TextStyle getBodyLarge();

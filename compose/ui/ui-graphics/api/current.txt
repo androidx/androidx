@@ -85,6 +85,7 @@ package androidx.compose.ui.graphics {
   }
 
   public final class AndroidPath implements androidx.compose.ui.graphics.Path {
+    ctor public AndroidPath();
     ctor public AndroidPath(optional android.graphics.Path internalPath);
     method public void addArc(androidx.compose.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
@@ -402,6 +403,7 @@ package androidx.compose.ui.graphics {
   }
 
   @kotlin.jvm.JvmInline public final value class ColorMatrix {
+    ctor public ColorMatrix();
     ctor public ColorMatrix(optional float[] values);
     method public void convertRgbToYuv();
     method public void convertYuvToRgb();
@@ -510,6 +512,7 @@ package androidx.compose.ui.graphics {
   }
 
   @kotlin.jvm.JvmInline public final value class Matrix {
+    ctor public Matrix();
     ctor public Matrix(optional float[] values);
     method public inline operator float get(int row, int column);
     method public float[] getValues();
@@ -899,6 +902,7 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public final class Shadow {
+    ctor public Shadow();
     ctor public Shadow(optional @androidx.compose.runtime.Stable long color, optional @androidx.compose.runtime.Stable long offset, optional @androidx.compose.runtime.Stable float blurRadius);
     method public androidx.compose.ui.graphics.Shadow copy(optional long color, optional long offset, optional float blurRadius);
     method public float getBlurRadius();
@@ -1385,6 +1389,7 @@ package androidx.compose.ui.graphics.drawscope {
   }
 
   public final class Stroke extends androidx.compose.ui.graphics.drawscope.DrawStyle {
+    ctor public Stroke();
     ctor public Stroke(optional float width, optional float miter, optional int cap, optional int join, optional androidx.compose.ui.graphics.PathEffect? pathEffect);
     method public int getCap();
     method public int getJoin();

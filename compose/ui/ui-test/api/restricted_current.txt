@@ -28,6 +28,7 @@ package androidx.compose.ui.test {
   }
 
   @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public abstract class AndroidComposeUiTestEnvironment<A extends androidx.activity.ComponentActivity> {
+    ctor public AndroidComposeUiTestEnvironment();
     ctor public AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext);
     method public final void cancelAndRecreateRecomposer();
     method protected abstract A? getActivity();

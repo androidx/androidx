@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedMethod: androidx.tv.material3.DrawerState#DrawerState():
+    Added constructor androidx.tv.material3.DrawerState()
+AddedMethod: androidx.tv.material3.Shapes#Shapes():
+    Added constructor androidx.tv.material3.Shapes()
+AddedMethod: androidx.tv.material3.Typography#Typography():
+    Added constructor androidx.tv.material3.Typography()

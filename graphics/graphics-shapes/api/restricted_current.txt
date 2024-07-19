@@ -2,6 +2,7 @@
 package androidx.graphics.shapes {
 
   public final class CornerRounding {
+    ctor public CornerRounding();
     ctor public CornerRounding(optional @FloatRange(from=0.0) float radius, optional @FloatRange(from=0.0, to=1.0) float smoothing);
     method public float getRadius();
     method public float getSmoothing();
