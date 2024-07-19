@@ -42,7 +42,6 @@ import androidx.room.support.AutoClosingRoomOpenHelper
 import androidx.room.support.AutoClosingRoomOpenHelperFactory
 import androidx.room.support.PrePackagedCopyOpenHelper
 import androidx.room.support.PrePackagedCopyOpenHelperFactory
-import androidx.room.support.QueryInterceptorOpenHelper
 import androidx.room.support.QueryInterceptorOpenHelperFactory
 import androidx.room.util.contains as containsCommon
 import androidx.room.util.findAndInstantiateDatabaseImpl
@@ -275,10 +274,6 @@ actual abstract class RoomDatabase {
             it.autoCloser.initCoroutineScope(coroutineScope)
             invalidationTracker.setAutoCloser(it.autoCloser)
         }
-
-        // Configure QueryInterceptorOpenHelper if it is available
-        unwrapOpenHelper<QueryInterceptorOpenHelper>(connectionManager.supportOpenHelper)
-            ?.initCoroutineScope(coroutineScope)
 
         // Configure multi-instance invalidation, if enabled
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
@@ -873,6 +868,7 @@ actual abstract class RoomDatabase {
         private var prepackagedDatabaseCallback: PrepackagedDatabaseCallback? = null
         private var queryCallback: QueryCallback? = null
         private var queryCallbackExecutor: Executor? = null
+        private var queryCallbackCoroutineContext: CoroutineContext? = null
         private val typeConverters: MutableList<Any> = mutableListOf()
         private var queryExecutor: Executor? = null
         private var transactionExecutor: Executor? = null
@@ -1459,6 +1455,26 @@ actual abstract class RoomDatabase {
         }
 
         /**
+         * Sets a [QueryCallback] to be invoked when queries are executed.
+         *
+         * The callback is invoked whenever a query is executed, note that adding this callback has
+         * a small cost and should be avoided in production builds unless needed.
+         *
+         * A use case for providing a callback is to allow logging executed queries. When the
+         * callback implementation simply logs then it is recommended to use
+         * [kotlinx.coroutines.Dispatchers.Unconfined].
+         *
+         * @param context The coroutine context on which the query callback will be invoked.
+         * @param queryCallback The query callback.
+         * @return This builder instance.
+         */
+        @Suppress("MissingGetterMatchingBuilder")
+        fun setQueryCallback(context: CoroutineContext, queryCallback: QueryCallback) = apply {
+            this.queryCallback = queryCallback
+            this.queryCallbackCoroutineContext = context
+        }
+
+        /**
          * Adds a type converter instance to the builder.
          *
          * @param typeConverter The converter instance that is annotated with
@@ -1652,8 +1668,12 @@ actual abstract class RoomDatabase {
                     }
                     ?.let {
                         if (queryCallback != null) {
+                            val queryCallbackContext =
+                                queryCallbackExecutor?.asCoroutineDispatcher()
+                                    ?: requireNotNull(queryCallbackCoroutineContext)
                             QueryInterceptorOpenHelperFactory(
                                 delegate = it,
+                                queryCallbackScope = CoroutineScope(queryCallbackContext),
                                 queryCallback = requireNotNull(queryCallback)
                             )
                         } else {

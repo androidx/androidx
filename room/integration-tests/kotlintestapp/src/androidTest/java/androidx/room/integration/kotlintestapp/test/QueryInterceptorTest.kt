@@ -30,7 +30,6 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.util.concurrent.MoreExecutors
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
@@ -73,14 +72,11 @@ class QueryInterceptorTest {
                     QueryInterceptorTestDatabase::class.java
                 )
                 .setQueryCoroutineContext(testCoroutineScope.coroutineContext)
-                .setQueryCallback(
-                    { sqlQuery, bindArgs ->
-                        val argTrace = ArrayList<Any?>()
-                        argTrace.addAll(bindArgs)
-                        queryAndArgs.add(Pair(sqlQuery, argTrace))
-                    },
-                    MoreExecutors.directExecutor()
-                )
+                .setQueryCallback(testCoroutineScope.coroutineContext) { sqlQuery, bindArgs ->
+                    val argTrace = ArrayList<Any?>()
+                    argTrace.addAll(bindArgs)
+                    queryAndArgs.add(Pair(sqlQuery, argTrace))
+                }
                 .build()
     }
 
@@ -214,14 +210,12 @@ class QueryInterceptorTest {
                     ApplicationProvider.getApplicationContext(),
                     QueryInterceptorTestDatabase::class.java
                 )
-                .setQueryCallback(
-                    { sqlQuery, bindArgs ->
-                        val argTrace = ArrayList<Any?>()
-                        argTrace.addAll(bindArgs)
-                        queryAndArgs.add(Pair(sqlQuery, argTrace))
-                    },
-                    MoreExecutors.directExecutor()
-                )
+                .setQueryCoroutineContext(testCoroutineScope.coroutineContext)
+                .setQueryCallback(testCoroutineScope.coroutineContext) { sqlQuery, bindArgs ->
+                    val argTrace = ArrayList<Any?>()
+                    argTrace.addAll(bindArgs)
+                    queryAndArgs.add(Pair(sqlQuery, argTrace))
+                }
 
         dbBuilder.build().close()
 

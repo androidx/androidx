@@ -18,15 +18,21 @@ package androidx.room.support
 
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import kotlinx.coroutines.CoroutineScope
 
 /** Implements [SupportSQLiteOpenHelper.Factory] to create a [QueryInterceptorOpenHelper]. */
 internal class QueryInterceptorOpenHelperFactory(
     private val delegate: SupportSQLiteOpenHelper.Factory,
+    private val queryCallbackScope: CoroutineScope,
     private val queryCallback: RoomDatabase.QueryCallback,
 ) : SupportSQLiteOpenHelper.Factory by delegate {
     override fun create(
         configuration: SupportSQLiteOpenHelper.Configuration
     ): SupportSQLiteOpenHelper {
-        return QueryInterceptorOpenHelper(delegate.create(configuration), queryCallback)
+        return QueryInterceptorOpenHelper(
+            delegate.create(configuration),
+            queryCallbackScope,
+            queryCallback
+        )
     }
 }
