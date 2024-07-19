@@ -606,6 +606,8 @@ public constructor(
     }
 
     private fun findEvictionCandidate(): Int {
+        val nodes = nodes
+
         var candidate = if (hand != NodeInvalidLink) hand else tail
         while (candidate != NodeInvalidLink && nodes[candidate].visited != 0) {
             val node = nodes[candidate]
@@ -935,6 +937,7 @@ public constructor(
         }
         if (head != NodeInvalidLink) head = mapping[head]
         if (tail != NodeInvalidLink) tail = mapping[tail]
+        if (hand != NodeInvalidLink) hand = mapping[hand]
     }
 
     @PublishedApi
@@ -1023,8 +1026,8 @@ private inline fun createLinkToNext(next: Int) =
 private inline fun setLinkToPrevious(node: Long, previous: Int) =
     (node and NodeMetaAndNextMask) or ((previous.toLong() and NodeLinkMask) shl 31)
 
-private inline fun setLinkToNext(node: Long, previous: Int) =
-    (node and NodeMetaAndPreviousMask) or (previous.toLong() and NodeLinkMask)
+private inline fun setLinkToNext(node: Long, next: Int) =
+    (node and NodeMetaAndPreviousMask) or (next.toLong() and NodeLinkMask)
 
 private inline fun clearVisitedBit(node: Long) = node and NodeLinksMask
 
