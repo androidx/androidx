@@ -623,6 +623,14 @@ class IntListTest {
     }
 
     @Test
+    fun sortEmpty() {
+        val l = MutableIntList(0)
+        l.sort()
+        l.sortDescending()
+        assertEquals(MutableIntList(0), l)
+    }
+
+    @Test
     fun testEmptyIntList() {
         val l = emptyIntList()
         assertEquals(0, l.size)

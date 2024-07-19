@@ -623,6 +623,14 @@ class DoubleListTest {
     }
 
     @Test
+    fun sortEmpty() {
+        val l = MutableDoubleList(0)
+        l.sort()
+        l.sortDescending()
+        assertEquals(MutableDoubleList(0), l)
+    }
+
+    @Test
     fun testEmptyDoubleList() {
         val l = emptyDoubleList()
         assertEquals(0, l.size)
