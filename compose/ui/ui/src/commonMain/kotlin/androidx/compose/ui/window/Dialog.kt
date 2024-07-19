@@ -22,10 +22,9 @@ import androidx.compose.runtime.Immutable
 /**
  * Properties used to customize the behavior of a [Dialog].
  *
- * @property dismissOnBackPress whether the popup can be dismissed by pressing the back button
- *     * on Android or escape key on desktop. If true, pressing the back button will call
- *       onDismissRequest.
- *
+ * @property dismissOnBackPress whether the popup can be dismissed by pressing the back or escape
+ *   buttons on Android or the escape key on desktop. If true, pressing the back button will call
+ *   onDismissRequest.
  * @property dismissOnClickOutside whether the dialog can be dismissed by clicking outside the
  *   dialog's bounds. If true, clicking outside the dialog will call onDismissRequest.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to

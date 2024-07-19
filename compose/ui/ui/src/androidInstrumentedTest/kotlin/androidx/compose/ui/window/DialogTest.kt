@@ -16,6 +16,7 @@
 package androidx.compose.ui.window
 
 import android.content.res.Configuration
+import android.view.KeyEvent
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
@@ -175,6 +177,33 @@ class DialogTest {
         assertThat(clickCount).isEqualTo(1)
     }
 
+    /**
+     * Pre-28 emulators seem to always translate Escape presses into Back presses, so this code path
+     * can't be tested pre-28.
+     */
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun dialogTest_isDismissed_escapePressed() {
+        setupDialogTest()
+
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        pressEscape()
+        textInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun dialogTest_isNotDismissed_whenNotSpecified_escapePressed() {
+        setupDialogTest(closeDialogOnDismiss = false)
+
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        pressEscape()
+        textInteraction.assertIsDisplayed()
+    }
+
     @Test
     fun dialog_preservesCompositionLocals() {
         val compositionLocal = compositionLocalOf<Float> { error("unset") }
@@ -272,6 +301,10 @@ class DialogTest {
 
     private fun pressBack() {
         rule.runOnUiThread { dispatcher.onBackPressed() }
+    }
+
+    private fun pressEscape() {
+        UiDevice.getInstance(getInstrumentation()).pressKeyCode(KeyEvent.KEYCODE_ESCAPE)
     }
 
     /** Try to dismiss the dialog by clicking between the topLefts of the dialog and the root. */
