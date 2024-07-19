@@ -16,6 +16,8 @@
 
 package androidx.graphics.shapes
 
+import kotlin.jvm.JvmOverloads
+import kotlin.jvm.JvmStatic
 import kotlin.math.max
 import kotlin.math.min
 
@@ -310,7 +312,9 @@ class Morph(private val start: RoundedPolygon, private val end: RoundedPolygon) 
 
             if (DEBUG) {
                 // Export as SVG path.
-                val showPoint: (Point) -> String = { "%.3f %.3f".format(it.x * 100, it.y * 100) }
+                val showPoint: (Point) -> String = {
+                    "${(it.x * 100).toStringWithLessPrecision()} ${(it.y * 100).toStringWithLessPrecision()}"
+                }
                 repeat(2) { listIx ->
                     val points = ret.map { if (listIx == 0) it.first else it.second }
                     debugLog(LOG_TAG) {

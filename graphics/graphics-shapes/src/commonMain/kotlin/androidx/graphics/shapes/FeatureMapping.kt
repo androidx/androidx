@@ -67,9 +67,11 @@ internal fun featureMapper(features1: MeasuredFeatures, features2: MeasuredFeatu
         debugLog(LOG_TAG) {
             val N = 10
             "Map: " +
-                (0..N).joinToString { i -> "%.3f".format(dm.map(i.toFloat() / N)) } +
+                (0..N).joinToString { i -> (dm.map(i.toFloat() / N)).toStringWithLessPrecision() } +
                 "\nMb : " +
-                (0..N).joinToString { i -> "%.3f".format(dm.mapBack(i.toFloat() / N)) }
+                (0..N).joinToString { i ->
+                    (dm.mapBack(i.toFloat() / N)).toStringWithLessPrecision()
+                }
         }
     }
 }

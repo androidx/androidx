@@ -17,6 +17,7 @@
 package androidx.graphics.shapes
 
 import androidx.annotation.FloatRange
+import kotlin.jvm.JvmField
 
 /**
  * CornerRounding defines the amount and quality around a given vertex of a shape. [radius] defines
