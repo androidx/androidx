@@ -43,6 +43,8 @@ import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.placeCursorAtEnd
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.HorizontalIconPadding
@@ -1769,6 +1771,65 @@ class TextFieldTest {
         rule.runOnIdle {
             assertThat(textStyle.color).isEqualTo(bodySmallColor)
             assertThat(contentColor).isEqualTo(focusedLabelColor)
+        }
+    }
+
+    @Test
+    fun testTextField_selectionColors_areCustomizable() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Column {
+                // default colors
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = {
+                        val textSelectionColors = LocalTextSelectionColors.current
+                        assertThat(textSelectionColors.handleColor)
+                            .isEqualTo(MaterialTheme.colorScheme.primary)
+                        assertThat(textSelectionColors.backgroundColor)
+                            .isEqualTo(
+                                MaterialTheme.colorScheme.primary.copy(
+                                    alpha = TextSelectionBackgroundOpacity
+                                )
+                            )
+                    }
+                )
+
+                // set via `colors()`
+                TextField(
+                    state = rememberTextFieldState(),
+                    colors =
+                        TextFieldDefaults.colors(
+                            selectionColors =
+                                TextSelectionColors(
+                                    handleColor = Color.Red,
+                                    backgroundColor = Color.Green
+                                )
+                        ),
+                    label = {
+                        val textSelectionColors = LocalTextSelectionColors.current
+                        assertThat(textSelectionColors.handleColor).isEqualTo(Color.Red)
+                        assertThat(textSelectionColors.backgroundColor).isEqualTo(Color.Green)
+                    }
+                )
+
+                // set via `LocalTextSelectionColors`
+                CompositionLocalProvider(
+                    LocalTextSelectionColors provides
+                        TextSelectionColors(
+                            handleColor = Color.Magenta,
+                            backgroundColor = Color.Yellow
+                        )
+                ) {
+                    TextField(
+                        state = rememberTextFieldState(),
+                        label = {
+                            val textSelectionColors = LocalTextSelectionColors.current
+                            assertThat(textSelectionColors.handleColor).isEqualTo(Color.Magenta)
+                            assertThat(textSelectionColors.backgroundColor).isEqualTo(Color.Yellow)
+                        }
+                    )
+                }
+            }
         }
     }
 
