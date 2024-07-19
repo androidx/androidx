@@ -18,6 +18,8 @@
 
 package androidx.graphics.shapes
 
+import kotlin.jvm.JvmName
+import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
@@ -54,9 +56,9 @@ internal fun Point.rotate90() = Point(-y, x)
 
 internal val Zero = Point(0f, 0f)
 
-internal val FloatPi = Math.PI.toFloat()
+internal val FloatPi = PI.toFloat()
 
-internal val TwoPi: Float = 2 * Math.PI.toFloat()
+internal val TwoPi: Float = 2 * PI.toFloat()
 
 internal fun square(x: Float) = x * x
 

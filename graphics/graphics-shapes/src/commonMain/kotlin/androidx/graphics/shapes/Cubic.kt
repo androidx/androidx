@@ -17,6 +17,7 @@
 package androidx.graphics.shapes
 
 import androidx.collection.FloatFloatPair
+import kotlin.jvm.JvmStatic
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
