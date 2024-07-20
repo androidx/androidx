@@ -38,8 +38,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.content.res.FontResourcesParserCompat;
+import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
+import androidx.tracing.Trace;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,15 +56,24 @@ class FontProvider {
     static FontFamilyResult getFontFamilyResult(@NonNull Context context,
             @NonNull FontRequest request, @Nullable CancellationSignal cancellationSignal)
             throws PackageManager.NameNotFoundException {
-        ProviderInfo providerInfo = getProvider(
-                context.getPackageManager(), request, context.getResources());
-        if (providerInfo == null) {
-            return FontFamilyResult.create(FontFamilyResult.STATUS_WRONG_CERTIFICATES, null);
-
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("FontProvider.getFontFamilyResult");
         }
-        FontInfo[] fonts = query(
-                context, request, providerInfo.authority, cancellationSignal);
-        return FontFamilyResult.create(FontFamilyResult.STATUS_OK, fonts);
+        try {
+            ProviderInfo providerInfo = getProvider(
+                    context.getPackageManager(), request, context.getResources());
+            if (providerInfo == null) {
+                return FontFamilyResult.create(FontFamilyResult.STATUS_WRONG_CERTIFICATES, null);
+
+            }
+            FontInfo[] fonts = query(
+                    context, request, providerInfo.authority, cancellationSignal);
+            return FontFamilyResult.create(FontFamilyResult.STATUS_OK, fonts);
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
+            }
+        }
     }
 
     /**
@@ -76,36 +87,45 @@ class FontProvider {
             @Nullable Resources resources
     )
             throws PackageManager.NameNotFoundException {
-        String providerAuthority = request.getProviderAuthority();
-        ProviderInfo info = packageManager.resolveContentProvider(providerAuthority, 0);
-        if (info == null) {
-            throw new PackageManager.NameNotFoundException("No package found for authority: "
-                    + providerAuthority);
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("FontProvider.getProvider");
         }
+        try {
+            String providerAuthority = request.getProviderAuthority();
+            ProviderInfo info = packageManager.resolveContentProvider(providerAuthority, 0);
+            if (info == null) {
+                throw new PackageManager.NameNotFoundException("No package found for authority: "
+                        + providerAuthority);
+            }
 
-        if (!info.packageName.equals(request.getProviderPackage())) {
-            throw new PackageManager.NameNotFoundException("Found content provider "
-                    + providerAuthority
-                    + ", but package was not " + request.getProviderPackage());
-        }
+            if (!info.packageName.equals(request.getProviderPackage())) {
+                throw new PackageManager.NameNotFoundException("Found content provider "
+                        + providerAuthority
+                        + ", but package was not " + request.getProviderPackage());
+            }
 
-        List<byte[]> signatures;
-        // We correctly check all signatures returned, as advised in the lint error.
-        @SuppressLint("PackageManagerGetSignatures")
-        PackageInfo packageInfo = packageManager.getPackageInfo(info.packageName,
-                PackageManager.GET_SIGNATURES);
-        signatures = convertToByteArrayList(packageInfo.signatures);
-        Collections.sort(signatures, sByteArrayComparator);
-        List<List<byte[]>> requestCertificatesList = getCertificates(request, resources);
-        for (int i = 0; i < requestCertificatesList.size(); ++i) {
-            // Make a copy so we can sort it without modifying the incoming data.
-            List<byte[]> requestSignatures = new ArrayList<>(requestCertificatesList.get(i));
-            Collections.sort(requestSignatures, sByteArrayComparator);
-            if (equalsByteArrayList(signatures, requestSignatures)) {
-                return info;
+            List<byte[]> signatures;
+            // We correctly check all signatures returned, as advised in the lint error.
+            @SuppressLint("PackageManagerGetSignatures")
+            PackageInfo packageInfo = packageManager.getPackageInfo(info.packageName,
+                    PackageManager.GET_SIGNATURES);
+            signatures = convertToByteArrayList(packageInfo.signatures);
+            Collections.sort(signatures, sByteArrayComparator);
+            List<List<byte[]>> requestCertificatesList = getCertificates(request, resources);
+            for (int i = 0; i < requestCertificatesList.size(); ++i) {
+                // Make a copy so we can sort it without modifying the incoming data.
+                List<byte[]> requestSignatures = new ArrayList<>(requestCertificatesList.get(i));
+                Collections.sort(requestSignatures, sByteArrayComparator);
+                if (equalsByteArrayList(signatures, requestSignatures)) {
+                    return info;
+                }
+            }
+            return null;
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
             }
         }
-        return null;
     }
 
     /**
@@ -119,68 +139,87 @@ class FontProvider {
             String authority,
             CancellationSignal cancellationSignal
     ) {
-        ArrayList<FontInfo> result = new ArrayList<>();
-        final Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(authority)
-                .build();
-        final Uri fileBaseUri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
-                .authority(authority)
-                .appendPath("file")
-                .build();
-        Cursor cursor = null;
-        ContentQueryWrapper queryWrapper = ContentQueryWrapper.make(context, uri);
-        try {
-            String[] projection = {
-                    FontsContractCompat.Columns._ID, FontsContractCompat.Columns.FILE_ID,
-                    FontsContractCompat.Columns.TTC_INDEX,
-                    FontsContractCompat.Columns.VARIATION_SETTINGS,
-                    FontsContractCompat.Columns.WEIGHT, FontsContractCompat.Columns.ITALIC,
-                    FontsContractCompat.Columns.RESULT_CODE};
-
-            cursor = queryWrapper.query(uri, projection, "query = ?",
-                        new String[]{request.getQuery()}, null, cancellationSignal);
-
-            if (cursor != null && cursor.getCount() > 0) {
-                final int resultCodeColumnIndex = cursor.getColumnIndex(
-                        FontsContractCompat.Columns.RESULT_CODE);
-                result = new ArrayList<>();
-                final int idColumnIndex = cursor.getColumnIndex(FontsContractCompat.Columns._ID);
-                final int fileIdColumnIndex = cursor.getColumnIndex(
-                        FontsContractCompat.Columns.FILE_ID);
-                final int ttcIndexColumnIndex = cursor.getColumnIndex(
-                        FontsContractCompat.Columns.TTC_INDEX);
-                final int weightColumnIndex = cursor.getColumnIndex(
-                        FontsContractCompat.Columns.WEIGHT);
-                final int italicColumnIndex = cursor.getColumnIndex(
-                        FontsContractCompat.Columns.ITALIC);
-                while (cursor.moveToNext()) {
-                    int resultCode = resultCodeColumnIndex != -1
-                            ? cursor.getInt(resultCodeColumnIndex)
-                            : FontsContractCompat.Columns.RESULT_CODE_OK;
-                    final int ttcIndex = ttcIndexColumnIndex != -1
-                            ? cursor.getInt(ttcIndexColumnIndex) : 0;
-                    Uri fileUri;
-                    if (fileIdColumnIndex == -1) {
-                        long id = cursor.getLong(idColumnIndex);
-                        fileUri = ContentUris.withAppendedId(uri, id);
-                    } else {
-                        long id = cursor.getLong(fileIdColumnIndex);
-                        fileUri = ContentUris.withAppendedId(fileBaseUri, id);
-                    }
-
-                    int weight = weightColumnIndex != -1 ? cursor.getInt(weightColumnIndex) : 400;
-                    boolean italic = italicColumnIndex != -1 && cursor.getInt(italicColumnIndex)
-                            == 1;
-                    result.add(FontInfo.create(fileUri, ttcIndex, weight, italic, resultCode));
-                }
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            queryWrapper.close();
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("FontProvider.query");
         }
-        return result.toArray(new FontInfo[0]);
+        try {
+            ArrayList<FontInfo> result = new ArrayList<>();
+            final Uri uri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+                    .authority(authority)
+                    .build();
+            final Uri fileBaseUri = new Uri.Builder().scheme(ContentResolver.SCHEME_CONTENT)
+                    .authority(authority)
+                    .appendPath("file")
+                    .build();
+            Cursor cursor = null;
+            ContentQueryWrapper queryWrapper = ContentQueryWrapper.make(context, uri);
+            try {
+                String[] projection = {
+                        FontsContractCompat.Columns._ID, FontsContractCompat.Columns.FILE_ID,
+                        FontsContractCompat.Columns.TTC_INDEX,
+                        FontsContractCompat.Columns.VARIATION_SETTINGS,
+                        FontsContractCompat.Columns.WEIGHT, FontsContractCompat.Columns.ITALIC,
+                        FontsContractCompat.Columns.RESULT_CODE};
+                if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                    Trace.beginSection("ContentQueryWrapper.query");
+                }
+                try {
+                    cursor = queryWrapper.query(uri, projection, "query = ?",
+                            new String[]{request.getQuery()}, null, cancellationSignal);
+                } finally {
+                    if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                        Trace.endSection();
+                    }
+                }
+
+                if (cursor != null && cursor.getCount() > 0) {
+                    final int resultCodeColumnIndex = cursor.getColumnIndex(
+                            FontsContractCompat.Columns.RESULT_CODE);
+                    result = new ArrayList<>();
+                    final int idColumnIndex = cursor.getColumnIndex(
+                            FontsContractCompat.Columns._ID);
+                    final int fileIdColumnIndex = cursor.getColumnIndex(
+                            FontsContractCompat.Columns.FILE_ID);
+                    final int ttcIndexColumnIndex = cursor.getColumnIndex(
+                            FontsContractCompat.Columns.TTC_INDEX);
+                    final int weightColumnIndex = cursor.getColumnIndex(
+                            FontsContractCompat.Columns.WEIGHT);
+                    final int italicColumnIndex = cursor.getColumnIndex(
+                            FontsContractCompat.Columns.ITALIC);
+                    while (cursor.moveToNext()) {
+                        int resultCode = resultCodeColumnIndex != -1
+                                ? cursor.getInt(resultCodeColumnIndex)
+                                : FontsContractCompat.Columns.RESULT_CODE_OK;
+                        final int ttcIndex = ttcIndexColumnIndex != -1
+                                ? cursor.getInt(ttcIndexColumnIndex) : 0;
+                        Uri fileUri;
+                        if (fileIdColumnIndex == -1) {
+                            long id = cursor.getLong(idColumnIndex);
+                            fileUri = ContentUris.withAppendedId(uri, id);
+                        } else {
+                            long id = cursor.getLong(fileIdColumnIndex);
+                            fileUri = ContentUris.withAppendedId(fileBaseUri, id);
+                        }
+
+                        int weight = weightColumnIndex != -1 ? cursor.getInt(weightColumnIndex)
+                                : 400;
+                        boolean italic = italicColumnIndex != -1 && cursor.getInt(italicColumnIndex)
+                                == 1;
+                        result.add(FontInfo.create(fileUri, ttcIndex, weight, italic, resultCode));
+                    }
+                }
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+                queryWrapper.close();
+            }
+            return result.toArray(new FontInfo[0]);
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
+            }
+        }
     }
 
     private static List<List<byte[]>> getCertificates(FontRequest request, Resources resources) {

@@ -40,11 +40,15 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 import androidx.core.util.Preconditions;
+import androidx.tracing.Trace;
 
 /**
  * Helper for accessing features in {@link Typeface}.
  */
 public class TypefaceCompat {
+    @RestrictTo(LIBRARY)
+    public static final boolean DOWNLOADABLE_FONT_TRACING = true;
+
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
         if (Build.VERSION.SDK_INT >= 29) {
@@ -243,7 +247,17 @@ public class TypefaceCompat {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface createFromFontInfo(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
-        return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts, style);
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("TypefaceCompat.createFromFontInfo");
+        }
+        try {
+            return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts,
+                    style);
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
+            }
+        }
     }
 
     /**

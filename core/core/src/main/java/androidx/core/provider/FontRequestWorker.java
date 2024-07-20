@@ -40,6 +40,7 @@ import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
 import androidx.core.util.Consumer;
+import androidx.tracing.Trace;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -160,7 +161,6 @@ class FontRequestWorker {
             @Nullable final Executor executor,
             @NonNull final CallbackWrapper callback
     ) {
-
         final String id = createCacheId(request, style);
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
@@ -235,31 +235,39 @@ class FontRequestWorker {
             @NonNull final FontRequest request,
             int style
     ) {
-        Typeface cached = sTypefaceCache.get(cacheId);
-        if (cached != null) {
-            return new TypefaceResult(cached);
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("getFontSync");
         }
-
-        FontFamilyResult result;
         try {
-            result = FontProvider.getFontFamilyResult(context, request, null);
-        } catch (PackageManager.NameNotFoundException e) {
-            return new TypefaceResult(FAIL_REASON_PROVIDER_NOT_FOUND);
-        }
+            Typeface cached = sTypefaceCache.get(cacheId);
+            if (cached != null) {
+                return new TypefaceResult(cached);
+            }
 
-        int fontFamilyResultStatus = getFontFamilyResultStatus(result);
-        if (fontFamilyResultStatus != RESULT_SUCCESS) {
-            return new TypefaceResult(fontFamilyResultStatus);
-        }
+            FontFamilyResult result;
+            try {
+                result = FontProvider.getFontFamilyResult(context, request, null);
+            } catch (PackageManager.NameNotFoundException e) {
+                return new TypefaceResult(FAIL_REASON_PROVIDER_NOT_FOUND);
+            }
 
-        final Typeface typeface = TypefaceCompat.createFromFontInfo(
-                context, null /* CancellationSignal */, result.getFonts(), style);
+            int fontFamilyResultStatus = getFontFamilyResultStatus(result);
+            if (fontFamilyResultStatus != RESULT_SUCCESS) {
+                return new TypefaceResult(fontFamilyResultStatus);
+            }
+            final Typeface typeface = TypefaceCompat.createFromFontInfo(
+                    context, null /* CancellationSignal */, result.getFonts(), style);
 
-        if (typeface != null) {
-            sTypefaceCache.put(cacheId, typeface);
-            return new TypefaceResult(typeface);
-        } else {
-            return new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
+            if (typeface != null) {
+                sTypefaceCache.put(cacheId, typeface);
+                return new TypefaceResult(typeface);
+            } else {
+                return new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
+            }
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
+            }
         }
     }
 
