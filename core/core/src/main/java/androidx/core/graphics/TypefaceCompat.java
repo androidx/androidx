@@ -56,6 +56,9 @@ public class TypefaceCompat {
     @RestrictTo(LIBRARY)
     public static final boolean DOWNLOADABLE_FONT_TRACING = true;
 
+    static {
+        Trace.beginSection("TypefaceCompat static init");
+    }
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
         if (Build.VERSION.SDK_INT >= 29) {
@@ -428,5 +431,9 @@ public class TypefaceCompat {
                 mFontCallback.onFontRetrievalFailed(reason);
             }
         }
+    }
+
+    static {
+        Trace.endSection();
     }
 }
