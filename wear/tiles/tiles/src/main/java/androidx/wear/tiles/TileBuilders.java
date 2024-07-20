@@ -229,6 +229,6 @@ public final class TileBuilders {
 
         /** The current version of the Tiles schema in use. */
         public static final VersionInfo CURRENT =
-                VersionInfo.newBuilder().setMajor(1).setMinor(400).build();
+                VersionInfo.newBuilder().setMajor(1).setMinor(500).build();
     }
 }
