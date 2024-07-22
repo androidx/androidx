@@ -82,6 +82,7 @@ abstract class BaseCardActivity : FragmentActivity() {
 
         UserInputController(viewPager, findViewById(R.id.disable_user_input_checkbox)).setUp()
         OrientationController(viewPager, findViewById(R.id.orientation_spinner)).setUp()
+        OverScrollModeController(viewPager, findViewById(R.id.overscroll_mode_spinner)).setUp()
         cardSelector.adapter = createCardAdapter()
 
         viewPager.setPageTransformer(mAnimator)

@@ -211,6 +211,9 @@ public final class ViewPager2 extends ViewGroup {
         // don't want to respond on the events sent out during the attach process
         mRecyclerView.addOnScrollListener(mScrollEventAdapter);
 
+        // Pass-through ViewPager's overScrollMode settings to its impl
+        mRecyclerView.setOverScrollMode(getOverScrollMode());
+
         mPageChangeEventDispatcher = new CompositeOnPageChangeCallback(3);
         mScrollEventAdapter.setOnPageChangeCallback(mPageChangeEventDispatcher);
 
@@ -538,6 +541,15 @@ public final class ViewPager2 extends ViewGroup {
         if (mCurrentItemDirty) {
             updateCurrentItem();
         }
+    }
+
+    @Override
+    public void setOverScrollMode(int overScrollMode) {
+        // Skip calling mRecyclerView when it is not initialized
+        if (mRecyclerView != null) {
+            mRecyclerView.setOverScrollMode(overScrollMode);
+        }
+        super.setOverScrollMode(overScrollMode);
     }
 
     /** Updates {@link #mCurrentItem} based on what is currently visible in the viewport. */
