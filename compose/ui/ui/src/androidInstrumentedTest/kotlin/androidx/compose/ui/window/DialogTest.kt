@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
@@ -130,8 +129,17 @@ class DialogTest {
         val textInteraction = rule.onNodeWithTag(testTag)
         textInteraction.assertIsDisplayed()
 
-        // Click the back button to dismiss the Dialog
-        pressBack()
+        pressBackViaKey()
+        textInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun dialogTest_isDismissed_whenSpecified_backDispatched() {
+        setupDialogTest()
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        dispatchBackButton()
         textInteraction.assertDoesNotExist()
     }
 
@@ -141,20 +149,40 @@ class DialogTest {
         val textInteraction = rule.onNodeWithTag(testTag)
         textInteraction.assertIsDisplayed()
 
-        // Click the back button to try to dismiss the dialog
-        pressBack()
+        pressBackViaKey()
         // The Dialog should still be visible
         textInteraction.assertIsDisplayed()
     }
 
     @Test
-    fun dialogTest_isNotDismissed_whenDismissOnBackPressIsFalse() {
+    fun dialogTest_isNotDismissed_whenNotSpecified_backDispatched() {
+        setupDialogTest(closeDialogOnDismiss = false)
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        dispatchBackButton()
+        // The Dialog should still be visible
+        textInteraction.assertIsDisplayed()
+    }
+
+    @Test
+    fun dialogTest_isNotDismissed_whenDismissOnBackPressIsFalse_backButtonPressed() {
         setupDialogTest(dialogProperties = DialogProperties(dismissOnBackPress = false))
         val textInteraction = rule.onNodeWithTag(testTag)
         textInteraction.assertIsDisplayed()
 
-        // Click the back button to try to dismiss the dialog
-        pressBack()
+        pressBackViaKey()
+        // The Dialog should still be visible
+        textInteraction.assertIsDisplayed()
+    }
+
+    @Test
+    fun dialogTest_isNotDismissed_whenDismissOnBackPressIsFalse_backDispatched() {
+        setupDialogTest(dialogProperties = DialogProperties(dismissOnBackPress = false))
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        dispatchBackButton()
         // The Dialog should still be visible
         textInteraction.assertIsDisplayed()
     }
@@ -171,17 +199,28 @@ class DialogTest {
         textInteraction.assertIsDisplayed()
         assertThat(clickCount).isEqualTo(0)
 
-        // Click the back button to trigger the BackHandler
-        pressBack()
+        pressBackViaKey()
         textInteraction.assertIsDisplayed()
         assertThat(clickCount).isEqualTo(1)
     }
 
-    /**
-     * Pre-28 emulators seem to always translate Escape presses into Back presses, so this code path
-     * can't be tested pre-28.
-     */
-    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun dialogTest_backHandler_isCalled_backDispatched() {
+        var clickCount = 0
+        setupDialogTest(closeDialogOnDismiss = false) {
+            BackHandler { clickCount++ }
+            DefaultDialogContent()
+        }
+
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+        assertThat(clickCount).isEqualTo(0)
+
+        dispatchBackButton()
+        textInteraction.assertIsDisplayed()
+        assertThat(clickCount).isEqualTo(1)
+    }
+
     @Test
     fun dialogTest_isDismissed_escapePressed() {
         setupDialogTest()
@@ -299,7 +338,13 @@ class DialogTest {
         dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
     }
 
-    private fun pressBack() {
+    /** Presses and releases the back button via a key press. */
+    private fun pressBackViaKey() {
+        UiDevice.getInstance(getInstrumentation()).pressBack()
+    }
+
+    /** Dispatches the back button directly, shortcutting any key presses. */
+    private fun dispatchBackButton() {
         rule.runOnUiThread { dispatcher.onBackPressed() }
     }
 

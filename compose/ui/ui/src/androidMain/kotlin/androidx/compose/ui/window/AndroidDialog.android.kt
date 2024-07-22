@@ -391,7 +391,7 @@ private class DialogWrapper(
             onDismissRequest()
             return true
         }
-        return false
+        return super.onKeyUp(keyCode, event)
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
