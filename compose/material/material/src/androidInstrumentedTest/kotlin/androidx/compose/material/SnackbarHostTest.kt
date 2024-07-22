@@ -167,10 +167,12 @@ class SnackbarHostTest {
     @Test
     fun snackbarHost_semantics() {
         val hostState = SnackbarHostState()
+        lateinit var paneTitle: String
         lateinit var scope: CoroutineScope
         rule.setContent {
             scope = rememberCoroutineScope()
             SnackbarHost(hostState) { data -> Snackbar(data) }
+            paneTitle = getString(Strings.SnackbarPaneTitle)
         }
         val job1 =
             scope.launch {
@@ -184,6 +186,7 @@ class SnackbarHostTest {
             .assert(
                 SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
             )
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, paneTitle))
             .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss))
             .performSemanticsAction(SemanticsActions.Dismiss)
 

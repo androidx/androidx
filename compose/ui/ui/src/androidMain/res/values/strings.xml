@@ -55,4 +55,6 @@
     <string name="range_start">"Range start"</string>
     <!-- Spoken content description of the end seek control in a range slider. -->
     <string name="range_end">"Range end"</string>
+    <!-- Accessibility pane title for a snackbar -->
+    <string name="snackbar_pane_title">Alert</string>
 </resources>

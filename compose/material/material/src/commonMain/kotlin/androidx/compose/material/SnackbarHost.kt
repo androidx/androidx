@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.util.fastFilterNotNull
 import androidx.compose.ui.util.fastForEach
@@ -244,6 +245,7 @@ private fun FadeInFadeOutWithScale(
     content: @Composable (SnackbarData) -> Unit
 ) {
     val state = remember { FadeInFadeOutState<SnackbarData?>() }
+    val a11yPaneTitle = getString(Strings.SnackbarPaneTitle)
     if (current != state.current) {
         state.current = current
         val keys = state.items.fastMap { it.key }.toMutableList()
@@ -297,6 +299,7 @@ private fun FadeInFadeOutWithScale(
                         )
                         .semantics {
                             liveRegion = LiveRegionMode.Polite
+                            paneTitle = a11yPaneTitle
                             dismiss {
                                 key.dismiss()
                                 true
