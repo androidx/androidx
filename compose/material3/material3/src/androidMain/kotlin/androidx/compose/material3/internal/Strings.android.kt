@@ -74,6 +74,9 @@ internal actual value class Strings constructor(val value: Int) {
         actual inline val SnackbarDismiss
             get() = Strings(MaterialR.string.m3c_snackbar_dismiss)
 
+        actual inline val SnackbarPaneTitle
+            get() = Strings(MaterialR.string.m3c_snackbar_pane_title)
+
         actual inline val SearchBarSearch
             get() = Strings(MaterialR.string.m3c_search_bar_search)
 

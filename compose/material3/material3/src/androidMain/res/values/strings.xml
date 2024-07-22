@@ -26,6 +26,8 @@
     <string name="m3c_dropdown_menu_toggle">Toggle dropdown menu</string>
     <!-- Spoken description of a snackbar dismiss action -->
     <string name="m3c_snackbar_dismiss">Dismiss</string>
+    <!-- Accessibility pane title for a snackbar -->
+    <string name="m3c_snackbar_pane_title">Alert</string>
     <!-- Spoken description of a search bar -->
     <string name="m3c_search_bar_search">Search</string>
     <!-- Spoken description when search suggestions are available -->
