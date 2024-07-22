@@ -79,6 +79,7 @@ val WearMaterial3Demos =
             ComposableDemo("Card") { CardDemo() },
             ComposableDemo("Text Button") { TextButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },
+            ComposableDemo("Animated Shape Buttons") { AnimatedShapeButtonDemo() },
             ComposableDemo("Text Toggle Button") { TextToggleButtonDemo() },
             ComposableDemo("Icon Toggle Button") { IconToggleButtonDemo() },
             ComposableDemo("Checkbox Button") { CheckboxButtonDemo() },

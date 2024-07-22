@@ -16,16 +16,24 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,4 +84,42 @@ internal fun RoundButton(
                 .background(color = backgroundColor(enabled), shape = shape),
         content = content
     )
+}
+
+/**
+ * Returns a Shape that will internally animate between the normal shape and pressedShape as the
+ * button is pressed.
+ *
+ * Size and density must be known at this point since Corners may be specified in either percentage
+ * or dp, and cannot be correctly scaled as either a RoundedPolygon or a Morph.
+ */
+@Composable
+internal fun animatedPressedButtonShape(
+    interactionSource: InteractionSource,
+    shape: CornerBasedShape,
+    pressedShape: CornerBasedShape,
+    onPressAnimationSpec: FiniteAnimationSpec<Float> = MotionScheme.bouncyFastSpec(),
+    onReleaseAnimationSpec: FiniteAnimationSpec<Float> = MotionScheme.flatDefaultSpec(),
+): Shape {
+    val pressed = interactionSource.collectIsPressedAsState()
+
+    val transition = updateTransition(pressed.value, label = "Pressed State")
+    val progress: State<Float> =
+        transition.animateFloat(
+            label = "Pressed",
+            transitionSpec = {
+                when {
+                    false isTransitioningTo true -> onPressAnimationSpec
+                    else -> onReleaseAnimationSpec
+                }
+            }
+        ) { pressedTarget ->
+            if (pressedTarget) 1f else 0f
+        }
+
+    return when {
+        shape is RoundedCornerShape && pressedShape is RoundedCornerShape ->
+            rememberAnimatedRoundedCornerShape(shape, pressedShape, progress)
+        else -> rememberAnimatedCornerBasedShape(shape, pressedShape, progress)
+    }
 }
