@@ -751,12 +751,13 @@ class FocusTargetAttachDetachTest {
         val focusRequester = FocusRequester()
         var addFocusTarget by mutableStateOf(false)
         rule.setFocusableContent {
-            Box(
+            Column(
                 Modifier.thenIf(addFocusTarget) {
                     Modifier.onFocusChanged { focusState = it }
                         .then(elementFor(instance = focusTarget))
                 }
             ) {
+                Box(Modifier.focusTarget())
                 Box(Modifier.focusRequester(focusRequester).focusTarget())
             }
         }
