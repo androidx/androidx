@@ -108,6 +108,7 @@ public class FontsContractCompatTest {
     public void setUp() throws Exception {
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
         mContext = mInstrumentation.getTargetContext();
+        FontProvider.clearProviderCache();
         MockFontProvider.prepareFontFiles(
                 InstrumentationRegistry.getInstrumentation().getTargetContext());
     }
