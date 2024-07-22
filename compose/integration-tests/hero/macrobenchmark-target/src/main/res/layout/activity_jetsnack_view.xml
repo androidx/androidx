@@ -15,6 +15,7 @@
         android:text="Delivery to 1600 Amphitheater Way"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

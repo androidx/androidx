@@ -29,17 +29,20 @@ import androidx.compose.ui.node.Nodes.FocusTarget
 import androidx.compose.ui.node.nearestAncestor
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
+import androidx.compose.ui.util.trace
 
 internal fun FocusTargetNode.requestFocus(focusDirection: FocusDirection): Boolean? {
-    if (!fetchFocusProperties().canFocus) return false
-    return requireTransactionManager().withNewTransaction(
-        onCancelled = { if (node.isAttached) dispatchFocusCallbacks() }
-    ) {
-        when (performCustomRequestFocus(focusDirection)) {
-            None -> performRequestFocus()
-            Redirected -> true
-            Cancelled,
-            RedirectCancelled -> null
+    trace("FocusTransactions:requestFocus") {
+        if (!fetchFocusProperties().canFocus) return false
+        return requireTransactionManager().withNewTransaction(
+            onCancelled = { if (node.isAttached) dispatchFocusCallbacks() }
+        ) {
+            when (performCustomRequestFocus(focusDirection)) {
+                None -> performRequestFocus()
+                Redirected -> true
+                Cancelled,
+                RedirectCancelled -> null
+            }
         }
     }
 }

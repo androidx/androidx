@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.util.trace
 
 private const val Warning = "FocusRelatedWarning"
 
@@ -260,26 +261,28 @@ internal class FocusOwnerImpl(
 
     /** Dispatches a key event through the compose hierarchy. */
     override fun dispatchKeyEvent(keyEvent: KeyEvent, onFocusedItem: () -> Boolean): Boolean {
-        if (focusInvalidationManager.hasPendingInvalidation()) {
-            // Ignoring this to unblock b/346370327.
-            println("$Warning: Dispatching key event while focus system is invalidated.")
+        trace("FocusOwnerImpl:dispatchKeyEvent") {
+            if (focusInvalidationManager.hasPendingInvalidation()) {
+                // Ignoring this to unblock b/346370327.
+                println("$Warning: Dispatching key event while focus system is invalidated.")
+                return false
+            }
+            if (!validateKeyEvent(keyEvent)) return false
+
+            val activeFocusTarget = rootFocusNode.findActiveFocusNode()
+            val focusedKeyInputNode =
+                activeFocusTarget?.lastLocalKeyInputNode()
+                    ?: activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.KeyInput)?.node
+                    ?: rootFocusNode.nearestAncestor(Nodes.KeyInput)?.node
+
+            focusedKeyInputNode?.traverseAncestorsIncludingSelf(
+                type = Nodes.KeyInput,
+                onPreVisit = { if (it.onPreKeyEvent(keyEvent)) return true },
+                onVisit = { if (onFocusedItem.invoke()) return true },
+                onPostVisit = { if (it.onKeyEvent(keyEvent)) return true }
+            )
             return false
         }
-        if (!validateKeyEvent(keyEvent)) return false
-
-        val activeFocusTarget = rootFocusNode.findActiveFocusNode()
-        val focusedKeyInputNode =
-            activeFocusTarget?.lastLocalKeyInputNode()
-                ?: activeFocusTarget?.nearestAncestorIncludingSelf(Nodes.KeyInput)?.node
-                ?: rootFocusNode.nearestAncestor(Nodes.KeyInput)?.node
-
-        focusedKeyInputNode?.traverseAncestorsIncludingSelf(
-            type = Nodes.KeyInput,
-            onPreVisit = { if (it.onPreKeyEvent(keyEvent)) return true },
-            onVisit = { if (onFocusedItem.invoke()) return true },
-            onPostVisit = { if (it.onKeyEvent(keyEvent)) return true }
-        )
-        return false
     }
 
     override fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean {
