@@ -31,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
@@ -38,7 +39,9 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
 import androidx.paging.LoadState.Loading
@@ -260,6 +263,8 @@ class LazyPagingItemsTest {
             }
         }
 
+        val idMinus1 = rule.onNodeWithTag("-1").semanticsId()
+        val id0 = rule.onNodeWithTag("0").semanticsId()
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(2)
@@ -267,8 +272,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        rule.onNodeWithTag("-1").assertIsDeactivated()
-        rule.onNodeWithTag("0").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idMinus1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
 
         rule.runOnIdle {
             runBlocking {
@@ -277,7 +282,9 @@ class LazyPagingItemsTest {
             }
         }
 
-        rule.onNodeWithTag("-1").assertIsDeactivated()
+        // Assert -1 is deactivated still
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idMinus1)
+
         // node reused
         rule.onNodeWithTag("0").assertDoesNotExist()
         rule.onNodeWithTag("7").assertIsDisplayed()
@@ -320,6 +327,9 @@ class LazyPagingItemsTest {
 
         rule.waitUntil { loadedItem6 }
 
+        val idMinus1 = rule.onNodeWithTag("-1").semanticsId()
+        val id0 = rule.onNodeWithTag("0").semanticsId()
+
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(2)
@@ -327,8 +337,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        rule.onNodeWithTag("-1").assertIsDeactivated()
-        rule.onNodeWithTag("0").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idMinus1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
 
         rule.runOnIdle {
             runBlocking {
@@ -337,7 +347,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        rule.onNodeWithTag("-1").assertIsDeactivated()
+        // Assert -1 is deactivated still
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idMinus1)
         // node reused
         rule.onNodeWithTag("0").assertDoesNotExist()
     }
@@ -370,6 +381,9 @@ class LazyPagingItemsTest {
             }
         }
 
+        val idMinus1 = rule.onNodeWithTag("-1").semanticsId()
+        val id0 = rule.onNodeWithTag("0").semanticsId()
+
         rule.runOnIdle {
             runBlocking {
                 state.scrollToItem(2)
@@ -377,8 +391,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        rule.onNodeWithTag("-1").assertIsDeactivated()
-        rule.onNodeWithTag("0").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idMinus1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
 
         rule.runOnIdle {
             runBlocking {
@@ -387,7 +401,8 @@ class LazyPagingItemsTest {
             }
         }
 
-        rule.onNodeWithTag("-1").assertIsDeactivated()
+        // Assert -1 is deactivated still
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idMinus1)
         // node reused
         rule.onNodeWithTag("0").assertDoesNotExist()
         rule.onNodeWithTag("4").assertExists().assertIsDisplayed()
@@ -1106,5 +1121,13 @@ class LazyPagingItemsTest {
     @Composable
     private fun Content(tag: String) {
         Spacer(Modifier.height(itemsSizeDp).width(10.dp).testTag(tag))
+    }
+
+    private fun SemanticsNode.assertLayoutDeactivatedById(id: Int) {
+        children.fastForEach {
+            if (it.id == id) {
+                assert(it.layoutInfo.isDeactivated)
+            }
+        }
     }
 }
