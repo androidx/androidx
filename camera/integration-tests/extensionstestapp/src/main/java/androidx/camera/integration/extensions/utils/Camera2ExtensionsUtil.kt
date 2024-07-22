@@ -138,15 +138,27 @@ object Camera2ExtensionsUtil {
         }
         val displayArRatio = displaySize.x.toFloat() / displaySize.y
         val previewSizes = ArrayList<Size>()
+        var previewSize: Size? = null
+        var currentDistance = Int.MAX_VALUE
         for (sz in textureSizes) {
             val arRatio = sz.width.toFloat() / sz.height
             if (Math.abs(arRatio - displayArRatio) <= .2f) {
                 previewSizes.add(sz)
             }
+            val distance = Math.abs(sz.width * sz.height - displaySize.x * displaySize.y)
+            if (currentDistance > distance) {
+                currentDistance = distance
+                previewSize = sz
+            }
         }
 
-        var previewSize = previewSizes[0]
-        var currentDistance = Int.MAX_VALUE
+        if (previewSizes.isEmpty()) {
+            previewSize?.let { previewSizes.add(it) }
+                ?: throw IllegalStateException("No preview size was found")
+        } else {
+            previewSize = previewSizes[0]
+        }
+
         if (extensionMode == EXTENSION_MODE_NONE) {
             for (sz in previewSizes) {
                 val distance = Math.abs(sz.width * sz.height - displaySize.x * displaySize.y)
