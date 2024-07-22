@@ -21,6 +21,7 @@ dependencies {
     samples("androidx.window:window-samples:1.3.0-alpha03")
 
     docsForOptionalProject(":xr:xr")
+    docsForOptionalProject(":xr:xr-material3-adaptive")
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))
     docs(project(":activity:activity-ktx"))

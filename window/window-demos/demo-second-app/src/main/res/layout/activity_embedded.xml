@@ -15,9 +15,13 @@
   limitations under the License.
   -->
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:background="@color/colorAccent">
 
     <TextView
         android:layout_gravity="center"
@@ -25,4 +29,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-</FrameLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="#AAAAAA" />
+
+    <TextView
+        android:layout_gravity="center"
+        android:id="@+id/window_into_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/embedded_window_info_unavailable"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="#AAAAAA" />
+
+    <Button
+        android:id="@+id/button_pip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="ENTER PIP" />
+    <Button
+        android:id="@+id/button_start_activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Start a new instance of current Activity" />
+    <Button
+        android:id="@+id/button_start_activity_from_application_context"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Start a new instance of current Activity from Application Context" />
+
+</LinearLayout>

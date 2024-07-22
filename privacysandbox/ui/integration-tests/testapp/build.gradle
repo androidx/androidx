@@ -21,6 +21,7 @@ plugins {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.privacysandbox.ui.integration.testapp"
 
     defaultConfig {

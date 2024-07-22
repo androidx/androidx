@@ -22,6 +22,8 @@ import android.os.IBinder;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
@@ -40,6 +42,12 @@ import java.util.concurrent.Executor;
  * @see androidx.window.extensions.WindowExtensions
  */
 public interface ActivityEmbeddingComponent {
+
+    /**
+     * The vendor API level of the overlay feature APIs.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    int OVERLAY_FEATURE_API_LEVEL = 8;
 
     /**
      * Updates the rules of embedding activities that are started in the client process.
@@ -253,6 +261,93 @@ public interface ActivityEmbeddingComponent {
     }
 
     /**
+     * Returns the {@link ParentContainerInfo} by the {@link ActivityStack} token, or {@code null}
+     * if there's not such {@link ActivityStack} associated with the {@code token}.
+     *
+     * @param activityStackToken the token of an {@link ActivityStack}.
+     */
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
+    @Nullable
+    default ParentContainerInfo getParentContainerInfo(
+            @NonNull ActivityStack.Token activityStackToken) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Sets a function to compute the {@link ActivityStackAttributes} for the ActivityStack given
+     * for the current window and device state provided in
+     * {@link ActivityStackAttributesCalculatorParams} on the main thread.
+     * <p>
+     * This calculator function is only triggered if the {@link ActivityStack#getTag()} is
+     * specified. Similar to {@link #setSplitAttributesCalculator(Function)}, the calculator
+     * function could be triggered multiple times. It will be triggered whenever there's a
+     * launching standalone {@link ActivityStack} with {@link ActivityStack#getTag()} specified,
+     * or a parent window or device state update, such as device rotation, folding state change,
+     * or the host task goes to multi-window mode.
+     *
+     * @param calculator The calculator function to calculate {@link ActivityStackAttributes} based
+     *                   on {@link ActivityStackAttributesCalculatorParams}.
+     */
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
+    default void setActivityStackAttributesCalculator(@NonNull Function<
+            ActivityStackAttributesCalculatorParams, ActivityStackAttributes> calculator) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Clears the calculator function previously set by
+     * {@link #setActivityStackAttributesCalculator(Function)}
+     */
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
+    default void clearActivityStackAttributesCalculator() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Updates {@link ActivityStackAttributes} to an {@link ActivityStack} specified with
+     * {@code token} and applies the change directly. If there's no such an {@link ActivityStack},
+     * this method is no-op.
+     *
+     * @param token The {@link ActivityStack} to update.
+     * @param activityStackAttributes The attributes to be applied
+     */
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
+    default void updateActivityStackAttributes(@NonNull ActivityStack.Token token,
+            @NonNull ActivityStackAttributes activityStackAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Gets the {@link ActivityStack}'s token by {@code tag}, or {@code null} if there's no
+     * {@link ActivityStack} associated with the {@code tag}. For example, the {@link ActivityStack}
+     * is dismissed before the is method is called.
+     * <p>
+     * The {@link ActivityStack} token can be obtained immediately after the {@link ActivityStack}
+     * is created. This method is usually used when Activity Embedding library wants to
+     * {@link #updateActivityStackAttributes} before receiving
+     * the {@link ActivityStack} record from the callback set by
+     * {@link  #registerActivityStackCallback}.
+     * <p>
+     * For example, an app launches an overlay container and calls
+     * {@link #updateActivityStackAttributes} immediately right before the overlay
+     * {@link ActivityStack} is received from {@link #registerActivityStackCallback}.
+     *
+     * @param tag A unique identifier of an {@link ActivityStack} if set
+     * @return The {@link ActivityStack}'s token that the tag is associated with, or {@code null}
+     * if there's no such an {@link ActivityStack}.
+     */
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
+    @Nullable
+    default ActivityStack.Token getActivityStackToken(@NonNull String tag) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
      * Registers a callback that notifies WindowManager Jetpack about changes in
      * {@link ActivityStack}.
      * <p>
@@ -306,6 +401,50 @@ public interface ActivityEmbeddingComponent {
     @RequiresVendorApiLevel(level = 5)
     default void unregisterActivityStackCallback(
             @NonNull Consumer<List<ActivityStack>> callback) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Sets a callback that notifies WindowManager Jetpack about changes for a given
+     * {@link Activity} to its {@link EmbeddedActivityWindowInfo}.
+     * <p>
+     * The callback will be invoked when the {@link EmbeddedActivityWindowInfo} is changed after
+     * the {@link Activity} is launched. Similar to {@link Activity#onConfigurationChanged}, the
+     * callback will only be invoked for visible {@link Activity}.
+     *
+     * @param executor the executor to dispatch {@link EmbeddedActivityWindowInfo} change.
+     * @param callback the callback to notify {@link EmbeddedActivityWindowInfo} change.
+     */
+    @RequiresVendorApiLevel(level = 6)
+    default void setEmbeddedActivityWindowInfoCallback(@NonNull Executor executor,
+            @NonNull Consumer<EmbeddedActivityWindowInfo> callback) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Clears the callback previously set by
+     * {@link #setEmbeddedActivityWindowInfoCallback(Executor, Consumer)}
+     */
+    @RequiresVendorApiLevel(level = 6)
+    default void clearEmbeddedActivityWindowInfoCallback() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Returns the {@link EmbeddedActivityWindowInfo} of the given {@link Activity}, or
+     * {@code null} if the {@link Activity} is not attached.
+     * <p>
+     * This API can be used when {@link #setEmbeddedActivityWindowInfoCallback} is not set before
+     * the Activity is attached.
+     *
+     * @param activity the {@link Activity} to get {@link EmbeddedActivityWindowInfo} for.
+     */
+    @RequiresVendorApiLevel(level = 6)
+    @Nullable
+    default EmbeddedActivityWindowInfo getEmbeddedActivityWindowInfo(@NonNull Activity activity) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }

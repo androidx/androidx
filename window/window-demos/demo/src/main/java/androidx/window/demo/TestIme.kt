@@ -78,7 +78,8 @@ internal class TestIme : InputMethodService() {
                 .append(
                     "Width: $width, Height: $height\n" +
                         "Top: ${windowMetrics.bounds.top}, Bottom: ${windowMetrics.bounds.bottom}, " +
-                        "Left: ${windowMetrics.bounds.left}, Right: ${windowMetrics.bounds.right}"
+                        "Left: ${windowMetrics.bounds.left}, Right: ${windowMetrics.bounds.right}\n" +
+                        "Density: ${windowMetrics.density}"
                 )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

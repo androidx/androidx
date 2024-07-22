@@ -33,17 +33,21 @@ import androidx.window.WindowTestUtils.Companion.assumeBeforeVendorApiLevel
 import androidx.window.core.ConsumerAdapter
 import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.core.util.function.Consumer as OEMConsumer
+import androidx.window.extensions.layout.DisplayFoldFeature
 import androidx.window.extensions.layout.FoldingFeature as OEMFoldingFeature
 import androidx.window.extensions.layout.FoldingFeature.STATE_FLAT
 import androidx.window.extensions.layout.FoldingFeature.TYPE_HINGE
+import androidx.window.extensions.layout.SupportedWindowFeatures
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.WindowMetricsCalculatorCompat
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter.translate
 import java.util.function.Consumer as JavaConsumer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -645,9 +649,48 @@ class ExtensionWindowBackendTest {
         consumer.assertValues(expected)
     }
 
+    @Test
+    fun testSupportedFeatures_throwsBeforeApi6() {
+        assumeBeforeVendorApiLevel(6)
+
+        val component = FakeWindowComponent()
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
+
+        assertThrows(UnsupportedOperationException::class.java) { backend.supportedPostures }
+    }
+
+    @Test
+    fun testSupportedFeatures_emptyListReturnsNoFeatures() {
+        assumeAtLeastVendorApiLevel(6)
+
+        val supportedWindowFeatures = SupportedWindowFeatures.Builder(listOf()).build()
+        val component = FakeWindowComponent(windowFeatures = supportedWindowFeatures)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
+
+        val actual = backend.supportedPostures
+        assertEquals(emptyList<SupportedPosture>(), actual)
+    }
+
+    @Test
+    fun testSupportedFeatures_halfOpenedReturnsTabletopSupport() {
+        assumeAtLeastVendorApiLevel(6)
+
+        val foldFeature =
+            DisplayFoldFeature.Builder(DisplayFoldFeature.TYPE_SCREEN_FOLD_IN)
+                .addProperties(DisplayFoldFeature.FOLD_PROPERTY_SUPPORTS_HALF_OPENED)
+                .build()
+        val supportedWindowFeatures = SupportedWindowFeatures.Builder(listOf(foldFeature)).build()
+        val component = FakeWindowComponent(windowFeatures = supportedWindowFeatures)
+        val backend = ExtensionWindowBackend.newInstance(component, consumerAdapter)
+
+        val actual = backend.supportedPostures
+        assertEquals(listOf(SupportedPosture.TABLETOP), actual)
+    }
+
     internal companion object {
         private fun newTestOEMWindowLayoutInfo(activity: Activity): OEMWindowLayoutInfo {
-            val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(activity).bounds
+            val bounds =
+                WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(activity).bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)
@@ -661,7 +704,7 @@ class ExtensionWindowBackendTest {
          */
         @RequiresApi(Build.VERSION_CODES.R)
         private fun newTestOEMWindowLayoutInfo(@UiContext context: Context): OEMWindowLayoutInfo {
-            val bounds = WindowMetricsCalculatorCompat.computeCurrentWindowMetrics(context).bounds
+            val bounds = WindowMetricsCalculatorCompat().computeCurrentWindowMetrics(context).bounds
             val featureBounds = Rect(0, bounds.centerY(), bounds.width(), bounds.centerY())
             val feature = OEMFoldingFeature(featureBounds, TYPE_HINGE, STATE_FLAT)
             val displayFeatures = listOf(feature)
@@ -696,7 +739,8 @@ class ExtensionWindowBackendTest {
         }
     }
 
-    private class FakeWindowComponent : WindowLayoutComponent {
+    private class FakeWindowComponent(private val windowFeatures: SupportedWindowFeatures? = null) :
+        WindowLayoutComponent {
 
         val consumers = mutableListOf<JavaConsumer<OEMWindowLayoutInfo>>()
         val oemConsumers = mutableListOf<OEMConsumer<OEMWindowLayoutInfo>>()
@@ -721,6 +765,14 @@ class ExtensionWindowBackendTest {
 
         override fun removeWindowLayoutInfoListener(consumer: OEMConsumer<OEMWindowLayoutInfo>) {
             oemConsumers.remove(consumer)
+        }
+
+        override fun getSupportedWindowFeatures(): SupportedWindowFeatures {
+            return windowFeatures
+                ?: throw UnsupportedOperationException(
+                    "Window features are not set. Either the vendor API level is too low or value " +
+                        "was not set"
+                )
         }
 
         @SuppressLint("NewApi")

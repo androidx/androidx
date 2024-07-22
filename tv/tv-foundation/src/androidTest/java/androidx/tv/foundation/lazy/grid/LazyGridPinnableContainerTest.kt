@@ -39,6 +39,7 @@ import androidx.test.filters.MediumTest
 import androidx.tv.foundation.lazy.list.assertIsNotPlaced
 import androidx.tv.foundation.lazy.list.assertIsPlaced
 import com.google.common.truth.Truth.assertThat
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -502,7 +503,7 @@ class LazyGridPinnableContainerTest {
         while (handles.isNotEmpty()) {
             rule.runOnIdle {
                 assertThat(composed).contains(1)
-                handles.removeFirst().release()
+                handles.removeFirstKt().release()
             }
         }
 

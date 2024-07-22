@@ -24,11 +24,11 @@ import android.view.View
 import android.widget.CompoundButton
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.common.util.PictureInPictureUtil
 import androidx.window.demo.databinding.ActivitySplitPipActivityLayoutBinding
 import androidx.window.embedding.ActivityFilter
@@ -53,7 +53,7 @@ import kotlinx.coroutines.withContext
  * applied.
  */
 abstract class SplitPipActivityBase :
-    AppCompatActivity(),
+    EdgeToEdgeActivity(),
     CompoundButton.OnCheckedChangeListener,
     View.OnClickListener,
     RadioGroup.OnCheckedChangeListener {

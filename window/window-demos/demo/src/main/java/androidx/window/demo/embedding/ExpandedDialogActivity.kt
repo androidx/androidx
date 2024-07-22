@@ -18,10 +18,10 @@ package androidx.window.demo.embedding
 
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 
 /** Activity to show a dialog. */
-class ExpandedDialogActivity : AppCompatActivity() {
+class ExpandedDialogActivity : EdgeToEdgeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

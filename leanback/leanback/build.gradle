@@ -39,6 +39,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     sourceSets {
         main.java.srcDirs += [
                 "common",

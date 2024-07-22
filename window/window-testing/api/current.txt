@@ -1,4 +1,14 @@
 // Signature format: 4.0
+package androidx.window.testing {
+
+  public final class WindowSdkExtensionsRule implements org.junit.rules.TestRule {
+    ctor public WindowSdkExtensionsRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public void overrideExtensionVersion(@IntRange(from=0L) int version);
+  }
+
+}
+
 package androidx.window.testing.embedding {
 
   public final class ActivityEmbeddingRule implements org.junit.rules.TestRule {

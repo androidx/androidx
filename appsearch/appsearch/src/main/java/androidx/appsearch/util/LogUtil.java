@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.Size;
+import androidx.appsearch.app.AppSearchEnvironmentFactory;
 
 /**
  * Utilities for logging to logcat.
@@ -33,6 +34,8 @@ public final class LogUtil {
     // TODO(b/232285376): If it becomes possible to detect an eng build, turn this on by default
     //  for eng builds.
     public static final boolean DEBUG = false;
+    public static final boolean INFO = AppSearchEnvironmentFactory.getEnvironmentInstance()
+            .isInfoLoggingEnabled();
 
     /**
      * The {@link #piiTrace} logs are intended for sensitive data that can't be enabled in
@@ -92,7 +95,7 @@ public final class LogUtil {
             @NonNull String message,
             @Nullable Object fastTraceObj,
             @Nullable Object fullTraceObj) {
-        if (PII_TRACE_LEVEL == 0) {
+        if (PII_TRACE_LEVEL == 0 || !INFO) {
             return;
         }
         StringBuilder builder = new StringBuilder("(trace) ").append(message);

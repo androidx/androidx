@@ -25,17 +25,23 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.Display.DEFAULT_DISPLAY
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.window.demo.databinding.ActivityCoresdkWindowStateCallbackLayoutBinding
+import androidx.window.demo.R
+import androidx.window.demo.common.DemoTheme
 import androidx.window.layout.WindowInfoTracker
+import androidx.window.layout.WindowMetricsCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** Activity to show display configuration from different system callbacks. */
-class WindowStateCallbackActivity : AppCompatActivity() {
+class WindowStateCallbackActivity : ComponentActivity() {
+    private val viewModel: WindowStateViewModel by viewModels()
 
     /**
      * [DisplayManager]s from `Activity` and `Application` are updated from different resource
@@ -43,14 +49,8 @@ class WindowStateCallbackActivity : AppCompatActivity() {
      */
     private lateinit var applicationDisplayManager: DisplayManager
     private lateinit var activityDisplayManager: DisplayManager
+    private lateinit var windowMetricsCalculator: WindowMetricsCalculator
     private lateinit var handler: Handler
-
-    private lateinit var latestUpdateView: WindowStateView
-    private lateinit var applicationDisplayListenerView: WindowStateView
-    private lateinit var activityDisplayListenerView: WindowStateView
-    private lateinit var applicationConfigurationView: WindowStateView
-    private lateinit var activityConfigurationView: WindowStateView
-    private lateinit var displayFeatureView: WindowStateView
 
     /**
      * Runnable to poll configuration every 500ms. To always provide an up-to-date configuration so
@@ -59,7 +59,7 @@ class WindowStateCallbackActivity : AppCompatActivity() {
     private val updateWindowStateIfChanged =
         object : Runnable {
             override fun run() {
-                latestUpdateView.onWindowStateCallbackInvoked()
+                provideLatestWindowState()
                 handler.postDelayed(this, 500)
             }
         }
@@ -72,9 +72,10 @@ class WindowStateCallbackActivity : AppCompatActivity() {
             override fun onDisplayRemoved(displayId: Int) {}
 
             override fun onDisplayChanged(displayId: Int) {
-                if (displayId == DEFAULT_DISPLAY) {
-                    applicationDisplayListenerView.onWindowStateCallbackInvoked()
+                if (displayId != DEFAULT_DISPLAY) {
+                    return
                 }
+                onWindowStateCallbackInvoked(R.string.application_display_listener_title, displayId)
             }
         }
 
@@ -86,36 +87,38 @@ class WindowStateCallbackActivity : AppCompatActivity() {
             override fun onDisplayRemoved(displayId: Int) {}
 
             override fun onDisplayChanged(displayId: Int) {
-                if (displayId == DEFAULT_DISPLAY) {
-                    activityDisplayListenerView.onWindowStateCallbackInvoked()
+                if (displayId != DEFAULT_DISPLAY) {
+                    return
                 }
+                onWindowStateCallbackInvoked(R.string.activity_display_listener_title, displayId)
             }
         }
 
     /** [onConfigurationChanged] on `Application`. */
     private val applicationComponentCallback =
         object : ComponentCallbacks {
-            override fun onConfigurationChanged(p0: Configuration) {
-                applicationConfigurationView.onWindowStateCallbackInvoked()
+            override fun onConfigurationChanged(configuration: Configuration) {
+                onWindowStateCallbackInvoked(
+                    R.string.application_configuration_title,
+                    configuration
+                )
             }
 
+            @Deprecated(
+                "Since API level 34 this is never called. Apps targeting API level 34 " +
+                    "and above may provide an empty implementation."
+            )
             override fun onLowMemory() {}
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        val viewBinding = ActivityCoresdkWindowStateCallbackLayoutBinding.inflate(layoutInflater)
-        setContentView(viewBinding.root)
-        latestUpdateView = viewBinding.latestUpdateView
-        applicationDisplayListenerView = viewBinding.applicationDisplayListenerView
-        activityDisplayListenerView = viewBinding.activityDisplayListenerView
-        applicationConfigurationView = viewBinding.applicationConfigurationView
-        activityConfigurationView = viewBinding.activityConfigurationView
-        displayFeatureView = viewBinding.displayFeatureView
+        setContent { DemoTheme { WindowStateScreen() } }
 
-        applicationDisplayManager =
-            application.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        activityDisplayManager = getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+        applicationDisplayManager = application.getSystemService(DisplayManager::class.java)
+        activityDisplayManager = getSystemService(DisplayManager::class.java)
+        windowMetricsCalculator = WindowMetricsCalculator.getOrCreate()
         handler = Handler(Looper.getMainLooper())
 
         applicationDisplayManager.registerDisplayListener(applicationDisplayListener, handler)
@@ -126,7 +129,9 @@ class WindowStateCallbackActivity : AppCompatActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 WindowInfoTracker.getOrCreate(this@WindowStateCallbackActivity)
                     .windowLayoutInfo(this@WindowStateCallbackActivity)
-                    .collect { _ -> displayFeatureView.onWindowStateCallbackInvoked() }
+                    .collect { info ->
+                        onWindowStateCallbackInvoked(R.string.display_feature_title, info)
+                    }
             }
         }
     }
@@ -152,10 +157,35 @@ class WindowStateCallbackActivity : AppCompatActivity() {
     /** [onConfigurationChanged] on `Activity`. */
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        activityConfigurationView.onWindowStateCallbackInvoked()
+        onWindowStateCallbackInvoked(R.string.activity_configuration_title, newConfig)
     }
 
-    companion object {
-        val TAG = WindowStateCallbackActivity::class.simpleName
+    /** Called when the corresponding system callback is invoked. */
+    private fun onWindowStateCallbackInvoked(resId: Int, details: Any?) {
+        viewModel.onWindowStateCallback(queryWindowState(resId, details = "$details"))
+    }
+
+    private fun provideLatestWindowState() {
+        viewModel.updateLatestWindowState(
+            queryWindowState(
+                R.string.latest_configuration_title,
+                "poll configuration every 500ms",
+            )
+        )
+    }
+
+    private fun queryWindowState(resId: Int, details: String): WindowState {
+        fun DisplayManager.defaultDisplayRotation() = getDisplay(DEFAULT_DISPLAY).rotation
+        fun Context.displayBounds() =
+            windowMetricsCalculator.computeMaximumWindowMetrics(this).bounds
+
+        return WindowState(
+            name = getString(resId),
+            applicationDisplayRotation = applicationDisplayManager.defaultDisplayRotation(),
+            activityDisplayRotation = activityDisplayManager.defaultDisplayRotation(),
+            applicationDisplayBounds = applicationContext.displayBounds(),
+            activityDisplayBounds = this@WindowStateCallbackActivity.displayBounds(),
+            callbackDetails = details,
+        )
     }
 }

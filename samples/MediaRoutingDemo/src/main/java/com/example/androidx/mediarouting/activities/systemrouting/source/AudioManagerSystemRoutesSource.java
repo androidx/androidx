@@ -39,21 +39,18 @@ public final class AudioManagerSystemRoutesSource extends SystemRoutesSource {
     private final AudioManager mAudioManager;
 
     @NonNull
-    private final AudioDeviceCallback mAudioDeviceCallback = new AudioDeviceCallback() {
-        @Override
-        public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
-            for (AudioDeviceInfo audioDeviceInfo: addedDevices) {
-                mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(audioDeviceInfo));
-            }
-        }
+    private final AudioDeviceCallback mAudioDeviceCallback =
+            new AudioDeviceCallback() {
+                @Override
+                public void onAudioDevicesAdded(AudioDeviceInfo[] addedDevices) {
+                    mOnRoutesChangedListener.run();
+                }
 
-        @Override
-        public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
-            for (AudioDeviceInfo audioDeviceInfo: removedDevices) {
-                mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(audioDeviceInfo));
-            }
-        }
-    };
+                @Override
+                public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
+                    mOnRoutesChangedListener.run();
+                }
+            };
 
     /** Returns a new instance. */
     @NonNull
@@ -95,11 +92,16 @@ public final class AudioManagerSystemRoutesSource extends SystemRoutesSource {
         return out;
     }
 
+    @Override
+    public boolean select(@NonNull SystemRouteItem item) {
+        throw new UnsupportedOperationException();
+    }
+
     @NonNull
-    private static SystemRouteItem createRouteItemFor(@NonNull AudioDeviceInfo audioDeviceInfo) {
-        SystemRouteItem.Builder builder = new SystemRouteItem.Builder(
-                String.valueOf(audioDeviceInfo.getId()))
-                .setName(audioDeviceInfo.getProductName().toString());
+    private SystemRouteItem createRouteItemFor(@NonNull AudioDeviceInfo audioDeviceInfo) {
+        SystemRouteItem.Builder builder =
+                new SystemRouteItem.Builder(getSourceId(), String.valueOf(audioDeviceInfo.getId()))
+                        .setName(audioDeviceInfo.getProductName().toString());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             builder.setAddress(Api28Impl.getAddress(audioDeviceInfo));

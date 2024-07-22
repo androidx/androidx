@@ -1,1 +1,30 @@
 // Signature format: 4.0
+package @androidx.camera.featurecombinationquery.ExperimentalFeatureCombinationQuery androidx.camera.featurecombinationquery {
+
+  public interface CameraDeviceSetupCompat {
+    method public androidx.camera.featurecombinationquery.CameraDeviceSetupCompat.SupportQueryResult isSessionConfigurationSupported(android.hardware.camera2.params.SessionConfiguration) throws android.hardware.camera2.CameraAccessException;
+  }
+
+  public static final class CameraDeviceSetupCompat.SupportQueryResult {
+    ctor public CameraDeviceSetupCompat.SupportQueryResult(int, int, long);
+    method public int getSource();
+    method public int getSupported();
+    method public long getTimestampMillis();
+    field public static final int RESULT_SUPPORTED = 1; // 0x1
+    field public static final int RESULT_UNDEFINED = 0; // 0x0
+    field public static final int RESULT_UNSUPPORTED = 2; // 0x2
+    field public static final int SOURCE_ANDROID_FRAMEWORK = 2; // 0x2
+    field public static final int SOURCE_PLAY_SERVICES = 1; // 0x1
+    field public static final int SOURCE_UNDEFINED = 0; // 0x0
+  }
+
+  public class CameraDeviceSetupCompatFactory {
+    ctor public CameraDeviceSetupCompatFactory(android.content.Context);
+    method public androidx.camera.featurecombinationquery.CameraDeviceSetupCompat getCameraDeviceSetupCompat(String) throws android.hardware.camera2.CameraAccessException;
+  }
+
+  @SuppressCompatibility @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @kotlin.RequiresOptIn public @interface ExperimentalFeatureCombinationQuery {
+  }
+
+}
+

@@ -16,21 +16,17 @@
 
 package androidx.window.demo2.embedding
 
-import android.app.Activity
 import android.os.Bundle
-import android.widget.TextView
 import androidx.window.demo2.R
 
 /**
  * Activity that can be embedded in untrusted mode. See `android:allowUntrustedActivityEmbedding` in
  * AndroidManifest. Activity can be launched from the split demos in window-samples/demos.
  */
-class UntrustedEmbeddingActivity : Activity() {
+class UntrustedEmbeddingActivity : EmbeddedActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_embedded)
-        findViewById<TextView>(R.id.detail_text_view).text =
-            getString(R.string.untrusted_embedding_activity_detail)
+        viewBinding.detailTextView.text = getString(R.string.untrusted_embedding_activity_detail)
     }
 }

@@ -19,7 +19,7 @@
     <application android:label="PdfViewer">
 
         <service
-            android:name="androidx.pdf.pdflib.PdfDocumentService"
+            android:name="androidx.pdf.service.PdfDocumentService"
             android:isolatedProcess="true"
             tools:ignore="MissingServiceExportedEqualsTrue" />
 

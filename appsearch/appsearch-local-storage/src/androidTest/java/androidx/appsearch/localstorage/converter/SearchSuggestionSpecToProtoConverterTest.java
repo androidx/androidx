@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.converter;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.localstorage.SchemaCache;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 
 import com.google.android.icing.proto.NamespaceDocumentUriGroup;
@@ -54,10 +55,10 @@ public class SearchSuggestionSpecToProtoConverterTest {
                 prefix1, ImmutableSet.of(
                         prefix1 + "namespace1",
                         prefix1 + "namespace2")),
-                /*schemaMap=*/ImmutableMap.of(
-                prefix1, ImmutableMap.of(
-                        prefix1 + "typeA", configProto,
-                        prefix1 + "typeB", configProto)));
+                new SchemaCache(/*schemaMap=*/ImmutableMap.of(
+                        prefix1, ImmutableMap.of(
+                                prefix1 + "typeA", configProto,
+                                prefix1 + "typeB", configProto))));
 
         SuggestionSpecProto proto = converter.toSearchSuggestionSpecProto();
 
@@ -74,9 +75,6 @@ public class SearchSuggestionSpecToProtoConverterTest {
                         .build());
     }
 
-    // @exportToFramework:startStrip()
-    // TODO(b/230553264) remove this when it is deprecated and replaced by
-    //  advanced query property filters or it is exportable.
     @Test
     public void testToProto_propertyFilters() throws Exception {
         SearchSuggestionSpec searchSuggestionSpec =
@@ -91,10 +89,10 @@ public class SearchSuggestionSpecToProtoConverterTest {
                 searchSuggestionSpec,
                 /*prefixes=*/ImmutableSet.of(prefix1),
                 /*namespaceMap=*/ImmutableMap.of(),
-                /*schemaMap=*/ImmutableMap.of(
-                prefix1, ImmutableMap.of(
-                        prefix1 + "typeA", configProto,
-                        prefix1 + "typeB", configProto)));
+                new SchemaCache(/*schemaMap=*/ImmutableMap.of(
+                        prefix1, ImmutableMap.of(
+                                prefix1 + "typeA", configProto,
+                                prefix1 + "typeB", configProto))));
 
         SuggestionSpecProto proto = converter.toSearchSuggestionSpecProto();
         assertThat(proto.getTypePropertyFiltersList()).containsExactly(
@@ -103,5 +101,4 @@ public class SearchSuggestionSpecToProtoConverterTest {
                         .addPaths("property1").addPaths("property2")
                         .build());
     }
-    // @exportToFramework:endStrip()
 }

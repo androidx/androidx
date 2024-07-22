@@ -17,7 +17,6 @@
 package androidx.window.demo.demos
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.window.demo.DisplayFeaturesLetterboxLandscapeSlimActivity
 import androidx.window.demo.DisplayFeaturesLetterboxPortraitSlimActivity
@@ -35,10 +34,12 @@ import androidx.window.demo.R.string.show_all_display_features_no_config_change_
 import androidx.window.demo.R.string.show_all_display_features_portrait_slim
 import androidx.window.demo.SplitLayoutActivity
 import androidx.window.demo.WindowMetricsActivity
+import androidx.window.demo.area.RearDisplayPresentationActivity
 import androidx.window.demo.common.DisplayFeaturesActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 
 /** Main activity that launches WindowManager demos. */
-class WindowDemosActivity : AppCompatActivity() {
+class WindowDemosActivity : EdgeToEdgeActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +85,11 @@ class WindowDemosActivity : AppCompatActivity() {
                     buttonTitle = getString(R.string.ime),
                     description = getString(R.string.ime_demo_description),
                     clazz = ImeActivity::class.java
+                ),
+                DemoItem(
+                    buttonTitle = getString(R.string.dual_display),
+                    description = getString(R.string.dual_display_description),
+                    clazz = RearDisplayPresentationActivity::class.java
                 )
             )
         val recyclerView = findViewById<RecyclerView>(R.id.demo_recycler_view)

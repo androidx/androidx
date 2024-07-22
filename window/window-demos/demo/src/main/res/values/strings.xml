@@ -50,7 +50,10 @@
     <string name="rear_display">Rear Display Mode</string>
     <string name="rear_display_description">Demo of observing to WindowAreaStatus and enabling/disabling RearDisplay mode</string>
     <string name="current_split_attributes">Current SplitAttributes:</string>>
-    <string name="current_animation_background_color">Current Animation Background Color:</string>>
+    <string name="current_animation_background">Current Animation Background:</string>>
+    <string name="current_open_animation">Current Open Animation:</string>>
+    <string name="current_close_animation">Current Close Animation:</string>>
+    <string name="current_change_animation">Current Change Animation:</string>>
     <string name="test_ime">Test IME</string>
     <string name="test_ime_button_clear">Clear Logs</string>
     <string name="test_ime_button_close">Close Test IME</string>
@@ -61,13 +64,14 @@
     <string name="ime_button_settings">System IME Settings</string>
     <string name="ime_button_switch_default">Switch default IME</string>
     <string name="install_samples_2">Install window-demos:demo-second-app to launch activities from a different UID.</string>
-    <string name="toast_split_not_support">Please enable PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED and ensure device supports splits.</string>
+    <string name="toast_split_not_available">This device does not support Activity Embedding.</string>
+    <string name="toast_split_not_support">Please enable PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED.</string>
     <string name="latest_configuration_title">Latest Configuration</string>
     <string name="application_display_listener_title">Application DisplayListener#onDisplayChanged</string>
     <string name="activity_display_listener_title">Activity DisplayListener#onDisplayChanged</string>
     <string name="application_configuration_title">Application#onConfigurationChanged</string>
     <string name="activity_configuration_title">Activity#onConfigurationChanged</string>
-    <string name="display_feature_title">WindowInfoTracker</string>
+    <string name="display_feature_title">WindowInfoTracker#windowLayoutInfo</string>
     <string name="timestamp_title">Timestamp:</string>
     <string name="application_display_rotation_title">Application Display Rotation:</string>
     <string name="activity_display_rotation_title">Activity Display Rotation:</string>
@@ -86,4 +90,10 @@
     <string name="choose_split_type">Choose the split type</string>
     <string name="choose_layout_direction">Choose the layout direction</string>
     <string name="show_placeholder_warning">Placeholder Activity may show (again) because "Use a placeholder for A is checked". Clear the check box to expand Activity A to fill the task by either clicking "FINISH SECONDARY ACTIVITIES".</string>
+    <string name="dual_display">Dual Display</string>
+    <string name="dual_display_description">Demo of showing content on the rear and internal displays concurrently</string>
+    <string name="toast_show_overlay_warning">The device does not support overlay features!</string>
+    <string name="overlay_bounds_text">Overlay bounds:</string>
+    <string name="width_in_ratio">Width in ratio: </string>
+    <string name="height_in_ratio">Height in ratio: </string>
 </resources>

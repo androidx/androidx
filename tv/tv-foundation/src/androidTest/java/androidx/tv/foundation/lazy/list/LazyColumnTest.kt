@@ -62,6 +62,7 @@ import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.AutoTestFrameClock
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.collections.removeLast as removeLastKt
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
@@ -325,7 +326,7 @@ class LazyColumnTest {
             TvLazyColumn { items(items) { item -> Spacer(Modifier.size(itemSize).testTag(item)) } }
         }
 
-        rule.runOnIdle { items.removeLast() }
+        rule.runOnIdle { items.removeLastKt() }
 
         rule.onNodeWithTag("1").assertIsDisplayed()
 

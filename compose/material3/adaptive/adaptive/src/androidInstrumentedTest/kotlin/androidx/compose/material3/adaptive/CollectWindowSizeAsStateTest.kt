@@ -83,7 +83,10 @@ internal class MockWindowMetricsCalculatorDecorator(private val mockWindowSize: 
 internal class MockWindowMetricsCalculator(private val mockWindowSize: State<IntSize>) :
     WindowMetricsCalculator {
     override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
-        return WindowMetrics(Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height))
+        return WindowMetrics(
+            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height),
+            density = 1f
+        )
     }
 
     override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
@@ -91,6 +94,9 @@ internal class MockWindowMetricsCalculator(private val mockWindowSize: State<Int
     }
 
     override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
-        return WindowMetrics(Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height))
+        return WindowMetrics(
+            Rect(0, 0, mockWindowSize.value.width, mockWindowSize.value.height),
+            density = 1f
+        )
     }
 }

@@ -156,22 +156,6 @@ public class WeakPdfLoaderCallbacks implements PdfLoaderCallbacks {
     }
 
     @Override
-    public void documentCloned(boolean result) {
-        PdfLoaderCallbacks callbacks = getCallbacks();
-        if (callbacks != null) {
-            callbacks.documentCloned(result);
-        }
-    }
-
-    @Override
-    public void documentSavedAs(boolean result) {
-        PdfLoaderCallbacks callbacks = getCallbacks();
-        if (callbacks != null) {
-            callbacks.documentSavedAs(result);
-        }
-    }
-
-    @Override
     public void setInvalidRects(int pageNum, @NonNull List<Rect> invalidRects) {
         PdfLoaderCallbacks callbacks = getCallbacks();
         if (callbacks != null) {

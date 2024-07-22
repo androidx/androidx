@@ -34,6 +34,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
@@ -45,7 +46,6 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
@@ -80,7 +80,6 @@ class SearchSessionImpl implements AppSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
     private final Features mFeatures;
-    private final Context mContext;
     private final String mDatabaseName;
     @Nullable private final AppSearchLogger mLogger;
 
@@ -100,11 +99,11 @@ class SearchSessionImpl implements AppSearchSession {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
         mFeatures = Preconditions.checkNotNull(features);
-        mContext = Preconditions.checkNotNull(context);
+        Preconditions.checkNotNull(context);
         mDatabaseName = Preconditions.checkNotNull(databaseName);
         mLogger = logger;
 
-        mPackageName = mContext.getPackageName();
+        mPackageName = context.getPackageName();
         mSelfCallerAccess = new CallerAccess(/*callingPackageName=*/mPackageName);
     }
 
@@ -126,15 +125,15 @@ class SearchSessionImpl implements AppSearchSession {
                         mPackageName, mDatabaseName);
             }
 
-            // Extract a Map<schema, VisibilityDocument> from the request.
-            List<VisibilityDocument> visibilityDocuments = VisibilityDocument
-                    .toVisibilityDocuments(request);
+            List<InternalVisibilityConfig> visibilityConfigs =
+                    InternalVisibilityConfig.toInternalVisibilityConfigs(request);
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
-            if (migrators.size() == 0) {
+            if (migrators.isEmpty()) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
-                        visibilityDocuments, firstSetSchemaStatsBuilder);
+                        visibilityConfigs,
+                        firstSetSchemaStatsBuilder);
 
                 long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
                 // Schedule a task to dispatch change notifications. See requirements for where the
@@ -172,9 +171,9 @@ class SearchSessionImpl implements AppSearchSession {
             Map<String, Migrator> activeMigrators = SchemaMigrationUtil.getActiveMigrators(
                     getSchemaResponse.getSchemas(), migrators, currentVersion, finalVersion);
             // No need to trigger migration if no migrator is active.
-            if (activeMigrators.size() == 0) {
+            if (activeMigrators.isEmpty()) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
-                        visibilityDocuments, firstSetSchemaStatsBuilder);
+                        visibilityConfigs, firstSetSchemaStatsBuilder);
                 if (firstSetSchemaStatsBuilder != null) {
                     firstSetSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
@@ -194,7 +193,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
-                    visibilityDocuments,
+                    visibilityConfigs,
                     /*forceOverride=*/false,
                     request.getVersion(),
                     firstSetSchemaStatsBuilder);
@@ -233,7 +232,7 @@ class SearchSessionImpl implements AppSearchSession {
                             mPackageName,
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
-                            visibilityDocuments,
+                            visibilityConfigs,
                             /*forceOverride=*/ true,
                             request.getVersion(),
                             secondSetSchemaStatsBuilder);
@@ -246,9 +245,8 @@ class SearchSessionImpl implements AppSearchSession {
                     }
                 }
                 long secondSetSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
-                SetSchemaResponse.Builder responseBuilder = internalSetSchemaResponse
-                        .getSetSchemaResponse()
-                        .toBuilder()
+                SetSchemaResponse.Builder responseBuilder = new SetSchemaResponse.Builder(
+                        internalSetSchemaResponse.getSetSchemaResponse())
                         .addMigratedTypes(activeMigrators.keySet());
                 mIsMutated = true;
 
@@ -352,23 +350,26 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+
+        List<GenericDocument> documents = request.getGenericDocuments();
+        List<GenericDocument> takenActions = request.getTakenActionGenericDocuments();
+
         ListenableFuture<AppSearchBatchResult<String, Void>> future = execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < request.getGenericDocuments().size(); i++) {
-                GenericDocument document = request.getGenericDocuments().get(i);
-                try {
-                    mAppSearchImpl.putDocument(
-                            mPackageName,
-                            mDatabaseName,
-                            document,
-                            /*sendChangeNotifications=*/ true,
-                            mLogger);
-                    resultBuilder.setSuccess(document.getId(), /*value=*/ null);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
-                }
+
+            // Normal documents.
+            for (int i = 0; i < documents.size(); i++) {
+                GenericDocument document = documents.get(i);
+                putGenericDocument(document, resultBuilder);
             }
+
+            // TakenAction documents.
+            for (int i = 0; i < takenActions.size(); i++) {
+                GenericDocument takenActionGenericDocument = takenActions.get(i);
+                putGenericDocument(takenActionGenericDocument, resultBuilder);
+            }
+
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
@@ -382,7 +383,7 @@ class SearchSessionImpl implements AppSearchSession {
 
         // The existing documents with same ID will be deleted, so there may be some resources that
         // could be released after optimize().
-        checkForOptimize(/*mutateBatchSize=*/ request.getGenericDocuments().size());
+        checkForOptimize(/*mutateBatchSize=*/ documents.size() + takenActions.size());
         return future;
     }
 
@@ -396,7 +397,7 @@ class SearchSessionImpl implements AppSearchSession {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
 
-            Map<String, List<String>> typePropertyPaths = request.getProjectionsInternal();
+            Map<String, List<String>> typePropertyPaths = request.getProjections();
             for (String id : request.getIds()) {
                 try {
                     GenericDocument document =
@@ -583,7 +584,7 @@ class SearchSessionImpl implements AppSearchSession {
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull List<VisibilityDocument> visibilityDocuments,
+            @NonNull List<InternalVisibilityConfig> visibilityConfigs,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
         if (setSchemaStatsBuilder != null) {
@@ -593,7 +594,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
-                visibilityDocuments,
+                visibilityConfigs,
                 request.isForceOverride(),
                 request.getVersion(),
                 setSchemaStatsBuilder);
@@ -619,6 +620,28 @@ class SearchSessionImpl implements AppSearchSession {
     @WorkerThread
     private void dispatchChangeNotifications() {
         mAppSearchImpl.dispatchAndClearChangeNotifications();
+    }
+
+    /**
+     * Calls {@link AppSearchImpl} to put a generic document and sets the result.
+     *
+     * @param document the {@link GenericDocument} to put.
+     * @param resultBuilder an {@link AppSearchBatchResult.Builder} object for collecting the
+     *                      result.
+     */
+    private void putGenericDocument(
+            GenericDocument document, AppSearchBatchResult.Builder<String, Void> resultBuilder) {
+        try {
+            mAppSearchImpl.putDocument(
+                    mPackageName,
+                    mDatabaseName,
+                    document,
+                    /*sendChangeNotifications=*/ true,
+                    mLogger);
+            resultBuilder.setSuccess(document.getId(), /*value=*/ null);
+        } catch (Throwable t) {
+            resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
+        }
     }
 
     private void checkForOptimize(int mutateBatchSize) {

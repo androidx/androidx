@@ -16,9 +16,20 @@
 
 package androidx.appsearch.app;
 
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.GetByDocumentIdRequestCreator;
+import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -29,6 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -37,7 +49,13 @@ import java.util.Set;
  *
  * @see AppSearchSession#getByDocumentIdAsync
  */
-public final class GetByDocumentIdRequest {
+@SuppressWarnings("HiddenSuperclass")
+@SafeParcelable.Class(creator = "GetByDocumentIdRequestCreator")
+public final class GetByDocumentIdRequest extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull public static final Parcelable.Creator<GetByDocumentIdRequest> CREATOR =
+            new GetByDocumentIdRequestCreator();
     /**
      * Schema type to be used in
      * {@link GetByDocumentIdRequest.Builder#addProjection}
@@ -45,15 +63,30 @@ public final class GetByDocumentIdRequest {
      * property paths set.
      */
     public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
-    private final String mNamespace;
-    private final Set<String> mIds;
-    private final Map<String, List<String>> mTypePropertyPathsMap;
 
-    GetByDocumentIdRequest(@NonNull String namespace, @NonNull Set<String> ids, @NonNull Map<String,
-            List<String>> typePropertyPathsMap) {
-        mNamespace = Preconditions.checkNotNull(namespace);
-        mIds = Preconditions.checkNotNull(ids);
-        mTypePropertyPathsMap = Preconditions.checkNotNull(typePropertyPathsMap);
+    @NonNull
+    @Field(id = 1, getter = "getNamespace")
+    private final String mNamespace;
+    @NonNull
+    @Field(id = 2)
+    final List<String> mIds;
+    @NonNull
+    @Field(id = 3)
+    final Bundle mTypePropertyPaths;
+
+    /**
+     * Cache of the ids. Comes from inflating mIds at first use.
+     */
+    @Nullable private Set<String> mIdsCached;
+
+    @Constructor
+    GetByDocumentIdRequest(
+            @Param(id = 1) @NonNull String namespace,
+            @Param(id = 2) @NonNull List<String> ids,
+            @Param(id = 3) @NonNull Bundle typePropertyPaths) {
+        mNamespace = Objects.requireNonNull(namespace);
+        mIds = Objects.requireNonNull(ids);
+        mTypePropertyPaths = Objects.requireNonNull(typePropertyPaths);
     }
 
     /** Returns the namespace attached to the request. */
@@ -65,7 +98,10 @@ public final class GetByDocumentIdRequest {
     /** Returns the set of document IDs attached to the request. */
     @NonNull
     public Set<String> getIds() {
-        return Collections.unmodifiableSet(mIds);
+        if (mIdsCached == null) {
+            mIdsCached = Collections.unmodifiableSet(new ArraySet<>(mIds));
+        }
+        return mIdsCached;
     }
 
     /**
@@ -78,11 +114,15 @@ public final class GetByDocumentIdRequest {
      */
     @NonNull
     public Map<String, List<String>> getProjections() {
-        Map<String, List<String>> copy = new ArrayMap<>();
-        for (Map.Entry<String, List<String>> entry : mTypePropertyPathsMap.entrySet()) {
-            copy.put(entry.getKey(), new ArrayList<>(entry.getValue()));
+        Set<String> schemas = mTypePropertyPaths.keySet();
+        Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
+        for (String schema : schemas) {
+            List<String> propertyPaths = mTypePropertyPaths.getStringArrayList(schema);
+            if (propertyPaths != null) {
+                typePropertyPathsMap.put(schema, Collections.unmodifiableList(propertyPaths));
+            }
         }
-        return copy;
+        return typePropertyPathsMap;
     }
 
     /**
@@ -95,38 +135,34 @@ public final class GetByDocumentIdRequest {
      */
     @NonNull
     public Map<String, List<PropertyPath>> getProjectionPaths() {
-        Map<String, List<PropertyPath>> copy = new ArrayMap<>(mTypePropertyPathsMap.size());
-        for (Map.Entry<String, List<String>> entry : mTypePropertyPathsMap.entrySet()) {
-            List<PropertyPath> propertyPathList = new ArrayList<>(entry.getValue().size());
-            for (String p: entry.getValue()) {
-                propertyPathList.add(new PropertyPath(p));
+        Set<String> schemas = mTypePropertyPaths.keySet();
+        Map<String, List<PropertyPath>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
+        for (String schema : schemas) {
+            List<String> paths = mTypePropertyPaths.getStringArrayList(schema);
+            if (paths != null) {
+                int pathsSize = paths.size();
+                List<PropertyPath> propertyPathList = new ArrayList<>(pathsSize);
+                for (int i = 0; i < pathsSize; i++) {
+                    propertyPathList.add(new PropertyPath(paths.get(i)));
+                }
+                typePropertyPathsMap.put(schema, Collections.unmodifiableList(propertyPathList));
             }
-            copy.put(entry.getKey(), propertyPathList);
         }
-        return copy;
+        return typePropertyPathsMap;
     }
 
-    /**
-     * Returns a map from schema type to property paths to be used for projection.
-     *
-     * <p>If the map is empty, then all properties will be retrieved for all results.
-     *
-     * <p>A more efficient version of {@link #getProjections}, but it returns a modifiable map.
-     * This is not meant to be unhidden and should only be used by internal classes.
-     *
-     * @exportToFramework:hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Map<String, List<String>> getProjectionsInternal() {
-        return mTypePropertyPathsMap;
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        GetByDocumentIdRequestCreator.writeToParcel(this, dest, flags);
     }
 
     /** Builder for {@link GetByDocumentIdRequest} objects. */
     public static final class Builder {
         private final String mNamespace;
-        private ArraySet<String> mIds = new ArraySet<>();
-        private ArrayMap<String, List<String>> mProjectionTypePropertyPaths = new ArrayMap<>();
+        private List<String> mIds = new ArrayList<>();
+        private Bundle mProjectionTypePropertyPaths = new Bundle();
         private boolean mBuilt = false;
 
         /** Creates a {@link GetByDocumentIdRequest.Builder} instance. */
@@ -176,12 +212,12 @@ public final class GetByDocumentIdRequest {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(propertyPaths);
             resetIfBuilt();
-            List<String> propertyPathsList = new ArrayList<>(propertyPaths.size());
+            ArrayList<String> propertyPathsList = new ArrayList<>(propertyPaths.size());
             for (String propertyPath : propertyPaths) {
                 Preconditions.checkNotNull(propertyPath);
                 propertyPathsList.add(propertyPath);
             }
-            mProjectionTypePropertyPaths.put(schemaType, propertyPathsList);
+            mProjectionTypePropertyPaths.putStringArrayList(schemaType, propertyPathsList);
             return this;
         }
 
@@ -223,11 +259,11 @@ public final class GetByDocumentIdRequest {
 
         private void resetIfBuilt() {
             if (mBuilt) {
-                mIds = new ArraySet<>(mIds);
+                mIds = new ArrayList<>(mIds);
                 // No need to clone each propertyPathsList inside mProjectionTypePropertyPaths since
                 // the builder only replaces it, never adds to it. So even if the builder is used
                 // again, the previous one will remain with the object.
-                mProjectionTypePropertyPaths = new ArrayMap<>(mProjectionTypePropertyPaths);
+                mProjectionTypePropertyPaths = BundleUtil.deepCopy(mProjectionTypePropertyPaths);
                 mBuilt = false;
             }
         }

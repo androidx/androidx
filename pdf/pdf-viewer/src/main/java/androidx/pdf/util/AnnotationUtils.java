@@ -39,8 +39,8 @@ public class AnnotationUtils {
 
     private AnnotationUtils() {}
 
-    /** Launches the annotation intent for a given Uri */
-    public static boolean launchAnnotationIntent(@NonNull Context context, @NonNull Uri uri) {
+    /** Returns true if there is an activity that can resolve the annotation intent else false. */
+    public static boolean resolveAnnotationIntent(@NonNull Context context, @NonNull Uri uri) {
         Objects.requireNonNull(context);
         Objects.requireNonNull(uri);
         Intent intent = getAnnotationIntent(uri);

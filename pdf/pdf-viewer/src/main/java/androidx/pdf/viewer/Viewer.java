@@ -56,13 +56,7 @@ import androidx.pdf.util.Observables.ExposedValue;
 @SuppressWarnings("deprecation")
 public abstract class Viewer extends Fragment {
 
-    @NonNull
-    protected abstract String getLogTag();
-
     protected static final String KEY_DATA = "data";
-
-    /** Scale for the progress metric. */
-    protected static final int PROGRESS_SCALER = 100;
 
     /**
      * The state of the view hierarchy for this {@link Fragment}, as exposed by {@link #mViewState}.
@@ -120,9 +114,6 @@ public abstract class Viewer extends Fragment {
     @NonNull
     protected ExposedValue<ViewState> mViewState = Observables.newExposedValueWithInitialValue(
             ViewState.NO_VIEW);
-
-    // Debug log of lifecycle events that happened on this viewer, helps investigating.
-    private final StringBuilder mEventlog = new StringBuilder();
 
     {
         // We can call getArguments() from setters and know that it will not be null.
@@ -201,13 +192,6 @@ public abstract class Viewer extends Fragment {
         } else {
             mDelayedEnter = true;
         }
-    }
-
-    /** Notifies this Viewer goes off-screen. {@link #onExit()} will be called immediately. */
-    public void exit() {
-        mDelayedEnter = false; // in case we never started.
-        onExit();
-        mOnScreen = false;
     }
 
     /** Called after this viewer enters the screen and becomes visible. */
@@ -313,18 +297,6 @@ public abstract class Viewer extends Fragment {
     protected void saveToArguments(@NonNull DisplayData data) {
         getArguments().putBundle(KEY_DATA, data.asBundle());
     }
-
-    /** Returns a compact event log for this Viewer that helps investigating lifecycle issues. */
-    @NonNull
-    protected String getEventlog() {
-        return mEventlog.toString();
-    }
-
-    /** Returns the length of the current file. The meaning of the length is type dependent. */
-    public abstract long getContentLength();
-
-    /** Returns the user's current progress in the file in percentage. */
-    public abstract int getViewProgress();
 
     @Override
     protected void finalize() throws Throwable {

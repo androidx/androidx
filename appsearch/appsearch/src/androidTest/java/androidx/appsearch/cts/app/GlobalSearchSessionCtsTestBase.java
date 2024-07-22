@@ -751,7 +751,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 snapshotResults("body", new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setResultGrouping(
-                                SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+                                SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*limit=*/ 1)
                         .build());
         assertThat(documents).containsExactly(inEmail4);
 
@@ -761,7 +761,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                 snapshotResults("body", new SearchSpec.Builder()
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setResultGrouping(
-                                SearchSpec.GROUPING_TYPE_PER_NAMESPACE, /*resultLimit=*/ 1)
+                                SearchSpec.GROUPING_TYPE_PER_NAMESPACE, /*limit=*/ 1)
                         .build());
         assertThat(documents).containsExactly(inEmail4, inEmail3);
 
@@ -772,7 +772,7 @@ public abstract class GlobalSearchSessionCtsTestBase {
                         .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setResultGrouping(
                                 SearchSpec.GROUPING_TYPE_PER_NAMESPACE
-                                        | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*resultLimit=*/ 1)
+                                        | SearchSpec.GROUPING_TYPE_PER_PACKAGE, /*limit=*/ 1)
                         .build());
         assertThat(documents).containsExactly(inEmail4, inEmail3);
     }

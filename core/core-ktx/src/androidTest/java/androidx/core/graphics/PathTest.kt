@@ -60,7 +60,7 @@ class PathTest {
 
         val p = r1 + r2
         val r = RectF()
-        p.computeBounds(r, true)
+        @Suppress("DEPRECATION") p.computeBounds(r, true)
 
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }
@@ -72,7 +72,7 @@ class PathTest {
 
         val p = r1 or r2
         val r = RectF()
-        p.computeBounds(r, true)
+        @Suppress("DEPRECATION") p.computeBounds(r, true)
 
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }
@@ -84,7 +84,7 @@ class PathTest {
 
         val p = r1 - r2
         val r = RectF()
-        p.computeBounds(r, true)
+        @Suppress("DEPRECATION") p.computeBounds(r, true)
 
         assertEquals(RectF(0.0f, 0.0f, 5.0f, 10.0f), r)
     }
@@ -96,7 +96,7 @@ class PathTest {
 
         val p = r1 and r2
         val r = RectF()
-        p.computeBounds(r, true)
+        @Suppress("DEPRECATION") p.computeBounds(r, true)
 
         assertEquals(RectF(5.0f, 0.0f, 10.0f, 10.0f), r)
     }
@@ -117,7 +117,7 @@ class PathTest {
 
         val p = r1 xor r2
         val r = RectF()
-        p.computeBounds(r, true)
+        @Suppress("DEPRECATION") p.computeBounds(r, true)
 
         assertEquals(RectF(0.0f, 0.0f, 15.0f, 15.0f), r)
     }

@@ -18,6 +18,7 @@ package androidx.appsearch.annotation;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.LongSerializer;
 import androidx.appsearch.app.StringSerializer;
 
@@ -228,7 +229,6 @@ public @interface Document {
          * <p>If not specified, defaults to {@link
          * AppSearchSchema.StringPropertyConfig#INDEXING_TYPE_NONE} (the field will not be indexed
          * and cannot be queried).
-         * TODO(b/171857731) renamed to TermMatchType when using String-specific indexing config.
          */
         @AppSearchSchema.StringPropertyConfig.IndexingType int indexingType()
                 default AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
@@ -535,6 +535,42 @@ public @interface Document {
          * <p>Please make sure you understand the consequences of required fields on
          * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before setting
          * this attribute to {@code true}.
+         */
+        boolean required() default false;
+    }
+
+    /**
+     * Configures an {@link EmbeddingVector} field of a class as a property known to AppSearch.
+     */
+    @Documented
+    @Retention(RetentionPolicy.CLASS)
+    @Target({ElementType.FIELD, ElementType.METHOD})
+    @interface EmbeddingProperty {
+        /**
+         * The name of this property. This string is used to query against this property.
+         *
+         * <p>If not specified, the name of the field in the code will be used instead.
+         */
+        String name() default "";
+
+        /**
+         * Configures how a property should be indexed so that it can be retrieved by queries.
+         *
+         * <p>If not specified, defaults to
+         * {@link AppSearchSchema.EmbeddingPropertyConfig#INDEXING_TYPE_NONE} (the field will not be
+         * indexed and cannot be queried).
+         */
+        @AppSearchSchema.EmbeddingPropertyConfig.IndexingType int indexingType()
+                default AppSearchSchema.EmbeddingPropertyConfig.INDEXING_TYPE_NONE;
+
+        /**
+         * Configures whether this property must be specified for the document to be valid.
+         *
+         * <p>This attribute does not apply to properties of a repeated type (e.g. a list).
+         *
+         * <p>Please make sure you understand the consequences of required fields on
+         * {@link androidx.appsearch.app.AppSearchSession#setSchemaAsync schema migration} before
+         * setting this attribute to {@code true}.
          */
         boolean required() default false;
     }

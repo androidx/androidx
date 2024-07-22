@@ -162,6 +162,7 @@ public final class SystemOutputSwitcherDialogController {
             ApplicationInfo appInfo = activityInfo.applicationInfo;
             if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
                     & appInfo.flags) != 0) {
+                intent.setPackage(appInfo.packageName);
                 context.startActivity(intent);
                 return true;
             }
@@ -191,6 +192,7 @@ public final class SystemOutputSwitcherDialogController {
             ApplicationInfo appInfo = activityInfo.applicationInfo;
             if (((ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP)
                     & appInfo.flags) != 0) {
+                intent.setPackage(appInfo.packageName);
                 context.startActivity(intent);
                 return true;
             }

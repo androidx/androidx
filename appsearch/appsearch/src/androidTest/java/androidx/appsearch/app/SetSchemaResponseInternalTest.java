@@ -18,8 +18,6 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 
@@ -55,7 +53,7 @@ public class SetSchemaResponseInternalTest {
         assertThat(original.getMigratedTypes()).containsExactly("migrated1");
         assertThat(original.getMigrationFailures()).containsExactly(failure1);
 
-        SetSchemaResponse rebuild = original.toBuilder()
+        SetSchemaResponse rebuild = new SetSchemaResponse.Builder(original)
                         .addDeletedType("delete2")
                         .addIncompatibleType("incompatible2")
                         .addMigratedType("migrated2")
@@ -82,7 +80,6 @@ public class SetSchemaResponseInternalTest {
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("qualifiedId1")
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
-                        .setDeletionPropagation(true)
                         .build())
                 .build();
 
@@ -95,20 +92,5 @@ public class SetSchemaResponseInternalTest {
                 .isEqualTo(PropertyConfig.CARDINALITY_OPTIONAL);
         assertThat(((StringPropertyConfig) properties.get(0)).getJoinableValueType())
                 .isEqualTo(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID);
-        assertThat(((StringPropertyConfig) properties.get(0)).getDeletionPropagation())
-                .isEqualTo(true);
-    }
-
-    // TODO(b/268521214): Move test to cts once deletion propagation is available in framework.
-    @Test
-    public void testStringPropertyConfig_setJoinableProperty_deletePropagationError() {
-        final StringPropertyConfig.Builder builder =
-                new StringPropertyConfig.Builder("qualifiedId")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .setDeletionPropagation(true);
-        IllegalStateException e =
-                assertThrows(IllegalStateException.class, () -> builder.build());
-        assertThat(e).hasMessageThat().contains(
-                "Cannot set deletion propagation without setting a joinable value type");
     }
 }

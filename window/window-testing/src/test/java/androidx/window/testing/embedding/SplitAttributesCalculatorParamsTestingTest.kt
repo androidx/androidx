@@ -102,7 +102,7 @@ class SplitAttributesCalculatorParamsTestingTest {
 
     companion object {
         private val TEST_BOUNDS = Rect(0, 0, 2000, 2000)
-        private val TEST_METRICS = WindowMetrics(TEST_BOUNDS)
+        private val TEST_METRICS = WindowMetrics(TEST_BOUNDS, density = 1f)
         private val DEFAULT_SPLIT_ATTRIBUTES = SplitAttributes.Builder().build()
         private val TABLETOP_HINGE_ATTRIBUTES =
             SplitAttributes.Builder()

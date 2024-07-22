@@ -109,5 +109,6 @@ androidx {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.compose.ui.tooling.data"
 }

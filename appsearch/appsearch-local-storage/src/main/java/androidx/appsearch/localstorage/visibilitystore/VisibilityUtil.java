@@ -54,8 +54,11 @@ public class VisibilityUtil {
         Preconditions.checkNotNull(targetPackageName);
         Preconditions.checkNotNull(prefixedSchema);
 
-        if (callerAccess.getCallingPackageName().equals(targetPackageName)) {
-            return true;  // Everyone is always allowed to retrieve their own data.
+        // If the caller is allowed default access to its own data, check if the calling package
+        // and the target package are the same.
+        if (callerAccess.doesCallerHaveSelfAccess()
+                && callerAccess.getCallingPackageName().equals(targetPackageName)) {
+            return true;   // Caller is allowed to retrieve its own data.
         }
         if (visibilityStore == null || visibilityChecker == null) {
             return false;  // No visibility is configured at this time; no other access possible.

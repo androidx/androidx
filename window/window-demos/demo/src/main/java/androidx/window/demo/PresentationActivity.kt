@@ -27,10 +27,10 @@ import android.view.Display.DEFAULT_DISPLAY
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
  * Demo activity that reacts to foldable device state change and shows content on the outside
  * display when the device is folded.
  */
-class PresentationActivity : AppCompatActivity() {
+class PresentationActivity : EdgeToEdgeActivity() {
     private val TAG = "FoldablePresentation"
 
     private var presentation: DemoPresentation? = null

@@ -154,9 +154,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     }
 
     @Test
-    public void testSchemaMigration_A_B_C_D() throws Exception {
+    public void test_ForceOverride_BackwardsCompatible_Trigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards compatible schema and update the version
-        AppSearchSchema B_C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsCompatibleTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -166,7 +168,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(B_C_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsCompatibleTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
                         .setVersion(2)     // upgrade version
@@ -174,9 +176,11 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     }
 
     @Test
-    public void testSchemaMigration_A_B_NC_D() throws Exception {
+    public void testForceOverride_BackwardsCompatible_NoTrigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards compatible schema but don't update the version
-        AppSearchSchema B_NC_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsCompatibleNoTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -186,20 +190,22 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(B_NC_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsCompatibleNoTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
                         .build()).get();
     }
 
     @Test
-    public void testSchemaMigration_A_NB_C_D() throws Exception {
+    public void testForceOverride_BackwardsIncompatible_Trigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema and update the version
-        AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsIncompatibleTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsIncompatibleTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
                         .setVersion(2)     // upgrade version
@@ -207,13 +213,15 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     }
 
     @Test
-    public void testSchemaMigration_A_NB_C_ND() throws Exception {
+    public void testForceOverride_BackwardsIncompatible_Trigger_NoMigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema and update the version
-        AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsIncompatibleTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsIncompatibleTriggerSchema)
                         .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                         .setForceOverride(true)
                         .setVersion(2)     // upgrade version
@@ -221,35 +229,42 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     }
 
     @Test
-    public void testSchemaMigration_A_NB_NC_D() throws Exception {
+    public void testForceOverride_BackwardsIncompatible_NoTrigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema but don't update the version
-        AppSearchSchema NB_NC_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsIncompatibleNoTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(NB_NC_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsIncompatibleNoTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
                         .build()).get();
     }
 
     @Test
-    public void testSchemaMigration_A_NB_NC_ND() throws Exception {
+    public void testForceOverride_BackwardsIncompatible_NoTrigger_NoMigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema but don't update the version
-        AppSearchSchema $B_$C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsIncompatibleNoMigrateIncompatibleTypeSchema =
+                new AppSearchSchema.Builder("testSchema")
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas($B_$C_Schema)
+                new SetSchemaRequest.Builder().addSchemas(
+                                backwardsIncompatibleNoMigrateIncompatibleTypeSchema)
                         .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                         .setForceOverride(true)
                         .build()).get();
     }
 
     @Test
-    public void testSchemaMigration_NA_B_C_D() throws Exception {
+    public void testNoForceOverride_BackwardsCompatible_Trigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards compatible schema and update the version
-        AppSearchSchema B_C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsCompatibleTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -259,16 +274,18 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(B_C_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsCompatibleTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
     @Test
-    public void testSchemaMigration_NA_B_NC_D() throws Exception {
+    public void testNoForceOverride_BackwardsCompatible_NoTrigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards compatible schema but don't update the version
-        AppSearchSchema B_NC_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsCompatibleNoTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("subject")
                         .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(
@@ -278,34 +295,38 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(B_NC_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsCompatibleNoTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setForceOverride(true)
                         .build()).get();
     }
 
     @Test
-    public void testSchemaMigration_NA_NB_C_D() throws Exception {
+    public void testNoForceOverride_BackwardsIncompatible_Trigger_MigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema and update the version
-        AppSearchSchema NB_C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsIncompatibleTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .build();
 
         mDb.setSchemaAsync(
-                new SetSchemaRequest.Builder().addSchemas(NB_C_Schema)
+                new SetSchemaRequest.Builder().addSchemas(backwardsIncompatibleTriggerSchema)
                         .setMigrator("testSchema", ACTIVE_NOOP_MIGRATOR)
                         .setVersion(2)     // upgrade version
                         .build()).get();
     }
 
     @Test
-    public void testSchemaMigration_NA_NB_C_ND() throws Exception {
+    public void testNoForceOverride_BackwardsIncompatible_Trigger_NoMigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema and update the version
-        AppSearchSchema $B_C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsCompatibleTriggerSchema = new AppSearchSchema
+                .Builder("testSchema")
                 .build();
 
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchemaAsync(
-                        new SetSchemaRequest.Builder().addSchemas($B_C_Schema)
+                        new SetSchemaRequest.Builder().addSchemas(backwardsCompatibleTriggerSchema)
                                 .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                                 .setVersion(2)     // upgrade version
                                 .build()).get());
@@ -313,14 +334,17 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
     }
 
     @Test
-    public void testSchemaMigration_NA_NB_NC_ND() throws Exception {
+    public void testNoForceOverride_BackwardsIncompatible_NoTrigger_NoMigrateIncompatibleType()
+            throws Exception {
         // create a backwards incompatible schema but don't update the version
-        AppSearchSchema $B_$C_Schema = new AppSearchSchema.Builder("testSchema")
+        AppSearchSchema backwardsIncompatibleNoTriggerNoMigrateIncompatibleTypeSchema =
+                new AppSearchSchema.Builder("testSchema")
                 .build();
 
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchemaAsync(
-                        new SetSchemaRequest.Builder().addSchemas($B_$C_Schema)
+                        new SetSchemaRequest.Builder().addSchemas(
+                                backwardsIncompatibleNoTriggerNoMigrateIncompatibleTypeSchema)
                                 .setMigrator("testSchema", INACTIVE_MIGRATOR)  //ND
                                 .build()).get());
         assertThat(exception).hasMessageThat().contains("Schema is incompatible.");
@@ -704,7 +728,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
 
-        Migrator migrator_sourceToNowhere = new Migrator() {
+        Migrator migratorSourceToNowhere = new Migrator() {
             @Override
             public boolean shouldMigrate(int currentVersion, int finalVersion) {
                 return true;
@@ -732,7 +756,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         ExecutionException exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
-                        .setMigrator("sourceSchema", migrator_sourceToNowhere)
+                        .setMigrator("sourceSchema", migratorSourceToNowhere)
                         .setVersion(2).build())   // upgrade version
                         .get());
         assertThat(exception).hasMessageThat().contains(
@@ -744,7 +768,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         exception = assertThrows(ExecutionException.class,
                 () -> mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
-                        .setMigrator("sourceSchema", migrator_sourceToNowhere)
+                        .setMigrator("sourceSchema", migratorSourceToNowhere)
                         .setForceOverride(true)
                         .setVersion(2).build())   // upgrade version
                         .get());
@@ -761,7 +785,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .addSchemas(destinationSchema).setForceOverride(true).build()).get();
 
-        Migrator migrator_nowhereToDestination = new Migrator() {
+        Migrator migratorNowhereToDestination = new Migrator() {
             @Override
             public boolean shouldMigrate(int currentVersion, int finalVersion) {
                 return true;
@@ -789,7 +813,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
-                        .setMigrator("nonExistSchema", migrator_nowhereToDestination)
+                        .setMigrator("nonExistSchema", migratorNowhereToDestination)
                         .setVersion(2) //  upgrade version
                         .build()).get();
         assertThat(setSchemaResponse.getMigratedTypes()).isEmpty();
@@ -798,7 +822,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         setSchemaResponse =
                 mDb.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(destinationSchema)
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
-                        .setMigrator("nonExistSchema", migrator_nowhereToDestination)
+                        .setMigrator("nonExistSchema", migratorNowhereToDestination)
                         .setVersion(2) //  upgrade version
                         .setForceOverride(true).build()).get();
         assertThat(setSchemaResponse.getMigratedTypes()).isEmpty();
@@ -809,7 +833,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         // set empty schema
         mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                 .setForceOverride(true).build()).get();
-        Migrator migrator_nowhereToNowhere = new Migrator() {
+        Migrator migratorNowhereToNowhere = new Migrator() {
             @Override
             public boolean shouldMigrate(int currentVersion, int finalVersion) {
                 return true;
@@ -837,7 +861,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         SetSchemaResponse setSchemaResponse =
                 mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
-                        .setMigrator("nonExistSchema", migrator_nowhereToNowhere)
+                        .setMigrator("nonExistSchema", migratorNowhereToNowhere)
                         .setVersion(2)  //  upgrade version
                         .build()).get();
         assertThat(setSchemaResponse.getMigratedTypes()).isEmpty();
@@ -846,7 +870,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         setSchemaResponse =
                 mDb.setSchemaAsync(new SetSchemaRequest.Builder()
                         .addSchemas(new AppSearchSchema.Builder("emptySchema").build())
-                        .setMigrator("nonExistSchema", migrator_nowhereToNowhere)
+                        .setMigrator("nonExistSchema", migratorNowhereToNowhere)
                         .setVersion(2) //  upgrade version
                         .setForceOverride(true).build()).get();
         assertThat(setSchemaResponse.getMigratedTypes()).isEmpty();
@@ -1208,7 +1232,7 @@ public abstract class AppSearchSchemaMigrationCtsTestBase {
         @Override
         public GenericDocument onUpgrade(int currentVersion, int finalVersion,
                 @NonNull GenericDocument document) {
-            GenericDocument.Builder docBuilder =
+            GenericDocument.Builder<?> docBuilder =
                     new GenericDocument.Builder<>("namespace", "id", "TypeB")
                             .setCreationTimestampMillis(DOCUMENT_CREATION_TIME);
             if (currentVersion == 2) {

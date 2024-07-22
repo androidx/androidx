@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("deprecation") // For usage of Slice
+
 package androidx.credentials.provider
 
 import android.annotation.SuppressLint
@@ -29,6 +31,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
+import androidx.credentials.provider.CreateEntry.Api28Impl.addToSlice
 import java.time.Instant
 import java.util.Collections
 
@@ -40,9 +43,27 @@ import java.util.Collections
  * registered. When user selects this entry, the corresponding [PendingIntent] is fired, and the
  * credential creation can be completed.
  *
+ * @property accountName the name of the account where the credential will be saved
+ * @property pendingIntent the [PendingIntent] that will get invoked when the user selects this
+ *   entry, must be created with a unique request code per entry, with flag
+ *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and NOT
+ *   with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
+ * @property description the localized description shown on UI about where the credential is stored
+ * @property icon the icon to be displayed with this entry on the UI, must be created using
+ *   [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as the
+ *   latter consumes more memory and may cause undefined behavior due to memory implications on
+ *   internal transactions
+ * @property lastUsedTime the last time the account underlying this entry was used by the user,
+ *   distinguishable up to the milli second mark only such that if two entries have the same
+ *   millisecond precision, they will be considered to have been used at the same time
+ * @property isAutoSelectAllowed whether this entry should be auto selected if it is the only entry
+ *   on the selector
+ * @property biometricPromptData the data that is set optionally to utilize a credential manager
+ *   flow that directly handles the biometric verification and presents back the response; set to
+ *   null by default, so if not opted in, the embedded biometric prompt flow will not show
  * @throws IllegalArgumentException If [accountName] is empty
  */
-@RequiresApi(26)
+@RequiresApi(23)
 class CreateEntry
 internal constructor(
     val accountName: CharSequence,
@@ -51,9 +72,9 @@ internal constructor(
     val description: CharSequence?,
     val lastUsedTime: Instant?,
     private val credentialCountInformationMap: MutableMap<String, Int?>,
-    val isAutoSelectAllowed: Boolean
+    val isAutoSelectAllowed: Boolean,
+    val biometricPromptData: BiometricPromptData? = null,
 ) {
-
     /**
      * Creates an entry to be displayed on the selector during create flows.
      *
@@ -92,17 +113,76 @@ internal constructor(
         @Suppress("AutoBoxing") totalCredentialCount: Int? = null,
         isAutoSelectAllowed: Boolean = false
     ) : this(
-        accountName,
-        pendingIntent,
-        icon,
-        description,
-        lastUsedTime,
-        mutableMapOf(
-            PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
-            PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
-            TYPE_TOTAL_CREDENTIAL to totalCredentialCount
-        ),
-        isAutoSelectAllowed
+        accountName = accountName,
+        pendingIntent = pendingIntent,
+        icon = icon,
+        description = description,
+        lastUsedTime = lastUsedTime,
+        credentialCountInformationMap =
+            mutableMapOf(
+                PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
+                PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
+                TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+            ),
+        isAutoSelectAllowed = isAutoSelectAllowed
+    )
+
+    /**
+     * Creates an entry to be displayed on the selector during create flows.
+     *
+     * @param accountName the name of the account where the credential will be saved
+     * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
+     *   entry, must be created with a unique request code per entry, with flag
+     *   [PendingIntent.FLAG_MUTABLE] to allow the Android system to attach the final request, and
+     *   NOT with flag [PendingIntent.FLAG_ONE_SHOT] as it can be invoked multiple times
+     * @param description the localized description shown on UI about where the credential is stored
+     * @param icon the icon to be displayed with this entry on the UI, must be created using
+     *   [Icon.createWithResource] when possible, and especially not with [Icon.createWithBitmap] as
+     *   the latter consumes more memory and may cause undefined behavior due to memory implications
+     *   on internal transactions
+     * @param lastUsedTime the last time the account underlying this entry was used by the user,
+     *   distinguishable up to the milli second mark only such that if two entries have the same
+     *   millisecond precision, they will be considered to have been used at the same time
+     * @param passwordCredentialCount the no. of password credentials contained by the provider
+     * @param publicKeyCredentialCount the no. of public key credentials contained by the provider
+     * @param totalCredentialCount the total no. of credentials contained by the provider
+     * @param isAutoSelectAllowed whether this entry should be auto selected if it is the only entry
+     *   on the selector
+     * @param biometricPromptData the data that is set optionally to utilize a credential manager
+     *   flow that directly handles the biometric verification and presents back the response; set
+     *   to null by default, so if not opted in, the embedded biometric prompt flow will not show
+     * @constructor constructs an instance of [CreateEntry]
+     * @throws IllegalArgumentException If [accountName] is empty, or if [description] is longer
+     *   than 300 characters (important: make sure your descriptions across all locales are within
+     *   this limit)
+     * @throws NullPointerException If [accountName] or [pendingIntent] is null
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    constructor(
+        accountName: CharSequence,
+        pendingIntent: PendingIntent,
+        description: CharSequence? = null,
+        lastUsedTime: Instant? = null,
+        icon: Icon? = null,
+        @Suppress("AutoBoxing") passwordCredentialCount: Int? = null,
+        @Suppress("AutoBoxing") publicKeyCredentialCount: Int? = null,
+        @Suppress("AutoBoxing") totalCredentialCount: Int? = null,
+        isAutoSelectAllowed: Boolean = false,
+        biometricPromptData: BiometricPromptData? = null,
+    ) : this(
+        accountName = accountName,
+        pendingIntent = pendingIntent,
+        icon = icon,
+        description = description,
+        lastUsedTime = lastUsedTime,
+        credentialCountInformationMap =
+            mutableMapOf(
+                PasswordCredential.TYPE_PASSWORD_CREDENTIAL to passwordCredentialCount,
+                PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL to publicKeyCredentialCount,
+                TYPE_TOTAL_CREDENTIAL to totalCredentialCount
+            ),
+        isAutoSelectAllowed = isAutoSelectAllowed,
+        biometricPromptData = biometricPromptData,
     )
 
     init {
@@ -149,7 +229,6 @@ internal constructor(
      */
     class Builder
     constructor(private val accountName: CharSequence, private val pendingIntent: PendingIntent) {
-
         private var credentialCountInformationMap: MutableMap<String, Int?> = mutableMapOf()
         private var icon: Icon? = null
         private var description: CharSequence? = null
@@ -158,6 +237,7 @@ internal constructor(
         private var publicKeyCredentialCount: Int? = null
         private var totalCredentialCount: Int? = null
         private var autoSelectAllowed: Boolean = false
+        private var biometricPromptData: BiometricPromptData? = null
 
         /** Sets whether the entry should be auto-selected. The value is false by default. */
         @Suppress("MissingGetterMatchingBuilder")
@@ -237,19 +317,32 @@ internal constructor(
         }
 
         /**
+         * Sets the biometric prompt data to optionally utilize a credential manager flow that
+         * directly handles the biometric verification for you and gives you the response; set to
+         * null by default, indicating the default behavior is to not utilize this embedded
+         * biometric prompt flow.
+         */
+        @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+        fun setBiometricPromptData(biometricPromptData: BiometricPromptData): Builder {
+            this.biometricPromptData = biometricPromptData
+            return this
+        }
+
+        /**
          * Builds an instance of [CreateEntry]
          *
          * @throws IllegalArgumentException If [accountName] is empty
          */
         fun build(): CreateEntry {
             return CreateEntry(
-                accountName,
-                pendingIntent,
-                icon,
-                description,
-                lastUsedTime,
-                credentialCountInformationMap,
-                autoSelectAllowed
+                accountName = accountName,
+                pendingIntent = pendingIntent,
+                icon = icon,
+                description = description,
+                lastUsedTime = lastUsedTime,
+                credentialCountInformationMap = credentialCountInformationMap,
+                isAutoSelectAllowed = autoSelectAllowed,
+                biometricPromptData = biometricPromptData
             )
         }
     }
@@ -263,12 +356,89 @@ internal constructor(
         }
     }
 
-    @RequiresApi(28)
-    private object Api28Impl {
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private object Api35Impl {
+        private fun addToSlice(createEntry: CreateEntry, sliceBuilder: Slice.Builder) {
+            val biometricPromptData = createEntry.biometricPromptData
+            if (biometricPromptData != null) {
+                // TODO(b/353798766) : Remove non bundles once beta users have finalized testing
+                sliceBuilder.addInt(
+                    biometricPromptData.allowedAuthenticators,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_ALLOWED_AUTHENTICATORS)
+                )
+                biometricPromptData.cryptoObject?.let {
+                    sliceBuilder.addLong(
+                        biometricPromptData.cryptoObject.operationHandle,
+                        /*subType=*/ null,
+                        listOf(SLICE_HINT_CRYPTO_OP_ID)
+                    )
+                }
+                val biometricBundle = BiometricPromptData.toBundle(biometricPromptData)
+                sliceBuilder.addBundle(
+                    biometricBundle,
+                    /*subType=*/ null,
+                    listOf(SLICE_HINT_BIOMETRIC_PROMPT_DATA)
+                )
+            }
+        }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun toSlice(createEntry: CreateEntry): Slice {
+            val sliceBuilder = Api28Impl.addToSlice(createEntry)
+            addToSlice(createEntry, sliceBuilder)
+            return sliceBuilder.build()
+        }
+
+        /**
+         * Returns an instance of [CustomCredentialEntry] derived from a [Slice] object.
+         *
+         * @param slice the [Slice] object constructed through [addToSlice]
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): CreateEntry? {
+            val createEntry = Api28Impl.fromSlice(slice) ?: return null
+            var biometricPromptDataBundle: Bundle? = null
+            slice.items.forEach {
+                if (it.hasHint(CredentialEntry.SLICE_HINT_BIOMETRIC_PROMPT_DATA)) {
+                    biometricPromptDataBundle = it.bundle
+                }
+            }
+            return try {
+                CreateEntry(
+                    accountName = createEntry.accountName,
+                    pendingIntent = createEntry.pendingIntent,
+                    icon = createEntry.icon,
+                    description = createEntry.description,
+                    lastUsedTime = createEntry.lastUsedTime,
+                    credentialCountInformationMap = createEntry.credentialCountInformationMap,
+                    isAutoSelectAllowed = createEntry.isAutoSelectAllowed,
+                    biometricPromptData =
+                        if (biometricPromptDataBundle != null)
+                            BiometricPromptData.fromBundle(biometricPromptDataBundle!!)
+                        else null
+                )
+            } catch (e: Exception) {
+                Log.i(TAG, "fromSlice failed with: " + e.message)
+                null
+            }
+        }
+    }
+
+    @RequiresApi(28)
+    private object Api28Impl {
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @JvmStatic
+        fun toSlice(createEntry: CreateEntry): Slice {
+            val sliceBuilder = addToSlice(createEntry)
+            return sliceBuilder.build()
+        }
+
+        // Specific to only this create entry, but shared across API levels > P
+        fun addToSlice(createEntry: CreateEntry): Slice.Builder {
             val accountName = createEntry.accountName
             val icon = createEntry.icon
             val description = createEntry.description
@@ -276,14 +446,12 @@ internal constructor(
             val credentialCountInformationMap = createEntry.credentialCountInformationMap
             val pendingIntent = createEntry.pendingIntent
             val sliceBuilder = Slice.Builder(Uri.EMPTY, SliceSpec(SLICE_SPEC_TYPE, REVISION_ID))
-
             val autoSelectAllowed =
                 if (createEntry.isAutoSelectAllowed) {
                     AUTO_SELECT_TRUE_STRING
                 } else {
                     AUTO_SELECT_FALSE_STRING
                 }
-
             sliceBuilder.addText(accountName, /* subType= */ null, listOf(SLICE_HINT_ACCOUNT_NAME))
             if (lastUsedTime != null) {
                 sliceBuilder.addLong(
@@ -320,7 +488,7 @@ internal constructor(
                     /*subType=*/ null,
                     listOf(SLICE_HINT_AUTO_SELECT_ALLOWED)
                 )
-            return sliceBuilder.build()
+            return sliceBuilder
         }
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -359,13 +527,13 @@ internal constructor(
             }
             return try {
                 CreateEntry(
-                    accountName!!,
-                    pendingIntent!!,
-                    icon,
-                    description,
-                    lastUsedTime,
-                    credentialCountInfo,
-                    autoSelectAllowed
+                    accountName = accountName!!,
+                    pendingIntent = pendingIntent!!,
+                    icon = icon,
+                    description = description,
+                    lastUsedTime = lastUsedTime,
+                    credentialCountInformationMap = credentialCountInfo,
+                    isAutoSelectAllowed = autoSelectAllowed,
                 )
             } catch (e: Exception) {
                 Log.i(TAG, "fromSlice failed with: " + e.message)
@@ -411,36 +579,30 @@ internal constructor(
     companion object {
         private const val TAG = "CreateEntry"
         private const val DESCRIPTION_MAX_CHAR_LIMIT = 300
-
         internal const val TYPE_TOTAL_CREDENTIAL = "TOTAL_CREDENTIAL_COUNT_TYPE"
-
         private const val SLICE_HINT_ACCOUNT_NAME =
             "androidx.credentials.provider.createEntry.SLICE_HINT_USER_PROVIDER_ACCOUNT_NAME"
-
         private const val SLICE_HINT_NOTE =
             "androidx.credentials.provider.createEntry.SLICE_HINT_NOTE"
-
         private const val SLICE_HINT_ICON =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PROFILE_ICON"
-
         private const val SLICE_HINT_CREDENTIAL_COUNT_INFORMATION =
             "androidx.credentials.provider.createEntry.SLICE_HINT_CREDENTIAL_COUNT_INFORMATION"
-
         private const val SLICE_HINT_LAST_USED_TIME_MILLIS =
             "androidx.credentials.provider.createEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
-
         private const val SLICE_HINT_PENDING_INTENT =
             "androidx.credentials.provider.createEntry.SLICE_HINT_PENDING_INTENT"
-
         private const val SLICE_HINT_AUTO_SELECT_ALLOWED =
             "androidx.credentials.provider.createEntry.SLICE_HINT_AUTO_SELECT_ALLOWED"
-
+        private const val SLICE_HINT_BIOMETRIC_PROMPT_DATA =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_BIOMETRIC_PROMPT_DATA"
+        private const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
+        private const val SLICE_HINT_CRYPTO_OP_ID =
+            "androidx.credentials.provider.createEntry.SLICE_HINT_CRYPTO_OP_ID"
         private const val AUTO_SELECT_TRUE_STRING = "true"
-
         private const val AUTO_SELECT_FALSE_STRING = "false"
-
         private const val SLICE_SPEC_TYPE = "CreateEntry"
-
         private const val REVISION_ID = 1
 
         /**
@@ -452,7 +614,9 @@ internal constructor(
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun toSlice(createEntry: CreateEntry): Slice? {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 35) {
+                return Api35Impl.toSlice(createEntry)
+            } else if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.toSlice(createEntry)
             }
             return null
@@ -466,7 +630,9 @@ internal constructor(
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun fromSlice(slice: Slice): CreateEntry? {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 35) {
+                return Api35Impl.fromSlice(slice)
+            } else if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
             }
             return null

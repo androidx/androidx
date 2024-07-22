@@ -27,28 +27,36 @@ import androidx.credentials.CredentialOption
  * set on the [CredentialEntry] that the user selected. The request must be extracted using the
  * [PendingIntentHandler.retrieveProviderGetCredentialRequest] helper API.
  *
- * @param credentialOptions the list of credential retrieval options containing the required
+ * @constructor constructs an instance of [ProviderGetCredentialRequest]
+ * @property credentialOptions the list of credential retrieval options containing the required
  *   parameters, expected to contain a single [CredentialOption] when this request is retrieved from
  *   the [android.app.Activity] invoked by the [android.app.PendingIntent] set on a
  *   [PasswordCredentialEntry] or a [PublicKeyCredentialEntry], or expected to contain multiple
  *   [CredentialOption] when this request is retrieved from the [android.app.Activity] invoked by
  *   the [android.app.PendingIntent] set on a [RemoteEntry]
- * @param callingAppInfo information pertaining to the calling application
+ * @property callingAppInfo information pertaining to the calling application
+ * @property biometricPromptResult the result of a Biometric Prompt authentication flow, that is
+ *   propagated to the provider if the provider requested for
+ *   [androidx.credentials.CredentialManager] to handle the authentication flow
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
- *
- * @constructor constructs an instance of [ProviderGetCredentialRequest]
  */
 class ProviderGetCredentialRequest
-constructor(val credentialOptions: List<CredentialOption>, val callingAppInfo: CallingAppInfo) {
+@JvmOverloads
+constructor(
+    val credentialOptions: List<CredentialOption>,
+    val callingAppInfo: CallingAppInfo,
+    val biometricPromptResult: BiometricPromptResult? = null,
+) {
     internal companion object {
         @JvmStatic
         internal fun createFrom(
             options: List<CredentialOption>,
-            callingAppInfo: CallingAppInfo
+            callingAppInfo: CallingAppInfo,
+            biometricPromptResult: BiometricPromptResult? = null
         ): ProviderGetCredentialRequest {
-            return ProviderGetCredentialRequest(options, callingAppInfo)
+            return ProviderGetCredentialRequest(options, callingAppInfo, biometricPromptResult)
         }
     }
 }

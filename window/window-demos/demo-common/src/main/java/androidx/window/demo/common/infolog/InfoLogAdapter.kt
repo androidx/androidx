@@ -53,6 +53,11 @@ class InfoLogAdapter : RecyclerView.Adapter<InfoLogVH>() {
         ++id
     }
 
+    fun appendAndNotify(title: String, message: String) {
+        append(title, message)
+        notifyDataSetChanged()
+    }
+
     private fun append(item: InfoLog) {
         items.add(0, item)
     }

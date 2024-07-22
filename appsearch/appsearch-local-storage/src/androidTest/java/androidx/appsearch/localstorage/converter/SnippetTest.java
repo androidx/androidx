@@ -23,6 +23,7 @@ import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.LocalStorageIcingOptionsConfig;
+import androidx.appsearch.localstorage.SchemaCache;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
 
@@ -95,7 +96,7 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                         new LocalStorageIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match = searchResultPage.getResults().get(0).getMatchInfos().get(0);
@@ -136,7 +137,7 @@ public class SnippetTest {
 
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                         new LocalStorageIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         assertThat(searchResultPage.getResults().get(0).getMatchInfos()).isEmpty();
@@ -193,7 +194,7 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                         new LocalStorageIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);
@@ -280,7 +281,7 @@ public class SnippetTest {
         // Making ResultReader and getting Snippet values.
         SearchResultPage searchResultPage = SearchResultToProtoConverter.toSearchResultPage(
                 searchResultProto,
-                SCHEMA_MAP, new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                new SchemaCache(SCHEMA_MAP), new AppSearchConfigImpl(new UnlimitedLimitConfig(),
                         new LocalStorageIcingOptionsConfig()));
         assertThat(searchResultPage.getResults()).hasSize(1);
         SearchResult.MatchInfo match1 = searchResultPage.getResults().get(0).getMatchInfos().get(0);

@@ -139,6 +139,13 @@ class SystemJobInfoConverter {
             //noinspection NewApi
             builder.setExpedited(true);
         }
+        if (Build.VERSION.SDK_INT >= 35) {
+            // Add a trace tag that shows the actual worker running.
+            String traceTag = workSpec.getTraceTag();
+            if (traceTag != null) {
+                builder.setTraceTag(traceTag);
+            }
+        }
         return builder.build();
     }
 

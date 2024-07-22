@@ -64,7 +64,9 @@ class DynamicThemeActivity : ComponentActivity() {
         setContent {
             val palette = interpolateTheme(scrollFraction.floatValue)
             val darkenedPrimary = palette.darkenedPrimary
+            @Suppress("DEPRECATION")
             window.statusBarColor = darkenedPrimary
+            @Suppress("DEPRECATION")
             window.navigationBarColor = darkenedPrimary
 
             DynamicThemeApp(scrollFraction, palette)

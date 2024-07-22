@@ -214,7 +214,7 @@ inline fun Path.asAndroidPath(): PlatformPath =
     override fun getBounds(): Rect {
         if (rectF == null) rectF = PlatformRectF()
         with(rectF!!) {
-            internalPath.computeBounds(this, true)
+            @Suppress("DEPRECATION") internalPath.computeBounds(this, true)
             return Rect(this.left, this.top, this.right, this.bottom)
         }
     }

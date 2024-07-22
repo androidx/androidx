@@ -42,6 +42,7 @@ import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastMap
+import kotlin.collections.removeLast as removeLastKt
 
 /**
  * The common interface of the default navigation implementations for different three-pane
@@ -344,7 +345,7 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
         }
         val targetSize = previousDestinationIndex + 1
         while (destinationHistory.size > targetSize) {
-            destinationHistory.removeLast()
+            destinationHistory.removeLastKt()
         }
         return true
     }

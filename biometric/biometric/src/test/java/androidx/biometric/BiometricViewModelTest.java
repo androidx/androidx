@@ -36,13 +36,13 @@ public class BiometricViewModelTest {
     }
 
     @Test
-    public void testCanUpdateLiveDataValue_OnMainThread() {
+    public void testCanUpdateNegativeButtonLiveDataValue_OnMainThread() {
         mViewModel.setNegativeButtonPressPending(true);
         assertThat(mViewModel.isNegativeButtonPressPending().getValue()).isTrue();
     }
 
     @Test
-    public void testCanUpdateLiveDataValue_OnBackgroundThread() throws Exception {
+    public void testCanUpdateNegativeButtonLiveDataValue_OnBackgroundThread() throws Exception {
         final Thread backgroundThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -53,5 +53,25 @@ public class BiometricViewModelTest {
         backgroundThread.join();
         ShadowLooper.runUiThreadTasks();
         assertThat(mViewModel.isNegativeButtonPressPending().getValue()).isTrue();
+    }
+
+    @Test
+    public void testCanUpdateMoreOptionsButtonLiveDataValue_OnMainThread() {
+        mViewModel.setMoreOptionsButtonPressPending(true);
+        assertThat(mViewModel.isMoreOptionsButtonPressPending().getValue()).isTrue();
+    }
+
+    @Test
+    public void testCanUpdateMoreOptionsButtonLiveDataValue_OnBackgroundThread() throws Exception {
+        final Thread backgroundThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mViewModel.setMoreOptionsButtonPressPending(true);
+            }
+        });
+        backgroundThread.start();
+        backgroundThread.join();
+        ShadowLooper.runUiThreadTasks();
+        assertThat(mViewModel.isMoreOptionsButtonPressPending().getValue()).isTrue();
     }
 }

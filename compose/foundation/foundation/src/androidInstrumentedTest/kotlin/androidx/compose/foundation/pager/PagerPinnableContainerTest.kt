@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -475,7 +476,7 @@ class PagerPinnableContainerTest {
         while (handles.isNotEmpty()) {
             rule.runOnIdle {
                 assertThat(composed).contains(1)
-                handles.removeFirst().release()
+                handles.removeFirstKt().release()
             }
         }
 

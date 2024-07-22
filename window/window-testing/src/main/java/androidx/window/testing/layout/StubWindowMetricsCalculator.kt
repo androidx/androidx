@@ -39,13 +39,13 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
     override fun computeCurrentWindowMetrics(activity: Activity): WindowMetrics {
         val displayMetrics = activity.resources.displayMetrics
         val bounds = Rect(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
-        return WindowMetrics(bounds)
+        return WindowMetrics(bounds, density = displayMetrics.density)
     }
 
     override fun computeMaximumWindowMetrics(activity: Activity): WindowMetrics {
         val displayMetrics = activity.resources.displayMetrics
         val bounds = Rect(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels)
-        return WindowMetrics(bounds)
+        return WindowMetrics(bounds, density = displayMetrics.density)
     }
 
     // WindowManager#getDefaultDisplay is deprecated but we have this for compatibility with
@@ -53,9 +53,10 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
     @Suppress("DEPRECATION")
     override fun computeCurrentWindowMetrics(@UiContext context: Context): WindowMetrics {
         val wm = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val density = context.resources.displayMetrics.density
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Api30Impl.getWindowMetrics(wm)
+            Api30Impl.getWindowMetrics(wm, context)
         } else {
             val displaySize = Point()
             // We use getRealSize instead of getSize here because:
@@ -67,7 +68,7 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
             //      getRealSize.
             wm.defaultDisplay.getRealSize(displaySize)
             val bounds = Rect(0, 0, displaySize.x, displaySize.y)
-            WindowMetrics(bounds)
+            WindowMetrics(bounds, density = density)
         }
     }
 
@@ -77,8 +78,14 @@ internal class StubWindowMetricsCalculator : WindowMetricsCalculator {
 
     @RequiresApi(Build.VERSION_CODES.R)
     private object Api30Impl {
-        fun getWindowMetrics(windowManager: WindowManager): WindowMetrics {
-            return WindowMetrics(windowManager.currentWindowMetrics.bounds)
+        fun getWindowMetrics(
+            windowManager: WindowManager,
+            @UiContext context: Context
+        ): WindowMetrics {
+            return WindowMetrics(
+                windowManager.currentWindowMetrics.bounds,
+                density = context.resources.displayMetrics.density
+            )
         }
     }
 }

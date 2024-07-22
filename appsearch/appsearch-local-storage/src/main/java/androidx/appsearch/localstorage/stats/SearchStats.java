@@ -36,6 +36,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SearchStats {
+    /** Types of Visibility scopes available for search. */
     @IntDef(value = {
             // Searches apps' own documents.
             VISIBILITY_SCOPE_LOCAL,
@@ -137,6 +138,7 @@ public final class SearchStats {
     private final int mNativeNumJoinedResultsCurrentPage;
     /** Time taken to join documents together. */
     private final int mNativeJoinLatencyMillis;
+    @Nullable private final String mSearchSourceLogTag;
 
     SearchStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -170,6 +172,7 @@ public final class SearchStats {
         mJoinType = builder.mJoinType;
         mNativeNumJoinedResultsCurrentPage = builder.mNativeNumJoinedResultsCurrentPage;
         mNativeJoinLatencyMillis = builder.mNativeJoinLatencyMillis;
+        mSearchSourceLogTag = builder.mSearchSourceLogTag;
     }
 
     /** Returns the package name of the session. */
@@ -342,6 +345,12 @@ public final class SearchStats {
         return mNativeJoinLatencyMillis;
     }
 
+    /**  Returns a tag to indicate the source of this search, or {code null} if never set. */
+    @Nullable
+    public String getSearchSourceLogTag() {
+        return mSearchSourceLogTag;
+    }
+
     /** Builder for {@link SearchStats} */
     public static class Builder {
         @NonNull
@@ -377,6 +386,7 @@ public final class SearchStats {
         @JoinableValueType int mJoinType;
         int mNativeNumJoinedResultsCurrentPage;
         int mNativeJoinLatencyMillis;
+        @Nullable String mSearchSourceLogTag;
 
         /**
          * Constructor
@@ -604,6 +614,7 @@ public final class SearchStats {
         }
 
         /** Sets whether or not this is a join query */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setJoinType(@JoinableValueType int joinType) {
             mJoinType = joinType;
@@ -611,6 +622,7 @@ public final class SearchStats {
         }
 
         /** Set the total number of joined documents in a page. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNativeNumJoinedResultsCurrentPage(int nativeNumJoinedResultsCurrentPage) {
             mNativeNumJoinedResultsCurrentPage = nativeNumJoinedResultsCurrentPage;
@@ -618,9 +630,18 @@ public final class SearchStats {
         }
 
         /** Sets time it takes to join documents together in icing. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setNativeJoinLatencyMillis(int nativeJoinLatencyMillis) {
             mNativeJoinLatencyMillis = nativeJoinLatencyMillis;
+            return this;
+        }
+
+        /** Sets a tag to indicate the source of this search. */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setSearchSourceLogTag(@Nullable String searchSourceLogTag) {
+            mSearchSourceLogTag = searchSourceLogTag;
             return this;
         }
 

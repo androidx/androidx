@@ -15,6 +15,7 @@ plugins {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.activity"
 }
 

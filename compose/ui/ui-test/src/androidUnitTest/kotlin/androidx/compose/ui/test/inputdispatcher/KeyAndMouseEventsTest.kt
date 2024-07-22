@@ -31,6 +31,7 @@ import androidx.compose.ui.test.util.verifyKeyEvent
 import androidx.compose.ui.test.util.verifyMouseEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth
+import kotlin.collections.removeFirst as removeFirstKt
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -447,7 +448,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
     }
 
     private fun <E> MutableList<E>.removeFirst(n: Int): List<E> {
-        return mutableListOf<E>().also { result -> repeat(n) { result.add(removeFirst()) } }
+        return mutableListOf<E>().also { result -> repeat(n) { result.add(removeFirstKt()) } }
     }
 
     private fun enqueueKeyPress(key: Key) {

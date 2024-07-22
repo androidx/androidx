@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider
 
 import androidx.credentials.CreateCredentialRequest
@@ -25,14 +24,22 @@ import androidx.credentials.CreateCredentialRequest
  * This request contains the actual request coming from the calling app, and the application
  * information associated with the calling app.
  *
- * @param callingRequest the complete [CreateCredentialRequest] coming from the calling app that is
- *   requesting for credential creation
- * @param callingAppInfo information pertaining to the calling app making the request
  * @constructor constructs an instance of [ProviderCreateCredentialRequest]
+ * @property callingRequest the complete [CreateCredentialRequest] coming from the calling app that
+ *   is requesting for credential creation
+ * @property callingAppInfo information pertaining to the calling app making the request
+ * @property biometricPromptResult the result of a Biometric Prompt authentication flow, that is
+ *   propagated to the provider if the provider requested for
+ *   [androidx.credentials.CredentialManager] to handle the authentication flow
  * @throws NullPointerException If [callingRequest], or [callingAppInfo] is null
  *
  * Note : Credential providers are not expected to utilize the constructor in this class for any
  * production flow. This constructor must only be used for testing purposes.
  */
 class ProviderCreateCredentialRequest
-constructor(val callingRequest: CreateCredentialRequest, val callingAppInfo: CallingAppInfo)
+@JvmOverloads
+constructor(
+    val callingRequest: CreateCredentialRequest,
+    val callingAppInfo: CallingAppInfo,
+    val biometricPromptResult: BiometricPromptResult? = null
+)

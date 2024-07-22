@@ -17,12 +17,12 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
-import android.os.IBinder
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import java.util.concurrent.Executor
 
 /**  */
@@ -48,6 +48,11 @@ interface EmbeddingBackend {
 
     fun isActivityEmbedded(activity: Activity): Boolean
 
+    @RequiresWindowSdkExtension(5)
+    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
+
+    @RequiresWindowSdkExtension(5) fun unpinTopActivityStack(taskId: Int)
+
     @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
@@ -57,13 +62,52 @@ interface EmbeddingBackend {
 
     fun getActivityStack(activity: Activity): ActivityStack?
 
-    @RequiresWindowSdkExtension(3)
-    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+    @RequiresWindowSdkExtension(5)
+    fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle
 
-    @RequiresWindowSdkExtension(3) fun invalidateTopVisibleSplitAttributes()
+    @RequiresWindowSdkExtension(5)
+    fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle
+
+    @RequiresWindowSdkExtension(5) fun finishActivityStacks(activityStacks: Set<ActivityStack>)
+
+    @RequiresWindowSdkExtension(5)
+    fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
+
+    @RequiresWindowSdkExtension(3) fun invalidateVisibleActivityStacks()
 
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    )
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION) fun clearOverlayAttributesCalculator()
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>,
+    )
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
+
+    @RequiresWindowSdkExtension(6)
+    fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
+
+    @RequiresWindowSdkExtension(6)
+    fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
 
     companion object {
 

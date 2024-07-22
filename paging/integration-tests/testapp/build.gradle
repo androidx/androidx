@@ -55,6 +55,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.paging.integration.testapp"
 }
 

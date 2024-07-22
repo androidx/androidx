@@ -20,12 +20,23 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Binder
 import android.util.LayoutDirection
+import android.util.Log
 import android.util.Pair as AndroidPair
-import android.view.WindowMetrics
+import android.view.WindowMetrics as AndroidWindowMetrics
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
+import androidx.window.core.Bounds
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
+import androidx.window.embedding.DividerAttributes.DragRange.Companion.DRAG_RANGE_SYSTEM_DEFAULT
+import androidx.window.embedding.DividerAttributes.DragRange.SplitRatioDragRange
+import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes
+import androidx.window.embedding.DividerAttributes.FixedDividerAttributes
+import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_ACTIVITY_STACK
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -38,7 +49,13 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.ratio
 import androidx.window.extensions.embedding.ActivityRule as OEMActivityRule
 import androidx.window.extensions.embedding.ActivityRule.Builder as ActivityRuleBuilder
+import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.AnimationBackground as OEMEmbeddingAnimationBackground
+import androidx.window.extensions.embedding.AnimationParams as OEMEmbeddingAnimationParams
+import androidx.window.extensions.embedding.DividerAttributes as OEMDividerAttributes
+import androidx.window.extensions.embedding.DividerAttributes.RATIO_SYSTEM_DEFAULT
 import androidx.window.extensions.embedding.EmbeddingRule as OEMEmbeddingRule
+import androidx.window.extensions.embedding.ParentContainerInfo as OEMParentContainerInfo
 import androidx.window.extensions.embedding.SplitAttributes as OEMSplitAttributes
 import androidx.window.extensions.embedding.SplitAttributes.SplitType as OEMSplitType
 import androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType
@@ -49,71 +66,156 @@ import androidx.window.extensions.embedding.SplitPairRule.Builder as SplitPairRu
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ADJACENT
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_ALWAYS
 import androidx.window.extensions.embedding.SplitPairRule.FINISH_NEVER
+import androidx.window.extensions.embedding.SplitPinRule as OEMSplitPinRule
+import androidx.window.extensions.embedding.SplitPinRule.Builder as SplitPinRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import androidx.window.extensions.embedding.WindowAttributes as OEMWindowAttributes
+import androidx.window.extensions.embedding.WindowAttributes
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
+import androidx.window.layout.util.DensityCompatHelper
 import androidx.window.reflection.JFunction2
 import androidx.window.reflection.Predicate2
 
 /** Adapter class that translates data classes between Extension and Jetpack interfaces. */
 internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) {
-    private val vendorApiLevel
+    private val extensionVersion
         get() = WindowSdkExtensions.getInstance().extensionVersion
 
     private val api1Impl = VendorApiLevel1Impl(predicateAdapter)
     private val api2Impl = VendorApiLevel2Impl()
+    private val api3Impl = VendorApiLevel3Impl()
+    @OptIn(ExperimentalWindowApi::class) var embeddingConfiguration: EmbeddingConfiguration? = null
 
     fun translate(splitInfoList: List<OEMSplitInfo>): List<SplitInfo> {
         return splitInfoList.map(this::translate)
     }
 
-    @Suppress("DEPRECATION")
     private fun translate(splitInfo: OEMSplitInfo): SplitInfo {
-        return when (vendorApiLevel) {
+        return when (extensionVersion) {
             1 -> api1Impl.translateCompat(splitInfo)
             2 -> api2Impl.translateCompat(splitInfo)
-            else -> {
-                val primaryActivityStack = splitInfo.primaryActivityStack
-                val secondaryActivityStack = splitInfo.secondaryActivityStack
+            in 3..4 -> api3Impl.translateCompat(splitInfo)
+            else ->
                 SplitInfo(
-                    ActivityStack(
-                        primaryActivityStack.activities,
-                        primaryActivityStack.isEmpty,
-                    ),
-                    ActivityStack(
-                        secondaryActivityStack.activities,
-                        secondaryActivityStack.isEmpty,
-                    ),
+                    translate(splitInfo.primaryActivityStack),
+                    translate(splitInfo.secondaryActivityStack),
                     translate(splitInfo.splitAttributes),
-                    splitInfo.token,
+                    splitInfo.splitInfoToken,
                 )
-            }
         }
     }
 
-    internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
-        SplitAttributes.Builder()
-            .setSplitType(
-                when (val splitType = splitAttributes.splitType) {
-                    is OEMSplitType.HingeSplitType -> SPLIT_TYPE_HINGE
-                    is OEMSplitType.ExpandContainersSplitType -> SPLIT_TYPE_EXPAND
-                    is RatioSplitType -> ratio(splitType.ratio)
-                    else -> throw IllegalArgumentException("Unknown split type: $splitType")
-                }
+    internal fun translate(activityStack: OEMActivityStack): ActivityStack =
+        when (extensionVersion) {
+            in 1..4 -> api1Impl.translateCompat(activityStack)
+            else ->
+                ActivityStack(
+                    activityStack.activities,
+                    activityStack.isEmpty,
+                    activityStack.activityStackToken,
+                )
+        }
+
+    internal fun translate(activityStacks: List<OEMActivityStack>): List<ActivityStack> =
+        activityStacks.map(this::translate)
+
+    @Suppress("DEPRECATION") // To compat with device with extension versions 5 and 6.
+    internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes {
+        val builder =
+            SplitAttributes.Builder()
+                .setSplitType(
+                    when (val splitType = splitAttributes.splitType) {
+                        is OEMSplitType.HingeSplitType -> SPLIT_TYPE_HINGE
+                        is OEMSplitType.ExpandContainersSplitType -> SPLIT_TYPE_EXPAND
+                        is RatioSplitType -> ratio(splitType.ratio)
+                        else -> throw IllegalArgumentException("Unknown split type: $splitType")
+                    }
+                )
+                .setLayoutDirection(
+                    when (val layoutDirection = splitAttributes.layoutDirection) {
+                        OEMSplitAttributes.LayoutDirection.LEFT_TO_RIGHT -> LEFT_TO_RIGHT
+                        OEMSplitAttributes.LayoutDirection.RIGHT_TO_LEFT -> RIGHT_TO_LEFT
+                        OEMSplitAttributes.LayoutDirection.LOCALE -> LOCALE
+                        OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM -> TOP_TO_BOTTOM
+                        OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP -> BOTTOM_TO_TOP
+                        else ->
+                            throw IllegalArgumentException(
+                                "Unknown layout direction: $layoutDirection"
+                            )
+                    }
+                )
+        if (extensionVersion in 5..6) {
+            val animationParams =
+                EmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        translateToJetpackAnimationBackground(splitAttributes.animationBackground)
+                    )
+                    .build()
+            builder.setAnimationParams(animationParams)
+        }
+        if (extensionVersion >= 7) {
+            val animationParams =
+                EmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        translateToJetpackAnimationBackground(
+                            splitAttributes.animationParams.animationBackground
+                        )
+                    )
+                    .setOpenAnimation(
+                        translateToJetpackAnimationSpec(
+                            splitAttributes.animationParams.openAnimationResId
+                        )
+                    )
+                    .setCloseAnimation(
+                        translateToJetpackAnimationSpec(
+                            splitAttributes.animationParams.closeAnimationResId
+                        )
+                    )
+                    .setChangeAnimation(
+                        translateToJetpackAnimationSpec(
+                            splitAttributes.animationParams.changeAnimationResId
+                        )
+                    )
+                    .build()
+            builder.setAnimationParams(animationParams)
+        }
+        if (extensionVersion >= 6) {
+            builder.setDividerAttributes(
+                translateToJetpackDividerAttributes(splitAttributes.dividerAttributes)
             )
-            .setLayoutDirection(
-                when (val layoutDirection = splitAttributes.layoutDirection) {
-                    OEMSplitAttributes.LayoutDirection.LEFT_TO_RIGHT -> LEFT_TO_RIGHT
-                    OEMSplitAttributes.LayoutDirection.RIGHT_TO_LEFT -> RIGHT_TO_LEFT
-                    OEMSplitAttributes.LayoutDirection.LOCALE -> LOCALE
-                    OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM -> TOP_TO_BOTTOM
-                    OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP -> BOTTOM_TO_TOP
-                    else ->
-                        throw IllegalArgumentException("Unknown layout direction: $layoutDirection")
-                }
+        }
+        return builder.build()
+    }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    @OptIn(ExperimentalWindowApi::class)
+    @SuppressLint("NewApi", "ClassVerificationFailure")
+    internal fun translate(
+        parentContainerInfo: OEMParentContainerInfo,
+    ): ParentContainerInfo {
+        val configuration = parentContainerInfo.configuration
+        val density =
+            DensityCompatHelper.getInstance()
+                .density(parentContainerInfo.configuration, parentContainerInfo.windowMetrics)
+        val windowMetrics =
+            WindowMetricsCalculator.translateWindowMetrics(
+                parentContainerInfo.windowMetrics,
+                density
             )
-            .build()
+
+        return ParentContainerInfo(
+            Bounds(windowMetrics.bounds),
+            ExtensionsWindowLayoutInfoAdapter.translate(
+                windowMetrics,
+                parentContainerInfo.windowLayoutInfo
+            ),
+            windowMetrics.getWindowInsets(),
+            configuration,
+            density
+        )
+    }
 
     fun translateSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
@@ -123,32 +225,35 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         }
 
     @SuppressLint("NewApi")
-    fun translate(params: OEMSplitAttributesCalculatorParams): SplitAttributesCalculatorParams =
-        let {
-            val taskWindowMetrics = params.parentWindowMetrics
-            val taskConfiguration = params.parentConfiguration
-            val windowLayoutInfo = params.parentWindowLayoutInfo
-            val defaultSplitAttributes = params.defaultSplitAttributes
-            val areDefaultConstraintsSatisfied = params.areDefaultConstraintsSatisfied()
-            val splitRuleTag = params.splitRuleTag
-            val windowMetrics = WindowMetricsCalculator.translateWindowMetrics(taskWindowMetrics)
-
-            SplitAttributesCalculatorParams(
-                windowMetrics,
-                taskConfiguration,
-                ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, windowLayoutInfo),
-                translate(defaultSplitAttributes),
-                areDefaultConstraintsSatisfied,
-                splitRuleTag,
-            )
-        }
+    fun translate(
+        params: OEMSplitAttributesCalculatorParams,
+    ): SplitAttributesCalculatorParams = let {
+        val taskWindowMetrics = params.parentWindowMetrics
+        val taskConfiguration = params.parentConfiguration
+        val windowLayoutInfo = params.parentWindowLayoutInfo
+        val defaultSplitAttributes = params.defaultSplitAttributes
+        val areDefaultConstraintsSatisfied = params.areDefaultConstraintsSatisfied()
+        val splitRuleTag = params.splitRuleTag
+        val density =
+            DensityCompatHelper.getInstance().density(taskConfiguration, taskWindowMetrics)
+        val windowMetrics =
+            WindowMetricsCalculator.translateWindowMetrics(taskWindowMetrics, density)
+        SplitAttributesCalculatorParams(
+            windowMetrics,
+            taskConfiguration,
+            ExtensionsWindowLayoutInfoAdapter.translate(windowMetrics, windowLayoutInfo),
+            translate(defaultSplitAttributes),
+            areDefaultConstraintsSatisfied,
+            splitRuleTag,
+        )
+    }
 
     private fun translateSplitPairRule(
         context: Context,
         rule: SplitPairRule,
         predicateClass: Class<*>
     ): OEMSplitPairRule {
-        if (vendorApiLevel < 2) {
+        if (extensionVersion < 2) {
             return api1Impl.translateSplitPairRuleCompat(context, rule, predicateClass)
         } else {
             val activitiesPairPredicate =
@@ -167,7 +272,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                     }
                 }
             val windowMetricsPredicate =
-                Predicate2<WindowMetrics> { windowMetrics ->
+                Predicate2<AndroidWindowMetrics> { windowMetrics ->
                     rule.checkParentMetrics(context, windowMetrics)
                 }
             val tag = rule.tag
@@ -195,30 +300,103 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         }
     }
 
+    @OptIn(ExperimentalWindowApi::class)
+    fun translateSplitPinRule(context: Context, splitPinRule: SplitPinRule): OEMSplitPinRule {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        val windowMetricsPredicate =
+            Predicate2<AndroidWindowMetrics> { windowMetrics ->
+                splitPinRule.checkParentMetrics(context, windowMetrics)
+            }
+        val builder =
+            SplitPinRuleBuilder(
+                translateSplitAttributes(splitPinRule.defaultSplitAttributes),
+                windowMetricsPredicate
+            )
+        builder.setSticky(splitPinRule.isSticky)
+        val tag = splitPinRule.tag
+        if (tag != null) {
+            builder.setTag(tag)
+        }
+        return builder.build()
+    }
+
+    @OptIn(ExperimentalWindowApi::class)
+    @Suppress("DEPRECATION") // To compat with device with extension versions 5 and 6.
     fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
-        require(vendorApiLevel >= 2)
+        require(extensionVersion >= 2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
-        return androidx.window.extensions.embedding.SplitAttributes.Builder()
-            .setSplitType(translateSplitType(splitAttributes.splitType))
-            .setLayoutDirection(
-                when (splitAttributes.layoutDirection) {
-                    LOCALE -> OEMSplitAttributes.LayoutDirection.LOCALE
-                    LEFT_TO_RIGHT -> OEMSplitAttributes.LayoutDirection.LEFT_TO_RIGHT
-                    RIGHT_TO_LEFT -> OEMSplitAttributes.LayoutDirection.RIGHT_TO_LEFT
-                    TOP_TO_BOTTOM -> OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM
-                    BOTTOM_TO_TOP -> OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP
-                    else ->
-                        throw IllegalArgumentException(
-                            "Unsupported layoutDirection:" + "$splitAttributes.layoutDirection"
-                        )
-                }
+        val builder =
+            OEMSplitAttributes.Builder()
+                .setSplitType(translateSplitType(splitAttributes.splitType))
+                .setLayoutDirection(
+                    when (splitAttributes.layoutDirection) {
+                        LOCALE -> OEMSplitAttributes.LayoutDirection.LOCALE
+                        LEFT_TO_RIGHT -> OEMSplitAttributes.LayoutDirection.LEFT_TO_RIGHT
+                        RIGHT_TO_LEFT -> OEMSplitAttributes.LayoutDirection.RIGHT_TO_LEFT
+                        TOP_TO_BOTTOM -> OEMSplitAttributes.LayoutDirection.TOP_TO_BOTTOM
+                        BOTTOM_TO_TOP -> OEMSplitAttributes.LayoutDirection.BOTTOM_TO_TOP
+                        else ->
+                            throw IllegalArgumentException(
+                                "Unsupported layoutDirection:" + "$splitAttributes.layoutDirection"
+                            )
+                    }
+                )
+        if (extensionVersion >= 5) {
+            builder.setWindowAttributes(translateWindowAttributes())
+        }
+        if (extensionVersion in 5..6) {
+            builder.setAnimationBackground(
+                translateToOemAnimationBackground(
+                    splitAttributes.animationParams.animationBackground
+                )
             )
-            .build()
+        }
+        if (extensionVersion >= 7) {
+            val animationParams =
+                OEMEmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        translateToOemAnimationBackground(
+                            splitAttributes.animationParams.animationBackground
+                        )
+                    )
+                    .setOpenAnimationResId(
+                        translateToOemAnimationResId(splitAttributes.animationParams.openAnimation)
+                    )
+                    .setCloseAnimationResId(
+                        translateToOemAnimationResId(splitAttributes.animationParams.closeAnimation)
+                    )
+                    .setChangeAnimationResId(
+                        translateToOemAnimationResId(
+                            splitAttributes.animationParams.changeAnimation
+                        )
+                    )
+                    .build()
+            builder.setAnimationParams(animationParams)
+        }
+        if (extensionVersion >= 6) {
+            builder.setDividerAttributes(
+                translateToOemDividerAttributes(splitAttributes.dividerAttributes)
+            )
+        }
+        return builder.build()
+    }
+
+    /** Translates [embeddingConfiguration] from adapter to [WindowAttributes]. */
+    @OptIn(ExperimentalWindowApi::class)
+    internal fun translateWindowAttributes(): OEMWindowAttributes = let {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+
+        OEMWindowAttributes(
+            when (embeddingConfiguration?.dimAreaBehavior) {
+                ON_ACTIVITY_STACK -> OEMWindowAttributes.DIM_AREA_ON_ACTIVITY_STACK
+                else -> OEMWindowAttributes.DIM_AREA_ON_TASK
+            }
+        )
     }
 
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
-        require(vendorApiLevel >= 2)
+        require(extensionVersion >= 2)
         return when (splitType) {
             SPLIT_TYPE_HINGE -> OEMSplitType.HingeSplitType(translateSplitType(SPLIT_TYPE_EQUAL))
             SPLIT_TYPE_EXPAND -> OEMSplitType.ExpandContainersSplitType()
@@ -240,7 +418,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         rule: SplitPlaceholderRule,
         predicateClass: Class<*>
     ): OEMSplitPlaceholderRule {
-        if (vendorApiLevel < 2) {
+        if (extensionVersion < 2) {
             return api1Impl.translateSplitPlaceholderRuleCompat(context, rule, predicateClass)
         } else {
             val activityPredicate =
@@ -252,7 +430,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
                     rule.filters.any { filter -> filter.matchesIntent(intent) }
                 }
             val windowMetricsPredicate =
-                Predicate2<WindowMetrics> { windowMetrics ->
+                Predicate2<AndroidWindowMetrics> { windowMetrics ->
                     rule.checkParentMetrics(context, windowMetrics)
                 }
             val tag = rule.tag
@@ -289,7 +467,7 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
         rule: ActivityRule,
         predicateClass: Class<*>
     ): OEMActivityRule {
-        if (vendorApiLevel < 2) {
+        if (extensionVersion < 2) {
             return api1Impl.translateActivityRuleCompat(rule, predicateClass)
         } else {
             val activityPredicate =
@@ -326,29 +504,160 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
             .toSet()
     }
 
+    @RequiresWindowSdkExtension(5)
+    private fun translateToOemAnimationBackground(
+        animationBackground: EmbeddingAnimationBackground
+    ): OEMEmbeddingAnimationBackground {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        return if (animationBackground is EmbeddingAnimationBackground.ColorBackground) {
+            OEMEmbeddingAnimationBackground.createColorBackground(animationBackground.color)
+        } else {
+            OEMEmbeddingAnimationBackground.ANIMATION_BACKGROUND_DEFAULT
+        }
+    }
+
+    @RequiresWindowSdkExtension(5)
+    private fun translateToJetpackAnimationBackground(
+        animationBackground: OEMEmbeddingAnimationBackground
+    ): EmbeddingAnimationBackground {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        return if (animationBackground is OEMEmbeddingAnimationBackground.ColorBackground) {
+            EmbeddingAnimationBackground.createColorBackground(animationBackground.color)
+        } else {
+            EmbeddingAnimationBackground.DEFAULT
+        }
+    }
+
+    @RequiresWindowSdkExtension(7)
+    private fun translateToOemAnimationResId(
+        animationSpec: EmbeddingAnimationParams.AnimationSpec
+    ): Int {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(7)
+        return if (animationSpec == EmbeddingAnimationParams.AnimationSpec.JUMP_CUT) {
+            Resources.ID_NULL
+        } else {
+            OEMEmbeddingAnimationParams.DEFAULT_ANIMATION_RESOURCES_ID
+        }
+    }
+
+    @RequiresWindowSdkExtension(7)
+    private fun translateToJetpackAnimationSpec(
+        animationResId: Int
+    ): EmbeddingAnimationParams.AnimationSpec {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(7)
+        return if (animationResId == Resources.ID_NULL) {
+            EmbeddingAnimationParams.AnimationSpec.JUMP_CUT
+        } else {
+            EmbeddingAnimationParams.AnimationSpec.DEFAULT
+        }
+    }
+
+    @RequiresWindowSdkExtension(6)
+    fun translateToOemDividerAttributes(
+        dividerAttributes: DividerAttributes
+    ): OEMDividerAttributes? {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        if (dividerAttributes === DividerAttributes.NO_DIVIDER) {
+            return null
+        }
+        val builder =
+            OEMDividerAttributes.Builder(
+                    when (dividerAttributes) {
+                        is FixedDividerAttributes -> OEMDividerAttributes.DIVIDER_TYPE_FIXED
+                        is DraggableDividerAttributes -> OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE
+                        else ->
+                            throw IllegalArgumentException(
+                                "Unknown divider attributes $dividerAttributes"
+                            )
+                    }
+                )
+                .setDividerColor(dividerAttributes.color)
+                .setWidthDp(dividerAttributes.widthDp)
+        if (dividerAttributes is DraggableDividerAttributes) {
+            if (dividerAttributes.dragRange is SplitRatioDragRange) {
+                builder
+                    .setPrimaryMinRatio(dividerAttributes.dragRange.minRatio)
+                    .setPrimaryMaxRatio(dividerAttributes.dragRange.maxRatio)
+            }
+            if (extensionVersion >= 7) {
+                builder.setDraggingToFullscreenAllowed(
+                    dividerAttributes.isDraggingToFullscreenAllowed
+                )
+            }
+        }
+        return builder.build()
+    }
+
+    @RequiresWindowSdkExtension(6)
+    fun translateToJetpackDividerAttributes(
+        oemDividerAttributes: OEMDividerAttributes?
+    ): DividerAttributes {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(6)
+        if (oemDividerAttributes == null) {
+            return DividerAttributes.NO_DIVIDER
+        }
+        return when (oemDividerAttributes.dividerType) {
+            OEMDividerAttributes.DIVIDER_TYPE_FIXED ->
+                FixedDividerAttributes.Builder()
+                    .setWidthDp(oemDividerAttributes.widthDp)
+                    .setColor(oemDividerAttributes.dividerColor)
+                    .build()
+            OEMDividerAttributes.DIVIDER_TYPE_DRAGGABLE ->
+                DraggableDividerAttributes.Builder()
+                    .setWidthDp(oemDividerAttributes.widthDp)
+                    .setColor(oemDividerAttributes.dividerColor)
+                    .setDragRange(
+                        if (
+                            oemDividerAttributes.primaryMinRatio == RATIO_SYSTEM_DEFAULT &&
+                                oemDividerAttributes.primaryMaxRatio == RATIO_SYSTEM_DEFAULT
+                        )
+                            DRAG_RANGE_SYSTEM_DEFAULT
+                        else
+                            SplitRatioDragRange(
+                                oemDividerAttributes.primaryMinRatio,
+                                oemDividerAttributes.primaryMaxRatio,
+                            )
+                    )
+                    .setDraggingToFullscreenAllowed(
+                        extensionVersion >= 7 && oemDividerAttributes.isDraggingToFullscreenAllowed
+                    )
+                    .build()
+            // Default to DividerType.FIXED
+            else -> {
+                Log.w(
+                    TAG,
+                    "Unknown divider type $oemDividerAttributes.dividerType, default" +
+                        " to fixed divider type"
+                )
+                FixedDividerAttributes.Builder()
+                    .setWidthDp(oemDividerAttributes.widthDp)
+                    .setColor(oemDividerAttributes.dividerColor)
+                    .build()
+            }
+        }
+    }
+
+    /** Provides backward compatibility for Window extensions with API level 3 */
+    // Suppress deprecation because this object is to provide backward compatibility.
+    @Suppress("DEPRECATION")
+    private inner class VendorApiLevel3Impl {
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo =
+            SplitInfo(
+                api1Impl.translateCompat(splitInfo.primaryActivityStack),
+                api1Impl.translateCompat(splitInfo.secondaryActivityStack),
+                translate(splitInfo.splitAttributes),
+                splitInfo.token,
+            )
+    }
+
     /** Provides backward compatibility for Window extensions with API level 2 */
     private inner class VendorApiLevel2Impl {
-        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo {
-            val primaryActivityStack = splitInfo.primaryActivityStack
-            val primaryFragment =
-                ActivityStack(
-                    primaryActivityStack.activities,
-                    primaryActivityStack.isEmpty,
-                )
-
-            val secondaryActivityStack = splitInfo.secondaryActivityStack
-            val secondaryFragment =
-                ActivityStack(
-                    secondaryActivityStack.activities,
-                    secondaryActivityStack.isEmpty,
-                )
-            return SplitInfo(
-                primaryFragment,
-                secondaryFragment,
+        fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo =
+            SplitInfo(
+                api1Impl.translateCompat(splitInfo.primaryActivityStack),
+                api1Impl.translateCompat(splitInfo.secondaryActivityStack),
                 translate(splitInfo.splitAttributes),
-                INVALID_SPLIT_INFO_TOKEN,
             )
-        }
     }
 
     /** Provides backward compatibility for [WindowSdkExtensions] version 1 */
@@ -508,35 +817,31 @@ internal class EmbeddingAdapter(private val predicateAdapter: PredicateAdapter) 
 
         @SuppressLint("ClassVerificationFailure", "NewApi")
         private fun translateParentMetricsPredicate(context: Context, splitRule: SplitRule): Any =
-            predicateAdapter.buildPredicate(WindowMetrics::class) { windowMetrics ->
+            predicateAdapter.buildPredicate(AndroidWindowMetrics::class) { windowMetrics ->
                 splitRule.checkParentMetrics(context, windowMetrics)
             }
 
         fun translateCompat(splitInfo: OEMSplitInfo): SplitInfo =
             SplitInfo(
-                ActivityStack(
-                    splitInfo.primaryActivityStack.activities,
-                    splitInfo.primaryActivityStack.isEmpty,
-                ),
-                ActivityStack(
-                    splitInfo.secondaryActivityStack.activities,
-                    splitInfo.secondaryActivityStack.isEmpty,
-                ),
+                translateCompat(splitInfo.primaryActivityStack),
+                translateCompat(splitInfo.secondaryActivityStack),
                 getSplitAttributesCompat(splitInfo),
-                INVALID_SPLIT_INFO_TOKEN,
+            )
+
+        fun translateCompat(activityStack: OEMActivityStack): ActivityStack =
+            ActivityStack(
+                activityStack.activities,
+                activityStack.isEmpty,
             )
     }
 
     internal companion object {
+        private val TAG = EmbeddingAdapter::class.simpleName
+
         /**
          * The default token of [SplitInfo], which provides compatibility for device prior to vendor
          * API level 3
          */
         val INVALID_SPLIT_INFO_TOKEN = Binder()
-        /**
-         * The default token of [ActivityStack], which provides compatibility for device prior to
-         * vendor API level 3
-         */
-        val INVALID_ACTIVITY_STACK_TOKEN = Binder()
     }
 }

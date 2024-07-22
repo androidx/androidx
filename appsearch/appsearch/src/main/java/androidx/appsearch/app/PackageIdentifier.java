@@ -16,20 +16,18 @@
 
 package androidx.appsearch.app;
 
-import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.util.BundleUtil;
+import androidx.appsearch.safeparcel.PackageIdentifierParcel;
 import androidx.core.util.Preconditions;
 
-/** This class represents a uniquely identifiable package. */
+/**
+ * This class represents a uniquely identifiable package.
+ */
 public class PackageIdentifier {
-    private static final String PACKAGE_NAME_FIELD = "packageName";
-    private static final String SHA256_CERTIFICATE_FIELD = "sha256Certificate";
-
-    private final Bundle mBundle;
+    @NonNull
+    private final PackageIdentifierParcel mPackageIdentifierParcel;
 
     /**
      * Creates a unique identifier for a package.
@@ -43,36 +41,41 @@ public class PackageIdentifier {
      * new android.content.pm.Signature(outputDigest).toByteArray();
      * </pre>
      *
-     * @param packageName Name of the package.
+     * @param packageName       Name of the package.
      * @param sha256Certificate SHA-256 certificate digest of the package.
      */
     public PackageIdentifier(@NonNull String packageName, @NonNull byte[] sha256Certificate) {
-        mBundle = new Bundle();
-        mBundle.putString(PACKAGE_NAME_FIELD, packageName);
-        mBundle.putByteArray(SHA256_CERTIFICATE_FIELD, sha256Certificate);
+        Preconditions.checkNotNull(packageName);
+        Preconditions.checkNotNull(sha256Certificate);
+        mPackageIdentifierParcel = new PackageIdentifierParcel(packageName, sha256Certificate);
     }
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public PackageIdentifier(@NonNull Bundle bundle) {
-        mBundle = Preconditions.checkNotNull(bundle);
+    public PackageIdentifier(@NonNull PackageIdentifierParcel packageIdentifierParcel) {
+        mPackageIdentifierParcel = Preconditions.checkNotNull(packageIdentifierParcel);
     }
 
-    /** @exportToFramework:hide */
+    /**
+     * Returns the {@link PackageIdentifierParcel} holding the values for this
+     * {@link PackageIdentifier}.
+     *
+     * @exportToFramework:hide
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public Bundle getBundle() {
-        return mBundle;
+    public PackageIdentifierParcel getPackageIdentifierParcel() {
+        return mPackageIdentifierParcel;
     }
 
     @NonNull
     public String getPackageName() {
-        return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
+        return mPackageIdentifierParcel.getPackageName();
     }
 
     @NonNull
     public byte[] getSha256Certificate() {
-        return Preconditions.checkNotNull(mBundle.getByteArray(SHA256_CERTIFICATE_FIELD));
+        return mPackageIdentifierParcel.getSha256Certificate();
     }
 
     @Override
@@ -80,15 +83,15 @@ public class PackageIdentifier {
         if (this == obj) {
             return true;
         }
-        if (obj == null || !(obj instanceof PackageIdentifier)) {
+        if (!(obj instanceof PackageIdentifier)) {
             return false;
         }
         final PackageIdentifier other = (PackageIdentifier) obj;
-        return BundleUtil.deepEquals(mBundle, other.mBundle);
+        return mPackageIdentifierParcel.equals(other.getPackageIdentifierParcel());
     }
 
     @Override
     public int hashCode() {
-        return BundleUtil.deepHashCode(mBundle);
+        return mPackageIdentifierParcel.hashCode();
     }
 }

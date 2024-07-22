@@ -28,10 +28,10 @@ import android.graphics.Rect
  * contain any behavior or calculations.
  */
 internal class Bounds(
-    public val left: Int,
-    public val top: Int,
-    public val right: Int,
-    public val bottom: Int
+    val left: Int,
+    val top: Int,
+    val right: Int,
+    val bottom: Int,
 ) {
     constructor(rect: Rect) : this(rect.left, rect.top, rect.right, rect.bottom)
 
@@ -87,5 +87,9 @@ internal class Bounds(
         result = 31 * result + right
         result = 31 * result + bottom
         return result
+    }
+
+    companion object {
+        val EMPTY_BOUNDS = Bounds(0, 0, 0, 0)
     }
 }

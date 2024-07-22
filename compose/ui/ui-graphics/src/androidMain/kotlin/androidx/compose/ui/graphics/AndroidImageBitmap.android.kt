@@ -66,7 +66,7 @@ internal class AndroidImageBitmap(internal val bitmap: Bitmap) : ImageBitmap {
         get() = bitmap.height
 
     override val config: ImageBitmapConfig
-        get() = bitmap.config.toImageConfig()
+        get() = bitmap.config!!.toImageConfig()
 
     override val colorSpace: ColorSpace
         get() =

@@ -20,6 +20,7 @@ import android.app.Activity
 import android.content.Context
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
+import androidx.window.WindowSdkExtensions
 import androidx.window.layout.adapter.WindowBackend
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -36,7 +37,8 @@ import kotlinx.coroutines.flow.flowOn
  */
 internal class WindowInfoTrackerImpl(
     private val windowMetricsCalculator: WindowMetricsCalculator,
-    private val windowBackend: WindowBackend
+    private val windowBackend: WindowBackend,
+    private val windowSdkExtensions: WindowSdkExtensions
 ) : WindowInfoTracker {
 
     /**
@@ -61,4 +63,10 @@ internal class WindowInfoTrackerImpl(
             }
             .flowOn(Dispatchers.Main)
     }
+
+    override val supportedPostures: List<SupportedPosture>
+        get() {
+            windowSdkExtensions.requireExtensionVersion(6)
+            return windowBackend.supportedPostures
+        }
 }

@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.localstorage.SchemaCache;
 import androidx.collection.ArraySet;
 
 import com.google.android.icing.proto.SchemaTypeConfigProto;
@@ -74,33 +75,26 @@ public class SearchSpecToProtoConverterUtil {
      * intersection set with those prefixed schema candidates that are stored in AppSearch.
      *
      * @param prefixes              Set of database prefix which the caller want to access.
-     * @param schemaMap             The cached Map of
-     *                              {@code <Prefix, Map<PrefixedSchemaType, schemaProto>>}
-     *                              stores all prefixed schema filters which are stored in
-     *                              AppSearch.
+     * @param schemaCache           The SchemaCache instance held in AppSearch.
      * @param inputSchemaFilters    The set contains all desired but un-prefixed namespace filters
      *                              of user. If the inputSchemaFilters is empty, all existing
      *                              prefixedCandidates will be added to the prefixedTargetFilters.
      */
     static Set<String> generateTargetSchemaFilters(
             @NonNull Set<String> prefixes,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
+            @NonNull SchemaCache schemaCache,
             @NonNull List<String> inputSchemaFilters) {
         Set<String> targetPrefixedSchemaFilters = new ArraySet<>();
         // Append prefix to input schema filters and get the intersection of existing schema filter.
         for (String prefix : prefixes) {
             // Step1: find all prefixed schema candidates that are stored in AppSearch.
-            Map<String, SchemaTypeConfigProto> prefixedSchemaMap = schemaMap.get(prefix);
-            if (prefixedSchemaMap == null) {
-                // This is should never happen. All prefixes should be verified before reach
-                // here.
-                continue;
-            }
+            Map<String, SchemaTypeConfigProto> prefixedSchemaMap =
+                    schemaCache.getSchemaMapForPrefix(prefix);
             Set<String> prefixedSchemaCandidates = prefixedSchemaMap.keySet();
-            // Step2: get the intersection of user searching filters and those candidates which are
-            // stored in AppSearch.
-            addIntersectedFilters(prefix, prefixedSchemaCandidates, inputSchemaFilters,
-                    targetPrefixedSchemaFilters);
+            // Step2: get the intersection of user searching filters (after polymorphism
+            // expansion) and those candidates which are stored in AppSearch.
+            addIntersectedPolymorphicSchemaFilters(prefix, prefixedSchemaCandidates,
+                    schemaCache, inputSchemaFilters, targetPrefixedSchemaFilters);
         }
         return targetPrefixedSchemaFilters;
     }
@@ -135,5 +129,46 @@ public class SearchSpecToProtoConverterUtil {
                 }
             }
         }
+    }
+
+    /**
+     * Find the schema intersection set of candidates existing in AppSearch and user specified
+     * schema filters after polymorphism expansion.
+     *
+     * @param prefix                The package and database's identifier.
+     * @param prefixedCandidates    The set contains all prefixed candidates which are existing
+     *                              in a database.
+     * @param schemaCache           The SchemaCache instance held in AppSearch.
+     * @param inputFilters          The set contains all desired but un-prefixed filters of user.
+     *                              If the inputFilters is empty, all prefixedCandidates will be
+     *                              added to the prefixedTargetFilters.
+     * @param prefixedTargetFilters The output set contains all desired prefixed filters which
+     *                              are existing in the database.
+     */
+    private static void addIntersectedPolymorphicSchemaFilters(
+            @NonNull String prefix,
+            @NonNull Set<String> prefixedCandidates,
+            @NonNull SchemaCache schemaCache,
+            @NonNull List<String> inputFilters,
+            @NonNull Set<String> prefixedTargetFilters) {
+        if (inputFilters.isEmpty()) {
+            // Client didn't specify certain schemas to search over, add all candidates.
+            // Polymorphism expansion is not necessary here, since expanding the set of all
+            // schema types will result in the same set of schema types.
+            prefixedTargetFilters.addAll(prefixedCandidates);
+            return;
+        }
+
+        Set<String> currentPrefixedTargetFilters = new ArraySet<>();
+        for (int i = 0; i < inputFilters.size(); i++) {
+            String prefixedTargetSchemaFilter = prefix + inputFilters.get(i);
+            if (prefixedCandidates.contains(prefixedTargetSchemaFilter)) {
+                currentPrefixedTargetFilters.add(prefixedTargetSchemaFilter);
+            }
+        }
+        // Expand schema filters by polymorphism.
+        currentPrefixedTargetFilters = schemaCache.getSchemaTypesWithDescendants(prefix,
+                currentPrefixedTargetFilters);
+        prefixedTargetFilters.addAll(currentPrefixedTargetFilters);
     }
 }

@@ -18,11 +18,11 @@ package androidx.window.demo.embedding
 
 import android.os.Bundle
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-open class SplitAttributesToggleActivityBase : AppCompatActivity() {
+open class SplitAttributesToggleActivityBase : EdgeToEdgeActivity() {
     internal lateinit var splitController: SplitController
     internal lateinit var ruleController: RuleController
 

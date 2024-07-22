@@ -52,7 +52,7 @@ import java.util.List;
 public class SplitAttributesCalculatorParamsTestingJavaTest {
     private static final Rect TEST_BOUNDS = new Rect(0, 0, 2000, 2000);
     private static final WindowMetrics TEST_METRICS = new WindowMetrics(TEST_BOUNDS,
-            WindowInsetsCompat.CONSUMED);
+            WindowInsetsCompat.CONSUMED, 1f /* density */);
     private static final SplitAttributes DEFAULT_SPLIT_ATTRIBUTES =
             new SplitAttributes.Builder().build();
     private static final SplitAttributes TABLETOP_HINGE_ATTRIBUTES = new SplitAttributes.Builder()

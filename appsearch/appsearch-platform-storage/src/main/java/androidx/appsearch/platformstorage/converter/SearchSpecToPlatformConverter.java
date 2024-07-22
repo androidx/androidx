@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -46,6 +47,9 @@ public final class SearchSpecToPlatformConverter {
     // Most jetpackSearchSpec.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SearchSpec toPlatformSearchSpec(
             @NonNull SearchSpec jetpackSearchSpec) {
@@ -77,15 +81,12 @@ public final class SearchSpecToPlatformConverter {
                 .setSnippetCountPerProperty(jetpackSearchSpec.getSnippetCountPerProperty())
                 .setMaxSnippetSize(jetpackSearchSpec.getMaxSnippetSize());
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
-            // TODO(b/258715421): Add Build.VERSION.SDK_INT condition once there is an extservices
-            // sdk that includes SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA.
-            if (true) {
-                if ((jetpackSearchSpec.getResultGroupingTypeFlags()
-                        & SearchSpec.GROUPING_TYPE_PER_SCHEMA) != 0) {
-                    throw new UnsupportedOperationException(
+            if ((jetpackSearchSpec.getResultGroupingTypeFlags()
+                    & SearchSpec.GROUPING_TYPE_PER_SCHEMA) != 0
+                    && !BuildCompat.isAtLeastV()) {
+                throw new UnsupportedOperationException(
                         Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA
-                            + " is not available on this AppSearch implementation.");
-                }
+                                + " is not available on this AppSearch implementation.");
             }
             platformBuilder.setResultGrouping(
                     jetpackSearchSpec.getResultGroupingTypeFlags(),
@@ -107,6 +108,7 @@ public final class SearchSpecToPlatformConverter {
         }
 
         if (!jetpackSearchSpec.getEnabledFeatures().isEmpty()) {
+            // Copy U features
             if (jetpackSearchSpec.isNumericSearchEnabled()
                     || jetpackSearchSpec.isVerbatimSearchEnabled()
                     || jetpackSearchSpec.isListFilterQueryLanguageEnabled()) {
@@ -117,6 +119,27 @@ public final class SearchSpecToPlatformConverter {
                                     + "backend/Android API level combination.");
                 }
                 ApiHelperForU.copyEnabledFeatures(platformBuilder, jetpackSearchSpec);
+            }
+            // Copy V features
+            if (jetpackSearchSpec.isListFilterHasPropertyFunctionEnabled()) {
+                if (!BuildCompat.isAtLeastV()) {
+                    throw new UnsupportedOperationException(
+                            Features.LIST_FILTER_HAS_PROPERTY_FUNCTION
+                                    + " is not available on this AppSearch implementation.");
+                }
+                ApiHelperForV.copyEnabledFeatures(platformBuilder, jetpackSearchSpec);
+            }
+            // Copy beyond-V features
+            if (jetpackSearchSpec.isEmbeddingSearchEnabled()
+                    || !jetpackSearchSpec.getSearchEmbeddings().isEmpty()) {
+                // TODO(b/326656531): Remove this once embedding search APIs are available.
+                throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                        + " is not available on this AppSearch implementation.");
+            }
+            if (jetpackSearchSpec.isListFilterTokenizeFunctionEnabled()) {
+                // TODO(b/332620561): Remove this once 'tokenize' is supported.
+                throw new UnsupportedOperationException(Features.LIST_FILTER_TOKENIZE_FUNCTION
+                        + " is not available on this AppSearch implementation.");
             }
         }
 
@@ -129,9 +152,29 @@ public final class SearchSpecToPlatformConverter {
         }
 
         if (!jetpackSearchSpec.getFilterProperties().isEmpty()) {
-            // TODO(b/296088047): Remove this once property filters become available.
-            throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
-                    + " is not available on this AppSearch implementation.");
+            if (!BuildCompat.isAtLeastV()) {
+                throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
+                        + " is not available on this AppSearch implementation.");
+            }
+            ApiHelperForV.addFilterProperties(
+                    platformBuilder, jetpackSearchSpec.getFilterProperties());
+        }
+
+        if (jetpackSearchSpec.getSearchSourceLogTag() != null) {
+            if (!BuildCompat.isAtLeastV()) {
+                throw new UnsupportedOperationException(
+                        Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG
+                                + " is not available on this AppSearch implementation.");
+            }
+            ApiHelperForV.setSearchSourceLogTag(
+                    platformBuilder, jetpackSearchSpec.getSearchSourceLogTag());
+        }
+
+        if (!jetpackSearchSpec.getInformationalRankingExpressions().isEmpty()) {
+            // TODO(b/332642571): Remove this once informational ranking expressions are available.
+            throw new UnsupportedOperationException(
+                    Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS
+                            + " are not available on this AppSearch implementation.");
         }
         return platformBuilder.build();
     }
@@ -143,6 +186,9 @@ public final class SearchSpecToPlatformConverter {
         }
 
         @DoNotInline
+        // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+        //  BuildCompat.isAtLeastV() is removed.
+        @BuildCompat.PrereleaseSdkCheck
         static void setJoinSpec(@NonNull android.app.appsearch.SearchSpec.Builder builder,
                 JoinSpec jetpackJoinSpec) {
             builder.setJoinSpec(JoinSpecToPlatformConverter.toPlatformJoinSpec(jetpackJoinSpec));
@@ -174,6 +220,36 @@ public final class SearchSpecToPlatformConverter {
             for (Map.Entry<String, Map<String, Double>> entry : propertyWeightsMap.entrySet()) {
                 builder.setPropertyWeights(entry.getKey(), entry.getValue());
             }
+        }
+    }
+
+    @RequiresApi(35)
+    private static class ApiHelperForV {
+        private ApiHelperForV() {}
+
+        @DoNotInline
+        static void addFilterProperties(
+                @NonNull android.app.appsearch.SearchSpec.Builder platformBuilder,
+                Map<String, List<String>> properties) {
+            for (Map.Entry<String, List<String>> entry : properties.entrySet()) {
+                platformBuilder.addFilterProperties(entry.getKey(), entry.getValue());
+            }
+        }
+
+        @DoNotInline
+        static void copyEnabledFeatures(
+                @NonNull android.app.appsearch.SearchSpec.Builder platformBuilder,
+                @NonNull SearchSpec jetpackSpec) {
+            if (jetpackSpec.isListFilterHasPropertyFunctionEnabled()) {
+                platformBuilder.setListFilterHasPropertyFunctionEnabled(true);
+            }
+        }
+
+        @DoNotInline
+        static void setSearchSourceLogTag(
+                android.app.appsearch.SearchSpec.Builder platformBuilder,
+                String searchSourceLogTag) {
+            platformBuilder.setSearchSourceLogTag(searchSourceLogTag);
         }
     }
 }

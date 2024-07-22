@@ -96,7 +96,8 @@ develocity {
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
 
-        publishing.onlyIf { it.authenticated }
+        // Do not publish scan for androidx-platform-dev
+        publishing.onlyIf { false }
     }
 }
 
@@ -1081,6 +1082,8 @@ includeProject(":work:work-testing", [BuildType.MAIN])
 File repoRoot = new File(rootDir, "../..").canonicalFile
 
 includeOptionalProject(":xr:xr", new File(repoRoot, "xr/xr"), [BuildType.XR])
+includeOptionalProject(":xr:integration-tests:compose-adaptive-sample", new File(repoRoot, "xr/integration-tests/compose-adaptive-sample"), [BuildType.XR])
+includeOptionalProject(":xr:xr-material3-adaptive", new File(repoRoot, "xr/xr-material3-adaptive"), [BuildType.XR])
 
 /////////////////////////////
 //

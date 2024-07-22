@@ -96,4 +96,17 @@ public interface WindowLayoutComponent {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }
+
+    /**
+     * Returns the {@link SupportedWindowFeatures} for the device. This value will not change
+     * over time.
+     * @see WindowLayoutComponent#addWindowLayoutInfoListener(Context, Consumer) to register a
+     * listener for features that impact the window.
+     */
+    @RequiresVendorApiLevel(level = 6)
+    @NonNull
+    default SupportedWindowFeatures getSupportedWindowFeatures() {
+        throw new UnsupportedOperationException("This method will not be called unless there is a"
+                + " corresponding override implementation on the device");
+    }
 }

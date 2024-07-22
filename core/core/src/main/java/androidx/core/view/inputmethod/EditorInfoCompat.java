@@ -41,6 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -104,7 +105,8 @@ public final class EditorInfoCompat {
     private static final String CONTENT_SELECTION_END_KEY =
             "androidx.core.view.inputmethod.EditorInfoCompat.CONTENT_SELECTION_END";
 
-    private static final String STYLUS_HANDWRITING_ENABLED_KEY =
+    @VisibleForTesting
+    static final String STYLUS_HANDWRITING_ENABLED_KEY =
             "androidx.core.view.inputmethod.EditorInfoCompat.STYLUS_HANDWRITING_ENABLED";
 
     @Retention(SOURCE)
@@ -209,6 +211,9 @@ public final class EditorInfoCompat {
      */
     public static void setStylusHandwritingEnabled(@NonNull EditorInfo editorInfo,
             boolean enabled) {
+        if (BuildCompat.isAtLeastV()) {
+            Api35Impl.setStylusHandwritingEnabled(editorInfo, enabled);
+        }
         if (editorInfo.extras == null) {
             editorInfo.extras = new Bundle();
         }
@@ -222,11 +227,14 @@ public final class EditorInfoCompat {
      * @see InputMethodManager#isStylusHandwritingAvailable()
      */
     public static boolean isStylusHandwritingEnabled(@NonNull EditorInfo editorInfo) {
-        if (editorInfo.extras == null) {
-            // disabled by default
-            return false;
+        if (editorInfo.extras != null
+                && editorInfo.extras.containsKey(STYLUS_HANDWRITING_ENABLED_KEY)) {
+            return editorInfo.extras.getBoolean(STYLUS_HANDWRITING_ENABLED_KEY);
         }
-        return editorInfo.extras.getBoolean(STYLUS_HANDWRITING_ENABLED_KEY);
+        if (BuildCompat.isAtLeastV()) {
+            return Api35Impl.isStylusHandwritingEnabled(editorInfo);
+        }
+        return false;
     }
 
     /**
@@ -587,6 +595,19 @@ public final class EditorInfoCompat {
         static CharSequence getInitialTextAfterCursor(@NonNull EditorInfo editorInfo, int length,
                 int flags) {
             return editorInfo.getInitialTextAfterCursor(length, flags);
+        }
+    }
+
+    @RequiresApi(35)
+    private static class Api35Impl {
+        private Api35Impl() {}
+
+        static void setStylusHandwritingEnabled(@NonNull EditorInfo editorInfo, boolean enabled) {
+            editorInfo.setStylusHandwritingEnabled(enabled);
+        }
+
+        static boolean isStylusHandwritingEnabled(@NonNull EditorInfo editorInfo) {
+            return editorInfo.isStylusHandwritingEnabled();
         }
     }
 }

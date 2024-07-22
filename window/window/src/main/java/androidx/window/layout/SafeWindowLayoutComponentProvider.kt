@@ -30,10 +30,13 @@ import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
+import androidx.window.reflection.WindowExtensionsConstants.DISPLAY_FOLD_FEATURE_CLASS
 import androidx.window.reflection.WindowExtensionsConstants.FOLDING_FEATURE_CLASS
 import androidx.window.reflection.WindowExtensionsConstants.JAVA_CONSUMER
+import androidx.window.reflection.WindowExtensionsConstants.SUPPORTED_WINDOW_FEATURES_CLASS
 import androidx.window.reflection.WindowExtensionsConstants.WINDOW_CONSUMER
 import androidx.window.reflection.WindowExtensionsConstants.WINDOW_LAYOUT_COMPONENT_CLASS
+import java.lang.reflect.ParameterizedType
 
 /**
  * Reflection Guard for [WindowLayoutComponent]. This will go through the [WindowLayoutComponent]'s
@@ -63,13 +66,12 @@ internal class SafeWindowLayoutComponentProvider(
         if (!isWindowLayoutComponentAccessible()) {
             return false
         }
-        // TODO(b/267831038): can fallback to VendorApiLevel1 when level2 is not match
-        //  but level 1 is matched
-        return when (ExtensionsUtil.safeVendorApiLevel) {
-            1 -> hasValidVendorApiLevel1()
-            in 2..Int.MAX_VALUE -> hasValidVendorApiLevel2()
-            // TODO(b/267956499): add hasValidVendorApiLevel3
-            else -> false
+        val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
+        return when {
+            vendorApiLevel < 1 -> false
+            vendorApiLevel == 1 -> hasValidVendorApiLevel1()
+            vendorApiLevel < 5 -> hasValidVendorApiLevel2()
+            else -> hasValidVendorApiLevel6()
         }
     }
 
@@ -98,6 +100,14 @@ internal class SafeWindowLayoutComponentProvider(
     @VisibleForTesting
     internal fun hasValidVendorApiLevel2(): Boolean {
         return hasValidVendorApiLevel1() && isMethodWindowLayoutInfoListenerWindowConsumerValid()
+    }
+
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel6(): Boolean {
+        return hasValidVendorApiLevel2() &&
+            isDisplayFoldFeatureValid() &&
+            isSupportedWindowFeaturesValid() &&
+            isGetSupportedWindowFeaturesValid()
     }
 
     private fun isWindowLayoutProviderValid(): Boolean {
@@ -166,6 +176,63 @@ internal class SafeWindowLayoutComponentProvider(
             addListenerMethod.isPublic && removeListenerMethod.isPublic
         }
     }
+
+    private fun isDisplayFoldFeatureValid(): Boolean {
+        return validateReflection("DisplayFoldFeature is not valid") {
+            val displayFoldFeatureClass = displayFoldFeatureClass
+
+            val getTypeMethod = displayFoldFeatureClass.getMethod("getType")
+            val hasPropertyMethod =
+                displayFoldFeatureClass.getMethod("hasProperty", Int::class.java)
+            val hasPropertiesMethod =
+                displayFoldFeatureClass.getMethod("hasProperties", IntArray::class.java)
+
+            getTypeMethod.isPublic &&
+                getTypeMethod.doesReturn(Int::class.java) &&
+                hasPropertyMethod.isPublic &&
+                hasPropertyMethod.doesReturn(Boolean::class.java) &&
+                hasPropertiesMethod.isPublic &&
+                hasPropertiesMethod.doesReturn(Boolean::class.java)
+        }
+    }
+
+    private fun isSupportedWindowFeaturesValid(): Boolean {
+        return validateReflection("SupportedWindowFeatures is not valid") {
+            val supportedWindowFeaturesClass = supportedWindowFeaturesClass
+
+            val getDisplayFoldFeaturesMethod =
+                supportedWindowFeaturesClass.getMethod("getDisplayFoldFeatures")
+            val returnTypeGeneric =
+                (getDisplayFoldFeaturesMethod.genericReturnType as ParameterizedType)
+                    .actualTypeArguments[0]
+                    as Class<*>
+
+            getDisplayFoldFeaturesMethod.isPublic &&
+                getDisplayFoldFeaturesMethod.doesReturn(List::class.java) &&
+                returnTypeGeneric == displayFoldFeatureClass
+        }
+    }
+
+    private fun isGetSupportedWindowFeaturesValid(): Boolean {
+        return validateReflection("WindowLayoutComponent#getSupportedWindowFeatures is not valid") {
+            val windowLayoutComponent = windowLayoutComponentClass
+            val getSupportedWindowFeaturesMethod =
+                windowLayoutComponent.getMethod("getSupportedWindowFeatures")
+
+            getSupportedWindowFeaturesMethod.isPublic &&
+                getSupportedWindowFeaturesMethod.doesReturn(supportedWindowFeaturesClass)
+        }
+    }
+
+    private val displayFoldFeatureClass: Class<*>
+        get() {
+            return loader.loadClass(DISPLAY_FOLD_FEATURE_CLASS)
+        }
+
+    private val supportedWindowFeaturesClass: Class<*>
+        get() {
+            return loader.loadClass(SUPPORTED_WINDOW_FEATURES_CLASS)
+        }
 
     private val foldingFeatureClass: Class<*>
         get() {

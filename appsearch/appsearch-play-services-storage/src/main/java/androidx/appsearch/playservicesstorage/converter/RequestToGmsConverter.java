@@ -47,10 +47,18 @@ public final class RequestToGmsConverter {
         Preconditions.checkNotNull(jetpackRequest);
         com.google.android.gms.appsearch.PutDocumentsRequest.Builder gmsBuilder =
                 new com.google.android.gms.appsearch.PutDocumentsRequest.Builder();
+        // Convert normal generic documents.
         for (GenericDocument jetpackDocument : jetpackRequest.getGenericDocuments()) {
             gmsBuilder.addGenericDocuments(
+                    GenericDocumentToGmsConverter.toGmsGenericDocument(jetpackDocument));
+        }
+        // Convert taken action generic documents.
+        for (GenericDocument jetpackTakenActionGenericDocument :
+                jetpackRequest.getTakenActionGenericDocuments()) {
+            gmsBuilder.addTakenActionGenericDocuments(
                     GenericDocumentToGmsConverter.toGmsGenericDocument(
-                            jetpackDocument));
+                            jetpackTakenActionGenericDocument)
+            );
         }
         return gmsBuilder.build();
     }
@@ -68,7 +76,7 @@ public final class RequestToGmsConverter {
                         jetpackRequest.getNamespace())
                         .addIds(jetpackRequest.getIds());
         for (Map.Entry<String, List<String>> projection :
-                jetpackRequest.getProjectionsInternal().entrySet()) {
+                jetpackRequest.getProjections().entrySet()) {
             gmsBuilder.addProjection(projection.getKey(), projection.getValue());
         }
         return gmsBuilder.build();

@@ -21,6 +21,7 @@ plugins {
 }
 
 android {
+    compileSdkVersion 35
     defaultConfig {
         applicationId "androidx.biometric.integration.testapp"
     }

@@ -18,11 +18,24 @@ package androidx.pdf.viewer;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import android.graphics.Rect;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.models.PageSelection;
+import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.util.BitmapRecycler;
 import androidx.pdf.util.MockDrawable;
+import androidx.pdf.util.ObservableValue;
+import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.pdf.widget.MosaicView;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
@@ -32,6 +45,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
+
+import java.util.List;
 
 /** Unit tests for {@link PageMosaicView}. */
 @SmallTest
@@ -43,6 +58,15 @@ public class PageMosaicViewTest {
     @Mock
     private BitmapRecycler mMockBitmapRecycler;
 
+    @Mock
+    private PdfLoader mMockPdfLoader;
+
+    @Mock
+    private PdfSelectionModel mPdfSelectionModel;
+
+    @Mock
+    private SearchModel mSearchModel;
+
     @Before
     public void setup() {
 
@@ -53,7 +77,8 @@ public class PageMosaicViewTest {
         Dimensions dimensions = new Dimensions(800, 800);
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
-                mMockBitmapSource, mMockBitmapRecycler);
+                mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
+                mSearchModel);
 
         assertThat(pageMosaicView.getPageText() == null).isTrue();
     }
@@ -63,7 +88,8 @@ public class PageMosaicViewTest {
         Dimensions dimensions = new Dimensions(800, 800);
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
-                mMockBitmapSource, mMockBitmapRecycler);
+                mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
+                mSearchModel);
 
         pageMosaicView.setOverlay(new MockDrawable());
         assertThat(pageMosaicView.hasOverlay()).isTrue();
@@ -74,7 +100,8 @@ public class PageMosaicViewTest {
         Dimensions dimensions = new Dimensions(800, 800);
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
-                mMockBitmapSource, mMockBitmapRecycler);
+                mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
+                mSearchModel);
 
         pageMosaicView.setOverlay(new MockDrawable());
         assertThat(pageMosaicView.hasOverlay()).isTrue();
@@ -88,7 +115,8 @@ public class PageMosaicViewTest {
         Dimensions dimensions = new Dimensions(800, 800);
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
-                mMockBitmapSource, mMockBitmapRecycler) {
+                mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
+                mSearchModel) {
             @Override
             @NonNull
             protected String buildContentDescription(@Nullable String pageText, int pageNum) {
@@ -108,7 +136,8 @@ public class PageMosaicViewTest {
         Dimensions dimensions = new Dimensions(800, 800);
         PageMosaicView pageMosaicView = new PageMosaicView(
                 ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
-                mMockBitmapSource, mMockBitmapRecycler) {
+                mMockBitmapSource, mMockBitmapRecycler, mMockPdfLoader, mPdfSelectionModel,
+                mSearchModel) {
             @Override
             @NonNull
             protected String buildContentDescription(@Nullable String pageText, int pageNum) {
@@ -119,5 +148,134 @@ public class PageMosaicViewTest {
         pageMosaicView.setPageText(null);
         assertThat(pageMosaicView.getPageText() == null).isTrue();
         assertThat(pageMosaicView.getContentDescription()).isEqualTo(dummyContentDescription);
+    }
+
+    @Test
+    public void refreshPageContentAndOverlays_needsPageText_callsLoadPageTextRemovesOverlay() {
+        PdfLoader dummyPdfLoader = mock(PdfLoader.class);
+        PdfSelectionModel dummyPdfSelectionModel = mock(PdfSelectionModel.class);
+        SearchModel dummySearchModel = mock(SearchModel.class);
+        when(dummyPdfSelectionModel.getPage()).thenReturn(1);
+        when(dummySearchModel.query()).thenReturn(new ObservableValue<String>() {
+            @Nullable
+            @Override
+            public String get() {
+                return null;
+            }
+
+            @NonNull
+            @Override
+            public Object addObserver(ValueObserver<String> observer) {
+                return null;
+            }
+
+            @Override
+            public void removeObserver(@NonNull Object observerKey) {
+
+            }
+        });
+
+        Dimensions dimensions = new Dimensions(800, 800);
+        PageMosaicView pageMosaicView = new PageMosaicView(
+                ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
+                mMockBitmapSource, mMockBitmapRecycler, dummyPdfLoader, dummyPdfSelectionModel,
+                dummySearchModel) {
+            @Override
+            public boolean needsPageText() {
+                return true;
+            }
+        };
+
+        pageMosaicView.refreshPageContentAndOverlays();
+
+        verify(dummyPdfLoader).loadPageText(any(Integer.class));
+        verify(dummyPdfLoader).loadPageUrlLinks(any(Integer.class));
+        verify(dummyPdfLoader).loadPageGotoLinks(any(Integer.class));
+        assertFalse(pageMosaicView.hasOverlay());
+    }
+
+    @Test
+    public void refreshPageContentAndOverlays_sameSelectionPage_setsHighlightOverlay() {
+        List<Rect> boundingBoxes = List.of(new Rect(10, 10, 10, 10));
+        PdfLoader dummyPdfLoader = mock(PdfLoader.class);
+        PdfSelectionModel dummyPdfSelectionModel = mock(PdfSelectionModel.class);
+        SearchModel dummySearchModel = mock(SearchModel.class);
+        when(dummyPdfSelectionModel.getPage()).thenReturn(0);
+        when(dummyPdfSelectionModel.selection()).thenReturn(new ObservableValue<PageSelection>() {
+
+            @NonNull
+            @Override
+            public Object addObserver(ValueObserver<PageSelection> observer) {
+                return null;
+            }
+
+            @Override
+            public void removeObserver(@NonNull Object observerKey) {
+
+            }
+
+            @Nullable
+            @Override
+            public PageSelection get() {
+                return new PageSelection(0, mock(SelectionBoundary.class),
+                        mock(SelectionBoundary.class), boundingBoxes, "");
+            }
+        });
+
+        Dimensions dimensions = new Dimensions(800, 800);
+        PageMosaicView pageMosaicView = new PageMosaicView(
+                ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
+                mMockBitmapSource, mMockBitmapRecycler, dummyPdfLoader, dummyPdfSelectionModel,
+                dummySearchModel) {
+            @Override
+            public boolean needsPageText() {
+                return false;
+            }
+        };
+
+        pageMosaicView.refreshPageContentAndOverlays();
+
+        assertTrue(pageMosaicView.hasOverlay());
+    }
+
+    @Test
+    public void refreshPageContentAndOverlays_nonNullSearchQuery_callsSearchPageText() {
+        PdfLoader dummyPdfLoader = mock(PdfLoader.class);
+        PdfSelectionModel dummyPdfSelectionModel = mock(PdfSelectionModel.class);
+        SearchModel dummySearchModel = mock(SearchModel.class);
+        when(dummyPdfSelectionModel.getPage()).thenReturn(1);
+        when(dummySearchModel.query()).thenReturn(new ObservableValue<String>() {
+            @Nullable
+            @Override
+            public String get() {
+                return "placeholder";
+            }
+
+            @NonNull
+            @Override
+            public Object addObserver(ValueObserver<String> observer) {
+                return null;
+            }
+
+            @Override
+            public void removeObserver(@NonNull Object observerKey) {
+
+            }
+        });
+
+        Dimensions dimensions = new Dimensions(800, 800);
+        PageMosaicView pageMosaicView = new PageMosaicView(
+                ApplicationProvider.getApplicationContext(), /* pageNum= */ 0, dimensions,
+                mMockBitmapSource, mMockBitmapRecycler, dummyPdfLoader, dummyPdfSelectionModel,
+                dummySearchModel) {
+            @Override
+            public boolean needsPageText() {
+                return false;
+            }
+        };
+
+        pageMosaicView.refreshPageContentAndOverlays();
+
+        verify(dummyPdfLoader).searchPageText(any(Integer.class), any(String.class));
     }
 }

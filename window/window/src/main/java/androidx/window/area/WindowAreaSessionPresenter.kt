@@ -18,6 +18,7 @@ package androidx.window.area
 
 import android.content.Context
 import android.view.View
+import android.view.Window
 import androidx.window.core.ExperimentalWindowApi
 
 /**
@@ -32,6 +33,15 @@ import androidx.window.core.ExperimentalWindowApi
 interface WindowAreaSessionPresenter : WindowAreaSession {
     /** Returns the [Context] associated with the window area. */
     val context: Context
+
+    /**
+     * Returns the [Window] associated with the active presentation window area or null if there is
+     * no [Window] currently active. This could occur if the presenter has already been dismissed,
+     * and there is no expectation that the [Window] would become non-null at a later point. This
+     * API can be used to directly access parts of the [Window] API that are not available through
+     * the [Context] provided.
+     */
+    val window: Window?
 
     /**
      * Sets a [View] to show on a window area. After setting the view the system can turn on the

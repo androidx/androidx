@@ -47,7 +47,7 @@ public class PaginationModelTest {
     public void init() {
         mContext = ApplicationProvider.getApplicationContext();
         PdfViewer.setScreenForTest(mContext);
-        mPaginationModel = new PaginationModel();
+        mPaginationModel = new PaginationModel(mContext);
     }
 
     /** Test that the model can be initialized to a positive number of pages. */

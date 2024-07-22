@@ -71,6 +71,7 @@ dependencies {
 }
 
 android {
+    compileSdk = 35
     buildFeatures {
         aidl = true
     }

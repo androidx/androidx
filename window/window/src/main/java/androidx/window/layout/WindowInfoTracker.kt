@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiContext
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
 import androidx.window.layout.adapter.WindowBackend
@@ -96,6 +97,23 @@ interface WindowInfoTracker {
      */
     fun windowLayoutInfo(activity: Activity): Flow<WindowLayoutInfo>
 
+    /**
+     * Returns the [List] of [SupportedPosture] values. This value will not change during runtime.
+     * These values are for determining if the device supports the given [SupportedPosture] but does
+     * not mean the device is in the given [SupportedPosture]. Use [windowLayoutInfo] to determine
+     * the current state of the [DisplayFeature]'s on the device.
+     *
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 6.
+     * @throws NotImplementedError if a derived test class does not override this method.
+     * @see windowLayoutInfo
+     */
+    @RequiresWindowSdkExtension(version = 6)
+    val supportedPostures: List<SupportedPosture>
+        get() {
+            throw NotImplementedError("Method was not implemented.")
+        }
+
     companion object {
 
         private val DEBUG = false
@@ -134,7 +152,12 @@ interface WindowInfoTracker {
         @JvmStatic
         fun getOrCreate(context: Context): WindowInfoTracker {
             val backend = extensionBackend ?: SidecarWindowBackend.getInstance(context)
-            val repo = WindowInfoTrackerImpl(WindowMetricsCalculatorCompat, backend)
+            val repo =
+                WindowInfoTrackerImpl(
+                    WindowMetricsCalculatorCompat(),
+                    backend,
+                    WindowSdkExtensions.getInstance()
+                )
             return decorator.decorate(repo)
         }
 

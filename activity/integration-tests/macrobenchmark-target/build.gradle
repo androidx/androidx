@@ -12,7 +12,8 @@ plugins {
 }
 
 android {
-    namespace "androidx.activity.integration.macrobenchmark.target"
+   compileSdk 35
+   namespace "androidx.activity.integration.macrobenchmark.target"
 }
 
 dependencies {

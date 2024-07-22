@@ -567,6 +567,7 @@ class BottomSheetScaffoldTest {
                     latch.countDown()
                 }
 
+                @Deprecated("deprecated")
                 override fun onLowMemory() {
                     // NO-OP
                 }
@@ -622,6 +623,7 @@ class BottomSheetScaffoldTest {
                     latch.countDown()
                 }
 
+                @Deprecated("deprecated")
                 override fun onLowMemory() {
                     // NO-OP
                 }

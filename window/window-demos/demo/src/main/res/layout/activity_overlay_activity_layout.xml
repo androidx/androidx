@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_overlay_activity_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView_overlay_bounds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/overlay_bounds_text" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="#AAAAAA" />
+
+        <TextView
+            android:id="@+id/textView_choose_overlay_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose overlay layout:" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup_choose_overlay_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/radioButton_simple_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Launch the overlay container to the right" />
+
+            <RadioButton
+                android:id="@+id/radioButton_change_with_orientation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Change overlay layout with orientation" />
+
+            <RadioButton
+                android:id="@+id/radioButton_customization"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Use customized overlay layout" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/textView_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Layout"
+            android:visibility="visible" />
+
+        <!-- UI to control position -->
+
+        <TextView
+            android:id="@+id/textView_position"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Position"
+            android:visibility="visible" />
+        <Spinner
+            android:id="@+id/spinner_alignment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            tools:visibility="visible" />
+
+        <!-- UI to control width -->
+
+        <TextView
+            android:id="@+id/textView_width"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Width"
+            android:visibility="visible" />
+        <Spinner
+            android:id="@+id/spinner_width"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            tools:visibility="visible" />
+        <TextView
+            android:id="@+id/textView_width_in_pixel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Width in pixel"
+            android:visibility="gone" />
+        <EditText
+            android:id="@+id/editTextNumberDecimal_width_in_pixel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="4"
+            android:inputType="numberDecimal"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/textView_width_in_ratio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/width_in_ratio" />
+        <SeekBar
+            android:id="@+id/seekBar_width_in_ratio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:min="1"
+            android:max="99"
+            android:progress="50" />
+
+        <!-- UI to control height -->
+
+        <TextView
+            android:id="@+id/textView_height"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Height"
+            android:visibility="visible" />
+        <Spinner
+            android:id="@+id/spinner_height"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            tools:visibility="visible" />
+        <TextView
+            android:id="@+id/textView_height_in_pixel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Height in pixel"
+            android:visibility="gone" />
+        <EditText
+            android:id="@+id/editTextNumberDecimal_height_in_pixel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="4"
+            android:inputType="numberDecimal"
+            android:visibility="gone" />
+        <TextView
+            android:id="@+id/textView_height_in_ratio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/height_in_ratio"
+            android:visibility="gone" />
+        <SeekBar
+            android:id="@+id/seekBar_height_in_ratio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:min="1"
+            android:max="99"
+            android:progress="80"
+            android:visibility="gone" />
+
+        <!-- UI to update overlay layout  -->
+
+        <Button
+            android:id="@+id/button_update_overlay_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Update Overlay layout" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/button_launch_overlay_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch the overlay container" />
+
+        <CheckBox
+            android:id="@+id/checkbox_reorder_to_front"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reorder Activity A to the front" />
+
+        <Button
+            android:id="@+id/button_launch_overlay_activity_a"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch Overlay Associated Activity A" />
+
+        <CheckBox
+            android:id="@+id/checkbox_launch_to_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch Activity B to the overlay container" />
+
+        <Button
+            android:id="@+id/button_launch_overlay_activity_b"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Launch Overlay Associated Activity B" />
+
+        <Button
+            android:id="@+id/button_finish_this_activity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Finish this activity" />
+    </LinearLayout>
+</ScrollView>

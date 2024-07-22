@@ -18,22 +18,17 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
-import android.os.Bundle;
-
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Arrays;
 
 /** Tests for private APIs of {@link SearchSpec}. */
 public class SearchSpecInternalTest {
 
     @Test
-    public void testGetBundle() {
+    public void testSearchSpecBuilder() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                 .addFilterNamespaces("namespace1", "namespace2")
@@ -50,25 +45,132 @@ public class SearchSpecInternalTest {
                 .setListFilterQueryLanguageEnabled(true)
                 .build();
 
-        Bundle bundle = searchSpec.getBundle();
-        assertThat(bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD))
-                .isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
-        assertThat(bundle.getStringArrayList(SearchSpec.NAMESPACE_FIELD)).containsExactly(
+        assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
+        assertThat(searchSpec.getFilterNamespaces()).containsExactly(
                 "namespace1", "namespace2");
-        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_FIELD)).containsExactly(
+        assertThat(searchSpec.getFilterSchemas()).containsExactly(
                 "schemaTypes1", "schemaTypes2");
-        assertThat(bundle.getStringArrayList(SearchSpec.PACKAGE_NAME_FIELD)).containsExactly(
+        assertThat(searchSpec.getFilterPackageNames()).containsExactly(
                 "package1", "package2");
-        assertThat(bundle.getInt(SearchSpec.SNIPPET_COUNT_FIELD)).isEqualTo(5);
-        assertThat(bundle.getInt(SearchSpec.SNIPPET_COUNT_PER_PROPERTY_FIELD)).isEqualTo(10);
-        assertThat(bundle.getInt(SearchSpec.MAX_SNIPPET_FIELD)).isEqualTo(15);
-        assertThat(bundle.getInt(SearchSpec.NUM_PER_PAGE_FIELD)).isEqualTo(42);
-        assertThat(bundle.getInt(SearchSpec.ORDER_FIELD)).isEqualTo(SearchSpec.ORDER_ASCENDING);
-        assertThat(bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD))
+        assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
+        assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);
+        assertThat(searchSpec.getMaxSnippetSize()).isEqualTo(15);
+        assertThat(searchSpec.getResultCountPerPage()).isEqualTo(42);
+        assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
+        assertThat(searchSpec.getRankingStrategy())
                 .isEqualTo(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
-        assertThat(bundle.getStringArrayList(SearchSpec.ENABLED_FEATURES_FIELD)).containsExactly(
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
                 Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
                 Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    @Test
+    public void testSearchSpecBuilderCopyConstructor() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterNamespaces("namespace1", "namespace2")
+                .addFilterSchemas("schemaTypes1", "schemaTypes2")
+                .addFilterPackageNames("package1", "package2")
+                .addFilterProperties("schemaTypes1", Arrays.asList("path1", "path2"))
+                .addProjection("schemaTypes1", Arrays.asList("path1", "path2"))
+                .setPropertyWeights("schemaTypes1", ImmutableMap.of("path1", 1.0, "path2", 2.0))
+                .setSnippetCount(5)
+                .setSnippetCountPerProperty(10)
+                .setMaxSnippetSize(15)
+                .setResultCountPerPage(42)
+                .setOrder(SearchSpec.ORDER_ASCENDING)
+                .setRankingStrategy("advancedExpression")
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setResultGrouping(SearchSpec.GROUPING_TYPE_PER_PACKAGE, 10)
+                .setSearchSourceLogTag("searchSourceLogTag")
+                .build();
+
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getTermMatch()).isEqualTo(searchSpec.getTermMatch());
+        assertThat(searchSpecCopy.getFilterNamespaces()).isEqualTo(
+                searchSpec.getFilterNamespaces());
+        assertThat(searchSpecCopy.getFilterSchemas()).isEqualTo(searchSpecCopy.getFilterSchemas());
+        assertThat(searchSpecCopy.getFilterPackageNames()).isEqualTo(
+                searchSpec.getFilterPackageNames());
+        assertThat(searchSpecCopy.getFilterProperties()).isEqualTo(
+                searchSpec.getFilterProperties());
+        assertThat(searchSpecCopy.getProjections()).isEqualTo(searchSpec.getProjections());
+        assertThat(searchSpecCopy.getPropertyWeights()).isEqualTo(searchSpec.getPropertyWeights());
+        assertThat(searchSpecCopy.getSnippetCount()).isEqualTo(searchSpec.getSnippetCount());
+        assertThat(searchSpecCopy.getSnippetCountPerProperty()).isEqualTo(
+                searchSpec.getSnippetCountPerProperty());
+        assertThat(searchSpecCopy.getMaxSnippetSize()).isEqualTo(searchSpec.getMaxSnippetSize());
+        assertThat(searchSpecCopy.getResultCountPerPage()).isEqualTo(
+                searchSpec.getResultCountPerPage());
+        assertThat(searchSpecCopy.getOrder()).isEqualTo(searchSpec.getOrder());
+        assertThat(searchSpecCopy.getRankingStrategy()).isEqualTo(searchSpec.getRankingStrategy());
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactlyElementsIn(
+                searchSpec.getEnabledFeatures());
+        assertThat(searchSpecCopy.getResultGroupingTypeFlags()).isEqualTo(
+                searchSpec.getResultGroupingTypeFlags());
+        assertThat(searchSpecCopy.getResultGroupingLimit()).isEqualTo(
+                searchSpec.getResultGroupingLimit());
+        assertThat(searchSpecCopy.getJoinSpec()).isEqualTo(searchSpec.getJoinSpec());
+        assertThat(searchSpecCopy.getAdvancedRankingExpression()).isEqualTo(
+                searchSpec.getAdvancedRankingExpression());
+        assertThat(searchSpecCopy.getSearchSourceLogTag()).isEqualTo(
+                searchSpec.getSearchSourceLogTag());
+    }
+
+    @Test
+    public void testSearchSpecBuilderCopyConstructor_embeddingSearch() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setListFilterQueryLanguageEnabled(true)
+                .setEmbeddingSearchEnabled(true)
+                .setDefaultEmbeddingSearchMetricType(
+                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
+                .addSearchEmbeddings(embedding1, embedding2)
+                .build();
+
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactlyElementsIn(
+                searchSpec.getEnabledFeatures());
+        assertThat(searchSpecCopy.getDefaultEmbeddingSearchMetricType()).isEqualTo(
+                searchSpec.getDefaultEmbeddingSearchMetricType());
+        assertThat(searchSpecCopy.getSearchEmbeddings()).containsExactlyElementsIn(
+                searchSpec.getSearchEmbeddings());
+    }
+
+    @Test
+    public void testSearchSpecBuilderCopyConstructor_informationalRankingExpressions() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setRankingStrategy("advancedExpression")
+                .addInformationalRankingExpressions("this.relevanceScore()")
+                .build();
+
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getRankingStrategy()).isEqualTo(searchSpec.getRankingStrategy());
+        assertThat(searchSpecCopy.getAdvancedRankingExpression()).isEqualTo(
+                searchSpec.getAdvancedRankingExpression());
+        assertThat(searchSpecCopy.getInformationalRankingExpressions()).isEqualTo(
+                searchSpec.getInformationalRankingExpressions());
+    }
+
+    // TODO(b/309826655): Flag guard this test.
+    @Test
+    public void testGetBundle_hasProperty() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .build();
+
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION);
     }
 
     @Test
@@ -90,37 +192,46 @@ public class SearchSpecInternalTest {
                 Features.VERBATIM_SEARCH, Features.LIST_FILTER_QUERY_LANGUAGE);
     }
 
-    // TODO(b/296088047): move to CTS once the APIs it uses are public
     @Test
-    public void testGetPropertyFiltersTypePropertyMasks() {
+    public void testGetEnabledFeatures_embeddingSearch() {
         SearchSpec searchSpec = new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addFilterProperties("TypeA", ImmutableList.of("field1", "field2.subfield2"))
-                .addFilterProperties("TypeB", ImmutableList.of("field7"))
-                .addFilterProperties("TypeC", ImmutableList.of())
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .setEmbeddingSearchEnabled(true)
                 .build();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                FeatureConstants.EMBEDDING_SEARCH);
 
-        Map<String, List<String>> typePropertyPathMap = searchSpec.getFilterProperties();
-        assertThat(typePropertyPathMap.keySet())
-                .containsExactly("TypeA", "TypeB", "TypeC");
-        assertThat(typePropertyPathMap.get("TypeA")).containsExactly("field1", "field2.subfield2");
-        assertThat(typePropertyPathMap.get("TypeB")).containsExactly("field7");
-        assertThat(typePropertyPathMap.get("TypeC")).isEmpty();
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
+                FeatureConstants.EMBEDDING_SEARCH);
     }
 
-    // TODO(b/296088047): move to CTS once the APIs it uses are public
     @Test
-    public void testBuilder_throwsException_whenTypePropertyFilterNotInSchemaFilter() {
-        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addFilterSchemas("Schema1", "Schema2")
-                .addFilterPropertyPaths("Schema3", ImmutableList.of(
-                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")));
+    public void testGetEnabledFeatures_tokenize() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterTokenizeFunctionEnabled(true)
+                .build();
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE,
+                FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
 
-        IllegalStateException exception =
-                assertThrows(IllegalStateException.class, searchSpecBuilder::build);
-        assertThat(exception.getMessage())
-                .isEqualTo("The schema: Schema3 exists in the property filter but doesn't"
-                        + " exist in the schema filter.");
+        // Check that copy constructor works.
+        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
+        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE,
+                FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
     }
 }

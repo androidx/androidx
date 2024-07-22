@@ -30,9 +30,7 @@ import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
 import androidx.pdf.models.SelectionBoundary;
-import androidx.pdf.pdflib.PdfDocumentRemoteProto;
-import androidx.pdf.util.BitmapParcel;
-import androidx.pdf.util.StrictModeUtils;
+import androidx.pdf.service.PdfDocumentRemoteProto;
 import androidx.pdf.util.TileBoard.TileInfo;
 
 import com.google.common.collect.ImmutableList;
@@ -57,14 +55,6 @@ public class PdfPageLoader {
 
     /** Arbitrary dimensions used for pages that are broken. */
     private static final Dimensions DEFAULT_PAGE = new Dimensions(400, 400);
-
-    static {
-        // TODO: StrictMode- disk read 14ms.
-        // NOTE: this line can break when running with --noforge, such as when debugging with
-        // Android Studio. You may need to comment it out locally if you see errors like
-        // `java.lang.UnsatisfiedLinkError: no bitmap_parcel in java.library.path`.
-        StrictModeUtils.bypass(() -> BitmapParcel.loadNdkLib());
-    }
 
     private final PdfLoader mParent;
     private final int mPageNum;

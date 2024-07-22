@@ -36,19 +36,43 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
     private final MediaRouter mMediaRouter;
 
     @NonNull
-    private final MediaRouter.Callback mMediaRouterCallback = new MediaRouter.Callback() {
-        @Override
-        public void onRouteAdded(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo route) {
-            mOnRoutesChangedListener.onRouteAdded(createRouteItemFor(route));
-        }
+    private final MediaRouter.Callback mMediaRouterCallback =
+            new MediaRouter.Callback() {
+                @Override
+                public void onRouteAdded(
+                        @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                    mOnRoutesChangedListener.run();
+                }
 
-        @Override
-        public void onRouteRemoved(@NonNull MediaRouter router,
-                @NonNull MediaRouter.RouteInfo route) {
-            mOnRoutesChangedListener.onRouteRemoved(createRouteItemFor(route));
-        }
-    };
+                @Override
+                public void onRouteRemoved(
+                        @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteSelected(
+                        @NonNull MediaRouter router,
+                        @NonNull MediaRouter.RouteInfo selectedRoute,
+                        int reason,
+                        @NonNull MediaRouter.RouteInfo requestedRoute) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteUnselected(
+                        @NonNull MediaRouter router,
+                        @NonNull MediaRouter.RouteInfo route,
+                        int reason) {
+                    mOnRoutesChangedListener.run();
+                }
+
+                @Override
+                public void onRouteChanged(
+                        @NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo route) {
+                    mOnRoutesChangedListener.run();
+                }
+            };
 
     /** Returns a new instance. */
     @NonNull
@@ -98,11 +122,27 @@ public final class AndroidXMediaRouterSystemRoutesSource extends SystemRoutesSou
         return out;
     }
 
-    @NonNull
-    private static SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
-        SystemRouteItem.Builder builder = new SystemRouteItem.Builder(routeInfo.getId())
-                .setName(routeInfo.getName());
+    @Override
+    public boolean select(@NonNull SystemRouteItem item) {
+        for (MediaRouter.RouteInfo routeInfo : mMediaRouter.getRoutes()) {
+            if (routeInfo.getId().equals(item.mId)) {
+                routeInfo.select();
+                return true;
+            }
+        }
+        return false;
+    }
 
+    @NonNull
+    private SystemRouteItem createRouteItemFor(@NonNull MediaRouter.RouteInfo routeInfo) {
+        SystemRouteItem.Builder builder =
+                new SystemRouteItem.Builder(getSourceId(), routeInfo.getId())
+                        .setName(routeInfo.getName());
+
+        builder.setSelectionSupportState(
+                routeInfo.isSelected()
+                        ? SystemRouteItem.SelectionSupportState.RESELECTABLE
+                        : SystemRouteItem.SelectionSupportState.SELECTABLE);
         String description = routeInfo.getDescription();
         if (description != null) {
             builder.setDescription(description);

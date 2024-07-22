@@ -37,6 +37,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class RemoveStats {
+    /** Types of stats available for remove API. */
     @IntDef(value = {
             // It needs to be sync with DeleteType.Code in
             // external/icing/proto/icing/proto/logging.proto#DeleteStatsProto

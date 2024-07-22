@@ -16,7 +16,9 @@
 
 package androidx.biometric;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -139,6 +141,29 @@ public class BiometricViewModel extends ViewModel {
     }
 
     /**
+     * The dialog listener that is returned by {@link #getMoreOptionsButtonListener()} ()}.
+     */
+    private static class MoreOptionsButtonListener implements DialogInterface.OnClickListener {
+        @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
+
+        /**
+         * Creates a more options button listener with a weak reference to the given view model.
+         *
+         * @param viewModel The view model instance to hold a weak reference to.
+         */
+        MoreOptionsButtonListener(@Nullable BiometricViewModel viewModel) {
+            mViewModelRef = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        public void onClick(DialogInterface dialogInterface, int which) {
+            if (mViewModelRef.get() != null) {
+                mViewModelRef.get().setMoreOptionsButtonPressPending(true);
+            }
+        }
+    }
+
+    /**
      * The executor that will run authentication callback methods.
      *
      * <p>If unset, callbacks are invoked on the main thread with {@link Looper#getMainLooper()}.
@@ -179,6 +204,11 @@ public class BiometricViewModel extends ViewModel {
      * A dialog listener for the negative button shown on the prompt.
      */
     @Nullable private DialogInterface.OnClickListener mNegativeButtonListener;
+
+    /**
+     * A dialog listener for the more options button shown on the prompt content.
+     */
+    @Nullable private DialogInterface.OnClickListener mMoreOptionsButtonListener;
 
     /**
      * A label for the negative button shown on the prompt.
@@ -249,6 +279,11 @@ public class BiometricViewModel extends ViewModel {
      * Whether the user has pressed the negative button on the prompt.
      */
     @Nullable private MutableLiveData<Boolean> mIsNegativeButtonPressPending;
+
+    /**
+     * Whether the user has pressed the more options button on the prompt content.
+     */
+    @Nullable private MutableLiveData<Boolean> mIsMoreOptionsButtonPressPending;
 
     /**
      * Whether the fingerprint dialog should always be dismissed instantly.
@@ -327,6 +362,47 @@ public class BiometricViewModel extends ViewModel {
     }
 
     /**
+     * Gets the logo res to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The logo res for the prompt, or -1 if not set.
+     */
+    @SuppressLint("MissingPermission")
+    int getLogoRes() {
+        return mPromptInfo != null ? mPromptInfo.getLogoRes() : -1;
+    }
+
+    /**
+     * Gets the logo bitmap to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The logo bitmap for the prompt, or null if not set.
+     */
+    @SuppressLint("MissingPermission")
+    @Nullable
+    Bitmap getLogoBitmap() {
+        return mPromptInfo != null ? mPromptInfo.getLogoBitmap() : null;
+    }
+
+    /**
+     * Gets the logo description to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The logo description for the prompt, or null if not set.
+     */
+    @SuppressLint("MissingPermission")
+    @Nullable
+    String getLogoDescription() {
+        return mPromptInfo != null ? mPromptInfo.getLogoDescription() : null;
+    }
+
+    /**
      * Gets the title to be shown on the biometric prompt.
      *
      * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
@@ -363,6 +439,19 @@ public class BiometricViewModel extends ViewModel {
     @Nullable
     CharSequence getDescription() {
         return mPromptInfo != null ? mPromptInfo.getDescription() : null;
+    }
+
+    /**
+     * Gets the prompt content view to be shown on the biometric prompt.
+     *
+     * <p>This method relies on the {@link BiometricPrompt.PromptInfo} set by
+     * {@link #setPromptInfo(BiometricPrompt.PromptInfo)}.
+     *
+     * @return The prompt content view for the prompt, or {@code null} if not set.
+     */
+    @Nullable
+    PromptContentView getContentView() {
+        return mPromptInfo != null ? mPromptInfo.getContentView() : null;
     }
 
     /**
@@ -452,6 +541,14 @@ public class BiometricViewModel extends ViewModel {
             mNegativeButtonListener = new NegativeButtonListener(this);
         }
         return mNegativeButtonListener;
+    }
+
+    @NonNull
+    DialogInterface.OnClickListener getMoreOptionsButtonListener() {
+        if (mMoreOptionsButtonListener == null) {
+            mMoreOptionsButtonListener = new MoreOptionsButtonListener(this);
+        }
+        return mMoreOptionsButtonListener;
     }
 
     void setNegativeButtonTextOverride(@Nullable CharSequence negativeButtonTextOverride) {
@@ -592,6 +689,22 @@ public class BiometricViewModel extends ViewModel {
         }
         updateValue(mIsNegativeButtonPressPending, negativeButtonPressPending);
     }
+
+    @NonNull
+    LiveData<Boolean> isMoreOptionsButtonPressPending() {
+        if (mIsMoreOptionsButtonPressPending == null) {
+            mIsMoreOptionsButtonPressPending = new MutableLiveData<>();
+        }
+        return mIsMoreOptionsButtonPressPending;
+    }
+
+    void setMoreOptionsButtonPressPending(boolean moreOptionsButtonPressPending) {
+        if (mIsMoreOptionsButtonPressPending == null) {
+            mIsMoreOptionsButtonPressPending = new MutableLiveData<>();
+        }
+        updateValue(mIsMoreOptionsButtonPressPending, moreOptionsButtonPressPending);
+    }
+
 
     boolean isFingerprintDialogDismissedInstantly() {
         return mIsFingerprintDialogDismissedInstantly;

@@ -38,12 +38,13 @@ import javax.lang.model.element.AnnotationMirror;
  *     <li>{@link DoublePropertyAnnotation}</li>
  *     <li>{@link BooleanPropertyAnnotation}</li>
  *     <li>{@link BytesPropertyAnnotation}</li>
+ *     <li>{@link EmbeddingPropertyAnnotation}</li>
  * </ul>
  */
 public abstract class DataPropertyAnnotation implements PropertyAnnotation {
     public enum Kind {
         STRING_PROPERTY, DOCUMENT_PROPERTY, LONG_PROPERTY, DOUBLE_PROPERTY, BOOLEAN_PROPERTY,
-        BYTES_PROPERTY
+        BYTES_PROPERTY, EMBEDDING_PROPERTY
     }
 
     @NonNull
@@ -103,6 +104,9 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
             return LongPropertyAnnotation.parse(annotationParams, defaultName);
         } else if (qualifiedClassName.equals(StringPropertyAnnotation.CLASS_NAME.canonicalName())) {
             return StringPropertyAnnotation.parse(annotationParams, defaultName);
+        } else if (qualifiedClassName.equals(
+                EmbeddingPropertyAnnotation.CLASS_NAME.canonicalName())) {
+            return EmbeddingPropertyAnnotation.parse(annotationParams, defaultName);
         }
         return null;
     }

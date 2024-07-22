@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("deprecation") // For usage of Slice
 
 package androidx.credentials.provider
 
+import android.annotation.SuppressLint
 import android.app.slice.Slice
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -50,6 +52,9 @@ import androidx.credentials.R
  *   default credential type icon when you are the only available provider; see individual
  *   subclasses for these default icons (e.g. for [PublicKeyCredentialEntry], it is based on
  *   [R.drawable.ic_password])
+ * @property biometricPromptData the data that is set optionally to utilize a credential manager
+ *   flow that directly handles the biometric verification and presents back the response; set to
+ *   null by default, so if not opted in, the embedded biometric prompt flow will not show
  */
 abstract class CredentialEntry
 internal constructor(
@@ -58,8 +63,8 @@ internal constructor(
     val entryGroupId: CharSequence,
     val isDefaultIconPreferredAsSingleProvider: Boolean,
     val affiliatedDomain: CharSequence? = null,
+    val biometricPromptData: BiometricPromptData? = null,
 ) {
-
     @RequiresApi(34)
     private object Api34Impl {
         @JvmStatic
@@ -71,7 +76,102 @@ internal constructor(
         }
     }
 
+    @RequiresApi(35)
+    internal object Api35Impl {
+        @JvmStatic
+        fun toSlice(entry: CredentialEntry): Slice? {
+            when (entry) {
+                is PasswordCredentialEntry -> return PasswordCredentialEntry.toSlice(entry)
+                is PublicKeyCredentialEntry -> return PublicKeyCredentialEntry.toSlice(entry)
+                is CustomCredentialEntry -> return CustomCredentialEntry.toSlice(entry)
+            }
+            return null
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): CredentialEntry? {
+            return try {
+                when (slice.spec?.type) {
+                    TYPE_PASSWORD_CREDENTIAL -> PasswordCredentialEntry.fromSlice(slice)!!
+                    TYPE_PUBLIC_KEY_CREDENTIAL -> PublicKeyCredentialEntry.fromSlice(slice)!!
+                    else -> CustomCredentialEntry.fromSlice(slice)!!
+                }
+            } catch (e: Exception) {
+                // Try CustomCredentialEntry.fromSlice one last time in case the cause was a failed
+                // password / passkey parsing attempt.
+                CustomCredentialEntry.fromSlice(slice)
+            }
+        }
+    }
+
+    @RequiresApi(28)
+    internal object Api28Impl {
+        @JvmStatic
+        fun toSlice(entry: CredentialEntry): Slice? {
+            when (entry) {
+                is PasswordCredentialEntry -> return PasswordCredentialEntry.toSlice(entry)
+                is PublicKeyCredentialEntry -> return PublicKeyCredentialEntry.toSlice(entry)
+                is CustomCredentialEntry -> return CustomCredentialEntry.toSlice(entry)
+            }
+            return null
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @JvmStatic
+        fun fromSlice(slice: Slice): CredentialEntry? {
+            return try {
+                when (slice.spec?.type) {
+                    TYPE_PASSWORD_CREDENTIAL -> PasswordCredentialEntry.fromSlice(slice)!!
+                    TYPE_PUBLIC_KEY_CREDENTIAL -> PublicKeyCredentialEntry.fromSlice(slice)!!
+                    else -> CustomCredentialEntry.fromSlice(slice)!!
+                }
+            } catch (e: Exception) {
+                // Try CustomCredentialEntry.fromSlice one last time in case the cause was a failed
+                // password / passkey parsing attempt.
+                CustomCredentialEntry.fromSlice(slice)
+            }
+        }
+    }
+
     companion object {
+        internal const val TRUE_STRING = "true"
+        internal const val FALSE_STRING = "false"
+        internal const val REVISION_ID = 1
+        internal const val SLICE_HINT_TYPE_DISPLAY_NAME =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_TYPE_DISPLAY_NAME"
+        internal const val SLICE_HINT_TITLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_USER_NAME"
+        internal const val SLICE_HINT_SUBTITLE =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CREDENTIAL_TYPE_DISPLAY_NAME"
+        internal const val SLICE_HINT_LAST_USED_TIME_MILLIS =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_LAST_USED_TIME_MILLIS"
+        internal const val SLICE_HINT_ICON =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PROFILE_ICON"
+        internal const val SLICE_HINT_PENDING_INTENT =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_PENDING_INTENT"
+        internal const val SLICE_HINT_AUTO_ALLOWED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_ALLOWED"
+        internal const val SLICE_HINT_IS_DEFAULT_ICON_PREFERRED =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_IS_DEFAULT_ICON_PREFERRED"
+        internal const val SLICE_HINT_OPTION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_OPTION_ID"
+        internal const val SLICE_HINT_AUTO_SELECT_FROM_OPTION =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AUTO_SELECT_FROM_OPTION"
+        internal const val SLICE_HINT_DEFAULT_ICON_RES_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEFAULT_ICON_RES_ID"
+        internal const val SLICE_HINT_AFFILIATED_DOMAIN =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_AFFILIATED_DOMAIN"
+        internal const val SLICE_HINT_DEDUPLICATION_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_DEDUPLICATION_ID"
+        internal const val SLICE_HINT_BIOMETRIC_PROMPT_DATA =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_BIOMETRIC_PROMPT_DATA"
+        internal const val SLICE_HINT_ALLOWED_AUTHENTICATORS =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_ALLOWED_AUTHENTICATORS"
+        internal const val SLICE_HINT_CRYPTO_OP_ID =
+            "androidx.credentials.provider.credentialEntry.SLICE_HINT_CRYPTO_OP_ID"
 
         /**
          * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack
@@ -94,31 +194,26 @@ internal constructor(
         }
 
         @JvmStatic
-        @RequiresApi(28)
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun fromSlice(slice: Slice): CredentialEntry? {
-            return try {
-                when (slice.spec?.type) {
-                    TYPE_PASSWORD_CREDENTIAL -> PasswordCredentialEntry.fromSlice(slice)!!
-                    TYPE_PUBLIC_KEY_CREDENTIAL -> PublicKeyCredentialEntry.fromSlice(slice)!!
-                    else -> CustomCredentialEntry.fromSlice(slice)!!
-                }
-            } catch (e: Exception) {
-                // Try CustomCredentialEntry.fromSlice one last time in case the cause was a failed
-                // password / passkey parsing attempt.
-                CustomCredentialEntry.fromSlice(slice)
+            return if (Build.VERSION.SDK_INT >= 35) {
+                Api35Impl.fromSlice(slice)
+            } else if (Build.VERSION.SDK_INT >= 28) {
+                Api28Impl.fromSlice(slice)
+            } else {
+                null
             }
         }
 
         @JvmStatic
-        @RequiresApi(28)
         internal fun toSlice(entry: CredentialEntry): Slice? {
-            when (entry) {
-                is PasswordCredentialEntry -> return PasswordCredentialEntry.toSlice(entry)
-                is PublicKeyCredentialEntry -> return PublicKeyCredentialEntry.toSlice(entry)
-                is CustomCredentialEntry -> return CustomCredentialEntry.toSlice(entry)
+            return if (Build.VERSION.SDK_INT >= 35) {
+                Api35Impl.toSlice(entry)
+            } else if (Build.VERSION.SDK_INT >= 28) {
+                Api28Impl.toSlice(entry)
+            } else {
+                null
             }
-            return null
         }
     }
 }

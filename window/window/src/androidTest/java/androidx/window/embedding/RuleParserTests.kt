@@ -19,6 +19,7 @@ package androidx.window.embedding
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -79,6 +80,7 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
                 .setLayoutDirection(LOCALE)
+                .setAnimationParams(EmbeddingAnimationParams.Builder().build())
                 .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -136,6 +138,16 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
                 .setLayoutDirection(TOP_TO_BOTTOM)
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(
+                            EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
+                        )
+                        .setOpenAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .build()
+                )
                 .build()
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(NEVER, rule.finishPrimaryWithSecondary)
@@ -163,6 +175,7 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
                 .setLayoutDirection(LOCALE)
+                .setAnimationParams(EmbeddingAnimationParams.Builder().build())
                 .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -226,6 +239,18 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
                 .setLayoutDirection(BOTTOM_TO_TOP)
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(
+                            EmbeddingAnimationBackground.createColorBackground(
+                                application.resources.getColor(R.color.testColor, null)
+                            )
+                        )
+                        .setOpenAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .build()
+                )
                 .build()
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(ALWAYS, rule.finishPrimaryWithPlaceholder)

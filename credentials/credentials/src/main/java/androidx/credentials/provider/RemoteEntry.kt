@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:Suppress("deprecation") // For usage of Slice
+
 package androidx.credentials.provider
 
 import android.annotation.SuppressLint

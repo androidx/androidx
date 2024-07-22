@@ -21,26 +21,37 @@ import android.os.CancellationSignal
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.ClearCredentialRequestTypes
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePublicKeyCredentialRequest
+import androidx.credentials.CreateRestoreCredentialRequest
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.CredentialProvider
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.GetRestoreCredentialOption
 import androidx.credentials.exceptions.ClearCredentialException
+import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProviderBeginSignInController
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
+import androidx.credentials.playservices.controllers.CreateRestoreCredential.CredentialProviderCreateRestoreCredentialController
+import androidx.credentials.playservices.controllers.GetRestoreCredential.CredentialProviderGetRestoreCredentialController
 import androidx.credentials.playservices.controllers.GetSignInIntent.CredentialProviderGetSignInIntentController
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.auth.blockstore.restorecredential.RestoreCredential
+import com.google.android.gms.auth.blockstore.restorecredential.RestoreCredentialStatusCodes
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.api.ApiException
 import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import java.util.concurrent.Executor
 
@@ -61,7 +72,23 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         if (cancellationReviewer(cancellationSignal)) {
             return
         }
-        if (isGetSignInIntentRequest(request)) {
+        if (isGetRestoreCredentialRequest(request)) {
+            if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
+                cancellationReviewerWithCallback(cancellationSignal) {
+                    executor.execute {
+                        callback.onError(
+                            GetCredentialProviderConfigurationException(
+                                "getCredentialAsync no provider dependencies found - please ensure " +
+                                    "the desired provider dependencies are added"
+                            )
+                        )
+                    }
+                }
+                return
+            }
+            CredentialProviderGetRestoreCredentialController(context)
+                .invokePlayServices(request, callback, executor, cancellationSignal)
+        } else if (isGetSignInIntentRequest(request)) {
             CredentialProviderGetSignInIntentController(context)
                 .invokePlayServices(request, callback, executor, cancellationSignal)
         } else {
@@ -90,6 +117,23 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
                 CredentialProviderCreatePublicKeyCredentialController.getInstance(context)
                     .invokePlayServices(request, callback, executor, cancellationSignal)
             }
+            is CreateRestoreCredentialRequest -> {
+                if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
+                    cancellationReviewerWithCallback(cancellationSignal) {
+                        executor.execute {
+                            callback.onError(
+                                CreateCredentialProviderConfigurationException(
+                                    "createCredentialAsync no provider dependencies found - please ensure the " +
+                                        "desired provider dependencies are added"
+                                )
+                            )
+                        }
+                    }
+                    return
+                }
+                CredentialProviderCreateRestoreCredentialController(context)
+                    .invokePlayServices(request, callback, executor, cancellationSignal)
+            }
             else -> {
                 throw UnsupportedOperationException(
                     "Create Credential request is unsupported, not password or " +
@@ -100,7 +144,11 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     }
 
     override fun isAvailableOnDevice(): Boolean {
-        val resultCode = isGooglePlayServicesAvailable(context)
+        return isAvailableOnDevice(MIN_GMS_APK_VERSION)
+    }
+
+    fun isAvailableOnDevice(minApkVersion: Int): Boolean {
+        val resultCode = isGooglePlayServicesAvailable(context, minApkVersion)
         val isSuccessful = resultCode == ConnectionResult.SUCCESS
         if (!isSuccessful) {
             val connectionResult = ConnectionResult(resultCode)
@@ -118,10 +166,10 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
     // There is one error code that supports retry API_DISABLED_FOR_CONNECTION but it would not
     // be useful to retry that one because our connection to GMSCore is a static variable
     // (see GoogleApiAvailability.getInstance()) so we cannot recreate the connection to retry.
-    private fun isGooglePlayServicesAvailable(context: Context): Int {
+    private fun isGooglePlayServicesAvailable(context: Context, minApkVersion: Int): Int {
         return googleApiAvailability.isGooglePlayServicesAvailable(
             context,
-            /*minApkVersion=*/ MIN_GMS_APK_VERSION
+            /*minApkVersion=*/ minApkVersion
         )
     }
 
@@ -134,30 +182,77 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         if (cancellationReviewer(cancellationSignal)) {
             return
         }
-        Identity.getSignInClient(context)
-            .signOut()
-            .addOnSuccessListener {
-                cancellationReviewerWithCallback(
-                    cancellationSignal,
-                    {
-                        Log.i(TAG, "During clear credential, signed out successfully!")
+        if (request.requestType == ClearCredentialRequestTypes.CLEAR_RESTORE_CREDENTIAL) {
+            if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
+                cancellationReviewerWithCallback(cancellationSignal) {
+                    executor.execute {
+                        callback.onError(
+                            ClearCredentialProviderConfigurationException(
+                                "clearCredentialStateAsync no provider dependencies found - please ensure the " +
+                                    "desired provider dependencies are added"
+                            )
+                        )
+                    }
+                }
+                return
+            }
+            RestoreCredential.getRestoreCredentialClient(context)
+                .clearRestoreCredential(
+                    com.google.android.gms.auth.blockstore.restorecredential
+                        .ClearRestoreCredentialRequest(request.requestBundle)
+                )
+                .addOnSuccessListener {
+                    cancellationReviewerWithCallback(cancellationSignal) {
+                        Log.i(TAG, "Cleared restore credential successfully!")
                         executor.execute { callback.onResult(null) }
                     }
-                )
-            }
-            .addOnFailureListener { e ->
-                run {
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Clearing restore credential failed", e)
+                    var clearException: ClearCredentialException =
+                        ClearCredentialUnknownException(
+                            "Clear restore credential failed for unknown reason."
+                        )
+                    if (e is ApiException) {
+                        when (e.statusCode) {
+                            RestoreCredentialStatusCodes.RESTORE_CREDENTIAL_INTERNAL_FAILURE -> {
+                                clearException =
+                                    ClearCredentialUnknownException(
+                                        "The restore credential internal service had a failure."
+                                    )
+                            }
+                        }
+                    }
+                    cancellationReviewerWithCallback(cancellationSignal) {
+                        executor.execute { callback.onError(clearException) }
+                    }
+                }
+        } else {
+            Identity.getSignInClient(context)
+                .signOut()
+                .addOnSuccessListener {
                     cancellationReviewerWithCallback(
                         cancellationSignal,
                         {
-                            Log.w(TAG, "During clear credential sign out failed with $e")
-                            executor.execute {
-                                callback.onError(ClearCredentialUnknownException(e.message))
-                            }
+                            Log.i(TAG, "During clear credential, signed out successfully!")
+                            executor.execute { callback.onResult(null) }
                         }
                     )
                 }
-            }
+                .addOnFailureListener { e ->
+                    run {
+                        cancellationReviewerWithCallback(
+                            cancellationSignal,
+                            {
+                                Log.w(TAG, "During clear credential sign out failed with $e")
+                                executor.execute {
+                                    callback.onError(ClearCredentialUnknownException(e.message))
+                                }
+                            }
+                        )
+                    }
+                }
+        }
     }
 
     companion object {
@@ -166,6 +261,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         // This points to the min APK version of GMS that contains required changes
         // to make passkeys work well
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val MIN_GMS_APK_VERSION = 230815045
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val MIN_GMS_APK_VERSION_RESTORE_CRED = 242200000
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,
@@ -191,6 +288,15 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         internal fun isGetSignInIntentRequest(request: GetCredentialRequest): Boolean {
             for (option in request.credentialOptions) {
                 if (option is GetSignInWithGoogleOption) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        internal fun isGetRestoreCredentialRequest(request: GetCredentialRequest): Boolean {
+            for (option in request.credentialOptions) {
+                if (option is GetRestoreCredentialOption) {
                     return true
                 }
             }

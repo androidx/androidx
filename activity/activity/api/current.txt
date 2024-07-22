@@ -305,8 +305,16 @@ package androidx.activity.result {
   }
 
   public final class PickVisualMediaRequest {
+    method public long getAccentColor();
+    method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab getDefaultTab();
     method public int getMaxItems();
     method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType getMediaType();
+    method public boolean isCustomAccentColorApplied();
+    method public boolean isOrderedSelection();
+    property public final long accentColor;
+    property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab defaultTab;
+    property public final boolean isCustomAccentColorApplied;
+    property public final boolean isOrderedSelection;
     property public final int maxItems;
     property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType;
   }
@@ -314,13 +322,18 @@ package androidx.activity.result {
   public static final class PickVisualMediaRequest.Builder {
     ctor public PickVisualMediaRequest.Builder();
     method public androidx.activity.result.PickVisualMediaRequest build();
+    method public androidx.activity.result.PickVisualMediaRequest.Builder setAccentColor(long accentColor);
+    method public androidx.activity.result.PickVisualMediaRequest.Builder setDefaultTab(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab defaultTab);
     method public androidx.activity.result.PickVisualMediaRequest.Builder setMaxItems(@IntRange(from=2L) int maxItems);
     method public androidx.activity.result.PickVisualMediaRequest.Builder setMediaType(androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+    method public androidx.activity.result.PickVisualMediaRequest.Builder setOrderedSelection(boolean isOrderedSelection);
   }
 
   public final class PickVisualMediaRequestKt {
     method @Deprecated public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
-    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems);
+    method @Deprecated public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems);
+    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems, optional boolean isOrderedSelection, optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab defaultTab);
+    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(long accentColor, optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType, optional @IntRange(from=2L) int maxItems, optional boolean isOrderedSelection, optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab defaultTab);
   }
 
 }
@@ -416,12 +429,32 @@ package androidx.activity.result.contract {
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);
     field public static final String ACTION_SYSTEM_FALLBACK_PICK_IMAGES = "androidx.activity.result.contract.action.PICK_IMAGES";
     field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.Companion Companion;
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_ACCENT_COLOR = "androidx.activity.result.contract.extra.PICK_IMAGES_ACCENT_COLOR";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_IN_ORDER = "androidx.activity.result.contract.extra.PICK_IMAGES_IN_ORDER";
+    field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_LAUNCH_TAB = "androidx.activity.result.contract.extra.PICK_IMAGES_LAUNCH_TAB";
     field public static final String EXTRA_SYSTEM_FALLBACK_PICK_IMAGES_MAX = "androidx.activity.result.contract.extra.PICK_IMAGES_MAX";
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.Companion {
     method @Deprecated public boolean isPhotoPickerAvailable();
     method public boolean isPhotoPickerAvailable(android.content.Context context);
+  }
+
+  public abstract static class ActivityResultContracts.PickVisualMedia.DefaultTab {
+    method public abstract int getValue();
+    property public abstract int value;
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.DefaultTab.AlbumsTab extends androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab {
+    method public int getValue();
+    property public int value;
+    field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab.AlbumsTab INSTANCE;
+  }
+
+  public static final class ActivityResultContracts.PickVisualMedia.DefaultTab.PhotosTab extends androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab {
+    method public int getValue();
+    property public int value;
+    field public static final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.DefaultTab.PhotosTab INSTANCE;
   }
 
   public static final class ActivityResultContracts.PickVisualMedia.ImageAndVideo implements androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType {

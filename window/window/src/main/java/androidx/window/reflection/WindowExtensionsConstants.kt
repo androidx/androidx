@@ -31,19 +31,29 @@ internal object WindowExtensionsConstants {
     /** Constant name for class [androidx.window.extensions.WindowExtensions] used for reflection */
     internal const val WINDOW_EXTENSIONS_CLASS = "$WINDOW_EXTENSIONS_PACKAGE_NAME.WindowExtensions"
 
+    internal const val LAYOUT_PACKAGE = "layout"
+
     /**
      * Constant name for class [androidx.window.extensions.layout.FoldingFeature] used for
      * reflection
      */
     internal const val FOLDING_FEATURE_CLASS =
-        "$WINDOW_EXTENSIONS_PACKAGE_NAME.layout.FoldingFeature"
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.FoldingFeature"
+
+    /** Constant name for class [androidx.window.extensions.layout.SupportedWindowFeatures] */
+    internal const val SUPPORTED_WINDOW_FEATURES_CLASS =
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.SupportedWindowFeatures"
+
+    /** Constant name for class [androidx.window.extensions.layout.DisplayFoldFeature] */
+    internal const val DISPLAY_FOLD_FEATURE_CLASS =
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.DisplayFoldFeature"
 
     /**
      * Constant name for class [androidx.window.extensions.layout.WindowLayoutComponent] used for
      * reflection
      */
     internal const val WINDOW_LAYOUT_COMPONENT_CLASS =
-        "$WINDOW_EXTENSIONS_PACKAGE_NAME.layout.WindowLayoutComponent"
+        "$WINDOW_EXTENSIONS_PACKAGE_NAME.$LAYOUT_PACKAGE.WindowLayoutComponent"
 
     /**
      * Constant name for class [androidx.window.extensions.area.WindowAreaComponent] used for

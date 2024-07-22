@@ -161,7 +161,9 @@ private fun DemoTheme(
     SideEffect {
         WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !isDarkMode
         WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !isDarkMode
+        @Suppress("deprecation")
         window.statusBarColor = Color.Transparent.toArgb()
+        @Suppress("deprecation")
         window.navigationBarColor = Color.Transparent.toArgb()
     }
     MaterialTheme(colorScheme = colorScheme, content = content)

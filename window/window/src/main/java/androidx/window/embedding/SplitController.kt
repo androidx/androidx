@@ -22,7 +22,6 @@ import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowProperties
 import androidx.window.WindowSdkExtensions
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.layout.WindowMetrics
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -78,6 +77,56 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      */
     val splitSupportStatus: SplitSupportStatus
         get() = embeddingBackend.splitSupportStatus
+
+    /**
+     * Pins the top-most [ActivityStack] to keep the stack of the Activities to be always positioned
+     * on top. The rest of the activities in the Task will be split with the pinned [ActivityStack].
+     * The pinned [ActivityStack] would also have isolated activity navigation in which only the
+     * activities that are started from the pinned [ActivityStack] can be added on top of the
+     * [ActivityStack].
+     *
+     * The pinned [ActivityStack] is unpinned whenever the pinned [ActivityStack] is expanded. Use
+     * [SplitPinRule.Builder.setSticky] if the same [ActivityStack] should be pinned again whenever
+     * the [ActivityStack] is on top and split with another [ActivityStack] again.
+     *
+     * The caller **must** make sure if [WindowSdkExtensions.extensionVersion] is greater than or
+     * equal to 5.
+     *
+     * @param taskId The id of the Task that top [ActivityStack] should be pinned.
+     * @param splitPinRule The SplitRule that specifies how the top [ActivityStack] should be split
+     *   with others.
+     * @return Returns `true` if the top [ActivityStack] is successfully pinned. Otherwise, `false`.
+     *   Few examples are:
+     *     1. There's no [ActivityStack].
+     *     2. There is already an existing pinned [ActivityStack].
+     *     3. There's no other [ActivityStack] to split with the top [ActivityStack].
+     *
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 5.
+     */
+    @RequiresWindowSdkExtension(5)
+    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+        return embeddingBackend.pinTopActivityStack(taskId, splitPinRule)
+    }
+
+    /**
+     * Unpins the pinned [ActivityStack]. The [ActivityStack] will still be the top-most
+     * [ActivityStack] right after unpinned, and the [ActivityStack] could be expanded or continue
+     * to be split with the next top [ActivityStack] if the current state matches any of the
+     * existing [SplitPairRule]. It is a no-op call if the task does not have a pinned
+     * [ActivityStack].
+     *
+     * The caller **must** make sure if [WindowSdkExtensions.extensionVersion] is greater than or
+     * equal to 5.
+     *
+     * @param taskId The id of the Task that top [ActivityStack] should be unpinned.
+     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
+     *   than 5.
+     */
+    @RequiresWindowSdkExtension(5)
+    fun unpinTopActivityStack(taskId: Int) {
+        embeddingBackend.unpinTopActivityStack(taskId)
+    }
 
     /**
      * Sets or replaces the previously registered [SplitAttributes] calculator.
@@ -141,27 +190,6 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
     }
 
     /**
-     * Triggers a [SplitAttributes] update callback for the current topmost and visible split layout
-     * if there is one. This method can be used when a change to the split presentation originates
-     * from an application state change. Changes that are driven by parent window changes or new
-     * activity starts invoke the callback provided in [setSplitAttributesCalculator] automatically
-     * without the need to call this function.
-     *
-     * The top [SplitInfo] is usually the last element of [SplitInfo] list which was received from
-     * the callback registered in [splitInfoList].
-     *
-     * The call will be ignored if there is no visible split.
-     *
-     * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
-     *   than 3.
-     */
-    @ExperimentalWindowApi
-    @RequiresWindowSdkExtension(3)
-    fun invalidateTopVisibleSplitAttributes() {
-        embeddingBackend.invalidateTopVisibleSplitAttributes()
-    }
-
-    /**
      * Updates the [SplitAttributes] of a split pair. This is an alternative to using a split
      * attributes calculator callback set in [setSplitAttributesCalculator], useful when apps only
      * need to update the splits in a few cases proactively but rely on the default split attributes
@@ -176,15 +204,15 @@ class SplitController internal constructor(private val embeddingBackend: Embeddi
      * - A new Activity being launched.
      * - A window or device state updates (e,g. due to screen rotation or folding state update).
      *
-     * In most cases it is suggested to use [invalidateTopVisibleSplitAttributes] if
-     * [SplitAttributes] calculator callback is used.
+     * In most cases it is suggested to use
+     * [ActivityEmbeddingController.invalidateTopVisibleActivityStacks] if a calculator has been set
+     * through [setSplitAttributesCalculator].
      *
      * @param splitInfo the split pair to update
      * @param splitAttributes the [SplitAttributes] to be applied
      * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less
      *   than 3.
      */
-    @ExperimentalWindowApi
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
         embeddingBackend.updateSplitAttributes(splitInfo, splitAttributes)

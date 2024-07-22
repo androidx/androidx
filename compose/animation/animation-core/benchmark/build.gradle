@@ -35,5 +35,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
+
     namespace "androidx.compose.animation.core.benchmark"
 }

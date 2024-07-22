@@ -21,6 +21,7 @@ plugins {
 }
 
 android {
+    compileSdk 35
     flavorDimensions = ["targetSdk"]
     productFlavors {
         targetSdk29 {

@@ -26,6 +26,7 @@ android {
             minifyEnabled = true
         }
     }
+    compileSdkVersion 35
     defaultConfig {
         javaCompileOptions {
             annotationProcessorOptions {

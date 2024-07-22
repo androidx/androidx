@@ -19,27 +19,34 @@ package androidx.window.demo.embedding
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
+import androidx.window.demo.databinding.ActivitySplitActivityListDetailLayoutBinding
 
-open class SplitActivityDetail : AppCompatActivity() {
+open class SplitActivityDetail : EdgeToEdgeActivity() {
+
+    private lateinit var viewBinding: ActivitySplitActivityListDetailLayoutBinding
+    private lateinit var itemDetailTextView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_split_activity_list_detail_layout)
-        findViewById<View>(R.id.root_split_activity_layout)
-            .setBackgroundColor(Color.parseColor("#fff3e0"))
 
-        findViewById<TextView>(R.id.item_detail_text)
-            .setText(intent.getStringExtra(EXTRA_SELECTED_ITEM))
+        viewBinding = ActivitySplitActivityListDetailLayoutBinding.inflate(layoutInflater)
+        viewBinding.rootSplitActivityLayout.setBackgroundColor(Color.parseColor("#fff3e0"))
+        setContentView(viewBinding.root)
+        itemDetailTextView = viewBinding.itemDetailText
+
+        itemDetailTextView.text = intent.getStringExtra(EXTRA_SELECTED_ITEM)
+
+        window.decorView.setOnFocusChangeListener { _, focus ->
+            itemDetailTextView.text = "${itemDetailTextView.text} focus=$focus"
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
-        findViewById<TextView>(R.id.item_detail_text)
-            .setText(intent.getStringExtra(EXTRA_SELECTED_ITEM))
+        itemDetailTextView.text = intent.getStringExtra(EXTRA_SELECTED_ITEM)
     }
 
     companion object {

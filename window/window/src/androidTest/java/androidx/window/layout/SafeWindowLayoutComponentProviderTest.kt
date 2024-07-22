@@ -52,9 +52,14 @@ class SafeWindowLayoutComponentProviderTest {
                 // TODO(b/267708462): more reliable test for testing actual method matching
                 assertNotNull(safeComponent)
                 assertTrue(safeProvider.isWindowLayoutComponentAccessible())
-                when (ExtensionsUtil.safeVendorApiLevel) {
-                    1 -> assertTrue(safeProvider.hasValidVendorApiLevel1())
-                    else -> assertTrue(safeProvider.hasValidVendorApiLevel2())
+                when {
+                    ExtensionsUtil.safeVendorApiLevel == 1 -> {
+                        assertTrue(safeProvider.hasValidVendorApiLevel1())
+                    }
+                    ExtensionsUtil.safeVendorApiLevel < 6 -> {
+                        assertTrue(safeProvider.hasValidVendorApiLevel2())
+                    }
+                    else -> assertTrue(safeProvider.hasValidVendorApiLevel6())
                 }
             }
         } catch (e: UnsupportedOperationException) {

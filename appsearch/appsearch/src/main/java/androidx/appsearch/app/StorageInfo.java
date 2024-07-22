@@ -16,39 +16,49 @@
 
 package androidx.appsearch.app;
 
-import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.core.util.Preconditions;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.StorageInfoCreator;
 
 /** The response class of {@code AppSearchSession#getStorageInfo}. */
-public class StorageInfo {
-
-    private static final String SIZE_BYTES_FIELD = "sizeBytes";
-    private static final String ALIVE_DOCUMENTS_COUNT = "aliveDocumentsCount";
-    private static final String ALIVE_NAMESPACES_COUNT = "aliveNamespacesCount";
-
-    private final Bundle mBundle;
-
-    StorageInfo(@NonNull Bundle bundle) {
-        mBundle = Preconditions.checkNotNull(bundle);
-    }
-
-    /**
-     * Returns the {@link Bundle} populated by this builder.
-     * @exportToFramework:hide
-     */
-    @NonNull
+@SafeParcelable.Class(creator = "StorageInfoCreator")
+@SuppressWarnings("HiddenSuperclass")
+public final class StorageInfo extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Bundle getBundle() {
-        return mBundle;
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull
+    public static final Parcelable.Creator<StorageInfo> CREATOR = new StorageInfoCreator();
+
+    @Field(id = 1, getter = "getSizeBytes")
+    private long mSizeBytes;
+
+    @Field(id = 2, getter = "getAliveDocumentsCount")
+    private int mAliveDocumentsCount;
+
+    @Field(id = 3, getter = "getAliveNamespacesCount")
+    private int mAliveNamespacesCount;
+
+    @Constructor
+    StorageInfo(
+            @Param(id = 1) long sizeBytes,
+            @Param(id = 2) int aliveDocumentsCount,
+            @Param(id = 3) int aliveNamespacesCount) {
+        mSizeBytes = sizeBytes;
+        mAliveDocumentsCount = aliveDocumentsCount;
+        mAliveNamespacesCount = aliveNamespacesCount;
     }
 
     /** Returns the estimated size of the session's database in bytes. */
     public long getSizeBytes() {
-        return mBundle.getLong(SIZE_BYTES_FIELD);
+        return mSizeBytes;
     }
 
     /**
@@ -58,7 +68,7 @@ public class StorageInfo {
      * set in {@link GenericDocument.Builder#setTtlMillis}.
      */
     public int getAliveDocumentsCount() {
-        return mBundle.getInt(ALIVE_DOCUMENTS_COUNT);
+        return mAliveDocumentsCount;
     }
 
     /**
@@ -69,7 +79,7 @@ public class StorageInfo {
      * set in {@link GenericDocument.Builder#setTtlMillis}.
      */
     public int getAliveNamespacesCount() {
-        return mBundle.getInt(ALIVE_NAMESPACES_COUNT);
+        return mAliveNamespacesCount;
     }
 
     /** Builder for {@link StorageInfo} objects. */
@@ -105,11 +115,14 @@ public class StorageInfo {
         /** Builds a {@link StorageInfo} object. */
         @NonNull
         public StorageInfo build() {
-            Bundle bundle = new Bundle();
-            bundle.putLong(SIZE_BYTES_FIELD, mSizeBytes);
-            bundle.putInt(ALIVE_DOCUMENTS_COUNT, mAliveDocumentsCount);
-            bundle.putInt(ALIVE_NAMESPACES_COUNT, mAliveNamespacesCount);
-            return new StorageInfo(bundle);
+            return new StorageInfo(mSizeBytes, mAliveDocumentsCount, mAliveNamespacesCount);
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        StorageInfoCreator.writeToParcel(this, dest, flags);
     }
 }

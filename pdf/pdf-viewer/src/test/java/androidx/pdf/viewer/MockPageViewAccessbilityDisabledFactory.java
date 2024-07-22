@@ -29,8 +29,9 @@ public class MockPageViewAccessbilityDisabledFactory extends PageViewFactory {
     public MockPageViewAccessbilityDisabledFactory(@NonNull Context context,
             @NonNull PdfLoader pdfLoader,
             @NonNull PaginatedView paginatedView,
-            @NonNull ZoomView zoomView) {
-        super(context, pdfLoader, paginatedView, zoomView);
+            @NonNull ZoomView zoomView,
+            @NonNull SingleTapHandler singleTapHandler) {
+        super(context, pdfLoader, paginatedView, zoomView, singleTapHandler);
     }
 
     @NonNull

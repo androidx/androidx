@@ -17,7 +17,8 @@
 package androidx.appsearch.observer;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +28,11 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.DocumentClassFactoryRegistry;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.ObserverSpecCreator;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -41,31 +47,27 @@ import java.util.Set;
  * Configures the types, namespaces and other properties that {@link ObserverCallback} instances
  * match against.
  */
-public final class ObserverSpec {
-    private static final String FILTER_SCHEMA_FIELD = "filterSchema";
+@SafeParcelable.Class(creator = "ObserverSpecCreator")
+@SuppressWarnings("HiddenSuperclass")
+public final class ObserverSpec extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull
+    public static final Parcelable.Creator<ObserverSpec> CREATOR =
+            new ObserverSpecCreator();
 
-    private final Bundle mBundle;
+    @Field(id = 1)
+    final List<String> mFilterSchemas;
 
     /** Populated on first use */
-    @Nullable
-    private volatile Set<String> mFilterSchemas;
+    @Nullable private volatile Set<String> mFilterSchemasCached;
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public ObserverSpec(@NonNull Bundle bundle) {
-        Preconditions.checkNotNull(bundle);
-        mBundle = bundle;
-    }
-
-    /**
-     * Returns the {@link Bundle} backing this spec.
-     *
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Bundle getBundle() {
-        return mBundle;
+    @Constructor
+    public ObserverSpec(
+            @Param(id = 1) @NonNull List<String> filterSchemas) {
+        mFilterSchemas = Preconditions.checkNotNull(filterSchemas);
     }
 
     /**
@@ -75,15 +77,14 @@ public final class ObserverSpec {
      */
     @NonNull
     public Set<String> getFilterSchemas() {
-        if (mFilterSchemas == null) {
-            List<String> schemas = mBundle.getStringArrayList(FILTER_SCHEMA_FIELD);
-            if (schemas == null) {
-                mFilterSchemas = Collections.emptySet();
+        if (mFilterSchemasCached == null) {
+            if (mFilterSchemas == null) {
+                mFilterSchemasCached = Collections.emptySet();
             } else {
-                mFilterSchemas = Collections.unmodifiableSet(new ArraySet<>(schemas));
+                mFilterSchemasCached = Collections.unmodifiableSet(new ArraySet<>(mFilterSchemas));
             }
         }
-        return mFilterSchemas;
+        return mFilterSchemasCached;
     }
 
     /** Builder for {@link ObserverSpec} instances. */
@@ -134,7 +135,7 @@ public final class ObserverSpec {
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull
-        public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
+        public Builder addFilterDocumentClasses(@NonNull java.lang.Class<?>... documentClasses)
                 throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
             resetIfBuilt();
@@ -155,12 +156,13 @@ public final class ObserverSpec {
         @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(
-                @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
+                @NonNull Collection<? extends java.lang.Class<?>> documentClasses)
+                throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
             resetIfBuilt();
             List<String> schemas = new ArrayList<>(documentClasses.size());
             DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-            for (Class<?> documentClass : documentClasses) {
+            for (java.lang.Class<?> documentClass : documentClasses) {
                 DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
                 schemas.add(factory.getSchemaName());
             }
@@ -172,10 +174,8 @@ public final class ObserverSpec {
         /** Constructs a new {@link ObserverSpec} from the contents of this builder. */
         @NonNull
         public ObserverSpec build() {
-            Bundle bundle = new Bundle();
-            bundle.putStringArrayList(FILTER_SCHEMA_FIELD, mFilterSchemas);
             mBuilt = true;
-            return new ObserverSpec(bundle);
+            return new ObserverSpec(mFilterSchemas);
         }
 
         private void resetIfBuilt() {
@@ -184,5 +184,12 @@ public final class ObserverSpec {
                 mBuilt = false;
             }
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        ObserverSpecCreator.writeToParcel(this, dest, flags);
     }
 }

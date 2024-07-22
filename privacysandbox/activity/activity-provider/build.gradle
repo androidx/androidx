@@ -45,6 +45,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.privacysandbox.activity.provider"
     defaultConfig {
         minSdk 21

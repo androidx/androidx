@@ -20,6 +20,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
+import androidx.core.os.BuildCompat
+import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromCreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromSlice
@@ -28,8 +34,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.time.Instant
+import javax.crypto.NullCipher
 import org.junit.Assert
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -38,7 +45,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 26) // Instant usage
 @SmallTest
 class CreateEntryTest {
     private val mContext = ApplicationProvider.getApplicationContext<Context>()
@@ -74,7 +81,8 @@ class CreateEntryTest {
     }
 
     @Test
-    fun constructor_allParameters_success() {
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    fun constructor_allParametersAboveApiO_success() {
         val entry = constructEntryWithAllParams()
 
         assertNotNull(entry)
@@ -139,33 +147,55 @@ class CreateEntryTest {
     }
 
     private fun assertEntryWithRequiredParams(entry: CreateEntry) {
-        Truth.assertThat(ACCOUNT_NAME == entry.accountName)
-        Truth.assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(ACCOUNT_NAME == entry.accountName)
+        assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(entry.biometricPromptData).isNull()
     }
 
     private fun constructEntryWithAllParams(): CreateEntry {
-        return CreateEntry(
-            ACCOUNT_NAME,
-            mPendingIntent,
-            DESCRIPTION,
-            Instant.ofEpochMilli(LAST_USED_TIME),
-            ICON,
-            PASSWORD_COUNT,
-            PUBLIC_KEY_CREDENTIAL_COUNT,
-            TOTAL_COUNT,
-            AUTO_SELECT_BIT
-        )
+        if (BuildCompat.isAtLeastV()) {
+            return CreateEntry(
+                ACCOUNT_NAME,
+                mPendingIntent,
+                DESCRIPTION,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                PASSWORD_COUNT,
+                PUBLIC_KEY_CREDENTIAL_COUNT,
+                TOTAL_COUNT,
+                AUTO_SELECT_BIT,
+                testBiometricPromptData()
+            )
+        } else {
+            return CreateEntry(
+                ACCOUNT_NAME,
+                mPendingIntent,
+                DESCRIPTION,
+                Instant.ofEpochMilli(LAST_USED_TIME),
+                ICON,
+                PASSWORD_COUNT,
+                PUBLIC_KEY_CREDENTIAL_COUNT,
+                TOTAL_COUNT,
+                AUTO_SELECT_BIT
+            )
+        }
     }
 
     private fun assertEntryWithAllParams(entry: CreateEntry) {
-        Truth.assertThat(ACCOUNT_NAME).isEqualTo(entry.accountName)
-        Truth.assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
-        Truth.assertThat(ICON).isEqualTo(entry.icon)
-        Truth.assertThat(LAST_USED_TIME).isEqualTo(entry.lastUsedTime?.toEpochMilli())
-        Truth.assertThat(PASSWORD_COUNT).isEqualTo(entry.getPasswordCredentialCount())
-        Truth.assertThat(PUBLIC_KEY_CREDENTIAL_COUNT).isEqualTo(entry.getPublicKeyCredentialCount())
-        Truth.assertThat(TOTAL_COUNT).isEqualTo(entry.getTotalCredentialCount())
-        Truth.assertThat(AUTO_SELECT_BIT).isTrue()
+        assertThat(ACCOUNT_NAME).isEqualTo(entry.accountName)
+        assertThat(mPendingIntent).isEqualTo(entry.pendingIntent)
+        assertThat(ICON).isEqualTo(entry.icon)
+        assertThat(LAST_USED_TIME).isEqualTo(entry.lastUsedTime?.toEpochMilli())
+        assertThat(PASSWORD_COUNT).isEqualTo(entry.getPasswordCredentialCount())
+        assertThat(PUBLIC_KEY_CREDENTIAL_COUNT).isEqualTo(entry.getPublicKeyCredentialCount())
+        assertThat(TOTAL_COUNT).isEqualTo(entry.getTotalCredentialCount())
+        assertThat(AUTO_SELECT_BIT).isTrue()
+        if (BuildCompat.isAtLeastV() && entry.biometricPromptData != null) {
+            assertThat(entry.biometricPromptData!!.allowedAuthenticators)
+                .isEqualTo(testBiometricPromptData().allowedAuthenticators)
+        } else {
+            assertThat(entry.biometricPromptData).isNull()
+        }
     }
 
     companion object {
@@ -178,5 +208,13 @@ class CreateEntryTest {
         private const val LAST_USED_TIME = 10L
         private val ICON =
             Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+
+        @RequiresApi(35)
+        private fun testBiometricPromptData(): BiometricPromptData {
+            return BiometricPromptData.Builder()
+                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
+        }
     }
 }

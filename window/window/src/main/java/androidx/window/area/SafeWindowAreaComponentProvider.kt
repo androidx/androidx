@@ -15,6 +15,7 @@
  */
 package androidx.window.area
 
+import android.os.Build
 import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.area.reflectionguard.WindowAreaComponentValidator.isExtensionWindowAreaPresentationValid
 import androidx.window.area.reflectionguard.WindowAreaComponentValidator.isExtensionWindowAreaStatusValid
@@ -41,6 +42,7 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
                 if (
                     windowExtensions != null &&
                         isWindowAreaProviderValid(windowExtensions) &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                         isWindowAreaComponentValid(
                             windowAreaComponentClass,
                             ExtensionsUtil.safeVendorApiLevel
@@ -49,11 +51,16 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
                             extensionWindowAreaStatusClass,
                             ExtensionsUtil.safeVendorApiLevel
                         ) &&
-                        isValidExtensionWindowPresentation()
-                )
+                        isExtensionWindowAreaPresentationValid(
+                            extensionWindowAreaPresentationClass,
+                            ExtensionsUtil.safeVendorApiLevel
+                        )
+                ) {
                     windowExtensions.windowAreaComponent
-                else null
-            } catch (e: Exception) {
+                } else {
+                    null
+                }
+            } catch (e: Throwable) {
                 null
             }
         }
@@ -65,15 +72,6 @@ internal class SafeWindowAreaComponentProvider(private val loader: ClassLoader) 
             getWindowAreaComponentMethod.isPublic &&
                 getWindowAreaComponentMethod.doesReturn(windowAreaComponentClass)
         }
-    }
-
-    private fun isValidExtensionWindowPresentation(): Boolean {
-        // Not required for API Level 2 or below
-        return ExtensionsUtil.safeVendorApiLevel <= 2 ||
-            isExtensionWindowAreaPresentationValid(
-                extensionWindowAreaPresentationClass,
-                ExtensionsUtil.safeVendorApiLevel
-            )
     }
 
     private val windowAreaComponentClass: Class<*>

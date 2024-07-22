@@ -48,6 +48,12 @@ public class AlwaysSupportedFeatures implements Features {
                 // fall through
             case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // fall through
+            case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
+                // fall through
+            case Features.LIST_FILTER_TOKENIZE_FUNCTION:
+                // fall through
+            case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:
+                // fall through
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:
@@ -60,15 +66,23 @@ public class AlwaysSupportedFeatures implements Features {
                 // fall through
             case Features.SEARCH_SUGGESTION:
                 // fall through
-            case Features.SCHEMA_SET_DELETION_PROPAGATION:
-                // fall through
             case Features.SET_SCHEMA_CIRCULAR_REFERENCES:
                 // fall through
             case Features.SCHEMA_ADD_PARENT_TYPE:
                 // fall through
+            case Features.SCHEMA_SET_DESCRIPTION:
+                // fall through
             case Features.SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES:
                 // fall through
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
+                // fall through
+            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
+                // fall through
+            case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
                 return true;
             default:
                 return false;

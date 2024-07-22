@@ -18,13 +18,23 @@ package androidx.window.embedding
 
 import android.app.Activity
 import android.os.Binder
+import androidx.window.WindowSdkExtensionsRule
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.mockito.kotlin.mock
 
 /** Unit tests for [SplitInfo] */
 class SplitInfoTest {
+
+    @get:Rule val testRule = WindowSdkExtensionsRule()
+
+    @Before
+    fun setUp() {
+        testRule.overrideExtensionVersion(3)
+    }
 
     @Test
     fun testSplitInfoContainsActivityFirstStack() {
@@ -95,6 +105,6 @@ class SplitInfoTest {
 
     private fun createTestActivityStack(
         activitiesInProcess: List<Activity>,
-        isEmpty: Boolean = false,
+        isEmpty: Boolean = false
     ): ActivityStack = ActivityStack(activitiesInProcess, isEmpty)
 }

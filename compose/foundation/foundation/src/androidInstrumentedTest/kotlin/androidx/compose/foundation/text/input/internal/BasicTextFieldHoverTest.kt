@@ -51,6 +51,7 @@ import org.junit.runner.RunWith
 class BasicTextFieldHoverTest {
     @get:Rule val rule = createComposeRule()
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenDefaultIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runTest(
@@ -60,6 +61,7 @@ class BasicTextFieldHoverTest {
             expectedTextIcon = TYPE_TEXT
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenSetIcon_inBoxWithDefaultIcon_textIconIsUsed() =
         runTest(
@@ -69,6 +71,7 @@ class BasicTextFieldHoverTest {
             expectedTextIcon = TYPE_TEXT
         )
 
+    @Suppress("DEPRECATION")
     @Test
     fun whenSetIcon_withOverride_inBoxWithDefaultIcon_setIconIsUsed() =
         runTest(
@@ -146,6 +149,6 @@ class BasicTextFieldHoverTest {
 
             // Exit hovering over element
             rule.onNodeWithTag(boxTag).performMouseInput { exit() }
-            assertIcon(TYPE_DEFAULT)
+            @Suppress("DEPRECATION") assertIcon(TYPE_DEFAULT)
         }
 }

@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
@@ -80,9 +79,10 @@ public class RemoteEntryJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("deprecation")
     public void fromRemoteEntry_success() {
         RemoteEntry originalEntry = new RemoteEntry(mPendingIntent);
-        Slice slice = RemoteEntry.toSlice(originalEntry);
+        android.app.slice.Slice slice = RemoteEntry.toSlice(originalEntry);
         assertNotNull(slice);
 
         RemoteEntry remoteEntry = RemoteEntry.fromRemoteEntry(

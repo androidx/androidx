@@ -17,17 +17,24 @@
 package androidx.window.testing.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
-import android.os.IBinder
+import android.os.Bundle
 import androidx.core.util.Consumer
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.embedding.ActivityStack
+import androidx.window.embedding.EmbeddedActivityWindowInfo
 import androidx.window.embedding.EmbeddingBackend
+import androidx.window.embedding.EmbeddingConfiguration
 import androidx.window.embedding.EmbeddingRule
+import androidx.window.embedding.OverlayAttributes
+import androidx.window.embedding.OverlayAttributesCalculatorParams
+import androidx.window.embedding.OverlayCreateParams
+import androidx.window.embedding.OverlayInfo
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributesCalculatorParams
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_UNAVAILABLE
 import androidx.window.embedding.SplitInfo
+import androidx.window.embedding.SplitPinRule
 import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -149,6 +156,15 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     override fun isActivityEmbedded(activity: Activity): Boolean =
         embeddedActivities.contains(activity)
 
+    @OptIn(ExperimentalWindowApi::class)
+    override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun unpinTopActivityStack(taskId: Int) {
+        TODO("Not yet implemented")
+    }
+
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -164,17 +180,72 @@ internal class StubEmbeddingBackend : EmbeddingBackend {
     }
 
     override fun setLaunchingActivityStack(
-        options: ActivityOptions,
-        token: IBinder
-    ): ActivityOptions {
+        options: Bundle,
+        activityStack: ActivityStack,
+    ): Bundle {
         TODO("Not yet implemented")
     }
 
-    override fun invalidateTopVisibleSplitAttributes() {
+    override fun setOverlayCreateParams(
+        options: Bundle,
+        overlayCreateParams: OverlayCreateParams
+    ): Bundle {
+        TODO("Not yet implemented")
+    }
+
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        TODO("Not yet implemented")
+    }
+
+    @OptIn(ExperimentalWindowApi::class)
+    override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
+        TODO("Not yet implemented")
+    }
+
+    override fun invalidateVisibleActivityStacks() {
         TODO("Not yet implemented")
     }
 
     override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
+        TODO("Not yet implemented")
+    }
+
+    override fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun clearOverlayAttributesCalculator() {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        TODO("Not yet implemented")
+    }
+
+    override fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>) {
+        TODO("Not yet implemented")
+    }
+
+    override fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    ) {
         TODO("Not yet implemented")
     }
 
