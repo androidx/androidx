@@ -245,6 +245,8 @@ class UtilsTest {
     }
 
     // Tests for Move Motion Event Creation <---------------
+    // Note: For tests with history, I am only checking the history count, not each history's x/y.
+    // One pointer/finger
     @Test
     fun createMoveMotionEvents_sixEventsOnePointerNegativeMoveDeltaWithoutHistory() {
         val y = (ItemHeightPx / 2)
@@ -272,11 +274,11 @@ class UtilsTest {
 
         assertThat(moves.size).isEqualTo(numberOfEvents)
 
-        for ((index, move) in moves.withIndex()) {
-            val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
+        for ((moveIndex, move) in moves.withIndex()) {
+            val expectedTime = initialTime + (moveIndex * DefaultPointerInputTimeDelta)
             assertThat(move.eventTime).isEqualTo(expectedTime)
 
-            val expectedX = xMoveInitial - (abs(index * DefaultPointerInputMoveAmountPx))
+            val expectedX = xMoveInitial - (abs(moveIndex * DefaultPointerInputMoveAmountPx))
             assertThat(move.x).isEqualTo(expectedX)
 
             assertThat(move.y).isEqualTo(y)
@@ -309,19 +311,17 @@ class UtilsTest {
 
         assertThat(moves.size).isEqualTo(numberOfEvents)
 
-        for ((index, move) in moves.withIndex()) {
-            val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
+        for ((moveIndex, move) in moves.withIndex()) {
+            val expectedTime = initialTime + (moveIndex * DefaultPointerInputTimeDelta)
             assertThat(move.eventTime).isEqualTo(expectedTime)
 
-            val expectedX = xMoveInitial + (index * DefaultPointerInputMoveAmountPx)
+            val expectedX = xMoveInitial + (moveIndex * DefaultPointerInputMoveAmountPx)
             assertThat(move.x).isEqualTo(expectedX)
 
             assertThat(move.y).isEqualTo(y)
             assertThat(move.historySize).isEqualTo(0)
         }
     }
-
-    // TODO(jjw): Add multi-pointer tests (next CL).
 
     @Test
     fun createMoveMotionEvents_sixEventsOnePointerPositiveMoveDeltaWithHistory() {
@@ -397,6 +397,221 @@ class UtilsTest {
             assertThat(move.y).isEqualTo(y)
             assertThat(move.historySize)
                 .isEqualTo(numberOfHistoricalEventsBasedOnArrayLocation(moveIndex))
+        }
+    }
+
+    // Multiple pointers/fingers
+    @Test
+    fun createMoveMotionEvents_sixEventsThreePointerNegativeMoveDeltaWithoutHistory() {
+        val y = (ItemHeightPx / 2)
+        val xMoveInitial = 0f
+        val initialTime = 100
+        val numberOfEvents = 6
+        val numberOfPointers = 3 // fingers
+        val enableFlingStyleHistory = false
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = View(context)
+
+        val initialPointers =
+            Array(numberOfPointers) { simpleIndex ->
+                BenchmarkSimplifiedPointerInputPointer(
+                    id = simpleIndex,
+                    x = xMoveInitial + (simpleIndex * DefaultPointerInputMoveAmountPx),
+                    y = y
+                )
+            }
+
+        val moves =
+            createMoveMotionEvents(
+                initialTime = initialTime,
+                initialPointers = initialPointers,
+                rootView = view,
+                numberOfMoveEvents = numberOfEvents,
+                enableFlingStyleHistory = enableFlingStyleHistory,
+                timeDelta = 100,
+                moveDelta = -DefaultPointerInputMoveAmountPx
+            )
+
+        assertThat(moves.size).isEqualTo(numberOfEvents)
+
+        for ((index, move) in moves.withIndex()) {
+            val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
+            assertThat(move.eventTime).isEqualTo(expectedTime)
+            assertThat(move.historySize).isEqualTo(0)
+
+            for (pointerIndex in 0 until move.pointerCount) {
+                val pointerId: Int = move.getPointerId(pointerIndex)
+                val localPointerCoords = MotionEvent.PointerCoords()
+                move.getPointerCoords(pointerId, localPointerCoords)
+
+                val expectedX =
+                    (xMoveInitial - (abs(index * DefaultPointerInputMoveAmountPx))) +
+                        (pointerIndex * DefaultPointerInputMoveAmountPx)
+                assertThat(localPointerCoords.x).isEqualTo(expectedX)
+
+                assertThat(localPointerCoords.y).isEqualTo(y)
+            }
+        }
+    }
+
+    @Test
+    fun createMoveMotionEvents_sixEventsThreePointerPositiveMoveDeltaWithoutHistory() {
+        val y = (ItemHeightPx / 2)
+        val xMoveInitial = 0f
+        val initialTime = 100
+        val numberOfEvents = 6
+        val numberOfPointers = 3 // fingers
+        val enableFlingStyleHistory = false
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = View(context)
+
+        val initialPointers =
+            Array(numberOfPointers) { simpleIndex ->
+                BenchmarkSimplifiedPointerInputPointer(
+                    id = simpleIndex,
+                    x = xMoveInitial + (simpleIndex * DefaultPointerInputMoveAmountPx),
+                    y = y
+                )
+            }
+
+        val moves =
+            createMoveMotionEvents(
+                initialTime = initialTime,
+                initialPointers = initialPointers,
+                rootView = view,
+                numberOfMoveEvents = numberOfEvents,
+                enableFlingStyleHistory = enableFlingStyleHistory
+            )
+
+        assertThat(moves.size).isEqualTo(numberOfEvents)
+
+        for ((index, move) in moves.withIndex()) {
+            val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
+            assertThat(move.eventTime).isEqualTo(expectedTime)
+            assertThat(move.historySize).isEqualTo(0)
+
+            for (pointerIndex in 0 until move.pointerCount) {
+                val pointerId: Int = move.getPointerId(pointerIndex)
+                val localPointerCoords = MotionEvent.PointerCoords()
+                move.getPointerCoords(pointerId, localPointerCoords)
+
+                val expectedX =
+                    (xMoveInitial + (index * DefaultPointerInputMoveAmountPx)) +
+                        (pointerIndex * DefaultPointerInputMoveAmountPx)
+                assertThat(localPointerCoords.x).isEqualTo(expectedX)
+
+                assertThat(localPointerCoords.y).isEqualTo(y)
+            }
+        }
+    }
+
+    @Test
+    fun createMoveMotionEvents_sixEventsThreePointerNegativeMoveDeltaWithHistory() {
+        val y = (ItemHeightPx / 2)
+        val xMoveInitial = 0f
+        val initialTime = 100
+        val numberOfEvents = 6
+        val numberOfPointers = 3 // fingers
+        val enableFlingStyleHistory = true
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = View(context)
+
+        val initialPointers =
+            Array(numberOfPointers) { simpleIndex ->
+                BenchmarkSimplifiedPointerInputPointer(
+                    id = simpleIndex,
+                    x = xMoveInitial + (simpleIndex * DefaultPointerInputMoveAmountPx),
+                    y = y
+                )
+            }
+
+        val moves =
+            createMoveMotionEvents(
+                initialTime = initialTime,
+                initialPointers = initialPointers,
+                rootView = view,
+                numberOfMoveEvents = numberOfEvents,
+                enableFlingStyleHistory = enableFlingStyleHistory,
+                timeDelta = 100,
+                moveDelta = -DefaultPointerInputMoveAmountPx
+            )
+
+        assertThat(moves.size).isEqualTo(numberOfEvents)
+
+        for ((moveIndex, move) in moves.withIndex()) {
+            val expectedTime = initialTime + (moveIndex * DefaultPointerInputTimeDelta)
+            assertThat(move.eventTime).isEqualTo(expectedTime)
+
+            assertThat(move.historySize)
+                .isEqualTo(numberOfHistoricalEventsBasedOnArrayLocation(moveIndex))
+
+            for (pointerIndex in 0 until move.pointerCount) {
+                val pointerId: Int = move.getPointerId(pointerIndex)
+                val localPointerCoords = MotionEvent.PointerCoords()
+                move.getPointerCoords(pointerId, localPointerCoords)
+
+                val expectedX =
+                    (xMoveInitial - (abs(moveIndex * DefaultPointerInputMoveAmountPx))) +
+                        (pointerIndex * DefaultPointerInputMoveAmountPx)
+                assertThat(localPointerCoords.x).isEqualTo(expectedX)
+                assertThat(localPointerCoords.y).isEqualTo(y)
+            }
+        }
+    }
+
+    @Test
+    fun createMoveMotionEvents_sixEventsThreePointerPositiveMoveDeltaWithHistory() {
+        val y = (ItemHeightPx / 2)
+        val xMoveInitial = 0f
+        val initialTime = 100
+        val numberOfEvents = 6
+        val numberOfPointers = 3 // fingers
+        val enableFlingStyleHistory = true
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val view = View(context)
+
+        val initialPointers =
+            Array(numberOfPointers) { simpleIndex ->
+                BenchmarkSimplifiedPointerInputPointer(
+                    id = simpleIndex,
+                    x = xMoveInitial + (simpleIndex * DefaultPointerInputMoveAmountPx),
+                    y = y
+                )
+            }
+
+        val moves =
+            createMoveMotionEvents(
+                initialTime = initialTime,
+                initialPointers = initialPointers,
+                rootView = view,
+                numberOfMoveEvents = numberOfEvents,
+                enableFlingStyleHistory = enableFlingStyleHistory
+            )
+
+        assertThat(moves.size).isEqualTo(numberOfEvents)
+
+        for ((moveIndex, move) in moves.withIndex()) {
+            val expectedTime = initialTime + (moveIndex * DefaultPointerInputTimeDelta)
+            assertThat(move.eventTime).isEqualTo(expectedTime)
+
+            assertThat(move.historySize)
+                .isEqualTo(numberOfHistoricalEventsBasedOnArrayLocation(moveIndex))
+
+            for (pointerIndex in 0 until move.pointerCount) {
+                val pointerId: Int = move.getPointerId(pointerIndex)
+                val localPointerCoords = MotionEvent.PointerCoords()
+                move.getPointerCoords(pointerId, localPointerCoords)
+
+                val expectedX =
+                    (xMoveInitial + (moveIndex * DefaultPointerInputMoveAmountPx)) +
+                        (pointerIndex * DefaultPointerInputMoveAmountPx)
+                assertThat(localPointerCoords.x).isEqualTo(expectedX)
+                assertThat(localPointerCoords.y).isEqualTo(y)
+            }
         }
     }
 
