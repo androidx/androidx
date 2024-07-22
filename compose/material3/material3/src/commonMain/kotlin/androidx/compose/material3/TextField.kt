@@ -66,6 +66,7 @@ import androidx.compose.material3.internal.heightOrZero
 import androidx.compose.material3.internal.layoutId
 import androidx.compose.material3.internal.subtractConstraintSafely
 import androidx.compose.material3.internal.widthOrZero
+import androidx.compose.material3.tokens.MotionTokens.EasingEmphasizedAccelerateCubicBezier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -1196,7 +1197,11 @@ private class TextFieldMeasurePolicy(
                 // is added in the unfocused state to keep the height consistent.
                 max(
                     (TextFieldLabelExtraPadding * 2).roundToPx(),
-                    lerp(0, labelHeight, labelProgress)
+                    lerp(
+                        0,
+                        labelHeight,
+                        EasingEmphasizedAccelerateCubicBezier.transform(labelProgress)
+                    )
                 )
             } else {
                 0
