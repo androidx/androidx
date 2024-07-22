@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
-    androidTestImplementation(libs.kotlinStdlib)
+    implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
