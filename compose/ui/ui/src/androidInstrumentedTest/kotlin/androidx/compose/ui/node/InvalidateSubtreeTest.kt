@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.LayoutModifier
@@ -32,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,6 +47,7 @@ class InvalidateSubtreeTest {
     @Test
     fun invalidateSubtreeNoLayers() {
         lateinit var invalidate: () -> Unit
+        var drawLatch = CountDownLatch(1)
         val counter1 = LayoutAndDrawCounter()
         val counter2 = LayoutAndDrawCounter()
         val counter3 = LayoutAndDrawCounter()
@@ -51,8 +55,11 @@ class InvalidateSubtreeTest {
             invalidate = { node.invalidateSubtree() }
         }
         rule.setContent {
-            Box(counter1) { Box(counter2 then captureInvalidate) { Box(counter3.size(10.dp)) } }
+            Box(counter1.drawBehind { drawLatch.countDown() }) {
+                Box(counter2 then captureInvalidate) { Box(counter3.size(10.dp)) }
+            }
         }
+        assertThat(drawLatch.await(1, TimeUnit.SECONDS)).isTrue()
         rule.waitForIdle()
         assertThat(counter1.drawCount).isEqualTo(1)
         assertThat(counter1.measureCount).isEqualTo(1)
@@ -63,8 +70,10 @@ class InvalidateSubtreeTest {
         assertThat(counter3.drawCount).isEqualTo(1)
         assertThat(counter3.measureCount).isEqualTo(1)
         assertThat(counter3.placeCount).isEqualTo(1)
+        drawLatch = CountDownLatch(1)
 
         rule.runOnUiThread { invalidate() }
+        assertThat(drawLatch.await(1, TimeUnit.SECONDS)).isTrue()
         rule.waitForIdle()
 
         // There isn't a layer that can be invalidated, so we draw this twice also
