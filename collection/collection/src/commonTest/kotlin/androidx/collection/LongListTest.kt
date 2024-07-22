@@ -623,6 +623,14 @@ class LongListTest {
     }
 
     @Test
+    fun sortEmpty() {
+        val l = MutableLongList(0)
+        l.sort()
+        l.sortDescending()
+        assertEquals(MutableLongList(0), l)
+    }
+
+    @Test
     fun testEmptyLongList() {
         val l = emptyLongList()
         assertEquals(0, l.size)

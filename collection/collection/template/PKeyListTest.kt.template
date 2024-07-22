@@ -659,6 +659,14 @@ class PKeyListTest {
     }
 
     @Test
+    fun sortEmpty() {
+        val l = MutablePKeyList(0)
+        l.sort()
+        l.sortDescending()
+        assertEquals(MutablePKeyList(0), l)
+    }
+
+    @Test
     fun testEmptyPKeyList() {
         val l = emptyPKeyList()
         assertEquals(0, l.size)
