@@ -559,13 +559,31 @@ class TextFieldScreenshotTest {
     }
 
     @Test
+    fun textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition = TextFieldLabelPosition.Above,
+                leadingIcon = { Icon(Icons.Default.Call, null) },
+                trailingIcon = { Icon(Icons.Default.Clear, null) },
+                placeholder = { Text("Placeholder") },
+                supportingText = { Text("Supporting") },
+            )
+        }
+
+        assertAgainstGolden("textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting")
+    }
+
+    @Test
     fun textField_alwaysMinimizeLabel_noPlaceholder() {
         rule.setMaterialContent(lightColorScheme()) {
             TextField(
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                alwaysMinimizeLabel = true,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
             )
         }
 
@@ -579,7 +597,7 @@ class TextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                alwaysMinimizeLabel = true,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
                 placeholder = { Text("Placeholder") },
             )
         }

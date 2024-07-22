@@ -47,6 +47,8 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.internal.AboveLabelBottomPadding
+import androidx.compose.material3.internal.AboveLabelHorizontalPadding
 import androidx.compose.material3.internal.HorizontalIconPadding
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
 import androidx.compose.material3.internal.MinSupportingTextLineHeight
@@ -519,6 +521,35 @@ class TextFieldTest {
     }
 
     @Test
+    fun testTextField_labelPosition_whenPositionedAbove() {
+        val labelPosition = Ref<Offset>()
+        rule
+            .setMaterialContentForSizeAssertions {
+                TextField(
+                    state = rememberTextFieldState(),
+                    label = {
+                        Box(
+                            Modifier.size(MinFocusedLabelLineHeight).onGloballyPositioned {
+                                labelPosition.value = it.positionInRoot()
+                            }
+                        )
+                    },
+                    labelPosition = TextFieldLabelPosition.Above,
+                )
+            }
+            .assertHeightIsEqualTo(
+                MinFocusedLabelLineHeight + AboveLabelBottomPadding + ExpectedDefaultTextFieldHeight
+            )
+
+        rule.runOnIdleWithDensity {
+            // x position is padding
+            assertThat(labelPosition.value?.x).isWithin(1f).of(AboveLabelHorizontalPadding.toPx())
+            // y position is 0
+            assertThat(labelPosition.value?.y).isEqualTo(0f)
+        }
+    }
+
+    @Test
     fun testTextField_placeholderPosition_withLabel() {
         val placeholderPosition = Ref<Offset>()
         rule.setMaterialContent(lightColorScheme()) {
@@ -932,7 +963,7 @@ class TextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                alwaysMinimizeLabel = false,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = false),
             )
         }
 
@@ -956,7 +987,30 @@ class TextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                alwaysMinimizeLabel = true,
+                labelPosition = TextFieldLabelPosition.Default(alwaysMinimize = true),
+            )
+        }
+
+        rule.onNodeWithText(labelText).assertIsDisplayed()
+        rule.onNodeWithText(prefixText).assertIsDisplayed()
+        rule.onNodeWithText(suffixText).assertIsDisplayed()
+        rule.onNodeWithText(placeholderText).assertIsDisplayed()
+    }
+
+    @Test
+    fun testTextField_prefixAndSuffixAndPlaceholder_areDisplayed_withLabel_ifLabelIsAbove() {
+        val labelText = "Label"
+        val prefixText = "Prefix"
+        val suffixText = "Suffix"
+        val placeholderText = "Placeholder"
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                label = { Text(labelText) },
+                prefix = { Text(prefixText) },
+                suffix = { Text(suffixText) },
+                placeholder = { Text(placeholderText) },
+                labelPosition = TextFieldLabelPosition.Above,
             )
         }
 

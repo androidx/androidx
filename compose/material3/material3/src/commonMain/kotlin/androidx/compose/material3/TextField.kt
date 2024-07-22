@@ -41,6 +41,8 @@ import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.material3.internal.AboveLabelBottomPadding
+import androidx.compose.material3.internal.AboveLabelHorizontalPadding
 import androidx.compose.material3.internal.ContainerId
 import androidx.compose.material3.internal.HorizontalIconPadding
 import androidx.compose.material3.internal.IconDefaultSizeModifier
@@ -168,10 +170,7 @@ import kotlin.math.roundToInt
  *   be modified. However, a user can focus it and copy text from it. Read-only text fields are
  *   usually used to display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
- * @param alwaysMinimizeLabel whether to always minimize the label of this text field. Defaults to
- *   `false`, so the label will expand to occupy the input area when the text field is unfocused and
- *   empty. When `true`, this allows displaying the [placeholder], [prefix], and [suffix] alongside
- *   the [label] when the text field is unfocused and empty.
+ * @param labelPosition the position of the label. See [TextFieldLabelPosition].
  * @param label the optional label to be displayed with this text field. The default text style uses
  *   [Typography.bodySmall] when minimized and [Typography.bodyLarge] when expanded.
  * @param placeholder the optional placeholder to be displayed when the input text is empty. The
@@ -234,7 +233,7 @@ fun TextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    alwaysMinimizeLabel: Boolean = false,
+    labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -253,7 +252,7 @@ fun TextField(
     shape: Shape = TextFieldDefaults.shape,
     colors: TextFieldColors = TextFieldDefaults.colors(),
     contentPadding: PaddingValues =
-        if (label == null) {
+        if (label == null || labelPosition == TextFieldLabelPosition.Above) {
             TextFieldDefaults.contentPaddingWithoutLabel()
         } else {
             TextFieldDefaults.contentPaddingWithLabel()
@@ -299,7 +298,7 @@ fun TextField(
                     lineLimits = lineLimits,
                     outputTransformation = outputTransformation,
                     interactionSource = interactionSource,
-                    alwaysMinimizeLabel = alwaysMinimizeLabel,
+                    labelPosition = labelPosition,
                     label = label,
                     placeholder = placeholder,
                     leadingIcon = leadingIcon,
@@ -640,14 +639,15 @@ internal fun TextFieldLayout(
     prefix: @Composable (() -> Unit)?,
     suffix: @Composable (() -> Unit)?,
     singleLine: Boolean,
+    labelPosition: TextFieldLabelPosition,
     labelProgress: Float,
     container: @Composable () -> Unit,
     supporting: @Composable (() -> Unit)?,
     paddingValues: PaddingValues
 ) {
     val measurePolicy =
-        remember(singleLine, labelProgress, paddingValues) {
-            TextFieldMeasurePolicy(singleLine, labelProgress, paddingValues)
+        remember(singleLine, labelPosition, labelProgress, paddingValues) {
+            TextFieldMeasurePolicy(singleLine, labelPosition, labelProgress, paddingValues)
         }
     val layoutDirection = LocalLayoutDirection.current
     Layout(
@@ -712,6 +712,16 @@ internal fun TextFieldLayout(
                 }
             }
 
+            val labelPadding =
+                if (labelPosition == TextFieldLabelPosition.Above) {
+                    Modifier.padding(
+                        start = AboveLabelHorizontalPadding,
+                        end = AboveLabelHorizontalPadding,
+                        bottom = AboveLabelBottomPadding,
+                    )
+                } else {
+                    Modifier.padding(start = startPadding, end = endPadding)
+                }
             if (label != null) {
                 Box(
                     Modifier.layoutId(LabelId)
@@ -719,7 +729,7 @@ internal fun TextFieldLayout(
                             min = lerp(MinTextLineHeight, MinFocusedLabelLineHeight, labelProgress)
                         )
                         .wrapContentHeight()
-                        .padding(start = startPadding, end = endPadding)
+                        .then(labelPadding)
                 ) {
                     label()
                 }
@@ -761,6 +771,7 @@ internal fun TextFieldLayout(
 
 private class TextFieldMeasurePolicy(
     private val singleLine: Boolean,
+    private val labelPosition: TextFieldLabelPosition,
     private val labelProgress: Float,
     private val paddingValues: PaddingValues
 ) : MeasurePolicy {
@@ -806,14 +817,24 @@ private class TextFieldMeasurePolicy(
         occupiedSpaceHorizontally += suffixPlaceable.widthOrZero
         occupiedSpaceVertically = max(occupiedSpaceVertically, suffixPlaceable.heightOrZero)
 
-        // measure label
-        val labelConstraints =
-            looseConstraints.offset(
-                vertical = -bottomPaddingValue,
-                horizontal = -occupiedSpaceHorizontally
-            )
-        val labelPlaceable =
-            measurables.fastFirstOrNull { it.layoutId == LabelId }?.measure(labelConstraints)
+        val isLabelAbove = labelPosition == TextFieldLabelPosition.Above
+        val labelMeasurable = measurables.fastFirstOrNull { it.layoutId == LabelId }
+        var labelPlaceable: Placeable? = null
+        val labelIntrinsicHeight: Int
+        if (!isLabelAbove) {
+            // if label is not Above, we can measure it like normal
+            val labelConstraints =
+                looseConstraints.offset(
+                    vertical = -bottomPaddingValue,
+                    horizontal = -occupiedSpaceHorizontally
+                )
+            labelPlaceable = labelMeasurable?.measure(labelConstraints)
+            labelIntrinsicHeight = 0
+        } else {
+            // if label is Above, it must be measured after other elements, but we
+            // reserve space for it using its intrinsic height as a heuristic
+            labelIntrinsicHeight = labelMeasurable?.minIntrinsicHeight(constraints.minWidth) ?: 0
+        }
 
         // supporting text must be measured after other elements, but we
         // reserve space for it using its intrinsic height as a heuristic
@@ -821,8 +842,11 @@ private class TextFieldMeasurePolicy(
         val supportingIntrinsicHeight =
             supportingMeasurable?.minIntrinsicHeight(constraints.minWidth) ?: 0
 
+        // at most one of these is non-zero
+        val labelHeightOrIntrinsic = labelPlaceable.heightOrZero + labelIntrinsicHeight
+
         // measure input field
-        val effectiveTopOffset = topPaddingValue + labelPlaceable.heightOrZero
+        val effectiveTopOffset = topPaddingValue + labelHeightOrIntrinsic
         val textFieldConstraints =
             constraints
                 .copy(minHeight = 0)
@@ -859,6 +883,13 @@ private class TextFieldMeasurePolicy(
                 constraints = constraints,
             )
 
+        if (isLabelAbove) {
+            // now that we know the width, measure label
+            val labelConstraints =
+                looseConstraints.copy(maxHeight = labelIntrinsicHeight, maxWidth = width)
+            labelPlaceable = labelMeasurable?.measure(labelConstraints)
+        }
+
         // measure supporting text
         val supportingConstraints =
             looseConstraints
@@ -878,8 +909,10 @@ private class TextFieldMeasurePolicy(
                 placeholderHeight = placeholderPlaceable.heightOrZero,
                 supportingHeight = supportingPlaceable.heightOrZero,
                 constraints = constraints,
+                isLabelAbove = isLabelAbove,
             )
-        val height = totalHeight - supportingHeight
+        val height =
+            totalHeight - supportingHeight - (if (isLabelAbove) labelPlaceable.heightOrZero else 0)
 
         val containerPlaceable =
             measurables
@@ -895,9 +928,24 @@ private class TextFieldMeasurePolicy(
 
         return layout(width, totalHeight) {
             if (labelPlaceable != null) {
-                // The padding defined by the user only applies to the text field when the label
-                // is focused. More padding needs to be added when the text field is unfocused.
-                val labelStartPosition = topPaddingValue + TextFieldLabelExtraPadding.roundToPx()
+                val labelStartY =
+                    when {
+                        isLabelAbove -> 0
+                        singleLine ->
+                            Alignment.CenterVertically.align(labelPlaceable.height, height)
+                        else ->
+                            // The padding defined by the user only applies to the text field when
+                            // the
+                            // label is focused. More padding needs to be added when the text field
+                            // is
+                            // unfocused.
+                            topPaddingValue + TextFieldLabelExtraPadding.roundToPx()
+                    }
+                val labelEndY =
+                    when {
+                        isLabelAbove -> 0
+                        else -> topPaddingValue
+                    }
                 placeWithLabel(
                     width = width,
                     totalHeight = totalHeight,
@@ -910,9 +958,11 @@ private class TextFieldMeasurePolicy(
                     suffixPlaceable = suffixPlaceable,
                     containerPlaceable = containerPlaceable,
                     supportingPlaceable = supportingPlaceable,
-                    labelStartPosition = labelStartPosition,
-                    labelEndPosition = topPaddingValue,
-                    textPosition = topPaddingValue + labelPlaceable.height,
+                    labelStartY = labelStartY,
+                    labelEndY = labelEndY,
+                    isLabelAbove = isLabelAbove,
+                    textPosition =
+                        topPaddingValue + (if (isLabelAbove) 0 else labelPlaceable.height),
                 )
             } else {
                 placeWithoutLabel(
@@ -1087,6 +1137,7 @@ private class TextFieldMeasurePolicy(
             placeholderHeight = placeholderHeight,
             supportingHeight = supportingHeight,
             constraints = Constraints(),
+            isLabelAbove = labelPosition == TextFieldLabelPosition.Above,
         )
     }
 
@@ -1122,6 +1173,7 @@ private class TextFieldMeasurePolicy(
         placeholderHeight: Int,
         supportingHeight: Int,
         constraints: Constraints,
+        isLabelAbove: Boolean,
     ): Int {
         val verticalPadding =
             (paddingValues.calculateTopPadding() + paddingValues.calculateBottomPadding())
@@ -1133,12 +1185,12 @@ private class TextFieldMeasurePolicy(
                 placeholderHeight,
                 prefixHeight,
                 suffixHeight,
-                lerp(labelHeight, 0, labelProgress)
+                if (isLabelAbove) 0 else lerp(labelHeight, 0, labelProgress)
             )
 
         val hasLabel = labelHeight > 0
         val nonOverlappedLabelHeight =
-            if (hasLabel) {
+            if (hasLabel && !isLabelAbove) {
                 // The label animates from overlapping the input field to floating above it,
                 // so its contribution to the height calculation changes over time. Extra padding
                 // is added in the unfocused state to keep the height consistent.
@@ -1154,7 +1206,9 @@ private class TextFieldMeasurePolicy(
 
         return max(
             constraints.minHeight,
-            maxOf(leadingHeight, trailingHeight, middleSectionHeight) + supportingHeight
+            (if (isLabelAbove) labelHeight else 0) +
+                maxOf(leadingHeight, trailingHeight, middleSectionHeight) +
+                supportingHeight
         )
     }
 
@@ -1175,52 +1229,52 @@ private class TextFieldMeasurePolicy(
         suffixPlaceable: Placeable?,
         containerPlaceable: Placeable,
         supportingPlaceable: Placeable?,
-        labelStartPosition: Int,
-        labelEndPosition: Int,
+        labelStartY: Int,
+        labelEndY: Int,
+        isLabelAbove: Boolean,
         textPosition: Int,
     ) {
+        val yOffset = if (isLabelAbove) labelPlaceable.height else 0
+
         // place container
-        containerPlaceable.place(IntOffset.Zero)
+        containerPlaceable.place(0, yOffset)
 
         // Most elements should be positioned w.r.t the text field's "visual" height, i.e.,
-        // excluding
-        // the supporting text on bottom
-        val height = totalHeight - supportingPlaceable.heightOrZero
+        // excluding the label (if it's Above) and the supporting text on bottom
+        val height =
+            totalHeight -
+                supportingPlaceable.heightOrZero -
+                (if (isLabelAbove) labelPlaceable.height else 0)
 
         leadingPlaceable?.placeRelative(
             0,
-            Alignment.CenterVertically.align(leadingPlaceable.height, height)
+            yOffset + Alignment.CenterVertically.align(leadingPlaceable.height, height)
         )
 
-        val labelY =
-            labelPlaceable.let {
-                val startPosition =
-                    if (singleLine) {
-                        Alignment.CenterVertically.align(it.height, height)
-                    } else {
-                        labelStartPosition
-                    }
-                lerp(startPosition, labelEndPosition, labelProgress)
-            }
-        labelPlaceable.placeRelative(leadingPlaceable.widthOrZero, labelY)
+        val labelY = lerp(labelStartY, labelEndY, labelProgress)
+        if (isLabelAbove) {
+            labelPlaceable.placeRelative(0, labelY)
+        } else {
+            labelPlaceable.placeRelative(leadingPlaceable.widthOrZero, labelY)
+        }
 
-        prefixPlaceable?.placeRelative(leadingPlaceable.widthOrZero, textPosition)
+        prefixPlaceable?.placeRelative(leadingPlaceable.widthOrZero, yOffset + textPosition)
 
         val textHorizontalPosition = leadingPlaceable.widthOrZero + prefixPlaceable.widthOrZero
-        textfieldPlaceable.placeRelative(textHorizontalPosition, textPosition)
-        placeholderPlaceable?.placeRelative(textHorizontalPosition, textPosition)
+        textfieldPlaceable.placeRelative(textHorizontalPosition, yOffset + textPosition)
+        placeholderPlaceable?.placeRelative(textHorizontalPosition, yOffset + textPosition)
 
         suffixPlaceable?.placeRelative(
             width - trailingPlaceable.widthOrZero - suffixPlaceable.width,
-            textPosition,
+            yOffset + textPosition,
         )
 
         trailingPlaceable?.placeRelative(
             width - trailingPlaceable.width,
-            Alignment.CenterVertically.align(trailingPlaceable.height, height)
+            yOffset + Alignment.CenterVertically.align(trailingPlaceable.height, height)
         )
 
-        supportingPlaceable?.placeRelative(0, height)
+        supportingPlaceable?.placeRelative(0, yOffset + height)
     }
 
     /**
@@ -1244,8 +1298,7 @@ private class TextFieldMeasurePolicy(
         containerPlaceable.place(IntOffset.Zero)
 
         // Most elements should be positioned w.r.t the text field's "visual" height, i.e.,
-        // excluding
-        // the supporting text on bottom
+        // excluding the supporting text on bottom
         val height = totalHeight - supportingPlaceable.heightOrZero
         val topPadding = (paddingValues.calculateTopPadding().value * density).roundToInt()
 
