@@ -32,7 +32,5 @@ dependencies {
 }
 
 android {
-    compileSdk 35
     namespace "androidx.appcompat.benchmark"
 }
-
