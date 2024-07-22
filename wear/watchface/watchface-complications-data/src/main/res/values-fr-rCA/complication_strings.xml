@@ -20,7 +20,7 @@
     <string name="time_difference_short_hours_and_minutes" msgid="8030280938566792191">"<xliff:g id="SHORT_HOURS">%1$s</xliff:g> <xliff:g id="SHORT_MINUTES">%2$s</xliff:g>"</string>
     <plurals name="time_difference_words_days" formatted="false" msgid="5109682345086392533">
       <item quantity="one"><xliff:g id="NUMBER_OF_DAYS_1">%d</xliff:g> jour</item>
-      <item quantity="many"><xliff:g id="NUMBER_OF_DAYS_1">%d</xliff:g> jours</item>
+      <item quantity="many"><xliff:g id="NUMBER_OF_DAYS_1">%d</xliff:g> de jours</item>
       <item quantity="other"><xliff:g id="NUMBER_OF_DAYS_1">%d</xliff:g> jours</item>
     </plurals>
     <plurals name="time_difference_words_hours" formatted="false" msgid="3172220157267000186">
