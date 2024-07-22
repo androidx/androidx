@@ -30,13 +30,55 @@
             android:id="@+id/activity_embedded_status_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Activity is embedded" />
+            android:text="Activity is embedded"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/activity_embedded_bounds_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Embedded bounds not available"
+            android:visibility="gone" />
 
         <CheckBox
             android:id="@+id/splitMainCheckBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Split Main with other activities" />
+
+        <CheckBox
+            android:id="@+id/dividerCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add a divider between containers" />
+
+        <CheckBox
+            android:id="@+id/draggableDividerCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Make the divider draggable"
+            android:enabled="false"/>
+
+        <CheckBox
+            android:id="@+id/openAnimationJumpCutCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Use jump cut for split open animation"
+            android:enabled="false"/>
+
+        <CheckBox
+            android:id="@+id/closeAnimationJumpCutCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Use jump cut for split close animation"
+            android:enabled="false"/>
+
+        <CheckBox
+            android:id="@+id/changeAnimationJumpCutCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Use jump cut for split change animation"
+            android:enabled="false"/>
 
         <View
             android:layout_width="match_parent"
@@ -193,5 +235,60 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="Launch Expanded Dialog" />
+
+        <Button
+            android:id="@+id/launch_dialog_activity_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch Dialog Activity" />
+
+        <Button
+            android:id="@+id/launch_dialog_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch Dialog" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/pin_top_activity_stack_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Pin Top ActivityStack" />
+
+        <CheckBox
+            android:id="@+id/stickyPinRule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Set Pin Rule Sticky" />
+
+        <Button
+            android:id="@+id/unpin_top_activity_stack_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Unpin Top ActivityStack" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/button_launch_overlay_associated_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Launch Overlay Associated Activity A" />
     </LinearLayout>
 </ScrollView>

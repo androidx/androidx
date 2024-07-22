@@ -18,12 +18,15 @@ package androidx.window.demo.embedding;
 
 import static android.app.PendingIntent.FLAG_IMMUTABLE;
 
-import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_AVAILABLE;
+import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_ERROR_PROPERTY_NOT_DECLARED;
+import static androidx.window.embedding.SplitController.SplitSupportStatus.SPLIT_UNAVAILABLE;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ADJACENT;
 import static androidx.window.embedding.SplitRule.FinishBehavior.ALWAYS;
 import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -36,14 +39,21 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.util.Consumer;
 import androidx.window.WindowSdkExtensions;
 import androidx.window.demo.R;
+import androidx.window.demo.common.EdgeToEdgeActivity;
 import androidx.window.demo.databinding.ActivitySplitActivityLayoutBinding;
 import androidx.window.embedding.ActivityEmbeddingController;
+import androidx.window.embedding.ActivityEmbeddingOptions;
 import androidx.window.embedding.ActivityFilter;
 import androidx.window.embedding.ActivityRule;
+import androidx.window.embedding.DividerAttributes;
+import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes;
+import androidx.window.embedding.DividerAttributes.FixedDividerAttributes;
+import androidx.window.embedding.EmbeddedActivityWindowInfo;
+import androidx.window.embedding.EmbeddingAnimationParams;
+import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec;
 import androidx.window.embedding.EmbeddingRule;
 import androidx.window.embedding.RuleController;
 import androidx.window.embedding.SplitAttributes;
@@ -51,7 +61,9 @@ import androidx.window.embedding.SplitController;
 import androidx.window.embedding.SplitInfo;
 import androidx.window.embedding.SplitPairFilter;
 import androidx.window.embedding.SplitPairRule;
+import androidx.window.embedding.SplitPinRule;
 import androidx.window.embedding.SplitPlaceholderRule;
+import androidx.window.java.embedding.ActivityEmbeddingControllerCallbackAdapter;
 import androidx.window.java.embedding.SplitControllerCallbackAdapter;
 
 import java.util.HashSet;
@@ -62,7 +74,7 @@ import java.util.Set;
  * Sample showcase of split activity rules. Allows the user to select some split configuration
  * options with checkboxes and launch activities with those options applied.
  */
-public class SplitActivityBase extends AppCompatActivity
+public class SplitActivityBase extends EdgeToEdgeActivity
         implements CompoundButton.OnCheckedChangeListener {
 
     private static final String TAG = "SplitActivityTest";
@@ -76,7 +88,11 @@ public class SplitActivityBase extends AppCompatActivity
      */
     private SplitControllerCallbackAdapter mSplitControllerAdapter;
     private RuleController mRuleController;
-    private SplitInfoCallback mCallback;
+    private SplitInfoCallback mSplitInfoCallback;
+
+    private ActivityEmbeddingController mActivityEmbeddingController;
+    private ActivityEmbeddingControllerCallbackAdapter mActivityEmbeddingControllerCallbackAdapter;
+    private EmbeddedActivityWindowInfoCallback mEmbeddedActivityWindowInfoCallbackCallback;
 
     private ActivitySplitActivityLayoutBinding mViewBinding;
 
@@ -86,8 +102,27 @@ public class SplitActivityBase extends AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        final SplitController splitController = SplitController.getInstance(this);
+        final SplitController.SplitSupportStatus splitSupportStatus =
+                splitController.getSplitSupportStatus();
+        if (splitSupportStatus == SPLIT_UNAVAILABLE) {
+            Toast.makeText(this, R.string.toast_split_not_available,
+                    Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        } else if (splitSupportStatus == SPLIT_ERROR_PROPERTY_NOT_DECLARED) {
+            Toast.makeText(this, R.string.toast_split_not_support,
+                    Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         mViewBinding = ActivitySplitActivityLayoutBinding.inflate(getLayoutInflater());
         setContentView(mViewBinding.getRoot());
+
+        final int extensionVersion = WindowSdkExtensions.getInstance().getExtensionVersion();
+        mActivityEmbeddingController = ActivityEmbeddingController.getInstance(this);
 
         // Setup activity launch buttons and config options.
         mViewBinding.launchB.setOnClickListener((View v) ->
@@ -99,10 +134,19 @@ public class SplitActivityBase extends AppCompatActivity
         });
         mViewBinding.launchE.setOnClickListener((View v) -> {
             Bundle bundle = null;
+            if (mViewBinding.setLaunchingEInActivityStack.isChecked()) {
+                try {
+                    bundle = ActivityEmbeddingOptions.setLaunchingActivityStack(
+                            ActivityOptions.makeBasic().toBundle(), this,
+                            mActivityEmbeddingController.getActivityStack(this));
+                } catch (UnsupportedOperationException ex) {
+                    Log.w(TAG, "#setLaunchingActivityStack is not supported", ex);
+                }
+            }
             startActivity(new Intent(this, SplitActivityE.class), bundle);
         });
-        if (WindowSdkExtensions.getInstance().getExtensionVersion() < 3) {
-            mViewBinding.setLaunchingEInActivityStack.setEnabled(false);
+        if (extensionVersion < 3) {
+            mViewBinding.setLaunchingEInActivityStack.setVisibility(View.GONE);
         }
         mViewBinding.launchF.setOnClickListener((View v) ->
                 startActivity(new Intent(this, SplitActivityF.class)));
@@ -158,6 +202,44 @@ public class SplitActivityBase extends AppCompatActivity
         });
         mViewBinding.launchExpandedDialogButton.setOnClickListener((View v) ->
                 startActivity(new Intent(this, ExpandedDialogActivity.class)));
+        mViewBinding.launchDialogActivityButton.setOnClickListener((View v) ->
+                startActivity(new Intent(this, DialogActivity.class)));
+        mViewBinding.launchDialogButton.setOnClickListener((View v) ->
+                new AlertDialog.Builder(this)
+                        .setTitle("Alert dialog demo")
+                        .setMessage("This is a dialog demo").create().show());
+
+        if (extensionVersion < 5) {
+            mViewBinding.pinTopActivityStackButton.setVisibility(View.GONE);
+            mViewBinding.unpinTopActivityStackButton.setVisibility(View.GONE);
+        } else {
+            mViewBinding.pinTopActivityStackButton.setOnClickListener((View v) -> {
+                        splitController.pinTopActivityStack(getTaskId(),
+                                new SplitPinRule.Builder().setSticky(
+                                        mViewBinding.stickyPinRule.isChecked()).build());
+                    }
+            );
+            mViewBinding.unpinTopActivityStackButton.setOnClickListener((View v) -> {
+                        splitController.unpinTopActivityStack(getTaskId());
+                    }
+            );
+        }
+        if (extensionVersion < 6) {
+            mViewBinding.dividerCheckBox.setVisibility(View.GONE);
+            mViewBinding.draggableDividerCheckBox.setVisibility(View.GONE);
+        } else {
+            mViewBinding.dividerCheckBox.setOnCheckedChangeListener(this);
+            mViewBinding.draggableDividerCheckBox.setOnCheckedChangeListener(this);
+        }
+        if (extensionVersion < 7) {
+            mViewBinding.openAnimationJumpCutCheckBox.setVisibility(View.GONE);
+            mViewBinding.closeAnimationJumpCutCheckBox.setVisibility(View.GONE);
+            mViewBinding.changeAnimationJumpCutCheckBox.setVisibility(View.GONE);
+        } else {
+            mViewBinding.openAnimationJumpCutCheckBox.setOnCheckedChangeListener(this);
+            mViewBinding.closeAnimationJumpCutCheckBox.setOnCheckedChangeListener(this);
+            mViewBinding.changeAnimationJumpCutCheckBox.setOnCheckedChangeListener(this);
+        }
 
         // Listen for split configuration checkboxes to update the rules before launching
         // activities.
@@ -169,38 +251,80 @@ public class SplitActivityBase extends AppCompatActivity
         mViewBinding.fullscreenECheckBox.setOnCheckedChangeListener(this);
         mViewBinding.splitWithFCheckBox.setOnCheckedChangeListener(this);
 
-        final SplitController splitController = SplitController.getInstance(this);
+        if (extensionVersion < 6) {
+            mViewBinding.buttonLaunchOverlayAssociatedActivity.setVisibility(View.GONE);
+        } else {
+            mViewBinding.buttonLaunchOverlayAssociatedActivity.setOnClickListener((View v) ->
+                    startActivity(new Intent(this, OverlayAssociatedActivityA.class)));
+        }
+
         mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
-        if (splitController.getSplitSupportStatus() != SPLIT_AVAILABLE) {
-            Toast.makeText(this, R.string.toast_split_not_support,
-                    Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+        if (extensionVersion >= 6) {
+            mActivityEmbeddingControllerCallbackAdapter =
+                    new ActivityEmbeddingControllerCallbackAdapter(mActivityEmbeddingController);
+
+            // The EmbeddedActivityWindowInfoListener will only be triggered when the activity is
+            // embedded and visible (just like Activity#onConfigurationChanged).
+            // Register it in #onCreate instead of #onStart so that when the embedded status is
+            // changed to non-embedded before #onStart (like screen rotation when this activity is
+            // in background), the listener will be triggered right after #onStart.
+            // Otherwise, if registered in #onStart, it will not be triggered on registration
+            // because the activity is not embedded, which results it shows the stale info.
+            mEmbeddedActivityWindowInfoCallbackCallback = new EmbeddedActivityWindowInfoCallback();
+            mActivityEmbeddingControllerCallbackAdapter.addEmbeddedActivityWindowInfoListener(
+                    this, Runnable::run, mEmbeddedActivityWindowInfoCallbackCallback);
         }
         mRuleController = RuleController.getInstance(this);
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mActivityEmbeddingControllerCallbackAdapter != null) {
+            mActivityEmbeddingControllerCallbackAdapter.removeEmbeddedActivityWindowInfoListener(
+                    mEmbeddedActivityWindowInfoCallbackCallback);
+            mEmbeddedActivityWindowInfoCallbackCallback = null;
+        }
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
-        mCallback = new SplitInfoCallback();
-        mSplitControllerAdapter.addSplitListener(this, Runnable::run, mCallback);
+        mSplitInfoCallback = new SplitInfoCallback();
+        mSplitControllerAdapter.addSplitListener(this, Runnable::run, mSplitInfoCallback);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        mSplitControllerAdapter.removeSplitListener(mCallback);
-        mCallback = null;
+        mSplitControllerAdapter.removeSplitListener(mSplitInfoCallback);
+        mSplitInfoCallback = null;
     }
 
     /** Updates the embedding status when receives callback from the extension. */
-    class SplitInfoCallback implements Consumer<List<SplitInfo>> {
+    private class SplitInfoCallback implements Consumer<List<SplitInfo>> {
         @Override
         public void accept(List<SplitInfo> splitInfoList) {
             runOnUiThread(() -> {
-                updateEmbeddedStatus();
+                if (mActivityEmbeddingControllerCallbackAdapter == null) {
+                    // Otherwise, the embedded status will be updated from
+                    // EmbeddedActivityWindowInfoCallback.
+                    updateEmbeddedStatus(mActivityEmbeddingController.isActivityEmbedded(
+                            SplitActivityBase.this));
+                }
                 updateCheckboxesFromCurrentConfig();
+            });
+        }
+    }
+
+    /** Updates the embedding status when receives callback from the extension. */
+    private class EmbeddedActivityWindowInfoCallback implements
+            Consumer<EmbeddedActivityWindowInfo> {
+        @Override
+        public void accept(EmbeddedActivityWindowInfo embeddedActivityWindowInfo) {
+            runOnUiThread(() -> {
+                updateEmbeddedStatus(embeddedActivityWindowInfo.isEmbedded());
+                updateEmbeddedWindowInfo(embeddedActivityWindowInfo);
             });
         }
     }
@@ -328,8 +452,37 @@ public class SplitActivityBase extends AppCompatActivity
     /** Updates the split rules based on the current selection on checkboxes. */
     private void updateRulesFromCheckboxes() {
         mRuleController.clearRules();
+
+        final DividerAttributes dividerAttributes;
+        if (mViewBinding.dividerCheckBox.isChecked()) {
+            if (mViewBinding.draggableDividerCheckBox.isChecked()) {
+                dividerAttributes = new DraggableDividerAttributes.Builder()
+                        .setWidthDp(1)
+                        .setDraggingToFullscreenAllowed(true)
+                        .build();
+            } else {
+                dividerAttributes = new FixedDividerAttributes.Builder().setWidthDp(1).build();
+            }
+        } else {
+            dividerAttributes = DividerAttributes.NO_DIVIDER;
+        }
+        final EmbeddingAnimationParams.Builder animationParamsBuilder =
+                new EmbeddingAnimationParams.Builder();
+        if (mViewBinding.openAnimationJumpCutCheckBox.isChecked()) {
+            animationParamsBuilder.setOpenAnimation(AnimationSpec.JUMP_CUT);
+        }
+        if (mViewBinding.closeAnimationJumpCutCheckBox.isChecked()) {
+            animationParamsBuilder.setCloseAnimation(AnimationSpec.JUMP_CUT);
+        }
+        if (mViewBinding.changeAnimationJumpCutCheckBox.isChecked()) {
+            animationParamsBuilder.setChangeAnimation(AnimationSpec.JUMP_CUT);
+        }
+        final EmbeddingAnimationParams animationParams = animationParamsBuilder.build();
+
         final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
+                .setDividerAttributes(dividerAttributes)
+                .setAnimationParams(animationParams)
                 .build();
 
         if (mViewBinding.splitMainCheckBox.isChecked()) {
@@ -348,6 +501,14 @@ public class SplitActivityBase extends AppCompatActivity
                     .build();
             mRuleController.addRule(rule);
         }
+
+        mViewBinding.draggableDividerCheckBox.setEnabled(mViewBinding.dividerCheckBox.isChecked());
+        mViewBinding.openAnimationJumpCutCheckBox.setEnabled(
+                mViewBinding.splitMainCheckBox.isChecked());
+        mViewBinding.closeAnimationJumpCutCheckBox.setEnabled(
+                mViewBinding.splitMainCheckBox.isChecked());
+        mViewBinding.changeAnimationJumpCutCheckBox.setEnabled(
+                mViewBinding.splitMainCheckBox.isChecked());
 
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
             // Split B with placeholder.
@@ -436,11 +597,21 @@ public class SplitActivityBase extends AppCompatActivity
     }
 
     /** Updates the status label that says when an activity is embedded. */
-    void updateEmbeddedStatus() {
-        if (ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)) {
-            mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.VISIBLE);
-        } else {
-            mViewBinding.activityEmbeddedStatusTextView.setVisibility(View.GONE);
+    private void updateEmbeddedStatus(boolean isEmbedded) {
+        mViewBinding.activityEmbeddedStatusTextView.setVisibility(isEmbedded
+                ? View.VISIBLE
+                : View.GONE);
+    }
+
+    private void updateEmbeddedWindowInfo(
+            @NonNull EmbeddedActivityWindowInfo info) {
+        Log.d(TAG, "EmbeddedActivityWindowInfo changed for r=" + this + "\ninfo=" + info);
+        if (!info.isEmbedded()) {
+            mViewBinding.activityEmbeddedBoundsTextView.setVisibility(View.GONE);
+            return;
         }
+        mViewBinding.activityEmbeddedBoundsTextView.setVisibility(View.VISIBLE);
+        mViewBinding.activityEmbeddedBoundsTextView.setText(
+                "Embedded bounds=" + info.getBoundsInParentHost());
     }
 }

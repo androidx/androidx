@@ -129,6 +129,8 @@ internal constructor(
      * The default [SplitAttributes] to apply on the activity containers pair when the host task
      * bounds satisfy [minWidthDp], [minHeightDp], [minSmallestWidthDp], [maxAspectRatioInPortrait]
      * and [maxAspectRatioInLandscape] requirements.
+     *
+     * It is set to split the host parent task vertically and equally by default.
      */
     val defaultSplitAttributes: SplitAttributes,
 ) : EmbeddingRule(tag) {

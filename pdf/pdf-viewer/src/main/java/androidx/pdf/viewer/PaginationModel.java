@@ -16,14 +16,15 @@
 
 package androidx.pdf.viewer;
 
+import android.content.Context;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
+import androidx.pdf.util.PaginationUtils;
 import androidx.pdf.util.Preconditions;
-import androidx.pdf.util.Screen;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -61,9 +62,6 @@ import java.util.Set;
 public class PaginationModel {
 
     private static final String TAG = PaginationModel.class.getSimpleName();
-
-    /** The spacing added before and after each page, in dip. */
-    private static final int PAGE_SPACING_DP = 4;
 
     /**
      * The spacing added before and after each page (the actual space between 2 consecutive pages is
@@ -106,9 +104,8 @@ public class PaginationModel {
 
     private final Set<PaginationModelObserver> mObservers = new HashSet<>();
 
-    public PaginationModel() {
-        Screen screen = PdfViewer.getScreen();
-        mPageSpacingPx = screen.pxFromDp(PAGE_SPACING_DP);
+    public PaginationModel(@NonNull Context context) {
+        mPageSpacingPx = PaginationUtils.getPageSpacingInPixels(context);
     }
 
     /**

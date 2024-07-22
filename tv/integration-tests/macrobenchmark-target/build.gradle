@@ -22,6 +22,8 @@ plugins {
 }
 
 android {
+    compileSdk 35
+
     namespace "androidx.tv.integration.macrobenchmark.target"
 
     defaultConfig {

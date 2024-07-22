@@ -17,6 +17,7 @@
         android:supportsRtl="true">
         <activity
             android:name=".embedding.TrustedEmbeddingActivity"
+            android:supportsPictureInPicture="true"
             android:exported="true"
             android:label="@string/trusted_embedding_activity"
             android:configChanges=
@@ -30,6 +31,7 @@
         </activity>
         <activity
             android:name=".embedding.UntrustedEmbeddingActivity"
+            android:supportsPictureInPicture="true"
             android:exported="true"
             android:label="@string/untrusted_embedding_activity"
             android:configChanges=
@@ -39,6 +41,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Require to restore the split after entering and exiting picture-in-picture mode
+            for untrusted embedding. -->
+            <property
+                android:name="android.window.PROPERTY_ALLOW_UNTRUSTED_ACTIVITY_EMBEDDING_STATE_SHARING"
+                android:value="true" />
         </activity>
         <activity-alias
             android:name="androidx.window.demo2.DisplayFeaturesActivity"

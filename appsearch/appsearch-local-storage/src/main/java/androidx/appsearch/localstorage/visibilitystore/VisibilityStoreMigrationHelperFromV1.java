@@ -20,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
+import androidx.appsearch.app.InternalVisibilityConfig;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
-import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -67,7 +67,7 @@ public class VisibilityStoreMigrationHelperFromV1 {
                 visibilityDocumentV1s.add(new VisibilityDocumentV1(appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
-                        VisibilityDocument.NAMESPACE,
+                        VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                         allPrefixedSchemaTypes.get(i),
                         /*typePropertyPaths=*/ Collections.emptyMap())));
             } catch (AppSearchException e) {
@@ -91,13 +91,13 @@ public class VisibilityStoreMigrationHelperFromV1 {
      * @param visibilityDocumentV1s          The deprecated Visibility Document we found.
      */
     @NonNull
-    static List<VisibilityDocument> toVisibilityDocumentsV2(
+    static List<InternalVisibilityConfig> toVisibilityDocumentsV2(
             @NonNull List<VisibilityDocumentV1> visibilityDocumentV1s) {
-        List<VisibilityDocument> latestVisibilityDocuments =
+        List<InternalVisibilityConfig> latestVisibilityDocuments =
                 new ArrayList<>(visibilityDocumentV1s.size());
         for (int i = 0; i < visibilityDocumentV1s.size(); i++) {
             VisibilityDocumentV1 visibilityDocumentV1 = visibilityDocumentV1s.get(i);
-            Set<Set<Integer>> visibleToPermissions = new ArraySet<>();
+            Set<Set<Integer>> visibleToPermissionSets = new ArraySet<>();
             Set<Integer> deprecatedVisibleToRoles = visibilityDocumentV1.getVisibleToRoles();
             if (deprecatedVisibleToRoles != null) {
                 for (int deprecatedVisibleToRole : deprecatedVisibleToRoles) {
@@ -111,29 +111,28 @@ public class VisibilityStoreMigrationHelperFromV1 {
                                     .READ_ASSISTANT_APP_SEARCH_DATA);
                             break;
                     }
-                    visibleToPermissions.add(visibleToPermission);
+                    visibleToPermissionSets.add(visibleToPermission);
                 }
             }
             Set<Integer> deprecatedVisibleToPermissions =
                     visibilityDocumentV1.getVisibleToPermissions();
             if (deprecatedVisibleToPermissions != null) {
-                visibleToPermissions.add(deprecatedVisibleToPermissions);
+                visibleToPermissionSets.add(deprecatedVisibleToPermissions);
             }
 
-            Set<PackageIdentifier> packageIdentifiers = new ArraySet<>();
+            InternalVisibilityConfig.Builder latestVisibilityDocumentBuilder =
+                    new InternalVisibilityConfig.Builder(visibilityDocumentV1.getId())
+                            .setNotDisplayedBySystem(visibilityDocumentV1.isNotDisplayedBySystem());
             String[] packageNames = visibilityDocumentV1.getPackageNames();
             byte[][] sha256Certs = visibilityDocumentV1.getSha256Certs();
             if (packageNames.length == sha256Certs.length) {
                 for (int j = 0; j < packageNames.length; j++) {
-                    packageIdentifiers.add(new PackageIdentifier(packageNames[j], sha256Certs[j]));
+                    latestVisibilityDocumentBuilder.addVisibleToPackage(
+                            new PackageIdentifier(packageNames[j], sha256Certs[j]));
                 }
             }
-            VisibilityDocument.Builder latestVisibilityDocumentBuilder =
-                    new VisibilityDocument.Builder(visibilityDocumentV1.getId())
-                    .setNotDisplayedBySystem(visibilityDocumentV1.isNotDisplayedBySystem())
-                    .addVisibleToPackages(packageIdentifiers);
-            if (!visibleToPermissions.isEmpty()) {
-                latestVisibilityDocumentBuilder.setVisibleToPermissions(visibleToPermissions);
+            for (Set<Integer> visibleToPermissions : visibleToPermissionSets) {
+                latestVisibilityDocumentBuilder.addVisibleToPermissions(visibleToPermissions);
             }
             latestVisibilityDocuments.add(latestVisibilityDocumentBuilder.build());
         }

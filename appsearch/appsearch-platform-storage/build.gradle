@@ -31,10 +31,10 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
 
-    implementation project(":appsearch:appsearch")
+    implementation(project(":appsearch:appsearch"))
+    implementation(project(":core:core"))
     implementation('androidx.collection:collection:1.2.0')
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
-    implementation("androidx.core:core:1.1.0")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
@@ -52,5 +52,6 @@ androidx {
 }
 
 android {
+    compileSdk = 35
     namespace "androidx.appsearch.platformstorage"
 }

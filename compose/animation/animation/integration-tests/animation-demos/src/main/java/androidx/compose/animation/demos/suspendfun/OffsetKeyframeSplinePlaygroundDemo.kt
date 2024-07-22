@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Popup
+import kotlin.collections.removeLast as removeLastKt
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.log
@@ -309,7 +310,7 @@ private class SplineKeyframesPlaygroundModel(private val scope: CoroutineScope) 
     fun removeAnchor() {
         if (anchors.size > 1) {
             scope.launch { animatedOffset.snapTo(Offset.Zero) }
-            anchors.removeLast()
+            anchors.removeLastKt()
             modificationIndicator++
         }
     }

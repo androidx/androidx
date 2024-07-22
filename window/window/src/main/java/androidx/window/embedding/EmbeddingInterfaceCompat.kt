@@ -17,10 +17,12 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
-import android.os.IBinder
+import android.os.Bundle
+import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import java.util.concurrent.Executor
 
 /**
  * Adapter interface for different historical versions of activity embedding OEM interface in
@@ -34,9 +36,16 @@ internal interface EmbeddingInterfaceCompat {
 
     interface EmbeddingCallbackInterface {
         fun onSplitInfoChanged(splitInfo: List<SplitInfo>)
+
+        fun onActivityStackChanged(activityStacks: List<ActivityStack>)
     }
 
     fun isActivityEmbedded(activity: Activity): Boolean
+
+    @RequiresWindowSdkExtension(5)
+    fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean
+
+    @RequiresWindowSdkExtension(5) fun unpinTopActivityStack(taskId: Int)
 
     @RequiresWindowSdkExtension(2)
     fun setSplitAttributesCalculator(
@@ -45,11 +54,50 @@ internal interface EmbeddingInterfaceCompat {
 
     @RequiresWindowSdkExtension(2) fun clearSplitAttributesCalculator()
 
-    @RequiresWindowSdkExtension(3)
-    fun setLaunchingActivityStack(options: ActivityOptions, token: IBinder): ActivityOptions
+    @RequiresWindowSdkExtension(5)
+    fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle
 
-    @RequiresWindowSdkExtension(3) fun invalidateTopVisibleSplitAttributes()
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun setOverlayCreateParams(options: Bundle, overlayCreateParams: OverlayCreateParams): Bundle
+
+    @RequiresWindowSdkExtension(5) fun finishActivityStacks(activityStacks: Set<ActivityStack>)
+
+    @RequiresWindowSdkExtension(5)
+    fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration)
+
+    @RequiresWindowSdkExtension(3) fun invalidateVisibleActivityStacks()
 
     @RequiresWindowSdkExtension(3)
     fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes)
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    )
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION) fun clearOverlayAttributesCalculator()
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes)
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: Consumer<OverlayInfo>,
+    )
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    fun removeOverlayInfoCallback(overlayInfoCallback: Consumer<OverlayInfo>)
+
+    @RequiresWindowSdkExtension(6)
+    fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
+
+    @RequiresWindowSdkExtension(6)
+    fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: Consumer<EmbeddedActivityWindowInfo>
+    )
 }

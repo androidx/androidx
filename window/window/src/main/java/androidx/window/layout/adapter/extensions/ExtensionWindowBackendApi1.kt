@@ -25,14 +25,15 @@ import androidx.core.util.Consumer
 import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.extensions.layout.WindowLayoutInfo as OEMWindowLayoutInfo
+import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.adapter.WindowBackend
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-internal class ExtensionWindowBackendApi1(
-    private val component: WindowLayoutComponent,
+internal open class ExtensionWindowBackendApi1(
+    val component: WindowLayoutComponent,
     private val consumerAdapter: ConsumerAdapter
 ) : WindowBackend {
 
@@ -125,4 +126,7 @@ internal class ExtensionWindowBackendApi1(
             listenerToContext.isEmpty() &&
             consumerToToken.isEmpty())
     }
+
+    override val supportedPostures: List<SupportedPosture>
+        get() = throw UnsupportedOperationException("Extensions version must be at least 6")
 }

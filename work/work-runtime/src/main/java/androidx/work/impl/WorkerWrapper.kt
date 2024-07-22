@@ -51,6 +51,7 @@ import java.util.concurrent.Callable
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Future
+import kotlin.collections.removeLast as removeLastKt
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
@@ -420,7 +421,7 @@ class WorkerWrapper internal constructor(builder: Builder) {
     private fun iterativelyFailWorkAndDependents(workSpecId: String) {
         val idsToProcess = mutableListOf(workSpecId)
         while (idsToProcess.isNotEmpty()) {
-            val id = idsToProcess.removeLast()
+            val id = idsToProcess.removeLastKt()
             // Don't fail already cancelled work.
             if (workSpecDao.getState(id) !== WorkInfo.State.CANCELLED) {
                 workSpecDao.setState(WorkInfo.State.FAILED, id)

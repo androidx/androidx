@@ -119,6 +119,42 @@ class WindowPropertiesTest {
         }
     }
 
+    @Test
+    fun test_property_allow_user_aspect_ratio_override() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // No-op, but to suppress lint
+            return
+        }
+        activityRule.scenario.onActivity { activity ->
+            // Should be false as defined in AndroidManifest.xml
+            assertFalse(
+                getProperty(
+                    activity,
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun test_property_allow_user_aspect_ratio_fullscreen_override() {
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // No-op, but to suppress lint
+            return
+        }
+        activityRule.scenario.onActivity { activity ->
+            // Should be false as defined in AndroidManifest.xml
+            assertFalse(
+                getProperty(
+                    activity,
+                    WindowProperties.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE
+                )
+            )
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.S)
     @Throws(PackageManager.NameNotFoundException::class)
     private fun getProperty(context: Context, propertyName: String): Boolean {

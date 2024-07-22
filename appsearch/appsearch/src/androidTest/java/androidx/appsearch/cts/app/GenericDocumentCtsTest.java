@@ -20,9 +20,17 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.flags.CheckFlagsRule;
+import androidx.appsearch.flags.DeviceFlagsValueProvider;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.flags.RequiresFlagsEnabled;
 
+import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.Objects;
 
 public class GenericDocumentCtsTest {
     private static final byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
@@ -35,6 +43,9 @@ public class GenericDocumentCtsTest {
             .Builder<>("namespace", "sDocumentProperties2", "sDocumentPropertiesSchemaType2")
             .setCreationTimestampMillis(6789L)
             .build();
+
+    @Rule
+    public final CheckFlagsRule mCheckFlagsRule = DeviceFlagsValueProvider.createCheckFlagsRule();
 
     @Test
     @SuppressWarnings("deprecation")
@@ -364,9 +375,31 @@ public class GenericDocumentCtsTest {
                 () -> builder.setPropertyString("testKey", "string1", nullString));
     }
 
-// @exportToFramework:startStrip()
+    @Test
+    public void testDocumentInvalid_setNullByteValues() {
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1");
+        byte[] nullBytes = null;
 
-    // TODO(b/171882200): Expose this test in Android T
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.setPropertyBytes("propBytes", new byte[][]{{1, 2}, nullBytes}));
+    }
+
+    @Test
+    public void testDocumentInvalid_setNullDocValues() {
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1");
+        GenericDocument doc = new GenericDocument.Builder<>("namespace",
+                "id2",
+                "schemaType2").build();
+        GenericDocument nullDoc = null;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.setPropertyDocument("propDocs", doc, nullDoc));
+    }
+
     @Test
     public void testDocument_toBuilder() {
         GenericDocument document1 = new GenericDocument.Builder<>(
@@ -381,12 +414,13 @@ public class GenericDocumentCtsTest {
                 .build();
         GenericDocument document2 =
                 new GenericDocument.Builder<>(document1)
-                .setId("id2")
-                .setNamespace("namespace2")
-                .setPropertyBytes("byteKey1", sByteArray2)
-                .setPropertyLong("longKey2", 10L)
-                .clearProperty("booleanKey1")
-                .build();
+                        .setId("id2")
+                        .setNamespace("namespace2")
+                        .setSchemaType("schemaType2")
+                        .setPropertyBytes("byteKey1", sByteArray2)
+                        .setPropertyLong("longKey2", 10L)
+                        .clearProperty("booleanKey1")
+                        .build();
 
         // Make sure old doc hasn't changed
         assertThat(document1.getId()).isEqualTo("id1");
@@ -399,7 +433,7 @@ public class GenericDocumentCtsTest {
 
         // Make sure the new doc contains the expected values
         GenericDocument expectedDoc = new GenericDocument.Builder<>(
-                "namespace2", "id2", "schemaType1")
+                "namespace2", "id2", "schemaType2")
                 .setCreationTimestampMillis(5L)
                 .setPropertyLong("longKey1", 1L, 2L, 3L)
                 .setPropertyLong("longKey2", 10L)
@@ -411,7 +445,51 @@ public class GenericDocumentCtsTest {
         assertThat(document2).isEqualTo(expectedDoc);
     }
 
-// @exportToFramework:endStrip()
+    @Test
+    public void testDocument_toBuilder_doesNotModifyOriginal() {
+        GenericDocument oldDoc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                .setScore(42)
+                .setPropertyString("propString", "Hello")
+                .setPropertyBytes("propBytes", new byte[][]{{1, 2}})
+                .setPropertyDocument(
+                        "propDocument",
+                        new GenericDocument.Builder<>("namespace", "id2", "schema2")
+                                .setPropertyString("propString", "Goodbye")
+                                .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
+                                .build())
+                .build();
+
+        GenericDocument newDoc = new GenericDocument.Builder<>(oldDoc)
+                .setPropertyBytes("propBytes", new byte[][]{{1, 2}})
+                .setPropertyDocument(
+                        "propDocument",
+                        new GenericDocument.Builder<>("namespace", "id3", "schema3")
+                                .setPropertyString("propString", "Bye")
+                                .setPropertyBytes("propBytes", new byte[][]{{5, 6}})
+                                .build())
+                .build();
+
+        // Check that the original GenericDocument is unmodified.
+        assertThat(oldDoc.getScore()).isEqualTo(42);
+        assertThat(oldDoc.getPropertyString("propString")).isEqualTo("Hello");
+        assertThat(oldDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
+        assertThat(oldDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
+                .isEqualTo("Goodbye");
+        assertThat(oldDoc.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
+                .isEqualTo(new byte[][]{{3, 4}});
+
+        // Check that the new GenericDocument has modified the original fields correctly.
+        assertThat(newDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
+        assertThat(newDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
+                .isEqualTo("Bye");
+        assertThat(newDoc.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
+                .isEqualTo(new byte[][]{{5, 6}});
+
+        // Check that the new GenericDocument copies fields that aren't set.
+        assertThat(oldDoc.getScore()).isEqualTo(newDoc.getScore());
+        assertThat(oldDoc.getPropertyString("propString")).isEqualTo(newDoc.getPropertyString(
+                "propString"));
+    }
 
     @Test
     public void testRetrieveTopLevelProperties() {
@@ -885,5 +963,260 @@ public class GenericDocumentCtsTest {
                 "propInts");
         assertThat(documents[1].getPropertyNames()).containsExactly("propString", "propInts",
                 "propIntsTwo");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocumentEquals_identicalWithEmbeddingValues() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setTtlMillis(1L)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "test-value1", "test-value2", "test-value3")
+                .setPropertyEmbedding("embeddingKey1", embedding1, embedding2)
+                .build();
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setTtlMillis(1L)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "test-value1", "test-value2", "test-value3")
+                .setPropertyEmbedding("embeddingKey1", embedding1, embedding2)
+                .build();
+        assertThat(document1).isEqualTo(document2);
+        assertThat(document1.hashCode()).isEqualTo(document2.hashCode());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocumentEquals_differentOrderWithEmbeddingValues() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+
+        GenericDocument document1 = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyEmbedding("embeddingKey1", embedding1, embedding2)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "test-value1", "test-value2", "test-value3")
+                .build();
+
+        // Create second document with same parameter but different order.
+        GenericDocument document2 = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "test-value1", "test-value2", "test-value3")
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyEmbedding("embeddingKey1", embedding1, embedding2)
+                .build();
+        assertThat(document1).isEqualTo(document2);
+        assertThat(document1.hashCode()).isEqualTo(document2.hashCode());
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocumentGetEmbeddingValue() {
+        EmbeddingVector embedding = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setScore(1)
+                .setTtlMillis(1L)
+                .setPropertyLong("longKey1", 1L)
+                .setPropertyDouble("doubleKey1", 1.0)
+                .setPropertyBoolean("booleanKey1", true)
+                .setPropertyString("stringKey1", "test-value1")
+                .setPropertyEmbedding("embeddingKey1", embedding)
+                .build();
+        assertThat(document.getId()).isEqualTo("id1");
+        assertThat(document.getTtlMillis()).isEqualTo(1L);
+        assertThat(document.getSchemaType()).isEqualTo("schemaType1");
+        assertThat(document.getCreationTimestampMillis()).isEqualTo(5);
+        assertThat(document.getScore()).isEqualTo(1);
+        assertThat(document.getPropertyLong("longKey1")).isEqualTo(1L);
+        assertThat(document.getPropertyDouble("doubleKey1")).isEqualTo(1.0);
+        assertThat(document.getPropertyBoolean("booleanKey1")).isTrue();
+        assertThat(document.getPropertyString("stringKey1")).isEqualTo("test-value1");
+        assertThat(Objects.requireNonNull(document.getPropertyEmbedding(
+                "embeddingKey1")).getValues()).usingExactEquality()
+                .containsExactly(1.1f, 2.2f, 3.3f).inOrder();
+        assertThat(Objects.requireNonNull(
+                document.getPropertyEmbedding("embeddingKey1")).getModelSignature()).isEqualTo(
+                "my_model_v1");
+
+        assertThat(document.getProperty("longKey1")).isInstanceOf(long[].class);
+        assertThat((long[]) document.getProperty("longKey1")).asList().containsExactly(1L);
+        assertThat(document.getProperty("doubleKey1")).isInstanceOf(double[].class);
+        assertThat((double[]) document.getProperty("doubleKey1")).usingTolerance(
+                0.05).containsExactly(1.0);
+        assertThat(document.getProperty("booleanKey1")).isInstanceOf(boolean[].class);
+        assertThat((boolean[]) document.getProperty("booleanKey1")).asList().containsExactly(true);
+        assertThat(document.getProperty("stringKey1")).isInstanceOf(String[].class);
+        assertThat((String[]) document.getProperty("stringKey1")).asList().containsExactly(
+                "test-value1");
+        assertThat((EmbeddingVector[]) document.getProperty(
+                "embeddingKey1")).asList().containsExactly(embedding).inOrder();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocumentGetArrayEmbeddingValues() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "test-value1", "test-value2", "test-value3")
+                .setPropertyEmbedding("embeddingKey1", embedding1, embedding2)
+                .build();
+
+        assertThat(document.getId()).isEqualTo("id1");
+        assertThat(document.getSchemaType()).isEqualTo("schemaType1");
+        assertThat(document.getPropertyLongArray("longKey1")).asList()
+                .containsExactly(1L, 2L, 3L).inOrder();
+        assertThat(document.getPropertyDoubleArray("doubleKey1")).usingExactEquality()
+                .containsExactly(1.0, 2.0, 3.0).inOrder();
+        assertThat(document.getPropertyBooleanArray("booleanKey1")).asList()
+                .containsExactly(true, false, true).inOrder();
+        assertThat(document.getPropertyStringArray("stringKey1")).asList()
+                .containsExactly("test-value1", "test-value2", "test-value3").inOrder();
+        assertThat(document.getPropertyEmbeddingArray("embeddingKey1")).asList()
+                .containsExactly(embedding1, embedding2).inOrder();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocument_setEmptyEmbeddingValues() {
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
+                .setPropertyBoolean("booleanKey")
+                .setPropertyString("stringKey")
+                .setPropertyBytes("byteKey")
+                .setPropertyDouble("doubleKey")
+                .setPropertyDocument("documentKey")
+                .setPropertyLong("longKey")
+                .setPropertyEmbedding("embeddingKey")
+                .build();
+        assertThat(document.getPropertyBooleanArray("booleanKey")).isEmpty();
+        assertThat(document.getPropertyStringArray("stringKey")).isEmpty();
+        assertThat(document.getPropertyBytesArray("byteKey")).isEmpty();
+        assertThat(document.getPropertyDoubleArray("doubleKey")).isEmpty();
+        assertThat(document.getPropertyDocumentArray("documentKey")).isEmpty();
+        assertThat(document.getPropertyLongArray("longKey")).isEmpty();
+        assertThat(document.getPropertyEmbeddingArray("embeddingKey")).isEmpty();
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocumentInvalid_setNullEmbeddingValues() {
+        EmbeddingVector embedding = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1");
+        EmbeddingVector nullEmbedding = null;
+
+        assertThrows(IllegalArgumentException.class,
+                () -> builder.setPropertyEmbedding("propEmbeddings",
+                        new EmbeddingVector[]{embedding, nullEmbedding}));
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocument_toBuilderWithEmbeddingValues() {
+        EmbeddingVector embedding1 = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+        EmbeddingVector embedding2 = new EmbeddingVector(
+                new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
+
+        GenericDocument document1 = new GenericDocument.Builder<>(
+                /*namespace=*/"", "id1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyBoolean("booleanKey1", true, false, true)
+                .setPropertyString("stringKey1", "String1", "String2", "String3")
+                .setPropertyEmbedding("embeddingKey1", embedding1, embedding2)
+                .build();
+        GenericDocument document2 =
+                new GenericDocument.Builder<>(document1)
+                        .setId("id2")
+                        .setNamespace("namespace2")
+                        .setPropertyEmbedding("embeddingKey1", embedding2)
+                        .setPropertyLong("longKey2", 10L)
+                        .clearProperty("booleanKey1")
+                        .build();
+
+        // Make sure old doc hasn't changed
+        assertThat(document1.getId()).isEqualTo("id1");
+        assertThat(document1.getNamespace()).isEqualTo("");
+        assertThat(document1.getPropertyLongArray("longKey1")).asList()
+                .containsExactly(1L, 2L, 3L).inOrder();
+        assertThat(document1.getPropertyBooleanArray("booleanKey1")).asList()
+                .containsExactly(true, false, true).inOrder();
+        assertThat(document1.getPropertyLongArray("longKey2")).isNull();
+        assertThat(document1.getPropertyEmbeddingArray("embeddingKey1")).asList()
+                .containsExactly(embedding1, embedding2).inOrder();
+
+        // Make sure the new doc contains the expected values
+        GenericDocument expectedDoc = new GenericDocument.Builder<>(
+                "namespace2", "id2", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setPropertyLong("longKey1", 1L, 2L, 3L)
+                .setPropertyLong("longKey2", 10L)
+                .setPropertyDouble("doubleKey1", 1.0, 2.0, 3.0)
+                .setPropertyString("stringKey1", "String1", "String2", "String3")
+                .setPropertyEmbedding("embeddingKey1", embedding2)
+                .build();
+        assertThat(document2).isEqualTo(expectedDoc);
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testDocumentGetPropertyNamesWithEmbeddingValue() {
+        EmbeddingVector embedding = new EmbeddingVector(
+                new float[]{1.1f, 2.2f, 3.3f}, "my_model_v1");
+
+        GenericDocument document = new GenericDocument.Builder<>("namespace", "id1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setScore(1)
+                .setTtlMillis(1L)
+                .setPropertyLong("longKey1", 1L)
+                .setPropertyDouble("doubleKey1", 1.0)
+                .setPropertyBoolean("booleanKey1", true)
+                .setPropertyString("stringKey1", "test-value1")
+                .setPropertyEmbedding("embeddingKey1", embedding)
+                .build();
+        assertThat(document.getPropertyNames()).containsExactly("longKey1", "doubleKey1",
+                "booleanKey1", "stringKey1", "embeddingKey1");
+    }
+
+    @Test
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
+    public void testEmbeddingValuesCannotBeEmpty() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> new EmbeddingVector(new float[]{}, "my_model"));
+        assertThat(exception).hasMessageThat().contains("Embedding values cannot be empty.");
     }
 }

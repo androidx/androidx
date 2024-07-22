@@ -126,7 +126,7 @@ class CreatePasswordRequestTest {
         assertThat(request.password).isEqualTo(passwordExpected)
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Suppress("DEPRECATION") // bundle.get(key)
     @Test
     fun getter_frameworkProperties() {
@@ -189,7 +189,7 @@ class CreatePasswordRequestTest {
             .isEqualTo(R.drawable.ic_password)
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Test
     fun frameworkConversion_success() {
         val idExpected = "id"

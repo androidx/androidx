@@ -16,38 +16,40 @@
 
 package androidx.appsearch.app;
 
-import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
-import androidx.appsearch.util.BundleUtil;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.SearchSuggestionResultCreator;
 import androidx.core.util.Preconditions;
 
 /**
  * The result class of the {@link AppSearchSession#searchSuggestionAsync}.
  */
-public final class SearchSuggestionResult {
+@SafeParcelable.Class(creator = "SearchSuggestionResultCreator")
+@SuppressWarnings("HiddenSuperclass")
+public final class SearchSuggestionResult extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull
+    public static final Parcelable.Creator<SearchSuggestionResult> CREATOR =
+            new SearchSuggestionResultCreator();
 
-    private static final String SUGGESTED_RESULT_FIELD = "suggestedResult";
-    private final Bundle mBundle;
+    @Field(id = 1, getter = "getSuggestedResult")
+    private final String mSuggestedResult;
     @Nullable
     private Integer mHashCode;
 
-    SearchSuggestionResult(@NonNull Bundle bundle) {
-        mBundle = Preconditions.checkNotNull(bundle);
-    }
-
-    /**
-     * Returns the {@link Bundle} populated by this builder.
-     *
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Bundle getBundle() {
-        return mBundle;
+    @Constructor
+    SearchSuggestionResult(@Param(id = 1) String suggestedResult) {
+        mSuggestedResult = Preconditions.checkNotNull(suggestedResult);
     }
 
     /**
@@ -60,7 +62,7 @@ public final class SearchSuggestionResult {
      */
     @NonNull
     public String getSuggestedResult() {
-        return Preconditions.checkNotNull(mBundle.getString(SUGGESTED_RESULT_FIELD));
+        return mSuggestedResult;
     }
 
     @Override
@@ -72,13 +74,13 @@ public final class SearchSuggestionResult {
             return false;
         }
         SearchSuggestionResult otherResult = (SearchSuggestionResult) other;
-        return BundleUtil.deepEquals(this.mBundle, otherResult.mBundle);
+        return mSuggestedResult.equals(otherResult.mSuggestedResult);
     }
 
     @Override
     public int hashCode() {
         if (mHashCode == null) {
-            mHashCode = BundleUtil.deepHashCode(mBundle);
+            mHashCode = mSuggestedResult.hashCode();
         }
         return mHashCode;
     }
@@ -102,12 +104,17 @@ public final class SearchSuggestionResult {
             return this;
         }
 
-        /** Build a {@link SearchSuggestionResult} object*/
+        /** Build a {@link SearchSuggestionResult} object */
         @NonNull
         public SearchSuggestionResult build() {
-            Bundle bundle = new Bundle();
-            bundle.putString(SUGGESTED_RESULT_FIELD, mSuggestedResult);
-            return new SearchSuggestionResult(bundle);
+            return new SearchSuggestionResult(mSuggestedResult);
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        SearchSuggestionResultCreator.writeToParcel(this, dest, flags);
     }
 }

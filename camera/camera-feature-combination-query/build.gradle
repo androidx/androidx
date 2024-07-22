@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(libs.androidx.annotation)
+    implementation(libs.autoValueAnnotations)
 
     testImplementation(libs.testRunner)
     testImplementation(libs.robolectric)
@@ -31,6 +32,8 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.testRules)
     testImplementation(libs.testCore)
+
+    annotationProcessor(libs.autoValue)
 }
 
 android {
@@ -38,6 +41,7 @@ android {
         enable 'CameraXQuirksClassDetector'
     }
 
+    compileSdk 35
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.camera.featurecombinationquery"
 }

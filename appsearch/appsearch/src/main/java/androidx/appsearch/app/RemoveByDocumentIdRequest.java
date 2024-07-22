@@ -16,14 +16,27 @@
 
 package androidx.appsearch.app;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.RemoveByDocumentIdRequestCreator;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -32,13 +45,37 @@ import java.util.Set;
  *
  * @see AppSearchSession#removeAsync
  */
-public final class RemoveByDocumentIdRequest {
-    private final String mNamespace;
-    private final Set<String> mIds;
+@SafeParcelable.Class(creator = "RemoveByDocumentIdRequestCreator")
+@SuppressWarnings("HiddenSuperclass")
+public final class RemoveByDocumentIdRequest extends AbstractSafeParcelable {
+    /** Creator class for {@link android.app.appsearch.RemoveByDocumentIdRequest}. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull
+    public static final Parcelable.Creator<RemoveByDocumentIdRequest> CREATOR =
+            new RemoveByDocumentIdRequestCreator();
 
-    RemoveByDocumentIdRequest(String namespace, Set<String> ids) {
-        mNamespace = namespace;
-        mIds = ids;
+    @NonNull
+    @Field(id = 1, getter = "getNamespace")
+    private final String mNamespace;
+    @NonNull
+    @Field(id = 2)
+    final List<String> mIds;
+    @Nullable
+    private Set<String> mIdsCached;
+
+    /**
+     * Removes documents by ID.
+     *
+     * @param namespace    Namespace of the document to remove.
+     * @param ids The IDs of the documents to delete
+     */
+    @Constructor
+    RemoveByDocumentIdRequest(
+            @Param(id = 1) @NonNull String namespace,
+            @Param(id = 2) @NonNull List<String> ids) {
+        mNamespace = Objects.requireNonNull(namespace);
+        mIds = Objects.requireNonNull(ids);
     }
 
     /** Returns the namespace to remove documents from. */
@@ -50,7 +87,17 @@ public final class RemoveByDocumentIdRequest {
     /** Returns the set of document IDs attached to the request. */
     @NonNull
     public Set<String> getIds() {
-        return Collections.unmodifiableSet(mIds);
+        if (mIdsCached == null) {
+            mIdsCached = Collections.unmodifiableSet(new ArraySet<>(mIds));
+        }
+        return mIdsCached;
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        RemoveByDocumentIdRequestCreator.writeToParcel(this, dest, flags);
     }
 
     /** Builder for {@link RemoveByDocumentIdRequest} objects. */
@@ -87,7 +134,7 @@ public final class RemoveByDocumentIdRequest {
         @NonNull
         public RemoveByDocumentIdRequest build() {
             mBuilt = true;
-            return new RemoveByDocumentIdRequest(mNamespace, mIds);
+            return new RemoveByDocumentIdRequest(mNamespace, new ArrayList<>(mIds));
         }
 
         private void resetIfBuilt() {

@@ -17,6 +17,7 @@
 package androidx.appsearch.safeparcel.stub;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -31,7 +32,21 @@ import androidx.appsearch.safeparcel.SafeParcelable;
  */
 // @exportToFramework:skipFile()
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-abstract class AbstractCreator {
+abstract class AbstractCreator<T> implements Parcelable.Creator<T> {
+    @Override
+    public T createFromParcel(Parcel var1) {
+        // This is here only for code sync purpose.
+        throw new UnsupportedOperationException("createFromParcel is not implemented and should "
+                + "not be used.");
+    }
+
+    @Override
+    public T[] newArray(int var1) {
+        // This is here only for code sync purpose.
+        throw new UnsupportedOperationException("newArray is not implemented and should "
+                + "not be used.");
+    }
+
     public static void writeToParcel(
             @NonNull SafeParcelable safeParcelable,
             @NonNull Parcel parcel,

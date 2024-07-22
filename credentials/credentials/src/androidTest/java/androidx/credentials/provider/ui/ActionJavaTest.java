@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 
 import android.app.PendingIntent;
-import android.app.slice.Slice;
 import android.content.Context;
 import android.content.Intent;
 
@@ -80,9 +79,10 @@ public class ActionJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void fromSlice_success() {
         Action originalAction = new Action(TITLE, mPendingIntent, SUBTITLE);
-        Slice slice = Action.toSlice(originalAction);
+        android.app.slice.Slice slice = Action.toSlice(originalAction);
 
         Action fromSlice = Action.fromSlice(slice);
 
@@ -94,9 +94,10 @@ public class ActionJavaTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 34)
+    @SuppressWarnings("deprecation")
     public void fromAction_success() {
         Action originalAction = new Action(TITLE, mPendingIntent, SUBTITLE);
-        Slice slice = Action.toSlice(originalAction);
+        android.app.slice.Slice slice = Action.toSlice(originalAction);
 
         Action action = Action.fromAction(new android.service.credentials.Action(slice));
 

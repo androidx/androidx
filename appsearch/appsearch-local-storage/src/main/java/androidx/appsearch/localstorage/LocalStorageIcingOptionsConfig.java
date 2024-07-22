@@ -96,6 +96,6 @@ public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
 
     @Override
     public boolean getBuildPropertyExistenceMetadataHits() {
-        return DEFAULT_BUILD_PROPERTY_EXISTENCE_METADATA_HITS;
+        return true;
     }
 }

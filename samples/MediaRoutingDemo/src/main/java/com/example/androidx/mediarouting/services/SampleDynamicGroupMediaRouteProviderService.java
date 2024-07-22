@@ -58,12 +58,16 @@ public class SampleDynamicGroupMediaRouteProviderService extends MediaRouteProvi
 
     /** Reload all routes provided by this service. */
     public void reloadRoutes() {
-        mDynamicGroupMediaRouteProvider.reloadRoutes();
+        if (mDynamicGroupMediaRouteProvider != null) {
+            mDynamicGroupMediaRouteProvider.reloadRoutes();
+        }
     }
 
     /** Reload the flag for isDynamicRouteEnabled. */
     public void reloadDynamicRoutesEnabled() {
-        mDynamicGroupMediaRouteProvider.reloadDynamicRoutesEnabled();
+        if (mDynamicGroupMediaRouteProvider != null) {
+            mDynamicGroupMediaRouteProvider.reloadDynamicRoutesEnabled();
+        }
     }
 
     /**

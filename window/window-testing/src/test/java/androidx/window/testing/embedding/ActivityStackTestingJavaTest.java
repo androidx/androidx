@@ -40,8 +40,10 @@ public class ActivityStackTestingJavaTest {
     public void testActivityStackDefaultValue() {
         final ActivityStack activityStack = TestActivityStack.createTestActivityStack();
 
-        assertEquals(new ActivityStack(Collections.emptyList(), false /* isEmpty */),
-                activityStack);
+        assertEquals(
+                new ActivityStack(Collections.emptyList(), false /* isEmpty */),
+                activityStack
+        );
     }
 
     /** Verifies {@link TestActivityStack} */

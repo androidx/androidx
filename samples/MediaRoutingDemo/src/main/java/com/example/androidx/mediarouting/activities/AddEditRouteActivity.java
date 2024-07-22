@@ -44,7 +44,7 @@ import com.example.androidx.mediarouting.services.SampleDynamicGroupMediaRoutePr
 public class AddEditRouteActivity extends AppCompatActivity {
     private static final String EXTRA_ROUTE_ID_KEY = "routeId";
 
-    private SampleDynamicGroupMediaRouteProviderService mService;
+    @Nullable private SampleDynamicGroupMediaRouteProviderService mService;
     private ServiceConnection mConnection;
     private RoutesManager mRoutesManager;
     private RouteItem mRouteItem;
@@ -163,7 +163,9 @@ public class AddEditRouteActivity extends AppCompatActivity {
         saveButton.setOnClickListener(
                 view -> {
                     mRoutesManager.addRoute(mRouteItem);
-                    mService.reloadRoutes();
+                    if (mService != null) {
+                        mService.reloadRoutes();
+                    }
                     finish();
                 });
     }
@@ -203,7 +205,7 @@ public class AddEditRouteActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {
+        public void onServiceDisconnected(ComponentName unusedComponentName) {
             mService = null;
         }
     }

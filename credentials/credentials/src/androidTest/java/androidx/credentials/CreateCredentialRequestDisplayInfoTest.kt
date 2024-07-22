@@ -101,7 +101,7 @@ class CreateCredentialRequestDisplayInfoTest {
         assertThat(displayInfo.preferDefaultProvider).isEqualTo(expectedDefaultProvider)
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Test
     fun constructFromBundle_success() {
         val expectedUserId = "userId"

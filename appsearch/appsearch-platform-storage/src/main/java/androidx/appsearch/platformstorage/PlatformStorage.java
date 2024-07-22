@@ -20,20 +20,25 @@ import android.app.appsearch.AppSearchManager;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appsearch.app.AppSearchEnvironmentFactory;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.EnterpriseGlobalSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchContextToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 /**
  * An AppSearch storage system which stores data in the central AppSearch service, available on
@@ -201,7 +206,8 @@ public final class PlatformStorage {
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
     // mutate requests will need to gain write lock and query requests need to gain read lock.
-    static final Executor EXECUTOR = Executors.newCachedThreadPool();
+    static final Executor EXECUTOR = AppSearchEnvironmentFactory.getEnvironmentInstance()
+            .createCachedThreadPoolExecutor();
 
     /**
      * Opens a new {@link AppSearchSession} on this storage.
@@ -224,7 +230,7 @@ public final class PlatformStorage {
                     if (result.isSuccess()) {
                         future.set(
                                 new SearchSessionImpl(result.getResultValue(), context.mExecutor,
-                                        new FeaturesImpl(context.mContext)));
+                                        context.mContext));
                     } else {
                         // Without the SuppressLint annotation on the method, this line causes a
                         // lint error because getResultCode isn't defined as returning a value from
@@ -265,5 +271,60 @@ public final class PlatformStorage {
                     }
                 });
         return future;
+    }
+
+    /**
+     * Opens a new {@link EnterpriseGlobalSearchSession} on this storage.
+     */
+    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
+    //  BuildCompat.isAtLeastV() is removed.
+    @BuildCompat.PrereleaseSdkCheck
+    @RequiresApi(35)
+    @SuppressLint("WrongConstant")
+    @NonNull
+    public static ListenableFuture<EnterpriseGlobalSearchSession>
+            createEnterpriseGlobalSearchSessionAsync(@NonNull GlobalSearchContext context) {
+        if (!BuildCompat.isAtLeastV()) {
+            throw new UnsupportedOperationException(
+                    Features.ENTERPRISE_GLOBAL_SEARCH_SESSION
+                            + " is not supported on this AppSearch implementation");
+        }
+        Preconditions.checkNotNull(context);
+        AppSearchManager appSearchManager =
+                context.mContext.getSystemService(AppSearchManager.class);
+        ResolvableFuture<EnterpriseGlobalSearchSession> future = ResolvableFuture.create();
+        ApiHelperForV.createEnterpriseGlobalSearchSession(
+                appSearchManager,
+                context.mExecutor,
+                result -> {
+                    if (result.isSuccess()) {
+                        future.set(new EnterpriseGlobalSearchSessionImpl(
+                                result.getResultValue(), context.mExecutor,
+                                new FeaturesImpl(context.mContext)));
+                    } else {
+                        // Without the SuppressLint annotation on the method, this line causes a
+                        // lint error because getResultCode isn't defined as returning a value from
+                        // AppSearchResult.ResultCode
+                        future.setException(
+                                new AppSearchException(
+                                        result.getResultCode(), result.getErrorMessage()));
+                    }
+                });
+        return future;
+    }
+
+    @RequiresApi(35)
+    private static class ApiHelperForV {
+        private ApiHelperForV() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void createEnterpriseGlobalSearchSession(@NonNull AppSearchManager appSearchManager,
+                @NonNull Executor executor,
+                @NonNull Consumer<android.app.appsearch.AppSearchResult<
+                        android.app.appsearch.EnterpriseGlobalSearchSession>> callback) {
+            appSearchManager.createEnterpriseGlobalSearchSession(executor, callback);
+        }
     }
 }

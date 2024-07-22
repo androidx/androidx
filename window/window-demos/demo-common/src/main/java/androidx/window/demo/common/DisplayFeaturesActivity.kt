@@ -21,7 +21,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -40,7 +39,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 /** Demo activity that shows all display features and current device state on the screen. */
-open class DisplayFeaturesActivity : AppCompatActivity() {
+open class DisplayFeaturesActivity : EdgeToEdgeActivity() {
 
     private val infoLogAdapter = InfoLogAdapter()
     private val displayFeatureViews = ArrayList<View>()

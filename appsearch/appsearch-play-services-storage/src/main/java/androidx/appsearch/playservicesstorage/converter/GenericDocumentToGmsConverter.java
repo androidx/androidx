@@ -18,6 +18,8 @@ package androidx.appsearch.playservicesstorage.converter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.EmbeddingVector;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.core.util.Preconditions;
 
@@ -71,6 +73,10 @@ public final class GenericDocumentToGmsConverter {
                 }
                 gmsBuilder.setPropertyDocument(propertyName,
                         gmsSubDocuments);
+            } else if (property instanceof EmbeddingVector[]) {
+                // TODO(b/326656531): Remove this once embedding search APIs are available.
+                throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                        + " is not available on this AppSearch implementation.");
             } else {
                 throw new IllegalStateException(
                         String.format("Property \"%s\" has unsupported value type %s",
@@ -121,6 +127,8 @@ public final class GenericDocumentToGmsConverter {
                 }
                 jetpackBuilder.setPropertyDocument(propertyName, jetpackSubDocuments);
             } else {
+                // TODO(b/326656531) : Add an entry for EmbeddingVector once it becomes
+                //  available in gms-appsearch.
                 throw new IllegalStateException(
                         String.format("Property \"%s\" has unsupported value type %s", propertyName,
                                 property.getClass().toString()));

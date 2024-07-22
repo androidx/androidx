@@ -527,6 +527,13 @@ public abstract class AnnotatedGetterOrField {
                         env,
                         /* allowRepeated= */true);
                 break;
+            case EMBEDDING_PROPERTY:
+                requireTypeIsOneOf(
+                        getterOrField,
+                        List.of(helper.mEmbeddingType),
+                        env,
+                        /* allowRepeated= */true);
+                break;
             default:
                 throw new IllegalStateException("Unhandled annotation: " + annotation);
         }

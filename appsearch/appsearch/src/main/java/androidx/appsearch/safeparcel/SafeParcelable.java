@@ -74,4 +74,7 @@ public interface SafeParcelable {
          */
         boolean doNotParcelTypeDefaultValues() default false;
     }
+
+    /** Provide same interface as {@link android.os.Parcelable} for code sync purpose. */
+    int describeContents();
 }

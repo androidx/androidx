@@ -24,7 +24,6 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
-import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -153,7 +152,7 @@ public class VisibilityStoreMigrationHelperFromV0 {
                     deprecatedDocuments.add(appSearchImpl.getDocument(
                             VisibilityStore.VISIBILITY_PACKAGE_NAME,
                             VisibilityStore.VISIBILITY_DATABASE_NAME,
-                            VisibilityDocument.NAMESPACE,
+                            VisibilityToDocumentConverter.VISIBILITY_DOCUMENT_NAMESPACE,
                             getDeprecatedVisibilityDocumentId(packageName, databaseName),
                             /*typePropertyPaths=*/ Collections.emptyMap()));
                 } catch (AppSearchException e) {
@@ -206,15 +205,15 @@ public class VisibilityStoreMigrationHelperFromV0 {
                 for (GenericDocument deprecatedPackageDocument : deprecatedPackageDocuments) {
                     String prefixedSchemaType = Preconditions.checkNotNull(
                             deprecatedPackageDocument.getPropertyString(
-                            DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY));
+                                    DEPRECATED_ACCESSIBLE_SCHEMA_PROPERTY));
                     VisibilityDocumentV1.Builder visibilityBuilder =
                             getOrCreateBuilder(documentBuilderMap, prefixedSchemaType);
                     String packageName = Preconditions.checkNotNull(
                             deprecatedPackageDocument.getPropertyString(
-                                DEPRECATED_PACKAGE_NAME_PROPERTY));
+                                    DEPRECATED_PACKAGE_NAME_PROPERTY));
                     byte[] sha256Cert = Preconditions.checkNotNull(
                             deprecatedPackageDocument.getPropertyBytes(
-                                DEPRECATED_SHA_256_CERT_PROPERTY));
+                                    DEPRECATED_SHA_256_CERT_PROPERTY));
                     visibilityBuilder.addVisibleToPackage(
                             new PackageIdentifier(packageName, sha256Cert));
                 }

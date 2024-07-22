@@ -254,6 +254,7 @@ private class EdgeToEdgeApi21 : EdgeToEdgeBase() {
 @RequiresApi(23)
 private class EdgeToEdgeApi23 : EdgeToEdgeBase() {
 
+    @Suppress("DEPRECATION")
     @DoNotInline
     override fun setUp(
         statusBarStyle: SystemBarStyle,
@@ -273,6 +274,7 @@ private class EdgeToEdgeApi23 : EdgeToEdgeBase() {
 @RequiresApi(26)
 private open class EdgeToEdgeApi26 : EdgeToEdgeBase() {
 
+    @Suppress("DEPRECATION")
     @DoNotInline
     override fun setUp(
         statusBarStyle: SystemBarStyle,
@@ -305,6 +307,7 @@ private open class EdgeToEdgeApi28 : EdgeToEdgeApi26() {
 @RequiresApi(29)
 private open class EdgeToEdgeApi29 : EdgeToEdgeApi28() {
 
+    @Suppress("DEPRECATION")
     @DoNotInline
     override fun setUp(
         statusBarStyle: SystemBarStyle,

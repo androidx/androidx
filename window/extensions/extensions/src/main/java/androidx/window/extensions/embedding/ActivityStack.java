@@ -16,12 +16,15 @@
 
 package androidx.window.extensions.embedding;
 
+import static androidx.window.extensions.embedding.ActivityEmbeddingComponent.OVERLAY_FEATURE_API_LEVEL;
+
 import android.app.Activity;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.window.extensions.RequiresVendorApiLevel;
 
@@ -43,6 +46,9 @@ public class ActivityStack {
     @NonNull
     private final Token mToken;
 
+    @Nullable
+    private final String mTag;
+
     /**
      * The {@code ActivityStack} constructor
      *
@@ -51,14 +57,18 @@ public class ActivityStack {
      * @param isEmpty Indicates whether there's any {@link Activity} running in this
      *                {@code ActivityStack}
      * @param token The token to identify this {@code ActivityStack}
+     * @param tag A unique identifier of {@link ActivityStack}. Only specifies for the overlay
+     *            standalone {@link ActivityStack} currently.
      */
-    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull Token token) {
+    ActivityStack(@NonNull List<Activity> activities, boolean isEmpty, @NonNull Token token,
+            @Nullable String tag) {
         Objects.requireNonNull(activities);
         Objects.requireNonNull(token);
 
         mActivities = new ArrayList<>(activities);
         mIsEmpty = isEmpty;
         mToken = token;
+        mTag = tag;
     }
 
     /**
@@ -110,6 +120,15 @@ public class ActivityStack {
         return mToken.getRawToken();
     }
 
+    /**
+     * Returns the associated tag if specified. Otherwise, returns {@code null}.
+     */
+    @RequiresVendorApiLevel(level = OVERLAY_FEATURE_API_LEVEL)
+    @Nullable
+    public String getTag() {
+        return mTag;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -117,7 +136,8 @@ public class ActivityStack {
         ActivityStack that = (ActivityStack) o;
         return mActivities.equals(that.mActivities)
                 && mIsEmpty == that.mIsEmpty
-                && mToken.equals(that.mToken);
+                && mToken.equals(that.mToken)
+                && Objects.equals(mTag, that.mTag);
     }
 
     @Override
@@ -125,6 +145,7 @@ public class ActivityStack {
         int result = (mIsEmpty ? 1 : 0);
         result = result * 31 + mActivities.hashCode();
         result = result * 31 + mToken.hashCode();
+        result = result * 31 + Objects.hashCode(mTag);
 
         return result;
     }
@@ -135,6 +156,7 @@ public class ActivityStack {
         return "ActivityStack{" + "mActivities=" + mActivities
                 + ", mIsEmpty=" + mIsEmpty
                 + ", mToken=" + mToken
+                + ", mTag=" + mTag
                 + '}';
     }
 

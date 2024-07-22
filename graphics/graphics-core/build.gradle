@@ -44,6 +44,8 @@ dependencies {
 }
 
 android {
+    compileSdk 35
+
     namespace 'androidx.graphics.core'
 
     defaultConfig {

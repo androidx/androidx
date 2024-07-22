@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics
 
 import androidx.annotation.RestrictTo
+import kotlin.collections.removeLast as removeLastKt
 import kotlin.math.max
 import kotlin.math.min
 
@@ -152,7 +153,11 @@ class IntervalTree<T> {
             val s = stack
             s.add(root)
             while (s.size > 0) {
-                val node = s.removeLast()
+
+                // MutableCollections.removeLast() is shadowed by java.util.list.removeAt()
+                // which was added in sdk 35 making this call unsafe
+                // val node = s.removeLast()
+                val node = s.removeLastKt()
                 if (node.overlaps(start, end)) block(node)
                 if (node.left !== terminator && node.left.max >= start) {
                     s.add(node.left)

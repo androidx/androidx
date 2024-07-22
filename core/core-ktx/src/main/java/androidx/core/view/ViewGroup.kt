@@ -21,6 +21,7 @@ package androidx.core.view
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.Px
+import kotlin.collections.removeLast as removeLastKt
 
 /**
  * Returns the view at [index].
@@ -170,7 +171,10 @@ internal class TreeIterator<T>(
         } else {
             while (!iterator.hasNext() && stack.isNotEmpty()) {
                 iterator = stack.last()
-                stack.removeLast()
+                // MutableCollections.removeLast() is shadowed by java.util.list.removeAt()
+                // which was added in sdk 35 making this call unsafe
+                // stack.removeLast()
+                stack.removeLastKt()
             }
         }
     }

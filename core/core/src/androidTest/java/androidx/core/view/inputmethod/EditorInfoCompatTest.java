@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.os.Bundle;
 import android.os.Parcel;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.text.SpannableStringBuilder;
@@ -91,11 +92,52 @@ public class EditorInfoCompatTest extends BaseInstrumentationTestCase<TestActivi
     @Test
     public void testSetStylusHandwritingEnabled() {
         EditorInfo editorInfo = new EditorInfo();
+        assertFalse(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
+
         EditorInfoCompat.setStylusHandwritingEnabled(editorInfo, true /* enabled */);
         assertTrue(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
 
         EditorInfoCompat.setStylusHandwritingEnabled(editorInfo, false /* enabled */);
         assertFalse(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
+    }
+
+    @Test
+    public void testSetStylusHandwritingEnabled_compatWithCoreVersion1_13() {
+        EditorInfo editorInfo = new EditorInfo();
+        setStylusHandwritingEnabled_coreVersion1_13(editorInfo, false);
+        assertFalse(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
+
+        editorInfo = new EditorInfo();
+        setStylusHandwritingEnabled_coreVersion1_13(editorInfo, true);
+        assertTrue(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
+
+        editorInfo = new EditorInfo();
+        EditorInfoCompat.setStylusHandwritingEnabled(editorInfo, false);
+        assertFalse(isStylusHandwritingEnabled_coreVersion1_13(editorInfo));
+
+        editorInfo = new EditorInfo();
+        EditorInfoCompat.setStylusHandwritingEnabled(editorInfo, true);
+        assertTrue(isStylusHandwritingEnabled_coreVersion1_13(editorInfo));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 35)
+    public void testSetStylusHandwritingEnabled_compatWithAndroidV() {
+        EditorInfo editorInfo = new EditorInfo();
+        editorInfo.setStylusHandwritingEnabled(false);
+        assertFalse(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
+
+        editorInfo = new EditorInfo();
+        editorInfo.setStylusHandwritingEnabled(true);
+        assertTrue(EditorInfoCompat.isStylusHandwritingEnabled(editorInfo));
+
+        editorInfo = new EditorInfo();
+        EditorInfoCompat.setStylusHandwritingEnabled(editorInfo, false);
+        assertFalse(editorInfo.isStylusHandwritingEnabled());
+
+        editorInfo = new EditorInfo();
+        EditorInfoCompat.setStylusHandwritingEnabled(editorInfo, true);
+        assertTrue(editorInfo.isStylusHandwritingEnabled());
     }
 
     @Test
@@ -318,5 +360,23 @@ public class EditorInfoCompatTest extends BaseInstrumentationTestCase<TestActivi
             builder.append(Integer.toString(i % 10));
         }
         return builder;
+    }
+
+    /** This is the version in AndroidX Core library 1.13. */
+    private static void setStylusHandwritingEnabled_coreVersion1_13(
+            EditorInfo editorInfo, boolean enabled) {
+        if (editorInfo.extras == null) {
+            editorInfo.extras = new Bundle();
+        }
+        editorInfo.extras.putBoolean(EditorInfoCompat.STYLUS_HANDWRITING_ENABLED_KEY, enabled);
+    }
+
+    /** This is the version in AndroidX Core library 1.13. */
+    public static boolean isStylusHandwritingEnabled_coreVersion1_13(EditorInfo editorInfo) {
+        if (editorInfo.extras == null) {
+            // disabled by default
+            return false;
+        }
+        return editorInfo.extras.getBoolean(EditorInfoCompat.STYLUS_HANDWRITING_ENABLED_KEY);
     }
 }

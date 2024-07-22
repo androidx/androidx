@@ -11,6 +11,18 @@ package androidx.window.java.area {
 
 package androidx.window.java.embedding {
 
+  public final class ActivityEmbeddingControllerCallbackAdapter {
+    ctor public ActivityEmbeddingControllerCallbackAdapter(androidx.window.embedding.ActivityEmbeddingController controller);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public void addEmbeddedActivityWindowInfoListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.embedding.EmbeddedActivityWindowInfo> listener);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public void removeEmbeddedActivityWindowInfoListener(androidx.core.util.Consumer<androidx.window.embedding.EmbeddedActivityWindowInfo> listener);
+  }
+
+  public final class OverlayControllerCallbackAdapter {
+    ctor public OverlayControllerCallbackAdapter(androidx.window.embedding.OverlayController controller);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void addOverlayInfoListener(String overlayTag, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.window.embedding.OverlayInfo> consumer);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void removeOverlayInfoListener(androidx.core.util.Consumer<androidx.window.embedding.OverlayInfo> consumer);
+  }
+
   @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class SplitControllerCallbackAdapter {
     ctor public SplitControllerCallbackAdapter(androidx.window.embedding.SplitController controller);
     method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);

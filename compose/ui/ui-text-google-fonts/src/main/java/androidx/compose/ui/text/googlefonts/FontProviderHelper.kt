@@ -81,7 +81,7 @@ private fun PackageManager.getSignatures(packageName: String): List<ByteArray> {
     @Suppress("DEPRECATION")
     @SuppressLint("PackageManagerGetSignatures")
     val packageInfo: PackageInfo = getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-    @Suppress("DEPRECATION") return convertToByteArrayList(packageInfo.signatures)
+    @Suppress("DEPRECATION") return convertToByteArrayList(packageInfo.signatures!!)
 }
 
 private val ByteArrayComparator = Comparator { l: ByteArray, r: ByteArray ->

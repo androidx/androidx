@@ -52,6 +52,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     namespace "androidx.leanback.widget"
 }
 

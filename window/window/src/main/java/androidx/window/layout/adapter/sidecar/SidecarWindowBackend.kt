@@ -23,6 +23,7 @@ import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.core.Version
+import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.layout.adapter.WindowBackend
 import androidx.window.layout.adapter.sidecar.ExtensionInterfaceCompat.ExtensionCallbackInterface
@@ -126,6 +127,9 @@ constructor(
             }
         }
     }
+
+    override val supportedPostures: List<SupportedPosture>
+        get() = throw UnsupportedOperationException("Must be called from extensions.")
 
     /**
      * Checks if there are no more registered callbacks left for the activity and inform extension

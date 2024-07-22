@@ -23,6 +23,7 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.XmlRes
 import androidx.window.R
+import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec.Companion.DEFAULT
 import androidx.window.embedding.EmbeddingAspectRatio.Companion.buildAspectRatioFromValue
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
 import androidx.window.embedding.SplitRule.FinishBehavior.Companion.ALWAYS
@@ -168,6 +169,37 @@ internal object RuleParser {
                     ALWAYS.value
                 )
             val clearTop = typedArray.getBoolean(R.styleable.SplitPairRule_clearTop, false)
+            val animationBackgroundColor =
+                typedArray.getColor(R.styleable.SplitPairRule_animationBackgroundColor, 0)
+            val openAnimation =
+                typedArray.getInt(R.styleable.SplitPairRule_splitOpenAnimation, DEFAULT.value)
+            val closeAnimation =
+                typedArray.getInt(R.styleable.SplitPairRule_splitCloseAnimation, DEFAULT.value)
+            val changeAnimation =
+                typedArray.getInt(R.styleable.SplitPairRule_splitChangeAnimation, DEFAULT.value)
+            typedArray.recycle()
+
+            val animationParams =
+                EmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        EmbeddingAnimationBackground.buildFromValue(animationBackgroundColor)
+                    )
+                    .setOpenAnimation(
+                        EmbeddingAnimationParams.AnimationSpec.getAnimationSpecFromValue(
+                            openAnimation
+                        )
+                    )
+                    .setCloseAnimation(
+                        EmbeddingAnimationParams.AnimationSpec.getAnimationSpecFromValue(
+                            closeAnimation
+                        )
+                    )
+                    .setChangeAnimation(
+                        EmbeddingAnimationParams.AnimationSpec.getAnimationSpecFromValue(
+                            changeAnimation
+                        )
+                    )
+                    .build()
 
             val defaultAttrs =
                 SplitAttributes.Builder()
@@ -175,6 +207,7 @@ internal object RuleParser {
                     .setLayoutDirection(
                         SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
                     )
+                    .setAnimationParams(animationParams)
                     .build()
 
             SplitPairRule.Builder(emptySet())
@@ -249,6 +282,46 @@ internal object RuleParser {
                     R.styleable.SplitPlaceholderRule_splitLayoutDirection,
                     LOCALE.value
                 )
+            val animationBackgroundColor =
+                typedArray.getColor(R.styleable.SplitPlaceholderRule_animationBackgroundColor, 0)
+            val openAnimation =
+                typedArray.getInt(
+                    R.styleable.SplitPlaceholderRule_splitOpenAnimation,
+                    DEFAULT.value
+                )
+            val closeAnimation =
+                typedArray.getInt(
+                    R.styleable.SplitPlaceholderRule_splitCloseAnimation,
+                    DEFAULT.value
+                )
+            val changeAnimation =
+                typedArray.getInt(
+                    R.styleable.SplitPlaceholderRule_splitChangeAnimation,
+                    DEFAULT.value
+                )
+            typedArray.recycle()
+
+            val animationParams =
+                EmbeddingAnimationParams.Builder()
+                    .setAnimationBackground(
+                        EmbeddingAnimationBackground.buildFromValue(animationBackgroundColor)
+                    )
+                    .setOpenAnimation(
+                        EmbeddingAnimationParams.AnimationSpec.getAnimationSpecFromValue(
+                            openAnimation
+                        )
+                    )
+                    .setCloseAnimation(
+                        EmbeddingAnimationParams.AnimationSpec.getAnimationSpecFromValue(
+                            closeAnimation
+                        )
+                    )
+                    .setChangeAnimation(
+                        EmbeddingAnimationParams.AnimationSpec.getAnimationSpecFromValue(
+                            changeAnimation
+                        )
+                    )
+                    .build()
 
             val defaultAttrs =
                 SplitAttributes.Builder()
@@ -256,6 +329,7 @@ internal object RuleParser {
                     .setLayoutDirection(
                         SplitAttributes.LayoutDirection.getLayoutDirectionFromValue(layoutDir)
                     )
+                    .setAnimationParams(animationParams)
                     .build()
             val packageName = context.applicationContext.packageName
             val placeholderActivityClassName =

@@ -19,6 +19,7 @@ package androidx.appsearch.localstorage.converter;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
+import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchConfig;
@@ -54,6 +55,8 @@ public final class GenericDocumentToProtoConverter {
     private static final boolean[] EMPTY_BOOLEAN_ARRAY = new boolean[0];
     private static final byte[][] EMPTY_BYTES_ARRAY = new byte[0][0];
     private static final GenericDocument[] EMPTY_DOCUMENT_ARRAY = new GenericDocument[0];
+    private static final EmbeddingVector[] EMPTY_EMBEDDING_ARRAY =
+            new EmbeddingVector[0];
 
     private GenericDocumentToProtoConverter() {
     }
@@ -108,6 +111,12 @@ public final class GenericDocumentToProtoConverter {
                 for (int j = 0; j < documentValues.length; j++) {
                     DocumentProto proto = toDocumentProto(documentValues[j]);
                     propertyProto.addDocumentValues(proto);
+                }
+            } else if (property instanceof EmbeddingVector[]) {
+                EmbeddingVector[] embeddingValues = (EmbeddingVector[]) property;
+                for (int j = 0; j < embeddingValues.length; j++) {
+                    propertyProto.addVectorValues(
+                            embeddingVectorToVectorProto(embeddingValues[j]));
                 }
             } else if (property == null) {
                 throw new IllegalStateException(
@@ -205,6 +214,13 @@ public final class GenericDocumentToProtoConverter {
                             schemaTypeMap, config);
                 }
                 documentBuilder.setPropertyDocument(name, values);
+            } else if (property.getVectorValuesCount() > 0) {
+                EmbeddingVector[] values =
+                        new EmbeddingVector[property.getVectorValuesCount()];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = vectorProtoToEmbeddingVector(property.getVectorValues(j));
+                }
+                documentBuilder.setPropertyEmbedding(name, values);
             } else {
                 // TODO(b/184966497): Optimize by caching PropertyConfigProto
                 SchemaTypeConfigProto schema =
@@ -213,6 +229,37 @@ public final class GenericDocumentToProtoConverter {
             }
         }
         return documentBuilder.build();
+    }
+
+    /**
+     * Converts a {@link PropertyProto.VectorProto} into an {@link EmbeddingVector}.
+     */
+    @NonNull
+    public static EmbeddingVector vectorProtoToEmbeddingVector(
+            @NonNull PropertyProto.VectorProto vectorProto) {
+        Preconditions.checkNotNull(vectorProto);
+
+        float[] values = new float[vectorProto.getValuesCount()];
+        for (int i = 0; i < vectorProto.getValuesCount(); i++) {
+            values[i] = vectorProto.getValues(i);
+        }
+        return new EmbeddingVector(values, vectorProto.getModelSignature());
+    }
+
+    /**
+     * Converts an {@link EmbeddingVector} into a {@link PropertyProto.VectorProto}.
+     */
+    @NonNull
+    public static PropertyProto.VectorProto embeddingVectorToVectorProto(
+            @NonNull EmbeddingVector embedding) {
+        Preconditions.checkNotNull(embedding);
+
+        PropertyProto.VectorProto.Builder builder = PropertyProto.VectorProto.newBuilder();
+        for (int i = 0; i < embedding.getValues().length; i++) {
+            builder.addValues(embedding.getValues()[i]);
+        }
+        builder.setModelSignature(embedding.getModelSignature());
+        return builder.build();
     }
 
     /**
@@ -304,6 +351,9 @@ public final class GenericDocumentToProtoConverter {
                 break;
             case AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT:
                 documentBuilder.setPropertyDocument(propertyName, EMPTY_DOCUMENT_ARRAY);
+                break;
+            case AppSearchSchema.PropertyConfig.DATA_TYPE_EMBEDDING:
+                documentBuilder.setPropertyEmbedding(propertyName, EMPTY_EMBEDDING_ARRAY);
                 break;
             default:
                 throw new IllegalStateException("Unknown type of value: " + propertyName);

@@ -17,7 +17,10 @@
 package androidx.window.samples.embedding
 
 import android.app.Application
+import android.graphics.Color
 import androidx.annotation.Sampled
+import androidx.window.embedding.EmbeddingAnimationBackground
+import androidx.window.embedding.EmbeddingAnimationParams
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
@@ -57,6 +60,16 @@ fun splitAttributesCalculatorSample() {
                         SplitAttributes.LayoutDirection.LOCALE
                     }
                 )
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(
+                            EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
+                        )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .build()
+                )
                 .build()
         }
         return@setSplitAttributesCalculator if (
@@ -66,6 +79,16 @@ fun splitAttributesCalculatorSample() {
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(
+                            EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
+                        )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .build()
+                )
                 .build()
         } else {
             // Expand containers if the device is in portrait or the width is less than 600 dp.
@@ -84,12 +107,30 @@ fun splitWithOrientations() {
         return@setSplitAttributesCalculator if (parentConfiguration.screenWidthDp >= 600) {
             builder
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                // Set the color to use when switching between vertical and horizontal
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(
+                            EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
+                        )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .build()
+                )
                 .build()
         } else if (parentConfiguration.screenHeightDp >= 600) {
             builder
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                // Set the color to use when switching between vertical and horizontal
+                // Optionally set the animation background and change transition animation to use
+                // when switching between vertical and horizontal
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(
+                            EmbeddingAnimationBackground.createColorBackground(Color.GRAY)
+                        )
+                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
+                        .build()
+                )
                 .build()
         } else {
             // Fallback to expand the secondary container

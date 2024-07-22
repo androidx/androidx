@@ -22,16 +22,17 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
+import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Translates between Gms and Jetpack versions of {@link SetSchemaRequest}.
-
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SetSchemaRequestToGmsConverter {
@@ -73,6 +74,28 @@ public final class SetSchemaRequestToGmsConverter {
                 for (Set<Integer> permissionGroup : entry.getValue()) {
                     gmsBuilder.addRequiredPermissionsForSchemaTypeVisibility(
                             entry.getKey(), permissionGroup);
+                }
+            }
+        }
+        if (!jetpackRequest.getPubliclyVisibleSchemas().isEmpty()) {
+            for (Map.Entry<String, PackageIdentifier> entry :
+                    jetpackRequest.getPubliclyVisibleSchemas().entrySet()) {
+                PackageIdentifier publiclyVisibleTargetPackage = entry.getValue();
+                gmsBuilder.setPubliclyVisibleSchema(
+                        entry.getKey(),
+                        new com.google.android.gms.appsearch.PackageIdentifier(
+                                publiclyVisibleTargetPackage.getPackageName(),
+                                publiclyVisibleTargetPackage.getSha256Certificate()));
+            }
+        }
+
+        if (!jetpackRequest.getSchemasVisibleToConfigs().isEmpty()) {
+            for (Map.Entry<String, Set<SchemaVisibilityConfig>> entry :
+                    jetpackRequest.getSchemasVisibleToConfigs().entrySet()) {
+                for (SchemaVisibilityConfig jetpackConfig : entry.getValue()) {
+                    com.google.android.gms.appsearch.SchemaVisibilityConfig gmsConfig =
+                            toGmsSchemaVisibilityConfig(jetpackConfig);
+                    gmsBuilder.addSchemaTypeVisibleToConfig(entry.getKey(), gmsConfig);
                 }
             }
         }
@@ -160,5 +183,42 @@ public final class SetSchemaRequestToGmsConverter {
             );
         }
         return jetpackBuilder.build();
+    }
+
+    /**
+     * Translates a jetpack {@link SchemaVisibilityConfig} into a gms
+     * {@link com.google.android.gms.appsearch.SchemaVisibilityConfig}.
+     */
+    @NonNull
+    private static com.google.android.gms.appsearch.SchemaVisibilityConfig
+            toGmsSchemaVisibilityConfig(@NonNull SchemaVisibilityConfig jetpackConfig) {
+        Preconditions.checkNotNull(jetpackConfig);
+        com.google.android.gms.appsearch.SchemaVisibilityConfig.Builder gmsBuilder =
+                new com.google.android.gms.appsearch.SchemaVisibilityConfig.Builder();
+
+        // Translate allowedPackages
+        List<PackageIdentifier> allowedPackages = jetpackConfig.getAllowedPackages();
+        for (int i = 0; i < allowedPackages.size(); i++) {
+            gmsBuilder.addAllowedPackage(new com.google.android.gms.appsearch.PackageIdentifier(
+                    allowedPackages.get(i).getPackageName(),
+                    allowedPackages.get(i).getSha256Certificate()));
+        }
+
+        // Translate requiredPermissions
+        for (Set<Integer> requiredPermissions : jetpackConfig.getRequiredPermissions()) {
+            gmsBuilder.addRequiredPermissions(requiredPermissions);
+        }
+
+        // Translate publiclyVisibleTargetPackage
+        PackageIdentifier publiclyVisibleTargetPackage =
+                jetpackConfig.getPubliclyVisibleTargetPackage();
+        if (publiclyVisibleTargetPackage != null) {
+            gmsBuilder.setPubliclyVisibleTargetPackage(
+                    new com.google.android.gms.appsearch.PackageIdentifier(
+                            publiclyVisibleTargetPackage.getPackageName(),
+                            publiclyVisibleTargetPackage.getSha256Certificate()));
+        }
+
+        return gmsBuilder.build();
     }
 }

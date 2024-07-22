@@ -116,7 +116,7 @@ public class CreateCredentialRequestDisplayInfoJavaTest {
         assertThat(displayInfo.getPreferDefaultProvider()).isEqualTo(expectedDefaultProvider);
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Test
     public void constructFromBundle_success() {
         String expectedUserId = "userId";

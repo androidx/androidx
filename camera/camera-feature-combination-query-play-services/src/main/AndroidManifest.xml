@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <application>
+        <service
+            android:name="androidx.camera.featurecombinationquery.playservices.MetadataHolderService"
+            android:enabled="true"
+            android:exported="false"
+            tools:ignore="MissingServiceExportedEqualsTrue">
+            <meta-data
+                android:name="androidx.camera.featurecombinationquery.PLAY_SERVICES_IMPL_PROVIDER_KEY"
+                android:value="androidx.camera.featurecombinationquery.playservices.PlayServicesCameraDeviceSetupCompatProvider" />
+        </service>
+    </application>
 </manifest>

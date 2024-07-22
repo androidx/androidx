@@ -24,6 +24,7 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.TOKENI
 import static androidx.appsearch.testutil.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.testutil.AppSearchTestUtils.convertSearchResultsToDocuments;
 import static androidx.appsearch.testutil.AppSearchTestUtils.doGet;
+import static androidx.appsearch.testutil.AppSearchTestUtils.retrieveAllSearchResults;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -2763,5 +2764,161 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(person.getCreationTimestamp()).isEqualTo(3000);
         assertThat(person.getFirstName()).isEqualTo("first");
         assertThat(person.getLastName()).isEqualTo("last");
+    }
+
+    @Document
+    static class EmailWithEmbedding {
+        @Document.Namespace
+        String mNamespace;
+
+        @Document.Id
+        String mId;
+
+        @Document.CreationTimestampMillis
+        long mCreationTimestampMillis;
+
+        @Document.StringProperty
+        String mSender;
+
+        // Default non-indexable embedding
+        @Document.EmbeddingProperty
+        EmbeddingVector mSenderEmbedding;
+
+        @Document.EmbeddingProperty(indexingType = 1)
+        EmbeddingVector mTitleEmbedding;
+
+        @Document.EmbeddingProperty(indexingType = 1)
+        Collection<EmbeddingVector> mReceiverEmbeddings;
+
+        @Document.EmbeddingProperty(indexingType = 1)
+        EmbeddingVector[] mBodyEmbeddings;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            EmailWithEmbedding email = (EmailWithEmbedding) o;
+            return Objects.equals(mNamespace, email.mNamespace) && Objects.equals(mId,
+                    email.mId) && Objects.equals(mSender, email.mSender)
+                    && Objects.equals(mSenderEmbedding, email.mSenderEmbedding)
+                    && Objects.equals(mTitleEmbedding, email.mTitleEmbedding)
+                    && Objects.equals(mReceiverEmbeddings, email.mReceiverEmbeddings)
+                    && Arrays.equals(mBodyEmbeddings, email.mBodyEmbeddings);
+        }
+
+        public static EmailWithEmbedding createSampleDoc() {
+            EmbeddingVector embedding1 =
+                    new EmbeddingVector(new float[]{1, 2, 3}, "model1");
+            EmbeddingVector embedding2 =
+                    new EmbeddingVector(new float[]{-1, -2, -3}, "model2");
+            EmbeddingVector embedding3 =
+                    new EmbeddingVector(new float[]{0.1f, 0.2f, 0.3f, 0.4f}, "model3");
+            EmbeddingVector embedding4 =
+                    new EmbeddingVector(new float[]{-0.1f, -0.2f, -0.3f, -0.4f}, "model3");
+            EmailWithEmbedding email = new EmailWithEmbedding();
+            email.mNamespace = "namespace";
+            email.mId = "id";
+            email.mCreationTimestampMillis = 1000;
+            email.mSender = "sender";
+            email.mSenderEmbedding = embedding1;
+            email.mTitleEmbedding = embedding2;
+            email.mReceiverEmbeddings = Collections.singletonList(embedding3);
+            email.mBodyEmbeddings = new EmbeddingVector[]{embedding3, embedding4};
+            return email;
+        }
+    }
+
+    @Test
+    public void testEmbeddingGenericDocumentConversion() throws Exception {
+        EmailWithEmbedding inEmail = EmailWithEmbedding.createSampleDoc();
+        GenericDocument genericDocument1 = GenericDocument.fromDocumentClass(inEmail);
+        GenericDocument genericDocument2 = GenericDocument.fromDocumentClass(inEmail);
+        EmailWithEmbedding outEmail = genericDocument2.toDocumentClass(EmailWithEmbedding.class);
+
+        assertThat(inEmail).isNotSameInstanceAs(outEmail);
+        assertThat(inEmail).isEqualTo(outEmail);
+        assertThat(genericDocument1).isNotSameInstanceAs(genericDocument2);
+        assertThat(genericDocument1).isEqualTo(genericDocument2);
+    }
+
+    @Test
+    public void testEmbeddingSearch() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(
+                Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(EmailWithEmbedding.class)
+                .build()).get();
+
+        // Create and add a document
+        EmailWithEmbedding email = EmailWithEmbedding.createSampleDoc();
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addDocuments(email)
+                        .build()));
+
+        // An empty query should retrieve this document.
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder().build());
+        List<SearchResult> results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(1);
+        // Convert GenericDocument to EmailWithEmbedding and check values.
+        EmailWithEmbedding outputDocument = results.get(0).getDocument(EmailWithEmbedding.class);
+        assertThat(outputDocument).isEqualTo(email);
+
+        // senderEmbedding is non-indexable, so querying for it will return nothing.
+        searchResults = mSession.search("semanticSearch(getSearchSpecEmbedding(0), 0.9, 1)",
+                new SearchSpec.Builder()
+                        .setDefaultEmbeddingSearchMetricType(
+                                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_COSINE)
+                        .addSearchEmbeddings(email.mSenderEmbedding)
+                        .setRankingStrategy(
+                                "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                        .setListFilterQueryLanguageEnabled(true)
+                        .setEmbeddingSearchEnabled(true)
+                        .build());
+        results = retrieveAllSearchResults(searchResults);
+        assertThat(results).isEmpty();
+
+        // titleEmbedding is indexable, and querying for it using itself will return a cosine
+        // similarity score of 1.
+        searchResults = mSession.search("semanticSearch(getSearchSpecEmbedding(0), 0.9, 1)",
+                new SearchSpec.Builder()
+                        .setDefaultEmbeddingSearchMetricType(
+                                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_COSINE)
+                        .addSearchEmbeddings(email.mTitleEmbedding)
+                        .setRankingStrategy(
+                                "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                        .setListFilterQueryLanguageEnabled(true)
+                        .setEmbeddingSearchEnabled(true)
+                        .build());
+        results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getRankingSignal()).isWithin(0.00001).of(1);
+        // Convert GenericDocument to EmailWithEmbedding and check values.
+        outputDocument = results.get(0).getDocument(EmailWithEmbedding.class);
+        assertThat(outputDocument).isEqualTo(email);
+
+        // Both receiverEmbeddings and bodyEmbeddings are indexable, and in this specific
+        // document, they together hold three embedding vectors with the same signature.
+        searchResults = mSession.search("semanticSearch(getSearchSpecEmbedding(0), -1, 1)",
+                new SearchSpec.Builder()
+                        .setDefaultEmbeddingSearchMetricType(
+                                SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_COSINE)
+                        // Using one of the three vectors to query
+                        .addSearchEmbeddings(email.mBodyEmbeddings[0])
+                        .setRankingStrategy(
+                                // We should get a score of 3 for "len", since there are three
+                                // embedding vectors matched.
+                                "len(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                        .setListFilterQueryLanguageEnabled(true)
+                        .setEmbeddingSearchEnabled(true)
+                        .build());
+        results = retrieveAllSearchResults(searchResults);
+        assertThat(results).hasSize(1);
+        assertThat(results.get(0).getRankingSignal()).isEqualTo(3);
+        // Convert GenericDocument to EmailWithEmbedding and check values.
+        outputDocument = results.get(0).getDocument(EmailWithEmbedding.class);
+        assertThat(outputDocument).isEqualTo(email);
     }
 }

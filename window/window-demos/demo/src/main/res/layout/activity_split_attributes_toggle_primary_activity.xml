@@ -192,6 +192,106 @@
                     android:visibility="gone"/>
         </RadioGroup>
 
+        <!-- Dropdown for animation background -->
+
+        <View
+            android:id="@+id/animation_background_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/animation_background_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_animation_background"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/animation_background_dropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:visibility="gone"/>
+
+        <!-- Dropdown for open animation transition -->
+
+        <View
+            android:id="@+id/open_animation_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/open_animation_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_open_animation"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/open_animation_dropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:visibility="gone"/>
+
+        <!-- Dropdown for close animation transition -->
+
+        <View
+            android:id="@+id/close_animation_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/close_animation_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_close_animation"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/close_animation_dropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:visibility="gone"/>
+
+        <!-- Dropdown for change animation transition -->
+
+        <View
+            android:id="@+id/change_animation_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="#AAAAAA"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/change_animation_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/current_change_animation"
+            android:visibility="gone"/>
+
+        <Spinner
+            android:id="@+id/change_animation_dropdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:spinnerMode="dropdown"
+            android:visibility="gone"/>
+
         <View
             android:id="@+id/finish_secondary_activities_divider"
             android:layout_width="match_parent"
@@ -200,6 +300,14 @@
             android:layout_marginBottom="10dp"
             android:visibility="gone"
             android:background="#AAAAAA" />
+
+        <Button
+            android:id="@+id/finish_secondary_activities_button"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_centerHorizontal="true"
+            android:text="Finish secondary activities"
+            android:visibility="gone"/>
 
         <View
             android:layout_width="match_parent"

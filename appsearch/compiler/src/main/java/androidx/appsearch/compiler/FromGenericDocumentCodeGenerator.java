@@ -203,8 +203,9 @@ class FromGenericDocumentCodeGenerator {
         //       unboxing.
         //
         //   1b: ListCallArraysAsList
-        //       List contains String. We have to convert this from an array of String[], but no
-        //       conversion of the collection elements is needed. We can use Arrays#asList for this.
+        //       List contains String or EmbeddingVector. We have to convert this from
+        //       an array of String[] or EmbeddingVector[], but no conversion of the
+        //       collection elements is needed. We can use Arrays#asList for this.
         //
         //   1c: ListForLoopCallFromGenericDocument
         //       List contains a class which is annotated with @Document.
@@ -225,7 +226,8 @@ class FromGenericDocumentCodeGenerator {
         //       of unboxing.
         //
         //   2b: ArrayUseDirectly
-        //       Array is of type String[], long[], double[], boolean[], byte[][].
+        //       Array is of type String[], long[], double[], boolean[], byte[][] or
+        //       EmbeddingVector[].
         //       We can directly use this field with no conversion.
         //
         //   2c: ArrayForLoopCallFromGenericDocument
@@ -243,7 +245,8 @@ class FromGenericDocumentCodeGenerator {
 
         // Scenario 3: Single valued fields
         //   3a: FieldUseDirectlyWithNullCheck
-        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[].
+        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
+        //       EmbeddingVector.
         //       We can use this field directly, after testing for null. The java compiler will box
         //       or unbox as needed.
         //
@@ -393,6 +396,19 @@ class FromGenericDocumentCodeGenerator {
                     default:
                         throw new IllegalStateException("Unhandled type-category: " + typeCategory);
                 }
+            case EMBEDDING_PROPERTY:
+                switch (typeCategory) {
+                    case COLLECTION: // List<EmbeddingVector>: 1b
+                        return listCallArraysAsList(annotation, getterOrField);
+                    case ARRAY:
+                        // EmbeddingVector[]: 2b
+                        return arrayUseDirectly(annotation, getterOrField);
+                    case SINGLE:
+                        // EmbeddingVector: 3a
+                        return fieldUseDirectlyWithNullCheck(annotation, getterOrField);
+                    default:
+                        throw new IllegalStateException("Unhandled type-category: " + typeCategory);
+                }
             default:
                 throw new IllegalStateException("Unhandled annotation: " + annotation);
         }
@@ -433,8 +449,9 @@ class FromGenericDocumentCodeGenerator {
     }
 
     // 1b: ListCallArraysAsList
-    //     List contains String. We have to convert this from an array of String[], but no
-    //     conversion of the collection elements is needed. We can use Arrays#asList for this.
+    //     List contains String or EmbeddingVector. We have to convert this from
+    //     an array of String[] or EmbeddingVector[], but no conversion of the
+    //     collection elements is needed. We can use Arrays#asList for this.
     @NonNull
     private CodeBlock listCallArraysAsList(
             @NonNull DataPropertyAnnotation annotation,
@@ -559,8 +576,8 @@ class FromGenericDocumentCodeGenerator {
     }
 
     // 2b: ArrayUseDirectly
-    //     Array is of type String[], long[], double[], boolean[], byte[][].
-    //     We can directly use this field with no conversion.
+    //     Array is of type String[], long[], double[], boolean[], byte[][] or
+    //     EmbeddingVector[].
     @NonNull
     private CodeBlock arrayUseDirectly(
             @NonNull DataPropertyAnnotation annotation,
@@ -646,7 +663,8 @@ class FromGenericDocumentCodeGenerator {
     }
 
     // 3a: FieldUseDirectlyWithNullCheck
-    //     Field is of type String, Long, Integer, Double, Float, Boolean, byte[].
+    //     Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
+    //     EmbeddingVector.
     //     We can use this field directly, after testing for null. The java compiler will box
     //     or unbox as needed.
     @NonNull

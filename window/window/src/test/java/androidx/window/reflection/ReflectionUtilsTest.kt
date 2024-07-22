@@ -36,43 +36,46 @@ class ReflectionUtilsTest {
 
     @Test
     fun testValidateReflectionSuccess() {
-        val result = validateReflection { true }
+        val result = validateReflection("") { true }
         assertTrue(result)
     }
 
     @Test
     fun testValidateReflectionFail() {
-        val result = validateReflection {
-            classLoader.loadClass("SomeUnExistedClass.java")
-            true
-        }
+        val result =
+            validateReflection("") {
+                classLoader.loadClass("SomeUnExistedClass.java")
+                true
+            }
         assertFalse(result)
     }
 
     @Test
     fun testMethodModifier() {
-        val result = validateReflection {
-            val testClass = this::class.java
-            val privateMethod = testClass.getDeclaredMethod("testMethod").isPublic
-            assertFalse(privateMethod)
-            val publicMethod = testClass.getDeclaredMethod("testMethodModifier").isPublic
-            assertTrue(publicMethod)
-            true
-        }
+        val result =
+            validateReflection("") {
+                val testClass = this::class.java
+                val privateMethod = testClass.getDeclaredMethod("testMethod").isPublic
+                assertFalse(privateMethod)
+                val publicMethod = testClass.getDeclaredMethod("testMethodModifier").isPublic
+                assertTrue(publicMethod)
+                true
+            }
         assertTrue(result)
     }
 
     @Test
     fun testDoesReturn() {
-        val result = validateReflection {
-            val testClass = this::class.java
-            val privateMethod = testClass.getDeclaredMethod("testMethod")
-            assertTrue(privateMethod.doesReturn(Int::class.java))
-            assertTrue(privateMethod.doesReturn(Int::class))
-            assertFalse(privateMethod.doesReturn(Any::class.java))
-            assertFalse(privateMethod.doesReturn(Any::class))
-            true
-        }
+        val result =
+            validateReflection("") {
+                val testClass = this::class.java
+                val privateMethod = testClass.getDeclaredMethod("testMethod")
+                assertTrue(privateMethod.doesReturn(Int::class.java))
+                assertTrue(privateMethod.doesReturn(Int::class))
+                assertFalse(privateMethod.doesReturn(Any::class.java))
+                assertFalse(privateMethod.doesReturn(Any::class))
+                true
+            }
         assertTrue(result)
     }
 

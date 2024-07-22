@@ -468,6 +468,7 @@ class SplashScreen private constructor(activity: Activity) {
          *
          * To fix this, we apply these attributes as soon as the [SplashScreenView] is visible.
          */
+        @Suppress("DEPRECATION")
         private fun applyAppSystemUiTheme() {
             val tv = TypedValue()
             val theme = activity.theme

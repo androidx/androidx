@@ -126,6 +126,7 @@ private fun obtainResourceIdCache(context: Context): ResourceIdCache {
                 resourceIdCache.clear()
             }
 
+            @Deprecated("This callback is superseded by onTrimMemory")
             override fun onLowMemory() {
                 resourceIdCache.clear()
             }
@@ -160,6 +161,7 @@ private fun obtainImageVectorCache(
                 currentConfiguration.setTo(configuration)
             }
 
+            @Deprecated("This callback is superseded by onTrimMemory")
             override fun onLowMemory() {
                 imageVectorCache.clear()
             }

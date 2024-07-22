@@ -56,7 +56,7 @@ private constructor(failureMetadata: FailureMetadata?, private val subject: Bitm
 
     override fun actualCustomStringRepresentation(): String {
         return if (subject != null) {
-            "($subject ${subject.width}x${subject.height} ${subject.config.name})"
+            "($subject ${subject.width}x${subject.height} ${subject.config!!.name})"
         } else {
             super.actualCustomStringRepresentation()
         }

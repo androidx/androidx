@@ -22,18 +22,12 @@
         <property
             android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED"
             android:value="true" />
+        <!-- The app itself supports activity embedding, so a system override is not needed. -->
+        <property
+            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
+            android:value="false" />
 
-        <service android:name=".TestIme"
-            android:label="@string/test_ime"
-            android:permission="android.permission.BIND_INPUT_METHOD"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.view.InputMethod"/>
-            </intent-filter>
-            <meta-data android:name="android.view.im"
-                android:resource="@xml/method"/>
-        </service>
-
+        <!--region WindowManager Demos -->
         <activity android:name=".demos.WindowDemosActivity"
             android:exported="true"
             android:label="@string/windowManagerDemos">
@@ -74,6 +68,9 @@
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
             android:label="@string/window_metrics"/>
+        <!--endregion WindowManager Demos -->
+
+        <!--region Rear Display Demos -->
         <activity android:name=".area.RearDisplayActivityConfigChanges"
             android:exported="true"
             android:configChanges=
@@ -84,6 +81,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".area.RearDisplayPresentationActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenLayout|screenSize|layoutDirection|smallestScreenSize"
+            android:label="@string/dual_display" />
+        <!--endregion Rear Display Demos -->
+
+        <!--region Sample showcase of split activity rules -->
         <activity
             android:name=".embedding.SplitActivityA"
             android:exported="true"
@@ -132,10 +136,17 @@
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.manual_split_affinity"/>
         <activity
+            android:name=".embedding.DialogActivity"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:exported="false"
+            android:label="Dialog Activity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.manual_split_affinity"/>
+        <activity
             android:name=".embedding.ExpandedDialogActivity"
             android:theme="@style/ExpandedDialogTheme"
             android:exported="false"
-            android:label="Dialog Activity"
+            android:label="Expanded Dialog Activity"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.manual_split_affinity"/>
         <activity
@@ -176,9 +187,9 @@
             android:label="Placeholder"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.list_detail_split_affinity" />
+        <!--endregion Sample showcase of split activity rules -->
 
-        <!-- Split PiP App -->
-
+        <!-- region Split PiP App -->
         <activity
             android:name=".embedding.SplitPipActivityA"
             android:exported="true"
@@ -213,10 +224,11 @@
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.split_pip">
         </activity>
+        <!-- endregion Split PiP App -->
 
+        <!-- region Split on Device State -->
         <!-- The demo App to show how to change the current split layout with the current device and
          window states -->
-
         <activity
             android:name=".embedding.SplitDeviceStateActivityA"
             android:exported="true"
@@ -235,7 +247,9 @@
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.split_device_state_activity_affinity">
         </activity>
+        <!-- endregion Split on Device State -->
 
+        <!-- region Split Toggle at Runtime -->
         <!-- The demo app to show how to change layout with runtime APIs -->
         <activity
             android:name=".embedding.SplitAttributesToggleMainActivity"
@@ -263,16 +277,26 @@
             android:label="Split Toggle Placeholder"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.split_attributes_toggle_activity_affinity" />
+        <!-- endregion Split Toggle at Runtime -->
 
+        <!-- region IME usages in ActivityEmbedding split -->
         <!-- The demo app that shows various IME-related use cases -->
-
         <activity android:name=".ImeActivity"
             android:exported="false"
             android:configChanges="orientation|screenSize|screenLayout|screenSize"
-            android:label="@string/ime"/>
-
+            android:label="@string/ime" />
+        <service android:name=".TestIme"
+            android:label="@string/test_ime"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data
+                android:name="android.view.im"
+                android:resource="@xml/method" />
+        </service>
         <!-- The demo app to show IME usages in ActivityEmbedding split. -->
-
         <activity
             android:name=".embedding.SplitImeActivityMain"
             android:exported="true"
@@ -291,9 +315,37 @@
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.demo.split_ime">
         </activity>
+        <!-- endregion IME usages in ActivityEmbedding split -->
 
+        <!-- region Overlay features -->
+        <!-- The demo app to show how to use overlay features -->
+        <activity
+            android:name=".embedding.OverlayAssociatedActivityA"
+            android:exported="true"
+            android:label="Overlay Activity A"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.overlay_activity_affinity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.OverlayAssociatedActivityB"
+            android:exported="true"
+            android:label="Overlay Activity B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.overlay_activity_affinity">
+        </activity>
+        <activity-alias
+            android:name=".embedding.SplitWithOverlayActivity"
+            android:targetActivity=".embedding.SplitActivityDetail"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.demo.overlay_activity_affinity" />
+        <!-- endregion Overlay features -->
+
+        <!-- region Display configuration callbacks -->
         <!-- The demo app to show display configuration from different system callbacks. -->
-
         <activity
             android:name=".coresdk.WindowStateCallbackActivity"
             android:exported="true"
@@ -305,9 +357,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- endregion Display configuration callbacks -->
 
-        <!-- Activity embedding initializer -->
-
+        <!-- region Activity embedding initializer -->
         <provider android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"
@@ -316,11 +368,7 @@
             <meta-data  android:name="androidx.window.demo.embedding.ExampleWindowInitializer"
                 android:value="androidx.startup" />
         </provider>
-
-        <!-- The app itself supports activity embedding, so a system override is not needed. -->
-        <property
-            android:name="android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE"
-            android:value="false" />
+        <!-- endregion Activity embedding initializer -->
 
     </application>
 </manifest>

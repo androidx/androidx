@@ -55,6 +55,7 @@ android {
     }
 
     defaultConfig {
+        compileSdk = 35
         testInstrumentationRunner "androidx.recyclerview.test.TestRunner"
     }
     namespace "androidx.recyclerview"

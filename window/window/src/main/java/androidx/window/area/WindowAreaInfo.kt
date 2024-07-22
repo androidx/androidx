@@ -22,6 +22,7 @@ import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_T
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.core.ExtensionsUtil
 import androidx.window.extensions.area.WindowAreaComponent
 import androidx.window.layout.WindowMetrics
 
@@ -86,7 +87,8 @@ internal constructor(
             OPERATION_PRESENT_ON_AREA ->
                 RearDisplayPresentationSessionPresenterImpl(
                     windowAreaComponent,
-                    windowAreaComponent.rearDisplayPresentation!!
+                    windowAreaComponent.rearDisplayPresentation!!,
+                    ExtensionsUtil.safeVendorApiLevel
                 )
             else -> {
                 throw IllegalArgumentException("Invalid operation provided")

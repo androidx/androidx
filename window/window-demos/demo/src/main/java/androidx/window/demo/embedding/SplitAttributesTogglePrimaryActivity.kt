@@ -21,14 +21,19 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import android.widget.ArrayAdapter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.WindowSdkExtensions
+import androidx.window.core.ExperimentalWindowApi
+import androidx.window.demo.R
 import androidx.window.embedding.ActivityStack
 import androidx.window.embedding.SplitInfo
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalWindowApi::class)
 class SplitAttributesTogglePrimaryActivity :
     SplitAttributesToggleMainActivity(), View.OnClickListener {
 
@@ -39,6 +44,8 @@ class SplitAttributesTogglePrimaryActivity :
         super.onCreate(savedInstanceState)
 
         viewBinding.rootSplitActivityLayout.setBackgroundColor(Color.parseColor("#e8f5e9"))
+
+        val isRuntimeApiSupported = WindowSdkExtensions.getInstance().extensionVersion >= 3
 
         secondaryActivityIntent = Intent(this, SplitAttributesToggleSecondaryActivity::class.java)
 
@@ -51,6 +58,69 @@ class SplitAttributesTogglePrimaryActivity :
 
         // Enable to finish secondary ActivityStacks for primary Activity.
         viewBinding.finishSecondaryActivitiesDivider.visibility = View.VISIBLE
+        val finishSecondaryActivitiesButton =
+            viewBinding.finishSecondaryActivitiesButton.apply {
+                visibility = View.VISIBLE
+                if (!isRuntimeApiSupported) {
+                    isEnabled = false
+                } else {
+                    setOnClickListener(this@SplitAttributesTogglePrimaryActivity)
+                }
+            }
+
+        // Animation background
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+            val animationBackgroundDropdown = viewBinding.animationBackgroundDropdown
+            animationBackgroundDropdown.visibility = View.VISIBLE
+            viewBinding.animationBackgroundDivider.visibility = View.VISIBLE
+            viewBinding.animationBackgroundTextView.visibility = View.VISIBLE
+            animationBackgroundDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
+                )
+            animationBackgroundDropdown.onItemSelectedListener = this
+        }
+
+        // Animation transitions
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 7) {
+            val openAnimationDropdown = viewBinding.openAnimationDropdown
+            openAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.openAnimationDivider.visibility = View.VISIBLE
+            viewBinding.openAnimationTextView.visibility = View.VISIBLE
+            openAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            openAnimationDropdown.onItemSelectedListener = this
+
+            val closeAnimationDropdown = viewBinding.closeAnimationDropdown
+            closeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.closeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.closeAnimationTextView.visibility = View.VISIBLE
+            closeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            closeAnimationDropdown.onItemSelectedListener = this
+
+            val changeAnimationDropdown = viewBinding.changeAnimationDropdown
+            changeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.changeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.changeAnimationTextView.visibility = View.VISIBLE
+            changeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            changeAnimationDropdown.onItemSelectedListener = this
+        }
 
         lifecycleScope.launch {
             // The block passed to repeatOnLifecycle is executed when the lifecycle
@@ -61,6 +131,7 @@ class SplitAttributesTogglePrimaryActivity :
                     .splitInfoList(this@SplitAttributesTogglePrimaryActivity)
                     .onEach { updateUiFromRules() }
                     .collect { splitInfoList ->
+                        finishSecondaryActivitiesButton.isEnabled = splitInfoList.isNotEmpty()
                         activityStacks =
                             splitInfoList.mapTo(mutableSetOf()) { splitInfo ->
                                 splitInfo.getTheOtherActivityStack(
@@ -78,4 +149,14 @@ class SplitAttributesTogglePrimaryActivity :
         } else {
             primaryActivityStack
         }
+
+    override fun onClick(button: View) {
+        super.onClick(button)
+        when (button.id) {
+            R.id.finish_secondary_activities_button -> {
+                applyRules()
+                activityEmbeddingController.finishActivityStacks(activityStacks)
+            }
+        }
+    }
 }

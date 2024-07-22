@@ -56,6 +56,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final Features mFeatures;
     private final Executor mExecutor;
 
+    private boolean mIsClosed = false;
+
     GlobalSearchSessionImpl(
             @NonNull GlobalSearchClient gmsClient,
             @NonNull Features features,
@@ -69,6 +71,10 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getByDocumentIdAsync(
             @NonNull String packageName, @NonNull String databaseName,
             @NonNull GetByDocumentIdRequest request) {
+        Preconditions.checkNotNull(packageName);
+        Preconditions.checkNotNull(databaseName);
+        Preconditions.checkNotNull(request);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsClient.getByDocumentId(packageName, databaseName,
                         RequestToGmsConverter.toGmsGetByDocumentIdRequest(request)),
@@ -80,6 +86,9 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @NonNull
     @Override
     public SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         com.google.android.gms.appsearch.SearchResults searchResults =
                 mGmsClient.search(queryExpression,
                         SearchSpecToGmsConverter.toGmsSearchSpec(searchSpec));
@@ -90,6 +99,8 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @Override
     public ListenableFuture<Void> reportSystemUsageAsync(
             @NonNull ReportSystemUsageRequest request) {
+        Preconditions.checkNotNull(request);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         Task<Void> flushTask = Tasks.forResult(null);
         return AppSearchTaskFutures.toListenableFuture(flushTask, /* valueMapper= */ i-> i,
                 mExecutor);
@@ -99,6 +110,9 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     @Override
     public ListenableFuture<GetSchemaResponse> getSchemaAsync(@NonNull String packageName,
             @NonNull String databaseName) {
+        Preconditions.checkNotNull(packageName);
+        Preconditions.checkNotNull(databaseName);
+        Preconditions.checkState(!mIsClosed, "GlobalSearchSession has already been closed");
         return AppSearchTaskFutures.toListenableFuture(
                 mGmsClient.getSchema(packageName, databaseName),
                 GetSchemaResponseToGmsConverter::toJetpackGetSchemaResponse, mExecutor);
@@ -130,6 +144,6 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @Override
     public void close() {
-        mGmsClient.close();
+        mIsClosed = true;
     }
 }

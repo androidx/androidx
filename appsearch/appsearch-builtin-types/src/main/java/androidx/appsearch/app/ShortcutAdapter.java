@@ -23,11 +23,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.util.Preconditions;
 
@@ -60,6 +62,9 @@ public class ShortcutAdapter {
             + "not match androidx.appsearch.app.ShortcutAdapter.DEFAULT_NAMESPACE."
             + "Please use androidx.appsearch.app.ShortcutAdapter.DEFAULT_NAMESPACE as the "
             + "namespace of the document if it will be used to create a shortcut.";
+
+    private static final String APPSEARCH_GENERIC_DOC_PARCEL_NAME_IN_BUNDLE =
+            "appsearch_generic_doc_parcel";
 
     /**
      * Converts given document to a {@link ShortcutInfoCompat.Builder}, which can be used to
@@ -117,16 +122,19 @@ public class ShortcutAdapter {
             throw new IllegalArgumentException(NAMESPACE_CHECK_ERROR_MESSAGE);
         }
         final String name = doc.getPropertyString(FIELD_NAME);
+        final Bundle extras = new Bundle();
+        extras.putParcelable(APPSEARCH_GENERIC_DOC_PARCEL_NAME_IN_BUNDLE, doc.getDocumentParcel());
         return new ShortcutInfoCompat.Builder(context, doc.getId())
                 .setShortLabel(!TextUtils.isEmpty(name) ? name : doc.getId())
                 .setIntent(new Intent(Intent.ACTION_VIEW, getDocumentUri(doc)))
                 .setExcludedFromSurfaces(ShortcutInfoCompat.SURFACE_LAUNCHER)
-                .setTransientExtras(doc.getBundle());
+                .setTransientExtras(extras);
     }
 
     /**
      * Extracts {@link GenericDocument} from given {@link ShortcutInfoCompat} if applicable.
      * Returns null if document cannot be found in the given shortcut.
+     *
      * @exportToFramework:hide
      */
     @Nullable
@@ -137,7 +145,21 @@ public class ShortcutAdapter {
         if (extras == null) {
             return null;
         }
-        return new GenericDocument(extras);
+
+        GenericDocumentParcel genericDocParcel;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            genericDocParcel = Api33Impl.getParcelableFromBundle(extras,
+                    APPSEARCH_GENERIC_DOC_PARCEL_NAME_IN_BUNDLE, GenericDocumentParcel.class);
+        } else {
+            @SuppressWarnings("deprecation")
+            GenericDocumentParcel tmp = (GenericDocumentParcel) extras.getParcelable(
+                    APPSEARCH_GENERIC_DOC_PARCEL_NAME_IN_BUNDLE);
+            genericDocParcel = tmp;
+        }
+        if (genericDocParcel == null) {
+            return null;
+        }
+        return new GenericDocument(genericDocParcel);
     }
 
     /**
@@ -176,5 +198,22 @@ public class ShortcutAdapter {
                 .authority(DEFAULT_DATABASE)
                 .path(DEFAULT_NAMESPACE + "/" + id)
                 .build();
+    }
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static <T> T getParcelableFromBundle(
+                @NonNull Bundle bundle,
+                @NonNull String key,
+                @NonNull Class<T> clazz) {
+            Preconditions.checkNotNull(bundle);
+            Preconditions.checkNotNull(key);
+            Preconditions.checkNotNull(clazz);
+            return bundle.getParcelable(key, clazz);
+        }
     }
 }

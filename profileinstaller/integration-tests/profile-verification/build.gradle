@@ -83,6 +83,7 @@ def prepareAssetsTaskProvider = tasks.register("prepareAssets", PrepareAssetsTas
 }
 
 android {
+    compileSdk 35
     defaultConfig {
         minSdkVersion 23
     }

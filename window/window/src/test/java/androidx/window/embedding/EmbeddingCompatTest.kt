@@ -17,12 +17,14 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
+import java.util.concurrent.Executor
 import java.util.function.Consumer as JavaConsumer
 import org.junit.Test
 import org.mockito.kotlin.any
@@ -32,9 +34,16 @@ import org.mockito.kotlin.verify
 class EmbeddingCompatTest {
 
     private val component = mock<ActivityEmbeddingComponent>()
-    private val vendorApiLevel = ExtensionsUtil.safeVendorApiLevel
+    private val extensionVersion = WindowSdkExtensions.getInstance().extensionVersion
     private val embeddingCompat =
-        EmbeddingCompat(component, EMBEDDING_ADAPTER, CONSUMER_ADAPTER, mock())
+        EmbeddingCompat(
+            component,
+            EMBEDDING_ADAPTER,
+            CONSUMER_ADAPTER,
+            mock(),
+            mock(),
+            mock(),
+        )
 
     @Suppress("Deprecation")
     @Test
@@ -42,13 +51,22 @@ class EmbeddingCompatTest {
         val callback =
             object : EmbeddingInterfaceCompat.EmbeddingCallbackInterface {
                 override fun onSplitInfoChanged(splitInfo: List<SplitInfo>) {}
+
+                override fun onActivityStackChanged(activityStacks: List<ActivityStack>) {}
             }
         embeddingCompat.setEmbeddingCallback(callback)
 
-        if (vendorApiLevel < 2) {
-            verify(component).setSplitInfoCallback(any<JavaConsumer<List<OEMSplitInfo>>>())
-        } else {
-            verify(component).setSplitInfoCallback(any<Consumer<List<OEMSplitInfo>>>())
+        when (extensionVersion) {
+            1 -> verify(component).setSplitInfoCallback(any<JavaConsumer<List<OEMSplitInfo>>>())
+            in 2..4 -> verify(component).setSplitInfoCallback(any<Consumer<List<OEMSplitInfo>>>())
+            5 -> {
+                verify(component).setSplitInfoCallback(any<Consumer<List<OEMSplitInfo>>>())
+                verify(component)
+                    .registerActivityStackCallback(
+                        any<Executor>(),
+                        any<Consumer<List<OEMActivityStack>>>()
+                    )
+            }
         }
     }
 

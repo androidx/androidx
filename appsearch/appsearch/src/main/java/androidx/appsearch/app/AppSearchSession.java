@@ -176,7 +176,7 @@ public interface AppSearchSession extends Closeable {
      * <p>The newly added custom functions covered by this feature are:
      * <ul>
      *     <li>createList(String...)</li>
-     *     <li>search(String, List<String>)</li>
+     *     <li>search(String, {@code List<String>})</li>
      *     <li>propertyDefined(String)</li>
      * </ul>
      *
@@ -187,13 +187,14 @@ public interface AppSearchSession extends Closeable {
      * query language and an optional list of strings that specify the properties to be
      * restricted to. This exists as a convenience for multiple property restricts. So,
      * for example, the query `(subject:foo OR body:foo) (subject:bar OR body:bar)`
-     * could be rewritten as `search("foo bar", createList("subject", "bar"))`.
+     * could be rewritten as `search("foo bar", createList("subject", "body"))`.
      *
      * <p>propertyDefined takes a string specifying the property of interest and matches all
      * documents of any type that defines the specified property
      * (ex. `propertyDefined("sender.name")`). Note that propertyDefined will match so long as
-     * the document's type defines the specified property. It does NOT require that the document
-     * actually hold any values for this property.
+     * the document's type defines the specified property. Unlike the "hasProperty" function
+     * below, this function does NOT require that the document actually hold any values for this
+     * property.
      *
      * <p>{@link Features#NUMERIC_SEARCH}: This feature covers numeric search expressions. In the
      * query language, the values of properties that have
@@ -209,6 +210,68 @@ public interface AppSearchSession extends Closeable {
      *
      * <p>Ex. `"foo/bar" OR baz` will ensure that 'foo/bar' is treated as a single 'verbatim' token.
      *
+     * <p>{@link Features#LIST_FILTER_HAS_PROPERTY_FUNCTION}: This feature covers the
+     * "hasProperty" function in query expressions, which takes a string specifying the property
+     * of interest and matches all documents that hold values for this property. Not to be
+     * confused with the "propertyDefined" function, which checks whether a document's schema
+     * has defined the property, instead of whether a document itself has this property.
+     *
+     * <p>Ex. `foo hasProperty("sender.name")` will return all documents that have the term "foo"
+     * AND have values in the property "sender.name". Consider two documents, documentA and
+     * documentB, of the same schema with an optional property "sender.name". If documentA sets
+     * "foo" in this property but documentB does not, then `hasProperty("sender.name")` will only
+     * match documentA. However, `propertyDefined("sender.name")` will match both documentA and
+     * documentB, regardless of whether a value is actually set.
+     *
+     * <p>{@link Features#SCHEMA_EMBEDDING_PROPERTY_CONFIG}: This feature covers the
+     * "semanticSearch" and "getSearchSpecEmbedding" functions in query expressions, which are
+     * used for semantic search.
+     *
+     * <p>Usage: semanticSearch(getSearchSpecEmbedding({embedding_index}), {low}, {high}, {metric})
+     * <ul>
+     *     <li>semanticSearch matches all documents that have at least one embedding vector with
+     *     a matching model signature (see {@link EmbeddingVector#getModelSignature()}) and a
+     *     similarity score within the range specified based on the provided metric.</li>
+     *     <li>getSearchSpecEmbedding({embedding_index}) retrieves the embedding search passed in
+     *     {@link SearchSpec.Builder#addSearchEmbeddings} based on the index specified, which
+     *     starts from 0.</li>
+     *     <li>"low" and "high" are floating point numbers that specify the similarity score
+     *     range. If omitted, they default to negative and positive infinity, respectively.</li>
+     *     <li>"metric" is a string value that specifies how embedding similarities should be
+     *     calculated. If omitted, it defaults to the metric specified in
+     *     {@link SearchSpec.Builder#setDefaultEmbeddingSearchMetricType(int)}. Possible
+     *     values:</li>
+     *     <ul>
+     *         <li>"COSINE"</li>
+     *         <li>"DOT_PRODUCT"</li>
+     *         <li>"EUCLIDEAN"</li>
+     *     </ul>
+     * </ul>
+     *
+     * <p>Examples:
+     * <ul>
+     *     <li>Basic: semanticSearch(getSearchSpecEmbedding(0), 0.5, 1, "COSINE")</li>
+     *     <li>With a property restriction:
+     *     property1:semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)</li>
+     *     <li>Hybrid: foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)</li>
+     *     <li>Complex: (foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)) AND bar</li>
+     * </ul>
+     *
+     * <p>{@link Features#LIST_FILTER_TOKENIZE_FUNCTION}: This feature covers the
+     * "tokenize" function in query expressions, which takes a string and treats the entire string
+     * as plain text. This string is then segmented, normalized and stripped of punctuation-only
+     * segments. The remaining tokens are then AND'd together. This function is useful for callers
+     * who wish to provide user input, but want to ensure that that user input does not invoke any
+     * query operators.
+     *
+     * <p>Ex. `foo OR tokenize("bar OR baz.")`. The string "bar OR baz." will be segmented into
+     * "bar", "OR", "baz", ".". Punctuation is removed and the segments are normalized to "bar",
+     * "or", "baz". This query will be equivalent to `foo OR (bar AND or AND baz)`.
+     *
+     * <p>Ex. `tokenize("\"bar\" OR \\baz")`. Quotation marks and escape characters must be escaped.
+     * This query will be segmented into "\"", "bar", "\"", "OR", "\", "baz". Once stripped of
+     * punctuation and normalized, this will be equivalent to the query `bar AND or AND baz`.
+     *
      * <p>The availability of each of these features can be checked by calling
      * {@link Features#isFeatureSupported} with the desired feature.
      *
@@ -223,6 +286,8 @@ public interface AppSearchSession extends Closeable {
      *                        match type, etc.
      * @return a {@link SearchResults} object for retrieved matched documents.
      */
+    // TODO(b/326656531): Refine the javadoc to provide guidance on the best practice of
+    //  embedding searches and how to select an appropriate metric.
     @NonNull
     SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
 

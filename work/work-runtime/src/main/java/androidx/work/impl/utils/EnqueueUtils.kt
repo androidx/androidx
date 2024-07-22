@@ -30,6 +30,7 @@ import androidx.work.impl.WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.workers.ARGUMENT_CLASS_NAME
 import androidx.work.impl.workers.ConstraintTrackingWorker
+import kotlin.collections.removeLast as removeLastKt
 
 internal fun checkContentUriTriggerWorkerLimits(
     workDatabase: WorkDatabase,
@@ -40,7 +41,7 @@ internal fun checkContentUriTriggerWorkerLimits(
     val continuations = mutableListOf(continuation)
     var newCount = 0
     while (continuations.isNotEmpty()) {
-        val current = continuations.removeLast()
+        val current = continuations.removeLastKt()
         newCount += current.work.count { it.workSpec.constraints.hasContentUriTriggers() }
         (current.parents as List<WorkContinuationImpl>?)?.let { continuations.addAll(it) }
     }

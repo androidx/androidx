@@ -20,6 +20,8 @@ import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiContext
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
+import androidx.window.layout.SupportedPosture
 import androidx.window.layout.WindowLayoutInfo
 import java.util.concurrent.Executor
 
@@ -48,4 +50,11 @@ internal interface WindowBackend {
     fun hasRegisteredListeners(): Boolean {
         return false
     }
+
+    /**
+     * Returns a [List] of [SupportedPosture] for the device.
+     *
+     * @throws UnsupportedOperationException if the Window SDK version is less than 6.
+     */
+    @RequiresWindowSdkExtension(version = 6) val supportedPostures: List<SupportedPosture>
 }

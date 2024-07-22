@@ -17,23 +17,27 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import android.app.ActivityOptions
 import android.content.Context
-import android.os.IBinder
+import android.os.Bundle
 import android.util.Log
+import androidx.annotation.VisibleForTesting
+import androidx.core.util.Consumer as JetpackConsumer
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import androidx.window.embedding.EmbeddingInterfaceCompat.EmbeddingCallbackInterface
+import androidx.window.embedding.OverlayController.Companion.OVERLAY_FEATURE_VERSION
 import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
 import androidx.window.extensions.WindowExtensionsProvider
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.ActivityStack as OEMActivityStack
+import androidx.window.extensions.embedding.ActivityStackAttributes
 import androidx.window.extensions.embedding.SplitInfo as OEMSplitInfo
 import androidx.window.reflection.Consumer2
 import java.lang.reflect.Proxy
+import java.util.concurrent.Executor
 
 /**
  * Adapter implementation for different historical versions of activity embedding OEM interface in
@@ -43,8 +47,14 @@ internal class EmbeddingCompat(
     private val embeddingExtension: ActivityEmbeddingComponent,
     private val adapter: EmbeddingAdapter,
     private val consumerAdapter: ConsumerAdapter,
-    private val applicationContext: Context
+    private val applicationContext: Context,
+    @get:VisibleForTesting internal val overlayController: OverlayControllerImpl?,
+    private val activityWindowInfoCallbackController: ActivityWindowInfoCallbackController?,
 ) : EmbeddingInterfaceCompat {
+
+    private val windowSdkExtensions = WindowSdkExtensions.getInstance()
+
+    private var isCustomSplitAttributeCalculatorSet: Boolean = false
 
     override fun setRules(rules: Set<EmbeddingRule>) {
         var hasSplitRule = false
@@ -74,70 +84,238 @@ internal class EmbeddingCompat(
     }
 
     override fun setEmbeddingCallback(embeddingCallback: EmbeddingCallbackInterface) {
-        if (ExtensionsUtil.safeVendorApiLevel < 2) {
-            consumerAdapter.addConsumer(embeddingExtension, List::class, "setSplitInfoCallback") {
-                values ->
-                val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
-                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
-            }
-        } else {
-            val callback =
-                Consumer2<List<OEMSplitInfo>> { splitInfoList ->
+        when (windowSdkExtensions.extensionVersion) {
+            1 -> {
+                consumerAdapter.addConsumer(
+                    embeddingExtension,
+                    List::class,
+                    "setSplitInfoCallback"
+                ) { values ->
+                    val splitInfoList = values.filterIsInstance<OEMSplitInfo>()
                     embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
                 }
-            embeddingExtension.setSplitInfoCallback(callback)
+            }
+            in 2..4 -> {
+                registerSplitInfoCallback(embeddingCallback)
+            }
+            in 5..Int.MAX_VALUE -> {
+                registerSplitInfoCallback(embeddingCallback)
+
+                // Register ActivityStack callback
+                val activityStackCallback =
+                    Consumer2<List<OEMActivityStack>> { activityStacks ->
+                        embeddingCallback.onActivityStackChanged(adapter.translate(activityStacks))
+                    }
+                embeddingExtension.registerActivityStackCallback(
+                    Runnable::run,
+                    activityStackCallback
+                )
+            }
         }
+    }
+
+    private fun registerSplitInfoCallback(embeddingCallback: EmbeddingCallbackInterface) {
+        val splitInfoCallback =
+            Consumer2<List<OEMSplitInfo>> { splitInfoList ->
+                embeddingCallback.onSplitInfoChanged(adapter.translate(splitInfoList))
+            }
+        embeddingExtension.setSplitInfoCallback(splitInfoCallback)
     }
 
     override fun isActivityEmbedded(activity: Activity): Boolean {
         return embeddingExtension.isActivityEmbedded(activity)
     }
 
+    @RequiresWindowSdkExtension(5)
+    override fun pinTopActivityStack(taskId: Int, splitPinRule: SplitPinRule): Boolean {
+        windowSdkExtensions.requireExtensionVersion(5)
+        return embeddingExtension.pinTopActivityStack(
+            taskId,
+            adapter.translateSplitPinRule(applicationContext, splitPinRule)
+        )
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun unpinTopActivityStack(taskId: Int) {
+        windowSdkExtensions.requireExtensionVersion(5)
+        return embeddingExtension.unpinTopActivityStack(taskId)
+    }
+
     @RequiresWindowSdkExtension(2)
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(2)
+        windowSdkExtensions.requireExtensionVersion(2)
 
         embeddingExtension.setSplitAttributesCalculator(
             adapter.translateSplitAttributesCalculator(calculator)
         )
+        isCustomSplitAttributeCalculatorSet = true
     }
 
     @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(2)
+        windowSdkExtensions.requireExtensionVersion(2)
 
         embeddingExtension.clearSplitAttributesCalculator()
+        isCustomSplitAttributeCalculatorSet = false
+        setDefaultSplitAttributeCalculatorIfNeeded()
     }
 
-    @RequiresWindowSdkExtension(3)
-    override fun invalidateTopVisibleSplitAttributes() {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+    @RequiresWindowSdkExtension(5)
+    override fun finishActivityStacks(activityStacks: Set<ActivityStack>) {
+        windowSdkExtensions.requireExtensionVersion(5)
+
+        embeddingExtension.finishActivityStacksWithTokens(
+            activityStacks.mapTo(mutableSetOf()) { it.getToken() }
+        )
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
+        windowSdkExtensions.requireExtensionVersion(5)
+        adapter.embeddingConfiguration = embeddingConfig
+        setDefaultSplitAttributeCalculatorIfNeeded()
 
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 
-    @Suppress("DEPRECATION")
-    @RequiresWindowSdkExtension(3)
-    override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
-
-        embeddingExtension.updateSplitAttributes(
-            splitInfo.token,
-            adapter.translateSplitAttributes(splitAttributes)
-        )
+    private fun setDefaultSplitAttributeCalculatorIfNeeded() {
+        // Setting a default SplitAttributeCalculator if the EmbeddingConfiguration is set,
+        // in order to ensure the dimAreaBehavior in the SplitAttribute is up-to-date.
+        if (
+            windowSdkExtensions.extensionVersion >= 5 &&
+                !isCustomSplitAttributeCalculatorSet &&
+                adapter.embeddingConfiguration != null
+        ) {
+            embeddingExtension.setSplitAttributesCalculator { params ->
+                adapter.translateSplitAttributes(adapter.translate(params.defaultSplitAttributes))
+            }
+        }
     }
 
-    @Suppress("DEPRECATION")
     @RequiresWindowSdkExtension(3)
-    override fun setLaunchingActivityStack(
-        options: ActivityOptions,
-        token: IBinder
-    ): ActivityOptions {
-        WindowSdkExtensions.getInstance().requireExtensionVersion(3)
+    override fun invalidateVisibleActivityStacks() {
+        windowSdkExtensions.requireExtensionVersion(3)
 
-        return embeddingExtension.setLaunchingActivityStack(options, token)
+        embeddingExtension.invalidateVisibleActivityStacks()
+    }
+
+    /**
+     * Updates top [activityStacks][ActivityStack] layouts, which will trigger [SplitAttributes]
+     * calculator and [ActivityStackAttributes] calculator if set.
+     */
+    private fun ActivityEmbeddingComponent.invalidateVisibleActivityStacks() {
+        // Note that this API also updates overlay container regardless of its naming.
+        invalidateTopVisibleSplitAttributes()
+    }
+
+    @Suppress("Deprecation") // To compat with device with extension version 3 and 4.
+    @RequiresWindowSdkExtension(3)
+    override fun updateSplitAttributes(splitInfo: SplitInfo, splitAttributes: SplitAttributes) {
+        windowSdkExtensions.requireExtensionVersion(3)
+
+        if (windowSdkExtensions.extensionVersion >= 5) {
+            embeddingExtension.updateSplitAttributes(
+                splitInfo.getToken(),
+                adapter.translateSplitAttributes(splitAttributes)
+            )
+        } else {
+            embeddingExtension.updateSplitAttributes(
+                splitInfo.getBinder(),
+                adapter.translateSplitAttributes(splitAttributes)
+            )
+        }
+    }
+
+    @RequiresWindowSdkExtension(5)
+    override fun setLaunchingActivityStack(options: Bundle, activityStack: ActivityStack): Bundle {
+        windowSdkExtensions.requireExtensionVersion(5)
+
+        ActivityEmbeddingOptionsImpl.setActivityStackToken(options, activityStack.getToken())
+        return options
+    }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    override fun setOverlayCreateParams(
+        options: Bundle,
+        overlayCreateParams: OverlayCreateParams
+    ): Bundle =
+        options.apply {
+            ActivityEmbeddingOptionsImpl.setOverlayCreateParams(options, overlayCreateParams)
+        }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    override fun setOverlayAttributesCalculator(
+        calculator: (OverlayAttributesCalculatorParams) -> OverlayAttributes
+    ) {
+        windowSdkExtensions.requireExtensionVersion(OVERLAY_FEATURE_VERSION)
+
+        overlayController!!.overlayAttributesCalculator = calculator
+    }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    override fun clearOverlayAttributesCalculator() {
+        windowSdkExtensions.requireExtensionVersion(OVERLAY_FEATURE_VERSION)
+
+        overlayController!!.overlayAttributesCalculator = null
+    }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    override fun updateOverlayAttributes(overlayTag: String, overlayAttributes: OverlayAttributes) {
+        windowSdkExtensions.requireExtensionVersion(OVERLAY_FEATURE_VERSION)
+
+        overlayController!!.updateOverlayAttributes(overlayTag, overlayAttributes)
+    }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    override fun addOverlayInfoCallback(
+        overlayTag: String,
+        executor: Executor,
+        overlayInfoCallback: JetpackConsumer<OverlayInfo>,
+    ) {
+        overlayController?.addOverlayInfoCallback(
+            overlayTag,
+            executor,
+            overlayInfoCallback,
+        )
+            ?: apply {
+                Log.w(TAG, "overlayInfo is not supported on device less than version 5")
+
+                overlayInfoCallback.accept(
+                    OverlayInfo(
+                        overlayTag,
+                        currentOverlayAttributes = null,
+                        activityStack = null,
+                    )
+                )
+            }
+    }
+
+    @RequiresWindowSdkExtension(OVERLAY_FEATURE_VERSION)
+    override fun removeOverlayInfoCallback(overlayInfoCallback: JetpackConsumer<OverlayInfo>) {
+        overlayController?.removeOverlayInfoCallback(overlayInfoCallback)
+    }
+
+    @RequiresWindowSdkExtension(6)
+    override fun addEmbeddedActivityWindowInfoCallbackForActivity(
+        activity: Activity,
+        callback: JetpackConsumer<EmbeddedActivityWindowInfo>
+    ) {
+        activityWindowInfoCallbackController?.addCallback(activity, callback)
+            ?: apply {
+                Log.w(
+                    TAG,
+                    "EmbeddedActivityWindowInfo is not supported on device less than version 6"
+                )
+            }
+    }
+
+    @RequiresWindowSdkExtension(6)
+    override fun removeEmbeddedActivityWindowInfoCallbackForActivity(
+        callback: JetpackConsumer<EmbeddedActivityWindowInfo>
+    ) {
+        activityWindowInfoCallbackController?.removeCallback(callback)
     }
 
     companion object {

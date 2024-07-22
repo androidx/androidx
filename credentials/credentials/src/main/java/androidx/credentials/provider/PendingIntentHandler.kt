@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.credentials.provider
 
 import android.app.Activity
@@ -77,24 +76,78 @@ class PendingIntentHandler {
                 Log.i(TAG, "Request not found in pendingIntent")
                 return frameworkReq
             }
+            var biometricPromptResult = retrieveBiometricPromptResult(intent)
+            if (biometricPromptResult == null) {
+                biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
+            }
             return try {
                 ProviderCreateCredentialRequest(
-                    androidx.credentials.CreateCredentialRequest.createFrom(
-                        frameworkReq.type,
-                        frameworkReq.data,
-                        frameworkReq.data,
-                        requireSystemProvider = false,
-                        frameworkReq.callingAppInfo.origin
-                    ),
-                    CallingAppInfo(
-                        frameworkReq.callingAppInfo.packageName,
-                        frameworkReq.callingAppInfo.signingInfo,
-                        frameworkReq.callingAppInfo.origin
-                    )
+                    callingRequest =
+                        androidx.credentials.CreateCredentialRequest.createFrom(
+                            frameworkReq.type,
+                            frameworkReq.data,
+                            frameworkReq.data,
+                            requireSystemProvider = false,
+                            frameworkReq.callingAppInfo.origin
+                        ),
+                    callingAppInfo =
+                        CallingAppInfo(
+                            frameworkReq.callingAppInfo.packageName,
+                            frameworkReq.callingAppInfo.signingInfo,
+                            frameworkReq.callingAppInfo.origin
+                        ),
+                    biometricPromptResult = biometricPromptResult
                 )
             } catch (e: IllegalArgumentException) {
                 return null
             }
+        }
+
+        private fun retrieveBiometricPromptResult(
+            intent: Intent,
+            resultKey: String? = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE,
+            errorKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR,
+            errorMessageKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
+        ): BiometricPromptResult? {
+            if (intent.extras == null) {
+                return null
+            }
+            if (intent.extras!!.containsKey(resultKey)) {
+                val authResultType = intent.extras!!.getInt(resultKey)
+                return BiometricPromptResult(
+                    authenticationResult = AuthenticationResult(authResultType)
+                )
+            } else if (intent.extras!!.containsKey(errorKey)) {
+                val authResultError = intent.extras!!.getInt(errorKey)
+                return BiometricPromptResult(
+                    authenticationError =
+                        AuthenticationError(
+                            authResultError,
+                            intent.extras?.getCharSequence(errorMessageKey)
+                        )
+                )
+            }
+            return null
+        }
+
+        private fun retrieveBiometricPromptResultFallback(intent: Intent): BiometricPromptResult? {
+            // TODO(b/353798766) : Remove fallback keys once beta users have finalized testing
+            val fallbackResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK
+            val fallbackErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK
+            if (
+                intent.extras != null &&
+                    (intent.extras!!.containsKey(fallbackResultKey) ||
+                        intent.extras!!.containsKey(fallbackErrorKey))
+            ) {
+                return retrieveBiometricPromptResult(
+                    intent,
+                    resultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK,
+                    errorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK,
+                    errorMessageKey =
+                        AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
+                )
+            }
+            return null
         }
 
         /**
@@ -160,7 +213,10 @@ class PendingIntentHandler {
                 Log.i(TAG, "Get request from framework is null")
                 return null
             }
-
+            var biometricPromptResult = retrieveBiometricPromptResult(intent)
+            if (biometricPromptResult == null) {
+                biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
+            }
             return ProviderGetCredentialRequest.createFrom(
                 frameworkReq.credentialOptions
                     .stream()
@@ -178,7 +234,8 @@ class PendingIntentHandler {
                     frameworkReq.callingAppInfo.packageName,
                     frameworkReq.callingAppInfo.signingInfo,
                     frameworkReq.callingAppInfo.origin
-                )
+                ),
+                biometricPromptResult
             )
         }
 

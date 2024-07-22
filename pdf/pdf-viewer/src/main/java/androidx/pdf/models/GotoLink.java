@@ -18,14 +18,19 @@ package androidx.pdf.models;
 
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.pdf.content.PdfPageGotoLinkContent;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.ext.SdkExtensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.common.base.Preconditions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,6 +79,25 @@ public class GotoLink implements Parcelable {
         Preconditions.checkNotNull(destination, "Destination cannot be null");
         this.mBounds = bounds;
         this.mDestination = destination;
+    }
+
+    /**
+     * Converts android.graphics.pdf.content.PdfPageGotoLinkContent object to its
+     * androidx.pdf.aidl.GotoLink representation.
+     */
+    @NonNull
+    public static GotoLink convert(@NonNull PdfPageGotoLinkContent pdfPageGotoLinkContent) {
+        if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
+            List<Rect> rectBounds = new ArrayList<>();
+            List<RectF> rectFBounds = pdfPageGotoLinkContent.getBounds();
+            for (RectF rectF : rectFBounds) {
+                rectBounds.add(new Rect((int) rectF.left, (int) rectF.top, (int) rectF.right,
+                        (int) rectF.bottom));
+            }
+            return new GotoLink(rectBounds,
+                    GotoLinkDestination.convert(pdfPageGotoLinkContent.getDestination()));
+        }
+        throw new UnsupportedOperationException("Operation support above S");
     }
 
     /**

@@ -80,6 +80,7 @@ open class SplitAttributesToggleMainActivity :
             splitRuleFoldingAwareAttrsRadioButton.isEnabled = false
             viewBinding.splitRuleUseCustomizedSplitAttributes.isEnabled = false
         }
+
         viewBinding.startPrimaryActivityButton.setOnClickListener(this)
         viewBinding.useStickyPlaceholderCheckBox.setOnCheckedChangeListener(this)
         viewBinding.usePlaceholderCheckBox.setOnCheckedChangeListener(this)
@@ -237,6 +238,13 @@ open class SplitAttributesToggleMainActivity :
                 }
                 if (apiLevel < 3) {
                     append("Finishing secondary activities is not supported on this device!\n")
+                }
+                if (
+                    viewBinding.finishSecondaryActivitiesButton.isEnabled &&
+                        getSplitRule<SplitPlaceholderRule>() != null
+                ) {
+                    append(resources.getString(R.string.show_placeholder_warning))
+                    append("\n")
                 }
             }
         withContext(Dispatchers.Main) { viewBinding.warningMessageTextView.text = warningMessages }
@@ -429,8 +437,20 @@ open class SplitAttributesToggleMainActivity :
             R.id.split_rule_layout_direction_spinner ->
                 demoActivityEmbeddingController.customizedLayoutDirection =
                     CUSTOMIZED_LAYOUT_DIRECTIONS_VALUE[position]
+            R.id.animation_background_dropdown ->
+                demoActivityEmbeddingController.animationBackground =
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
+            R.id.open_animation_dropdown ->
+                demoActivityEmbeddingController.openAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.close_animation_dropdown ->
+                demoActivityEmbeddingController.closeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.change_animation_dropdown ->
+                demoActivityEmbeddingController.changeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
         }
-        splitController.invalidateTopVisibleSplitAttributes()
+        activityEmbeddingController.invalidateVisibleActivityStacks()
     }
 
     override fun onNothingSelected(view: AdapterView<*>?) {

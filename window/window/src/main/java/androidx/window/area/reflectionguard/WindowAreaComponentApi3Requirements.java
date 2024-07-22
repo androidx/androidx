@@ -36,7 +36,20 @@ import androidx.window.extensions.core.util.function.Consumer;
  * @see WindowAreaComponent
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface WindowAreaComponentApi3Requirements extends WindowAreaComponentApi2Requirements {
+public interface WindowAreaComponentApi3Requirements {
+
+    /** @see WindowAreaComponent#addRearDisplayStatusListener */
+    void addRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
+
+    /** @see WindowAreaComponent#removeRearDisplayStatusListener */
+    void removeRearDisplayStatusListener(@NonNull Consumer<Integer> consumer);
+
+    /** @see WindowAreaComponent#startRearDisplaySession */
+    void startRearDisplaySession(@NonNull Activity activity,
+            @NonNull Consumer<Integer> consumer);
+
+    /** @see WindowAreaComponent#endRearDisplaySession */
+    void endRearDisplaySession();
 
     /** @see WindowAreaComponent#addRearDisplayPresentationStatusListener */
     void addRearDisplayPresentationStatusListener(

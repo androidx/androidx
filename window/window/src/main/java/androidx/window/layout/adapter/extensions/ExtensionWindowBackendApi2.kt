@@ -22,15 +22,17 @@ import androidx.annotation.GuardedBy
 import androidx.annotation.UiContext
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
+import androidx.window.core.ConsumerAdapter
 import androidx.window.extensions.layout.WindowLayoutComponent
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.layout.adapter.WindowBackend
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-internal class ExtensionWindowBackendApi2(private val component: WindowLayoutComponent) :
-    WindowBackend {
+internal open class ExtensionWindowBackendApi2(
+    component: WindowLayoutComponent,
+    adapter: ConsumerAdapter
+) : ExtensionWindowBackendApi1(component, adapter) {
 
     private val globalLock = ReentrantLock()
 

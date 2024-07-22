@@ -17,6 +17,7 @@
 package androidx.window.demo.embedding
 
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.window.demo.R
@@ -24,7 +25,8 @@ import androidx.window.demo.R
 open class SplitActivityD : SplitActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        findViewById<View>(R.id.root_split_activity_layout)
-            .setBackgroundColor(Color.parseColor("#eeeeee"))
+        val color = Color.parseColor("#eeeeee")
+        findViewById<View>(R.id.root_split_activity_layout).setBackgroundColor(color)
+        window.setBackgroundDrawable(ColorDrawable(color))
     }
 }

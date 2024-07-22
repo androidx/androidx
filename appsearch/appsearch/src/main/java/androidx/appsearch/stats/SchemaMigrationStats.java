@@ -17,6 +17,7 @@
 package androidx.appsearch.stats;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -40,10 +41,10 @@ import java.util.Objects;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SafeParcelable.Class(creator = "SchemaMigrationStatsCreator")
 public final class SchemaMigrationStats extends AbstractSafeParcelable {
-    @NonNull public static final SchemaMigrationStatsCreator CREATOR =
+    @NonNull public static final Parcelable.Creator<SchemaMigrationStats> CREATOR =
             new SchemaMigrationStatsCreator();
 
-    // Indicate the how a SetSchema call relative to SchemaMigration case.
+    /** Indicate the SetSchema call type relative to SchemaMigration case. */
     @IntDef(
             value = {
                     NO_MIGRATION,

@@ -140,7 +140,7 @@ class CreatePublicKeyCredentialRequestTest {
         assertThat(testJsonActual).isEqualTo(testJsonExpected)
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Suppress("DEPRECATION") // bundle.get(key)
     @Test
     fun getter_frameworkProperties_success() {
@@ -211,7 +211,7 @@ class CreatePublicKeyCredentialRequestTest {
             .isEqualTo(R.drawable.ic_passkey)
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Test
     fun frameworkConversion_success() {
         val clientDataHashExpected = "hash".toByteArray()

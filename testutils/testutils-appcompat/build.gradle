@@ -41,6 +41,7 @@ dependencies {
 }
 
 android {
+    compileSdk 35
     lintOptions {
         disable "InvalidPackage" // Lint is unhappy about junit package
     }

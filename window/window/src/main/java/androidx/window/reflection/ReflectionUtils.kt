@@ -18,6 +18,7 @@ package androidx.window.reflection
 
 import android.util.Log
 import java.lang.reflect.Constructor
+import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import kotlin.reflect.KClass
@@ -42,10 +43,10 @@ internal object ReflectionUtils {
      * result from the [block]
      */
     @JvmStatic
-    internal fun validateReflection(errorMessage: String? = null, block: () -> Boolean): Boolean {
+    internal fun validateReflection(errorMessage: String, block: () -> Boolean): Boolean {
         return try {
             val result = block()
-            if (!result && errorMessage != null) {
+            if (!result) {
                 Log.e("ReflectionGuard", errorMessage)
             }
             result
@@ -54,6 +55,9 @@ internal object ReflectionUtils {
             false
         } catch (noMethod: NoSuchMethodException) {
             Log.e("ReflectionGuard", "NoSuchMethod: ${errorMessage.orEmpty()}")
+            false
+        } catch (noField: NoSuchFieldException) {
+            Log.e("ReflectionGuard", "NoSuchField: ${errorMessage.orEmpty()}")
             false
         }
     }
@@ -66,6 +70,12 @@ internal object ReflectionUtils {
 
     /** Checks if a method has public modifier */
     internal val Method.isPublic: Boolean
+        get() {
+            return Modifier.isPublic(modifiers)
+        }
+
+    /** Checks if a field has public modifier */
+    internal val Field.isPublic: Boolean
         get() {
             return Modifier.isPublic(modifiers)
         }

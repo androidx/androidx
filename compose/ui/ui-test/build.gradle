@@ -135,6 +135,7 @@ androidXMultiplatform {
 }
 
 android {
+    compileSdk 35
     sourceSets {
         test.java.srcDirs += "src/androidCommonTest/kotlin"
         androidTest.java.srcDirs += "src/androidCommonTest/kotlin"

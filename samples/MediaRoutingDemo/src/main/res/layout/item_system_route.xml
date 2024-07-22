@@ -77,6 +77,49 @@
                 android:textSize="14sp"
                 tools:text="This is a description of an amazing system route." />
 
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/route_suitability_status"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/route_description"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="14sp"
+                tools:text="Suitability status." />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/route_transfer_initiated_by_self"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/route_suitability_status"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="14sp"
+                tools:text="Transfer initiated by self." />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/route_transfer_reason"
+                android:layout_marginTop="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/route_transfer_initiated_by_self"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="14sp"
+                tools:text="Transfer reason." />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/route_selection_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/route_transfer_reason"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:textSize="14sp"
+                tools:text="Selection button" />
+
         </RelativeLayout>
 
     </androidx.cardview.widget.CardView>

@@ -17,14 +17,14 @@
 package androidx.window.demo.embedding
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivitySplitImeLayoutBinding
 
 /**
  * Sample showcase of split activity with input field. Allows the user to use IME with split
  * activities. The split rule is defined in `main_split_config.xml`.
  */
-abstract class SplitImeActivityBase : AppCompatActivity() {
+abstract class SplitImeActivityBase : EdgeToEdgeActivity() {
 
     lateinit var viewBinding: ActivitySplitImeLayoutBinding
 

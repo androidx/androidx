@@ -13,6 +13,8 @@ package androidx.window {
     field public static final String PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED = "android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED";
     field public static final String PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE = "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE";
     field public static final String PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES = "android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES";
+    field public static final String PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE = "android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_FULLSCREEN_OVERRIDE";
+    field public static final String PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE = "android.window.PROPERTY_COMPAT_ALLOW_USER_ASPECT_RATIO_OVERRIDE";
   }
 
   public abstract class WindowSdkExtensions {
@@ -107,8 +109,10 @@ package androidx.window.area {
 
   @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionPresenter extends androidx.window.area.WindowAreaSession {
     method public android.content.Context getContext();
+    method public android.view.Window? getWindow();
     method public void setContentView(android.view.View view);
     property public abstract android.content.Context context;
+    property public abstract android.view.Window? window;
   }
 
 }
@@ -123,14 +127,23 @@ package androidx.window.core {
 package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {
-    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public kotlinx.coroutines.flow.Flow<androidx.window.embedding.EmbeddedActivityWindowInfo> embeddedActivityWindowInfo(android.app.Activity activity);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void finishActivityStacks(java.util.Set<androidx.window.embedding.ActivityStack> activityStacks);
+    method public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
+    method @androidx.window.RequiresWindowSdkExtension(version=3) public void invalidateVisibleActivityStacks();
     method public boolean isActivityEmbedded(android.app.Activity activity);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void setEmbeddingConfiguration(androidx.window.embedding.EmbeddingConfiguration embeddingConfiguration);
     field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;
   }
 
   public static final class ActivityEmbeddingController.Companion {
     method public androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
+  }
+
+  public final class ActivityEmbeddingOptions {
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public static android.os.Bundle setLaunchingActivityStack(android.os.Bundle, android.content.Context context, androidx.window.embedding.ActivityStack activityStack);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public static android.os.Bundle setOverlayCreateParams(android.os.Bundle, android.app.Activity activity, androidx.window.embedding.OverlayCreateParams overlayCreateParams);
   }
 
   public final class ActivityFilter {
@@ -163,6 +176,121 @@ package androidx.window.embedding {
     property public final boolean isEmpty;
   }
 
+  public abstract class DividerAttributes {
+    method public final int getColor();
+    method public final int getWidthDp();
+    property public final int color;
+    property public final int widthDp;
+    field public static final androidx.window.embedding.DividerAttributes.Companion Companion;
+    field public static final androidx.window.embedding.DividerAttributes NO_DIVIDER;
+    field public static final int WIDTH_SYSTEM_DEFAULT = -1; // 0xffffffff
+  }
+
+  public static final class DividerAttributes.Companion {
+  }
+
+  public abstract static class DividerAttributes.DragRange {
+    field public static final androidx.window.embedding.DividerAttributes.DragRange.Companion Companion;
+    field public static final androidx.window.embedding.DividerAttributes.DragRange DRAG_RANGE_SYSTEM_DEFAULT;
+  }
+
+  public static final class DividerAttributes.DragRange.Companion {
+  }
+
+  public static final class DividerAttributes.DragRange.SplitRatioDragRange extends androidx.window.embedding.DividerAttributes.DragRange {
+    ctor public DividerAttributes.DragRange.SplitRatioDragRange(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float minRatio, @FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float maxRatio);
+    method public float getMaxRatio();
+    method public float getMinRatio();
+    property public final float maxRatio;
+    property public final float minRatio;
+  }
+
+  public static final class DividerAttributes.DraggableDividerAttributes extends androidx.window.embedding.DividerAttributes {
+    method public androidx.window.embedding.DividerAttributes.DragRange getDragRange();
+    method public boolean isDraggingToFullscreenAllowed();
+    property public final androidx.window.embedding.DividerAttributes.DragRange dragRange;
+    property public final boolean isDraggingToFullscreenAllowed;
+  }
+
+  @androidx.window.RequiresWindowSdkExtension(version=6) public static final class DividerAttributes.DraggableDividerAttributes.Builder {
+    ctor public DividerAttributes.DraggableDividerAttributes.Builder();
+    ctor @androidx.window.RequiresWindowSdkExtension(version=6) public DividerAttributes.DraggableDividerAttributes.Builder(androidx.window.embedding.DividerAttributes.DraggableDividerAttributes original);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes build();
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setColor(@ColorInt int color);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDragRange(androidx.window.embedding.DividerAttributes.DragRange dragRange);
+    method @androidx.window.RequiresWindowSdkExtension(version=7) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDraggingToFullscreenAllowed(boolean allowed);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setWidthDp(@IntRange(from=androidx.window.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT.toLong()) int widthDp);
+  }
+
+  public static final class DividerAttributes.FixedDividerAttributes extends androidx.window.embedding.DividerAttributes {
+  }
+
+  @androidx.window.RequiresWindowSdkExtension(version=6) public static final class DividerAttributes.FixedDividerAttributes.Builder {
+    ctor public DividerAttributes.FixedDividerAttributes.Builder();
+    ctor @androidx.window.RequiresWindowSdkExtension(version=6) public DividerAttributes.FixedDividerAttributes.Builder(androidx.window.embedding.DividerAttributes.FixedDividerAttributes original);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.FixedDividerAttributes build();
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.FixedDividerAttributes.Builder setColor(@ColorInt int color);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.FixedDividerAttributes.Builder setWidthDp(@IntRange(from=androidx.window.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT.toLong()) int widthDp);
+  }
+
+  public final class EmbeddedActivityWindowInfo {
+    method public android.graphics.Rect getBoundsInParentHost();
+    method public android.graphics.Rect getParentHostBounds();
+    method public boolean isEmbedded();
+    property public final android.graphics.Rect boundsInParentHost;
+    property public final boolean isEmbedded;
+    property public final android.graphics.Rect parentHostBounds;
+  }
+
+  public abstract class EmbeddingAnimationBackground {
+    method public static final androidx.window.embedding.EmbeddingAnimationBackground.ColorBackground createColorBackground(@ColorInt @IntRange(from=android.graphics.Color.BLACK.toLong(), to=android.graphics.Color.WHITE.toLong()) int color);
+    field public static final androidx.window.embedding.EmbeddingAnimationBackground.Companion Companion;
+    field public static final androidx.window.embedding.EmbeddingAnimationBackground DEFAULT;
+  }
+
+  public static final class EmbeddingAnimationBackground.ColorBackground extends androidx.window.embedding.EmbeddingAnimationBackground {
+    method public int getColor();
+    property public final int color;
+  }
+
+  public static final class EmbeddingAnimationBackground.Companion {
+    method public androidx.window.embedding.EmbeddingAnimationBackground.ColorBackground createColorBackground(@ColorInt @IntRange(from=android.graphics.Color.BLACK.toLong(), to=android.graphics.Color.WHITE.toLong()) int color);
+  }
+
+  public final class EmbeddingAnimationParams {
+    ctor public EmbeddingAnimationParams();
+    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground);
+    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation);
+    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec closeAnimation);
+    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec closeAnimation, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec changeAnimation);
+    method public androidx.window.embedding.EmbeddingAnimationBackground getAnimationBackground();
+    method public androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec getChangeAnimation();
+    method public androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec getCloseAnimation();
+    method public androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec getOpenAnimation();
+    property public final androidx.window.embedding.EmbeddingAnimationBackground animationBackground;
+    property public final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec changeAnimation;
+    property public final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec closeAnimation;
+    property public final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation;
+  }
+
+  public static final class EmbeddingAnimationParams.AnimationSpec {
+    field public static final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec.Companion Companion;
+    field public static final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec DEFAULT;
+    field public static final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec JUMP_CUT;
+  }
+
+  public static final class EmbeddingAnimationParams.AnimationSpec.Companion {
+  }
+
+  public static final class EmbeddingAnimationParams.Builder {
+    ctor public EmbeddingAnimationParams.Builder();
+    method public androidx.window.embedding.EmbeddingAnimationParams build();
+    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setAnimationBackground(androidx.window.embedding.EmbeddingAnimationBackground background);
+    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setChangeAnimation(androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec spec);
+    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setCloseAnimation(androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec spec);
+    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setOpenAnimation(androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec spec);
+  }
+
   public final class EmbeddingAspectRatio {
     method public static androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
     field public static final androidx.window.embedding.EmbeddingAspectRatio ALWAYS_ALLOW;
@@ -174,9 +302,147 @@ package androidx.window.embedding {
     method public androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EmbeddingBounds {
+    ctor public EmbeddingBounds(androidx.window.embedding.EmbeddingBounds.Alignment alignment, androidx.window.embedding.EmbeddingBounds.Dimension width, androidx.window.embedding.EmbeddingBounds.Dimension height);
+    method public androidx.window.embedding.EmbeddingBounds.Alignment getAlignment();
+    method public androidx.window.embedding.EmbeddingBounds.Dimension getHeight();
+    method public androidx.window.embedding.EmbeddingBounds.Dimension getWidth();
+    property public final androidx.window.embedding.EmbeddingBounds.Alignment alignment;
+    property public final androidx.window.embedding.EmbeddingBounds.Dimension height;
+    property public final androidx.window.embedding.EmbeddingBounds.Dimension width;
+    field public static final androidx.window.embedding.EmbeddingBounds BOUNDS_EXPANDED;
+    field public static final androidx.window.embedding.EmbeddingBounds BOUNDS_HINGE_BOTTOM;
+    field public static final androidx.window.embedding.EmbeddingBounds BOUNDS_HINGE_LEFT;
+    field public static final androidx.window.embedding.EmbeddingBounds BOUNDS_HINGE_RIGHT;
+    field public static final androidx.window.embedding.EmbeddingBounds BOUNDS_HINGE_TOP;
+    field public static final androidx.window.embedding.EmbeddingBounds.Companion Companion;
+  }
+
+  public static final class EmbeddingBounds.Alignment {
+    field public static final androidx.window.embedding.EmbeddingBounds.Alignment ALIGN_BOTTOM;
+    field public static final androidx.window.embedding.EmbeddingBounds.Alignment ALIGN_LEFT;
+    field public static final androidx.window.embedding.EmbeddingBounds.Alignment ALIGN_RIGHT;
+    field public static final androidx.window.embedding.EmbeddingBounds.Alignment ALIGN_TOP;
+    field public static final androidx.window.embedding.EmbeddingBounds.Alignment.Companion Companion;
+  }
+
+  public static final class EmbeddingBounds.Alignment.Companion {
+  }
+
+  public static final class EmbeddingBounds.Companion {
+  }
+
+  public abstract static class EmbeddingBounds.Dimension {
+    method public static final androidx.window.embedding.EmbeddingBounds.Dimension pixel(@IntRange(from=1L) @Px int value);
+    method public static final androidx.window.embedding.EmbeddingBounds.Dimension ratio(@FloatRange(from=0.0, fromInclusive=false, to=1.0, toInclusive=false) float ratio);
+    field public static final androidx.window.embedding.EmbeddingBounds.Dimension.Companion Companion;
+    field public static final androidx.window.embedding.EmbeddingBounds.Dimension DIMENSION_EXPANDED;
+    field public static final androidx.window.embedding.EmbeddingBounds.Dimension DIMENSION_HINGE;
+  }
+
+  public static final class EmbeddingBounds.Dimension.Companion {
+    method public androidx.window.embedding.EmbeddingBounds.Dimension pixel(@IntRange(from=1L) @Px int value);
+    method public androidx.window.embedding.EmbeddingBounds.Dimension ratio(@FloatRange(from=0.0, fromInclusive=false, to=1.0, toInclusive=false) float ratio);
+  }
+
+  public final class EmbeddingConfiguration {
+    ctor public EmbeddingConfiguration();
+    ctor public EmbeddingConfiguration(optional @androidx.window.RequiresWindowSdkExtension(version=5) androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior dimAreaBehavior);
+    method public androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior getDimAreaBehavior();
+    property public final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior dimAreaBehavior;
+  }
+
+  public static final class EmbeddingConfiguration.Builder {
+    ctor public EmbeddingConfiguration.Builder();
+    method public androidx.window.embedding.EmbeddingConfiguration build();
+    method public androidx.window.embedding.EmbeddingConfiguration.Builder setDimAreaBehavior(androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior area);
+  }
+
+  public static final class EmbeddingConfiguration.DimAreaBehavior {
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion Companion;
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior ON_ACTIVITY_STACK;
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior ON_TASK;
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior UNDEFINED;
+  }
+
+  public static final class EmbeddingConfiguration.DimAreaBehavior.Companion {
+  }
+
   public abstract class EmbeddingRule {
     method public final String? getTag();
     property public final String? tag;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayAttributes {
+    ctor public OverlayAttributes();
+    ctor public OverlayAttributes(optional androidx.window.embedding.EmbeddingBounds bounds);
+    method public androidx.window.embedding.EmbeddingBounds getBounds();
+    property public final androidx.window.embedding.EmbeddingBounds bounds;
+  }
+
+  public static final class OverlayAttributes.Builder {
+    ctor public OverlayAttributes.Builder();
+    method public androidx.window.embedding.OverlayAttributes build();
+    method public androidx.window.embedding.OverlayAttributes.Builder setBounds(androidx.window.embedding.EmbeddingBounds bounds);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayAttributesCalculatorParams {
+    method public androidx.window.embedding.OverlayAttributes getDefaultOverlayAttributes();
+    method public String getOverlayTag();
+    method public android.content.res.Configuration getParentConfiguration();
+    method public androidx.window.layout.WindowLayoutInfo getParentWindowLayoutInfo();
+    method public androidx.window.layout.WindowMetrics getParentWindowMetrics();
+    property public final androidx.window.embedding.OverlayAttributes defaultOverlayAttributes;
+    property public final String overlayTag;
+    property public final android.content.res.Configuration parentConfiguration;
+    property public final androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo;
+    property public final androidx.window.layout.WindowMetrics parentWindowMetrics;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayController {
+    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public void clearOverlayAttributesCalculator();
+    method public static androidx.window.embedding.OverlayController getInstance(android.content.Context context);
+    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public kotlinx.coroutines.flow.Flow<androidx.window.embedding.OverlayInfo> overlayInfo(String overlayTag);
+    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public void setOverlayAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.OverlayAttributesCalculatorParams,androidx.window.embedding.OverlayAttributes> calculator);
+    method @androidx.window.RequiresWindowSdkExtension(version=androidx.window.embedding.OverlayController.OVERLAY_FEATURE_VERSION) public void updateOverlayAttributes(String overlayTag, androidx.window.embedding.OverlayAttributes overlayAttributes);
+    field public static final androidx.window.embedding.OverlayController.Companion Companion;
+  }
+
+  public static final class OverlayController.Companion {
+    method public androidx.window.embedding.OverlayController getInstance(android.content.Context context);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayCreateParams {
+    ctor public OverlayCreateParams();
+    ctor public OverlayCreateParams(optional String tag);
+    ctor public OverlayCreateParams(optional String tag, optional androidx.window.embedding.OverlayAttributes overlayAttributes);
+    method public static String generateOverlayTag();
+    method public androidx.window.embedding.OverlayAttributes getOverlayAttributes();
+    method public String getTag();
+    property public final androidx.window.embedding.OverlayAttributes overlayAttributes;
+    property public final String tag;
+    field public static final androidx.window.embedding.OverlayCreateParams.Companion Companion;
+  }
+
+  public static final class OverlayCreateParams.Builder {
+    ctor public OverlayCreateParams.Builder();
+    method public androidx.window.embedding.OverlayCreateParams build();
+    method public androidx.window.embedding.OverlayCreateParams.Builder setOverlayAttributes(androidx.window.embedding.OverlayAttributes attrs);
+    method public androidx.window.embedding.OverlayCreateParams.Builder setTag(String tag);
+  }
+
+  public static final class OverlayCreateParams.Companion {
+    method public String generateOverlayTag();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class OverlayInfo {
+    method public operator boolean contains(android.app.Activity activity);
+    method public androidx.window.embedding.ActivityStack? getActivityStack();
+    method public androidx.window.embedding.OverlayAttributes? getCurrentOverlayAttributes();
+    method public String getOverlayTag();
+    property public final androidx.window.embedding.ActivityStack? activityStack;
+    property public final androidx.window.embedding.OverlayAttributes? currentOverlayAttributes;
+    property public final String overlayTag;
   }
 
   public final class RuleController {
@@ -197,8 +463,20 @@ package androidx.window.embedding {
 
   public final class SplitAttributes {
     ctor public SplitAttributes();
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType);
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
+    ctor @Deprecated public SplitAttributes(androidx.window.embedding.SplitAttributes.SplitType splitType, androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, androidx.window.embedding.EmbeddingAnimationBackground animationBackground);
+    ctor @Deprecated public SplitAttributes(androidx.window.embedding.SplitAttributes.SplitType splitType, androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, androidx.window.embedding.EmbeddingAnimationBackground animationBackground, androidx.window.embedding.DividerAttributes dividerAttributes);
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationParams animationParams);
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationParams animationParams, optional androidx.window.embedding.DividerAttributes dividerAttributes);
+    method @Deprecated public androidx.window.embedding.EmbeddingAnimationBackground getAnimationBackground();
+    method public androidx.window.embedding.EmbeddingAnimationParams getAnimationParams();
+    method public androidx.window.embedding.DividerAttributes getDividerAttributes();
     method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
     method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
+    property @Deprecated public final androidx.window.embedding.EmbeddingAnimationBackground animationBackground;
+    property public final androidx.window.embedding.EmbeddingAnimationParams animationParams;
+    property public final androidx.window.embedding.DividerAttributes dividerAttributes;
     property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
     property public final androidx.window.embedding.SplitAttributes.SplitType splitType;
     field public static final androidx.window.embedding.SplitAttributes.Companion Companion;
@@ -207,6 +485,9 @@ package androidx.window.embedding {
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.embedding.SplitAttributes build();
+    method @Deprecated @androidx.window.RequiresWindowSdkExtension(version=5) public androidx.window.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.embedding.EmbeddingAnimationBackground background);
+    method @androidx.window.RequiresWindowSdkExtension(version=7) public androidx.window.embedding.SplitAttributes.Builder setAnimationParams(androidx.window.embedding.EmbeddingAnimationParams params);
+    method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.SplitAttributes.Builder setDividerAttributes(androidx.window.embedding.DividerAttributes dividerAttributes);
     method public androidx.window.embedding.SplitAttributes.Builder setLayoutDirection(androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
     method public androidx.window.embedding.SplitAttributes.Builder setSplitType(androidx.window.embedding.SplitAttributes.SplitType type);
   }
@@ -257,10 +538,11 @@ package androidx.window.embedding {
     method @androidx.window.RequiresWindowSdkExtension(version=2) public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public void invalidateTopVisibleSplitAttributes();
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public boolean pinTopActivityStack(int taskId, androidx.window.embedding.SplitPinRule splitPinRule);
     method @androidx.window.RequiresWindowSdkExtension(version=2) public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
-    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public void unpinTopActivityStack(int taskId);
+    method @androidx.window.RequiresWindowSdkExtension(version=3) public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
     property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
     field public static final androidx.window.embedding.SplitController.Companion Companion;
   }
@@ -325,6 +607,24 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitPairRule.Builder setMinSmallestWidthDp(@IntRange(from=0L) int minSmallestWidthDp);
     method public androidx.window.embedding.SplitPairRule.Builder setMinWidthDp(@IntRange(from=0L) int minWidthDp);
     method public androidx.window.embedding.SplitPairRule.Builder setTag(String? tag);
+  }
+
+  public final class SplitPinRule extends androidx.window.embedding.SplitRule {
+    method public boolean isSticky();
+    property public final boolean isSticky;
+  }
+
+  public static final class SplitPinRule.Builder {
+    ctor public SplitPinRule.Builder();
+    method public androidx.window.embedding.SplitPinRule build();
+    method public androidx.window.embedding.SplitPinRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
+    method public androidx.window.embedding.SplitPinRule.Builder setMaxAspectRatioInLandscape(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPinRule.Builder setMaxAspectRatioInPortrait(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPinRule.Builder setMinHeightDp(@IntRange(from=0L) int minHeightDp);
+    method public androidx.window.embedding.SplitPinRule.Builder setMinSmallestWidthDp(@IntRange(from=0L) int minSmallestWidthDp);
+    method public androidx.window.embedding.SplitPinRule.Builder setMinWidthDp(@IntRange(from=0L) int minWidthDp);
+    method public androidx.window.embedding.SplitPinRule.Builder setSticky(boolean isSticky);
+    method public androidx.window.embedding.SplitPinRule.Builder setTag(String? tag);
   }
 
   public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
@@ -432,10 +732,20 @@ package androidx.window.layout {
   public static final class FoldingFeature.State.Companion {
   }
 
+  public final class SupportedPosture {
+    field public static final androidx.window.layout.SupportedPosture.Companion Companion;
+    field public static final androidx.window.layout.SupportedPosture TABLETOP;
+  }
+
+  public static final class SupportedPosture.Companion {
+  }
+
   public interface WindowInfoTracker {
     method public static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public default java.util.List<androidx.window.layout.SupportedPosture> getSupportedPostures();
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
+    property @androidx.window.RequiresWindowSdkExtension(version=6) public default java.util.List<androidx.window.layout.SupportedPosture> supportedPostures;
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 
@@ -450,8 +760,10 @@ package androidx.window.layout {
 
   public final class WindowMetrics {
     method public android.graphics.Rect getBounds();
+    method public float getDensity();
     method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.R) @androidx.window.core.ExperimentalWindowApi public androidx.core.view.WindowInsetsCompat getWindowInsets();
     property public final android.graphics.Rect bounds;
+    property public final float density;
   }
 
   public interface WindowMetricsCalculator {

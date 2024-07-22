@@ -648,6 +648,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onRouteChanged(@NonNull MediaRouter router, @NonNull RouteInfo route) {
             Log.d(TAG, "onRouteChanged: route=" + route);
+            if (route.isSelected()) {
+                updateRouteDescription();
+            }
         }
 
         @Override

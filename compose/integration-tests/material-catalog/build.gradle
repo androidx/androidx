@@ -32,6 +32,7 @@ plugins {
 }
 
 android {
+    compileSdkVersion 35
     defaultConfig {
         applicationId "androidx.compose.material.catalog"
         versionCode 2400

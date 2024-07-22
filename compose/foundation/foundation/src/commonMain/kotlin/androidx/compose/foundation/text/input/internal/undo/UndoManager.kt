@@ -20,6 +20,8 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.util.fastForEach
+import kotlin.collections.removeFirst as removeFirstKt
+import kotlin.collections.removeLast as removeLastKt
 
 /**
  * A generic purpose undo/redo stack manager.
@@ -60,7 +62,7 @@ internal class UndoManager<T>(
         redoStack.clear()
 
         while (size > capacity - 1) { // leave room for the immediate `add`
-            undoStack.removeFirst()
+            undoStack.removeFirstKt()
         }
         undoStack.add(undoableAction)
     }
@@ -77,7 +79,7 @@ internal class UndoManager<T>(
                 "Please first check `canUndo` value before calling the `undo` function."
         }
 
-        val topOperation = undoStack.removeLast()
+        val topOperation = undoStack.removeLastKt()
 
         redoStack.add(topOperation)
         return topOperation
@@ -95,7 +97,7 @@ internal class UndoManager<T>(
                 "Please first check `canRedo` value before calling the `redo` function."
         }
 
-        val topOperation = redoStack.removeLast()
+        val topOperation = redoStack.removeLastKt()
 
         undoStack.add(topOperation)
         return topOperation

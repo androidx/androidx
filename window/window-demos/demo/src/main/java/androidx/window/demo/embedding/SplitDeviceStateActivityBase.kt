@@ -21,23 +21,26 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.CompoundButton
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.WindowSdkExtensions
 import androidx.window.demo.R
+import androidx.window.demo.common.EdgeToEdgeActivity
 import androidx.window.demo.databinding.ActivitySplitDeviceStateLayoutBinding
+import androidx.window.embedding.EmbeddingAnimationParams
 import androidx.window.embedding.EmbeddingRule
 import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EQUAL
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_EXPAND
 import androidx.window.embedding.SplitController
-import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_AVAILABLE
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_ERROR_PROPERTY_NOT_DECLARED
+import androidx.window.embedding.SplitController.SplitSupportStatus.Companion.SPLIT_UNAVAILABLE
 import androidx.window.embedding.SplitInfo
 import androidx.window.embedding.SplitPairFilter
 import androidx.window.embedding.SplitPairRule
@@ -46,7 +49,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 open class SplitDeviceStateActivityBase :
-    AppCompatActivity(),
+    EdgeToEdgeActivity(),
     View.OnClickListener,
     RadioGroup.OnCheckedChangeListener,
     CompoundButton.OnCheckedChangeListener,
@@ -64,6 +67,8 @@ open class SplitDeviceStateActivityBase :
     private lateinit var activityA: ComponentName
     private lateinit var activityB: ComponentName
 
+    private val demoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
+
     /** The last selected split rule id. */
     private var lastCheckedRuleId = 0
 
@@ -73,7 +78,11 @@ open class SplitDeviceStateActivityBase :
         super.onCreate(savedInstanceState)
         viewBinding = ActivitySplitDeviceStateLayoutBinding.inflate(layoutInflater)
         splitController = SplitController.getInstance(this)
-        if (splitController.splitSupportStatus != SPLIT_AVAILABLE) {
+        if (splitController.splitSupportStatus == SPLIT_UNAVAILABLE) {
+            Toast.makeText(this, R.string.toast_split_not_available, Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        } else if (splitController.splitSupportStatus == SPLIT_ERROR_PROPERTY_NOT_DECLARED) {
             Toast.makeText(this, R.string.toast_split_not_support, Toast.LENGTH_SHORT).show()
             finish()
             return
@@ -116,6 +125,62 @@ open class SplitDeviceStateActivityBase :
             // Add the error message to notify the SplitAttributesCalculator is not available.
             viewBinding.warningMessageTextView.text =
                 resources.getString(R.string.split_attributes_calculator_not_supported)
+        }
+
+        // Animation background
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 5 && componentName == activityA) {
+            // Show on only the primary activity.
+            val animationBackgroundDropdown = viewBinding.animationBackgroundDropdown
+            animationBackgroundDropdown.visibility = View.VISIBLE
+            viewBinding.animationBackgroundDivider.visibility = View.VISIBLE
+            viewBinding.animationBackgroundTextView.visibility = View.VISIBLE
+            animationBackgroundDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_TEXTS
+                )
+            animationBackgroundDropdown.onItemSelectedListener = this
+        }
+
+        // Animation transitions
+        if (WindowSdkExtensions.getInstance().extensionVersion >= 7 && componentName == activityA) {
+            // Show on only the primary activity.
+            val openAnimationDropdown = viewBinding.openAnimationDropdown
+            openAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.openAnimationDivider.visibility = View.VISIBLE
+            viewBinding.openAnimationTextView.visibility = View.VISIBLE
+            openAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            openAnimationDropdown.onItemSelectedListener = this
+
+            val closeAnimationDropdown = viewBinding.closeAnimationDropdown
+            closeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.closeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.closeAnimationTextView.visibility = View.VISIBLE
+            closeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            closeAnimationDropdown.onItemSelectedListener = this
+
+            val changeAnimationDropdown = viewBinding.changeAnimationDropdown
+            changeAnimationDropdown.visibility = View.VISIBLE
+            viewBinding.changeAnimationDivider.visibility = View.VISIBLE
+            viewBinding.changeAnimationTextView.visibility = View.VISIBLE
+            changeAnimationDropdown.adapter =
+                ArrayAdapter(
+                    this,
+                    android.R.layout.simple_spinner_dropdown_item,
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_TEXTS
+                )
+            changeAnimationDropdown.onItemSelectedListener = this
         }
 
         lifecycleScope.launch {
@@ -171,6 +236,20 @@ open class SplitDeviceStateActivityBase :
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        when (parent?.id) {
+            R.id.animation_background_dropdown ->
+                demoActivityEmbeddingController.animationBackground =
+                    DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
+            R.id.open_animation_dropdown ->
+                demoActivityEmbeddingController.openAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.close_animation_dropdown ->
+                demoActivityEmbeddingController.closeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+            R.id.change_animation_dropdown ->
+                demoActivityEmbeddingController.changeAnimation =
+                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
+        }
         updateSplitPairRuleWithRadioButtonId(lastCheckedRuleId)
     }
 
@@ -246,6 +325,14 @@ open class SplitDeviceStateActivityBase :
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
+                        .setOpenAnimation(demoActivityEmbeddingController.openAnimation)
+                        .setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
+                        .setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
+                        .build()
+                )
                 .build()
         // Use the tag to control the rule how to change split attributes with the current state
         var tag =
@@ -292,7 +379,17 @@ open class SplitDeviceStateActivityBase :
 
     private suspend fun updateSplitAttributesText(newSplitInfos: List<SplitInfo>) {
         var splitAttributes: SplitAttributes =
-            SplitAttributes.Builder().setSplitType(SPLIT_TYPE_EXPAND).build()
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_EXPAND)
+                .setAnimationParams(
+                    EmbeddingAnimationParams.Builder()
+                        .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
+                        .setOpenAnimation(demoActivityEmbeddingController.openAnimation)
+                        .setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
+                        .setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
+                        .build()
+                )
+                .build()
         var suggestToFinishItself = false
 
         // Traverse SplitInfos from the end because last SplitInfo has the highest z-order.

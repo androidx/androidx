@@ -154,7 +154,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         assertThat(testJsonActual).isEqualTo(testJsonExpected);
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @SuppressWarnings("deprecation") // bundle.get(key)
     @Test
     public void getter_frameworkProperties_success() {
@@ -210,7 +210,7 @@ public class CreatePublicKeyCredentialRequestJavaTest {
         ).isEqualTo(R.drawable.ic_passkey);
     }
 
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 34)
     @Test
     public void frameworkConversion_success() {
         byte[] clientDataHashExpected = "hash".getBytes();

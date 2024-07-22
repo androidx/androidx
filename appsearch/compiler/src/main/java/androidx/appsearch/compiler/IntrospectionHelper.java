@@ -90,6 +90,9 @@ public class IntrospectionHelper {
     public static final ClassName GENERIC_DOCUMENT_CLASS =
             ClassName.get(APPSEARCH_PKG, "GenericDocument");
 
+    public static final ClassName EMBEDDING_VECTOR_CLASS =
+            ClassName.get(APPSEARCH_PKG, "EmbeddingVector");
+
     public static final ClassName BUILDER_PRODUCER_CLASS =
             DOCUMENT_ANNOTATION_CLASS.nestedClass("BuilderProducer");
 
@@ -108,6 +111,7 @@ public class IntrospectionHelper {
     public final TypeMirror mBooleanPrimitiveType;
     public final TypeMirror mBytePrimitiveArrayType;
     public final TypeMirror mGenericDocumentType;
+    public final TypeMirror mEmbeddingType;
     public final TypeMirror mDoublePrimitiveType;
     final TypeMirror mCollectionType;
     final TypeMirror mListType;
@@ -151,6 +155,8 @@ public class IntrospectionHelper {
         mBytePrimitiveArrayType = mTypeUtils.getArrayType(mBytePrimitiveType);
         mGenericDocumentType =
                 mElementUtils.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
+        mEmbeddingType = mElementUtils.getTypeElement(
+                EMBEDDING_VECTOR_CLASS.canonicalName()).asType();
     }
 
     /**

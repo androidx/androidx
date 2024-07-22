@@ -17,7 +17,6 @@
 package com.example.androidx.mediarouting.activities.systemrouting.source;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
@@ -29,23 +28,11 @@ import java.util.List;
  */
 public abstract class SystemRoutesSource {
 
-    private static final NoOpOnRoutesChangedListener NO_OP_ON_ROUTES_CHANGED_LISTENER =
-            new NoOpOnRoutesChangedListener();
+    @NonNull protected Runnable mOnRoutesChangedListener = () -> {};
 
-    @NonNull
-    protected OnRoutesChangedListener mOnRoutesChangedListener = NO_OP_ON_ROUTES_CHANGED_LISTENER;
-
-    /**
-     * Sets {@link OnRoutesChangedListener} and subscribes to the source updates.
-     * To unsubscribe from the routes update pass {@code null} instead of the listener.
-     */
-    public void setOnRoutesChangedListener(
-            @Nullable OnRoutesChangedListener onRoutesChangedListener) {
-        if (onRoutesChangedListener != null) {
-            mOnRoutesChangedListener = onRoutesChangedListener;
-        } else {
-            mOnRoutesChangedListener = NO_OP_ON_ROUTES_CHANGED_LISTENER;
-        }
+    /** Sets a {@link Runnable} to invoke whenever routes change. */
+    public void setOnRoutesChangedListener(@NonNull Runnable onRoutesChangedListener) {
+        mOnRoutesChangedListener = onRoutesChangedListener;
     }
 
     /**
@@ -63,6 +50,12 @@ public abstract class SystemRoutesSource {
         // Empty on purpose.
     }
 
+    /** Returns a string that uniquely identifies this source. */
+    @NonNull
+    public final String getSourceId() {
+        return getClass().getSimpleName();
+    }
+
     /**
      * Gets a source item containing source type.
      */
@@ -76,39 +69,11 @@ public abstract class SystemRoutesSource {
     public abstract List<SystemRouteItem> fetchSourceRouteItems();
 
     /**
-     * An interface for listening to routes changes: whether the route has been added or removed
-     * from the source.
+     * Selects the route that corresponds to the given item.
+     *
+     * @param item An item with {@link SystemRouteItem#mSelectionSupportState} {@link
+     *     SystemRouteItem.SelectionSupportState#SELECTABLE}.
+     * @return Whether the selection was successful.
      */
-    public interface OnRoutesChangedListener {
-
-        /**
-         * Called when a route has been added to the source's routes list.
-         *
-         * @param routeItem a newly added route.
-         */
-        void onRouteAdded(@NonNull SystemRouteItem routeItem);
-
-        /**
-         * Called when a route has been removed from the source's routes list.
-         *
-         * @param routeItem a recently removed route.
-         */
-        void onRouteRemoved(@NonNull SystemRouteItem routeItem);
-    }
-
-    /**
-     * Default no-op implementation of {@link OnRoutesChangedListener}.
-     * Used as a fallback implement when there is no listener.
-     */
-    private static final class NoOpOnRoutesChangedListener implements OnRoutesChangedListener {
-        @Override
-        public void onRouteAdded(@NonNull SystemRouteItem routeItem) {
-            // Empty on purpose.
-        }
-
-        @Override
-        public void onRouteRemoved(@NonNull SystemRouteItem routeItem) {
-            // Empty on purpose.
-        }
-    }
+    public abstract boolean select(@NonNull SystemRouteItem item);
 }

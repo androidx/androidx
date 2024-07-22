@@ -33,6 +33,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class EdgeToEdgeTest {
 
+    @Suppress("DEPRECATION")
     @Test
     fun enableAuto() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
@@ -73,6 +74,7 @@ class EdgeToEdgeTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun enableCustom() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
@@ -117,6 +119,7 @@ class EdgeToEdgeTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun enableDark() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {
@@ -153,6 +156,7 @@ class EdgeToEdgeTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun enableLight() {
         withUse(ActivityScenario.launch(ComponentActivity::class.java)) {

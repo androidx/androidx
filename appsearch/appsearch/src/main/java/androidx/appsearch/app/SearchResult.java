@@ -16,7 +16,8 @@
 
 package androidx.appsearch.app;
 
-import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,10 +25,18 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.FlaggedApi;
+import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.MatchInfoCreator;
+import androidx.appsearch.safeparcel.stub.StubCreators.SearchResultCreator;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -46,36 +55,61 @@ import java.util.Map;
  *
  * @see SearchResults
  */
-public final class SearchResult {
-    static final String DOCUMENT_FIELD = "document";
-    static final String MATCH_INFOS_FIELD = "matchInfos";
-    static final String PACKAGE_NAME_FIELD = "packageName";
-    static final String DATABASE_NAME_FIELD = "databaseName";
-    static final String RANKING_SIGNAL_FIELD = "rankingSignal";
-    static final String JOINED_RESULTS = "joinedResults";
+@SafeParcelable.Class(creator = "SearchResultCreator")
+@SuppressWarnings("HiddenSuperclass")
+public final class SearchResult extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull public static final Parcelable.Creator<SearchResult> CREATOR =
+            new SearchResultCreator();
 
+    @Field(id = 1)
+    final GenericDocumentParcel mDocument;
+    @Field(id = 2)
+    final List<MatchInfo> mMatchInfos;
+    @Field(id = 3, getter = "getPackageName")
+    private final String mPackageName;
+    @Field(id = 4, getter = "getDatabaseName")
+    private final String mDatabaseName;
+    @Field(id = 5, getter = "getRankingSignal")
+    private final double mRankingSignal;
+    @Field(id = 6, getter = "getJoinedResults")
+    private final List<SearchResult> mJoinedResults;
     @NonNull
-    private final Bundle mBundle;
+    @Field(id = 7, getter = "getInformationalRankingSignals")
+    private final List<Double> mInformationalRankingSignals;
 
-    /** Cache of the inflated document. Comes from inflating mDocumentBundle at first use. */
-    @Nullable
-    private GenericDocument mDocument;
 
-    /** Cache of the inflated matches. Comes from inflating mMatchBundles at first use. */
+    /** Cache of the {@link GenericDocument}. Comes from mDocument at first use. */
     @Nullable
-    private List<MatchInfo> mMatchInfos;
+    private GenericDocument mDocumentCached;
+
+    /** Cache of the inflated {@link MatchInfo}. Comes from inflating mMatchInfos at first use. */
+    @Nullable
+    private List<MatchInfo> mMatchInfosCached;
 
     /** @exportToFramework:hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SearchResult(@NonNull Bundle bundle) {
-        mBundle = Preconditions.checkNotNull(bundle);
-    }
-
-    /** @exportToFramework:hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Bundle getBundle() {
-        return mBundle;
+    @Constructor
+    SearchResult(
+            @Param(id = 1) @NonNull GenericDocumentParcel document,
+            @Param(id = 2) @NonNull List<MatchInfo> matchInfos,
+            @Param(id = 3) @NonNull String packageName,
+            @Param(id = 4) @NonNull String databaseName,
+            @Param(id = 5) double rankingSignal,
+            @Param(id = 6) @NonNull List<SearchResult> joinedResults,
+            @Param(id = 7) @Nullable List<Double> informationalRankingSignals) {
+        mDocument = Preconditions.checkNotNull(document);
+        mMatchInfos = Preconditions.checkNotNull(matchInfos);
+        mPackageName = Preconditions.checkNotNull(packageName);
+        mDatabaseName = Preconditions.checkNotNull(databaseName);
+        mRankingSignal = rankingSignal;
+        mJoinedResults = Collections.unmodifiableList(Preconditions.checkNotNull(joinedResults));
+        if (informationalRankingSignals != null) {
+            mInformationalRankingSignals = Collections.unmodifiableList(
+                    informationalRankingSignals);
+        } else {
+            mInformationalRankingSignals = Collections.emptyList();
+        }
     }
 
 // @exportToFramework:startStrip()
@@ -92,7 +126,7 @@ public final class SearchResult {
      * @see GenericDocument#toDocumentClass(Class)
      */
     @NonNull
-    public <T> T getDocument(@NonNull Class<T> documentClass) throws AppSearchException {
+    public <T> T getDocument(@NonNull java.lang.Class<T> documentClass) throws AppSearchException {
         return getDocument(documentClass, /* documentClassMap= */null);
     }
 
@@ -112,7 +146,7 @@ public final class SearchResult {
      * @see GenericDocument#toDocumentClass(Class, Map)
      */
     @NonNull
-    public <T> T getDocument(@NonNull Class<T> documentClass,
+    public <T> T getDocument(@NonNull java.lang.Class<T> documentClass,
             @Nullable Map<String, List<String>> documentClassMap) throws AppSearchException {
         Preconditions.checkNotNull(documentClass);
         return getGenericDocument().toDocumentClass(documentClass, documentClassMap);
@@ -126,11 +160,10 @@ public final class SearchResult {
      */
     @NonNull
     public GenericDocument getGenericDocument() {
-        if (mDocument == null) {
-            mDocument = new GenericDocument(
-                    Preconditions.checkNotNull(mBundle.getBundle(DOCUMENT_FIELD)));
+        if (mDocumentCached == null) {
+            mDocumentCached = new GenericDocument(mDocument);
         }
-        return mDocument;
+        return mDocumentCached;
     }
 
     /**
@@ -143,22 +176,21 @@ public final class SearchResult {
      * value, this method returns an empty list.
      */
     @NonNull
-    @SuppressWarnings("deprecation")
     public List<MatchInfo> getMatchInfos() {
-        if (mMatchInfos == null) {
-            List<Bundle> matchBundles =
-                    Preconditions.checkNotNull(mBundle.getParcelableArrayList(MATCH_INFOS_FIELD));
-            mMatchInfos = new ArrayList<>(matchBundles.size());
-            for (int i = 0; i < matchBundles.size(); i++) {
-                MatchInfo matchInfo = new MatchInfo(matchBundles.get(i), getGenericDocument());
-                if (mMatchInfos != null) {
+        if (mMatchInfosCached == null) {
+            mMatchInfosCached = new ArrayList<>(mMatchInfos.size());
+            for (int i = 0; i < mMatchInfos.size(); i++) {
+                MatchInfo matchInfo = mMatchInfos.get(i);
+                matchInfo.setDocument(getGenericDocument());
+                if (mMatchInfosCached != null) {
                     // This additional check is added for NullnessChecker.
-                    mMatchInfos.add(matchInfo);
+                    mMatchInfosCached.add(matchInfo);
                 }
             }
+            mMatchInfosCached = Collections.unmodifiableList(mMatchInfosCached);
         }
         // This check is added for NullnessChecker, mMatchInfos will always be NonNull.
-        return Preconditions.checkNotNull(mMatchInfos);
+        return Preconditions.checkNotNull(mMatchInfosCached);
     }
 
     /**
@@ -168,7 +200,7 @@ public final class SearchResult {
      */
     @NonNull
     public String getPackageName() {
-        return Preconditions.checkNotNull(mBundle.getString(PACKAGE_NAME_FIELD));
+        return mPackageName;
     }
 
     /**
@@ -178,7 +210,7 @@ public final class SearchResult {
      */
     @NonNull
     public String getDatabaseName() {
-        return Preconditions.checkNotNull(mBundle.getString(DATABASE_NAME_FIELD));
+        return mDatabaseName;
     }
 
     /**
@@ -207,7 +239,17 @@ public final class SearchResult {
      * @return Ranking signal of the document
      */
     public double getRankingSignal() {
-        return mBundle.getDouble(RANKING_SIGNAL_FIELD);
+        return mRankingSignal;
+    }
+
+    /**
+     * Returns the informational ranking signals of the {@link GenericDocument}, according to the
+     * expressions added in {@link SearchSpec.Builder#addInformationalRankingExpressions}.
+     */
+    @NonNull
+    @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+    public List<Double> getInformationalRankingSignals() {
+        return mInformationalRankingSignals;
     }
 
     /**
@@ -225,28 +267,26 @@ public final class SearchResult {
      * @return a List of SearchResults containing joined documents.
      */
     @NonNull
-    @SuppressWarnings("deprecation") // Bundle#getParcelableArrayList(String) is deprecated.
     public List<SearchResult> getJoinedResults() {
-        ArrayList<Bundle> bundles = mBundle.getParcelableArrayList(JOINED_RESULTS);
-        if (bundles == null) {
-            return new ArrayList<>();
-        }
-        List<SearchResult> res = new ArrayList<>(bundles.size());
-        for (int i = 0; i < bundles.size(); i++) {
-            res.add(new SearchResult(bundles.get(i)));
-        }
+        return mJoinedResults;
+    }
 
-        return res;
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        SearchResultCreator.writeToParcel(this, dest, flags);
     }
 
     /** Builder for {@link SearchResult} objects. */
     public static final class Builder {
         private final String mPackageName;
         private final String mDatabaseName;
-        private ArrayList<Bundle> mMatchInfoBundles = new ArrayList<>();
+        private List<MatchInfo> mMatchInfos = new ArrayList<>();
         private GenericDocument mGenericDocument;
         private double mRankingSignal;
-        private ArrayList<Bundle> mJoinedResults = new ArrayList<>();
+        private List<Double> mInformationalRankingSignals = new ArrayList<>();
+        private List<SearchResult> mJoinedResults = new ArrayList<>();
         private boolean mBuilt = false;
 
         /**
@@ -258,6 +298,26 @@ public final class SearchResult {
         public Builder(@NonNull String packageName, @NonNull String databaseName) {
             mPackageName = Preconditions.checkNotNull(packageName);
             mDatabaseName = Preconditions.checkNotNull(databaseName);
+        }
+
+        /** @exportToFramework:hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull SearchResult searchResult) {
+            Preconditions.checkNotNull(searchResult);
+            mPackageName = searchResult.getPackageName();
+            mDatabaseName = searchResult.getDatabaseName();
+            mGenericDocument = searchResult.getGenericDocument();
+            mRankingSignal = searchResult.getRankingSignal();
+            mInformationalRankingSignals = new ArrayList<>(
+                    searchResult.getInformationalRankingSignals());
+            List<MatchInfo> matchInfos = searchResult.getMatchInfos();
+            for (int i = 0; i < matchInfos.size(); i++) {
+                addMatchInfo(new MatchInfo.Builder(matchInfos.get(i)).build());
+            }
+            List<SearchResult> joinedResults = searchResult.getJoinedResults();
+            for (int i = 0; i < joinedResults.size(); i++) {
+                addJoinedResult(joinedResults.get(i));
+            }
         }
 
 // @exportToFramework:startStrip()
@@ -298,7 +358,7 @@ public final class SearchResult {
                     "This MatchInfo is already associated with a SearchResult and can't be "
                             + "reassigned");
             resetIfBuilt();
-            mMatchInfoBundles.add(matchInfo.mBundle);
+            mMatchInfos.add(matchInfo);
             return this;
         }
 
@@ -311,6 +371,17 @@ public final class SearchResult {
             return this;
         }
 
+        /** Adds the informational ranking signal of the matched document in this SearchResult. */
+        @CanIgnoreReturnValue
+        @FlaggedApi(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
+        @NonNull
+        public Builder addInformationalRankingSignal(double rankingSignal) {
+            resetIfBuilt();
+            mInformationalRankingSignals.add(rankingSignal);
+            return this;
+        }
+
+
         /**
          * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
          * @param joinedResult The joined SearchResult to add.
@@ -319,28 +390,43 @@ public final class SearchResult {
         @NonNull
         public Builder addJoinedResult(@NonNull SearchResult joinedResult) {
             resetIfBuilt();
-            mJoinedResults.add(joinedResult.getBundle());
+            mJoinedResults.add(joinedResult);
+            return this;
+        }
+
+        /**
+         * Clears the {@link SearchResult}s that were joined.
+         *
+         * @exportToFramework:hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder clearJoinedResults() {
+            resetIfBuilt();
+            mJoinedResults.clear();
             return this;
         }
 
         /** Constructs a new {@link SearchResult}. */
         @NonNull
         public SearchResult build() {
-            Bundle bundle = new Bundle();
-            bundle.putString(PACKAGE_NAME_FIELD, mPackageName);
-            bundle.putString(DATABASE_NAME_FIELD, mDatabaseName);
-            bundle.putBundle(DOCUMENT_FIELD, mGenericDocument.getBundle());
-            bundle.putDouble(RANKING_SIGNAL_FIELD, mRankingSignal);
-            bundle.putParcelableArrayList(MATCH_INFOS_FIELD, mMatchInfoBundles);
-            bundle.putParcelableArrayList(JOINED_RESULTS, mJoinedResults);
             mBuilt = true;
-            return new SearchResult(bundle);
+            return new SearchResult(
+                    mGenericDocument.getDocumentParcel(),
+                    mMatchInfos,
+                    mPackageName,
+                    mDatabaseName,
+                    mRankingSignal,
+                    mJoinedResults,
+                    mInformationalRankingSignals);
         }
 
         private void resetIfBuilt() {
             if (mBuilt) {
-                mMatchInfoBundles = new ArrayList<>(mMatchInfoBundles);
+                mMatchInfos = new ArrayList<>(mMatchInfos);
                 mJoinedResults = new ArrayList<>(mJoinedResults);
+                mInformationalRankingSignals = new ArrayList<>(mInformationalRankingSignals);
                 mBuilt = false;
             }
         }
@@ -410,20 +496,32 @@ public final class SearchResult {
      *      <li>{@link MatchInfo#getSnippet()} returns "Testing 1"</li>
      * </ul>
      */
-    public static final class MatchInfo {
-        /** The path of the matching snippet property. */
-        private static final String PROPERTY_PATH_FIELD = "propertyPath";
-        private static final String EXACT_MATCH_RANGE_LOWER_FIELD = "exactMatchRangeLower";
-        private static final String EXACT_MATCH_RANGE_UPPER_FIELD = "exactMatchRangeUpper";
-        private static final String SUBMATCH_RANGE_LOWER_FIELD = "submatchRangeLower";
-        private static final String SUBMATCH_RANGE_UPPER_FIELD = "submatchRangeUpper";
-        private static final String SNIPPET_RANGE_LOWER_FIELD = "snippetRangeLower";
-        private static final String SNIPPET_RANGE_UPPER_FIELD = "snippetRangeUpper";
+    @SafeParcelable.Class(creator = "MatchInfoCreator")
+    @SuppressWarnings("HiddenSuperclass")
+    public static final class MatchInfo extends AbstractSafeParcelable {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+        @NonNull public static final Parcelable.Creator<MatchInfo> CREATOR =
+                new MatchInfoCreator();
 
+        /** The path of the matching snippet property. */
+        @Field(id = 1, getter = "getPropertyPath")
         private final String mPropertyPath;
+        @Field(id = 2)
+        final int mExactMatchRangeStart;
+        @Field(id = 3)
+        final int mExactMatchRangeEnd;
+        @Field(id = 4)
+        final int mSubmatchRangeStart;
+        @Field(id = 5)
+        final int mSubmatchRangeEnd;
+        @Field(id = 6)
+        final int mSnippetRangeStart;
+        @Field(id = 7)
+        final int mSnippetRangeEnd;
+
         @Nullable
         private PropertyPath mPropertyPathObject = null;
-        final Bundle mBundle;
 
         /**
          * Document which the match comes from.
@@ -432,7 +530,7 @@ public final class SearchResult {
          * {@link #getExactMatch}, will throw {@link NullPointerException}.
          */
         @Nullable
-        final GenericDocument mDocument;
+        private GenericDocument mDocument = null;
 
         /** Full text of the matched property. Populated on first use. */
         @Nullable
@@ -440,23 +538,35 @@ public final class SearchResult {
 
         /** Range of property that exactly matched the query. Populated on first use. */
         @Nullable
-        private MatchRange mExactMatchRange;
+        private MatchRange mExactMatchRangeCached;
 
         /**
          * Range of property that corresponds to the subsequence of the exact match that directly
          * matches a query term. Populated on first use.
          */
         @Nullable
-        private MatchRange mSubmatchRange;
+        private MatchRange mSubmatchRangeCached;
 
         /** Range of some reasonable amount of context around the query. Populated on first use. */
         @Nullable
-        private MatchRange mWindowRange;
+        private MatchRange mWindowRangeCached;
 
-        MatchInfo(@NonNull Bundle bundle, @Nullable GenericDocument document) {
-            mBundle = Preconditions.checkNotNull(bundle);
-            mDocument = document;
-            mPropertyPath = Preconditions.checkNotNull(bundle.getString(PROPERTY_PATH_FIELD));
+        @Constructor
+        MatchInfo(
+                @Param(id = 1) @NonNull String propertyPath,
+                @Param(id = 2) int exactMatchRangeStart,
+                @Param(id = 3) int exactMatchRangeEnd,
+                @Param(id = 4) int submatchRangeStart,
+                @Param(id = 5) int submatchRangeEnd,
+                @Param(id = 6) int snippetRangeStart,
+                @Param(id = 7) int snippetRangeEnd) {
+            mPropertyPath = Preconditions.checkNotNull(propertyPath);
+            mExactMatchRangeStart = exactMatchRangeStart;
+            mExactMatchRangeEnd = exactMatchRangeEnd;
+            mSubmatchRangeStart = submatchRangeStart;
+            mSubmatchRangeEnd = submatchRangeEnd;
+            mSnippetRangeStart = snippetRangeStart;
+            mSnippetRangeEnd = snippetRangeEnd;
         }
 
         /**
@@ -521,12 +631,12 @@ public final class SearchResult {
          */
         @NonNull
         public MatchRange getExactMatchRange() {
-            if (mExactMatchRange == null) {
-                mExactMatchRange = new MatchRange(
-                        mBundle.getInt(EXACT_MATCH_RANGE_LOWER_FIELD),
-                        mBundle.getInt(EXACT_MATCH_RANGE_UPPER_FIELD));
+            if (mExactMatchRangeCached == null) {
+                mExactMatchRangeCached = new MatchRange(
+                        mExactMatchRangeStart,
+                        mExactMatchRangeEnd);
             }
-            return mExactMatchRange;
+            return mExactMatchRangeCached;
         }
 
         /**
@@ -555,20 +665,18 @@ public final class SearchResult {
          * false.
          * <!--@exportToFramework:else()-->
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)
-        // @exportToFramework:endStrip()
         @NonNull
         public MatchRange getSubmatchRange() {
             checkSubmatchSupported();
-            if (mSubmatchRange == null) {
-                mSubmatchRange = new MatchRange(
-                        mBundle.getInt(SUBMATCH_RANGE_LOWER_FIELD),
-                        mBundle.getInt(SUBMATCH_RANGE_UPPER_FIELD));
+            if (mSubmatchRangeCached == null) {
+                mSubmatchRangeCached = new MatchRange(
+                        mSubmatchRangeStart,
+                        mSubmatchRangeEnd);
             }
-            return mSubmatchRange;
+            return mSubmatchRangeCached;
         }
 
         /**
@@ -585,11 +693,9 @@ public final class SearchResult {
          * false.
          * <!--@exportToFramework:else()-->
          */
-        // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)
-        // @exportToFramework:endStrip()
         @NonNull
         public CharSequence getSubmatch() {
             checkSubmatchSupported();
@@ -606,12 +712,12 @@ public final class SearchResult {
          */
         @NonNull
         public MatchRange getSnippetRange() {
-            if (mWindowRange == null) {
-                mWindowRange = new MatchRange(
-                        mBundle.getInt(SNIPPET_RANGE_LOWER_FIELD),
-                        mBundle.getInt(SNIPPET_RANGE_UPPER_FIELD));
+            if (mWindowRangeCached == null) {
+                mWindowRangeCached = new MatchRange(
+                        mSnippetRangeStart,
+                        mSnippetRangeEnd);
             }
-            return mWindowRange;
+            return mWindowRangeCached;
         }
 
         /**
@@ -634,7 +740,7 @@ public final class SearchResult {
         }
 
         private void checkSubmatchSupported() {
-            if (!mBundle.containsKey(SUBMATCH_RANGE_LOWER_FIELD)) {
+            if (mSubmatchRangeStart == -1) {
                 throw new UnsupportedOperationException(
                         "Submatch is not supported with this backend/Android API level "
                                 + "combination");
@@ -651,11 +757,29 @@ public final class SearchResult {
             return result;
         }
 
+        /**
+         * Sets the {@link GenericDocument} for {@link MatchInfo}.
+         *
+         * {@link MatchInfo} lacks a constructor that populates {@link MatchInfo#mDocument}
+         * This provides the ability to set {@link MatchInfo#mDocument}
+         */
+        void setDocument(@NonNull GenericDocument document) {
+            mDocument = document;
+        }
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+        @Override
+        public void writeToParcel(@NonNull Parcel dest, int flags) {
+            MatchInfoCreator.writeToParcel(this, dest, flags);
+        }
+
         /** Builder for {@link MatchInfo} objects. */
         public static final class Builder {
             private final String mPropertyPath;
             private MatchRange mExactMatchRange = new MatchRange(0, 0);
-            @Nullable private MatchRange mSubmatchRange;
+            int mSubmatchRangeStart = -1;
+            int mSubmatchRangeEnd = -1;
             private MatchRange mSnippetRange = new MatchRange(0, 0);
 
             /**
@@ -675,6 +799,17 @@ public final class SearchResult {
                 mPropertyPath = Preconditions.checkNotNull(propertyPath);
             }
 
+            /** @exportToFramework:hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+            public Builder(@NonNull MatchInfo matchInfo) {
+                Preconditions.checkNotNull(matchInfo);
+                mPropertyPath = matchInfo.mPropertyPath;
+                mExactMatchRange = matchInfo.getExactMatchRange();
+                mSubmatchRangeStart = matchInfo.mSubmatchRangeStart;
+                mSubmatchRangeEnd = matchInfo.mSubmatchRangeEnd;
+                mSnippetRange = matchInfo.getSnippetRange();
+            }
+
             /** Sets the exact {@link MatchRange} corresponding to the given entry. */
             @CanIgnoreReturnValue
             @NonNull
@@ -684,11 +819,15 @@ public final class SearchResult {
             }
 
 
-            /** Sets the submatch {@link MatchRange} corresponding to the given entry. */
+            /**
+             * Sets the start and end of a submatch {@link MatchRange} corresponding
+             * to the given entry.
+             */
             @CanIgnoreReturnValue
             @NonNull
             public Builder setSubmatchRange(@NonNull MatchRange matchRange) {
-                mSubmatchRange = Preconditions.checkNotNull(matchRange);
+                mSubmatchRangeStart = matchRange.getStart();
+                mSubmatchRangeEnd = matchRange.getEnd();
                 return this;
             }
 
@@ -703,24 +842,14 @@ public final class SearchResult {
             /** Constructs a new {@link MatchInfo}. */
             @NonNull
             public MatchInfo build() {
-                Bundle bundle = new Bundle();
-                bundle.putString(SearchResult.MatchInfo.PROPERTY_PATH_FIELD, mPropertyPath);
-                bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_LOWER_FIELD, mExactMatchRange.getStart());
-                bundle.putInt(MatchInfo.EXACT_MATCH_RANGE_UPPER_FIELD, mExactMatchRange.getEnd());
-                if (mSubmatchRange != null) {
-                    // Only populate the submatch fields if it was actually set.
-                    bundle.putInt(MatchInfo.SUBMATCH_RANGE_LOWER_FIELD, mSubmatchRange.getStart());
-                }
-
-                if (mSubmatchRange != null) {
-                    // Only populate the submatch fields if it was actually set.
-                    // Moved to separate block for Nullness Checker.
-                    bundle.putInt(MatchInfo.SUBMATCH_RANGE_UPPER_FIELD, mSubmatchRange.getEnd());
-                }
-
-                bundle.putInt(MatchInfo.SNIPPET_RANGE_LOWER_FIELD, mSnippetRange.getStart());
-                bundle.putInt(MatchInfo.SNIPPET_RANGE_UPPER_FIELD, mSnippetRange.getEnd());
-                return new MatchInfo(bundle, /*document=*/ null);
+                return new MatchInfo(
+                    mPropertyPath,
+                    mExactMatchRange.getStart(),
+                    mExactMatchRange.getEnd(),
+                    mSubmatchRangeStart,
+                    mSubmatchRangeEnd,
+                    mSnippetRange.getStart(),
+                    mSnippetRange.getEnd());
             }
         }
     }

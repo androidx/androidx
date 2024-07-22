@@ -72,6 +72,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlin.system.measureNanoTime
@@ -453,7 +454,7 @@ class AverageDurationMeasurer(private val capacity: Int = 600 /*60 fps * 10 seco
     fun addMeasure(duration: Long) {
         values.add(duration)
         while (values.size > capacity) {
-            values.removeFirst()
+            values.removeFirstKt()
         }
     }
 

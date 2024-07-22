@@ -158,6 +158,8 @@ public interface WindowAreaComponent {
     void startRearDisplaySession(@NonNull Activity activity,
             @NonNull Consumer<@WindowAreaSessionState Integer> consumer);
 
+    // TODO(b/264546746): Remove deprecated Window Extensions APIs after apps in g3 is updated to
+    // the latest library.
     /**
      * Ends a RearDisplaySession and sends [STATE_INACTIVE] to the consumer
      * provided in the {@code startRearDisplaySession} method. This method is only

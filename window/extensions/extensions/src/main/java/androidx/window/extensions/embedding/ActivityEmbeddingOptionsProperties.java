@@ -29,6 +29,17 @@ public class ActivityEmbeddingOptionsProperties {
     private ActivityEmbeddingOptionsProperties() {}
 
     /**
+     * The key of the unique identifier that put into {@link android.app.ActivityOptions}.
+     * <p>
+     * Type: {@link android.os.Bundle#putString(String, String) String}
+     * <p>
+     * An {@code OverlayCreateParams} property that represents the unique identifier of the overlay
+     * container.
+     */
+    public static final String KEY_OVERLAY_TAG =
+            "androidx.window.extensions.embedding.OverlayTag";
+
+    /**
      * The key of {@link ActivityStack.Token#toBundle()} that put into
      * {@link android.app.ActivityOptions}.
      * <p>
