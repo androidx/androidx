@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.collection.LruCache
+import androidx.collection.SieveCache
 import androidx.compose.runtime.State
 import androidx.compose.ui.text.platform.createSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
@@ -167,14 +167,14 @@ internal sealed interface TypefaceResult : State<Any> {
 internal class TypefaceRequestCache {
     internal val lock = createSynchronizedObject()
     // @GuardedBy("lock")
-    private val resultCache = LruCache<TypefaceRequest, TypefaceResult>(16)
+    private val resultCache = SieveCache<TypefaceRequest, TypefaceResult>(16, 16)
 
     fun runCached(
         typefaceRequest: TypefaceRequest,
         resolveTypeface: ((TypefaceResult) -> Unit) -> TypefaceResult
     ): State<Any> {
         synchronized(lock) {
-            resultCache.get(typefaceRequest)?.let {
+            resultCache[typefaceRequest]?.let {
                 if (it.cacheable) {
                     return it
                 } else {
@@ -216,7 +216,7 @@ internal class TypefaceRequestCache {
         synchronized(lock) {
             // async result may have completed prior to this block entering, do not overwrite
             // final results
-            if (resultCache.get(typefaceRequest) == null && currentTypefaceResult.cacheable) {
+            if (resultCache[typefaceRequest] == null && currentTypefaceResult.cacheable) {
                 resultCache.put(typefaceRequest, currentTypefaceResult)
             }
         }
@@ -230,7 +230,7 @@ internal class TypefaceRequestCache {
         for (i in typefaceRequests.indices) {
             val typeRequest = typefaceRequests[i]
 
-            val prior = synchronized(lock) { resultCache.get(typeRequest) }
+            val prior = synchronized(lock) { resultCache[typeRequest] }
             if (prior != null) continue
 
             val next =
@@ -244,15 +244,15 @@ internal class TypefaceRequestCache {
             // has async fonts in permanent cache
             if (next is TypefaceResult.Async) continue
 
-            synchronized(lock) { resultCache.put(typeRequest, next) }
+            synchronized(lock) { resultCache[typeRequest] = next }
         }
     }
 
     // @VisibleForTesting
     internal fun get(typefaceRequest: TypefaceRequest) =
-        synchronized(lock) { resultCache.get(typefaceRequest) }
+        synchronized(lock) { resultCache[typefaceRequest] }
 
     // @VisibleForTesting
     internal val size: Int
-        get() = synchronized(lock) { resultCache.size() }
+        get() = synchronized(lock) { resultCache.size }
 }

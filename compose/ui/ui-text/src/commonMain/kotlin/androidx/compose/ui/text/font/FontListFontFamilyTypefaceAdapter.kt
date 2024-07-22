@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.text.font
 
-import androidx.collection.LruCache
-import androidx.collection.SimpleArrayMap
+import androidx.collection.SieveCache
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -358,14 +358,14 @@ internal class AsyncTypefaceCache {
 
     internal data class Key(val font: Font, val loaderKey: Any?)
 
-    // 16 is based on the LruCache in TypefaceCompat Android, but no firm logic for this size.
+    // 16 is based on the cache in TypefaceCompat Android, but no firm logic for this size.
     // After loading, fonts are put into the resultCache to allow reading from a kotlin function
     // context, reducing async fonts overhead cache lookup overhead only while cached
     // @GuardedBy("cacheLock")
-    private val resultCache = LruCache<Key, AsyncTypefaceResult>(16)
+    private val resultCache = SieveCache<Key, AsyncTypefaceResult>(16, 16)
     // failures and preloads are permanent, so they are stored separately
     // @GuardedBy("cacheLock")
-    private val permanentCache = SimpleArrayMap<Key, AsyncTypefaceResult>()
+    private val permanentCache = mutableScatterMapOf<Key, AsyncTypefaceResult>()
 
     private val cacheLock = createSynchronizedObject()
 
@@ -379,13 +379,13 @@ internal class AsyncTypefaceCache {
         synchronized(cacheLock) {
             when {
                 result == null -> {
-                    permanentCache.put(key, PermanentFailure)
+                    permanentCache[key] = PermanentFailure
                 }
                 forever -> {
-                    permanentCache.put(key, AsyncTypefaceResult(result))
+                    permanentCache[key] = AsyncTypefaceResult(result)
                 }
                 else -> {
-                    resultCache.put(key, AsyncTypefaceResult(result))
+                    resultCache[key] = AsyncTypefaceResult(result)
                 }
             }
         }
@@ -393,7 +393,7 @@ internal class AsyncTypefaceCache {
 
     fun get(font: Font, platformFontLoader: PlatformFontLoader): AsyncTypefaceResult? {
         val key = Key(font, platformFontLoader.cacheKey)
-        return synchronized(cacheLock) { resultCache.get(key) ?: permanentCache[key] }
+        return synchronized(cacheLock) { resultCache[key] ?: permanentCache[key] }
     }
 
     suspend fun runCached(
@@ -404,7 +404,7 @@ internal class AsyncTypefaceCache {
     ): Any? {
         val key = Key(font, platformFontLoader.cacheKey)
         synchronized(cacheLock) {
-            val priorResult = resultCache.get(key) ?: permanentCache[key]
+            val priorResult = resultCache[key] ?: permanentCache[key]
             if (priorResult != null) {
                 return priorResult.result
             }
@@ -413,13 +413,13 @@ internal class AsyncTypefaceCache {
             synchronized(cacheLock) {
                 when {
                     it == null -> {
-                        permanentCache.put(key, PermanentFailure)
+                        permanentCache[key] = PermanentFailure
                     }
                     forever -> {
-                        permanentCache.put(key, AsyncTypefaceResult(it))
+                        permanentCache[key] = AsyncTypefaceResult(it)
                     }
                     else -> {
-                        resultCache.put(key, AsyncTypefaceResult(it))
+                        resultCache[key] = AsyncTypefaceResult(it)
                     }
                 }
             }
@@ -433,7 +433,7 @@ internal class AsyncTypefaceCache {
     ): Any? {
         synchronized(cacheLock) {
             val key = Key(font, platformFontLoader.cacheKey)
-            val priorResult = resultCache.get(key) ?: permanentCache[key]
+            val priorResult = resultCache[key] ?: permanentCache[key]
             if (priorResult != null) {
                 return priorResult.result
             }

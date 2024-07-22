@@ -21,9 +21,7 @@ import android.graphics.Typeface
 import android.os.Build
 import android.util.TypedValue
 import androidx.annotation.RequiresApi
-import androidx.collection.LruCache
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.android.InternalPlatformTextApi
+import androidx.collection.SieveCache
 import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.AndroidPreloadedFont
 import androidx.compose.ui.text.font.Font
@@ -110,18 +108,17 @@ internal class AndroidFontListTypeface(
 internal object AndroidTypefaceCache {
 
     // TODO multiple TypefaceCache's, would be good to unify
-    private val cache = LruCache<String, Typeface>(16)
+    private val cache = SieveCache<String, Typeface>(16, 16)
 
     /**
      * Returns NativeTypeface for [font] if it is in cache. Otherwise create new NativeTypeface and
      * put it into internal cache.
      */
-    @OptIn(InternalPlatformTextApi::class, ExperimentalTextApi::class)
     fun getOrCreate(context: Context, font: Font): Typeface {
         val key = getKey(context, font)
 
         key?.let {
-            cache.get(key)?.let {
+            cache[key]?.let {
                 return it
             }
         }
@@ -139,13 +136,13 @@ internal object AndroidTypefaceCache {
                 else -> throw IllegalArgumentException("Unknown font type: $font")
             } ?: throw IllegalArgumentException("Unable to load font $font")
 
-        key?.let { cache.put(key, typeface) }
+        key?.let { cache[key] = typeface }
 
         return typeface
     }
 
     /** Utility method to generate a key for caching purposes. */
-    fun getKey(context: Context, font: Font): String? {
+    private fun getKey(context: Context, font: Font): String? {
         return when (font) {
             is ResourceFont -> {
                 val value = TypedValue()
