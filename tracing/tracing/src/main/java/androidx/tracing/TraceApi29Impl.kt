@@ -30,7 +30,6 @@ import androidx.annotation.RequiresApi
 internal object TraceApi29Impl {
 
     /** Checks whether or not tracing is currently enabled. */
-    @JvmStatic
     val isEnabled: Boolean
         get() = android.os.Trace.isEnabled()
 
@@ -41,7 +40,6 @@ internal object TraceApi29Impl {
      * @param methodName The method name to appear in the trace.
      * @param cookie Unique identifier for distinguishing simultaneous events.
      */
-    @JvmStatic
     fun beginAsyncSection(methodName: String, cookie: Int) {
         android.os.Trace.beginAsyncSection(methodName, cookie)
     }
@@ -53,7 +51,6 @@ internal object TraceApi29Impl {
      * @param methodName The method name to appear in the trace.
      * @param cookie Unique identifier for distinguishing simultaneous events.
      */
-    @JvmStatic
     fun endAsyncSection(methodName: String, cookie: Int) {
         android.os.Trace.endAsyncSection(methodName, cookie)
     }
@@ -64,7 +61,6 @@ internal object TraceApi29Impl {
      * @param counterName The counter name to appear in the trace.
      * @param counterValue The counter value.
      */
-    @JvmStatic
     fun setCounter(counterName: String, counterValue: Int) {
         android.os.Trace.setCounter(counterName, counterValue.toLong())
     }
