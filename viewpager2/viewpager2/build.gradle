@@ -67,6 +67,5 @@ androidx {
 }
 
 android {
-    compileSdk 35
     namespace "androidx.viewpager2"
 }

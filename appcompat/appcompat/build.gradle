@@ -74,7 +74,6 @@ dependencies {
 }
 
 android {
-    compileSdk 35
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
