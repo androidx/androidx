@@ -697,6 +697,7 @@ private fun Project.configureWasm() {
     val createYarnRcFileTask =
         rootProject.tasks.register("createYarnRcFile", CreateYarnRcFileTask::class.java) {
             it.offlineMirrorStorage.set(offlineMirrorStorage)
+            it.nodeModulesDir.set(rootProject.layout.buildDirectory.dir("js/node_modules"))
             it.yarnrcFile.set(rootProject.layout.buildDirectory.file("js/.yarnrc"))
         }
     rootProject.tasks.withType<KotlinNpmInstallTask>().configureEach {
