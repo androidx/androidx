@@ -444,13 +444,23 @@ internal abstract class NodeCoordinator(
         visitNodes(Nodes.LayoutAware) { it.onPlaced(this) }
     }
 
+    private var drawBlockParentLayer: GraphicsLayer? = null
+    private var drawBlockCanvas: Canvas? = null
+
+    private val drawBlockCallToDrawModifiers: () -> Unit = {
+        drawContainedDrawModifiers(drawBlockCanvas!!, drawBlockParentLayer)
+    }
+
     // implementation of draw block passed to the OwnedLayer
-    @Suppress("LiftReturnOrAssignment")
     private val drawBlock: (Canvas, GraphicsLayer?) -> Unit = { canvas, parentLayer ->
         if (layoutNode.isPlaced) {
-            snapshotObserver.observeReads(this, onCommitAffectingLayer) {
-                drawContainedDrawModifiers(canvas, parentLayer)
-            }
+            this.drawBlockCanvas = canvas
+            this.drawBlockParentLayer = parentLayer
+            snapshotObserver.observeReads(
+                this,
+                onCommitAffectingLayer,
+                drawBlockCallToDrawModifiers
+            )
             lastLayerDrawingWasSkipped = false
         } else {
             // The invalidation is requested even for nodes which are not placed. As we are not

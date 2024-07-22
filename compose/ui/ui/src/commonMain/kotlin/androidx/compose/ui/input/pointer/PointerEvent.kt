@@ -486,9 +486,13 @@ class PointerInputChange(
      * Indicates whether the change was consumed or not. Note that the change must be consumed in
      * full as there's no partial consumption system provided.
      */
-    @Suppress("DEPRECATION")
     val isConsumed: Boolean
-        get() = consumed.downChange || consumed.positionChange
+        get() = consumedDelegate?.isConsumed ?: (downChange || positionChange)
+
+    internal var downChange = isInitiallyConsumed
+    internal var positionChange = isInitiallyConsumed
+    // Used by shallow copies (see [copy]) to share the consumed state across pointer input changes
+    internal var consumedDelegate: PointerInputChange? = null
 
     /**
      * Consume change event, claiming all the corresponding change info to the caller. This is
@@ -498,17 +502,26 @@ class PointerInputChange(
      * "Consumption" is just an indication of the claim and each pointer input handler
      * implementation must manually check this flag to respect it.
      */
-    @Suppress("DEPRECATION")
     fun consume() {
-        consumed.downChange = true
-        consumed.positionChange = true
+        if (consumedDelegate == null) {
+            downChange = true
+            positionChange = true
+        } else {
+            consumedDelegate?.consume()
+        }
     }
+
+    @Suppress("DEPRECATION") private var _consumed: ConsumedData? = null
 
     @Deprecated("use isConsumed and consume() pair of methods instead")
     @Suppress("DEPRECATION")
-    var consumed: ConsumedData =
-        ConsumedData(downChange = isInitiallyConsumed, positionChange = isInitiallyConsumed)
-        private set
+    val consumed: ConsumedData
+        get() {
+            if (_consumed == null) {
+                _consumed = ConsumedData(this)
+            }
+            return _consumed!!
+        }
 
     @Deprecated(
         level = DeprecationLevel.HIDDEN,
@@ -546,7 +559,12 @@ class PointerInputChange(
                 this.scrollDelta,
                 this.originalEventPosition,
             )
-            .also { this.consumed = consumed }
+            .also {
+                // This method makes a deep copy, copy the consumed state directly without setting
+                // the consumed delegate, which is used for shallow copies.
+                it.positionChange = this.positionChange
+                it.downChange = this.downChange
+            }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -556,7 +574,6 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange]
      */
-    @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
@@ -569,18 +586,24 @@ class PointerInputChange(
         scrollDelta: Offset = this.scrollDelta
     ): PointerInputChange =
         copy(
-            id = id,
-            currentTime = currentTime,
-            currentPosition = currentPosition,
-            currentPressed = currentPressed,
-            pressure = this.pressure,
-            previousTime = previousTime,
-            previousPosition = previousPosition,
-            previousPressed = previousPressed,
-            type = type,
-            historical = this.historical,
-            scrollDelta = scrollDelta
-        )
+                id = id,
+                currentTime = currentTime,
+                currentPosition = currentPosition,
+                currentPressed = currentPressed,
+                pressure = this.pressure,
+                previousTime = previousTime,
+                previousPosition = previousPosition,
+                previousPressed = previousPressed,
+                type = type,
+                historical = this.historical,
+                scrollDelta = scrollDelta
+            )
+            .also {
+                // This method makes a shallow copy, copy the delegate to share the consumed state
+                // across instances. The local consumed state is irrelevant since we won't look at
+                // it, meaning there's no need to copy positionChange and downChange.
+                it.consumedDelegate = this.consumedDelegate ?: this
+            }
 
     @Suppress("DEPRECATION")
     @Deprecated(
@@ -620,7 +643,12 @@ class PointerInputChange(
                 scrollDelta,
                 this.originalEventPosition,
             )
-            .also { this.consumed = consumed }
+            .also {
+                // This method makes a deep copy, copy the consumed state directly without setting
+                // the consumed delegate, which is used for shallow copies.
+                it.positionChange = this.positionChange
+                it.downChange = this.downChange
+            }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -630,7 +658,6 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange].
      */
-    @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
@@ -652,13 +679,18 @@ class PointerInputChange(
                 previousTime,
                 previousPosition,
                 previousPressed,
-                isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
+                isInitiallyConsumed = false, // doesn't matter, we will copy the consumed booleans
                 type,
                 historical = this.historical,
                 scrollDelta,
                 this.originalEventPosition,
             )
-            .also { it.consumed = this.consumed }
+            .also {
+                // This method makes a shallow copy, copy the delegate to share the consumed state
+                // across instances. The local consumed state is irrelevant since we won't look at
+                // it, meaning there's no need to copy positionChange and downChange.
+                it.consumedDelegate = this.consumedDelegate ?: this
+            }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -669,7 +701,6 @@ class PointerInputChange(
      * is not possible. Consider creating a new [PointerInputChange].
      */
     @ExperimentalComposeUiApi
-    @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
@@ -683,18 +714,24 @@ class PointerInputChange(
         scrollDelta: Offset = this.scrollDelta
     ): PointerInputChange =
         copy(
-            id = id,
-            currentTime = currentTime,
-            currentPosition = currentPosition,
-            currentPressed = currentPressed,
-            pressure = this.pressure,
-            previousTime = previousTime,
-            previousPosition = previousPosition,
-            previousPressed = previousPressed,
-            type = type,
-            historical = historical,
-            scrollDelta = scrollDelta
-        )
+                id = id,
+                currentTime = currentTime,
+                currentPosition = currentPosition,
+                currentPressed = currentPressed,
+                pressure = this.pressure,
+                previousTime = previousTime,
+                previousPosition = previousPosition,
+                previousPressed = previousPressed,
+                type = type,
+                historical = historical,
+                scrollDelta = scrollDelta
+            )
+            .also {
+                // This method makes a shallow copy, copy the delegate to share the consumed state
+                // across instances. The local consumed state is irrelevant since we won't look at
+                // it, meaning there's no need to copy positionChange and downChange.
+                it.consumedDelegate = this.consumedDelegate ?: this
+            }
 
     /**
      * Make a shallow copy of the [PointerInputChange]
@@ -704,7 +741,6 @@ class PointerInputChange(
      * copies will consume any other copy automatically. Therefore, copy with the new [isConsumed]
      * is not possible. Consider creating a new [PointerInputChange].
      */
-    @Suppress("DEPRECATION")
     fun copy(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
@@ -727,13 +763,18 @@ class PointerInputChange(
                 previousTime,
                 previousPosition,
                 previousPressed,
-                isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
+                isInitiallyConsumed = false, // doesn't matter, we will copy the consumed booleans
                 type,
                 historical,
                 scrollDelta,
                 originalEventPosition = this.originalEventPosition,
             )
-            .also { it.consumed = this.consumed }
+            .also {
+                // This method makes a shallow copy, copy the delegate to share the consumed state
+                // across instances. The local consumed state is irrelevant since we won't look at
+                // it, meaning there's no need to copy positionChange and downChange.
+                it.consumedDelegate = this.consumedDelegate ?: this
+            }
 
     override fun toString(): String {
         return "PointerInputChange(id=$id, " +
@@ -775,7 +816,7 @@ class HistoricalChange(val uptimeMillis: Long, val position: Offset) {
     }
 
     override fun toString(): String {
-        return "HistoricalChange(uptimeMillis=$uptimeMillis, " + "position=$position)"
+        return "HistoricalChange(uptimeMillis=$uptimeMillis, position=$position)"
     }
 }
 
@@ -793,22 +834,43 @@ class HistoricalChange(val uptimeMillis: Long, val position: Offset) {
  * @param downChange True if a change to down or up has been consumed.
  */
 @Deprecated("Use PointerInputChange.isConsumed and PointerInputChange.consume() instead")
-class ConsumedData(
+class ConsumedData(positionChange: Boolean = false, downChange: Boolean = false) {
+    private var change: PointerInputChange? = null
+
+    internal constructor(
+        change: PointerInputChange
+    ) : this(change.positionChange, change.downChange) {
+        this.change = change
+    }
+
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
     @Deprecated(
         "Partial consumption was deprecated. Use PointerEvent.isConsumed " +
             "and PointerEvent.consume() instead."
     )
-    var positionChange: Boolean = false,
+    var positionChange: Boolean = positionChange
+        get() = change?.consumedDelegate?.positionChange ?: (change?.positionChange ?: field)
+        set(value) {
+            change?.consumedDelegate?.positionChange = value
+            change?.positionChange = value
+            field = value
+        }
+
     @Suppress("GetterSetterNames")
     @get:Suppress("GetterSetterNames")
     @Deprecated(
         "Partial consumption was deprecated. Use PointerEvent.isConsumed " +
             "and PointerEvent.consume() instead."
     )
-    var downChange: Boolean = false
-)
+    var downChange: Boolean = downChange
+        get() = change?.consumedDelegate?.downChange ?: (change?.downChange ?: field)
+        set(value) {
+            change?.consumedDelegate?.downChange = value
+            change?.downChange = value
+            field = value
+        }
+}
 
 /**
  * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.

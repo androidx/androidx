@@ -1759,7 +1759,7 @@ package androidx.compose.ui.input.pointer {
 
   @Deprecated public final class ConsumedData {
     ctor @Deprecated public ConsumedData();
-    ctor @Deprecated public ConsumedData(optional @Deprecated boolean positionChange, optional @Deprecated boolean downChange);
+    ctor @Deprecated public ConsumedData(optional boolean positionChange, optional boolean downChange);
     method @Deprecated public boolean getDownChange();
     method @Deprecated public boolean getPositionChange();
     method @Deprecated public void setDownChange(boolean);
@@ -1919,6 +1919,7 @@ package androidx.compose.ui.input.pointer {
     method public int getType();
     method public long getUptimeMillis();
     method public boolean isConsumed();
+    property @Deprecated public final androidx.compose.ui.input.pointer.ConsumedData consumed;
     property public final java.util.List<androidx.compose.ui.input.pointer.HistoricalChange> historical;
     property public final long id;
     property public final boolean isConsumed;

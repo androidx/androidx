@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -431,7 +432,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
     private val density: Density,
     overscrollConfig: OverscrollConfiguration
 ) : OverscrollEffect {
-    private var pointerPosition: Offset? = null
+    private var pointerPosition: Offset = Offset.Unspecified
 
     private val edgeEffectWrapper =
         EdgeEffectWrapper(context, glowColor = overscrollConfig.glowColor.toArgb())
@@ -679,11 +680,11 @@ internal class AndroidEdgeEffectOverscrollEffect(
         }
     }
 
-    private var pointerId: PointerId? = null
+    private var pointerId: PointerId = PointerId(-1L)
 
     /** @return displacement based on the last [pointerPosition] and [containerSize] */
     internal fun displacement(): Offset {
-        val pointer = pointerPosition ?: containerSize.center
+        val pointer = if (pointerPosition.isSpecified) pointerPosition else containerSize.center
         val x = pointer.x / containerSize.width
         val y = pointer.y / containerSize.height
         return Offset(x, y)
@@ -708,7 +709,7 @@ internal class AndroidEdgeEffectOverscrollEffect(
                             pointerPosition = change.position
                         }
                     } while (pressedChanges.isNotEmpty())
-                    pointerId = null
+                    pointerId = PointerId(-1L)
                     // Explicitly not resetting the pointer position until the next down, so we
                     // don't change any existing effects
                 }
