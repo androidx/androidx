@@ -24,7 +24,6 @@ import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.AspectRatio
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.CameraSelector
@@ -86,7 +85,7 @@ class CameraControllerTest {
     private lateinit var controller: LifecycleCameraController
 
     @Suppress("deprecation")
-    private val targetSizeWithAspectRatio = CameraController.OutputSize(AspectRatio.RATIO_16_9)
+    private val targetSizeWithAspectRatio = CameraController.OutputSize(RATIO_16_9)
     private val resolutionSelector =
         ResolutionSelector.Builder()
             .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
@@ -624,8 +623,31 @@ class CameraControllerTest {
         assertThat(controller.imageCaptureFlashMode).isEqualTo(FLASH_MODE_ON)
     }
 
+    @Suppress("deprecation")
     @Test
-    fun setViewport_overrideUseCasesAspectRatioIfNotSetYet() {
+    fun setResolutionSelectorAndOutputSizeAtTheSameTime() {
+        // Arrange & Act: Set resolution selector and target size together.
+        controller.previewResolutionSelector = resolutionSelector
+        controller.imageCaptureResolutionSelector = resolutionSelector
+        controller.imageAnalysisResolutionSelector = resolutionSelector
+        controller.previewTargetSize = targetSizeWithResolution
+        controller.imageCaptureTargetSize = targetSizeWithResolution
+        controller.imageAnalysisTargetSize = targetSizeWithResolution
+
+        // Assert: The resolution selector should be set, while the target resolution should not.
+        val previewConfig = controller.mPreview.currentConfig as ImageOutputConfig
+        assertThat(previewConfig.resolutionSelector).isEqualTo(resolutionSelector)
+        assertThat(previewConfig.getTargetResolution(null)).isNull()
+        val imageCaptureConfig = controller.mImageCapture.currentConfig as ImageOutputConfig
+        assertThat(imageCaptureConfig.resolutionSelector).isEqualTo(resolutionSelector)
+        assertThat(imageCaptureConfig.getTargetResolution(null)).isNull()
+        val imageAnalysisConfig = controller.mImageAnalysis.currentConfig as ImageOutputConfig
+        assertThat(imageAnalysisConfig.resolutionSelector).isEqualTo(resolutionSelector)
+        assertThat(imageAnalysisConfig.getTargetResolution(null)).isNull()
+    }
+
+    @Test
+    fun setViewport_overrideUseCasesAspectRatio() {
         // Arrange & Act: Set a 16:9 viewport.
         controller.attachPreviewSurface(
             {},
@@ -647,7 +669,7 @@ class CameraControllerTest {
     }
 
     @Test
-    fun setViewport_notOverrideUseCasesAspectRatioIfAlreadySet() {
+    fun setViewport_notOverrideUseCasesAspectRatioIfResolutionSelectorAlreadySet() {
         // Arrange: Set a 4:3 viewport.
         controller.attachPreviewSurface(
             {},
@@ -671,5 +693,28 @@ class CameraControllerTest {
         assertThat(imageAnalysisConfig.resolutionSelector.aspectRatioStrategy.preferredAspectRatio)
             .isNotEqualTo(RATIO_4_3)
         assertThat(controller.mVideoCapture.output.aspectRatio).isNotEqualTo(RATIO_4_3)
+    }
+
+    @Suppress("deprecation")
+    @Test
+    fun setViewport_notOverrideUseCasesAspectRatioIfOutputSizeAlreadySet() {
+        // Arrange: Set a 4:3 viewport.
+        controller.attachPreviewSurface(
+            {},
+            ViewPort.Builder(Rational(4, 3), Surface.ROTATION_0).build()
+        )
+
+        // Act: Explicitly set a 16:9 target size.
+        controller.previewTargetSize = targetSizeWithAspectRatio
+        controller.imageCaptureTargetSize = targetSizeWithAspectRatio
+        controller.imageAnalysisTargetSize = targetSizeWithAspectRatio
+
+        // Assert: The resolution selector should not exist in the config.
+        val previewConfig = controller.mPreview.currentConfig as ImageOutputConfig
+        assertThat(previewConfig.getResolutionSelector(null)).isNull()
+        val imageCaptureConfig = controller.mImageCapture.currentConfig as ImageOutputConfig
+        assertThat(imageCaptureConfig.getResolutionSelector(null)).isNull()
+        val imageAnalysisConfig = controller.mImageAnalysis.currentConfig as ImageOutputConfig
+        assertThat(imageAnalysisConfig.getResolutionSelector(null)).isNull()
     }
 }

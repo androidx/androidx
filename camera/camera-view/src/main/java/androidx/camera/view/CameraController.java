@@ -509,15 +509,20 @@ public abstract class CameraController {
     }
 
     /**
-     * Sets the {@link ResolutionSelector} on the config.
+     * Configures the resolution on the config.
      *
-     * <p>If the given resolution selector is {@code null}, the {@link AspectRatioStrategy} will
-     * be override to match the {@link ViewPort}.
+     * <p>If the {@link ResolutionSelector} and the {@link OutputSize} are set at the same time,
+     * the {@link ResolutionSelector} takes precedence.
+     *
+     * <p>If the given {@link ResolutionSelector} is {@code null} and {@link OutputSize}, the
+     * {@link AspectRatioStrategy} will be override to match the {@link ViewPort}.
      */
-    private void setResolutionSelector(@NonNull ImageOutputConfig.Builder<?> builder,
-            @Nullable ResolutionSelector resolutionSelector) {
+    private void configureResolution(@NonNull ImageOutputConfig.Builder<?> builder,
+            @Nullable ResolutionSelector resolutionSelector, @Nullable OutputSize outputSize) {
         if (resolutionSelector != null) {
             builder.setResolutionSelector(resolutionSelector);
+        } else if (outputSize != null) {
+            setTargetOutputSize(builder, outputSize);
         } else if (mViewPort != null) {
             // Override the aspect ratio strategy if viewport is set and there's no resolution
             // selector explicitly set by the user.
@@ -748,8 +753,7 @@ public abstract class CameraController {
 
     private Preview createPreview() {
         Preview.Builder builder = new Preview.Builder();
-        setTargetOutputSize(builder, mPreviewTargetSize);
-        setResolutionSelector(builder, mPreviewResolutionSelector);
+        configureResolution(builder, mPreviewResolutionSelector, mPreviewTargetSize);
         builder.setDynamicRange(mPreviewDynamicRange);
         return builder.build();
     }
@@ -1137,8 +1141,7 @@ public abstract class CameraController {
         if (imageCaptureMode != null) {
             builder.setCaptureMode(imageCaptureMode);
         }
-        setTargetOutputSize(builder, mImageCaptureTargetSize);
-        setResolutionSelector(builder, mImageCaptureResolutionSelector);
+        configureResolution(builder, mImageCaptureResolutionSelector, mImageCaptureTargetSize);
         if (mImageCaptureIoExecutor != null) {
             builder.setIoExecutor(mImageCaptureIoExecutor);
         }
@@ -1519,8 +1522,7 @@ public abstract class CameraController {
         if (outputFormat != null) {
             builder.setOutputImageFormat(outputFormat);
         }
-        setTargetOutputSize(builder, mImageAnalysisTargetSize);
-        setResolutionSelector(builder, mImageAnalysisResolutionSelector);
+        configureResolution(builder, mImageAnalysisResolutionSelector, mImageAnalysisTargetSize);
         if (mAnalysisBackgroundExecutor != null) {
             builder.setBackgroundExecutor(mAnalysisBackgroundExecutor);
         }
