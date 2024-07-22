@@ -36,12 +36,16 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.the
+import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -54,7 +58,14 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
+import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
+import org.jetbrains.kotlin.gradle.targets.js.ir.DefaultIncrementalSyncTask
+import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
+import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
 /**
@@ -652,8 +663,97 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         }
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    @JvmOverloads
+    fun wasmJs(block: Action<KotlinJsTargetDsl>? = null): KotlinWasmTargetDsl? {
+        supportedPlatforms.add(PlatformIdentifier.WASM_JS)
+        return if (project.enableWasmJs()) {
+            kotlinExtension.wasmJs("wasmJs") {
+                block?.execute(this)
+                binaries.executable()
+                browser {}
+                project.configureWasm()
+            }
+        } else {
+            null
+        }
+    }
+
     companion object {
         const val EXTENSION_NAME = "androidXMultiplatform"
+    }
+}
+
+private fun Project.configureWasm() {
+    rootProject.extensions.findByType<NodeJsRootExtension>()?.nodeVersion = getVersionByName("node")
+    rootProject.extensions.findByType<YarnRootExtension>()?.version = getVersionByName("yarn")
+    rootProject.plugins.withType<YarnPlugin> {
+        rootProject.the<YarnRootExtension>().lockFileDirectory =
+            File(project.getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
+    }
+
+    val offlineMirrorStorage =
+        File(getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
+    val createYarnRcFileTask =
+        rootProject.tasks.register("createYarnRcFile", CreateYarnRcFileTask::class.java) {
+            it.offlineMirrorStorage.set(offlineMirrorStorage)
+            it.yarnrcFile.set(rootProject.layout.buildDirectory.file("js/.yarnrc"))
+        }
+    rootProject.tasks.withType<KotlinNpmInstallTask>().configureEach {
+        it.dependsOn(createYarnRcFileTask)
+        it.args.addAll(listOf("--ignore-engines", "--verbose"))
+
+        println(
+            """
+             Yarn packages will be fetched from the offline mirror: ${offlineMirrorStorage.path}.
+             If yarn has a dependency that is not there, your build will fail. To fix, re-run your
+             Gradle task with -Pandroidx.yarnOfflineMode=false to download the dependencies from the
+             internet into the offline mirror. Don't forget to upload the changes from that repo to
+             Gerrit as well!   
+            """
+                .trimIndent()
+                .replace("\n", " ")
+        )
+
+        if (project.useYarnOffline()) {
+            it.args.add("--offline")
+        }
+    }
+
+    // Use DSL API when https://youtrack.jetbrains.com/issue/KT-70029 is closed for all tasks below
+    tasks.named("wasmJsDevelopmentExecutableCompileSync", DefaultIncrementalSyncTask::class.java) {
+        it.destinationDirectory.set(
+            file(layout.buildDirectory.dir("js/packages/wasm-js/dev/kotlin"))
+        )
+    }
+    tasks.named("wasmJsProductionExecutableCompileSync", DefaultIncrementalSyncTask::class.java) {
+        it.destinationDirectory.set(
+            file(layout.buildDirectory.dir("js/packages/wasm-js/prod/kotlin"))
+        )
+    }
+    tasks.named(
+        "wasmJsTestTestDevelopmentExecutableCompileSync",
+        DefaultIncrementalSyncTask::class.java
+    ) {
+        it.destinationDirectory.set(
+            file(layout.buildDirectory.dir("js/packages/wasm-js-test/dev/kotlin"))
+        )
+    }
+    tasks.named(
+        "wasmJsTestTestProductionExecutableCompileSync",
+        DefaultIncrementalSyncTask::class.java
+    ) {
+        it.destinationDirectory.set(
+            file(layout.buildDirectory.dir("js/packages/wasm-js-test/prod/kotlin"))
+        )
+    }
+    tasks.named("wasmJsBrowserDevelopmentExecutableDistributeResources", Copy::class.java) {
+        it.destinationDir =
+            file(layout.buildDirectory.dir("dist/wasm-js/developmentExecutable/resources"))
+    }
+    tasks.named("wasmJsBrowserProductionExecutableDistributeResources", Copy::class.java) {
+        it.destinationDir =
+            file(layout.buildDirectory.dir("dist/wasm-js/productionExecutable/resources"))
     }
 }
 
@@ -774,7 +874,7 @@ abstract class ValidateMultiplatformSourceSetNaming : DefaultTask() {
      * does not appear in this list will use its [KotlinPlatformType] name.
      */
     private val allowedTargetNameSuffixes =
-        setOf("android", "desktop", "jvm", "commonStubs", "jvmStubs", "linuxx64Stubs")
+        setOf("android", "desktop", "jvm", "commonStubs", "jvmStubs", "linuxx64Stubs", "wasmJs")
 
     /** The preferred source file suffix for the target's platform type. */
     private val KotlinTarget.preferredSourceFileSuffix: String

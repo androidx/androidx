@@ -145,6 +145,9 @@ const val INCLUDE_OPTIONAL_PROJECTS = "androidx.includeOptionalProjects"
  */
 const val MIGRATE_ARRAY_ANNOTATIONS = "androidx.migrateArrayAnnotations"
 
+/** If true, yarn dependencies are fetched from an offline mirror */
+const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
@@ -179,6 +182,7 @@ val ALL_ANDROIDX_PROPERTIES =
         FilteredAnchorTask.PROP_PATH_PREFIX,
         INCLUDE_OPTIONAL_PROJECTS,
         MIGRATE_ARRAY_ANNOTATIONS,
+        YARN_OFFLINE_MODE,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
 /**
@@ -259,6 +263,9 @@ fun Project.enableComposeCompilerMetrics() =
 /** Returns whether we export compose compiler reports */
 fun Project.enableComposeCompilerReports() =
     findBooleanProperty(ENABLE_COMPOSE_COMPILER_REPORTS) ?: false
+
+/** Returns whether we should use the offline mirror for dependencies */
+fun Project.useYarnOffline() = findBooleanProperty(YARN_OFFLINE_MODE) ?: false
 
 /**
  * Returns whether this is an integration test that is allowing lint checks to be skipped to save

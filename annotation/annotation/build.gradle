@@ -24,6 +24,7 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -35,7 +36,14 @@ androidXMultiplatform {
         }
 
         nonJvmMain {
-            dependsOn commonMain
+            dependsOn(commonMain)
+        }
+
+        wasmJsMain {
+            dependsOn(nonJvmMain)
+            dependencies {
+                api(libs.kotlinStdlibJs)
+            }
         }
 
         targets.configureEach { target ->

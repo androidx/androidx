@@ -59,7 +59,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         setDependencyVersions()
         configureKtfmtCheckFile()
         tasks.register(CheckExternalDependencyLicensesTask.TASK_NAME)
-
         maybeRegisterFilterableTask()
 
         // If we're running inside Studio, validate the Android Gradle Plugin version.
