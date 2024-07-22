@@ -63,7 +63,7 @@ fun ShortNavigationBarSample() {
                 icon = {
                     Icon(
                         if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],
-                        contentDescription = item
+                        contentDescription = null
                     )
                 },
                 label = { Text(item) },
@@ -101,7 +101,7 @@ fun ShortNavigationBarWithHorizontalItemsSample() {
                         Icon(
                             if (selectedItem == index) selectedIcons[index]
                             else unselectedIcons[index],
-                            contentDescription = item
+                            contentDescription = null
                         )
                     },
                     label = { Text(item) },
