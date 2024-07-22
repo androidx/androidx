@@ -21,7 +21,6 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -35,10 +34,8 @@ import org.gradle.api.tasks.TaskAction
 abstract class CreateYarnRcFileTask : DefaultTask() {
 
     @get:InputDirectory
-    @get:PathSensitive(PathSensitivity.RELATIVE)
+    @get:PathSensitive(PathSensitivity.ABSOLUTE)
     abstract val offlineMirrorStorage: DirectoryProperty
-
-    @get:OutputDirectory abstract val nodeModulesDir: DirectoryProperty
 
     @get:OutputFile abstract val yarnrcFile: RegularFileProperty
 
@@ -47,13 +44,7 @@ abstract class CreateYarnRcFileTask : DefaultTask() {
         val offlineStoragePath = offlineMirrorStorage.get().asFile.absolutePath
         yarnrcFile.get().asFile.let {
             it.parentFile.mkdirs()
-            it.writeText(
-                """
-                yarn-offline-mirror "$offlineStoragePath"
-                --modules-folder ${nodeModulesDir.get().asFile.path}
-            """
-                    .trimIndent()
-            )
+            it.writeText("yarn-offline-mirror \"$offlineStoragePath\"")
         }
     }
 }
