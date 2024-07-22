@@ -17,13 +17,16 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.wear.compose.material3.FilledIconButton
 import androidx.wear.compose.material3.FilledTonalIconButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
+import androidx.wear.compose.material3.IconButtonDefaults
 import androidx.wear.compose.material3.OutlinedIconButton
 
 @Composable
@@ -65,6 +68,19 @@ fun IconButtonWithOnLongClickSample(onLongClick: () -> Unit) {
         onClick = { /* Do something for onClick*/ },
         onLongClick = onLongClick,
         onLongClickLabel = "Long click"
+    ) {
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+    }
+}
+
+@Composable
+@Sampled
+fun IconButtonWithCornerAnimationSample() {
+    val interactionSource = remember { MutableInteractionSource() }
+    IconButton(
+        onClick = { /* Do something */ },
+        shape = IconButtonDefaults.animatedShape(interactionSource),
+        interactionSource = interactionSource
     ) {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
     }

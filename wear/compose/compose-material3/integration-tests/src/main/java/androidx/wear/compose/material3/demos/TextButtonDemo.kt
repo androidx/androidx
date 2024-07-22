@@ -16,10 +16,14 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -116,6 +120,39 @@ fun TextButtonDemo() {
                 Text("${TextButtonDefaults.SmallButtonSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 TextButtonWithSize(TextButtonDefaults.SmallButtonSize)
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Rounded Corner Animation")
+                Spacer(Modifier.width(4.dp))
+                val interactionSource = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {},
+                    shape = TextButtonDefaults.animatedShape(interactionSource),
+                    interactionSource = interactionSource
+                ) {
+                    Text(text = "ABC")
+                }
+            }
+        }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Morphed Corner Animation")
+                Spacer(Modifier.width(4.dp))
+                val interactionSource = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {},
+                    shape =
+                        TextButtonDefaults.animatedShape(
+                            interactionSource,
+                            shape = CutCornerShape(5.dp),
+                            pressedShape = RoundedCornerShape(5.dp)
+                        ),
+                    interactionSource = interactionSource
+                ) {
+                    Text(text = "ABC")
+                }
             }
         }
     }
