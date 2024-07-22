@@ -71,7 +71,7 @@ internal constructor(
  * @param initializer A [Factory] function to create a [ViewModel].
  */
 public inline fun <reified VM : ViewModel> viewModelScenario(
-    creationExtras: CreationExtras = Empty,
+    creationExtras: CreationExtras = DefaultCreationExtras(),
     noinline initializer: CreationExtras.() -> VM,
 ): ViewModelScenario<VM> {
     return viewModelScenario(
@@ -103,7 +103,7 @@ public inline fun <reified VM : ViewModel> viewModelScenario(
  */
 public inline fun <reified VM : ViewModel> viewModelScenario(
     factory: Factory,
-    creationExtras: CreationExtras = Empty,
+    creationExtras: CreationExtras = DefaultCreationExtras(),
 ): ViewModelScenario<VM> {
     return ViewModelScenario(
         modelClass = VM::class,
