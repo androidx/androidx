@@ -133,7 +133,7 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                 Config(
                     "Google",
                     null,
-                    "Pixel 6 Pro",
+                    "Pixel 7",
                     "1",
                     createLevel3PrivPrivYuvSubsetConfiguration()
                 ),
@@ -148,35 +148,71 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
                     "Google",
                     null,
                     "Pixel 7 Pro",
+                    "1",
+                    createLevel3PrivPrivYuvSubsetConfiguration()
+                ),
+                Config(
+                    "Google",
+                    null,
+                    "Pixel 8",
+                    "0",
+                    createLevel3PrivPrivYuvSubsetConfiguration()
+                ),
+                Config(
+                    "Google",
+                    null,
+                    "Pixel 8",
+                    "1",
+                    createLevel3PrivPrivYuvSubsetConfiguration()
+                ),
+                Config(
+                    "Google",
+                    null,
+                    "Pixel 8 Pro",
+                    "0",
+                    createLevel3PrivPrivYuvSubsetConfiguration()
+                ),
+                Config(
+                    "Google",
+                    null,
+                    "Pixel 8 Pro",
                     "1",
                     createLevel3PrivPrivYuvSubsetConfiguration()
                 ),
                 // Tests for FULL Samsung devices
+                Config("Samsung", null, "SCG25", "0", createLevel3PrivPrivYuvSubsetConfiguration()),
                 Config(
                     "Samsung",
                     null,
-                    "SM-S926B",
-                    "0",
-                    createLevel3PrivPrivYuvSubsetConfiguration()
-                ),
-                Config(
-                    "Samsung",
-                    null,
-                    "SM-S926B",
+                    "SM-S9210",
                     "1",
                     createLevel3PrivPrivYuvSubsetConfiguration()
                 ),
                 Config(
                     "Samsung",
                     null,
-                    "SM-S928U",
+                    "SM-S926B",
                     "0",
                     createLevel3PrivPrivYuvSubsetConfiguration()
                 ),
                 Config(
                     "Samsung",
                     null,
-                    "SM-S928U",
+                    "SM-S926U",
+                    "1",
+                    createLevel3PrivPrivYuvSubsetConfiguration()
+                ),
+                Config(
+                    "Samsung",
+                    null,
+                    "SM-S928U1",
+                    "0",
+                    createLevel3PrivPrivYuvSubsetConfiguration()
+                ),
+                Config(
+                    "Samsung",
+                    null,
+                    "SM-S928B",
                     "1",
                     createLevel3PrivPrivYuvSubsetConfiguration()
                 ),

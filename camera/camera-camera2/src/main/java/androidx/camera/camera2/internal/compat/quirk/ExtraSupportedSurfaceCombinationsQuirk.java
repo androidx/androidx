@@ -56,12 +56,19 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
                     "PIXEL 6",
                     "PIXEL 6 PRO",
                     "PIXEL 7",
-                    "PIXEL 7 PRO"));
+                    "PIXEL 7 PRO",
+                    "PIXEL 8",
+                    "PIXEL 8 PRO"));
 
     private static final Set<String> SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS =
             new HashSet<>(Arrays.asList(
-                    "SM-S926B", // Galaxy S24+
-                    "SM-S928U" // Galaxy S24 Ultra
+                    "SM-S921", // Galaxy S24
+                    "SC-51E",  // Galaxy S24
+                    "SCG25",   // Galaxy S24
+                    "SM-S926", // Galaxy S24+
+                    "SM-S928", // Galaxy S24 Ultra
+                    "SC-52E",  // Galaxy S24 Ultra
+                    "SCG26"   // Galaxy S24 Ultra
               ));
 
     static boolean load() {
@@ -91,7 +98,13 @@ public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
 
         String capitalModelName = Build.MODEL.toUpperCase(Locale.US);
 
-        return SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS.contains(capitalModelName);
+        // Check if the device model starts with the one of the predefined models
+        for (String supportedModel : SUPPORT_EXTRA_LEVEL_3_CONFIGURATIONS_SAMSUNG_MODELS) {
+            if (capitalModelName.startsWith(supportedModel)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
