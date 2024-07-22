@@ -636,7 +636,16 @@ object TextFieldDefaults {
     internal val ColorScheme.defaultTextFieldColors: TextFieldColors
         @Composable
         get() {
-            return defaultTextFieldColorsCached
+            return defaultTextFieldColorsCached?.let { cachedColors ->
+                val localTextSelectionColors = LocalTextSelectionColors.current
+                if (cachedColors.textSelectionColors == localTextSelectionColors) {
+                    cachedColors
+                } else {
+                    cachedColors.copy(textSelectionColors = localTextSelectionColors).also {
+                        defaultTextFieldColorsCached = it
+                    }
+                }
+            }
                 ?: TextFieldColors(
                         focusedTextColor = fromToken(FilledTextFieldTokens.FocusInputColor),
                         unfocusedTextColor = fromToken(FilledTextFieldTokens.InputColor),
@@ -1358,7 +1367,16 @@ object OutlinedTextFieldDefaults {
     internal val ColorScheme.defaultOutlinedTextFieldColors: TextFieldColors
         @Composable
         get() {
-            return defaultOutlinedTextFieldColorsCached
+            return defaultOutlinedTextFieldColorsCached?.let { cachedColors ->
+                val localTextSelectionColors = LocalTextSelectionColors.current
+                if (cachedColors.textSelectionColors == localTextSelectionColors) {
+                    cachedColors
+                } else {
+                    cachedColors.copy(textSelectionColors = localTextSelectionColors).also {
+                        defaultOutlinedTextFieldColorsCached = it
+                    }
+                }
+            }
                 ?: TextFieldColors(
                         focusedTextColor = fromToken(OutlinedTextFieldTokens.FocusInputColor),
                         unfocusedTextColor = fromToken(OutlinedTextFieldTokens.InputColor),
