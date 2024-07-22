@@ -73,7 +73,7 @@ class PdfLoaderCallbacksImpl(
         PaginationUtils.getPageElevationInPixels(pdfViewerFragment.requireContext())
     private var paginationModel: PaginationModel = paginatedView.paginationModel
 
-    var selectionModel: PdfSelectionModel? = zoomView.pdfSelectionModel
+    var selectionModel: PdfSelectionModel? = null
     var searchModel: SearchModel? = null
     var layoutHandler: LayoutHandler? = null
     var fileName: String? = null
