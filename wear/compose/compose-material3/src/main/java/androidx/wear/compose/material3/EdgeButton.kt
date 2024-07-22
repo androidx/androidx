@@ -151,7 +151,7 @@ fun EdgeButton(
             }
         }
 
-    val containerShapeHelper = ShapeHelper(LocalDensity.current)
+    val containerShapeHelper = remember { ShapeHelper(density) }
     val shape = EdgeButtonShape(containerShapeHelper)
 
     val containerFadeStartPx = with(LocalDensity.current) { CONTAINER_FADE_START_DP.toPx() }
