@@ -106,6 +106,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
@@ -201,6 +202,48 @@ class TextFieldTest {
                 .getBoundsInRoot()
                 .height
                 .assertIsEqualTo(ExpectedDefaultTextFieldHeight)
+
+            rule.mainClock.advanceTimeBy(tick.toLong())
+        }
+    }
+
+    @Test
+    fun testTextField_heightDoesNotChange_duringFocusAnimation_withLargeLabelText() {
+        val numTicks = 5
+        val tick = TextFieldAnimationDuration / numTicks
+        val tfHeight = Ref<Dp>()
+        rule.mainClock.autoAdvance = false
+
+        rule.setMaterialContent(lightColorScheme()) {
+            MaterialTheme(
+                typography =
+                    MaterialTheme.typography.copy(bodyLarge = MaterialTheme.typography.displayLarge)
+            ) {
+                val density = LocalDensity.current
+                TextField(
+                    modifier =
+                        Modifier.testTag(TextFieldTag).onGloballyPositioned {
+                            if (tfHeight.value == null) {
+                                tfHeight.value = with(density) { it.size.height.toDp() }
+                            }
+                        },
+                    state = rememberTextFieldState(),
+                    label = { Text("Label") },
+                )
+            }
+        }
+
+        // click to focus
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        repeat(numTicks + 1) {
+            if (tfHeight.value != null) {
+                rule
+                    .onNodeWithTag(TextFieldTag)
+                    .getBoundsInRoot()
+                    .height
+                    .assertIsEqualTo(tfHeight.value!!)
+            }
 
             rule.mainClock.advanceTimeBy(tick.toLong())
         }
