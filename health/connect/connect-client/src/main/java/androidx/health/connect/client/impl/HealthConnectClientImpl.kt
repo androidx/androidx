@@ -15,15 +15,21 @@
  */
 package androidx.health.connect.client.impl
 
+import android.content.Context
 import android.os.DeadObjectException
 import android.os.RemoteException
 import android.os.TransactionTooLargeException
+import androidx.annotation.VisibleForTesting
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+import androidx.health.connect.client.feature.HealthConnectFeaturesApkImpl
+import androidx.health.connect.client.feature.HealthConnectFeaturesUnavailableImpl
 import androidx.health.connect.client.impl.converters.aggregate.retrieveAggregateDataRow
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByDuration
 import androidx.health.connect.client.impl.converters.aggregate.toAggregateDataRowGroupByPeriod
@@ -37,7 +43,7 @@ import androidx.health.connect.client.impl.converters.request.toReadDataRangeReq
 import androidx.health.connect.client.impl.converters.request.toReadDataRequestProto
 import androidx.health.connect.client.impl.converters.response.toChangesResponse
 import androidx.health.connect.client.impl.converters.response.toReadRecordsResponse
-import androidx.health.connect.client.permission.HealthPermission
+import androidx.health.connect.client.permission.HealthPermission.Companion.ALL_PERMISSIONS
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -50,6 +56,7 @@ import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.HealthDataAsyncClient
+import androidx.health.platform.client.HealthDataService
 import androidx.health.platform.client.impl.logger.Logger
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
@@ -62,17 +69,34 @@ import kotlinx.coroutines.guava.await
  * ListenableFutures.
  */
 class HealthConnectClientImpl
+@OptIn(ExperimentalFeatureAvailabilityApi::class)
+@VisibleForTesting
 internal constructor(
     private val delegate: HealthDataAsyncClient,
-    private val allPermissions: List<String> = HealthPermission.ALL_PERMISSIONS,
+    override val features: HealthConnectFeatures
 ) : HealthConnectClient, PermissionController {
+
+    @OptIn(ExperimentalFeatureAvailabilityApi::class)
+    internal constructor(
+        context: Context,
+        providerPackageName: String
+    ) : this(
+        delegate = HealthDataService.getClient(context, providerPackageName),
+        features =
+            if (providerPackageName == HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME) {
+                HealthConnectFeaturesApkImpl(context, providerPackageName)
+            } else {
+                HealthConnectFeaturesUnavailableImpl
+            }
+    )
 
     override suspend fun getGrantedPermissions(): Set<String> {
         val grantedPermissions = wrapRemoteException {
             delegate
                 .filterGrantedPermissions(
-                    allPermissions
-                        .map { PermissionProto.Permission.newBuilder().setPermission(it).build() }
+                    ALL_PERMISSIONS.map {
+                            PermissionProto.Permission.newBuilder().setPermission(it).build()
+                        }
                         .toSet()
                 )
                 .await()
@@ -81,7 +105,7 @@ internal constructor(
         }
         Logger.debug(
             HEALTH_CONNECT_CLIENT_TAG,
-            "Granted ${grantedPermissions.size} out of ${allPermissions.size} permissions."
+            "Granted ${grantedPermissions.size} out of ${ALL_PERMISSIONS.size} permissions."
         )
         return grantedPermissions
     }
