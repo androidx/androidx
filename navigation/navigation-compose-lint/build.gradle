@@ -35,7 +35,7 @@ dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
     bundleInside(projectOrArtifact(":compose:lint:common"))
-    bundleInside(projectOrArtifact(":navigation:navigation-common-lint"))
+    bundleInside(projectOrArtifact(":navigation:navigation-lint-common"))
 
     testImplementation(projectOrArtifact(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation.common.lint
+package androidx.navigation.lint.common
 
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind
