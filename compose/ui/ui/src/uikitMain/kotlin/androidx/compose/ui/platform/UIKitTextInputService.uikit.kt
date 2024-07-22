@@ -306,7 +306,6 @@ internal class UIKitTextInputService(
             // then it means that showMenu() called in SelectionContainer without any textfields,
             // and IntermediateTextInputView must be created to show an editing menu
             attachIntermediateTextInputView()
-            textUIView?.becomeFirstResponder()
             updateView()
         }
         textUIView?.showTextMenu(
