@@ -60,6 +60,8 @@ import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import kotlin.jvm.JvmInline
+import kotlin.math.min
 
 /**
  * Material design wide navigation rail.
@@ -240,7 +242,7 @@ private fun WideNavigationRailLayout(
                                             .constrain(
                                                 Constraints.fitPrioritizingWidth(
                                                     minWidth =
-                                                        Math.min(
+                                                        min(
                                                             ItemMinWidth.roundToPx(),
                                                             itemMaxWidthConstraint
                                                         ),

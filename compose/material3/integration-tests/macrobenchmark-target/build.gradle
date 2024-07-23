@@ -20,4 +20,5 @@ android {
 dependencies {
     implementation(project(":activity:activity-compose"))
     implementation(project(":compose:material3:material3"))
+    implementation("androidx.compose.material:material-icons-core:1.6.8")
 }

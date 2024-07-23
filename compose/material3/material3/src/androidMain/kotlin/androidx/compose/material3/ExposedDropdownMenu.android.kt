@@ -35,8 +35,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.internal.Icons
 import androidx.compose.material3.internal.MenuPosition
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString

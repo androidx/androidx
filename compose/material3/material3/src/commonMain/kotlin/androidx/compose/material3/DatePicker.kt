@@ -58,16 +58,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.OutlinedTextFieldDefaults.defaultOutlinedTextFieldColors
 import androidx.compose.material3.internal.CalendarModel
 import androidx.compose.material3.internal.CalendarMonth
 import androidx.compose.material3.internal.DaysInWeek
+import androidx.compose.material3.internal.Icons
 import androidx.compose.material3.internal.MillisecondsIn24Hours
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.Strings
@@ -124,6 +119,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import kotlin.jvm.JvmInline
 import kotlin.math.max
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -672,11 +668,14 @@ object DatePickerDefaults {
                 }
 
         val headlineDescription =
-            when (displayMode) {
-                DisplayMode.Picker -> getString(Strings.DatePickerHeadlineDescription)
-                DisplayMode.Input -> getString(Strings.DateInputHeadlineDescription)
-                else -> ""
-            }.format(verboseDateDescription)
+            formatHeadlineDescription(
+                when (displayMode) {
+                    DisplayMode.Picker -> getString(Strings.DatePickerHeadlineDescription)
+                    DisplayMode.Input -> getString(Strings.DateInputHeadlineDescription)
+                    else -> ""
+                },
+                verboseDateDescription
+            )
 
         Text(
             text = headlineText,
@@ -747,6 +746,11 @@ object DatePickerDefaults {
      */
     const val YearMonthWeekdayDaySkeleton: String = "yMMMMEEEEd"
 }
+
+internal expect inline fun formatHeadlineDescription(
+    template: String,
+    verboseDateDescription: String
+): String
 
 /**
  * Represents the colors used by the date picker.
@@ -2051,8 +2055,10 @@ private fun YearPicker(
                     onClick = { onYearSelected(selectedYear) },
                     enabled = selectableDates.isSelectableYear(selectedYear),
                     description =
-                        getString(Strings.DatePickerNavigateToYearDescription)
-                            .format(localizedYear),
+                        formatDatePickerNavigateToYearString(
+                            getString(Strings.DatePickerNavigateToYearDescription),
+                            localizedYear
+                        ),
                     colors = colors
                 ) {
                     Text(
@@ -2066,6 +2072,11 @@ private fun YearPicker(
         }
     }
 }
+
+internal expect inline fun formatDatePickerNavigateToYearString(
+    template: String,
+    localizedYear: String
+): String
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
