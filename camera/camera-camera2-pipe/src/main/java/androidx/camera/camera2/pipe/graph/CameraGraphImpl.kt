@@ -22,6 +22,7 @@ import androidx.camera.camera2.pipe.AudioRestrictionMode
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.StreamGraph
@@ -55,7 +56,6 @@ internal class CameraGraphImpl
 constructor(
     graphConfig: CameraGraph.Config,
     metadata: CameraMetadata,
-    private val cameraGraphId: CameraGraphId,
     private val graphLifecycleManager: GraphLifecycleManager,
     private val graphProcessor: GraphProcessor,
     private val graphListener: GraphListener,
@@ -67,7 +67,8 @@ constructor(
     private val listener3A: Listener3A,
     private val frameDistributor: FrameDistributor,
     private val frameCaptureQueue: FrameCaptureQueue,
-    private val audioRestrictionController: AudioRestrictionController
+    private val audioRestrictionController: AudioRestrictionController,
+    override val id: CameraGraphId
 ) : CameraGraph {
     private val sessionMutex = Mutex()
     private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
@@ -237,5 +238,5 @@ constructor(
         }
     }
 
-    override fun toString(): String = cameraGraphId.toString()
+    override fun toString(): String = id.toString()
 }

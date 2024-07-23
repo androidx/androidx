@@ -43,6 +43,13 @@ import kotlinx.coroutines.flow.StateFlow
 /** A [CameraGraph] represents the combined configuration and state of a camera. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraGraph : AutoCloseable {
+    /**
+     * A unique identifier for this CameraGraph instance. This can be used to identify the graph
+     * without holding a hard reference to the CameraGraph itself.
+     */
+    val id: CameraGraphId
+
+    /** The [StreamGraph] for this CameraGraph instance. */
     val streams: StreamGraph
 
     /**
@@ -216,6 +223,32 @@ interface CameraGraph : AutoCloseable {
             check(cameraBackendId == null || customCameraBackend == null) {
                 "Setting both cameraBackendId and customCameraBackend is not supported."
             }
+        }
+    }
+
+    class ConcurrentConfig(graphConfigs: List<Config>) {
+        val graphConfigs: List<Config>
+
+        init {
+            check(graphConfigs.size >= 2) {
+                "Cannot create ConcurrentGraphConfig without 2 or more CameraGraph.Config(s)"
+            }
+            val firstConfig = graphConfigs.first()
+            check(graphConfigs.all { it.cameraBackendId == firstConfig.cameraBackendId }) {
+                "Each CameraGraph.Config must use the same camera backend!"
+            }
+
+            val distinctCameraIds = graphConfigs.map { it.camera }.distinct()
+            check(distinctCameraIds.size == graphConfigs.size) {
+                "Each CameraGraph.Config must have a distinct camera id!"
+            }
+
+            this.graphConfigs =
+                graphConfigs.map { config ->
+                    config.apply {
+                        sharedCameraIds = distinctCameraIds.filter { it != config.camera }
+                    }
+                }
         }
     }
 

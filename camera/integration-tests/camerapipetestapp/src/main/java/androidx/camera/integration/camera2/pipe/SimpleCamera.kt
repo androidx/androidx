@@ -319,7 +319,7 @@ class SimpleCamera(
                 }
             check(cameraIds.size == configs.size)
 
-            val cameraGraphs = cameraPipe.createCameraGraphs(configs)
+            val cameraGraphs = cameraPipe.createCameraGraphs(CameraGraph.ConcurrentConfig(configs))
 
             val viewfinderStreams =
                 cameraGraphs.zip(viewfinderSteamConfigs).map { (cameraGraph, viewfinderStreamConfig)

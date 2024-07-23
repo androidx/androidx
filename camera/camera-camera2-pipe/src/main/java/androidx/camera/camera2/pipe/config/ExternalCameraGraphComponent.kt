@@ -24,6 +24,7 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStatusMonitor
@@ -53,7 +54,7 @@ internal interface ExternalCameraGraphComponent {
 
 @Module
 internal class ExternalCameraGraphConfigModule(
-    private val config: CameraGraph.Config,
+    private val graphConfig: CameraGraph.Config,
     private val cameraMetadata: CameraMetadata,
     private val requestProcessor: RequestProcessor
 ) {
@@ -91,6 +92,7 @@ internal class ExternalCameraGraphConfigModule(
 
             override fun createCameraController(
                 cameraContext: CameraContext,
+                graphId: CameraGraphId,
                 graphConfig: CameraGraph.Config,
                 graphListener: GraphListener,
                 streamGraph: StreamGraph
@@ -118,14 +120,17 @@ internal class ExternalCameraGraphConfigModule(
                 throw UnsupportedOperationException("External CameraPipe should not use backends")
         }
 
-    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = config
+    @Provides fun provideCameraGraphConfig(): CameraGraph.Config = graphConfig
 
     @Provides fun provideCameraMetadata(): CameraMetadata = cameraMetadata
 
     @CameraGraphScope
     @Provides
-    fun provideGraphController(graphListener: GraphListener): CameraController =
-        ExternalCameraController(config, graphListener, requestProcessor)
+    fun provideGraphController(
+        graphId: CameraGraphId,
+        graphListener: GraphListener
+    ): CameraController =
+        ExternalCameraController(graphId, graphConfig, graphListener, requestProcessor)
 
     @CameraGraphScope @Provides fun provideCameraBackend(): CameraBackend = externalCameraBackend
 }

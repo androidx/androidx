@@ -128,6 +128,7 @@ interface CameraBackend {
      */
     fun createCameraController(
         cameraContext: CameraContext,
+        graphId: CameraGraphId,
         graphConfig: CameraGraph.Config,
         graphListener: GraphListener,
         streamGraph: StreamGraph

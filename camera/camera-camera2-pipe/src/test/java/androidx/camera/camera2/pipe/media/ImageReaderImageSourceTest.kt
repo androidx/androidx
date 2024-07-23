@@ -46,8 +46,7 @@ class ImageSourceTest {
             size = fakeImageSize,
             capacity = 10
         )
-
-    private val imageSource = ImageSource.create(fakeImageReader)
+    private val imageSource = ImageReaderImageSource(fakeImageReader, fakeImageReader.capacity - 2)
 
     @After
     fun cleanup() {
@@ -58,7 +57,7 @@ class ImageSourceTest {
     fun testImageSourceForwardsImagesFromImageReader() {
         val testListener = TestImageSourceListener()
         imageSource.setListener(testListener)
-        fakeImageReader.simulateImage(outputId, 12345)
+        fakeImageReader.simulateImage(12345)
 
         assertThat(testListener.onImageEvents.size).isEqualTo(1)
         assertThat(testListener.onImageEvents[0].outputId).isEqualTo(outputId)
@@ -72,7 +71,7 @@ class ImageSourceTest {
         imageSource.setListener(testListener)
 
         for (i in 0..99) {
-            fakeImageReader.simulateImage(outputId, 12345 + (i * 10000L))
+            fakeImageReader.simulateImage(12345 + (i * 10000L))
         }
 
         assertThat(testListener.onImageEvents.size).isEqualTo(100)
@@ -91,7 +90,7 @@ class ImageSourceTest {
         imageSource.setListener(testListener)
 
         for (i in 0..99) {
-            fakeImageReader.simulateImage(outputId, 12345 + (i * 10000L))
+            fakeImageReader.simulateImage(12345 + (i * 10000L))
             testListener.onImageEvents.last().image!!.close()
         }
 
@@ -110,7 +109,7 @@ class ImageSourceTest {
         val image =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 12345)
 
-        fakeImageReader.simulateImage(outputId, image)
+        fakeImageReader.simulateImage(image, outputId)
         assertThat(image.isClosed).isTrue()
     }
 
@@ -126,9 +125,9 @@ class ImageSourceTest {
         imageSource.setListener(testListener)
 
         // Simulate 3 images.
-        fakeImageReader.simulateImage(outputId, 12345)
-        fakeImageReader.simulateImage(outputId, 12345)
-        fakeImageReader.simulateImage(outputId, 12345)
+        fakeImageReader.simulateImage(12345)
+        fakeImageReader.simulateImage(12345)
+        fakeImageReader.simulateImage(12345)
 
         // Close all the images
         testListener.onImageEvents.forEach { it.image!!.close() }
@@ -146,9 +145,9 @@ class ImageSourceTest {
         imageSource.setListener(testListener)
 
         // Simulate 3 images.
-        fakeImageReader.simulateImage(outputId, 12345)
-        fakeImageReader.simulateImage(outputId, 12345)
-        fakeImageReader.simulateImage(outputId, 12345)
+        fakeImageReader.simulateImage(12345)
+        fakeImageReader.simulateImage(12345)
+        fakeImageReader.simulateImage(12345)
 
         // Close the image source before closing images.
         imageSource.close()
@@ -169,9 +168,9 @@ class ImageSourceTest {
         imageSource.setListener(testListener)
 
         // Simulate 3 images.
-        fakeImageReader.simulateImage(outputId, 12345)
-        fakeImageReader.simulateImage(outputId, 12346)
-        fakeImageReader.simulateImage(outputId, 12347)
+        fakeImageReader.simulateImage(12345)
+        fakeImageReader.simulateImage(12346)
+        fakeImageReader.simulateImage(12347)
 
         // Close the image source before closing images.
         imageSource.close()
@@ -182,7 +181,7 @@ class ImageSourceTest {
         // Now simulate the imageReader producing images after the imageSource is closed
         val fakeImage =
             FakeImage(fakeImageSize.width, fakeImageSize.height, fakeImageFormat.value, 54321)
-        fakeImageReader.simulateImage(outputId, fakeImage)
+        fakeImageReader.simulateImage(fakeImage, outputId)
         // Image is immediately closed
         assertThat(fakeImage.isClosed)
 

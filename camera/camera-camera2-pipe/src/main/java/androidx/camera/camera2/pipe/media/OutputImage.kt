@@ -30,6 +30,7 @@ interface OutputImage : ImageWrapper {
 
     companion object {
         fun from(streamId: StreamId, outputId: OutputId, image: ImageWrapper): OutputImage {
+            if (image is OutputImage) return image
             return OutputImageImpl(streamId, outputId, image)
         }
 

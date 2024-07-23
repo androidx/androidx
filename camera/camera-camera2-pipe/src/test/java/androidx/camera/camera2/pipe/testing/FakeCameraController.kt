@@ -18,11 +18,12 @@ package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraController
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamId
 
-internal class FakeCameraController : CameraController {
+internal class FakeCameraController(override val cameraGraphId: CameraGraphId) : CameraController {
     var started = false
     var closed = false
     var surfaceMap: Map<StreamId, Surface>? = null

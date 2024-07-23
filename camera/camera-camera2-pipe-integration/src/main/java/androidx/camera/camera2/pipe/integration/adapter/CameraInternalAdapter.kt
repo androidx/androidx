@@ -141,5 +141,5 @@ constructor(
         useCaseManager.sessionProcessor = sessionProcessor
     }
 
-    override fun toString(): String = "CameraInternalAdapter<$cameraId>"
+    override fun toString(): String = "CameraInternalAdapter<$cameraId($debugId)>"
 }

@@ -31,4 +31,8 @@ interface StreamGraph {
     val outputs: List<OutputStream>
 
     operator fun get(config: CameraStream.Config): CameraStream?
+
+    operator fun get(streamId: StreamId): CameraStream? = streams.find { it.id == streamId }
+
+    operator fun get(outputId: OutputId): OutputStream? = outputs.find { it.id == outputId }
 }

@@ -22,12 +22,12 @@ import androidx.camera.camera2.pipe.CameraBackends
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.core.Threads
-import androidx.camera.camera2.pipe.graph.CameraGraphId
 import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphProcessor
@@ -196,6 +196,7 @@ internal abstract class InternalCameraGraphModules {
         @CameraGraphScope
         @Provides
         fun provideCameraController(
+            graphId: CameraGraphId,
             graphConfig: CameraGraph.Config,
             cameraBackend: CameraBackend,
             cameraContext: CameraContext,
@@ -204,6 +205,7 @@ internal abstract class InternalCameraGraphModules {
         ): CameraController {
             return cameraBackend.createCameraController(
                 cameraContext,
+                graphId,
                 graphConfig,
                 graphProcessor,
                 streamGraph

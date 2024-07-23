@@ -28,6 +28,7 @@ class FakeImage(
     override val format: Int,
     override val timestamp: Long
 ) : ImageWrapper {
+    private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
     val isClosed: Boolean
         get() = closed.value
@@ -44,5 +45,11 @@ class FakeImage(
         if (closed.compareAndSet(expect = false, update = true)) {
             // FakeImage close is a NoOp
         }
+    }
+
+    override fun toString(): String = "FakeImage-$debugId"
+
+    companion object {
+        private val debugIds = atomic(0)
     }
 }

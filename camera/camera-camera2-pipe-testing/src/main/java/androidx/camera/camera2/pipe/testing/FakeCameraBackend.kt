@@ -21,6 +21,7 @@ import androidx.camera.camera2.pipe.CameraBackendId
 import androidx.camera.camera2.pipe.CameraContext
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStatusMonitor
@@ -64,12 +65,19 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
 
     override fun createCameraController(
         cameraContext: CameraContext,
+        graphId: CameraGraphId,
         graphConfig: CameraGraph.Config,
         graphListener: GraphListener,
         streamGraph: StreamGraph
     ): CameraController {
         val cameraController =
-            CameraControllerSimulator(cameraContext, graphConfig, graphListener, streamGraph)
+            CameraControllerSimulator(
+                cameraContext,
+                graphId,
+                graphConfig,
+                graphListener,
+                streamGraph
+            )
         synchronized(lock) { _cameraControllers.add(cameraController) }
         return cameraController
     }
