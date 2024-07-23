@@ -36,8 +36,9 @@ private const val Tau = PI * 2.0
 private const val Epsilon = 1e-7
 // We use a fairly high epsilon here because it's post double->float conversion
 // and because we use a fast approximation of cbrt(). The epsilon we use here is
-// the max error of fastCbrt() in the -1f..1f range.
-private const val FloatEpsilon = 8.3446500e-7f
+// slightly larger than the max error of fastCbrt() in the -1f..1f range
+// (8.3446500e-7f) but smaller than 1.0f.ulp * 10.
+private const val FloatEpsilon = 1e-6f
 
 /**
  * Evaluate the specified [segment] at position [t] and returns the X coordinate of the segment's
