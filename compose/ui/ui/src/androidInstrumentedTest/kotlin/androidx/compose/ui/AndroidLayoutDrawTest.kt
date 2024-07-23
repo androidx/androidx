@@ -2856,12 +2856,23 @@ class AndroidLayoutDrawTest {
 
         validateSquareColors(outerColor = Color.Red, innerColor = Color.Yellow, size = 10)
 
-        translationLatch = CountDownLatch(1)
-        activityTestRule.runOnUiThread { offset.value = -5f }
+        // Wait until the translation affects the screenshot. Give it 4 frames
+        val latch = CountDownLatch(4)
+        activityTestRule.runOnUiThread {
+            activity.window.decorView.postOnAnimation(
+                object : Runnable {
+                    override fun run() {
+                        latch.countDown()
+                        activity.window.decorView.postOnAnimation(this)
+                    }
+                }
+            )
+            translationLatch = CountDownLatch(1)
+            offset.value = -5f
+        }
         // Wait for translation to complete
         assertTrue(translationLatch.await(1, TimeUnit.SECONDS))
-
-        activityTestRule.runOnUiThread {}
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
 
         activityTestRule.waitAndScreenShot(forceInvalidate = false).apply {
             // just test that it is red around the Yellow
