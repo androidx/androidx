@@ -17,9 +17,9 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
@@ -66,7 +66,6 @@ import androidx.compose.ui.unit.constrain
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastFirstOrNull
@@ -421,10 +420,10 @@ internal fun AnimatedNavigationItem(
             interactionSource = offsetInteractionSource ?: interactionSource,
             indicatorColor = colors.selectedIndicatorColor,
             indicatorShape = indicatorShape,
-            indicatorAnimationProgress = { indicatorAnimationProgress.value },
+            indicatorAnimationProgress = { indicatorAnimationProgress.value.coerceAtLeast(0f) },
             icon = iconWithBadge,
             iconPosition = iconPosition,
-            iconPositionProgress = { iconPositionProgress.value },
+            iconPositionProgress = { iconPositionProgress.value.coerceAtLeast(0f) },
             labelTopIcon = labelTopIcon,
             labelStartIcon = labelStartIcon,
             topIconIndicatorHorizontalPadding = topIconIndicatorHorizontalPadding,
@@ -1035,7 +1034,7 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
     val iconX = lerp(iconXTopIcon, iconXStartIcon, iconPositionProgress)
     val iconY = lerp(iconYTopIcon, iconYStartIcon, iconPositionProgress)
 
-    val labelXTopIcon = (widthTopIcon - labelPlaceableTopIcon.width) / 2 - topIconHorizontalOffset
+    val labelXTopIcon = (widthTopIcon - labelPlaceableTopIcon.width) / 2
     val labelYTopIcon =
         iconY +
             iconPlaceable.height +
@@ -1056,7 +1055,7 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
     return layout(width.roundToInt(), height) {
         indicatorPlaceable.placeRelative(indicatorX, 0)
         iconPlaceable.placeRelative(iconX, iconY)
-        labelPlaceableTopIcon.placeRelative(labelXTopIcon.roundToInt(), labelYTopIcon)
+        labelPlaceableTopIcon.placeRelative(labelXTopIcon, labelYTopIcon)
         labelPlaceableStartIcon.placeRelative(labelXStartIcon.roundToInt(), labelYStartIcon)
         indicatorRipplePlaceable.placeRelative(rippleX.roundToInt(), 0)
     }
@@ -1100,21 +1099,16 @@ private fun StyledLabel(
 
 @Composable
 private fun animateIndicatorProgressAsState(selected: Boolean) =
-    animateFloatAsState(
-        targetValue = if (selected) 1f else 0f,
-        animationSpec = tween(ItemAnimationDurationMillis)
-    )
+    animateFloatAsState(targetValue = if (selected) 1f else 0f, animationSpec = AnimationSpec)
 
 @Composable
 private fun animateLabelAlphaProgressAsState(isTargetValue: Boolean) =
     animateFloatAsState(
         targetValue = if (isTargetValue) 1f else 0f,
-        animationSpec =
-            tween(
-                durationMillis = ItemAnimationDurationMillis,
-                // if going 0f -> 1f needs a delay to start
-                delayMillis = if (isTargetValue) LabelAnimationDelayDurationMillis else 0
-            )
+        animationSpec = AnimationSpec,
+        visibilityThreshold =
+            if (isTargetValue) Spring.DefaultDisplacementThreshold
+            else LabelAnimationVisibilityThreshold
     )
 
 @Composable
@@ -1148,8 +1142,7 @@ private const val IconLayoutIdTag: String = "icon"
 private const val LabelLayoutIdTag: String = "label"
 private const val AnimatedLabelTopIconLayoutIdTag: String = "animatedLabelTopIcon"
 private const val AnimatedLabelStartIconLayoutIdTag: String = "animatedLabelStartIcon"
-private const val ItemAnimationDurationMillis: Int = 100
-private const val LabelAnimationDelayDurationMillis: Int = 75
+private const val LabelAnimationVisibilityThreshold: Float = 0.35f
 
 private val IndicatorVerticalOffset: Dp = 12.dp
 private val AnimationSpec: AnimationSpec<Float> = spring(dampingRatio = 0.8f, stiffness = 380f)
