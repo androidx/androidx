@@ -23,7 +23,9 @@ package androidx.kruth {
     method public final void isAtMost(T? other);
     method public void isEquivalentAccordingToCompareTo(T? other);
     method public final void isGreaterThan(T? other);
+    method public final void isIn(com.google.common.collect.Range<T> range);
     method public final void isLessThan(T? other);
+    method public final void isNotIn(com.google.common.collect.Range<T> range);
   }
 
   public final class DoubleSubject extends androidx.kruth.ComparableSubject<java.lang.Double> {
@@ -334,15 +336,21 @@ package androidx.kruth {
     method public final androidx.kruth.PrimitiveByteArraySubject that(byte[]? actual);
     method public final androidx.kruth.Subject<java.lang.Character> that(char actual);
     method public final androidx.kruth.PrimitiveCharArraySubject that(char[]? actual);
+    method public final <T> androidx.kruth.GuavaOptionalSubject<T> that(com.google.common.base.Optional<T> actual);
+    method public final <K, V> androidx.kruth.MultimapSubject<K,V> that(com.google.common.collect.Multimap<K,V> actual);
+    method public final <T> androidx.kruth.MultisetSubject<T> that(com.google.common.collect.Multiset<T> actual);
+    method public final <R, C, V> androidx.kruth.TableSubject<R,C,V> that(com.google.common.collect.Table<R,C,V> actual);
     method public final androidx.kruth.PrimitiveDoubleArraySubject that(double[]? actual);
     method public final androidx.kruth.PrimitiveFloatArraySubject that(float[]? actual);
     method public final androidx.kruth.IntegerSubject that(int actual);
     method public final androidx.kruth.PrimitiveIntArraySubject that(int[]? actual);
     method public final androidx.kruth.BooleanSubject that(Boolean? actual);
+    method public final androidx.kruth.ClassSubject that(Class<? extends java.lang.Object?> actual);
     method public final androidx.kruth.DoubleSubject that(Double? actual);
     method public final androidx.kruth.FloatSubject that(Float? actual);
     method public final <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
     method public final androidx.kruth.StringSubject that(String? actual);
+    method public final androidx.kruth.BigDecimalSubject that(java.math.BigDecimal actual);
     method public final <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);
     method public final androidx.kruth.LongSubject that(long actual);
     method public final androidx.kruth.PrimitiveLongArraySubject that(long[]? actual);
@@ -365,11 +373,14 @@ package androidx.kruth {
     ctor protected StringSubject(androidx.kruth.FailureMetadata metadata, String? actual);
     method public void contains(CharSequence charSequence);
     method public void containsMatch(String regex);
+    method public void containsMatch(java.util.regex.Pattern regex);
     method public final void containsMatch(kotlin.text.Regex regex);
     method public void doesNotContain(CharSequence charSequence);
     method public void doesNotContainMatch(String regex);
+    method public void doesNotContainMatch(java.util.regex.Pattern regex);
     method public final void doesNotContainMatch(kotlin.text.Regex regex);
     method public void doesNotMatch(String regex);
+    method public void doesNotMatch(java.util.regex.Pattern regex);
     method public final void doesNotMatch(kotlin.text.Regex regex);
     method public void endsWith(String string);
     method public void hasLength(int expectedLength);
@@ -377,6 +388,7 @@ package androidx.kruth {
     method public void isEmpty();
     method public void isNotEmpty();
     method public void matches(String regex);
+    method public void matches(java.util.regex.Pattern regex);
     method public final void matches(kotlin.text.Regex regex);
     method public void startsWith(String string);
   }

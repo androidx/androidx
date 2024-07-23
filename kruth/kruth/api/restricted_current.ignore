@@ -25,6 +25,14 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ComparableSubject<ComparableT> to androidx.kruth.ComparableSubject<T>
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<T>):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.GuavaOptionalSubject to androidx.kruth.GuavaOptionalSubject<T>
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<K,V>):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MultimapSubject to androidx.kruth.MultimapSubject<K,V>
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multiset<T>):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MultisetSubject to androidx.kruth.MultisetSubject<T>
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Table<R,C,V>):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.TableSubject to androidx.kruth.TableSubject<R,C,V>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject.Factory#createSubject(androidx.kruth.FailureMetadata, ActualT):
@@ -39,24 +47,36 @@ ChangedType: androidx.kruth.TruthFailureSubject#truthFailures():
 
 InvalidNullConversion: androidx.kruth.IterableSubject#isNotIn(Iterable<?>) parameter #0:
     Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.IterableSubject.isNotIn(Iterable<?> iterable)
+InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(Class<?>) parameter #0:
+    Attempted to change nullability of java.lang.Class<?> (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(Class<?> actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(T[]) parameter #0:
     Attempted to change nullability of T (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(T[] actual)
+InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(java.math.BigDecimal) parameter #0:
+    Attempted to change nullability of java.math.BigDecimal (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(java.math.BigDecimal actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter messageToPrepend in androidx.kruth.StandardSubjectBuilder.withMessage(String messageToPrepend)
 InvalidNullConversion: androidx.kruth.StringSubject#contains(CharSequence) parameter #0:
     Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter charSequence in androidx.kruth.StringSubject.contains(CharSequence charSequence)
 InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.containsMatch(String regex)
+InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(java.util.regex.Pattern) parameter #0:
+    Attempted to change nullability of java.util.regex.Pattern (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.containsMatch(java.util.regex.Pattern regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContain(CharSequence) parameter #0:
     Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter charSequence in androidx.kruth.StringSubject.doesNotContain(CharSequence charSequence)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotContainMatch(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.doesNotContainMatch(String regex)
+InvalidNullConversion: androidx.kruth.StringSubject#doesNotContainMatch(java.util.regex.Pattern) parameter #0:
+    Attempted to change nullability of java.util.regex.Pattern (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.doesNotContainMatch(java.util.regex.Pattern regex)
 InvalidNullConversion: androidx.kruth.StringSubject#doesNotMatch(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.doesNotMatch(String regex)
+InvalidNullConversion: androidx.kruth.StringSubject#doesNotMatch(java.util.regex.Pattern) parameter #0:
+    Attempted to change nullability of java.util.regex.Pattern (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.doesNotMatch(java.util.regex.Pattern regex)
 InvalidNullConversion: androidx.kruth.StringSubject#endsWith(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter string in androidx.kruth.StringSubject.endsWith(String string)
 InvalidNullConversion: androidx.kruth.StringSubject#matches(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.matches(String regex)
+InvalidNullConversion: androidx.kruth.StringSubject#matches(java.util.regex.Pattern) parameter #0:
+    Attempted to change nullability of java.util.regex.Pattern (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.matches(java.util.regex.Pattern regex)
 InvalidNullConversion: androidx.kruth.StringSubject#startsWith(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter string in androidx.kruth.StringSubject.startsWith(String string)
 InvalidNullConversion: androidx.kruth.StringSubject.CaseInsensitiveStringComparison#doesNotContain(CharSequence) parameter #0:
@@ -93,10 +113,6 @@ RemovedInterface: androidx.kruth.Fact:
     Class androidx.kruth.Fact no longer implements java.io.Serializable
 
 
-RemovedMethod: androidx.kruth.ComparableSubject#isIn(com.google.common.collect.Range<T>):
-    Removed method androidx.kruth.ComparableSubject.isIn(com.google.common.collect.Range<T>)
-RemovedMethod: androidx.kruth.ComparableSubject#isNotIn(com.google.common.collect.Range<T>):
-    Removed method androidx.kruth.ComparableSubject.isNotIn(com.google.common.collect.Range<T>)
 RemovedMethod: androidx.kruth.IterableSubject#IterableSubject(androidx.kruth.FailureMetadata, Iterable<?>):
     Removed constructor androidx.kruth.IterableSubject(androidx.kruth.FailureMetadata,Iterable<?>)
 RemovedMethod: androidx.kruth.IterableSubject#comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>):
@@ -143,28 +159,8 @@ RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingTolerance(double):
     Removed method androidx.kruth.PrimitiveFloatArraySubject.usingTolerance(double)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
     Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(Class<?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(Class<?>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.base.Optional<?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.base.Optional<?>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multimap<?,?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.collect.Multimap<?,?>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Multiset<?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.collect.Multiset<?>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(com.google.common.collect.Table<?,?,?>):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(com.google.common.collect.Table<?,?,?>)
-RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.math.BigDecimal):
-    Removed method androidx.kruth.StandardSubjectBuilder.that(java.math.BigDecimal)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):
     Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
-RemovedMethod: androidx.kruth.StringSubject#containsMatch(java.util.regex.Pattern):
-    Removed method androidx.kruth.StringSubject.containsMatch(java.util.regex.Pattern)
-RemovedMethod: androidx.kruth.StringSubject#doesNotContainMatch(java.util.regex.Pattern):
-    Removed method androidx.kruth.StringSubject.doesNotContainMatch(java.util.regex.Pattern)
-RemovedMethod: androidx.kruth.StringSubject#doesNotMatch(java.util.regex.Pattern):
-    Removed method androidx.kruth.StringSubject.doesNotMatch(java.util.regex.Pattern)
-RemovedMethod: androidx.kruth.StringSubject#matches(java.util.regex.Pattern):
-    Removed method androidx.kruth.StringSubject.matches(java.util.regex.Pattern)
 RemovedMethod: androidx.kruth.Subject#Subject(androidx.kruth.FailureMetadata, Object):
     Removed constructor androidx.kruth.Subject(androidx.kruth.FailureMetadata,Object)
 RemovedMethod: androidx.kruth.Subject#isInstanceOf(Class<?>):

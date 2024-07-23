@@ -357,6 +357,10 @@ internal constructor(
             else -> toString()
         }
 
+    @Suppress("NOTHING_TO_INLINE")
+    internal inline fun checkInternal(format: String, vararg args: Any): StandardSubjectBuilder =
+        check(format, *args)
+
     /**
      * Returns a builder for creating a derived subject.
      *
