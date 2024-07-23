@@ -180,6 +180,48 @@ class TimeTextScreenshotTest {
             }
         }
 
+    @Test
+    fun time_text_with_very_long_text_on_round_device() =
+        verifyScreenshot(true) {
+            val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)
+            val timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Cyan)
+            val separatorStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+            TimeText(
+                contentColor = Color.Green,
+                timeTextStyle = timeTextStyle,
+                maxSweepAngle = 180f,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                text(
+                    "Very long text to ensure we are respecting the maxSweep parameter",
+                    customStyle
+                )
+                separator(separatorStyle)
+                time()
+            }
+        }
+
+    @Test
+    fun time_text_with_very_long_text_smaller_angle_on_round_device() =
+        verifyScreenshot(true) {
+            val customStyle = TimeTextDefaults.timeTextStyle(color = Color.Red)
+            val timeTextStyle = TimeTextDefaults.timeTextStyle(color = Color.Cyan)
+            val separatorStyle = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
+            TimeText(
+                contentColor = Color.Green,
+                timeTextStyle = timeTextStyle,
+                maxSweepAngle = 90f,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                text(
+                    "Very long text to ensure we are respecting the maxSweep parameter",
+                    customStyle
+                )
+                separator(separatorStyle)
+                time()
+            }
+        }
+
     private fun verifyScreenshot(isDeviceRound: Boolean = true, content: @Composable () -> Unit) {
         rule.verifyScreenshot(
             methodName = testName.methodName,

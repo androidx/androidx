@@ -125,7 +125,8 @@ fun TimeText(
                         .sizeIn(maxSweepDegrees = maxSweepAngle)
                         .padding(contentPadding.toArcPadding())
             ) {
-                CurvedTimeTextScope(this, timeText, timeTextStyle, contentColor).content()
+                CurvedTimeTextScope(this, timeText, timeTextStyle, maxSweepAngle, contentColor)
+                    .content()
             }
         }
     } else {
@@ -293,6 +294,7 @@ internal class CurvedTimeTextScope(
     private val scope: CurvedScope,
     private val timeText: String,
     private val timeTextStyle: TextStyle,
+    private val maxSweepAngle: Float,
     contentColor: Color,
 ) : TimeTextScope() {
 
@@ -302,13 +304,18 @@ internal class CurvedTimeTextScope(
         scope.curvedText(
             text = text,
             overflow = TextOverflow.Ellipsis,
+            maxSweepAngle = maxSweepAngle,
             style = CurvedTextStyle(style = contentTextStyle.merge(style)),
             modifier = CurvedModifier.weight(1f)
         )
     }
 
     override fun time() {
-        scope.curvedText(timeText, style = CurvedTextStyle(timeTextStyle))
+        scope.curvedText(
+            timeText,
+            maxSweepAngle = maxSweepAngle,
+            style = CurvedTextStyle(timeTextStyle)
+        )
     }
 
     override fun separator(style: TextStyle?) {
