@@ -21,6 +21,7 @@ package androidx.lifecycle.compose
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.LifecycleOwner
+import kotlin.jvm.JvmName
 
 public actual val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner> =
     staticCompositionLocalOf {
