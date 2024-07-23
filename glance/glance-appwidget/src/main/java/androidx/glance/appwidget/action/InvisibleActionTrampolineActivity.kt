@@ -24,7 +24,7 @@ import android.os.Bundle
  * that don't launch an activity. Thus not showing any UI.
  */
 @Suppress("ForbiddenSuperClass")
-internal class InvisibleActionTrampolineActivity : Activity() {
+open class InvisibleActionTrampolineActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

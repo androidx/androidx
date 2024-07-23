@@ -98,8 +98,7 @@ private fun RemoteViews.translateEmittableLazyList(
             }
             .build()
     setRemoteAdapter(
-        translationContext.context,
-        translationContext.appWidgetId,
+        translationContext,
         viewDef.mainViewId,
         translationContext.layoutSize.toSizeString(),
         items

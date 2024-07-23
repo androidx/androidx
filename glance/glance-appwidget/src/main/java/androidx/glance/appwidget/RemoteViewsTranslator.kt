@@ -70,6 +70,7 @@ internal fun translateComposition(
     rootViewIndex: Int,
     layoutSize: DpSize,
     actionBroadcastReceiver: ComponentName? = null,
+    glanceComponents: GlanceComponents = GlanceComponents.getDefault(context),
 ) =
     translateComposition(
         TranslationContext(
@@ -80,6 +81,7 @@ internal fun translateComposition(
             itemPosition = -1,
             layoutSize = layoutSize,
             actionBroadcastReceiver = actionBroadcastReceiver,
+            glanceComponents = glanceComponents,
         ),
         element.children,
         rootViewIndex,
@@ -166,7 +168,8 @@ internal data class TranslationContext(
     val layoutCollectionItemId: Int = -1,
     val canUseSelectableGroup: Boolean = false,
     val actionTargetId: Int? = null,
-    val actionBroadcastReceiver: ComponentName? = null
+    val actionBroadcastReceiver: ComponentName? = null,
+    val glanceComponents: GlanceComponents,
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 

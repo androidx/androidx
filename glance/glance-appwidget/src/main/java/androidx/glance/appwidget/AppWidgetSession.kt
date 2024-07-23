@@ -184,7 +184,8 @@ internal class AppWidgetSession(
                     layoutConfig,
                     layoutConfig.addLayout(root),
                     DpSize.Unspecified,
-                    receiver
+                    receiver,
+                    widget.getComponents(context),
                 )
             if (shouldPublish) {
                 appWidgetManager.updateAppWidget(id.appWidgetId, rv)

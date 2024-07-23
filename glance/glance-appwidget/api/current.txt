@@ -100,6 +100,11 @@ package androidx.glance.appwidget {
     method public suspend Object? compose(android.content.Context context, long size, optional Object? state, optional android.os.Bundle appWidgetOptions, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.glance.appwidget.RemoteViewsCompositionResult>);
   }
 
+  public class GlanceRemoteViewsService extends android.widget.RemoteViewsService {
+    ctor public GlanceRemoteViewsService();
+    method public android.widget.RemoteViewsService.RemoteViewsFactory onGetViewFactory(android.content.Intent? intent);
+  }
+
   public final class ImageProvidersKt {
     method public static androidx.glance.ImageProvider ImageProvider(android.net.Uri uri);
   }
@@ -178,6 +183,19 @@ package androidx.glance.appwidget.action {
 
   public interface ActionCallback {
     method public suspend Object? onAction(android.content.Context context, androidx.glance.GlanceId glanceId, androidx.glance.action.ActionParameters parameters, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+  }
+
+  public class ActionCallbackBroadcastReceiver extends android.content.BroadcastReceiver {
+    ctor public ActionCallbackBroadcastReceiver();
+    method public void onReceive(android.content.Context? context, android.content.Intent? intent);
+  }
+
+  public class ActionTrampolineActivity extends android.app.Activity {
+    ctor public ActionTrampolineActivity();
+  }
+
+  public class InvisibleActionTrampolineActivity extends android.app.Activity {
+    ctor public InvisibleActionTrampolineActivity();
   }
 
   public final class RunCallbackActionKt {
