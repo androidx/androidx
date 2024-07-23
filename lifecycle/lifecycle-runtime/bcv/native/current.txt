@@ -9,6 +9,28 @@
 final class androidx.lifecycle/LifecycleDestroyedException : kotlin.coroutines.cancellation/CancellationException { // androidx.lifecycle/LifecycleDestroyedException|null[0]
     constructor <init>() // androidx.lifecycle/LifecycleDestroyedException.<init>|<init>(){}[0]
 }
+
+open class androidx.lifecycle/LifecycleRegistry : androidx.lifecycle/Lifecycle { // androidx.lifecycle/LifecycleRegistry|null[0]
+    constructor <init>(androidx.lifecycle/LifecycleOwner) // androidx.lifecycle/LifecycleRegistry.<init>|<init>(androidx.lifecycle.LifecycleOwner){}[0]
+
+    open val currentStateFlow // androidx.lifecycle/LifecycleRegistry.currentStateFlow|{}currentStateFlow[0]
+        open fun <get-currentStateFlow>(): kotlinx.coroutines.flow/StateFlow<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/LifecycleRegistry.currentStateFlow.<get-currentStateFlow>|<get-currentStateFlow>(){}[0]
+    open val observerCount // androidx.lifecycle/LifecycleRegistry.observerCount|{}observerCount[0]
+        open fun <get-observerCount>(): kotlin/Int // androidx.lifecycle/LifecycleRegistry.observerCount.<get-observerCount>|<get-observerCount>(){}[0]
+
+    open var currentState // androidx.lifecycle/LifecycleRegistry.currentState|{}currentState[0]
+        open fun <get-currentState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/LifecycleRegistry.currentState.<get-currentState>|<get-currentState>(){}[0]
+        open fun <set-currentState>(androidx.lifecycle/Lifecycle.State) // androidx.lifecycle/LifecycleRegistry.currentState.<set-currentState>|<set-currentState>(androidx.lifecycle.Lifecycle.State){}[0]
+
+    open fun addObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/LifecycleRegistry.addObserver|addObserver(androidx.lifecycle.LifecycleObserver){}[0]
+    open fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.lifecycle/LifecycleRegistry.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
+    open fun removeObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/LifecycleRegistry.removeObserver|removeObserver(androidx.lifecycle.LifecycleObserver){}[0]
+
+    final object Companion { // androidx.lifecycle/LifecycleRegistry.Companion|null[0]
+        final fun createUnsafe(androidx.lifecycle/LifecycleOwner): androidx.lifecycle/LifecycleRegistry // androidx.lifecycle/LifecycleRegistry.Companion.createUnsafe|createUnsafe(androidx.lifecycle.LifecycleOwner){}[0]
+    }
+}
+
 final fun <#A: kotlin/Any?> (kotlinx.coroutines.flow/Flow<#A>).androidx.lifecycle/flowWithLifecycle(androidx.lifecycle/Lifecycle, androidx.lifecycle/Lifecycle.State = ...): kotlinx.coroutines.flow/Flow<#A> // androidx.lifecycle/flowWithLifecycle|flowWithLifecycle@kotlinx.coroutines.flow.Flow<0:0>(androidx.lifecycle.Lifecycle;androidx.lifecycle.Lifecycle.State){0§<kotlin.Any?>}[0]
 final suspend fun (androidx.lifecycle/Lifecycle).androidx.lifecycle/repeatOnLifecycle(androidx.lifecycle/Lifecycle.State, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) // androidx.lifecycle/repeatOnLifecycle|repeatOnLifecycle@androidx.lifecycle.Lifecycle(androidx.lifecycle.Lifecycle.State;kotlin.coroutines.SuspendFunction1<kotlinx.coroutines.CoroutineScope,kotlin.Unit>){}[0]
 final suspend fun (androidx.lifecycle/LifecycleOwner).androidx.lifecycle/repeatOnLifecycle(androidx.lifecycle/Lifecycle.State, kotlin.coroutines/SuspendFunction1<kotlinx.coroutines/CoroutineScope, kotlin/Unit>) // androidx.lifecycle/repeatOnLifecycle|repeatOnLifecycle@androidx.lifecycle.LifecycleOwner(androidx.lifecycle.Lifecycle.State;kotlin.coroutines.SuspendFunction1<kotlinx.coroutines.CoroutineScope,kotlin.Unit>){}[0]
@@ -22,19 +44,3 @@ final suspend inline fun <#A: kotlin/Any?> (androidx.lifecycle/LifecycleOwner).a
 final suspend inline fun <#A: kotlin/Any?> (androidx.lifecycle/LifecycleOwner).androidx.lifecycle/withResumed(crossinline kotlin/Function0<#A>): #A // androidx.lifecycle/withResumed|withResumed@androidx.lifecycle.LifecycleOwner(kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
 final suspend inline fun <#A: kotlin/Any?> (androidx.lifecycle/LifecycleOwner).androidx.lifecycle/withStarted(crossinline kotlin/Function0<#A>): #A // androidx.lifecycle/withStarted|withStarted@androidx.lifecycle.LifecycleOwner(kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
 final suspend inline fun <#A: kotlin/Any?> (androidx.lifecycle/LifecycleOwner).androidx.lifecycle/withStateAtLeast(androidx.lifecycle/Lifecycle.State, crossinline kotlin/Function0<#A>): #A // androidx.lifecycle/withStateAtLeast|withStateAtLeast@androidx.lifecycle.LifecycleOwner(androidx.lifecycle.Lifecycle.State;kotlin.Function0<0:0>){0§<kotlin.Any?>}[0]
-open class androidx.lifecycle/LifecycleRegistry : androidx.lifecycle/Lifecycle { // androidx.lifecycle/LifecycleRegistry|null[0]
-    constructor <init>(androidx.lifecycle/LifecycleOwner) // androidx.lifecycle/LifecycleRegistry.<init>|<init>(androidx.lifecycle.LifecycleOwner){}[0]
-    final object Companion { // androidx.lifecycle/LifecycleRegistry.Companion|null[0]
-        final fun createUnsafe(androidx.lifecycle/LifecycleOwner): androidx.lifecycle/LifecycleRegistry // androidx.lifecycle/LifecycleRegistry.Companion.createUnsafe|createUnsafe(androidx.lifecycle.LifecycleOwner){}[0]
-    }
-    open fun addObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/LifecycleRegistry.addObserver|addObserver(androidx.lifecycle.LifecycleObserver){}[0]
-    open fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.lifecycle/LifecycleRegistry.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
-    open fun removeObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/LifecycleRegistry.removeObserver|removeObserver(androidx.lifecycle.LifecycleObserver){}[0]
-    open val currentStateFlow // androidx.lifecycle/LifecycleRegistry.currentStateFlow|{}currentStateFlow[0]
-        open fun <get-currentStateFlow>(): kotlinx.coroutines.flow/StateFlow<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/LifecycleRegistry.currentStateFlow.<get-currentStateFlow>|<get-currentStateFlow>(){}[0]
-    open val observerCount // androidx.lifecycle/LifecycleRegistry.observerCount|{}observerCount[0]
-        open fun <get-observerCount>(): kotlin/Int // androidx.lifecycle/LifecycleRegistry.observerCount.<get-observerCount>|<get-observerCount>(){}[0]
-    open var currentState // androidx.lifecycle/LifecycleRegistry.currentState|{}currentState[0]
-        open fun <get-currentState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/LifecycleRegistry.currentState.<get-currentState>|<get-currentState>(){}[0]
-        open fun <set-currentState>(androidx.lifecycle/Lifecycle.State) // androidx.lifecycle/LifecycleRegistry.currentState.<set-currentState>|<set-currentState>(androidx.lifecycle.Lifecycle.State){}[0]
-}

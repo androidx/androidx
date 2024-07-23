@@ -11,52 +11,68 @@ abstract interface <#A: kotlin/Any?> androidx.datastore.core/DataMigration { // 
     abstract suspend fun migrate(#A): #A // androidx.datastore.core/DataMigration.migrate|migrate(1:0){}[0]
     abstract suspend fun shouldMigrate(#A): kotlin/Boolean // androidx.datastore.core/DataMigration.shouldMigrate|shouldMigrate(1:0){}[0]
 }
+
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/DataStore { // androidx.datastore.core/DataStore|null[0]
-    abstract suspend fun updateData(kotlin.coroutines/SuspendFunction1<#A, #A>): #A // androidx.datastore.core/DataStore.updateData|updateData(kotlin.coroutines.SuspendFunction1<1:0,1:0>){}[0]
     abstract val data // androidx.datastore.core/DataStore.data|{}data[0]
         abstract fun <get-data>(): kotlinx.coroutines.flow/Flow<#A> // androidx.datastore.core/DataStore.data.<get-data>|<get-data>(){}[0]
+
+    abstract suspend fun updateData(kotlin.coroutines/SuspendFunction1<#A, #A>): #A // androidx.datastore.core/DataStore.updateData|updateData(kotlin.coroutines.SuspendFunction1<1:0,1:0>){}[0]
 }
+
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/ReadScope : androidx.datastore.core/Closeable { // androidx.datastore.core/ReadScope|null[0]
     abstract suspend fun readData(): #A // androidx.datastore.core/ReadScope.readData|readData(){}[0]
 }
+
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/Storage { // androidx.datastore.core/Storage|null[0]
     abstract fun createConnection(): androidx.datastore.core/StorageConnection<#A> // androidx.datastore.core/Storage.createConnection|createConnection(){}[0]
 }
+
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/StorageConnection : androidx.datastore.core/Closeable { // androidx.datastore.core/StorageConnection|null[0]
-    abstract suspend fun <#A1: kotlin/Any?> readScope(kotlin.coroutines/SuspendFunction2<androidx.datastore.core/ReadScope<#A>, kotlin/Boolean, #A1>): #A1 // androidx.datastore.core/StorageConnection.readScope|readScope(kotlin.coroutines.SuspendFunction2<androidx.datastore.core.ReadScope<1:0>,kotlin.Boolean,0:0>){0§<kotlin.Any?>}[0]
-    abstract suspend fun writeScope(kotlin.coroutines/SuspendFunction1<androidx.datastore.core/WriteScope<#A>, kotlin/Unit>) // androidx.datastore.core/StorageConnection.writeScope|writeScope(kotlin.coroutines.SuspendFunction1<androidx.datastore.core.WriteScope<1:0>,kotlin.Unit>){}[0]
     abstract val coordinator // androidx.datastore.core/StorageConnection.coordinator|{}coordinator[0]
         abstract fun <get-coordinator>(): androidx.datastore.core/InterProcessCoordinator // androidx.datastore.core/StorageConnection.coordinator.<get-coordinator>|<get-coordinator>(){}[0]
+
+    abstract suspend fun <#A1: kotlin/Any?> readScope(kotlin.coroutines/SuspendFunction2<androidx.datastore.core/ReadScope<#A>, kotlin/Boolean, #A1>): #A1 // androidx.datastore.core/StorageConnection.readScope|readScope(kotlin.coroutines.SuspendFunction2<androidx.datastore.core.ReadScope<1:0>,kotlin.Boolean,0:0>){0§<kotlin.Any?>}[0]
+    abstract suspend fun writeScope(kotlin.coroutines/SuspendFunction1<androidx.datastore.core/WriteScope<#A>, kotlin/Unit>) // androidx.datastore.core/StorageConnection.writeScope|writeScope(kotlin.coroutines.SuspendFunction1<androidx.datastore.core.WriteScope<1:0>,kotlin.Unit>){}[0]
 }
+
 abstract interface <#A: kotlin/Any?> androidx.datastore.core/WriteScope : androidx.datastore.core/ReadScope<#A> { // androidx.datastore.core/WriteScope|null[0]
     abstract suspend fun writeData(#A) // androidx.datastore.core/WriteScope.writeData|writeData(1:0){}[0]
 }
+
 abstract interface androidx.datastore.core/Closeable { // androidx.datastore.core/Closeable|null[0]
     abstract fun close() // androidx.datastore.core/Closeable.close|close(){}[0]
 }
+
 abstract interface androidx.datastore.core/InterProcessCoordinator { // androidx.datastore.core/InterProcessCoordinator|null[0]
+    abstract val updateNotifications // androidx.datastore.core/InterProcessCoordinator.updateNotifications|{}updateNotifications[0]
+        abstract fun <get-updateNotifications>(): kotlinx.coroutines.flow/Flow<kotlin/Unit> // androidx.datastore.core/InterProcessCoordinator.updateNotifications.<get-updateNotifications>|<get-updateNotifications>(){}[0]
+
     abstract suspend fun <#A1: kotlin/Any?> lock(kotlin.coroutines/SuspendFunction0<#A1>): #A1 // androidx.datastore.core/InterProcessCoordinator.lock|lock(kotlin.coroutines.SuspendFunction0<0:0>){0§<kotlin.Any?>}[0]
     abstract suspend fun <#A1: kotlin/Any?> tryLock(kotlin.coroutines/SuspendFunction1<kotlin/Boolean, #A1>): #A1 // androidx.datastore.core/InterProcessCoordinator.tryLock|tryLock(kotlin.coroutines.SuspendFunction1<kotlin.Boolean,0:0>){0§<kotlin.Any?>}[0]
     abstract suspend fun getVersion(): kotlin/Int // androidx.datastore.core/InterProcessCoordinator.getVersion|getVersion(){}[0]
     abstract suspend fun incrementAndGetVersion(): kotlin/Int // androidx.datastore.core/InterProcessCoordinator.incrementAndGetVersion|incrementAndGetVersion(){}[0]
-    abstract val updateNotifications // androidx.datastore.core/InterProcessCoordinator.updateNotifications|{}updateNotifications[0]
-        abstract fun <get-updateNotifications>(): kotlinx.coroutines.flow/Flow<kotlin/Unit> // androidx.datastore.core/InterProcessCoordinator.updateNotifications.<get-updateNotifications>|<get-updateNotifications>(){}[0]
 }
+
 final class <#A: kotlin/Any?> androidx.datastore.core.handlers/ReplaceFileCorruptionHandler : androidx.datastore.core/CorruptionHandler<#A> { // androidx.datastore.core.handlers/ReplaceFileCorruptionHandler|null[0]
     constructor <init>(kotlin/Function1<androidx.datastore.core/CorruptionException, #A>) // androidx.datastore.core.handlers/ReplaceFileCorruptionHandler.<init>|<init>(kotlin.Function1<androidx.datastore.core.CorruptionException,1:0>){}[0]
+
     final suspend fun handleCorruption(androidx.datastore.core/CorruptionException): #A // androidx.datastore.core.handlers/ReplaceFileCorruptionHandler.handleCorruption|handleCorruption(androidx.datastore.core.CorruptionException){}[0]
 }
+
 final class androidx.datastore.core/CorruptionException : androidx.datastore.core/IOException { // androidx.datastore.core/CorruptionException|null[0]
     constructor <init>(kotlin/String, kotlin/Throwable? = ...) // androidx.datastore.core/CorruptionException.<init>|<init>(kotlin.String;kotlin.Throwable?){}[0]
 }
-final fun androidx.datastore.core/createSingleProcessCoordinator(kotlin/String): androidx.datastore.core/InterProcessCoordinator // androidx.datastore.core/createSingleProcessCoordinator|createSingleProcessCoordinator(kotlin.String){}[0]
-final inline fun <#A: androidx.datastore.core/Closeable, #B: kotlin/Any?> (#A).androidx.datastore.core/use(kotlin/Function1<#A, #B>): #B // androidx.datastore.core/use|use@0:0(kotlin.Function1<0:0,0:1>){0§<androidx.datastore.core.Closeable>;1§<kotlin.Any?>}[0]
-final object androidx.datastore.core/DataStoreFactory { // androidx.datastore.core/DataStoreFactory|null[0]
-    final fun <#A1: kotlin/Any?> create(androidx.datastore.core/Storage<#A1>, androidx.datastore.core.handlers/ReplaceFileCorruptionHandler<#A1>? = ..., kotlin.collections/List<androidx.datastore.core/DataMigration<#A1>> = ..., kotlinx.coroutines/CoroutineScope = ...): androidx.datastore.core/DataStore<#A1> // androidx.datastore.core/DataStoreFactory.create|create(androidx.datastore.core.Storage<0:0>;androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<0:0>?;kotlin.collections.List<androidx.datastore.core.DataMigration<0:0>>;kotlinx.coroutines.CoroutineScope){0§<kotlin.Any?>}[0]
-}
-final suspend fun <#A: kotlin/Any?> (androidx.datastore.core/StorageConnection<#A>).androidx.datastore.core/readData(): #A // androidx.datastore.core/readData|readData@androidx.datastore.core.StorageConnection<0:0>(){0§<kotlin.Any?>}[0]
-final suspend fun <#A: kotlin/Any?> (androidx.datastore.core/StorageConnection<#A>).androidx.datastore.core/writeData(#A) // androidx.datastore.core/writeData|writeData@androidx.datastore.core.StorageConnection<0:0>(0:0){0§<kotlin.Any?>}[0]
+
 open class androidx.datastore.core/IOException : kotlin/Exception { // androidx.datastore.core/IOException|null[0]
     constructor <init>(kotlin/String?) // androidx.datastore.core/IOException.<init>|<init>(kotlin.String?){}[0]
     constructor <init>(kotlin/String?, kotlin/Throwable?) // androidx.datastore.core/IOException.<init>|<init>(kotlin.String?;kotlin.Throwable?){}[0]
 }
+
+final object androidx.datastore.core/DataStoreFactory { // androidx.datastore.core/DataStoreFactory|null[0]
+    final fun <#A1: kotlin/Any?> create(androidx.datastore.core/Storage<#A1>, androidx.datastore.core.handlers/ReplaceFileCorruptionHandler<#A1>? = ..., kotlin.collections/List<androidx.datastore.core/DataMigration<#A1>> = ..., kotlinx.coroutines/CoroutineScope = ...): androidx.datastore.core/DataStore<#A1> // androidx.datastore.core/DataStoreFactory.create|create(androidx.datastore.core.Storage<0:0>;androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<0:0>?;kotlin.collections.List<androidx.datastore.core.DataMigration<0:0>>;kotlinx.coroutines.CoroutineScope){0§<kotlin.Any?>}[0]
+}
+
+final fun androidx.datastore.core/createSingleProcessCoordinator(kotlin/String): androidx.datastore.core/InterProcessCoordinator // androidx.datastore.core/createSingleProcessCoordinator|createSingleProcessCoordinator(kotlin.String){}[0]
+final inline fun <#A: androidx.datastore.core/Closeable, #B: kotlin/Any?> (#A).androidx.datastore.core/use(kotlin/Function1<#A, #B>): #B // androidx.datastore.core/use|use@0:0(kotlin.Function1<0:0,0:1>){0§<androidx.datastore.core.Closeable>;1§<kotlin.Any?>}[0]
+final suspend fun <#A: kotlin/Any?> (androidx.datastore.core/StorageConnection<#A>).androidx.datastore.core/readData(): #A // androidx.datastore.core/readData|readData@androidx.datastore.core.StorageConnection<0:0>(){0§<kotlin.Any?>}[0]
+final suspend fun <#A: kotlin/Any?> (androidx.datastore.core/StorageConnection<#A>).androidx.datastore.core/writeData(#A) // androidx.datastore.core/writeData|writeData@androidx.datastore.core.StorageConnection<0:0>(0:0){0§<kotlin.Any?>}[0]

@@ -8,13 +8,16 @@
 // Library unique name: <androidx.lifecycle:lifecycle-runtime-testing>
 final class androidx.lifecycle.testing/TestLifecycleOwner : androidx.lifecycle/LifecycleOwner { // androidx.lifecycle.testing/TestLifecycleOwner|null[0]
     constructor <init>(androidx.lifecycle/Lifecycle.State = ..., kotlinx.coroutines/CoroutineDispatcher = ...) // androidx.lifecycle.testing/TestLifecycleOwner.<init>|<init>(androidx.lifecycle.Lifecycle.State;kotlinx.coroutines.CoroutineDispatcher){}[0]
-    final fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.lifecycle.testing/TestLifecycleOwner.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
-    final suspend fun setCurrentState(androidx.lifecycle/Lifecycle.State) // androidx.lifecycle.testing/TestLifecycleOwner.setCurrentState|setCurrentState(androidx.lifecycle.Lifecycle.State){}[0]
+
     final val lifecycle // androidx.lifecycle.testing/TestLifecycleOwner.lifecycle|{}lifecycle[0]
         final fun <get-lifecycle>(): androidx.lifecycle/LifecycleRegistry // androidx.lifecycle.testing/TestLifecycleOwner.lifecycle.<get-lifecycle>|<get-lifecycle>(){}[0]
     final val observerCount // androidx.lifecycle.testing/TestLifecycleOwner.observerCount|{}observerCount[0]
         final fun <get-observerCount>(): kotlin/Int // androidx.lifecycle.testing/TestLifecycleOwner.observerCount.<get-observerCount>|<get-observerCount>(){}[0]
+
     final var currentState // androidx.lifecycle.testing/TestLifecycleOwner.currentState|{}currentState[0]
         final fun <get-currentState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle.testing/TestLifecycleOwner.currentState.<get-currentState>|<get-currentState>(){}[0]
         final fun <set-currentState>(androidx.lifecycle/Lifecycle.State) // androidx.lifecycle.testing/TestLifecycleOwner.currentState.<set-currentState>|<set-currentState>(androidx.lifecycle.Lifecycle.State){}[0]
+
+    final fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.lifecycle.testing/TestLifecycleOwner.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
+    final suspend fun setCurrentState(androidx.lifecycle/Lifecycle.State) // androidx.lifecycle.testing/TestLifecycleOwner.setCurrentState|setCurrentState(androidx.lifecycle.Lifecycle.State){}[0]
 }

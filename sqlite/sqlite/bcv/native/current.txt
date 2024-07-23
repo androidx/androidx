@@ -10,9 +10,11 @@ abstract interface androidx.sqlite/SQLiteConnection { // androidx.sqlite/SQLiteC
     abstract fun close() // androidx.sqlite/SQLiteConnection.close|close(){}[0]
     abstract fun prepare(kotlin/String): androidx.sqlite/SQLiteStatement // androidx.sqlite/SQLiteConnection.prepare|prepare(kotlin.String){}[0]
 }
+
 abstract interface androidx.sqlite/SQLiteDriver { // androidx.sqlite/SQLiteDriver|null[0]
     abstract fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.sqlite/SQLiteDriver.open|open(kotlin.String){}[0]
 }
+
 abstract interface androidx.sqlite/SQLiteStatement { // androidx.sqlite/SQLiteStatement|null[0]
     abstract fun bindBlob(kotlin/Int, kotlin/ByteArray) // androidx.sqlite/SQLiteStatement.bindBlob|bindBlob(kotlin.Int;kotlin.ByteArray){}[0]
     abstract fun bindDouble(kotlin/Int, kotlin/Double) // androidx.sqlite/SQLiteStatement.bindDouble|bindDouble(kotlin.Int;kotlin.Double){}[0]
@@ -38,9 +40,11 @@ abstract interface androidx.sqlite/SQLiteStatement { // androidx.sqlite/SQLiteSt
     open fun getFloat(kotlin/Int): kotlin/Float // androidx.sqlite/SQLiteStatement.getFloat|getFloat(kotlin.Int){}[0]
     open fun getInt(kotlin/Int): kotlin/Int // androidx.sqlite/SQLiteStatement.getInt|getInt(kotlin.Int){}[0]
 }
+
 final class androidx.sqlite/SQLiteException : kotlin/RuntimeException { // androidx.sqlite/SQLiteException|null[0]
     constructor <init>(kotlin/String) // androidx.sqlite/SQLiteException.<init>|<init>(kotlin.String){}[0]
 }
+
 final fun (androidx.sqlite/SQLiteConnection).androidx.sqlite/execSQL(kotlin/String) // androidx.sqlite/execSQL|execSQL@androidx.sqlite.SQLiteConnection(kotlin.String){}[0]
 final fun androidx.sqlite/throwSQLiteException(kotlin/Int, kotlin/String?): kotlin/Nothing // androidx.sqlite/throwSQLiteException|throwSQLiteException(kotlin.Int;kotlin.String?){}[0]
 final inline fun <#A: kotlin/Any?> (androidx.sqlite/SQLiteStatement).androidx.sqlite/use(kotlin/Function1<androidx.sqlite/SQLiteStatement, #A>): #A // androidx.sqlite/use|use@androidx.sqlite.SQLiteStatement(kotlin.Function1<androidx.sqlite.SQLiteStatement,0:0>){0§<kotlin.Any?>}[0]

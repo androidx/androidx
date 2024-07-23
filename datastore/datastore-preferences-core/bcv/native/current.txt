@@ -10,18 +10,22 @@ abstract class androidx.datastore.preferences.core/Preferences { // androidx.dat
     abstract fun <#A1: kotlin/Any?> contains(androidx.datastore.preferences.core/Preferences.Key<#A1>): kotlin/Boolean // androidx.datastore.preferences.core/Preferences.contains|contains(androidx.datastore.preferences.core.Preferences.Key<0:0>){0§<kotlin.Any?>}[0]
     abstract fun <#A1: kotlin/Any?> get(androidx.datastore.preferences.core/Preferences.Key<#A1>): #A1? // androidx.datastore.preferences.core/Preferences.get|get(androidx.datastore.preferences.core.Preferences.Key<0:0>){0§<kotlin.Any?>}[0]
     abstract fun asMap(): kotlin.collections/Map<androidx.datastore.preferences.core/Preferences.Key<*>, kotlin/Any> // androidx.datastore.preferences.core/Preferences.asMap|asMap(){}[0]
+    final fun toMutablePreferences(): androidx.datastore.preferences.core/MutablePreferences // androidx.datastore.preferences.core/Preferences.toMutablePreferences|toMutablePreferences(){}[0]
+    final fun toPreferences(): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/Preferences.toPreferences|toPreferences(){}[0]
+
     final class <#A1: kotlin/Any?> Key { // androidx.datastore.preferences.core/Preferences.Key|null[0]
+        final val name // androidx.datastore.preferences.core/Preferences.Key.name|{}name[0]
+            final fun <get-name>(): kotlin/String // androidx.datastore.preferences.core/Preferences.Key.name.<get-name>|<get-name>(){}[0]
+
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.datastore.preferences.core/Preferences.Key.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.datastore.preferences.core/Preferences.Key.hashCode|hashCode(){}[0]
         final fun to(#A1): androidx.datastore.preferences.core/Preferences.Pair<#A1> // androidx.datastore.preferences.core/Preferences.Key.to|to(1:0){}[0]
         final fun toString(): kotlin/String // androidx.datastore.preferences.core/Preferences.Key.toString|toString(){}[0]
-        final val name // androidx.datastore.preferences.core/Preferences.Key.name|{}name[0]
-            final fun <get-name>(): kotlin/String // androidx.datastore.preferences.core/Preferences.Key.name.<get-name>|<get-name>(){}[0]
     }
+
     final class <#A1: kotlin/Any?> Pair // androidx.datastore.preferences.core/Preferences.Pair|null[0]
-    final fun toMutablePreferences(): androidx.datastore.preferences.core/MutablePreferences // androidx.datastore.preferences.core/Preferences.toMutablePreferences|toMutablePreferences(){}[0]
-    final fun toPreferences(): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/Preferences.toPreferences|toPreferences(){}[0]
 }
+
 final class androidx.datastore.preferences.core/MutablePreferences : androidx.datastore.preferences.core/Preferences { // androidx.datastore.preferences.core/MutablePreferences|null[0]
     final fun <#A1: kotlin/Any?> contains(androidx.datastore.preferences.core/Preferences.Key<#A1>): kotlin/Boolean // androidx.datastore.preferences.core/MutablePreferences.contains|contains(androidx.datastore.preferences.core.Preferences.Key<0:0>){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> get(androidx.datastore.preferences.core/Preferences.Key<#A1>): #A1? // androidx.datastore.preferences.core/MutablePreferences.get|get(androidx.datastore.preferences.core.Preferences.Key<0:0>){0§<kotlin.Any?>}[0]
@@ -37,6 +41,20 @@ final class androidx.datastore.preferences.core/MutablePreferences : androidx.da
     final fun putAll(kotlin/Array<out androidx.datastore.preferences.core/Preferences.Pair<*>>...) // androidx.datastore.preferences.core/MutablePreferences.putAll|putAll(kotlin.Array<out|androidx.datastore.preferences.core.Preferences.Pair<*>>...){}[0]
     final fun toString(): kotlin/String // androidx.datastore.preferences.core/MutablePreferences.toString|toString(){}[0]
 }
+
+final object androidx.datastore.preferences.core/PreferenceDataStoreFactory { // androidx.datastore.preferences.core/PreferenceDataStoreFactory|null[0]
+    final fun create(androidx.datastore.core/Storage<androidx.datastore.preferences.core/Preferences>, androidx.datastore.core.handlers/ReplaceFileCorruptionHandler<androidx.datastore.preferences.core/Preferences>? = ..., kotlin.collections/List<androidx.datastore.core/DataMigration<androidx.datastore.preferences.core/Preferences>> = ..., kotlinx.coroutines/CoroutineScope = ...): androidx.datastore.core/DataStore<androidx.datastore.preferences.core/Preferences> // androidx.datastore.preferences.core/PreferenceDataStoreFactory.create|create(androidx.datastore.core.Storage<androidx.datastore.preferences.core.Preferences>;androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>?;kotlin.collections.List<androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>;kotlinx.coroutines.CoroutineScope){}[0]
+    final fun createWithPath(androidx.datastore.core.handlers/ReplaceFileCorruptionHandler<androidx.datastore.preferences.core/Preferences>? = ..., kotlin.collections/List<androidx.datastore.core/DataMigration<androidx.datastore.preferences.core/Preferences>> = ..., kotlinx.coroutines/CoroutineScope = ..., kotlin/Function0<okio/Path>): androidx.datastore.core/DataStore<androidx.datastore.preferences.core/Preferences> // androidx.datastore.preferences.core/PreferenceDataStoreFactory.createWithPath|createWithPath(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>?;kotlin.collections.List<androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>;kotlinx.coroutines.CoroutineScope;kotlin.Function0<okio.Path>){}[0]
+}
+
+final object androidx.datastore.preferences.core/PreferencesSerializer : androidx.datastore.core.okio/OkioSerializer<androidx.datastore.preferences.core/Preferences> { // androidx.datastore.preferences.core/PreferencesSerializer|null[0]
+    final val defaultValue // androidx.datastore.preferences.core/PreferencesSerializer.defaultValue|{}defaultValue[0]
+        final fun <get-defaultValue>(): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/PreferencesSerializer.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
+
+    final suspend fun readFrom(okio/BufferedSource): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/PreferencesSerializer.readFrom|readFrom(okio.BufferedSource){}[0]
+    final suspend fun writeTo(androidx.datastore.preferences.core/Preferences, okio/BufferedSink) // androidx.datastore.preferences.core/PreferencesSerializer.writeTo|writeTo(androidx.datastore.preferences.core.Preferences;okio.BufferedSink){}[0]
+}
+
 final fun androidx.datastore.preferences.core/booleanPreferencesKey(kotlin/String): androidx.datastore.preferences.core/Preferences.Key<kotlin/Boolean> // androidx.datastore.preferences.core/booleanPreferencesKey|booleanPreferencesKey(kotlin.String){}[0]
 final fun androidx.datastore.preferences.core/byteArrayPreferencesKey(kotlin/String): androidx.datastore.preferences.core/Preferences.Key<kotlin/ByteArray> // androidx.datastore.preferences.core/byteArrayPreferencesKey|byteArrayPreferencesKey(kotlin.String){}[0]
 final fun androidx.datastore.preferences.core/doublePreferencesKey(kotlin/String): androidx.datastore.preferences.core/Preferences.Key<kotlin/Double> // androidx.datastore.preferences.core/doublePreferencesKey|doublePreferencesKey(kotlin.String){}[0]
@@ -48,14 +66,4 @@ final fun androidx.datastore.preferences.core/mutablePreferencesOf(kotlin/Array<
 final fun androidx.datastore.preferences.core/preferencesOf(kotlin/Array<out androidx.datastore.preferences.core/Preferences.Pair<*>>...): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/preferencesOf|preferencesOf(kotlin.Array<out|androidx.datastore.preferences.core.Preferences.Pair<*>>...){}[0]
 final fun androidx.datastore.preferences.core/stringPreferencesKey(kotlin/String): androidx.datastore.preferences.core/Preferences.Key<kotlin/String> // androidx.datastore.preferences.core/stringPreferencesKey|stringPreferencesKey(kotlin.String){}[0]
 final fun androidx.datastore.preferences.core/stringSetPreferencesKey(kotlin/String): androidx.datastore.preferences.core/Preferences.Key<kotlin.collections/Set<kotlin/String>> // androidx.datastore.preferences.core/stringSetPreferencesKey|stringSetPreferencesKey(kotlin.String){}[0]
-final object androidx.datastore.preferences.core/PreferenceDataStoreFactory { // androidx.datastore.preferences.core/PreferenceDataStoreFactory|null[0]
-    final fun create(androidx.datastore.core/Storage<androidx.datastore.preferences.core/Preferences>, androidx.datastore.core.handlers/ReplaceFileCorruptionHandler<androidx.datastore.preferences.core/Preferences>? = ..., kotlin.collections/List<androidx.datastore.core/DataMigration<androidx.datastore.preferences.core/Preferences>> = ..., kotlinx.coroutines/CoroutineScope = ...): androidx.datastore.core/DataStore<androidx.datastore.preferences.core/Preferences> // androidx.datastore.preferences.core/PreferenceDataStoreFactory.create|create(androidx.datastore.core.Storage<androidx.datastore.preferences.core.Preferences>;androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>?;kotlin.collections.List<androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>;kotlinx.coroutines.CoroutineScope){}[0]
-    final fun createWithPath(androidx.datastore.core.handlers/ReplaceFileCorruptionHandler<androidx.datastore.preferences.core/Preferences>? = ..., kotlin.collections/List<androidx.datastore.core/DataMigration<androidx.datastore.preferences.core/Preferences>> = ..., kotlinx.coroutines/CoroutineScope = ..., kotlin/Function0<okio/Path>): androidx.datastore.core/DataStore<androidx.datastore.preferences.core/Preferences> // androidx.datastore.preferences.core/PreferenceDataStoreFactory.createWithPath|createWithPath(androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.core.Preferences>?;kotlin.collections.List<androidx.datastore.core.DataMigration<androidx.datastore.preferences.core.Preferences>>;kotlinx.coroutines.CoroutineScope;kotlin.Function0<okio.Path>){}[0]
-}
-final object androidx.datastore.preferences.core/PreferencesSerializer : androidx.datastore.core.okio/OkioSerializer<androidx.datastore.preferences.core/Preferences> { // androidx.datastore.preferences.core/PreferencesSerializer|null[0]
-    final suspend fun readFrom(okio/BufferedSource): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/PreferencesSerializer.readFrom|readFrom(okio.BufferedSource){}[0]
-    final suspend fun writeTo(androidx.datastore.preferences.core/Preferences, okio/BufferedSink) // androidx.datastore.preferences.core/PreferencesSerializer.writeTo|writeTo(androidx.datastore.preferences.core.Preferences;okio.BufferedSink){}[0]
-    final val defaultValue // androidx.datastore.preferences.core/PreferencesSerializer.defaultValue|{}defaultValue[0]
-        final fun <get-defaultValue>(): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/PreferencesSerializer.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
-}
 final suspend fun (androidx.datastore.core/DataStore<androidx.datastore.preferences.core/Preferences>).androidx.datastore.preferences.core/edit(kotlin.coroutines/SuspendFunction1<androidx.datastore.preferences.core/MutablePreferences, kotlin/Unit>): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/edit|edit@androidx.datastore.core.DataStore<androidx.datastore.preferences.core.Preferences>(kotlin.coroutines.SuspendFunction1<androidx.datastore.preferences.core.MutablePreferences,kotlin.Unit>){}[0]

@@ -6,52 +6,95 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.paging:paging-common>
+open annotation class androidx.paging/ExperimentalPagingApi : kotlin/Annotation { // androidx.paging/ExperimentalPagingApi|null[0]
+    constructor <init>() // androidx.paging/ExperimentalPagingApi.<init>|<init>(){}[0]
+}
+
+final enum class androidx.paging/DiffingChangePayload : kotlin/Enum<androidx.paging/DiffingChangePayload> { // androidx.paging/DiffingChangePayload|null[0]
+    enum entry ITEM_TO_PLACEHOLDER // androidx.paging/DiffingChangePayload.ITEM_TO_PLACEHOLDER|null[0]
+    enum entry PLACEHOLDER_POSITION_CHANGE // androidx.paging/DiffingChangePayload.PLACEHOLDER_POSITION_CHANGE|null[0]
+    enum entry PLACEHOLDER_TO_ITEM // androidx.paging/DiffingChangePayload.PLACEHOLDER_TO_ITEM|null[0]
+
+    final fun valueOf(kotlin/String): androidx.paging/DiffingChangePayload // androidx.paging/DiffingChangePayload.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<androidx.paging/DiffingChangePayload> // androidx.paging/DiffingChangePayload.values|values#static(){}[0]
+}
+
+final enum class androidx.paging/LoadType : kotlin/Enum<androidx.paging/LoadType> { // androidx.paging/LoadType|null[0]
+    enum entry APPEND // androidx.paging/LoadType.APPEND|null[0]
+    enum entry PREPEND // androidx.paging/LoadType.PREPEND|null[0]
+    enum entry REFRESH // androidx.paging/LoadType.REFRESH|null[0]
+
+    final fun valueOf(kotlin/String): androidx.paging/LoadType // androidx.paging/LoadType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<androidx.paging/LoadType> // androidx.paging/LoadType.values|values#static(){}[0]
+}
+
+final enum class androidx.paging/TerminalSeparatorType : kotlin/Enum<androidx.paging/TerminalSeparatorType> { // androidx.paging/TerminalSeparatorType|null[0]
+    enum entry FULLY_COMPLETE // androidx.paging/TerminalSeparatorType.FULLY_COMPLETE|null[0]
+    enum entry SOURCE_COMPLETE // androidx.paging/TerminalSeparatorType.SOURCE_COMPLETE|null[0]
+
+    final fun valueOf(kotlin/String): androidx.paging/TerminalSeparatorType // androidx.paging/TerminalSeparatorType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<androidx.paging/TerminalSeparatorType> // androidx.paging/TerminalSeparatorType.values|values#static(){}[0]
+}
+
+abstract fun interface <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingSourceFactory : kotlin/Function0<androidx.paging/PagingSource<#A, #B>> { // androidx.paging/PagingSourceFactory|null[0]
+    abstract fun invoke(): androidx.paging/PagingSource<#A, #B> // androidx.paging/PagingSourceFactory.invoke|invoke(){}[0]
+}
+
+abstract interface <#A: kotlin/Any?> androidx.paging/PlaceholderPaddedList { // androidx.paging/PlaceholderPaddedList|null[0]
+    abstract val dataCount // androidx.paging/PlaceholderPaddedList.dataCount|{}dataCount[0]
+        abstract fun <get-dataCount>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.dataCount.<get-dataCount>|<get-dataCount>(){}[0]
+    abstract val placeholdersAfter // androidx.paging/PlaceholderPaddedList.placeholdersAfter|{}placeholdersAfter[0]
+        abstract fun <get-placeholdersAfter>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.placeholdersAfter.<get-placeholdersAfter>|<get-placeholdersAfter>(){}[0]
+    abstract val placeholdersBefore // androidx.paging/PlaceholderPaddedList.placeholdersBefore|{}placeholdersBefore[0]
+        abstract fun <get-placeholdersBefore>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.placeholdersBefore.<get-placeholdersBefore>|<get-placeholdersBefore>(){}[0]
+    abstract val size // androidx.paging/PlaceholderPaddedList.size|{}size[0]
+        abstract fun <get-size>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.size.<get-size>|<get-size>(){}[0]
+
+    abstract fun getItem(kotlin/Int): #A // androidx.paging/PlaceholderPaddedList.getItem|getItem(kotlin.Int){}[0]
+}
+
 abstract class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingSource { // androidx.paging/PagingSource|null[0]
-    abstract fun getRefreshKey(androidx.paging/PagingState<#A, #B>): #A? // androidx.paging/PagingSource.getRefreshKey|getRefreshKey(androidx.paging.PagingState<1:0,1:1>){}[0]
-    abstract suspend fun load(androidx.paging/PagingSource.LoadParams<#A>): androidx.paging/PagingSource.LoadResult<#A, #B> // androidx.paging/PagingSource.load|load(androidx.paging.PagingSource.LoadParams<1:0>){}[0]
     constructor <init>() // androidx.paging/PagingSource.<init>|<init>(){}[0]
-    final fun invalidate() // androidx.paging/PagingSource.invalidate|invalidate(){}[0]
-    final fun registerInvalidatedCallback(kotlin/Function0<kotlin/Unit>) // androidx.paging/PagingSource.registerInvalidatedCallback|registerInvalidatedCallback(kotlin.Function0<kotlin.Unit>){}[0]
-    final fun unregisterInvalidatedCallback(kotlin/Function0<kotlin/Unit>) // androidx.paging/PagingSource.unregisterInvalidatedCallback|unregisterInvalidatedCallback(kotlin.Function0<kotlin.Unit>){}[0]
+
     final val invalid // androidx.paging/PagingSource.invalid|{}invalid[0]
         final fun <get-invalid>(): kotlin/Boolean // androidx.paging/PagingSource.invalid.<get-invalid>|<get-invalid>(){}[0]
     open val jumpingSupported // androidx.paging/PagingSource.jumpingSupported|{}jumpingSupported[0]
         open fun <get-jumpingSupported>(): kotlin/Boolean // androidx.paging/PagingSource.jumpingSupported.<get-jumpingSupported>|<get-jumpingSupported>(){}[0]
     open val keyReuseSupported // androidx.paging/PagingSource.keyReuseSupported|{}keyReuseSupported[0]
         open fun <get-keyReuseSupported>(): kotlin/Boolean // androidx.paging/PagingSource.keyReuseSupported.<get-keyReuseSupported>|<get-keyReuseSupported>(){}[0]
+
+    abstract fun getRefreshKey(androidx.paging/PagingState<#A, #B>): #A? // androidx.paging/PagingSource.getRefreshKey|getRefreshKey(androidx.paging.PagingState<1:0,1:1>){}[0]
+    abstract suspend fun load(androidx.paging/PagingSource.LoadParams<#A>): androidx.paging/PagingSource.LoadResult<#A, #B> // androidx.paging/PagingSource.load|load(androidx.paging.PagingSource.LoadParams<1:0>){}[0]
+    final fun invalidate() // androidx.paging/PagingSource.invalidate|invalidate(){}[0]
+    final fun registerInvalidatedCallback(kotlin/Function0<kotlin/Unit>) // androidx.paging/PagingSource.registerInvalidatedCallback|registerInvalidatedCallback(kotlin.Function0<kotlin.Unit>){}[0]
+    final fun unregisterInvalidatedCallback(kotlin/Function0<kotlin/Unit>) // androidx.paging/PagingSource.unregisterInvalidatedCallback|unregisterInvalidatedCallback(kotlin.Function0<kotlin.Unit>){}[0]
+
     sealed class <#A1: kotlin/Any, #B1: kotlin/Any> LoadResult { // androidx.paging/PagingSource.LoadResult|null[0]
         constructor <init>() // androidx.paging/PagingSource.LoadResult.<init>|<init>(){}[0]
+
         final class <#A2: kotlin/Any, #B2: kotlin/Any> Error : androidx.paging/PagingSource.LoadResult<#A2, #B2> { // androidx.paging/PagingSource.LoadResult.Error|null[0]
             constructor <init>(kotlin/Throwable) // androidx.paging/PagingSource.LoadResult.Error.<init>|<init>(kotlin.Throwable){}[0]
+
+            final val throwable // androidx.paging/PagingSource.LoadResult.Error.throwable|{}throwable[0]
+                final fun <get-throwable>(): kotlin/Throwable // androidx.paging/PagingSource.LoadResult.Error.throwable.<get-throwable>|<get-throwable>(){}[0]
+
             final fun component1(): kotlin/Throwable // androidx.paging/PagingSource.LoadResult.Error.component1|component1(){}[0]
             final fun copy(kotlin/Throwable = ...): androidx.paging/PagingSource.LoadResult.Error<#A2, #B2> // androidx.paging/PagingSource.LoadResult.Error.copy|copy(kotlin.Throwable){}[0]
             final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingSource.LoadResult.Error.equals|equals(kotlin.Any?){}[0]
             final fun hashCode(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Error.hashCode|hashCode(){}[0]
             final fun toString(): kotlin/String // androidx.paging/PagingSource.LoadResult.Error.toString|toString(){}[0]
-            final val throwable // androidx.paging/PagingSource.LoadResult.Error.throwable|{}throwable[0]
-                final fun <get-throwable>(): kotlin/Throwable // androidx.paging/PagingSource.LoadResult.Error.throwable.<get-throwable>|<get-throwable>(){}[0]
         }
+
         final class <#A2: kotlin/Any, #B2: kotlin/Any> Invalid : androidx.paging/PagingSource.LoadResult<#A2, #B2> { // androidx.paging/PagingSource.LoadResult.Invalid|null[0]
             constructor <init>() // androidx.paging/PagingSource.LoadResult.Invalid.<init>|<init>(){}[0]
+
             final fun toString(): kotlin/String // androidx.paging/PagingSource.LoadResult.Invalid.toString|toString(){}[0]
         }
+
         final class <#A2: kotlin/Any, #B2: kotlin/Any> Page : androidx.paging/PagingSource.LoadResult<#A2, #B2>, kotlin.collections/Iterable<#B2> { // androidx.paging/PagingSource.LoadResult.Page|null[0]
             constructor <init>(kotlin.collections/List<#B2>, #A2?, #A2?) // androidx.paging/PagingSource.LoadResult.Page.<init>|<init>(kotlin.collections.List<1:1>;1:0?;1:0?){}[0]
             constructor <init>(kotlin.collections/List<#B2>, #A2?, #A2?, kotlin/Int = ..., kotlin/Int = ...) // androidx.paging/PagingSource.LoadResult.Page.<init>|<init>(kotlin.collections.List<1:1>;1:0?;1:0?;kotlin.Int;kotlin.Int){}[0]
-            final fun component1(): kotlin.collections/List<#B2> // androidx.paging/PagingSource.LoadResult.Page.component1|component1(){}[0]
-            final fun component2(): #A2? // androidx.paging/PagingSource.LoadResult.Page.component2|component2(){}[0]
-            final fun component3(): #A2? // androidx.paging/PagingSource.LoadResult.Page.component3|component3(){}[0]
-            final fun component4(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.component4|component4(){}[0]
-            final fun component5(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.component5|component5(){}[0]
-            final fun copy(kotlin.collections/List<#B2> = ..., #A2? = ..., #A2? = ..., kotlin/Int = ..., kotlin/Int = ...): androidx.paging/PagingSource.LoadResult.Page<#A2, #B2> // androidx.paging/PagingSource.LoadResult.Page.copy|copy(kotlin.collections.List<1:1>;1:0?;1:0?;kotlin.Int;kotlin.Int){}[0]
-            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingSource.LoadResult.Page.equals|equals(kotlin.Any?){}[0]
-            final fun hashCode(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.hashCode|hashCode(){}[0]
-            final fun iterator(): kotlin.collections/Iterator<#B2> // androidx.paging/PagingSource.LoadResult.Page.iterator|iterator(){}[0]
-            final fun toString(): kotlin/String // androidx.paging/PagingSource.LoadResult.Page.toString|toString(){}[0]
-            final object Companion { // androidx.paging/PagingSource.LoadResult.Page.Companion|null[0]
-                final const val COUNT_UNDEFINED // androidx.paging/PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED|{}COUNT_UNDEFINED[0]
-                    final fun <get-COUNT_UNDEFINED>(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED.<get-COUNT_UNDEFINED>|<get-COUNT_UNDEFINED>(){}[0]
-            }
+
             final val data // androidx.paging/PagingSource.LoadResult.Page.data|{}data[0]
                 final fun <get-data>(): kotlin.collections/List<#B2> // androidx.paging/PagingSource.LoadResult.Page.data.<get-data>|<get-data>(){}[0]
             final val itemsAfter // androidx.paging/PagingSource.LoadResult.Page.itemsAfter|{}itemsAfter[0]
@@ -62,60 +105,102 @@ abstract class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingSource { /
                 final fun <get-nextKey>(): #A2? // androidx.paging/PagingSource.LoadResult.Page.nextKey.<get-nextKey>|<get-nextKey>(){}[0]
             final val prevKey // androidx.paging/PagingSource.LoadResult.Page.prevKey|{}prevKey[0]
                 final fun <get-prevKey>(): #A2? // androidx.paging/PagingSource.LoadResult.Page.prevKey.<get-prevKey>|<get-prevKey>(){}[0]
+
+            final fun component1(): kotlin.collections/List<#B2> // androidx.paging/PagingSource.LoadResult.Page.component1|component1(){}[0]
+            final fun component2(): #A2? // androidx.paging/PagingSource.LoadResult.Page.component2|component2(){}[0]
+            final fun component3(): #A2? // androidx.paging/PagingSource.LoadResult.Page.component3|component3(){}[0]
+            final fun component4(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.component4|component4(){}[0]
+            final fun component5(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.component5|component5(){}[0]
+            final fun copy(kotlin.collections/List<#B2> = ..., #A2? = ..., #A2? = ..., kotlin/Int = ..., kotlin/Int = ...): androidx.paging/PagingSource.LoadResult.Page<#A2, #B2> // androidx.paging/PagingSource.LoadResult.Page.copy|copy(kotlin.collections.List<1:1>;1:0?;1:0?;kotlin.Int;kotlin.Int){}[0]
+            final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingSource.LoadResult.Page.equals|equals(kotlin.Any?){}[0]
+            final fun hashCode(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.hashCode|hashCode(){}[0]
+            final fun iterator(): kotlin.collections/Iterator<#B2> // androidx.paging/PagingSource.LoadResult.Page.iterator|iterator(){}[0]
+            final fun toString(): kotlin/String // androidx.paging/PagingSource.LoadResult.Page.toString|toString(){}[0]
+
+            final object Companion { // androidx.paging/PagingSource.LoadResult.Page.Companion|null[0]
+                final const val COUNT_UNDEFINED // androidx.paging/PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED|{}COUNT_UNDEFINED[0]
+                    final fun <get-COUNT_UNDEFINED>(): kotlin/Int // androidx.paging/PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED.<get-COUNT_UNDEFINED>|<get-COUNT_UNDEFINED>(){}[0]
+            }
         }
     }
+
     sealed class <#A1: kotlin/Any> LoadParams { // androidx.paging/PagingSource.LoadParams|null[0]
+        constructor <init>(kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.<init>|<init>(kotlin.Int;kotlin.Boolean){}[0]
+
         abstract val key // androidx.paging/PagingSource.LoadParams.key|{}key[0]
             abstract fun <get-key>(): #A1? // androidx.paging/PagingSource.LoadParams.key.<get-key>|<get-key>(){}[0]
-        constructor <init>(kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.<init>|<init>(kotlin.Int;kotlin.Boolean){}[0]
-        final class <#A2: kotlin/Any> Append : androidx.paging/PagingSource.LoadParams<#A2> { // androidx.paging/PagingSource.LoadParams.Append|null[0]
-            constructor <init>(#A2, kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.Append.<init>|<init>(1:0;kotlin.Int;kotlin.Boolean){}[0]
-            final val key // androidx.paging/PagingSource.LoadParams.Append.key|{}key[0]
-                final fun <get-key>(): #A2 // androidx.paging/PagingSource.LoadParams.Append.key.<get-key>|<get-key>(){}[0]
-        }
-        final class <#A2: kotlin/Any> Prepend : androidx.paging/PagingSource.LoadParams<#A2> { // androidx.paging/PagingSource.LoadParams.Prepend|null[0]
-            constructor <init>(#A2, kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.Prepend.<init>|<init>(1:0;kotlin.Int;kotlin.Boolean){}[0]
-            final val key // androidx.paging/PagingSource.LoadParams.Prepend.key|{}key[0]
-                final fun <get-key>(): #A2 // androidx.paging/PagingSource.LoadParams.Prepend.key.<get-key>|<get-key>(){}[0]
-        }
-        final class <#A2: kotlin/Any> Refresh : androidx.paging/PagingSource.LoadParams<#A2> { // androidx.paging/PagingSource.LoadParams.Refresh|null[0]
-            constructor <init>(#A2?, kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.Refresh.<init>|<init>(1:0?;kotlin.Int;kotlin.Boolean){}[0]
-            final val key // androidx.paging/PagingSource.LoadParams.Refresh.key|{}key[0]
-                final fun <get-key>(): #A2? // androidx.paging/PagingSource.LoadParams.Refresh.key.<get-key>|<get-key>(){}[0]
-        }
         final val loadSize // androidx.paging/PagingSource.LoadParams.loadSize|{}loadSize[0]
             final fun <get-loadSize>(): kotlin/Int // androidx.paging/PagingSource.LoadParams.loadSize.<get-loadSize>|<get-loadSize>(){}[0]
         final val placeholdersEnabled // androidx.paging/PagingSource.LoadParams.placeholdersEnabled|{}placeholdersEnabled[0]
             final fun <get-placeholdersEnabled>(): kotlin/Boolean // androidx.paging/PagingSource.LoadParams.placeholdersEnabled.<get-placeholdersEnabled>|<get-placeholdersEnabled>(){}[0]
+
+        final class <#A2: kotlin/Any> Append : androidx.paging/PagingSource.LoadParams<#A2> { // androidx.paging/PagingSource.LoadParams.Append|null[0]
+            constructor <init>(#A2, kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.Append.<init>|<init>(1:0;kotlin.Int;kotlin.Boolean){}[0]
+
+            final val key // androidx.paging/PagingSource.LoadParams.Append.key|{}key[0]
+                final fun <get-key>(): #A2 // androidx.paging/PagingSource.LoadParams.Append.key.<get-key>|<get-key>(){}[0]
+        }
+
+        final class <#A2: kotlin/Any> Prepend : androidx.paging/PagingSource.LoadParams<#A2> { // androidx.paging/PagingSource.LoadParams.Prepend|null[0]
+            constructor <init>(#A2, kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.Prepend.<init>|<init>(1:0;kotlin.Int;kotlin.Boolean){}[0]
+
+            final val key // androidx.paging/PagingSource.LoadParams.Prepend.key|{}key[0]
+                final fun <get-key>(): #A2 // androidx.paging/PagingSource.LoadParams.Prepend.key.<get-key>|<get-key>(){}[0]
+        }
+
+        final class <#A2: kotlin/Any> Refresh : androidx.paging/PagingSource.LoadParams<#A2> { // androidx.paging/PagingSource.LoadParams.Refresh|null[0]
+            constructor <init>(#A2?, kotlin/Int, kotlin/Boolean) // androidx.paging/PagingSource.LoadParams.Refresh.<init>|<init>(1:0?;kotlin.Int;kotlin.Boolean){}[0]
+
+            final val key // androidx.paging/PagingSource.LoadParams.Refresh.key|{}key[0]
+                final fun <get-key>(): #A2? // androidx.paging/PagingSource.LoadParams.Refresh.key.<get-key>|<get-key>(){}[0]
+        }
     }
 }
+
 abstract class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/RemoteMediator { // androidx.paging/RemoteMediator|null[0]
-    abstract suspend fun load(androidx.paging/LoadType, androidx.paging/PagingState<#A, #B>): androidx.paging/RemoteMediator.MediatorResult // androidx.paging/RemoteMediator.load|load(androidx.paging.LoadType;androidx.paging.PagingState<1:0,1:1>){}[0]
     constructor <init>() // androidx.paging/RemoteMediator.<init>|<init>(){}[0]
+
+    abstract suspend fun load(androidx.paging/LoadType, androidx.paging/PagingState<#A, #B>): androidx.paging/RemoteMediator.MediatorResult // androidx.paging/RemoteMediator.load|load(androidx.paging.LoadType;androidx.paging.PagingState<1:0,1:1>){}[0]
+    open suspend fun initialize(): androidx.paging/RemoteMediator.InitializeAction // androidx.paging/RemoteMediator.initialize|initialize(){}[0]
+
     final enum class InitializeAction : kotlin/Enum<androidx.paging/RemoteMediator.InitializeAction> { // androidx.paging/RemoteMediator.InitializeAction|null[0]
         enum entry LAUNCH_INITIAL_REFRESH // androidx.paging/RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH|null[0]
         enum entry SKIP_INITIAL_REFRESH // androidx.paging/RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH|null[0]
+
         final fun valueOf(kotlin/String): androidx.paging/RemoteMediator.InitializeAction // androidx.paging/RemoteMediator.InitializeAction.valueOf|valueOf#static(kotlin.String){}[0]
         final fun values(): kotlin/Array<androidx.paging/RemoteMediator.InitializeAction> // androidx.paging/RemoteMediator.InitializeAction.values|values#static(){}[0]
     }
-    open suspend fun initialize(): androidx.paging/RemoteMediator.InitializeAction // androidx.paging/RemoteMediator.initialize|initialize(){}[0]
+
     sealed class MediatorResult { // androidx.paging/RemoteMediator.MediatorResult|null[0]
         constructor <init>() // androidx.paging/RemoteMediator.MediatorResult.<init>|<init>(){}[0]
+
         final class Error : androidx.paging/RemoteMediator.MediatorResult { // androidx.paging/RemoteMediator.MediatorResult.Error|null[0]
             constructor <init>(kotlin/Throwable) // androidx.paging/RemoteMediator.MediatorResult.Error.<init>|<init>(kotlin.Throwable){}[0]
+
             final val throwable // androidx.paging/RemoteMediator.MediatorResult.Error.throwable|{}throwable[0]
                 final fun <get-throwable>(): kotlin/Throwable // androidx.paging/RemoteMediator.MediatorResult.Error.throwable.<get-throwable>|<get-throwable>(){}[0]
         }
+
         final class Success : androidx.paging/RemoteMediator.MediatorResult { // androidx.paging/RemoteMediator.MediatorResult.Success|null[0]
             constructor <init>(kotlin/Boolean) // androidx.paging/RemoteMediator.MediatorResult.Success.<init>|<init>(kotlin.Boolean){}[0]
+
             final val endOfPaginationReached // androidx.paging/RemoteMediator.MediatorResult.Success.endOfPaginationReached|{}endOfPaginationReached[0]
                 final fun <get-endOfPaginationReached>(): kotlin/Boolean // androidx.paging/RemoteMediator.MediatorResult.Success.endOfPaginationReached.<get-endOfPaginationReached>|<get-endOfPaginationReached>(){}[0]
         }
     }
 }
+
 abstract class <#A: kotlin/Any> androidx.paging/PagingDataPresenter { // androidx.paging/PagingDataPresenter|null[0]
-    abstract suspend fun presentPagingDataEvent(androidx.paging/PagingDataEvent<#A>) // androidx.paging/PagingDataPresenter.presentPagingDataEvent|presentPagingDataEvent(androidx.paging.PagingDataEvent<1:0>){}[0]
     constructor <init>(kotlin.coroutines/CoroutineContext = ..., androidx.paging/PagingData<#A>? = ...) // androidx.paging/PagingDataPresenter.<init>|<init>(kotlin.coroutines.CoroutineContext;androidx.paging.PagingData<1:0>?){}[0]
+
+    final val loadStateFlow // androidx.paging/PagingDataPresenter.loadStateFlow|{}loadStateFlow[0]
+        final fun <get-loadStateFlow>(): kotlinx.coroutines.flow/StateFlow<androidx.paging/CombinedLoadStates?> // androidx.paging/PagingDataPresenter.loadStateFlow.<get-loadStateFlow>|<get-loadStateFlow>(){}[0]
+    final val onPagesUpdatedFlow // androidx.paging/PagingDataPresenter.onPagesUpdatedFlow|{}onPagesUpdatedFlow[0]
+        final fun <get-onPagesUpdatedFlow>(): kotlinx.coroutines.flow/Flow<kotlin/Unit> // androidx.paging/PagingDataPresenter.onPagesUpdatedFlow.<get-onPagesUpdatedFlow>|<get-onPagesUpdatedFlow>(){}[0]
+    final val size // androidx.paging/PagingDataPresenter.size|{}size[0]
+        final fun <get-size>(): kotlin/Int // androidx.paging/PagingDataPresenter.size.<get-size>|<get-size>(){}[0]
+
+    abstract suspend fun presentPagingDataEvent(androidx.paging/PagingDataEvent<#A>) // androidx.paging/PagingDataPresenter.presentPagingDataEvent|presentPagingDataEvent(androidx.paging.PagingDataEvent<1:0>){}[0]
     final fun addLoadStateListener(kotlin/Function1<androidx.paging/CombinedLoadStates, kotlin/Unit>) // androidx.paging/PagingDataPresenter.addLoadStateListener|addLoadStateListener(kotlin.Function1<androidx.paging.CombinedLoadStates,kotlin.Unit>){}[0]
     final fun addOnPagesUpdatedListener(kotlin/Function0<kotlin/Unit>) // androidx.paging/PagingDataPresenter.addOnPagesUpdatedListener|addOnPagesUpdatedListener(kotlin.Function0<kotlin.Unit>){}[0]
     final fun get(kotlin/Int): #A? // androidx.paging/PagingDataPresenter.get|get(kotlin.Int){}[0]
@@ -126,40 +211,33 @@ abstract class <#A: kotlin/Any> androidx.paging/PagingDataPresenter { // android
     final fun retry() // androidx.paging/PagingDataPresenter.retry|retry(){}[0]
     final fun snapshot(): androidx.paging/ItemSnapshotList<#A> // androidx.paging/PagingDataPresenter.snapshot|snapshot(){}[0]
     final suspend fun collectFrom(androidx.paging/PagingData<#A>) // androidx.paging/PagingDataPresenter.collectFrom|collectFrom(androidx.paging.PagingData<1:0>){}[0]
-    final val loadStateFlow // androidx.paging/PagingDataPresenter.loadStateFlow|{}loadStateFlow[0]
-        final fun <get-loadStateFlow>(): kotlinx.coroutines.flow/StateFlow<androidx.paging/CombinedLoadStates?> // androidx.paging/PagingDataPresenter.loadStateFlow.<get-loadStateFlow>|<get-loadStateFlow>(){}[0]
-    final val onPagesUpdatedFlow // androidx.paging/PagingDataPresenter.onPagesUpdatedFlow|{}onPagesUpdatedFlow[0]
-        final fun <get-onPagesUpdatedFlow>(): kotlinx.coroutines.flow/Flow<kotlin/Unit> // androidx.paging/PagingDataPresenter.onPagesUpdatedFlow.<get-onPagesUpdatedFlow>|<get-onPagesUpdatedFlow>(){}[0]
-    final val size // androidx.paging/PagingDataPresenter.size|{}size[0]
-        final fun <get-size>(): kotlin/Int // androidx.paging/PagingDataPresenter.size.<get-size>|<get-size>(){}[0]
 }
-abstract fun interface <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingSourceFactory : kotlin/Function0<androidx.paging/PagingSource<#A, #B>> { // androidx.paging/PagingSourceFactory|null[0]
-    abstract fun invoke(): androidx.paging/PagingSource<#A, #B> // androidx.paging/PagingSourceFactory.invoke|invoke(){}[0]
-}
-abstract interface <#A: kotlin/Any?> androidx.paging/PlaceholderPaddedList { // androidx.paging/PlaceholderPaddedList|null[0]
-    abstract fun getItem(kotlin/Int): #A // androidx.paging/PlaceholderPaddedList.getItem|getItem(kotlin.Int){}[0]
-    abstract val dataCount // androidx.paging/PlaceholderPaddedList.dataCount|{}dataCount[0]
-        abstract fun <get-dataCount>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.dataCount.<get-dataCount>|<get-dataCount>(){}[0]
-    abstract val placeholdersAfter // androidx.paging/PlaceholderPaddedList.placeholdersAfter|{}placeholdersAfter[0]
-        abstract fun <get-placeholdersAfter>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.placeholdersAfter.<get-placeholdersAfter>|<get-placeholdersAfter>(){}[0]
-    abstract val placeholdersBefore // androidx.paging/PlaceholderPaddedList.placeholdersBefore|{}placeholdersBefore[0]
-        abstract fun <get-placeholdersBefore>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.placeholdersBefore.<get-placeholdersBefore>|<get-placeholdersBefore>(){}[0]
-    abstract val size // androidx.paging/PlaceholderPaddedList.size|{}size[0]
-        abstract fun <get-size>(): kotlin/Int // androidx.paging/PlaceholderPaddedList.size.<get-size>|<get-size>(){}[0]
-}
+
 final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/InvalidatingPagingSourceFactory : androidx.paging/PagingSourceFactory<#A, #B> { // androidx.paging/InvalidatingPagingSourceFactory|null[0]
     constructor <init>(kotlin/Function0<androidx.paging/PagingSource<#A, #B>>) // androidx.paging/InvalidatingPagingSourceFactory.<init>|<init>(kotlin.Function0<androidx.paging.PagingSource<1:0,1:1>>){}[0]
+
     final fun invalidate() // androidx.paging/InvalidatingPagingSourceFactory.invalidate|invalidate(){}[0]
     final fun invoke(): androidx.paging/PagingSource<#A, #B> // androidx.paging/InvalidatingPagingSourceFactory.invoke|invoke(){}[0]
 }
+
 final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/Pager { // androidx.paging/Pager|null[0]
     constructor <init>(androidx.paging/PagingConfig, #A? = ..., androidx.paging/RemoteMediator<#A, #B>?, kotlin/Function0<androidx.paging/PagingSource<#A, #B>>) // androidx.paging/Pager.<init>|<init>(androidx.paging.PagingConfig;1:0?;androidx.paging.RemoteMediator<1:0,1:1>?;kotlin.Function0<androidx.paging.PagingSource<1:0,1:1>>){}[0]
     constructor <init>(androidx.paging/PagingConfig, #A? = ..., kotlin/Function0<androidx.paging/PagingSource<#A, #B>>) // androidx.paging/Pager.<init>|<init>(androidx.paging.PagingConfig;1:0?;kotlin.Function0<androidx.paging.PagingSource<1:0,1:1>>){}[0]
+
     final val flow // androidx.paging/Pager.flow|{}flow[0]
         final fun <get-flow>(): kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#B>> // androidx.paging/Pager.flow.<get-flow>|<get-flow>(){}[0]
 }
+
 final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingState { // androidx.paging/PagingState|null[0]
     constructor <init>(kotlin.collections/List<androidx.paging/PagingSource.LoadResult.Page<#A, #B>>, kotlin/Int?, androidx.paging/PagingConfig, kotlin/Int) // androidx.paging/PagingState.<init>|<init>(kotlin.collections.List<androidx.paging.PagingSource.LoadResult.Page<1:0,1:1>>;kotlin.Int?;androidx.paging.PagingConfig;kotlin.Int){}[0]
+
+    final val anchorPosition // androidx.paging/PagingState.anchorPosition|{}anchorPosition[0]
+        final fun <get-anchorPosition>(): kotlin/Int? // androidx.paging/PagingState.anchorPosition.<get-anchorPosition>|<get-anchorPosition>(){}[0]
+    final val config // androidx.paging/PagingState.config|{}config[0]
+        final fun <get-config>(): androidx.paging/PagingConfig // androidx.paging/PagingState.config.<get-config>|<get-config>(){}[0]
+    final val pages // androidx.paging/PagingState.pages|{}pages[0]
+        final fun <get-pages>(): kotlin.collections/List<androidx.paging/PagingSource.LoadResult.Page<#A, #B>> // androidx.paging/PagingState.pages.<get-pages>|<get-pages>(){}[0]
+
     final fun closestItemToPosition(kotlin/Int): #B? // androidx.paging/PagingState.closestItemToPosition|closestItemToPosition(kotlin.Int){}[0]
     final fun closestPageToPosition(kotlin/Int): androidx.paging/PagingSource.LoadResult.Page<#A, #B>? // androidx.paging/PagingState.closestPageToPosition|closestPageToPosition(kotlin.Int){}[0]
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingState.equals|equals(kotlin.Any?){}[0]
@@ -168,13 +246,8 @@ final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging/PagingState { // an
     final fun isEmpty(): kotlin/Boolean // androidx.paging/PagingState.isEmpty|isEmpty(){}[0]
     final fun lastItemOrNull(): #B? // androidx.paging/PagingState.lastItemOrNull|lastItemOrNull(){}[0]
     final fun toString(): kotlin/String // androidx.paging/PagingState.toString|toString(){}[0]
-    final val anchorPosition // androidx.paging/PagingState.anchorPosition|{}anchorPosition[0]
-        final fun <get-anchorPosition>(): kotlin/Int? // androidx.paging/PagingState.anchorPosition.<get-anchorPosition>|<get-anchorPosition>(){}[0]
-    final val config // androidx.paging/PagingState.config|{}config[0]
-        final fun <get-config>(): androidx.paging/PagingConfig // androidx.paging/PagingState.config.<get-config>|<get-config>(){}[0]
-    final val pages // androidx.paging/PagingState.pages|{}pages[0]
-        final fun <get-pages>(): kotlin.collections/List<androidx.paging/PagingSource.LoadResult.Page<#A, #B>> // androidx.paging/PagingState.pages.<get-pages>|<get-pages>(){}[0]
 }
+
 final class <#A: kotlin/Any> androidx.paging/PagingData { // androidx.paging/PagingData|null[0]
     final object Companion { // androidx.paging/PagingData.Companion|null[0]
         final fun <#A2: kotlin/Any> empty(): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.empty|empty(){0§<kotlin.Any>}[0]
@@ -183,9 +256,10 @@ final class <#A: kotlin/Any> androidx.paging/PagingData { // androidx.paging/Pag
         final fun <#A2: kotlin/Any> from(kotlin.collections/List<#A2>, androidx.paging/LoadStates, androidx.paging/LoadStates? = ...): androidx.paging/PagingData<#A2> // androidx.paging/PagingData.Companion.from|from(kotlin.collections.List<0:0>;androidx.paging.LoadStates;androidx.paging.LoadStates?){0§<kotlin.Any>}[0]
     }
 }
+
 final class <#A: kotlin/Any?> androidx.paging/ItemSnapshotList : kotlin.collections/AbstractList<#A?> { // androidx.paging/ItemSnapshotList|null[0]
     constructor <init>(kotlin/Int, kotlin/Int, kotlin.collections/List<#A>) // androidx.paging/ItemSnapshotList.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.collections.List<1:0>){}[0]
-    final fun get(kotlin/Int): #A? // androidx.paging/ItemSnapshotList.get|get(kotlin.Int){}[0]
+
     final val items // androidx.paging/ItemSnapshotList.items|{}items[0]
         final fun <get-items>(): kotlin.collections/List<#A> // androidx.paging/ItemSnapshotList.items.<get-items>|<get-items>(){}[0]
     final val placeholdersAfter // androidx.paging/ItemSnapshotList.placeholdersAfter|{}placeholdersAfter[0]
@@ -194,12 +268,13 @@ final class <#A: kotlin/Any?> androidx.paging/ItemSnapshotList : kotlin.collecti
         final fun <get-placeholdersBefore>(): kotlin/Int // androidx.paging/ItemSnapshotList.placeholdersBefore.<get-placeholdersBefore>|<get-placeholdersBefore>(){}[0]
     final val size // androidx.paging/ItemSnapshotList.size|{}size[0]
         final fun <get-size>(): kotlin/Int // androidx.paging/ItemSnapshotList.size.<get-size>|<get-size>(){}[0]
+
+    final fun get(kotlin/Int): #A? // androidx.paging/ItemSnapshotList.get|get(kotlin.Int){}[0]
 }
+
 final class androidx.paging/CombinedLoadStates { // androidx.paging/CombinedLoadStates|null[0]
     constructor <init>(androidx.paging/LoadState, androidx.paging/LoadState, androidx.paging/LoadState, androidx.paging/LoadStates, androidx.paging/LoadStates? = ...) // androidx.paging/CombinedLoadStates.<init>|<init>(androidx.paging.LoadState;androidx.paging.LoadState;androidx.paging.LoadState;androidx.paging.LoadStates;androidx.paging.LoadStates?){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/CombinedLoadStates.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.paging/CombinedLoadStates.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.paging/CombinedLoadStates.toString|toString(){}[0]
+
     final val append // androidx.paging/CombinedLoadStates.append|{}append[0]
         final fun <get-append>(): androidx.paging/LoadState // androidx.paging/CombinedLoadStates.append.<get-append>|<get-append>(){}[0]
     final val hasError // androidx.paging/CombinedLoadStates.hasError|{}hasError[0]
@@ -214,17 +289,15 @@ final class androidx.paging/CombinedLoadStates { // androidx.paging/CombinedLoad
         final fun <get-refresh>(): androidx.paging/LoadState // androidx.paging/CombinedLoadStates.refresh.<get-refresh>|<get-refresh>(){}[0]
     final val source // androidx.paging/CombinedLoadStates.source|{}source[0]
         final fun <get-source>(): androidx.paging/LoadStates // androidx.paging/CombinedLoadStates.source.<get-source>|<get-source>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/CombinedLoadStates.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.paging/CombinedLoadStates.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.paging/CombinedLoadStates.toString|toString(){}[0]
 }
+
 final class androidx.paging/LoadStates { // androidx.paging/LoadStates|null[0]
     constructor <init>(androidx.paging/LoadState, androidx.paging/LoadState, androidx.paging/LoadState) // androidx.paging/LoadStates.<init>|<init>(androidx.paging.LoadState;androidx.paging.LoadState;androidx.paging.LoadState){}[0]
-    final fun component1(): androidx.paging/LoadState // androidx.paging/LoadStates.component1|component1(){}[0]
-    final fun component2(): androidx.paging/LoadState // androidx.paging/LoadStates.component2|component2(){}[0]
-    final fun component3(): androidx.paging/LoadState // androidx.paging/LoadStates.component3|component3(){}[0]
-    final fun copy(androidx.paging/LoadState = ..., androidx.paging/LoadState = ..., androidx.paging/LoadState = ...): androidx.paging/LoadStates // androidx.paging/LoadStates.copy|copy(androidx.paging.LoadState;androidx.paging.LoadState;androidx.paging.LoadState){}[0]
-    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/LoadStates.equals|equals(kotlin.Any?){}[0]
-    final fun hashCode(): kotlin/Int // androidx.paging/LoadStates.hashCode|hashCode(){}[0]
-    final fun toString(): kotlin/String // androidx.paging/LoadStates.toString|toString(){}[0]
-    final inline fun forEach(kotlin/Function2<androidx.paging/LoadType, androidx.paging/LoadState, kotlin/Unit>) // androidx.paging/LoadStates.forEach|forEach(kotlin.Function2<androidx.paging.LoadType,androidx.paging.LoadState,kotlin.Unit>){}[0]
+
     final val append // androidx.paging/LoadStates.append|{}append[0]
         final fun <get-append>(): androidx.paging/LoadState // androidx.paging/LoadStates.append.<get-append>|<get-append>(){}[0]
     final val hasError // androidx.paging/LoadStates.hasError|{}hasError[0]
@@ -235,13 +308,20 @@ final class androidx.paging/LoadStates { // androidx.paging/LoadStates|null[0]
         final fun <get-prepend>(): androidx.paging/LoadState // androidx.paging/LoadStates.prepend.<get-prepend>|<get-prepend>(){}[0]
     final val refresh // androidx.paging/LoadStates.refresh|{}refresh[0]
         final fun <get-refresh>(): androidx.paging/LoadState // androidx.paging/LoadStates.refresh.<get-refresh>|<get-refresh>(){}[0]
+
+    final fun component1(): androidx.paging/LoadState // androidx.paging/LoadStates.component1|component1(){}[0]
+    final fun component2(): androidx.paging/LoadState // androidx.paging/LoadStates.component2|component2(){}[0]
+    final fun component3(): androidx.paging/LoadState // androidx.paging/LoadStates.component3|component3(){}[0]
+    final fun copy(androidx.paging/LoadState = ..., androidx.paging/LoadState = ..., androidx.paging/LoadState = ...): androidx.paging/LoadStates // androidx.paging/LoadStates.copy|copy(androidx.paging.LoadState;androidx.paging.LoadState;androidx.paging.LoadState){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/LoadStates.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.paging/LoadStates.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.paging/LoadStates.toString|toString(){}[0]
+    final inline fun forEach(kotlin/Function2<androidx.paging/LoadType, androidx.paging/LoadState, kotlin/Unit>) // androidx.paging/LoadStates.forEach|forEach(kotlin.Function2<androidx.paging.LoadType,androidx.paging.LoadState,kotlin.Unit>){}[0]
 }
+
 final class androidx.paging/PagingConfig { // androidx.paging/PagingConfig|null[0]
     constructor <init>(kotlin/Int, kotlin/Int = ..., kotlin/Boolean = ..., kotlin/Int = ..., kotlin/Int = ..., kotlin/Int = ...) // androidx.paging/PagingConfig.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Boolean;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
-    final object Companion { // androidx.paging/PagingConfig.Companion|null[0]
-        final const val MAX_SIZE_UNBOUNDED // androidx.paging/PagingConfig.Companion.MAX_SIZE_UNBOUNDED|{}MAX_SIZE_UNBOUNDED[0]
-            final fun <get-MAX_SIZE_UNBOUNDED>(): kotlin/Int // androidx.paging/PagingConfig.Companion.MAX_SIZE_UNBOUNDED.<get-MAX_SIZE_UNBOUNDED>|<get-MAX_SIZE_UNBOUNDED>(){}[0]
-    }
+
     final val enablePlaceholders // androidx.paging/PagingConfig.enablePlaceholders|{}enablePlaceholders[0]
         final fun <get-enablePlaceholders>(): kotlin/Boolean // androidx.paging/PagingConfig.enablePlaceholders.<get-enablePlaceholders>|<get-enablePlaceholders>(){}[0]
     final val initialLoadSize // androidx.paging/PagingConfig.initialLoadSize|{}initialLoadSize[0]
@@ -254,56 +334,19 @@ final class androidx.paging/PagingConfig { // androidx.paging/PagingConfig|null[
         final fun <get-pageSize>(): kotlin/Int // androidx.paging/PagingConfig.pageSize.<get-pageSize>|<get-pageSize>(){}[0]
     final val prefetchDistance // androidx.paging/PagingConfig.prefetchDistance|{}prefetchDistance[0]
         final fun <get-prefetchDistance>(): kotlin/Int // androidx.paging/PagingConfig.prefetchDistance.<get-prefetchDistance>|<get-prefetchDistance>(){}[0]
+
+    final object Companion { // androidx.paging/PagingConfig.Companion|null[0]
+        final const val MAX_SIZE_UNBOUNDED // androidx.paging/PagingConfig.Companion.MAX_SIZE_UNBOUNDED|{}MAX_SIZE_UNBOUNDED[0]
+            final fun <get-MAX_SIZE_UNBOUNDED>(): kotlin/Int // androidx.paging/PagingConfig.Companion.MAX_SIZE_UNBOUNDED.<get-MAX_SIZE_UNBOUNDED>|<get-MAX_SIZE_UNBOUNDED>(){}[0]
+    }
 }
-final const val androidx.paging/DEBUG // androidx.paging/DEBUG|{}DEBUG[0]
-    final fun <get-DEBUG>(): kotlin/Int // androidx.paging/DEBUG.<get-DEBUG>|<get-DEBUG>(){}[0]
-final const val androidx.paging/LOG_TAG // androidx.paging/LOG_TAG|{}LOG_TAG[0]
-    final fun <get-LOG_TAG>(): kotlin/String // androidx.paging/LOG_TAG.<get-LOG_TAG>|<get-LOG_TAG>(){}[0]
-final const val androidx.paging/VERBOSE // androidx.paging/VERBOSE|{}VERBOSE[0]
-    final fun <get-VERBOSE>(): kotlin/Int // androidx.paging/VERBOSE.<get-VERBOSE>|<get-VERBOSE>(){}[0]
-final enum class androidx.paging/DiffingChangePayload : kotlin/Enum<androidx.paging/DiffingChangePayload> { // androidx.paging/DiffingChangePayload|null[0]
-    enum entry ITEM_TO_PLACEHOLDER // androidx.paging/DiffingChangePayload.ITEM_TO_PLACEHOLDER|null[0]
-    enum entry PLACEHOLDER_POSITION_CHANGE // androidx.paging/DiffingChangePayload.PLACEHOLDER_POSITION_CHANGE|null[0]
-    enum entry PLACEHOLDER_TO_ITEM // androidx.paging/DiffingChangePayload.PLACEHOLDER_TO_ITEM|null[0]
-    final fun valueOf(kotlin/String): androidx.paging/DiffingChangePayload // androidx.paging/DiffingChangePayload.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<androidx.paging/DiffingChangePayload> // androidx.paging/DiffingChangePayload.values|values#static(){}[0]
-}
-final enum class androidx.paging/LoadType : kotlin/Enum<androidx.paging/LoadType> { // androidx.paging/LoadType|null[0]
-    enum entry APPEND // androidx.paging/LoadType.APPEND|null[0]
-    enum entry PREPEND // androidx.paging/LoadType.PREPEND|null[0]
-    enum entry REFRESH // androidx.paging/LoadType.REFRESH|null[0]
-    final fun valueOf(kotlin/String): androidx.paging/LoadType // androidx.paging/LoadType.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<androidx.paging/LoadType> // androidx.paging/LoadType.values|values#static(){}[0]
-}
-final enum class androidx.paging/TerminalSeparatorType : kotlin/Enum<androidx.paging/TerminalSeparatorType> { // androidx.paging/TerminalSeparatorType|null[0]
-    enum entry FULLY_COMPLETE // androidx.paging/TerminalSeparatorType.FULLY_COMPLETE|null[0]
-    enum entry SOURCE_COMPLETE // androidx.paging/TerminalSeparatorType.SOURCE_COMPLETE|null[0]
-    final fun valueOf(kotlin/String): androidx.paging/TerminalSeparatorType // androidx.paging/TerminalSeparatorType.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<androidx.paging/TerminalSeparatorType> // androidx.paging/TerminalSeparatorType.values|values#static(){}[0]
-}
-final fun <#A: #B, #B: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/insertSeparators(androidx.paging/TerminalSeparatorType = ..., kotlin.coroutines/SuspendFunction2<#A?, #A?, #B?>): androidx.paging/PagingData<#B> // androidx.paging/insertSeparators|insertSeparators@androidx.paging.PagingData<0:0>(androidx.paging.TerminalSeparatorType;kotlin.coroutines.SuspendFunction2<0:0?,0:0?,0:1?>){0§<0:1>;1§<kotlin.Any>}[0]
-final fun <#A: kotlin/Any, #B: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/flatMap(kotlin.coroutines/SuspendFunction1<#A, kotlin.collections/Iterable<#B>>): androidx.paging/PagingData<#B> // androidx.paging/flatMap|flatMap@androidx.paging.PagingData<0:0>(kotlin.coroutines.SuspendFunction1<0:0,kotlin.collections.Iterable<0:1>>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
-final fun <#A: kotlin/Any, #B: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/map(kotlin.coroutines/SuspendFunction1<#A, #B>): androidx.paging/PagingData<#B> // androidx.paging/map|map@androidx.paging.PagingData<0:0>(kotlin.coroutines.SuspendFunction1<0:0,0:1>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
-final fun <#A: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/filter(kotlin.coroutines/SuspendFunction1<#A, kotlin/Boolean>): androidx.paging/PagingData<#A> // androidx.paging/filter|filter@androidx.paging.PagingData<0:0>(kotlin.coroutines.SuspendFunction1<0:0,kotlin.Boolean>){0§<kotlin.Any>}[0]
-final fun <#A: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/insertFooterItem(androidx.paging/TerminalSeparatorType = ..., #A): androidx.paging/PagingData<#A> // androidx.paging/insertFooterItem|insertFooterItem@androidx.paging.PagingData<0:0>(androidx.paging.TerminalSeparatorType;0:0){0§<kotlin.Any>}[0]
-final fun <#A: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/insertHeaderItem(androidx.paging/TerminalSeparatorType = ..., #A): androidx.paging/PagingData<#A> // androidx.paging/insertHeaderItem|insertHeaderItem@androidx.paging.PagingData<0:0>(androidx.paging.TerminalSeparatorType;0:0){0§<kotlin.Any>}[0]
-final fun <#A: kotlin/Any> (kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#A>>).androidx.paging/cachedIn(kotlinx.coroutines/CoroutineScope): kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#A>> // androidx.paging/cachedIn|cachedIn@kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<0:0>>(kotlinx.coroutines.CoroutineScope){0§<kotlin.Any>}[0]
-final inline fun androidx.paging/log(kotlin/Int, kotlin/Throwable? = ..., kotlin/Function0<kotlin/String>) // androidx.paging/log|log(kotlin.Int;kotlin.Throwable?;kotlin.Function0<kotlin.String>){}[0]
-final object androidx.paging/PagingLogger { // androidx.paging/PagingLogger|null[0]
-    final fun isLoggable(kotlin/Int): kotlin/Boolean // androidx.paging/PagingLogger.isLoggable|isLoggable(kotlin.Int){}[0]
-    final fun log(kotlin/Int, kotlin/String, kotlin/Throwable? = ...) // androidx.paging/PagingLogger.log|log(kotlin.Int;kotlin.String;kotlin.Throwable?){}[0]
-}
-final suspend fun (kotlinx.coroutines.flow/Flow<androidx.paging/CombinedLoadStates>).androidx.paging/awaitNotLoading(): androidx.paging/CombinedLoadStates? // androidx.paging/awaitNotLoading|awaitNotLoading@kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates>(){}[0]
-open annotation class androidx.paging/ExperimentalPagingApi : kotlin/Annotation { // androidx.paging/ExperimentalPagingApi|null[0]
-    constructor <init>() // androidx.paging/ExperimentalPagingApi.<init>|<init>(){}[0]
-}
+
 sealed class <#A: kotlin/Any> androidx.paging/PagingDataEvent { // androidx.paging/PagingDataEvent|null[0]
     constructor <init>() // androidx.paging/PagingDataEvent.<init>|<init>(){}[0]
+
     final class <#A1: kotlin/Any> Append : androidx.paging/PagingDataEvent<#A1> { // androidx.paging/PagingDataEvent.Append|null[0]
         constructor <init>(kotlin/Int, kotlin.collections/List<#A1>, kotlin/Int, kotlin/Int) // androidx.paging/PagingDataEvent.Append.<init>|<init>(kotlin.Int;kotlin.collections.List<1:0>;kotlin.Int;kotlin.Int){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.Append.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.Append.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.Append.toString|toString(){}[0]
+
         final val inserted // androidx.paging/PagingDataEvent.Append.inserted|{}inserted[0]
             final fun <get-inserted>(): kotlin.collections/List<#A1> // androidx.paging/PagingDataEvent.Append.inserted.<get-inserted>|<get-inserted>(){}[0]
         final val newPlaceholdersAfter // androidx.paging/PagingDataEvent.Append.newPlaceholdersAfter|{}newPlaceholdersAfter[0]
@@ -312,12 +355,15 @@ sealed class <#A: kotlin/Any> androidx.paging/PagingDataEvent { // androidx.pagi
             final fun <get-oldPlaceholdersAfter>(): kotlin/Int // androidx.paging/PagingDataEvent.Append.oldPlaceholdersAfter.<get-oldPlaceholdersAfter>|<get-oldPlaceholdersAfter>(){}[0]
         final val startIndex // androidx.paging/PagingDataEvent.Append.startIndex|{}startIndex[0]
             final fun <get-startIndex>(): kotlin/Int // androidx.paging/PagingDataEvent.Append.startIndex.<get-startIndex>|<get-startIndex>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.Append.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.Append.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.Append.toString|toString(){}[0]
     }
+
     final class <#A1: kotlin/Any> DropAppend : androidx.paging/PagingDataEvent<#A1> { // androidx.paging/PagingDataEvent.DropAppend|null[0]
         constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int, kotlin/Int) // androidx.paging/PagingDataEvent.DropAppend.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int;kotlin.Int){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.DropAppend.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.DropAppend.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.DropAppend.toString|toString(){}[0]
+
         final val dropCount // androidx.paging/PagingDataEvent.DropAppend.dropCount|{}dropCount[0]
             final fun <get-dropCount>(): kotlin/Int // androidx.paging/PagingDataEvent.DropAppend.dropCount.<get-dropCount>|<get-dropCount>(){}[0]
         final val newPlaceholdersAfter // androidx.paging/PagingDataEvent.DropAppend.newPlaceholdersAfter|{}newPlaceholdersAfter[0]
@@ -326,63 +372,106 @@ sealed class <#A: kotlin/Any> androidx.paging/PagingDataEvent { // androidx.pagi
             final fun <get-oldPlaceholdersAfter>(): kotlin/Int // androidx.paging/PagingDataEvent.DropAppend.oldPlaceholdersAfter.<get-oldPlaceholdersAfter>|<get-oldPlaceholdersAfter>(){}[0]
         final val startIndex // androidx.paging/PagingDataEvent.DropAppend.startIndex|{}startIndex[0]
             final fun <get-startIndex>(): kotlin/Int // androidx.paging/PagingDataEvent.DropAppend.startIndex.<get-startIndex>|<get-startIndex>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.DropAppend.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.DropAppend.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.DropAppend.toString|toString(){}[0]
     }
+
     final class <#A1: kotlin/Any> DropPrepend : androidx.paging/PagingDataEvent<#A1> { // androidx.paging/PagingDataEvent.DropPrepend|null[0]
         constructor <init>(kotlin/Int, kotlin/Int, kotlin/Int) // androidx.paging/PagingDataEvent.DropPrepend.<init>|<init>(kotlin.Int;kotlin.Int;kotlin.Int){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.DropPrepend.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.DropPrepend.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.DropPrepend.toString|toString(){}[0]
+
         final val dropCount // androidx.paging/PagingDataEvent.DropPrepend.dropCount|{}dropCount[0]
             final fun <get-dropCount>(): kotlin/Int // androidx.paging/PagingDataEvent.DropPrepend.dropCount.<get-dropCount>|<get-dropCount>(){}[0]
         final val newPlaceholdersBefore // androidx.paging/PagingDataEvent.DropPrepend.newPlaceholdersBefore|{}newPlaceholdersBefore[0]
             final fun <get-newPlaceholdersBefore>(): kotlin/Int // androidx.paging/PagingDataEvent.DropPrepend.newPlaceholdersBefore.<get-newPlaceholdersBefore>|<get-newPlaceholdersBefore>(){}[0]
         final val oldPlaceholdersBefore // androidx.paging/PagingDataEvent.DropPrepend.oldPlaceholdersBefore|{}oldPlaceholdersBefore[0]
             final fun <get-oldPlaceholdersBefore>(): kotlin/Int // androidx.paging/PagingDataEvent.DropPrepend.oldPlaceholdersBefore.<get-oldPlaceholdersBefore>|<get-oldPlaceholdersBefore>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.DropPrepend.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.DropPrepend.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.DropPrepend.toString|toString(){}[0]
     }
+
     final class <#A1: kotlin/Any> Prepend : androidx.paging/PagingDataEvent<#A1> { // androidx.paging/PagingDataEvent.Prepend|null[0]
         constructor <init>(kotlin.collections/List<#A1>, kotlin/Int, kotlin/Int) // androidx.paging/PagingDataEvent.Prepend.<init>|<init>(kotlin.collections.List<1:0>;kotlin.Int;kotlin.Int){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.Prepend.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.Prepend.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.Prepend.toString|toString(){}[0]
+
         final val inserted // androidx.paging/PagingDataEvent.Prepend.inserted|{}inserted[0]
             final fun <get-inserted>(): kotlin.collections/List<#A1> // androidx.paging/PagingDataEvent.Prepend.inserted.<get-inserted>|<get-inserted>(){}[0]
         final val newPlaceholdersBefore // androidx.paging/PagingDataEvent.Prepend.newPlaceholdersBefore|{}newPlaceholdersBefore[0]
             final fun <get-newPlaceholdersBefore>(): kotlin/Int // androidx.paging/PagingDataEvent.Prepend.newPlaceholdersBefore.<get-newPlaceholdersBefore>|<get-newPlaceholdersBefore>(){}[0]
         final val oldPlaceholdersBefore // androidx.paging/PagingDataEvent.Prepend.oldPlaceholdersBefore|{}oldPlaceholdersBefore[0]
             final fun <get-oldPlaceholdersBefore>(): kotlin/Int // androidx.paging/PagingDataEvent.Prepend.oldPlaceholdersBefore.<get-oldPlaceholdersBefore>|<get-oldPlaceholdersBefore>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.Prepend.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.Prepend.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.Prepend.toString|toString(){}[0]
     }
+
     final class <#A1: kotlin/Any> Refresh : androidx.paging/PagingDataEvent<#A1> { // androidx.paging/PagingDataEvent.Refresh|null[0]
         constructor <init>(androidx.paging/PlaceholderPaddedList<#A1>, androidx.paging/PlaceholderPaddedList<#A1>) // androidx.paging/PagingDataEvent.Refresh.<init>|<init>(androidx.paging.PlaceholderPaddedList<1:0>;androidx.paging.PlaceholderPaddedList<1:0>){}[0]
-        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.Refresh.equals|equals(kotlin.Any?){}[0]
-        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.Refresh.hashCode|hashCode(){}[0]
-        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.Refresh.toString|toString(){}[0]
+
         final val newList // androidx.paging/PagingDataEvent.Refresh.newList|{}newList[0]
             final fun <get-newList>(): androidx.paging/PlaceholderPaddedList<#A1> // androidx.paging/PagingDataEvent.Refresh.newList.<get-newList>|<get-newList>(){}[0]
         final val previousList // androidx.paging/PagingDataEvent.Refresh.previousList|{}previousList[0]
             final fun <get-previousList>(): androidx.paging/PlaceholderPaddedList<#A1> // androidx.paging/PagingDataEvent.Refresh.previousList.<get-previousList>|<get-previousList>(){}[0]
+
+        final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/PagingDataEvent.Refresh.equals|equals(kotlin.Any?){}[0]
+        final fun hashCode(): kotlin/Int // androidx.paging/PagingDataEvent.Refresh.hashCode|hashCode(){}[0]
+        final fun toString(): kotlin/String // androidx.paging/PagingDataEvent.Refresh.toString|toString(){}[0]
     }
 }
+
 sealed class androidx.paging/LoadState { // androidx.paging/LoadState|null[0]
     constructor <init>(kotlin/Boolean) // androidx.paging/LoadState.<init>|<init>(kotlin.Boolean){}[0]
+
+    final val endOfPaginationReached // androidx.paging/LoadState.endOfPaginationReached|{}endOfPaginationReached[0]
+        final fun <get-endOfPaginationReached>(): kotlin/Boolean // androidx.paging/LoadState.endOfPaginationReached.<get-endOfPaginationReached>|<get-endOfPaginationReached>(){}[0]
+
     final class Error : androidx.paging/LoadState { // androidx.paging/LoadState.Error|null[0]
         constructor <init>(kotlin/Throwable) // androidx.paging/LoadState.Error.<init>|<init>(kotlin.Throwable){}[0]
+
+        final val error // androidx.paging/LoadState.Error.error|{}error[0]
+            final fun <get-error>(): kotlin/Throwable // androidx.paging/LoadState.Error.error.<get-error>|<get-error>(){}[0]
+
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/LoadState.Error.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.paging/LoadState.Error.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // androidx.paging/LoadState.Error.toString|toString(){}[0]
-        final val error // androidx.paging/LoadState.Error.error|{}error[0]
-            final fun <get-error>(): kotlin/Throwable // androidx.paging/LoadState.Error.error.<get-error>|<get-error>(){}[0]
     }
+
     final class NotLoading : androidx.paging/LoadState { // androidx.paging/LoadState.NotLoading|null[0]
         constructor <init>(kotlin/Boolean) // androidx.paging/LoadState.NotLoading.<init>|<init>(kotlin.Boolean){}[0]
+
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/LoadState.NotLoading.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.paging/LoadState.NotLoading.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // androidx.paging/LoadState.NotLoading.toString|toString(){}[0]
     }
+
     final object Loading : androidx.paging/LoadState { // androidx.paging/LoadState.Loading|null[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.paging/LoadState.Loading.equals|equals(kotlin.Any?){}[0]
         final fun hashCode(): kotlin/Int // androidx.paging/LoadState.Loading.hashCode|hashCode(){}[0]
         final fun toString(): kotlin/String // androidx.paging/LoadState.Loading.toString|toString(){}[0]
     }
-    final val endOfPaginationReached // androidx.paging/LoadState.endOfPaginationReached|{}endOfPaginationReached[0]
-        final fun <get-endOfPaginationReached>(): kotlin/Boolean // androidx.paging/LoadState.endOfPaginationReached.<get-endOfPaginationReached>|<get-endOfPaginationReached>(){}[0]
 }
+
+final object androidx.paging/PagingLogger { // androidx.paging/PagingLogger|null[0]
+    final fun isLoggable(kotlin/Int): kotlin/Boolean // androidx.paging/PagingLogger.isLoggable|isLoggable(kotlin.Int){}[0]
+    final fun log(kotlin/Int, kotlin/String, kotlin/Throwable? = ...) // androidx.paging/PagingLogger.log|log(kotlin.Int;kotlin.String;kotlin.Throwable?){}[0]
+}
+
+final const val androidx.paging/DEBUG // androidx.paging/DEBUG|{}DEBUG[0]
+    final fun <get-DEBUG>(): kotlin/Int // androidx.paging/DEBUG.<get-DEBUG>|<get-DEBUG>(){}[0]
+final const val androidx.paging/LOG_TAG // androidx.paging/LOG_TAG|{}LOG_TAG[0]
+    final fun <get-LOG_TAG>(): kotlin/String // androidx.paging/LOG_TAG.<get-LOG_TAG>|<get-LOG_TAG>(){}[0]
+final const val androidx.paging/VERBOSE // androidx.paging/VERBOSE|{}VERBOSE[0]
+    final fun <get-VERBOSE>(): kotlin/Int // androidx.paging/VERBOSE.<get-VERBOSE>|<get-VERBOSE>(){}[0]
+
+final fun <#A: #B, #B: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/insertSeparators(androidx.paging/TerminalSeparatorType = ..., kotlin.coroutines/SuspendFunction2<#A?, #A?, #B?>): androidx.paging/PagingData<#B> // androidx.paging/insertSeparators|insertSeparators@androidx.paging.PagingData<0:0>(androidx.paging.TerminalSeparatorType;kotlin.coroutines.SuspendFunction2<0:0?,0:0?,0:1?>){0§<0:1>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any, #B: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/flatMap(kotlin.coroutines/SuspendFunction1<#A, kotlin.collections/Iterable<#B>>): androidx.paging/PagingData<#B> // androidx.paging/flatMap|flatMap@androidx.paging.PagingData<0:0>(kotlin.coroutines.SuspendFunction1<0:0,kotlin.collections.Iterable<0:1>>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any, #B: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/map(kotlin.coroutines/SuspendFunction1<#A, #B>): androidx.paging/PagingData<#B> // androidx.paging/map|map@androidx.paging.PagingData<0:0>(kotlin.coroutines.SuspendFunction1<0:0,0:1>){0§<kotlin.Any>;1§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/filter(kotlin.coroutines/SuspendFunction1<#A, kotlin/Boolean>): androidx.paging/PagingData<#A> // androidx.paging/filter|filter@androidx.paging.PagingData<0:0>(kotlin.coroutines.SuspendFunction1<0:0,kotlin.Boolean>){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/insertFooterItem(androidx.paging/TerminalSeparatorType = ..., #A): androidx.paging/PagingData<#A> // androidx.paging/insertFooterItem|insertFooterItem@androidx.paging.PagingData<0:0>(androidx.paging.TerminalSeparatorType;0:0){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (androidx.paging/PagingData<#A>).androidx.paging/insertHeaderItem(androidx.paging/TerminalSeparatorType = ..., #A): androidx.paging/PagingData<#A> // androidx.paging/insertHeaderItem|insertHeaderItem@androidx.paging.PagingData<0:0>(androidx.paging.TerminalSeparatorType;0:0){0§<kotlin.Any>}[0]
+final fun <#A: kotlin/Any> (kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#A>>).androidx.paging/cachedIn(kotlinx.coroutines/CoroutineScope): kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#A>> // androidx.paging/cachedIn|cachedIn@kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<0:0>>(kotlinx.coroutines.CoroutineScope){0§<kotlin.Any>}[0]
+final inline fun androidx.paging/log(kotlin/Int, kotlin/Throwable? = ..., kotlin/Function0<kotlin/String>) // androidx.paging/log|log(kotlin.Int;kotlin.Throwable?;kotlin.Function0<kotlin.String>){}[0]
+final suspend fun (kotlinx.coroutines.flow/Flow<androidx.paging/CombinedLoadStates>).androidx.paging/awaitNotLoading(): androidx.paging/CombinedLoadStates? // androidx.paging/awaitNotLoading|awaitNotLoading@kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates>(){}[0]

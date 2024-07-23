@@ -6,51 +6,10 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.lifecycle:lifecycle-common>
-abstract class androidx.lifecycle/Lifecycle { // androidx.lifecycle/Lifecycle|null[0]
-    abstract fun addObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/Lifecycle.addObserver|addObserver(androidx.lifecycle.LifecycleObserver){}[0]
-    abstract fun removeObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/Lifecycle.removeObserver|removeObserver(androidx.lifecycle.LifecycleObserver){}[0]
-    abstract val currentState // androidx.lifecycle/Lifecycle.currentState|{}currentState[0]
-        abstract fun <get-currentState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.currentState.<get-currentState>|<get-currentState>(){}[0]
-    constructor <init>() // androidx.lifecycle/Lifecycle.<init>|<init>(){}[0]
-    final enum class Event : kotlin/Enum<androidx.lifecycle/Lifecycle.Event> { // androidx.lifecycle/Lifecycle.Event|null[0]
-        enum entry ON_ANY // androidx.lifecycle/Lifecycle.Event.ON_ANY|null[0]
-        enum entry ON_CREATE // androidx.lifecycle/Lifecycle.Event.ON_CREATE|null[0]
-        enum entry ON_DESTROY // androidx.lifecycle/Lifecycle.Event.ON_DESTROY|null[0]
-        enum entry ON_PAUSE // androidx.lifecycle/Lifecycle.Event.ON_PAUSE|null[0]
-        enum entry ON_RESUME // androidx.lifecycle/Lifecycle.Event.ON_RESUME|null[0]
-        enum entry ON_START // androidx.lifecycle/Lifecycle.Event.ON_START|null[0]
-        enum entry ON_STOP // androidx.lifecycle/Lifecycle.Event.ON_STOP|null[0]
-        final fun valueOf(kotlin/String): androidx.lifecycle/Lifecycle.Event // androidx.lifecycle/Lifecycle.Event.valueOf|valueOf#static(kotlin.String){}[0]
-        final fun values(): kotlin/Array<androidx.lifecycle/Lifecycle.Event> // androidx.lifecycle/Lifecycle.Event.values|values#static(){}[0]
-        final object Companion { // androidx.lifecycle/Lifecycle.Event.Companion|null[0]
-            final fun downFrom(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.downFrom|downFrom(androidx.lifecycle.Lifecycle.State){}[0]
-            final fun downTo(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.downTo|downTo(androidx.lifecycle.Lifecycle.State){}[0]
-            final fun upFrom(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.upFrom|upFrom(androidx.lifecycle.Lifecycle.State){}[0]
-            final fun upTo(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.upTo|upTo(androidx.lifecycle.Lifecycle.State){}[0]
-        }
-        final val targetState // androidx.lifecycle/Lifecycle.Event.targetState|{}targetState[0]
-            final fun <get-targetState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.Event.targetState.<get-targetState>|<get-targetState>(){}[0]
-    }
-    final enum class State : kotlin/Enum<androidx.lifecycle/Lifecycle.State> { // androidx.lifecycle/Lifecycle.State|null[0]
-        enum entry CREATED // androidx.lifecycle/Lifecycle.State.CREATED|null[0]
-        enum entry DESTROYED // androidx.lifecycle/Lifecycle.State.DESTROYED|null[0]
-        enum entry INITIALIZED // androidx.lifecycle/Lifecycle.State.INITIALIZED|null[0]
-        enum entry RESUMED // androidx.lifecycle/Lifecycle.State.RESUMED|null[0]
-        enum entry STARTED // androidx.lifecycle/Lifecycle.State.STARTED|null[0]
-        final fun isAtLeast(androidx.lifecycle/Lifecycle.State): kotlin/Boolean // androidx.lifecycle/Lifecycle.State.isAtLeast|isAtLeast(androidx.lifecycle.Lifecycle.State){}[0]
-        final fun valueOf(kotlin/String): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.State.valueOf|valueOf#static(kotlin.String){}[0]
-        final fun values(): kotlin/Array<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/Lifecycle.State.values|values#static(){}[0]
-    }
-    final var internalScopeRef // androidx.lifecycle/Lifecycle.internalScopeRef|{}internalScopeRef[0]
-        final fun <get-internalScopeRef>(): androidx.lifecycle/AtomicReference<kotlin/Any?> // androidx.lifecycle/Lifecycle.internalScopeRef.<get-internalScopeRef>|<get-internalScopeRef>(){}[0]
-        final fun <set-internalScopeRef>(androidx.lifecycle/AtomicReference<kotlin/Any?>) // androidx.lifecycle/Lifecycle.internalScopeRef.<set-internalScopeRef>|<set-internalScopeRef>(androidx.lifecycle.AtomicReference<kotlin.Any?>){}[0]
-    open val currentStateFlow // androidx.lifecycle/Lifecycle.currentStateFlow|{}currentStateFlow[0]
-        open fun <get-currentStateFlow>(): kotlinx.coroutines.flow/StateFlow<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/Lifecycle.currentStateFlow.<get-currentStateFlow>|<get-currentStateFlow>(){}[0]
-}
-abstract class androidx.lifecycle/LifecycleCoroutineScope : kotlinx.coroutines/CoroutineScope // androidx.lifecycle/LifecycleCoroutineScope|null[0]
 abstract fun interface androidx.lifecycle/LifecycleEventObserver : androidx.lifecycle/LifecycleObserver { // androidx.lifecycle/LifecycleEventObserver|null[0]
     abstract fun onStateChanged(androidx.lifecycle/LifecycleOwner, androidx.lifecycle/Lifecycle.Event) // androidx.lifecycle/LifecycleEventObserver.onStateChanged|onStateChanged(androidx.lifecycle.LifecycleOwner;androidx.lifecycle.Lifecycle.Event){}[0]
 }
+
 abstract interface androidx.lifecycle/DefaultLifecycleObserver : androidx.lifecycle/LifecycleObserver { // androidx.lifecycle/DefaultLifecycleObserver|null[0]
     open fun onCreate(androidx.lifecycle/LifecycleOwner) // androidx.lifecycle/DefaultLifecycleObserver.onCreate|onCreate(androidx.lifecycle.LifecycleOwner){}[0]
     open fun onDestroy(androidx.lifecycle/LifecycleOwner) // androidx.lifecycle/DefaultLifecycleObserver.onDestroy|onDestroy(androidx.lifecycle.LifecycleOwner){}[0]
@@ -59,20 +18,79 @@ abstract interface androidx.lifecycle/DefaultLifecycleObserver : androidx.lifecy
     open fun onStart(androidx.lifecycle/LifecycleOwner) // androidx.lifecycle/DefaultLifecycleObserver.onStart|onStart(androidx.lifecycle.LifecycleOwner){}[0]
     open fun onStop(androidx.lifecycle/LifecycleOwner) // androidx.lifecycle/DefaultLifecycleObserver.onStop|onStop(androidx.lifecycle.LifecycleOwner){}[0]
 }
+
 abstract interface androidx.lifecycle/LifecycleObserver // androidx.lifecycle/LifecycleObserver|null[0]
+
 abstract interface androidx.lifecycle/LifecycleOwner { // androidx.lifecycle/LifecycleOwner|null[0]
     abstract val lifecycle // androidx.lifecycle/LifecycleOwner.lifecycle|{}lifecycle[0]
         abstract fun <get-lifecycle>(): androidx.lifecycle/Lifecycle // androidx.lifecycle/LifecycleOwner.lifecycle.<get-lifecycle>|<get-lifecycle>(){}[0]
 }
+
+abstract class androidx.lifecycle/Lifecycle { // androidx.lifecycle/Lifecycle|null[0]
+    constructor <init>() // androidx.lifecycle/Lifecycle.<init>|<init>(){}[0]
+
+    abstract val currentState // androidx.lifecycle/Lifecycle.currentState|{}currentState[0]
+        abstract fun <get-currentState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.currentState.<get-currentState>|<get-currentState>(){}[0]
+    open val currentStateFlow // androidx.lifecycle/Lifecycle.currentStateFlow|{}currentStateFlow[0]
+        open fun <get-currentStateFlow>(): kotlinx.coroutines.flow/StateFlow<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/Lifecycle.currentStateFlow.<get-currentStateFlow>|<get-currentStateFlow>(){}[0]
+
+    final var internalScopeRef // androidx.lifecycle/Lifecycle.internalScopeRef|{}internalScopeRef[0]
+        final fun <get-internalScopeRef>(): androidx.lifecycle/AtomicReference<kotlin/Any?> // androidx.lifecycle/Lifecycle.internalScopeRef.<get-internalScopeRef>|<get-internalScopeRef>(){}[0]
+        final fun <set-internalScopeRef>(androidx.lifecycle/AtomicReference<kotlin/Any?>) // androidx.lifecycle/Lifecycle.internalScopeRef.<set-internalScopeRef>|<set-internalScopeRef>(androidx.lifecycle.AtomicReference<kotlin.Any?>){}[0]
+
+    abstract fun addObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/Lifecycle.addObserver|addObserver(androidx.lifecycle.LifecycleObserver){}[0]
+    abstract fun removeObserver(androidx.lifecycle/LifecycleObserver) // androidx.lifecycle/Lifecycle.removeObserver|removeObserver(androidx.lifecycle.LifecycleObserver){}[0]
+
+    final enum class Event : kotlin/Enum<androidx.lifecycle/Lifecycle.Event> { // androidx.lifecycle/Lifecycle.Event|null[0]
+        enum entry ON_ANY // androidx.lifecycle/Lifecycle.Event.ON_ANY|null[0]
+        enum entry ON_CREATE // androidx.lifecycle/Lifecycle.Event.ON_CREATE|null[0]
+        enum entry ON_DESTROY // androidx.lifecycle/Lifecycle.Event.ON_DESTROY|null[0]
+        enum entry ON_PAUSE // androidx.lifecycle/Lifecycle.Event.ON_PAUSE|null[0]
+        enum entry ON_RESUME // androidx.lifecycle/Lifecycle.Event.ON_RESUME|null[0]
+        enum entry ON_START // androidx.lifecycle/Lifecycle.Event.ON_START|null[0]
+        enum entry ON_STOP // androidx.lifecycle/Lifecycle.Event.ON_STOP|null[0]
+
+        final val targetState // androidx.lifecycle/Lifecycle.Event.targetState|{}targetState[0]
+            final fun <get-targetState>(): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.Event.targetState.<get-targetState>|<get-targetState>(){}[0]
+
+        final fun valueOf(kotlin/String): androidx.lifecycle/Lifecycle.Event // androidx.lifecycle/Lifecycle.Event.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<androidx.lifecycle/Lifecycle.Event> // androidx.lifecycle/Lifecycle.Event.values|values#static(){}[0]
+
+        final object Companion { // androidx.lifecycle/Lifecycle.Event.Companion|null[0]
+            final fun downFrom(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.downFrom|downFrom(androidx.lifecycle.Lifecycle.State){}[0]
+            final fun downTo(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.downTo|downTo(androidx.lifecycle.Lifecycle.State){}[0]
+            final fun upFrom(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.upFrom|upFrom(androidx.lifecycle.Lifecycle.State){}[0]
+            final fun upTo(androidx.lifecycle/Lifecycle.State): androidx.lifecycle/Lifecycle.Event? // androidx.lifecycle/Lifecycle.Event.Companion.upTo|upTo(androidx.lifecycle.Lifecycle.State){}[0]
+        }
+    }
+
+    final enum class State : kotlin/Enum<androidx.lifecycle/Lifecycle.State> { // androidx.lifecycle/Lifecycle.State|null[0]
+        enum entry CREATED // androidx.lifecycle/Lifecycle.State.CREATED|null[0]
+        enum entry DESTROYED // androidx.lifecycle/Lifecycle.State.DESTROYED|null[0]
+        enum entry INITIALIZED // androidx.lifecycle/Lifecycle.State.INITIALIZED|null[0]
+        enum entry RESUMED // androidx.lifecycle/Lifecycle.State.RESUMED|null[0]
+        enum entry STARTED // androidx.lifecycle/Lifecycle.State.STARTED|null[0]
+
+        final fun isAtLeast(androidx.lifecycle/Lifecycle.State): kotlin/Boolean // androidx.lifecycle/Lifecycle.State.isAtLeast|isAtLeast(androidx.lifecycle.Lifecycle.State){}[0]
+        final fun valueOf(kotlin/String): androidx.lifecycle/Lifecycle.State // androidx.lifecycle/Lifecycle.State.valueOf|valueOf#static(kotlin.String){}[0]
+        final fun values(): kotlin/Array<androidx.lifecycle/Lifecycle.State> // androidx.lifecycle/Lifecycle.State.values|values#static(){}[0]
+    }
+}
+
+abstract class androidx.lifecycle/LifecycleCoroutineScope : kotlinx.coroutines/CoroutineScope // androidx.lifecycle/LifecycleCoroutineScope|null[0]
+
 final class <#A: kotlin/Any?> androidx.lifecycle/AtomicReference { // androidx.lifecycle/AtomicReference|null[0]
     constructor <init>(#A) // androidx.lifecycle/AtomicReference.<init>|<init>(1:0){}[0]
+
     final fun compareAndSet(#A, #A): kotlin/Boolean // androidx.lifecycle/AtomicReference.compareAndSet|compareAndSet(1:0;1:0){}[0]
     final fun get(): #A // androidx.lifecycle/AtomicReference.get|get(){}[0]
 }
+
 final object androidx.lifecycle/Lifecycling { // androidx.lifecycle/Lifecycling|null[0]
     final fun getAdapterName(kotlin/String): kotlin/String // androidx.lifecycle/Lifecycling.getAdapterName|getAdapterName(kotlin.String){}[0]
     final fun lifecycleEventObserver(kotlin/Any): androidx.lifecycle/LifecycleEventObserver // androidx.lifecycle/Lifecycling.lifecycleEventObserver|lifecycleEventObserver(kotlin.Any){}[0]
 }
+
 final val androidx.lifecycle/coroutineScope // androidx.lifecycle/coroutineScope|@androidx.lifecycle.Lifecycle{}coroutineScope[0]
     final fun (androidx.lifecycle/Lifecycle).<get-coroutineScope>(): androidx.lifecycle/LifecycleCoroutineScope // androidx.lifecycle/coroutineScope.<get-coroutineScope>|<get-coroutineScope>@androidx.lifecycle.Lifecycle(){}[0]
 final val androidx.lifecycle/eventFlow // androidx.lifecycle/eventFlow|@androidx.lifecycle.Lifecycle{}eventFlow[0]
