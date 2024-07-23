@@ -606,6 +606,9 @@ open class PdfViewerFragment : Fragment() {
             AnnotationUtils.resolveAnnotationIntent(requireContext(), localUri!!)
         singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
         findInFileView!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+        (zoomScrollObserver as? ZoomScrollValueObserver)?.setAnnotationIntentResolvable(
+            isAnnotationIntentResolvable
+        )
     }
 
     private fun validateFileUri(fileUri: Uri) {

@@ -39,7 +39,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private final FindInFileView mFindInFileView;
     private final PageIndicator mPageIndicator;
     private final FastScrollView mFastScrollView;
-    private final boolean mIsAnnotationIntentResolvable;
+    private boolean mIsAnnotationIntentResolvable;
     private final ObservableValue<ViewState> mViewState;
 
     public ZoomScrollValueObserver(@NonNull ZoomView zoomView, @NonNull PaginatedView paginatedView,
@@ -119,5 +119,9 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         if (mFastScrollView != null) {
             mFastScrollView.setVisible();
         }
+    }
+
+    public void setAnnotationIntentResolvable(boolean annotationIntentResolvable) {
+        mIsAnnotationIntentResolvable = annotationIntentResolvable;
     }
 }
