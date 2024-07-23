@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.Interaction
@@ -149,7 +150,7 @@ object TextFieldDefaults {
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
         labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
-        label: @Composable (() -> Unit)? = null,
+        label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
         trailingIcon: @Composable (() -> Unit)? = null,
@@ -423,7 +424,7 @@ object TextFieldDefaults {
             innerTextField = innerTextField,
             placeholder = placeholder,
             labelPosition = TextFieldLabelPosition.Default(),
-            label = label,
+            label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             prefix = prefix,
@@ -970,7 +971,7 @@ object OutlinedTextFieldDefaults {
         outputTransformation: OutputTransformation?,
         interactionSource: InteractionSource,
         labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
-        label: @Composable (() -> Unit)? = null,
+        label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
         placeholder: @Composable (() -> Unit)? = null,
         leadingIcon: @Composable (() -> Unit)? = null,
         trailingIcon: @Composable (() -> Unit)? = null,
@@ -1181,7 +1182,7 @@ object OutlinedTextFieldDefaults {
             innerTextField = innerTextField,
             placeholder = placeholder,
             labelPosition = TextFieldLabelPosition.Default(),
-            label = label,
+            label = label?.let { { it.invoke() } },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             prefix = prefix,
@@ -2045,4 +2046,18 @@ abstract class TextFieldLabelPosition private constructor() {
      * the label when the text field is unfocused and empty.
      */
     @get:Suppress("GetterSetterNames") abstract val alwaysMinimize: Boolean
+}
+
+/** Scope for the label of a [TextField] or [OutlinedTextField]. */
+@Stable
+interface TextFieldLabelScope {
+    /**
+     * The animation progress of a label between its expanded and minimized sizes, where 0
+     * represents an expanded label and 1 represents a minimized label.
+     *
+     * Label animation is handled by the framework when using a component that reads from
+     * [LocalTextStyle], such as the default [Text]. This [progress] value can be used to coordinate
+     * other animations in conjunction with the default animation.
+     */
+    @get:FloatRange(from = 0.0, to = 1.0) val progress: Float
 }

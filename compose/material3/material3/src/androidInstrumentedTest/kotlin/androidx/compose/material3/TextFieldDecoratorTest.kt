@@ -614,7 +614,7 @@ class TextFieldDecoratorTest {
         isVertical: Boolean,
         isOutlined: Boolean,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        label: @Composable (() -> Unit)? = null,
+        label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     ) {
         var size: IntSize? = null
         var position: Offset? = null

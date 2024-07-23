@@ -56,6 +56,7 @@ import androidx.compose.material3.internal.SupportingTopPadding
 import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -71,6 +72,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
@@ -587,6 +589,34 @@ class TextFieldTest {
             // y position is 0
             assertThat(labelPosition.value?.y).isEqualTo(0f)
         }
+    }
+
+    @Test
+    fun testTextField_labelScope_progressAndRecomposition() {
+        val progressValue = Ref<Float>()
+        var compositionCount = 0
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = {
+                    SideEffect { compositionCount++ }
+
+                    // lambda reads `progress` in the draw phase
+                    Box(Modifier.graphicsLayer { progressValue.value = progress })
+                }
+            )
+        }
+
+        assertThat(progressValue.value).isEqualTo(0f)
+        assertThat(compositionCount).isEqualTo(1)
+
+        // click to focus
+        rule.onNodeWithTag(TextFieldTag).performClick()
+        rule.waitForIdle()
+
+        assertThat(progressValue.value).isEqualTo(1f)
+        assertThat(compositionCount).isEqualTo(1)
     }
 
     @Test
