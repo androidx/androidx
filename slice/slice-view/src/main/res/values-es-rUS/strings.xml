@@ -32,7 +32,7 @@
       <item quantity="one">Hace <xliff:g id="ID_1">%d</xliff:g> año</item>
     </plurals>
     <plurals name="abc_slice_duration_days" formatted="false" msgid="8356547162075064530">
-      <item quantity="many">Hace <xliff:g id="ID_2">%d</xliff:g> días</item>
+      <item quantity="many">Hace <xliff:g id="ID_2">%d</xliff:g> de días</item>
       <item quantity="other">Hace <xliff:g id="ID_2">%d</xliff:g> días</item>
       <item quantity="one">Hace <xliff:g id="ID_1">%d</xliff:g> día</item>
     </plurals>
