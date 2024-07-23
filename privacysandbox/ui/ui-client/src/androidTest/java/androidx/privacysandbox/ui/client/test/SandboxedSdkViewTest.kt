@@ -31,6 +31,7 @@ import android.view.ViewGroup.LayoutParams
 import android.view.ViewTreeObserver
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionState
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUiSessionStateChangedListener
 import androidx.privacysandbox.ui.client.view.SandboxedSdkView
@@ -144,6 +145,10 @@ class SandboxedSdkViewTest {
 
         internal fun assertSessionOpened() {
             assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+        }
+
+        internal fun assertSessionNotOpened() {
+            assertThat(openSessionLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isFalse()
         }
 
         internal fun wasNotifyResizedCalled(): Boolean {
@@ -293,6 +298,17 @@ class SandboxedSdkViewTest {
         view.stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Loading
         assertThat(latch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(currentState).isEqualTo(SandboxedSdkUiSessionState.Active)
+    }
+
+    @Test
+    fun sessionNotOpenedWhenWindowIsNotVisible() {
+        // the window is not visible when the activity is in the CREATED state.
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.CREATED)
+        addViewToLayout()
+        testSandboxedUiAdapter.assertSessionNotOpened()
+        // the window becomes visible when the activity is in the STARTED state.
+        activityScenarioRule.scenario.moveToState(Lifecycle.State.STARTED)
+        testSandboxedUiAdapter.assertSessionOpened()
     }
 
     @Test
